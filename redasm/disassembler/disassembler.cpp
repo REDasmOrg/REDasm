@@ -207,12 +207,12 @@ bool Disassembler::readOffset(offset_t offset, size_t size, u64 &value)
 
 u64 Disassembler::locationIsString(address_t address, bool* wide) const
 {
-    u64 count = this->locationIsStringT<char>(address, ::isprint, ::isalpha);
+    u64 count = this->locationIsStringT<char>(address, ::isprint, ::isalnum);
 
     if(count == 1) // Try with wide strings
     {
         count = this->locationIsStringT<u16>(address, [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ::isprint(b1) && !b2; },
-                                                      [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ::isalpha(b1) && !b2; } );
+                                                      [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ::isalnum(b1) && !b2; } );
 
         if(wide)
             *wide = true;

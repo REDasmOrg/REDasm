@@ -109,7 +109,11 @@ void MainWindow::analyze()
 
     if(!processor)
     {
-        QMessageBox::information(this, "Processor not found", QString("Cannot find processor '%s'").arg(QString::fromUtf8(format->processor())));
+        if(!format->processor())
+            QMessageBox::information(this, "Processor not found", "Unsupported processor");
+        else
+            QMessageBox::information(this, "Processor not found", QString("Cannot find processor '%1'").arg(QString::fromUtf8(format->processor())));
+
         return;
     }
 

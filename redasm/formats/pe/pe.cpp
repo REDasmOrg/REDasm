@@ -28,10 +28,10 @@ u32 PeFormat::bits() const
 
 const char *PeFormat::processor() const
 {
-    if(this->_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR32_MAGIC)
+    if(this->_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
         return "x86_32";
 
-    if(this->_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
+    if(this->_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64)
         return "x86_64";
 
     return NULL;

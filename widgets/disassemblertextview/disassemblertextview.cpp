@@ -15,6 +15,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent) : QTextBrowser(paren
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setPointSize(12);
+    font.setStyleHint(QFont::TypeWriter);
 
     this->setFont(font);
     this->setFrameStyle(QFrame::NoFrame);

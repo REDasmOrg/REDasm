@@ -59,8 +59,8 @@ void DisassemblerDocument::populate()
     this->clear();
 
     listing.iterateAll([this](const REDasm::InstructionPtr& i) { this->appendChild(this->createInstructionElement(i)); },
-                       [this](const REDasm::Symbol* s) { this->appendChild(this->createStartElement(s)); },
-                       [this](const REDasm::Symbol* s) { this->appendChild(this->createEndElement(s)); },
+                       [this](const REDasm::Symbol* s) { this->appendChild(this->createFunctionElement(s)); },
+                       [this](const REDasm::Symbol*)   { this->appendChild(this->createEmptyElement()); },
                        [this](const REDasm::Symbol* s) { this->appendChild(this->createLabelElement(s)); });
 }
 
@@ -274,28 +274,24 @@ QDomNode DisassemblerDocument::createOperandElement(const REDasm::Operand &opera
     return e;
 }
 
-QDomNode DisassemblerDocument::createStartElement(const REDasm::Symbol* symbol)
+QDomNode DisassemblerDocument::createFunctionElement(const REDasm::Symbol* symbol)
 {
     QDomElement f = this->createElement("font");
     f.setAttribute("address", HEX_ADDRESS(symbol->address));
     f.setAttribute("color", THEME_VALUE_S("function_fg"));
-    f.appendChild(this->createTextNode("function "));
+    f.appendChild(this->createTextNode(QString("=").repeated(20) + " "));
+    f.appendChild(this->createTextNode("FUNCTION "));
     f.appendChild(this->createGotoElement(symbol, true));
-    f.appendChild(this->createTextNode("()"));
+    f.appendChild(this->createTextNode(" " + QString("=").repeated(20)));
 
     return this->createInfoElement(symbol->address, f, "function_start");
 }
 
-QDomNode DisassemblerDocument::createEndElement(const REDasm::Symbol *symbol)
+QDomNode DisassemblerDocument::createEmptyElement()
 {
-    QDomElement f = this->createElement("font");
-    f.setAttribute("address", HEX_ADDRESS(symbol->address));
-    f.setAttribute("color", THEME_VALUE_S("function_fg"));
-    //f.appendChild(this->createTextNode("end "));
-    //f.appendChild(this->createGotoElement(symbol, true));
-    //f.appendChild(this->createTextNode("()"));
-
-    return this->createInfoElement(symbol->address, f, "function_end");
+    QDomElement e = this->createElement("div");
+    e.appendChild(this->createTextNode("\u00A0"));
+    return e;
 }
 
 QDomNode DisassemblerDocument::createLabelElement(const REDasm::Symbol *symbol)

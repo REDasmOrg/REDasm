@@ -42,8 +42,8 @@ class DisassemblerDocument: public QDomDocument
         QDomNode createMnemonicElement(const REDasm::InstructionPtr &instruction);
         QDomNode createCommentElement(const REDasm::InstructionPtr &instruction);
         QDomNode createOperandElement(const REDasm::Operand& operand, const QString &opstr);
-        QDomNode createStartElement(const REDasm::Symbol *symbol);
-        QDomNode createEndElement(const REDasm::Symbol *symbol);
+        QDomNode createFunctionElement(const REDasm::Symbol *symbol);
+        QDomNode createEmptyElement();
         QDomNode createLabelElement(const REDasm::Symbol *symbol);
 
     public:

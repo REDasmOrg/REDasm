@@ -8,7 +8,7 @@
 #define LOG(s)    if(_logcallback) _logcallback((s));
 
 #include <functional>
-#include "../plugins/plugins.h"
+#include "../plugins/format.h"
 #include "types/referencetable.h"
 #include "types/symboltable.h"
 #include "disassemblerfunctions.h"
@@ -34,6 +34,7 @@ class DisassemblerBase: public DisassemblerFunctions
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
         virtual std::string readString(const Symbol* symbol) const;
         virtual std::string readWString(const Symbol* symbol) const;
+        virtual Symbol* dereferenceSymbol(Symbol* symbol);
         virtual bool dereferencePointer(address_t address, u64& value) const;
         virtual bool readAddress(address_t address, size_t size, u64 &value) const;
         virtual bool readOffset(offset_t offset, size_t size, u64 &value) const;

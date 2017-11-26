@@ -9,7 +9,7 @@ namespace REDasm {
 
 Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlugin *format): DisassemblerBase(buffer, format), _processor(processor)
 {
-    this->_printer = PrinterPtr(this->_processor->createPrinter(&this->_symboltable));
+    this->_printer = PrinterPtr(this->_processor->createPrinter(this, &this->_symboltable));
 
     this->_listing.setFormat(this->_format);
     this->_listing.setProcessor(this->_processor);
@@ -205,7 +205,10 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
     Symbol* symbol = this->_symboltable.symbol(value);
 
     if(operand.is(OperandTypes::Memory))
-        this->dereferencePointer(value, memvalue); // Try to read pointed memory
+    {
+        if(this->dereferencePointer(value, memvalue)) // Try to read pointed memory
+            this->_symboltable.createLocation(value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
+    }
 
     const Segment* segment = this->_format->segment(value);
 
@@ -220,18 +223,18 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
         {
             if(wide)
             {
-                this->_symboltable.createWString(value);
+                this->_symboltable.createWString(memvalue);
                 instruction->cmt("UNICODE: " + this->readWString(memvalue));
             }
             else
             {
-                this->_symboltable.createString(value);
+                this->_symboltable.createString(memvalue);
                 instruction->cmt("STRING: " + this->readString(memvalue));
             }
         }
         else
-            this->_symboltable.createLocation(value, segment->is(SegmentTypes::Code) ? SymbolTypes::Code :
-                                                                                       SymbolTypes::Data);
+            this->_symboltable.createLocation(memvalue, segment->is(SegmentTypes::Code) ? SymbolTypes::Code :
+                                                                                          SymbolTypes::Data);
         symbol = this->_symboltable.symbol(value);
 
         if(symbol && operand.is(OperandTypes::Memory))

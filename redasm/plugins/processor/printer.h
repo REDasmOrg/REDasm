@@ -5,13 +5,14 @@
 #include <capstone.h>
 #include "../../redasm.h"
 #include "../../disassembler/types/symboltable.h"
+#include "../../disassembler/disassemblerfunctions.h"
 
 namespace REDasm {
 
 class Printer
 {
     public:
-        Printer(SymbolTable* symboltable);
+        Printer(DisassemblerFunctions* disassembler, SymbolTable* symboltable);
         virtual std::string out(const InstructionPtr& instruction, std::function<void(const Operand&, const std::string&)> opfunc) const;
         virtual std::string out(const InstructionPtr& instruction) const;
 
@@ -20,13 +21,14 @@ class Printer
         virtual std::string mem(const MemoryOperand& memop) const;
 
     protected:
+        DisassemblerFunctions* _disassembler;
         SymbolTable* _symboltable;
 };
 
 class CapstonePrinter: public Printer
 {
     public:
-        CapstonePrinter(csh cshandle, SymbolTable* symboltable);
+        CapstonePrinter(csh cshandle, DisassemblerFunctions* disassembler, SymbolTable* symboltable);
 
     protected:
         virtual std::string reg(const RegisterOperand &regop) const;

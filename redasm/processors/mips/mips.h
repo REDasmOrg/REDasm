@@ -15,7 +15,7 @@ template<size_t mode> class MIPSProcessor: public CapstoneProcessorPlugin<CS_ARC
         virtual int flags() const { return ProcessorFlags::DelaySlot; }
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual bool target(const InstructionPtr& instruction, address_t *target, int* index = NULL) const;
-        virtual Printer* createPrinter(SymbolTable *symboltable) const { return new MIPSPrinter(this->_cshandle, symboltable); }
+        virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable *symboltable) const { return new MIPSPrinter(this->_cshandle, disassembler, symboltable); }
 
     private:
         bool makePseudo(const InstructionPtr &instruction1, const InstructionPtr &instruction2, const InstructionPtr& instructionout);

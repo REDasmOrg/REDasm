@@ -8,7 +8,7 @@ namespace REDasm {
 class MIPSPrinter : public CapstonePrinter
 {
     public:
-        MIPSPrinter(csh cshandle, SymbolTable* symboltable);
+        MIPSPrinter(csh cshandle, DisassemblerFunctions* disassembler, SymbolTable* symboltable);
 
     protected:
         virtual std::string reg(const RegisterOperand& regop) const;

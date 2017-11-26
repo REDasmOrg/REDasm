@@ -5,7 +5,7 @@
 #include <capstone.h>
 #include <stack>
 #include <cstring>
-#include "../../disassembler/types/symboltable.h"
+#include "../../disassembler/disassemblerfunctions.h"
 #include "../../support/utils.h"
 #include "../base.h"
 #include "printer.h"
@@ -25,7 +25,7 @@ class ProcessorPlugin: public Plugin
     public:
         ProcessorPlugin();
         virtual int flags() const;
-        virtual Printer* createPrinter(SymbolTable *symboltable) const;
+        virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable* symboltable) const;
         virtual bool target(const InstructionPtr& instruction, address_t* target, int* index = NULL) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual bool done(const InstructionPtr& instruction);
@@ -44,7 +44,7 @@ template<cs_arch arch, size_t mode> class CapstoneProcessorPlugin: public Proces
         CapstoneProcessorPlugin();
         ~CapstoneProcessorPlugin();
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
-        virtual Printer* createPrinter(SymbolTable *symboltable) const { return new CapstonePrinter(this->_cshandle, symboltable); }
+        virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable* symboltable) const { return new CapstonePrinter(this->_cshandle, disassembler, symboltable); }
 
     protected:
         csh _cshandle;

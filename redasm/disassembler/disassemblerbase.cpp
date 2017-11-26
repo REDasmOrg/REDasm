@@ -108,6 +108,16 @@ std::string DisassemblerBase::readWString(const Symbol *symbol) const
     return this->readWString(symbol->address);
 }
 
+Symbol *DisassemblerBase::dereferenceSymbol(Symbol *symbol)
+{
+    address_t address = 0;
+
+    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, address))
+        return this->_symboltable.symbol(address);
+
+    return symbol;
+}
+
 bool DisassemblerBase::dereferencePointer(address_t address, u64 &value) const
 {
     return this->readAddress(address, this->_format->bits() / 8, value);

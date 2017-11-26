@@ -8,7 +8,7 @@ namespace REDasm {
 class ARMPrinter: public CapstonePrinter
 {
     public:
-        ARMPrinter(csh cshandle, SymbolTable* symboltable);
+        ARMPrinter(csh cshandle, DisassemblerFunctions* disassembler, SymbolTable* symboltable);
 };
 
 } // namespace REDasm

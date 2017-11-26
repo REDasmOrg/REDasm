@@ -13,8 +13,9 @@ int ProcessorPlugin::flags() const
     return ProcessorFlags::None;
 }
 
-Printer *ProcessorPlugin::createPrinter(SymbolTable* symboltable) const
+Printer *ProcessorPlugin::createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const
 {
+    RE_UNUSED(disassembler);
     RE_UNUSED(symboltable);
 
     return NULL;

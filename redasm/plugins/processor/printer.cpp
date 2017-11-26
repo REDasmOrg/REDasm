@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-Printer::Printer(SymbolTable *symboltable): _symboltable(symboltable)
+Printer::Printer(DisassemblerFunctions *disassembler, SymbolTable *symboltable): _disassembler(disassembler), _symboltable(symboltable)
 {
 
 }
@@ -28,11 +28,19 @@ std::string Printer::out(const InstructionPtr &instruction, std::function<void (
             Symbol* symbol = this->_symboltable->symbol(it->is(OperandTypes::Immediate) ? operand.s_value : operand.u_value);
 
             if(symbol)
-                opstr = symbol->name;
+            {
+                Symbol* ptrsymbol = NULL;
+
+                if(symbol->is(SymbolTypes::Pointer))
+                    ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
+
+                opstr = ptrsymbol ? ptrsymbol->name : symbol->name;
+            }
             else if(it->is(OperandTypes::Immediate))
                 opstr = REDasm::hex(operand.s_value);
             else
                 opstr = REDasm::hex(operand.u_value);
+
         }
         else if(it->is(OperandTypes::Displacement))
             opstr = this->mem(operand.mem);
@@ -89,7 +97,7 @@ std::string Printer::mem(const MemoryOperand &memop) const
     return std::string();
 }
 
-CapstonePrinter::CapstonePrinter(csh cshandle, SymbolTable *symboltable): Printer(symboltable), _cshandle(cshandle)
+CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerFunctions *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable), _cshandle(cshandle)
 {
 
 }

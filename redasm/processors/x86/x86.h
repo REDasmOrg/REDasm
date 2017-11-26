@@ -89,6 +89,9 @@ template<cs_mode mode> bool X86Processor<mode>::target(const InstructionPtr &ins
         case X86_INS_JO:
         case X86_INS_JP:
         case X86_INS_JS:
+        case X86_INS_LOOP:
+        case X86_INS_LOOPE:
+        case X86_INS_LOOPNE:
         case X86_INS_CALL:
         {
             SET_TARGET_INDEX(0);
@@ -147,6 +150,9 @@ template<cs_mode mode> void X86Processor<mode>::analyzeInstruction(const Instruc
         case X86_INS_JNS:
         case X86_INS_JO:
         case X86_INS_JP:
+        case X86_INS_LOOP:
+        case X86_INS_LOOPE:
+        case X86_INS_LOOPNE:
             instruction->type |= InstructionTypes::Conditional;
             break;
 

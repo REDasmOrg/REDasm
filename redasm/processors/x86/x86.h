@@ -2,6 +2,7 @@
 #define X86_H
 
 #include "../../plugins/plugins.h"
+#include "x86printer.h"
 
 #define X86_REGISTER(reg) ((reg == X86_REG_INVALID) ? REGISTER_INVALID : reg)
 
@@ -14,11 +15,13 @@ template<cs_mode mode> class X86Processor: public CapstoneProcessorPlugin<CS_ARC
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual bool target(const InstructionPtr& instruction, address_t *target, int* index = NULL) const;
+        virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const { return new X86Printer(this->_cshandle, disassembler, symboltable); }
 
     private:
+        s32 localIndex(s64 disp, u32& type) const;
+        bool isBP(register_t reg) const;
         bool isIP(register_t reg) const;
         void analyzeInstruction(const InstructionPtr& instruction, cs_insn* insn);
-        void checkOperand(const InstructionPtr& instruction, const cs_x86_op *op);
 };
 
 template<cs_mode mode> const char *X86Processor<mode>::name() const
@@ -47,8 +50,14 @@ template<cs_mode mode> bool X86Processor<mode>::decode(Buffer buffer, const Inst
         if(op.type == X86_OP_MEM) {
             const x86_op_mem& mem = op.mem;
 
-            // Handle case [xip + disp]
-            if((mem.index == X86_REG_INVALID) && this->isIP(mem.base))
+            if((mem.index == X86_REG_INVALID) && mem.disp && this->isBP(mem.base)) // Check variables/arguments
+            {
+                u32 type = 0;
+                s32 index = this->localIndex(mem.disp, type);
+                instruction->local(index, mem.base, mem.disp, type);
+
+            }
+            else if((mem.index == X86_REG_INVALID) && this->isIP(mem.base)) // Handle case [xip + disp]
                 instruction->mem(instruction->address + instruction->size + mem.disp);
             else
                 instruction->disp(X86_REGISTER(mem.base), X86_REGISTER(mem.index), mem.scale, mem.disp);
@@ -111,6 +120,47 @@ template<cs_mode mode> bool X86Processor<mode>::target(const InstructionPtr &ins
         default:
             break;
     }
+
+    return false;
+}
+
+template<cs_mode mode> s32 X86Processor<mode>::localIndex(s64 disp, u32& type) const
+{
+    if(disp > 0)
+        type = OperandTypes::Argument;
+    else if(disp < 0)
+        type = OperandTypes::Local;
+
+    s32 size = 0;
+
+    if(mode == CS_MODE_16)
+        size = 2;
+    else if(mode == CS_MODE_32)
+        size = 4;
+    else if(mode == CS_MODE_64)
+        size = 8;
+
+    s32 index = (disp / size) - 1;
+
+    if(disp > 0)
+        index--; // disp == size -> return_address
+
+    if(index < 0)
+        index *= -1;
+
+    return index;
+}
+
+template<cs_mode mode> bool X86Processor<mode>::isBP(register_t reg) const
+{
+    if(mode == CS_MODE_16)
+        return reg == X86_REG_BP;
+
+    if(mode == CS_MODE_32)
+        return reg == X86_REG_EBP;
+
+    if(mode == CS_MODE_64)
+        return reg == X86_REG_RBP;
 
     return false;
 }

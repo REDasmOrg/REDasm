@@ -69,7 +69,8 @@ SOURCES += main.cpp\
     redasm/disassembler/disassemblerbase.cpp \
     redasm/disassembler/types/listing.cpp \
     redasm/disassembler/types/referencetable.cpp \
-    redasm/disassembler/types/symboltable.cpp
+    redasm/disassembler/types/symboltable.cpp \
+    redasm/processors/x86/x86printer.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -122,7 +123,8 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/disassemblerbase.h \
     redasm/disassembler/types/listing.h \
     redasm/disassembler/types/referencetable.h \
-    redasm/disassembler/types/symboltable.h
+    redasm/disassembler/types/symboltable.h \
+    redasm/processors/x86/x86printer.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

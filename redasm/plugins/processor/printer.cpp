@@ -23,34 +23,40 @@ std::string Printer::out(const InstructionPtr &instruction, std::function<void (
         std::string opstr;
         const Operand& operand = *it;
 
-        if(it->is(OperandTypes::Immediate) || it->is(OperandTypes::Memory))
+        if(it->is(OperandTypes::Local) || it->is(OperandTypes::Argument))
+            opstr = this->loc(operand);
+
+        if(opstr.empty()) // Try with default algorithm...
         {
-            Symbol* symbol = this->_symboltable->symbol(it->is(OperandTypes::Immediate) ? operand.s_value : operand.u_value);
-
-            if(symbol)
+           if(it->is(OperandTypes::Immediate) || it->is(OperandTypes::Memory))
             {
-                Symbol* ptrsymbol = NULL;
+                Symbol* symbol = this->_symboltable->symbol(it->is(OperandTypes::Immediate) ? operand.s_value : operand.u_value);
 
-                if(symbol->is(SymbolTypes::Pointer))
+                if(symbol)
                 {
-                    u64 ptrvalue;
-                    ptrsymbol = this->_disassembler->dereferenceSymbol(symbol, &ptrvalue);
-                    opstr = this->ptr(ptrsymbol ? ptrsymbol->name : REDasm::hex(ptrvalue));
+                    Symbol* ptrsymbol = NULL;
+
+                    if(symbol->is(SymbolTypes::Pointer))
+                    {
+                        u64 ptrvalue;
+                        ptrsymbol = this->_disassembler->dereferenceSymbol(symbol, &ptrvalue);
+                        opstr = this->ptr(ptrsymbol ? ptrsymbol->name : REDasm::hex(ptrvalue));
+                    }
+                    else
+                        opstr = symbol->name;
                 }
+                else if(it->is(OperandTypes::Immediate))
+                    opstr = REDasm::hex(operand.s_value);
                 else
-                    opstr = symbol->name;
+                    opstr = REDasm::hex(operand.u_value);
             }
-            else if(it->is(OperandTypes::Immediate))
-                opstr = REDasm::hex(operand.s_value);
+            else if(it->is(OperandTypes::Displacement))
+                opstr = this->mem(operand.mem);
+            else if(it->is(OperandTypes::Register))
+                opstr = this->reg(operand.reg);
             else
-                opstr = REDasm::hex(operand.u_value);
+                continue;
         }
-        else if(it->is(OperandTypes::Displacement))
-            opstr = this->mem(operand.mem);
-        else if(it->is(OperandTypes::Register))
-            opstr = this->reg(operand.reg);
-        else
-            continue;
 
         if(opfunc)
             opfunc(*it, opstr);
@@ -103,6 +109,13 @@ std::string Printer::mem(const MemoryOperand &memop) const
 std::string Printer::ptr(const std::string &expr) const
 {
     return expr;
+}
+
+std::string Printer::loc(const Operand &op) const
+{
+    RE_UNUSED(op);
+
+    return std::string();
 }
 
 CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerFunctions *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable), _cshandle(cshandle)

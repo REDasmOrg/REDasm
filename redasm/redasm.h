@@ -79,11 +79,14 @@ namespace InstructionTypes {
 
 namespace OperandTypes {
     enum: u32 {
-        None = 0,
-        Register,     // Register
-        Immediate,    // Immediate Value
-        Memory,       // Direct Memory Pointer
-        Displacement, // Indirect Memory Pointer
+        None         = 0x00000000,
+        Register     = 0x00000001,  // Register
+        Immediate    = 0x00000002,  // Immediate Value
+        Memory       = 0x00000004,  // Direct Memory Pointer
+        Displacement = 0x00000008,  // Indirect Memory Pointer
+
+        Local        = 0x00010000,  // Local Variable
+        Argument     = 0x00020000,  // Function Argument
     };
 }
 
@@ -144,12 +147,13 @@ struct MemoryOperand
 
 struct Operand
 {
-    Operand(): type(OperandTypes::None), pos(-1), u_value(0) { }
-    Operand(u32 type, s32 value, s32 pos): type(type), pos(pos), s_value(value) { }
-    Operand(u32 type, u32 value, s32 pos): type(type), pos(pos), u_value(value) { }
-    Operand(u32 type, s64 value, s32 pos): type(type), pos(pos), s_value(value) { }
-    Operand(u32 type, u64 value, s32 pos): type(type), pos(pos), u_value(value) { }
+    Operand(): loc_index(-1), type(OperandTypes::None), pos(-1), u_value(0) { }
+    Operand(u32 type, s32 value, s32 pos): loc_index(-1), type(type), pos(pos), s_value(value) { }
+    Operand(u32 type, u32 value, s32 pos): loc_index(-1), type(type), pos(pos), u_value(value) { }
+    Operand(u32 type, s64 value, s32 pos): loc_index(-1), type(type), pos(pos), s_value(value) { }
+    Operand(u32 type, u64 value, s32 pos): loc_index(-1), type(type), pos(pos), u_value(value) { }
 
+    s64 loc_index;
     u32 type;
     s32 pos;
     RegisterOperand reg;
@@ -160,7 +164,7 @@ struct Operand
         u64 u_value;
     };
 
-    bool is(u32 t) const { return type == t; }
+    bool is(u32 t) const { return type & t; }
 };
 
 struct Instruction
@@ -190,6 +194,8 @@ struct Instruction
     template<typename T> Instruction& disp(register_t base, T displacement) { return disp(base, REGISTER_INVALID, displacement); }
     template<typename T> Instruction& disp(register_t base, register_t index, T displacement) { return disp(base, index, 1, displacement); }
     template<typename T> Instruction& disp(register_t base, register_t index, s32 scale, T displacement);
+    template<typename T> Instruction& arg(s32 index, register_t base, T displacement) { return local(index, base, displacement, OperandTypes::Argument); }
+    template<typename T> Instruction& local(s32 index, register_t base, T displacement, u32 type = OperandTypes::Local);
 
     Instruction& reg(register_t r, u64 type = 0)
     {
@@ -209,6 +215,18 @@ template<typename T> Instruction& Instruction::disp(register_t base, register_t 
     op.pos = operands.size();
     op.type = OperandTypes::Displacement;
     op.mem = MemoryOperand(RegisterOperand(base), RegisterOperand(index), scale, displacement);
+
+    operands.push_back(op);
+    return *this;
+}
+
+template<typename T> Instruction& Instruction::local(s32 index, register_t base, T displacement, u32 type)
+{
+    Operand op;
+    op.pos = operands.size();
+    op.loc_index = index;
+    op.type = OperandTypes::Displacement | type;
+    op.mem = MemoryOperand(RegisterOperand(base), RegisterOperand(index), 1, displacement);
 
     operands.push_back(op);
     return *this;

@@ -8,7 +8,7 @@ Experimental crossplatform, multiarchitecture disassembler
 ## Project Status
 
 ### Supported Formats
-- PE32/64 bit
+- PE32/64 bit (VB6 Decompilation is supported)
 - PSX Executables
 - ELF Executables
 

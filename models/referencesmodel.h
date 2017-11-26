@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "disassemblermodel.h"
-#include "../redasm/disassembler/referencetable.h"
+#include "../redasm/disassembler/types/referencetable.h"
 
 class ReferencesModel : public DisassemblerModel
 {

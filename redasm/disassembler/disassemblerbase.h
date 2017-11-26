@@ -9,8 +9,8 @@
 
 #include <functional>
 #include "../plugins/plugins.h"
-#include "referencetable.h"
-#include "symboltable.h"
+#include "types/referencetable.h"
+#include "types/symboltable.h"
 #include "disassemblerfunctions.h"
 
 namespace REDasm {

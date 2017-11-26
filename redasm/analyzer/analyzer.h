@@ -4,8 +4,8 @@
 #include <functional>
 #include <memory>
 #include "../plugins/processor/processor.h"
-#include "../disassembler/listing.h"
-#include "../disassembler/symboltable.h"
+#include "../disassembler/types/listing.h"
+#include "../disassembler/types/symboltable.h"
 #include "../disassembler/disassemblerfunctions.h"
 
 namespace REDasm {

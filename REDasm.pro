@@ -40,10 +40,7 @@ SOURCES += main.cpp\
     redasm/analyzer/analyzer.cpp \
     redasm/analyzer/signatures.cpp \
     redasm/disassembler/disassembler.cpp \
-    redasm/disassembler/listing.cpp \
     widgets/listingmap.cpp \
-    redasm/disassembler/referencetable.cpp \
-    redasm/disassembler/symboltable.cpp \
     models/referencesmodel.cpp \
     dialogs/referencesdialog.cpp \
     redasm/formats/psxexe/psxexe.cpp \
@@ -69,7 +66,10 @@ SOURCES += main.cpp\
     redasm/processors/arm/arm.cpp \
     redasm/processors/arm/armprinter.cpp \
     redasm/disassembler/disassemblerfunctions.cpp \
-    redasm/disassembler/disassemblerbase.cpp
+    redasm/disassembler/disassemblerbase.cpp \
+    redasm/disassembler/types/listing.cpp \
+    redasm/disassembler/types/referencetable.cpp \
+    redasm/disassembler/types/symboltable.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -86,10 +86,7 @@ HEADERS  += mainwindow.h \
     redasm/analyzer/analyzer.h \
     redasm/analyzer/signatures.h \
     redasm/disassembler/disassembler.h \
-    redasm/disassembler/listing.h \
     widgets/listingmap.h \
-    redasm/disassembler/referencetable.h \
-    redasm/disassembler/symboltable.h \
     models/referencesmodel.h \
     dialogs/referencesdialog.h \
     redasm/formats/psxexe/psxexe.h \
@@ -122,7 +119,10 @@ HEADERS  += mainwindow.h \
     redasm/processors/arm/arm.h \
     redasm/processors/arm/armprinter.h \
     redasm/disassembler/disassemblerfunctions.h \
-    redasm/disassembler/disassemblerbase.h
+    redasm/disassembler/disassemblerbase.h \
+    redasm/disassembler/types/listing.h \
+    redasm/disassembler/types/referencetable.h \
+    redasm/disassembler/types/symboltable.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

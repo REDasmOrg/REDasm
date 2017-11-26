@@ -3,8 +3,8 @@
 
 #include <functional>
 #include <map>
-#include "../plugins/processor/processor.h"
-#include "../redasm.h"
+#include "../../plugins/processor/processor.h"
+#include "../../redasm.h"
 #include "referencetable.h"
 #include "symboltable.h"
 

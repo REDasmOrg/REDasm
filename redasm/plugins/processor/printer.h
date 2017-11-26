@@ -4,7 +4,7 @@
 #include <memory>
 #include <capstone.h>
 #include "../../redasm.h"
-#include "../../disassembler/symboltable.h"
+#include "../../disassembler/types/symboltable.h"
 
 namespace REDasm {
 

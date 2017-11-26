@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 #include "../disassembler/disassemblerfunctions.h"
-#include "../disassembler/symboltable.h"
+#include "../disassembler/types/symboltable.h"
 #include "../analyzer/analyzer.h"
 #include "base.h"
 

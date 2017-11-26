@@ -2,7 +2,7 @@
 #define DISASSEMBLER_H
 
 #include "../plugins/plugins.h"
-#include "listing.h"
+#include "types/listing.h"
 #include "disassemblerbase.h"
 
 namespace REDasm {

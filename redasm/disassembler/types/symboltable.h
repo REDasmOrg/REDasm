@@ -4,7 +4,7 @@
 #include <functional>
 #include <unordered_map>
 #include <map>
-#include "../redasm.h"
+#include "../../redasm.h"
 
 namespace REDasm {
 

@@ -5,7 +5,7 @@
 #include <capstone.h>
 #include <stack>
 #include <cstring>
-#include "../../disassembler/symboltable.h"
+#include "../../disassembler/types/symboltable.h"
 #include "../../support/utils.h"
 #include "../base.h"
 #include "printer.h"

@@ -158,7 +158,7 @@ void DisassemblerView::xrefSymbol(const QModelIndex &index)
     QModelIndex srcindex = filtermodel->mapToSource(index);
     REDasm::Symbol* symbol = reinterpret_cast<REDasm::Symbol*>(srcindex.internalPointer());
 
-    if(!this->_disassembler->references()->hasReferences(symbol))
+    if(!this->_disassembler->hasReferences(symbol))
     {
         QMessageBox::information(this, "No References", "There are no references to " + S_TO_QS(symbol->name));
         return;

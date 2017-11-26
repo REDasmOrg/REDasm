@@ -27,7 +27,6 @@ class ReferencesModel : public DisassemblerModel
         QString direction(const REDasm::InstructionPtr& instruction) const;
 
     private:
-        REDasm::ReferenceTable* _references;
         REDasm::ReferenceVector _referencevector;
         address_t _currentaddress;
 };

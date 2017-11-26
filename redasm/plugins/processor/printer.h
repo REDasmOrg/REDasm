@@ -19,6 +19,7 @@ class Printer
     protected:
         virtual std::string reg(const RegisterOperand& regop) const = 0;
         virtual std::string mem(const MemoryOperand& memop) const;
+        virtual std::string ptr(const std::string& expr) const;
 
     protected:
         DisassemblerFunctions* _disassembler;

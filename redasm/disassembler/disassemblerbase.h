@@ -29,12 +29,14 @@ class DisassemblerBase: public DisassemblerFunctions
         void loggerCallback(const ReportCallback& cb);
         void statusCallback(const ReportCallback& cb);
         bool dataToString(address_t address);
+        bool hasReferences(Symbol* symbol);
+        ReferenceVector getReferences(Symbol* symbol);
 
     public: // Primitive functions
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
         virtual std::string readString(const Symbol* symbol) const;
         virtual std::string readWString(const Symbol* symbol) const;
-        virtual Symbol* dereferenceSymbol(Symbol* symbol);
+        virtual Symbol* dereferenceSymbol(Symbol* symbol, u64 *value = NULL);
         virtual bool dereferencePointer(address_t address, u64& value) const;
         virtual bool readAddress(address_t address, size_t size, u64 &value) const;
         virtual bool readOffset(offset_t offset, size_t size, u64 &value) const;

@@ -22,16 +22,6 @@ Disassembler::~Disassembler()
     delete this->_processor;
 }
 
-ProcessorPlugin *Disassembler::processor()
-{
-    return this->_processor;
-}
-
-ReferenceTable *Disassembler::references()
-{
-    return &this->_referencetable;
-}
-
 Listing& Disassembler::listing()
 {
     return this->_listing;
@@ -201,16 +191,16 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
     if(operand.is(OperandTypes::Register))
         return;
 
-    u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value, memvalue = value;
+    u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value, opvalue = value;
     Symbol* symbol = this->_symboltable.symbol(value);
 
     if(operand.is(OperandTypes::Memory))
     {
-        if(this->dereferencePointer(value, memvalue)) // Try to read pointed memory
+        if(this->dereferencePointer(value, opvalue)) // Try to read pointed memory
             this->_symboltable.createLocation(value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
     }
 
-    const Segment* segment = this->_format->segment(value);
+    const Segment* segment = this->_format->segment(opvalue);
 
     if(!segment)
         return;
@@ -219,26 +209,23 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
     {
         bool wide = false;
 
-        if(!segment->is(SegmentTypes::Bss) && (this->locationIsString(memvalue, &wide) >= MIN_STRING))
+        if(!segment->is(SegmentTypes::Bss) && (this->locationIsString(opvalue, &wide) >= MIN_STRING))
         {
             if(wide)
             {
-                this->_symboltable.createWString(memvalue);
-                instruction->cmt("UNICODE: " + this->readWString(memvalue));
+                this->_symboltable.createWString(opvalue);
+                instruction->cmt("UNICODE: " + this->readWString(opvalue));
             }
             else
             {
-                this->_symboltable.createString(memvalue);
-                instruction->cmt("STRING: " + this->readString(memvalue));
+                this->_symboltable.createString(opvalue);
+                instruction->cmt("STRING: " + this->readString(opvalue));
             }
         }
         else
-            this->_symboltable.createLocation(memvalue, segment->is(SegmentTypes::Code) ? SymbolTypes::Code :
-                                                                                          SymbolTypes::Data);
-        symbol = this->_symboltable.symbol(value);
+            this->_symboltable.createLocation(opvalue, SymbolTypes::Data);
 
-        if(symbol && operand.is(OperandTypes::Memory))
-            symbol->type |= SymbolTypes::Pointer;
+        symbol = this->_symboltable.symbol(opvalue);
     }
 
     if(symbol)

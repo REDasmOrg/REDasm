@@ -124,7 +124,6 @@ void MainWindow::display(REDasm::ProcessorPlugin* processor, REDasm::FormatPlugi
 {
     REDasm::Buffer buffer(this->_loadeddata.data(), this->_loadeddata.length());
     DisassemblerView *olddv = NULL, *dv = new DisassemblerView(this->_lblstatus, ui->stackView);
-
     REDasm::Disassembler* disassembler = new REDasm::Disassembler(buffer, processor, format);
 
     disassembler->statusCallback([this](std::string s) {

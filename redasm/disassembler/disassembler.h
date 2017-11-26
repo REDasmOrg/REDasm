@@ -12,8 +12,6 @@ class Disassembler: public DisassemblerBase
     public:
         Disassembler(Buffer buffer, ProcessorPlugin* processor, FormatPlugin* format);
         virtual ~Disassembler();
-        ProcessorPlugin* processor();
-        ReferenceTable* references();
         Listing &listing();
         void disassembleFunction(address_t address);
         void disassemble();

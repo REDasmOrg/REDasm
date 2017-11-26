@@ -7,4 +7,9 @@ ARMPrinter::ARMPrinter(csh cshandle, DisassemblerFunctions *disassembler, Symbol
 
 }
 
+std::string ARMPrinter::ptr(const std::string &expr) const
+{
+    return "=" + expr;
+}
+
 } // namespace REDasm

@@ -72,6 +72,30 @@ bool DisassemblerBase::dataToString(address_t address)
     return this->_symboltable.rename(symbol, "str_" + REDasm::hex(address, 0, false));
 }
 
+bool DisassemblerBase::hasReferences(Symbol *symbol)
+{
+    if(!symbol)
+        return false;
+
+    return this->_referencetable.hasReferences(symbol);
+}
+
+ReferenceVector DisassemblerBase::getReferences(Symbol *symbol)
+{
+    if(symbol->is(SymbolTypes::Pointer))
+    {
+        Symbol* ptrsymbol = this->dereferenceSymbol(symbol);
+
+        if(ptrsymbol)
+            symbol = ptrsymbol;
+    }
+
+    if(symbol)
+        return this->_referencetable.referencesToVector(symbol);
+
+    return ReferenceVector();
+}
+
 u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
 {
     u64 count = this->locationIsStringT<char>(address, ::isprint, ::isalnum);
@@ -108,12 +132,15 @@ std::string DisassemblerBase::readWString(const Symbol *symbol) const
     return this->readWString(symbol->address);
 }
 
-Symbol *DisassemblerBase::dereferenceSymbol(Symbol *symbol)
+Symbol *DisassemblerBase::dereferenceSymbol(Symbol *symbol, u64* value)
 {
-    address_t address = 0;
+    address_t a = 0;
 
-    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, address))
-        return this->_symboltable.symbol(address);
+    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, a))
+        symbol = this->_symboltable.symbol(a);
+
+    if(value)
+        *value = a;
 
     return symbol;
 }

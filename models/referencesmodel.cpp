@@ -2,7 +2,7 @@
 #include <QFontDatabase>
 #include <QColor>
 
-ReferencesModel::ReferencesModel(REDasm::Disassembler* disassembler, QObject *parent) : DisassemblerModel(parent), _references(disassembler->references()), _currentaddress(0)
+ReferencesModel::ReferencesModel(REDasm::Disassembler* disassembler, QObject *parent) : DisassemblerModel(parent), _currentaddress(0)
 {
     this->setDisassembler(disassembler);
 }
@@ -10,15 +10,8 @@ ReferencesModel::ReferencesModel(REDasm::Disassembler* disassembler, QObject *pa
 void ReferencesModel::xref(address_t currentaddress, REDasm::Symbol* symbol)
 {
     this->beginResetModel();
-
     this->_currentaddress = currentaddress;
-    this->_referencevector.clear();
-
-    auto it = this->_references->references(symbol);
-
-    if(it != this->_references->end())
-        this->_referencevector = REDasm::ReferenceTable::toVector(it->second);
-
+    this->_referencevector = this->_disassembler->getReferences(symbol);
     this->endResetModel();
 }
 

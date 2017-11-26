@@ -254,7 +254,17 @@ QDomNode DisassemblerDocument::createOperandElement(const REDasm::Operand &opera
                                                                                                       operand.u_value);
 
         if(symbol)
+        {
+            if(symbol->is(REDasm::SymbolTypes::Pointer))
+            {
+                REDasm::Symbol* ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
+
+                if(ptrsymbol)
+                    symbol = ptrsymbol;
+            }
+
             e = this->createGotoElement(symbol, opstr).toElement();
+        }
         else
             e.setAttribute("color", operand.is(REDasm::OperandTypes::Immediate) ? THEME_VALUE_S("immediate_fg") :
                                                                                   THEME_VALUE_S("memory_fg"));

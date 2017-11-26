@@ -32,15 +32,18 @@ std::string Printer::out(const InstructionPtr &instruction, std::function<void (
                 Symbol* ptrsymbol = NULL;
 
                 if(symbol->is(SymbolTypes::Pointer))
-                    ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
-
-                opstr = ptrsymbol ? ptrsymbol->name : symbol->name;
+                {
+                    u64 ptrvalue;
+                    ptrsymbol = this->_disassembler->dereferenceSymbol(symbol, &ptrvalue);
+                    opstr = this->ptr(ptrsymbol ? ptrsymbol->name : REDasm::hex(ptrvalue));
+                }
+                else
+                    opstr = symbol->name;
             }
             else if(it->is(OperandTypes::Immediate))
                 opstr = REDasm::hex(operand.s_value);
             else
                 opstr = REDasm::hex(operand.u_value);
-
         }
         else if(it->is(OperandTypes::Displacement))
             opstr = this->mem(operand.mem);
@@ -95,6 +98,11 @@ std::string Printer::mem(const MemoryOperand &memop) const
         return "[" + s + "]";
 
     return std::string();
+}
+
+std::string Printer::ptr(const std::string &expr) const
+{
+    return expr;
 }
 
 CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerFunctions *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable), _cshandle(cshandle)

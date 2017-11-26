@@ -2,7 +2,6 @@
 #define X86_H
 
 #include "../../plugins/plugins.h"
-#include "x86printer.h"
 
 #define X86_REGISTER(reg) ((reg == X86_REG_INVALID) ? REGISTER_INVALID : reg)
 
@@ -15,7 +14,6 @@ template<cs_mode mode> class X86Processor: public CapstoneProcessorPlugin<CS_ARC
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual bool target(const InstructionPtr& instruction, address_t *target, int* index = NULL) const;
-        virtual Printer* createPrinter(SymbolTable *symboltable) const { return new X86Printer(this->_cshandle, symboltable); }
 
     private:
         bool isIP(register_t reg) const;

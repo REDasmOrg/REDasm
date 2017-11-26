@@ -23,8 +23,8 @@ class Disassembler
         void loggerCallback(const ReportCallback& cb);
         void statusCallback(const ReportCallback& cb);
         u64 locationIsString(address_t address, bool *wide = NULL) const;
-        std::string readString(address_t address) const;
-        std::string readWString(address_t address) const;
+        std::string readString(const Symbol* symbol) const;
+        std::string readWString(const Symbol* symbol) const;
         Listing &listing();
         Buffer& buffer();
 
@@ -39,8 +39,11 @@ class Disassembler
     private:
         template<typename T> std::string readStringT(address_t address, std::function<bool(T, std::string&)> fill) const;
         template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
-        bool readAddress(address_t address, size_t size, u64 &value);
-        bool readOffset(offset_t offset, size_t size, u64 &value);
+        bool dereferencePointer(address_t address, u64& value) const;
+        std::string readString(address_t address) const;
+        std::string readWString(address_t address) const;
+        bool readAddress(address_t address, size_t size, u64 &value) const;
+        bool readOffset(offset_t offset, size_t size, u64 &value) const;
         void checkJumpTable(const InstructionPtr& instruction, const Operand &op);
         bool analyzeTarget(const InstructionPtr& instruction);
         void analyzeOp(const InstructionPtr& instruction, const Operand& operand);

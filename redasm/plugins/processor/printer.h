@@ -17,7 +17,7 @@ class Printer
 
     protected:
         virtual std::string reg(const RegisterOperand& regop) const = 0;
-        virtual std::string mem(const MemoryOperand& memop) const = 0;
+        virtual std::string mem(const MemoryOperand& memop) const;
 
     protected:
         SymbolTable* _symboltable;

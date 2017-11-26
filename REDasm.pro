@@ -51,7 +51,6 @@ SOURCES += main.cpp\
     redasm/formats/pe/pe.cpp \
     widgets/disassemblerview/disassemblerthread.cpp \
     redasm/plugins/processor/printer.cpp \
-    redasm/processors/x86/x86printer.cpp \
     redasm/processors/mips/mipsprinter.cpp \
     redasm/processors/mips/mipsquirks.cpp \
     redasm/formats/pe/pe_analyzer.cpp \
@@ -66,7 +65,9 @@ SOURCES += main.cpp\
     redasm/formats/pe/vb/vb_analyzer.cpp \
     redasm/formats/pe/vb/vb_components.cpp \
     redasm/formats/pe/pe_imports.cpp \
-    redasm/formats/pe/ordinals/msvbvm.cpp
+    redasm/formats/pe/ordinals/msvbvm.cpp \
+    redasm/processors/arm/arm.cpp \
+    redasm/processors/arm/armprinter.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -96,7 +97,6 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/pe_headers.h \
     widgets/disassemblerview/disassemblerthread.h \
     redasm/plugins/processor/printer.h \
-    redasm/processors/x86/x86printer.h \
     redasm/processors/mips/mipsprinter.h \
     redasm/processors/mips/mipsquirks.h \
     redasm/formats/pe/pe_analyzer.h \
@@ -116,7 +116,9 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/vb/vb_components.h \
     redasm/formats/pe/pe_imports.h \
     redasm/formats/pe/ordinals/msvbvm.h \
-    redasm/formats/pe/ordinals/pe_ordinals_types.h
+    redasm/formats/pe/ordinals/pe_ordinals_types.h \
+    redasm/processors/arm/arm.h \
+    redasm/processors/arm/armprinter.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

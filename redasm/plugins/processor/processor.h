@@ -11,6 +11,7 @@
 #include "printer.h"
 
 #define DECLARE_PROCESSOR_PLUGIN(id, processor) inline ProcessorPlugin* id##_processorPlugin() { return new processor(); }
+#define PROCESSOR_IS(processor, arch) (strstr(processor->name(), arch))
 #define SET_TARGET_INDEX(x) if(index) *index = x;
 
 namespace REDasm {
@@ -43,6 +44,7 @@ template<cs_arch arch, size_t mode> class CapstoneProcessorPlugin: public Proces
         CapstoneProcessorPlugin();
         ~CapstoneProcessorPlugin();
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
+        virtual Printer* createPrinter(SymbolTable *symboltable) const { return new CapstonePrinter(this->_cshandle, symboltable); }
 
     protected:
         csh _cshandle;

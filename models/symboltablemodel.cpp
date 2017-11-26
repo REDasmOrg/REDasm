@@ -39,10 +39,10 @@ QVariant SymbolTableModel::data(const QModelIndex &index, int role) const
 
         if(index.column() == 1)
         {
-            if(symbol->type == REDasm::SymbolTypes::WideString)
-                return QString::fromStdString(this->_disassembler->readWString(symbol->address));
-            if(symbol->type == REDasm::SymbolTypes::String)
-                return QString::fromStdString(this->_disassembler->readString(symbol->address));
+            if(symbol->is(REDasm::SymbolTypes::WideStringMask))
+                return QString::fromStdString(this->_disassembler->readWString(symbol));
+            else if(symbol->is(REDasm::SymbolTypes::StringMask))
+                return QString::fromStdString(this->_disassembler->readString(symbol));
 
             return QString::fromStdString(symbol->name);
         }

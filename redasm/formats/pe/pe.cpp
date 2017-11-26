@@ -34,6 +34,14 @@ const char *PeFormat::processor() const
     if(this->_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64)
         return "x86_64";
 
+    if(this->_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_ARM)
+    {
+        if(this->_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
+            return "arm64";
+
+        return "arm";
+    }
+
     return NULL;
 }
 

@@ -160,13 +160,9 @@ void Disassembler::disassemble()
 
     if(a)
     {
-        a->initCallbacks( [this](address_t address) -> InstructionPtr {
-            Buffer b = this->_buffer + this->_format->offset(address);
-            return this->disassembleInstruction(address, b);
-        },
-        [this](address_t address) {
-            this->disassemble(address);
-        });
+        a->initCallbacks( [this](address_t address) -> InstructionPtr { Buffer b = this->_buffer + this->_format->offset(address); return this->disassembleInstruction(address, b); },
+                          [this](address_t address) { this->disassemble(address); },
+                          [this](address_t address, size_t size, u64& value) -> bool { return this->readAddress(address, size, value); });
 
         STATUS("Analyzing...");
         a->analyze(this->_listing);
@@ -175,7 +171,12 @@ void Disassembler::disassemble()
     this->_symboltable.sort();
 }
 
-bool Disassembler::readAddress(address_t address, size_t size, u64& value)
+bool Disassembler::dereferencePointer(address_t address, u64 &value) const
+{
+    return this->readAddress(address, this->_format->bits() / 8, value);
+}
+
+bool Disassembler::readAddress(address_t address, size_t size, u64& value) const
 {
     if(!this->_format->segment(address))
         return false;
@@ -184,7 +185,7 @@ bool Disassembler::readAddress(address_t address, size_t size, u64& value)
     return this->readOffset(offset, size, value);
 }
 
-bool Disassembler::readOffset(offset_t offset, size_t size, u64 &value)
+bool Disassembler::readOffset(offset_t offset, size_t size, u64 &value) const
 {
     Buffer pdest = this->_buffer + offset;
 
@@ -219,6 +220,26 @@ u64 Disassembler::locationIsString(address_t address, bool* wide) const
     }
 
     return count;
+}
+
+std::string Disassembler::readString(const Symbol *symbol) const
+{
+    address_t memaddress = 0;
+
+    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, memaddress))
+        return this->readString(memaddress);
+
+    return this->readString(symbol->address);
+}
+
+std::string Disassembler::readWString(const Symbol *symbol) const
+{
+    address_t memaddress = 0;
+
+    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, memaddress))
+        return this->readWString(memaddress);
+
+    return this->readWString(symbol->address);
 }
 
 void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Operand& op)
@@ -281,7 +302,7 @@ bool Disassembler::analyzeTarget(const InstructionPtr &instruction)
     {
         const Operand& op = instruction->operands[index];
 
-        if((op.type != OperandTypes::Displacement) || op.mem.displacementOnly())
+        if(!op.is(OperandTypes::Displacement) || op.mem.displacementOnly())
         {
             this->_symboltable.createLocation(target, (segment->is(SegmentTypes::Code) ? SymbolTypes::Code :
                                                                                          SymbolTypes::Data));
@@ -314,35 +335,41 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
     if(operand.is(OperandTypes::Register))
         return;
 
-    u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value;
+    u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value, memvalue = value;
+    Symbol* symbol = this->_symboltable.symbol(value);
+
+    if(operand.is(OperandTypes::Memory))
+        this->dereferencePointer(value, memvalue); // Try to read pointed memory
+
     const Segment* segment = this->_format->segment(value);
 
     if(!segment)
         return;
 
-    Symbol* symbol = this->_symboltable.symbol(value);
-
     if(!symbol || !symbol->isFunction())
     {
         bool wide = false;
 
-        if(!segment->is(SegmentTypes::Bss) && (this->locationIsString(value, &wide) >= MIN_STRING))
+        if(!segment->is(SegmentTypes::Bss) && (this->locationIsString(memvalue, &wide) >= MIN_STRING))
         {
             if(wide)
             {
                 this->_symboltable.createWString(value);
-                instruction->cmt("UNICODE: " + this->readWString(value));
+                instruction->cmt("UNICODE: " + this->readWString(memvalue));
             }
             else
             {
                 this->_symboltable.createString(value);
-                instruction->cmt("STRING: " + this->readString(value));
+                instruction->cmt("STRING: " + this->readString(memvalue));
             }
         }
         else
             this->_symboltable.createLocation(value, segment->is(SegmentTypes::Code) ? SymbolTypes::Code :
                                                                                        SymbolTypes::Data);
         symbol = this->_symboltable.symbol(value);
+
+        if(symbol && operand.is(OperandTypes::Memory))
+            symbol->type |= SymbolTypes::Pointer;
     }
 
     if(symbol)

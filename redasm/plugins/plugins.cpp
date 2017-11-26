@@ -4,6 +4,7 @@
 #include "../formats/psxexe/psxexe.h"
 #include "../processors/x86/x86.h"
 #include "../processors/mips/mips.h"
+#include "../processors/arm/arm.h"
 
 #define REGISTER_FORMAT_PLUGIN(id)    REDasm::formats.push_back(&id##_formatPlugin)
 #define REGISTER_PROCESSOR_PLUGIN(id) REDasm::processors[#id] = &id##_processorPlugin
@@ -25,6 +26,8 @@ void init()
      REGISTER_PROCESSOR_PLUGIN(x86_64);
      REGISTER_PROCESSOR_PLUGIN(mips32);
      REGISTER_PROCESSOR_PLUGIN(mips64);
+     REGISTER_PROCESSOR_PLUGIN(arm);
+     //REGISTER_PROCESSOR_PLUGIN(arm64);
 }
 
 FormatPlugin *getFormat(u8 *data)

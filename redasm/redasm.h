@@ -80,8 +80,10 @@ namespace InstructionTypes {
 namespace OperandTypes {
     enum: u32 {
         None = 0,
-        Register, Immediate, Memory,
-        Displacement,
+        Register,     // Register
+        Immediate,    // Immediate Value
+        Memory,       // Direct Memory Pointer
+        Displacement, // Indirect Memory Pointer
     };
 }
 
@@ -143,6 +145,8 @@ struct MemoryOperand
 struct Operand
 {
     Operand(): type(OperandTypes::None), pos(-1), u_value(0) { }
+    Operand(u32 type, s32 value, s32 pos): type(type), pos(pos), s_value(value) { }
+    Operand(u32 type, u32 value, s32 pos): type(type), pos(pos), u_value(value) { }
     Operand(u32 type, s64 value, s32 pos): type(type), pos(pos), s_value(value) { }
     Operand(u32 type, u64 value, s32 pos): type(type), pos(pos), u_value(value) { }
 

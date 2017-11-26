@@ -11,7 +11,7 @@ namespace REDasm {
 template<cs_mode mode> class X86Processor: public CapstoneProcessorPlugin<CS_ARCH_X86, mode>
 {
     public:
-        X86Processor(): CapstoneProcessorPlugin<CS_ARCH_X86, mode>() { }
+        X86Processor(): CapstoneProcessorPlugin<CS_ARCH_X86, mode>(), _stacksize(0) { }
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual bool target(const InstructionPtr& instruction, address_t *target, int* index = NULL) const;
@@ -19,9 +19,14 @@ template<cs_mode mode> class X86Processor: public CapstoneProcessorPlugin<CS_ARC
 
     private:
         s32 localIndex(s64 disp, u32& type) const;
+        s32 stackLocalIndex(s64 disp) const;
+        bool isSP(register_t reg) const;
         bool isBP(register_t reg) const;
         bool isIP(register_t reg) const;
         void analyzeInstruction(const InstructionPtr& instruction, cs_insn* insn);
+
+    private:
+        s64 _stacksize;
 };
 
 template<cs_mode mode> const char *X86Processor<mode>::name() const
@@ -49,13 +54,22 @@ template<cs_mode mode> bool X86Processor<mode>::decode(Buffer buffer, const Inst
 
         if(op.type == X86_OP_MEM) {
             const x86_op_mem& mem = op.mem;
+            s32 locindex = -1;
 
-            if((mem.index == X86_REG_INVALID) && mem.disp && this->isBP(mem.base)) // Check variables/arguments
+            if((mem.index == X86_REG_INVALID) && mem.disp && this->isBP(mem.base)) // Check locals/arguments
             {
                 u32 type = 0;
-                s32 index = this->localIndex(mem.disp, type);
-                instruction->local(index, mem.base, mem.disp, type);
+                locindex = this->localIndex(mem.disp, type);
+                instruction->local(locindex, mem.base, mem.disp, type);
+            }
+            else if(this->_stacksize && this->isSP(mem.base)) // Check locals
+            {
+                locindex = this->stackLocalIndex(mem.disp);
 
+                if(locindex != -1)
+                    instruction->local(locindex, mem.base, mem.disp);
+                else // It's not a local...
+                    instruction->disp(X86_REGISTER(mem.base), X86_REGISTER(mem.index), mem.scale, mem.disp);
             }
             else if((mem.index == X86_REG_INVALID) && this->isIP(mem.base)) // Handle case [xip + disp]
                 instruction->mem(instruction->address + instruction->size + mem.disp);
@@ -140,7 +154,7 @@ template<cs_mode mode> s32 X86Processor<mode>::localIndex(s64 disp, u32& type) c
     else if(mode == CS_MODE_64)
         size = 8;
 
-    s32 index = (disp / size) - 1;
+    s32 index = (disp / size);
 
     if(disp > 0)
         index--; // disp == size -> return_address
@@ -149,6 +163,37 @@ template<cs_mode mode> s32 X86Processor<mode>::localIndex(s64 disp, u32& type) c
         index *= -1;
 
     return index;
+}
+
+template<cs_mode mode> s32 X86Processor<mode>::stackLocalIndex(s64 disp) const
+{
+    s32 size = 0;
+
+    if(mode == CS_MODE_16)
+        size = 2;
+    else if(mode == CS_MODE_32)
+        size = 4;
+    else if(mode == CS_MODE_64)
+        size = 8;
+
+    if(disp > this->_stacksize)
+        return -1;
+
+    return (this->_stacksize / size) - (disp / size);
+}
+
+template<cs_mode mode> bool X86Processor<mode>::isSP(register_t reg) const
+{
+    if(mode == CS_MODE_16)
+        return reg == X86_REG_SP;
+
+    if(mode == CS_MODE_32)
+        return reg == X86_REG_ESP;
+
+    if(mode == CS_MODE_64)
+        return reg == X86_REG_RSP;
+
+    return false;
 }
 
 template<cs_mode mode> bool X86Processor<mode>::isBP(register_t reg) const
@@ -209,6 +254,7 @@ template<cs_mode mode> void X86Processor<mode>::analyzeInstruction(const Instruc
         case X86_INS_RET:
         case X86_INS_HLT:
             instruction->type |= InstructionTypes::Stop;
+            this->_stacksize = 0;
             break;
 
         case X86_INS_NOP:
@@ -232,6 +278,14 @@ template<cs_mode mode> void X86Processor<mode>::analyzeInstruction(const Instruc
         case X86_INS_POPFQ:
             instruction->type |= InstructionTypes::Pop;
             break;
+
+        case X86_INS_SUB:
+        {
+            if(!this->_stacksize && this->isSP(instruction->operands[0].reg.r))
+                this->_stacksize = instruction->operands[1].u_value;
+
+            break;
+        }
 
         default:
             return;

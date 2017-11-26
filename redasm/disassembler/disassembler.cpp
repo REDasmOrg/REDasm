@@ -11,7 +11,7 @@
 
 namespace REDasm {
 
-Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlugin *format): _processor(processor), _format(format), _buffer(buffer)
+Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlugin *format): DisassemblerFunctions(), _processor(processor), _format(format), _buffer(buffer)
 {
     this->_symboltable = format->symbols(); // Initialize symbol table
 
@@ -144,7 +144,7 @@ void Disassembler::disassembleFunction(address_t address)
     this->disassemble(address);
 
     STATUS("Analyzing...");
-    Analyzer analyzer;
+    Analyzer analyzer(this);
     analyzer.analyze(this->_listing); // Run basic analyzer
 }
 
@@ -156,14 +156,10 @@ void Disassembler::disassemble()
         return true;
     });
 
-    std::unique_ptr<Analyzer> a(this->_format->createAnalyzer());
+    std::unique_ptr<Analyzer> a(this->_format->createAnalyzer(this));
 
     if(a)
     {
-        a->initCallbacks( [this](address_t address) -> InstructionPtr { Buffer b = this->_buffer + this->_format->offset(address); return this->disassembleInstruction(address, b); },
-                          [this](address_t address) { this->disassemble(address); },
-                          [this](address_t address, size_t size, u64& value) -> bool { return this->readAddress(address, size, value); });
-
         STATUS("Analyzing...");
         a->analyze(this->_listing);
     }
@@ -204,6 +200,12 @@ bool Disassembler::readOffset(offset_t offset, size_t size, u64 &value) const
     }
 
     return true;
+}
+
+InstructionPtr Disassembler::disassembleInstruction(address_t address)
+{
+    Buffer b = this->_buffer + this->_format->offset(address);
+    return this->disassembleInstruction(address, b);
 }
 
 u64 Disassembler::locationIsString(address_t address, bool* wide) const

@@ -21,7 +21,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         virtual u32 bits() const;
         virtual const char* processor() const;
         virtual offset_t offset(address_t address) const;
-        virtual Analyzer* createAnalyzer() const;
+        virtual Analyzer* createAnalyzer(DisassemblerFunctions *dfunctions) const;
         virtual bool load(u8 *rawformat);
 
     private:

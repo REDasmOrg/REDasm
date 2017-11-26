@@ -27,9 +27,9 @@ const char *PsxExeFormat::processor() const
     return "mips32";
 }
 
-Analyzer *PsxExeFormat::createAnalyzer() const
+Analyzer *PsxExeFormat::createAnalyzer(DisassemblerFunctions *dfunctions) const
 {
-    return new PsxExeAnalyzer();
+    return new PsxExeAnalyzer(dfunctions);
 }
 
 bool PsxExeFormat::load(u8* rawformat)

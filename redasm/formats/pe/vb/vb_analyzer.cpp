@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-VBAnalyzer::VBAnalyzer(): PEAnalyzer()
+VBAnalyzer::VBAnalyzer(DisassemblerFunctions *dfunctions): PEAnalyzer(dfunctions)
 {
     this->_peformat = NULL;
     this->_vbheader = NULL;
@@ -60,7 +60,7 @@ void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, Lis
 
     address_t target = 0;
     const ProcessorPlugin* processor = listing.processor();
-    InstructionPtr instruction = this->disassembleInstruction(eventva); // Disassemble trampoline
+    InstructionPtr instruction = this->_dfunctions->disassembleInstruction(eventva); // Disassemble trampoline
 
     if(instruction->mnemonic == "sub")
     {

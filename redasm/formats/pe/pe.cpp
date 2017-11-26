@@ -54,12 +54,12 @@ offset_t PeFormat::offset(address_t address) const
     return this->rvaToOffset(address);
 }
 
-Analyzer *PeFormat::createAnalyzer() const
+Analyzer *PeFormat::createAnalyzer(DisassemblerFunctions *dfunctions) const
 {
     if(this->_petype == PeType::VisualBasic)
-        return new VBAnalyzer();
+        return new VBAnalyzer(dfunctions);
 
-    return new PEAnalyzer();
+    return new PEAnalyzer(dfunctions);
 }
 
 bool PeFormat::load(u8 *rawformat)

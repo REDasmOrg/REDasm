@@ -5,49 +5,54 @@
 #define MAX_STRING       100
 
 #include <functional>
+#include "disassemblerfunctions.h"
 #include "../plugins/plugins.h"
 #include "symboltable.h"
 #include "referencetable.h"
 #include "listing.h"
+#include "disassemblerfunctions.h"
 
 namespace REDasm {
 
-class Disassembler
+class Disassembler: public DisassemblerFunctions
 {
     public:
         typedef std::function<void(std::string)> ReportCallback;
 
     public:
         Disassembler(Buffer buffer, ProcessorPlugin* processor, FormatPlugin* format);
-        ~Disassembler();
+        virtual ~Disassembler();
         void loggerCallback(const ReportCallback& cb);
         void statusCallback(const ReportCallback& cb);
-        u64 locationIsString(address_t address, bool *wide = NULL) const;
-        std::string readString(const Symbol* symbol) const;
-        std::string readWString(const Symbol* symbol) const;
+        void disassembleFunction(address_t address);
+        void disassemble();
         Listing &listing();
         Buffer& buffer();
+
+    public: // Primitive functions
+        virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
+        virtual std::string readString(const Symbol* symbol) const;
+        virtual std::string readWString(const Symbol* symbol) const;
+        virtual bool dereferencePointer(address_t address, u64& value) const;
+        virtual bool readAddress(address_t address, size_t size, u64 &value) const;
+        virtual bool readOffset(offset_t offset, size_t size, u64 &value) const;
+        virtual InstructionPtr disassembleInstruction(address_t address);
+        virtual void disassemble(address_t address);
 
     public:
         std::string out(const InstructionPtr& instruction, std::function<void(const Operand&, const std::string&)> opfunc);
         std::string out(const InstructionPtr& instruction);
         std::string comment(const InstructionPtr& instruction) const;
         bool dataToString(address_t address);
-        void disassembleFunction(address_t address);
-        void disassemble();
 
     private:
         template<typename T> std::string readStringT(address_t address, std::function<bool(T, std::string&)> fill) const;
         template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
-        bool dereferencePointer(address_t address, u64& value) const;
         std::string readString(address_t address) const;
         std::string readWString(address_t address) const;
-        bool readAddress(address_t address, size_t size, u64 &value) const;
-        bool readOffset(offset_t offset, size_t size, u64 &value) const;
         void checkJumpTable(const InstructionPtr& instruction, const Operand &op);
         bool analyzeTarget(const InstructionPtr& instruction);
         void analyzeOp(const InstructionPtr& instruction, const Operand& operand);
-        void disassemble(address_t address);
         InstructionPtr disassembleInstruction(address_t address, Buffer &b);
 
     public:

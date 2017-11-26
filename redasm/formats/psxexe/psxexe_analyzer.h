@@ -10,7 +10,7 @@ namespace REDasm {
 class PsxExeAnalyzer: public Analyzer
 {
     public:
-        PsxExeAnalyzer();
+        PsxExeAnalyzer(DisassemblerFunctions* dfunctions);
         virtual void analyze(Listing &listing);
 
     private:

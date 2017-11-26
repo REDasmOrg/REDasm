@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-Analyzer::Analyzer()
+Analyzer::Analyzer(DisassemblerFunctions *dfunctions): _dfunctions(dfunctions)
 {
 
 }
@@ -18,13 +18,6 @@ void Analyzer::analyze(Listing &listing)
         this->findTrampolines(listing, symbol);
         return true;
     });
-}
-
-void Analyzer::initCallbacks(const DisassembleInstructionProc &disassembleinstruction, const Analyzer::DisassembleProc &disassemble, const ReadAddressProc &readaddress)
-{
-    this->_disassembleinstruction = disassembleinstruction;
-    this->_disassemble = disassemble;
-    this->_readaddress = readaddress;
 }
 
 void Analyzer::findTrampolines(Listing &listing, Symbol* symbol)
@@ -81,7 +74,7 @@ Symbol* Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symbol
 
     u64 target = instruction1->operands[1].u_value, importaddress = 0;
 
-    if(!this->readAddress(target, sizeof(u32), importaddress))
+    if(!this->_dfunctions->readAddress(target, sizeof(u32), importaddress))
         return NULL;
 
     Symbol *symbol = symboltable->symbol(target), *impsymbol = symboltable->symbol(importaddress);
@@ -100,7 +93,7 @@ void Analyzer::createFunction(SymbolTable *symboltable, const std::string &name,
         symboltable->symbol(address)->lock();
     }
 
-    this->disassemble(address);
+    this->_dfunctions->disassemble(address);
 }
 
 void Analyzer::createFunction(SymbolTable *symboltable, address_t address)
@@ -111,31 +104,7 @@ void Analyzer::createFunction(SymbolTable *symboltable, address_t address)
         symboltable->symbol(address)->lock();
     }
 
-    this->disassemble(address);
-}
-
-bool Analyzer::readAddress(address_t address, size_t size, u64 &value)
-{
-    if(!this->_readaddress)
-        return false;
-
-    return this->_readaddress(address, size, value);
-}
-
-InstructionPtr Analyzer::disassembleInstruction(address_t address)
-{
-    if(!this->_disassembleinstruction)
-        return NULL;
-
-    return this->_disassembleinstruction(address);
-}
-
-void Analyzer::disassemble(address_t address)
-{
-    if(!this->_disassemble)
-        return;
-
-    this->_disassemble(address);
+    this->_dfunctions->disassemble(address);
 }
 
 } // namespace REDasm

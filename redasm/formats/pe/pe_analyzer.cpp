@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-PEAnalyzer::PEAnalyzer(): Analyzer()
+PEAnalyzer::PEAnalyzer(DisassemblerFunctions *dfunctions): Analyzer(dfunctions)
 {
     ADD_WNDPROC_API(4, "DialogBoxA");
     ADD_WNDPROC_API(4, "DialogBoxW");
@@ -112,7 +112,7 @@ void PEAnalyzer::findWndProc(Listing &listing, const InstructionPtr& callinstruc
                     else
                         symboltable->createFunction(address, name);
 
-                    this->disassemble(address);
+                    this->_dfunctions->disassemble(address);
                 }
             }
         }

@@ -4,7 +4,7 @@
 
 namespace REDasm {
 
-PsxExeAnalyzer::PsxExeAnalyzer(): Analyzer()
+PsxExeAnalyzer::PsxExeAnalyzer(DisassemblerFunctions *dfunctions): Analyzer(dfunctions)
 {
     this->_psyq46.load("signatures/psyq46.json");
 }

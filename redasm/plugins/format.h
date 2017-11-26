@@ -2,6 +2,7 @@
 #define FORMAT_H
 
 #include <unordered_map>
+#include "../disassembler/disassemblerfunctions.h"
 #include "../disassembler/symboltable.h"
 #include "../analyzer/analyzer.h"
 #include "base.h"
@@ -29,7 +30,7 @@ class FormatPlugin: public Plugin
         const SymbolTable& symbols() const;
         Segment *segment(address_t address);
         virtual offset_t offset(address_t address) const;
-        virtual Analyzer *createAnalyzer() const;
+        virtual Analyzer *createAnalyzer(DisassemblerFunctions* dfunctions) const;
 
     public:
         virtual u32 bits() const = 0;

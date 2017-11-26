@@ -41,9 +41,9 @@ offset_t FormatPlugin::offset(address_t address) const
     return address;
 }
 
-Analyzer* FormatPlugin::createAnalyzer() const
+Analyzer* FormatPlugin::createAnalyzer(DisassemblerFunctions *dfunctions) const
 {
-    return new Analyzer();
+    return new Analyzer(dfunctions);
 }
 
 bool FormatPlugin::load(u8 *format)

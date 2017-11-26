@@ -1,20 +1,14 @@
 #include "disassembler.h"
 #include <algorithm>
 #include <memory>
-#include <cctype>
 
 #define INVALID_MNEMONIC "db"
 #define BRANCH_DIRECTION(instruction, destination) (static_cast<s64>(destination) - static_cast<s64>(instruction->address))
 
-#define STATUS(s) if(_statuscallback) _statuscallback((s));
-#define LOG(s)    if(_logcallback) _logcallback((s));
-
 namespace REDasm {
 
-Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlugin *format): DisassemblerFunctions(), _processor(processor), _format(format), _buffer(buffer)
+Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlugin *format): DisassemblerBase(buffer, format), _processor(processor)
 {
-    this->_symboltable = format->symbols(); // Initialize symbol table
-
     this->_printer = PrinterPtr(this->_processor->createPrinter(&this->_symboltable));
 
     this->_listing.setFormat(this->_format);
@@ -26,46 +20,21 @@ Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlug
 Disassembler::~Disassembler()
 {
     delete this->_processor;
-    delete this->_format;
 }
 
-void Disassembler::loggerCallback(const Disassembler::ReportCallback &cb)
+ProcessorPlugin *Disassembler::processor()
 {
-    this->_logcallback = cb;
+    return this->_processor;
 }
 
-void Disassembler::statusCallback(const Disassembler::ReportCallback &cb)
+ReferenceTable *Disassembler::references()
 {
-    this->_statuscallback = cb;
-}
-
-std::string Disassembler::readString(address_t address) const
-{
-    return this->readStringT<char>(address, [](char b, std::string& s) {
-        bool r = ::isprint(b);
-        if(r) s += b;
-        return r;
-    });
-}
-
-std::string Disassembler::readWString(address_t address) const
-{
-    return this->readStringT<u16>(address, [](u16 wb, std::string& s) {
-        u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8;
-        bool r = ::isprint(b1) && !b2;
-        if(r) s += static_cast<char>(b1);
-        return r;
-    });
+    return &this->_referencetable;
 }
 
 Listing& Disassembler::listing()
 {
     return this->_listing;
-}
-
-Buffer &Disassembler::buffer()
-{
-    return this->_buffer;
 }
 
 std::string Disassembler::out(const InstructionPtr &instruction, std::function<void (const Operand &, const std::string&)> opfunc)
@@ -96,40 +65,6 @@ std::string Disassembler::comment(const InstructionPtr &instruction) const
      });
 
      return "# " + res;
-}
-
-bool Disassembler::dataToString(address_t address)
-{
-    REDasm::Symbol* symbol = this->_symboltable.symbol(address);
-
-    if(!symbol)
-        return false;
-
-    bool wide = false;
-    this->locationIsString(address, &wide);
-
-    std::string s;
-    ReferenceVector refs = this->_referencetable.referencesToVector(symbol);
-
-    symbol->type &= (~REDasm::SymbolTypes::Data);
-    symbol->type |= wide ? REDasm::SymbolTypes::WideString : REDasm::SymbolTypes::String;;
-
-    if(wide)
-    {
-        symbol->type |= REDasm::SymbolTypes::WideString;
-        s = this->readWString(address);
-    }
-    else
-    {
-        symbol->type |= REDasm::SymbolTypes::String;
-        s = this->readString(address);
-    }
-
-    std::for_each(refs.begin(), refs.end(), [s, wide](InstructionPtr& instruction) {
-        wide ? instruction->cmt("UNICODE: " + s) : instruction->cmt("STRING: " + s);
-    });
-
-    return this->_symboltable.rename(symbol, "str_" + REDasm::hex(address, 0, false));
 }
 
 void Disassembler::disassembleFunction(address_t address)
@@ -167,81 +102,10 @@ void Disassembler::disassemble()
     this->_symboltable.sort();
 }
 
-bool Disassembler::dereferencePointer(address_t address, u64 &value) const
-{
-    return this->readAddress(address, this->_format->bits() / 8, value);
-}
-
-bool Disassembler::readAddress(address_t address, size_t size, u64& value) const
-{
-    if(!this->_format->segment(address))
-        return false;
-
-    offset_t offset = this->_format->offset(address);
-    return this->readOffset(offset, size, value);
-}
-
-bool Disassembler::readOffset(offset_t offset, size_t size, u64 &value) const
-{
-    Buffer pdest = this->_buffer + offset;
-
-    if(size == 1)
-        value = *reinterpret_cast<u8*>(pdest.data);
-    else if(size == 2)
-        value = *reinterpret_cast<u16*>(pdest.data);
-    else if(size == 4)
-        value = *reinterpret_cast<u32*>(pdest.data);
-    else if(size == 8)
-        value = *reinterpret_cast<u64*>(pdest.data);
-    else
-    {
-        LOG("Invalid size: " + std::to_string(size));
-        return false;
-    }
-
-    return true;
-}
-
 InstructionPtr Disassembler::disassembleInstruction(address_t address)
 {
     Buffer b = this->_buffer + this->_format->offset(address);
     return this->disassembleInstruction(address, b);
-}
-
-u64 Disassembler::locationIsString(address_t address, bool* wide) const
-{
-    u64 count = this->locationIsStringT<char>(address, ::isprint, ::isalnum);
-
-    if(count == 1) // Try with wide strings
-    {
-        count = this->locationIsStringT<u16>(address, [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ::isprint(b1) && !b2; },
-                                                      [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ::isalnum(b1) && !b2; } );
-
-        if(wide)
-            *wide = true;
-    }
-
-    return count;
-}
-
-std::string Disassembler::readString(const Symbol *symbol) const
-{
-    address_t memaddress = 0;
-
-    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, memaddress))
-        return this->readString(memaddress);
-
-    return this->readString(symbol->address);
-}
-
-std::string Disassembler::readWString(const Symbol *symbol) const
-{
-    address_t memaddress = 0;
-
-    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, memaddress))
-        return this->readWString(memaddress);
-
-    return this->readWString(symbol->address);
 }
 
 void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Operand& op)
@@ -433,26 +297,6 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
 
     this->_listing[address] = instruction;
     return instruction;
-}
-
-FormatPlugin *Disassembler::format()
-{
-    return this->_format;
-}
-
-ProcessorPlugin *Disassembler::processor()
-{
-    return this->_processor;
-}
-
-SymbolTable *Disassembler::symbols()
-{
-    return &this->_symboltable;
-}
-
-ReferenceTable *Disassembler::references()
-{
-    return &this->_referencetable;
 }
 
 }

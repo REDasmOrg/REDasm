@@ -68,7 +68,8 @@ SOURCES += main.cpp\
     redasm/formats/pe/ordinals/msvbvm.cpp \
     redasm/processors/arm/arm.cpp \
     redasm/processors/arm/armprinter.cpp \
-    redasm/disassembler/disassemblerfunctions.cpp
+    redasm/disassembler/disassemblerfunctions.cpp \
+    redasm/disassembler/disassemblerbase.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -120,7 +121,8 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/ordinals/pe_ordinals_types.h \
     redasm/processors/arm/arm.h \
     redasm/processors/arm/armprinter.h \
-    redasm/disassembler/disassemblerfunctions.h
+    redasm/disassembler/disassemblerfunctions.h \
+    redasm/disassembler/disassemblerbase.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

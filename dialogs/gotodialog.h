@@ -1,7 +1,6 @@
 #ifndef GOTODIALOG_H
 #define GOTODIALOG_H
 
-#include <QRegularExpression>
 #include <QDialog>
 #include "../redasm/disassembler/disassembler.h"
 #include "../models/symboltablefiltermodel.h"
@@ -30,7 +29,6 @@ class GotoDialog : public QDialog
         Ui::GotoDialog *ui;
         REDasm::Disassembler* _disassembler;
         SymbolTableFilterModel* _functionsmodel;
-        QRegularExpression _rgxdec;
         address_t _address;
 };
 

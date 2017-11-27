@@ -4,7 +4,6 @@
 GotoDialog::GotoDialog(REDasm::Disassembler *disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), _disassembler(disassembler), _address(0)
 {
     ui->setupUi(this);
-    this->_rgxdec.setPattern("[0-9]+");
 
     this->_functionsmodel = new SymbolTableFilterModel(ui->tvFunctions);
     this->_functionsmodel->setFilterSymbol(REDasm::SymbolTypes::FunctionMask);
@@ -43,23 +42,8 @@ void GotoDialog::validateEntry()
         return;
     }
 
-    if(s.startsWith("0x"))
-    {
-        this->_address = s.toULongLong(&ok, 16);
-        ui->pbGoto->setEnabled(ok);
-        return;
-    }
-
-    QRegularExpressionMatch match = this->_rgxdec.match(s);
-
-    if(match.hasMatch())
-    {
-        this->_address = s.toULongLong(&ok);
-        ui->pbGoto->setEnabled(ok);
-        return;
-    }
-    else
-        ui->pbGoto->setEnabled(false);
+    this->_address = s.toULongLong(&ok, 16);
+    ui->pbGoto->setEnabled(ok);
 
     this->_functionsmodel->setFilterName(s);
 }

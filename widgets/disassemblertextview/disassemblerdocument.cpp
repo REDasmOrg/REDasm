@@ -193,7 +193,7 @@ QDomNode DisassemblerDocument::createInstructionElement(const REDasm::Instructio
     elminstruction.appendChild(this->createTextNode("\u00A0"));
 
     this->_disassembler->out(instruction, [this, &elminstruction](const REDasm::Operand& operand, const std::string& opstr) {
-        if(operand.pos > 0)
+        if(operand.index > 0)
             elminstruction.appendChild(this->createTextNode(", "));
 
         elminstruction.appendChild(this->createOperandElement(operand, S_TO_QS(opstr)));

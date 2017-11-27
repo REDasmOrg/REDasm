@@ -18,12 +18,12 @@ template<cs_mode mode> class X86Processor: public CapstoneProcessorPlugin<CS_ARC
         virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const { return new X86Printer(this->_cshandle, disassembler, symboltable); }
 
     private:
+        void analyzeInstruction(const InstructionPtr& instruction, cs_insn* insn);
         s32 localIndex(s64 disp, u32& type) const;
         s32 stackLocalIndex(s64 disp) const;
         bool isSP(register_t reg) const;
         bool isBP(register_t reg) const;
         bool isIP(register_t reg) const;
-        void analyzeInstruction(const InstructionPtr& instruction, cs_insn* insn);
 
     private:
         s64 _stacksize;
@@ -73,6 +73,8 @@ template<cs_mode mode> bool X86Processor<mode>::decode(Buffer buffer, const Inst
             }
             else if((mem.index == X86_REG_INVALID) && this->isIP(mem.base)) // Handle case [xip + disp]
                 instruction->mem(instruction->address + instruction->size + mem.disp);
+            else if((mem.index == X86_REG_INVALID) && (mem.base == X86_REG_INVALID)) // Handle case [disp]
+                instruction->mem(mem.disp);
             else
                 instruction->disp(X86_REGISTER(mem.base), X86_REGISTER(mem.index), mem.scale, mem.disp);
         }

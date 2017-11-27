@@ -152,7 +152,9 @@ bool DisassemblerBase::dereferencePointer(address_t address, u64 &value) const
 
 bool DisassemblerBase::readAddress(address_t address, size_t size, u64 &value) const
 {
-    if(!this->_format->segment(address))
+    Segment* segment = this->_format->segment(address);
+
+    if(!segment || segment->is(SegmentTypes::Bss))
         return false;
 
     offset_t offset = this->_format->offset(address);

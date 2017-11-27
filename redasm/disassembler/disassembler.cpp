@@ -141,51 +141,6 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
         instruction->cmt("#" + std::to_string(cases) + " case(s) jump table");
 }
 
-bool Disassembler::analyzeTarget(const InstructionPtr &instruction)
-{
-    int index = -1;
-    address_t target = 0;
-
-    if(!this->_processor->target(instruction, &target, &index))
-        return false;
-
-    const Segment* segment = this->_format->segment(target);
-
-    if(!segment)
-        return false;
-
-    if(instruction->is(InstructionTypes::Jump))
-    {
-        const Operand& op = instruction->operands[index];
-
-        if(!op.is(OperandTypes::Displacement) || op.mem.displacementOnly())
-        {
-            this->_symboltable.createLocation(target, (segment->is(SegmentTypes::Code) ? SymbolTypes::Code :
-                                                                                         SymbolTypes::Data));
-
-            int dir = BRANCH_DIRECTION(instruction, target);
-
-            if(dir < 0)
-                instruction->cmt("Possible loop");
-            else if(!dir)
-                instruction->cmt("Infinite loop");
-        }
-        else
-            this->checkJumpTable(instruction, op);
-    }
-    else if(instruction->is(InstructionTypes::Call))
-        this->_symboltable.createFunction(target);
-    else
-        return false;
-
-    Symbol* symbol = this->_symboltable.symbol(target);
-
-    if(symbol)
-        this->_referencetable.push(symbol, instruction);
-
-    return true;
-}
-
 void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &operand)
 {
     if(operand.is(OperandTypes::Register))
@@ -194,7 +149,7 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
     u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value, opvalue = value;
     Symbol* symbol = this->_symboltable.symbol(value);
 
-    if(operand.is(OperandTypes::Memory))
+    if(operand.is(OperandTypes::Memory) && (operand.isRead() || instruction->is(InstructionTypes::Branch)))
     {
         if(this->dereferencePointer(value, opvalue)) // Try to read pointed memory
             this->_symboltable.createLocation(value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
@@ -205,11 +160,44 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
     if(!segment)
         return;
 
-    if(!symbol || !symbol->isFunction())
+    if(instruction->is(InstructionTypes::Call))
+    {
+        int index = -1;
+        address_t target = 0;
+
+        if(this->_processor->target(instruction, &target, &index))
+        {
+            if(operand.index == index)
+            {
+                if(symbol && !symbol->isFunction()) // This symbol will be promoted to function
+                    this->_symboltable.erase(opvalue);
+
+                if(this->_symboltable.createFunction(opvalue)) // This operand is the target
+                    this->disassemble(opvalue);
+            }
+        }
+    }
+    else
     {
         bool wide = false;
 
-        if(!segment->is(SegmentTypes::Bss) && (this->locationIsString(opvalue, &wide) >= MIN_STRING))
+        if(instruction->is(InstructionTypes::Jump))
+        {
+            if(!operand.is(OperandTypes::Displacement) || operand.mem.displacementOnly())
+            {
+                int dir = BRANCH_DIRECTION(instruction, opvalue);
+
+                if(dir < 0)
+                    instruction->cmt("Possible loop");
+                else if(!dir)
+                    instruction->cmt("Infinite loop");
+
+                this->_symboltable.createLocation(opvalue, SymbolTypes::Code);
+            }
+            else
+                this->checkJumpTable(instruction, operand);
+        }
+        else if(!segment->is(SegmentTypes::Bss) && (this->locationIsString(opvalue, &wide) >= MIN_STRING))
         {
             if(wide)
             {
@@ -224,9 +212,9 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
         }
         else
             this->_symboltable.createLocation(opvalue, SymbolTypes::Data);
-
-        symbol = this->_symboltable.symbol(opvalue);
     }
+
+    symbol = this->_symboltable.symbol(opvalue);
 
     if(symbol)
         this->_referencetable.push(symbol, instruction);
@@ -276,7 +264,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
 
         LOG("Invalid instruction at " + REDasm::hex(address));
     }
-    else if(!this->analyzeTarget(instruction))
+    else
     {
         const OperandList& operands = instruction->operands;
 

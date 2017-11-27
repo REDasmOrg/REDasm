@@ -87,6 +87,8 @@ namespace OperandTypes {
 
         Local        = 0x00010000,  // Local Variable
         Argument     = 0x00020000,  // Function Argument
+        Read         = 0x00100000,  // Read from...
+        Write        = 0x00200000,  // Write to...
     };
 }
 
@@ -147,15 +149,15 @@ struct MemoryOperand
 
 struct Operand
 {
-    Operand(): loc_index(-1), type(OperandTypes::None), pos(-1), u_value(0) { }
-    Operand(u32 type, s32 value, s32 pos): loc_index(-1), type(type), pos(pos), s_value(value) { }
-    Operand(u32 type, u32 value, s32 pos): loc_index(-1), type(type), pos(pos), u_value(value) { }
-    Operand(u32 type, s64 value, s32 pos): loc_index(-1), type(type), pos(pos), s_value(value) { }
-    Operand(u32 type, u64 value, s32 pos): loc_index(-1), type(type), pos(pos), u_value(value) { }
+    Operand(): loc_index(-1), type(OperandTypes::None), index(-1), u_value(0) { }
+    Operand(u32 type, s32 value, s32 pos): loc_index(-1), type(type), index(pos), s_value(value) { }
+    Operand(u32 type, u32 value, s32 pos): loc_index(-1), type(type), index(pos), u_value(value) { }
+    Operand(u32 type, s64 value, s32 pos): loc_index(-1), type(type), index(pos), s_value(value) { }
+    Operand(u32 type, u64 value, s32 pos): loc_index(-1), type(type), index(pos), u_value(value) { }
 
     s64 loc_index;
     u32 type;
-    s32 pos;
+    s32 index;
     RegisterOperand reg;
     MemoryOperand mem;
 
@@ -164,7 +166,11 @@ struct Operand
         u64 u_value;
     };
 
+    void r() { type |= OperandTypes::Read;  }
+    void w() { type |= OperandTypes::Write; }
     bool is(u32 t) const { return type & t; }
+    bool isRead() const  { return this->is(OperandTypes::Read);  }
+    bool isWrite() const { return this->is(OperandTypes::Write); }
 };
 
 struct Instruction
@@ -188,7 +194,7 @@ struct Instruction
     address_t endAddress() const { return address + size; }
 
     Instruction& cmt(const std::string& s) { comments.push_back(s); return *this; }
-    Instruction& op(Operand op) { op.pos = operands.size(); operands.push_back(op); return *this; }
+    Instruction& op(Operand op) { op.index = operands.size(); operands.push_back(op); return *this; }
     Instruction& mem(address_t v) { operands.push_back(Operand(OperandTypes::Memory, v, operands.size())); return *this; }
     template<typename T> Instruction& imm(T v) { operands.push_back(Operand(OperandTypes::Immediate, v, operands.size())); return *this; }
     template<typename T> Instruction& disp(register_t base, T displacement) { return disp(base, REGISTER_INVALID, displacement); }
@@ -200,7 +206,7 @@ struct Instruction
     Instruction& reg(register_t r, u64 type = 0)
     {
         Operand op;
-        op.pos = operands.size();
+        op.index = operands.size();
         op.type = OperandTypes::Register;
         op.reg = RegisterOperand(type, r);
 
@@ -212,7 +218,7 @@ struct Instruction
 template<typename T> Instruction& Instruction::disp(register_t base, register_t index, s32 scale, T displacement)
 {
     Operand op;
-    op.pos = operands.size();
+    op.index = operands.size();
     op.type = OperandTypes::Displacement;
     op.mem = MemoryOperand(RegisterOperand(base), RegisterOperand(index), scale, displacement);
 
@@ -223,7 +229,7 @@ template<typename T> Instruction& Instruction::disp(register_t base, register_t 
 template<typename T> Instruction& Instruction::local(s32 index, register_t base, T displacement, u32 type)
 {
     Operand op;
-    op.pos = operands.size();
+    op.index = operands.size();
     op.loc_index = index;
     op.type = OperandTypes::Displacement | type;
     op.mem = MemoryOperand(RegisterOperand(base), RegisterOperand(index), 1, displacement);

@@ -96,10 +96,17 @@ void ARMProcessor::analyzeInstruction(const InstructionPtr &instruction, cs_insn
 
         case ARM_INS_LDR:
         {
-            if((arm.cc != ARM_CC_AL) || !this->isPC(instruction->operands[0].reg.r))
+            if((arm.cc == ARM_CC_AL) && this->isPC(instruction->operands[0].reg.r))
+            {
+                instruction->type = InstructionTypes::Stop;
                 return;
+            }
 
-            instruction->type = InstructionTypes::Stop;
+            Operand& op = instruction->operands[1];
+
+            if(op.is(OperandTypes::Memory))
+                op.r();
+
             break;
         }
 

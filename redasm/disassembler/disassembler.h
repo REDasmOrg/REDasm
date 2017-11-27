@@ -27,7 +27,6 @@ class Disassembler: public DisassemblerBase
 
     private:
         void checkJumpTable(const InstructionPtr& instruction, const Operand &op);
-        bool analyzeTarget(const InstructionPtr& instruction);
         void analyzeOp(const InstructionPtr& instruction, const Operand& operand);
         InstructionPtr disassembleInstruction(address_t address, Buffer &b);
 

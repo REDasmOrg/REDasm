@@ -13,7 +13,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
 
     ui->tbBack->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
     ui->tbForward->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
-    ui->tbGoto->setShortcut(QKeySequence(Qt::Key_F5));
+    ui->tbGoto->setShortcut(QKeySequence(Qt::Key_G));
 
     this->_functionsmodel = new SymbolTableFilterModel(ui->tvFunctions);
     this->_functionsmodel->setFilterSymbol(REDasm::SymbolTypes::FunctionMask);

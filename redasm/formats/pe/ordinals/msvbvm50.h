@@ -1,14 +1,14 @@
-#ifndef MSVBVM_H
-#define MSVBVM_H
+#ifndef MSVBVM50_H
+#define MSVBVM50_H
 
 #include "pe_ordinals_types.h"
 
 namespace REDasm {
 
-class MSVBVM
+class MSVBVM50
 {
-    private:
-        MSVBVM();
+    public:
+        MSVBVM50();
 
     public:
         static void compile(OrdinalMap& m);
@@ -16,4 +16,4 @@ class MSVBVM
 
 } // namespace REDasm
 
-#endif // MSVBVM_H
+#endif // MSVBVM50_H

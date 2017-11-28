@@ -62,7 +62,6 @@ SOURCES += main.cpp\
     redasm/formats/pe/vb/vb_analyzer.cpp \
     redasm/formats/pe/vb/vb_components.cpp \
     redasm/formats/pe/pe_imports.cpp \
-    redasm/formats/pe/ordinals/msvbvm.cpp \
     redasm/processors/arm/arm.cpp \
     redasm/processors/arm/armprinter.cpp \
     redasm/disassembler/disassemblerfunctions.cpp \
@@ -70,7 +69,9 @@ SOURCES += main.cpp\
     redasm/disassembler/types/listing.cpp \
     redasm/disassembler/types/referencetable.cpp \
     redasm/disassembler/types/symboltable.cpp \
-    redasm/processors/x86/x86printer.cpp
+    redasm/processors/x86/x86printer.cpp \
+    redasm/formats/pe/ordinals/msvbvm60.cpp \
+    redasm/formats/pe/ordinals/msvbvm50.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -115,7 +116,6 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/vb/vb_header.h \
     redasm/formats/pe/vb/vb_components.h \
     redasm/formats/pe/pe_imports.h \
-    redasm/formats/pe/ordinals/msvbvm.h \
     redasm/formats/pe/ordinals/pe_ordinals_types.h \
     redasm/processors/arm/arm.h \
     redasm/processors/arm/armprinter.h \
@@ -124,7 +124,9 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/types/listing.h \
     redasm/disassembler/types/referencetable.h \
     redasm/disassembler/types/symboltable.h \
-    redasm/processors/x86/x86printer.h
+    redasm/processors/x86/x86printer.h \
+    redasm/formats/pe/ordinals/msvbvm60.h \
+    redasm/formats/pe/ordinals/msvbvm50.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

@@ -1,13 +1,13 @@
-#include "msvbvm.h"
+#include "msvbvm60.h"
 
 namespace REDasm {
 
-MSVBVM::MSVBVM()
+MSVBVM60::MSVBVM60()
 {
 
 }
 
-void MSVBVM::compile(OrdinalMap& m)
+void MSVBVM60::compile(OrdinalMap& m)
 {
     ORDINAL_NAME(659, "_adj_fdiv_m16i");
     ORDINAL_NAME(688, "_adj_fdiv_m32");

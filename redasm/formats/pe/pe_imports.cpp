@@ -1,5 +1,6 @@
 #include "pe_imports.h"
-#include "ordinals/msvbvm.h"
+#include "ordinals/msvbvm50.h"
+#include "ordinals/msvbvm60.h"
 #include <fstream>
 
 namespace REDasm {
@@ -16,8 +17,10 @@ void PEImports::loadImport(std::string dllname)
     if(_libraries.find(dllname) != _libraries.end())
         return;
 
-    if(dllname.find("msvbvm") != std::string::npos)
-        COMPILE_MAP(dllname, MSVBVM);
+    if(dllname.find("msvbvm60") != std::string::npos)
+        COMPILE_MAP(dllname, MSVBVM60)
+    else if(dllname.find("msvbvm50") != std::string::npos)
+        COMPILE_MAP(dllname, MSVBVM50)
 }
 
 bool PEImports::importName(const std::string &dllname, u16 ordinal, std::string &name)

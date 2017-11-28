@@ -149,10 +149,13 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
     u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value, opvalue = value;
     Symbol* symbol = this->_symboltable.symbol(value);
 
-    if(operand.is(OperandTypes::Memory) && (operand.isRead() || instruction->is(InstructionTypes::Branch)))
+    if(!symbol || (symbol && !symbol->is(SymbolTypes::Import))) // Don't try to dereference imports
     {
-        if(this->dereferencePointer(value, opvalue)) // Try to read pointed memory
-            this->_symboltable.createLocation(value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
+        if(operand.is(OperandTypes::Memory) && (operand.isRead() || instruction->is(InstructionTypes::Branch)))
+        {
+            if(this->dereferencePointer(value, opvalue)) // Try to read pointed memory
+                this->_symboltable.createLocation(value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
+        }
     }
 
     const Segment* segment = this->_format->segment(opvalue);

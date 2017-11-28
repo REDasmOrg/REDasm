@@ -225,6 +225,7 @@ void DisassemblerTextView::adjustContextMenu()
     {
         this->_actrename->setVisible(false);
         this->_actcreatefunction->setVisible(false);
+        this->_actcreatestring->setVisible(false);
         this->_actxrefs->setVisible(false);
         this->_actback->setVisible(this->canGoBack());
         this->_actforward->setVisible(this->canGoForward());

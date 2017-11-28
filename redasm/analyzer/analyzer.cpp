@@ -32,6 +32,7 @@ void Analyzer::findTrampolines(Listing &listing, Symbol* symbol)
         return;
 
     const ProcessorPlugin* processor = listing.processor();
+    ReferenceTable* references = listing.referenceTable();
     Symbol* symimport = NULL;
 
     if(PROCESSOR_IS(processor, "x86"))
@@ -44,6 +45,7 @@ void Analyzer::findTrampolines(Listing &listing, Symbol* symbol)
 
     symbol->type |= SymbolTypes::Locked;
     symboltable->rename(symbol, "_" + REDasm::normalize(symimport->name));
+    references->push(symimport, it->second);
 }
 
 Symbol* Analyzer::findTrampolines_x86(Listing::iterator& it, SymbolTable* symboltable, const ProcessorPlugin* processor)

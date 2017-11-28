@@ -7,6 +7,7 @@
 #include "pe_utils.h"
 
 #define RVA_POINTER(type, rva) (pointer<type>(rvaToOffset(rva)))
+#define RVA_POINTER_OK(type, rva, ok) (pointer<type>(rvaToOffset(rva, ok)))
 
 namespace REDasm {
 
@@ -25,7 +26,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         virtual bool load(u8 *rawformat);
 
     private:
-        u64 rvaToOffset(u64 rva) const;
+        u64 rvaToOffset(u64 rva, bool* ok = NULL) const;
         void loadSections();
         void loadExports();
         void loadImports();
@@ -60,7 +61,12 @@ template<typename THUNK, int ordinalflag> void PeFormat::readDescriptor(const Im
 
         if(!(thunk[i] & ordinalflag))
         {
-            ImageImportByName* importbyname = RVA_POINTER(ImageImportByName, thunk[i]);
+            bool ok = false;
+            ImageImportByName* importbyname = RVA_POINTER_OK(ImageImportByName, thunk[i], &ok);
+
+            if(!ok)
+                continue;
+
             importname = PEUtils::importName(descriptorname, reinterpret_cast<const char*>(&importbyname->Name));
         }
         else

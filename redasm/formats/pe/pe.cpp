@@ -103,14 +103,19 @@ bool PeFormat::load(u8 *rawformat)
     return true;
 }
 
-u64 PeFormat::rvaToOffset(u64 rva) const
+u64 PeFormat::rvaToOffset(u64 rva, bool *ok) const
 {
     for(size_t i = 0; i < this->_ntheaders->FileHeader.NumberOfSections; i++)
     {
         const ImageSectionHeader& section = this->_sectiontable[i];
 
         if((rva >= section.VirtualAddress) && (rva < (section.VirtualAddress + section.Misc.VirtualSize)))
+        {
+            if(ok)
+                *ok = true;
+
             return section.PointerToRawData + (rva - section.VirtualAddress);
+        }
     }
 
     return rva;

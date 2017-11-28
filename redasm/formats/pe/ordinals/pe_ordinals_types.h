@@ -3,8 +3,8 @@
 
 #include "../../../redasm.h"
 
-#define COMPILE_MAP(dll, classid) _libraries[dll] = OrdinalMap(); \
-                                  classid::compile(_libraries[dll]);
+#define COMPILE_MAP(dll, classid) { _libraries[dll] = OrdinalMap(); \
+                                    classid::compile(_libraries[dll]); }
 
 #define ORDINAL_NAME(ord, name) m[ord] = name;
 

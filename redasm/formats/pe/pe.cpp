@@ -166,8 +166,12 @@ void PeFormat::loadSections()
         if(diff)
             size += this->_sectionalignment - diff;
 
-        this->defineSegment(reinterpret_cast<const char*>(section.Name), section.PointerToRawData,
-                            this->_imagebase + rva, size, flags);
+        std::string name = reinterpret_cast<const char*>(section.Name);
+
+        if(name.empty()) // Rename unnamed sections
+            name = "sect" + std::to_string(i);
+
+        this->defineSegment(name, section.PointerToRawData, this->_imagebase + rva, size, flags);
     }
 
     Segment* segment = this->segment(this->_entrypoint);

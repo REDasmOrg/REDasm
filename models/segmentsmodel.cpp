@@ -47,7 +47,7 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::TextAlignmentRole)
         return Qt::AlignCenter;
-    else if(role == Qt::FontRole && index.column() > 1)
+    else if(role == Qt::FontRole && index.column() >= 1)
         return QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
     return QVariant();

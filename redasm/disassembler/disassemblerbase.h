@@ -2,7 +2,7 @@
 #define DISASSEMBLERBASE_H
 
 #define MIN_STRING       4
-#define MAX_STRING       100
+#define MAX_STRING       200
 
 #define STATUS(s) if(_statuscallback) _statuscallback((s));
 #define LOG(s)    if(_logcallback) _logcallback((s));

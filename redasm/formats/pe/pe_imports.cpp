@@ -1,7 +1,6 @@
 #include "pe_imports.h"
 #include "ordinals/msvbvm50.h"
 #include "ordinals/msvbvm60.h"
-#include <fstream>
 
 namespace REDasm {
 

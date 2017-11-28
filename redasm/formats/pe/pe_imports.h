@@ -1,7 +1,6 @@
 #ifndef PE_IMPORTS_H
 #define PE_IMPORTS_H
 
-#include <picojson.h>
 #include <unordered_map>
 #include <string>
 #include "../../redasm.h"

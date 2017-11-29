@@ -18,5 +18,6 @@ Experimental crossplatform, multiarchitecture disassembler
 - ARM (WIP) (with Capstone backend)
 
 ## Dependencies
+- Qt >= 5.6
 - [Capstone](https://github.com/aquynh/capstone) 
 - [PicoJSON](https://github.com/kazuho/picojson)

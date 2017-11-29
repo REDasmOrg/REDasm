@@ -1,4 +1,4 @@
-DEPENDS_ROOT       = $$PWD/depends
+DEPENDS_ROOT       = $$PWD
 
 # ======================== Capstone ========================
 CAPSTONE_SRC       = $$DEPENDS_ROOT/capstone

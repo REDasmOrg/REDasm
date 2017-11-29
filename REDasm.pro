@@ -12,7 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = REDasm
 TEMPLATE = app
 
-include(depends.pri)
+include(depends/depends.pri)
 include(widgets/QHexEdit/QHexEdit.pri)
 debug: include(unittest/unittest.pri)
 

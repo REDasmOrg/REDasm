@@ -28,8 +28,10 @@ class DisassemblerTest
     private: // Tests
         void testCavia(REDasm::Disassembler* disassembler);
         void testCM01(REDasm::Disassembler* disassembler);
+        void testOllyDump(REDasm::Disassembler* disassembler);
         void testSCrack(REDasm::Disassembler* disassembler);
         void testVB5CrackMe(REDasm::Disassembler* disassembler);
+        void testIoliARM(REDasm::Disassembler* disassembler);
 
     private:
         TestList _tests;

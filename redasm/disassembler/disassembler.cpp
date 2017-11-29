@@ -22,6 +22,11 @@ Disassembler::~Disassembler()
     delete this->_processor;
 }
 
+ProcessorPlugin *Disassembler::processor()
+{
+    return this->_processor;
+}
+
 Listing& Disassembler::listing()
 {
     return this->_listing;

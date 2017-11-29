@@ -38,6 +38,8 @@ DisassemblerTest::DisassemblerTest()
 
     ADD_TEST_PATH("PE Test/CM01.exe", testCM01);
     ADD_TEST_PATH("PE Test/VB5CRKME.EXE", testVB5CrackMe);
+    ADD_TEST_PATH("PE Test/OllyDump.dll", testOllyDump);
+    ADD_TEST_PATH("IOLI-crackme/bin-pocketPC/crackme0x01.arm.exe", testIoliARM);
     ADD_TEST_PATH("PE Test/tn12/scrack.exe", testSCrack);
 
     ADD_TEST_PATH_NULL("PE Test/CorruptedIT.exe", NULL);
@@ -167,12 +169,44 @@ void DisassemblerTest::testCM01(Disassembler *disassembler)
     TEST_SYMBOL("Ascii String @ 004020F4", symbol, symbol->is(SymbolTypes::String));
 }
 
+void DisassemblerTest::testOllyDump(Disassembler *disassembler)
+{
+    SymbolTable* symboltable = disassembler->symbols();
+    Listing& listing = disassembler->listing();
+
+    Symbol* symbol = symboltable->symbol(0x00403bdc);
+    TEST_SYMBOL("Checking Function @ 00403bdc", symbol, symbol->isFunction());
+
+    auto it = listing.find(0x00403bea);
+    TEST("Checking CALL @ 0x00403bea", it != listing.end() && it->second->is(InstructionTypes::Call));
+
+    if(it == listing.end())
+        return;
+
+    address_t target = 0;
+    const InstructionPtr& instruction = it->second;
+    ProcessorPlugin* processor = disassembler->processor();
+    TEST("Validating CALL @ 0x00403bea target", processor->target(instruction, &target));
+
+    symbol = symboltable->symbol(target);
+    TEST_SYMBOL("Checking if target a data-pointer", symbol, symbol->is(SymbolTypes::Pointer) && symbol->is(SymbolTypes::Data));
+
+    symbol = disassembler->dereferenceSymbol(symbol);
+    TEST_SYMBOL("Checking if dereferenced pointer is a function", symbol, symbol->is(SymbolTypes::Function));
+}
+
 void DisassemblerTest::testSCrack(Disassembler *disassembler)
 {
     SymbolTable* symboltable = disassembler->symbols();
 
     Symbol* symbol = symboltable->symbol(0x004013E4);
     TEST_SYMBOL_NAME("Import VB6 ThunRTMain", symbol, symbol->is(SymbolTypes::Function), "_msvbvm60_dll_ThunRTMain");
+
+    symbol = symboltable->symbol(0x00402b1c);
+    TEST_SYMBOL("Checking Wide String @ 0x00402b1c", symbol, symbol->is(SymbolTypes::WideString));
+
+    symbol = symboltable->symbol(0x00402b2c);
+    TEST_SYMBOL("Checking Wide String @ 0x00402b2c", symbol, symbol->is(SymbolTypes::WideString));
 
     std::map<address_t, std::string> vbevents;
     vbevents[0x00403BB0] = "main::about::Click";
@@ -203,4 +237,44 @@ void DisassemblerTest::testVB5CrackMe(Disassembler *disassembler)
     vbevents[0x004020C4] = "Form1::Command1::Click";
 
     this->testVBEvents(disassembler, vbevents);
+}
+
+void DisassemblerTest::testIoliARM(Disassembler *disassembler)
+{
+    SymbolTable* symboltable = disassembler->symbols();
+    Listing& listing = disassembler->listing();
+
+    auto it = listing.find(0x00011064);
+    TEST("Checking LDR @ 0x00011064", it != listing.end() && it->second->mnemonic == "ldr");
+
+    if(it == listing.end())
+        return;
+
+    InstructionPtr instruction = it->second;
+    TEST("Checking LDR's operands count", instruction->operands.size() >= 2);
+
+    Operand op = instruction->operands[1];
+    TEST("Checking LDR's operand 2", op.is(OperandTypes::Memory));
+
+    Symbol* symbol = symboltable->symbol(op.u_value);
+    TEST_SYMBOL("Checking LDR's operand 2 symbol", symbol, symbol->is(SymbolTypes::Data) && symbol->is(SymbolTypes::Pointer));
+
+    symbol = disassembler->dereferenceSymbol(symbol);
+    TEST_SYMBOL("Checking LDR's operand 2 dereferenced string", symbol, symbol->is(SymbolTypes::String));
+
+    it = listing.find(0x00011088);
+    TEST("Checking LDR @ 0x00011088", it != listing.end() && it->second->mnemonic == "ldr");
+
+    if(it == listing.end())
+        return;
+
+    u64 value = 0;
+    instruction = it->second;
+    TEST("Checking LDR's operands count", instruction->operands.size() >= 2);
+    op = instruction->operands[1];
+    TEST("Checking LDR's operand 2", op.is(OperandTypes::Memory));
+
+    symbol = symboltable->symbol(op.u_value);
+    TEST_SYMBOL("Checking LDR's operand 2 symbol", symbol, symbol->is(SymbolTypes::Data) && symbol->is(SymbolTypes::Pointer));
+    TEST("Checking dereferenced value", disassembler->dereferencePointer(symbol->address, value) && (value == 0x149a));
 }

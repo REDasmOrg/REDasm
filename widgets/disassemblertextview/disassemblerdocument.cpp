@@ -306,8 +306,10 @@ QDomNode DisassemblerDocument::createEmptyElement()
 
 QDomNode DisassemblerDocument::createLabelElement(const REDasm::Symbol *symbol)
 {
-    QJsonObject data = { { "action", DisassemblerDocument::XRefAction },
-                         { "address", ADDRESS_VARIANT(symbol->address) } };
+    REDasm::ReferenceVector refs = this->_disassembler->getReferences(symbol);
+
+    QJsonObject data = { { "action", refs.size() > 1 ? DisassemblerDocument::XRefAction : DisassemblerDocument::GotoAction },
+                         { "address", ADDRESS_VARIANT(refs.size() > 1 ? symbol->address : refs.front()->address) } };
 
     QString addrstring = HEX_ADDRESS(symbol->address);
     QDomNode a = this->createAnchorElement(S_TO_QS(symbol->name) + ":", data, THEME_VALUE_S("label_fg"));

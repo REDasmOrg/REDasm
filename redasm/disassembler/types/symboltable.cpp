@@ -194,7 +194,7 @@ void SymbolTable::promoteSymbol(Symbol *symbol, const std::string &name, u32 typ
     if(symbol->is(SymbolTypes::Locked) || symbol->is(SymbolTypes::Function))
         return;
 
-    if(symbol->is(SymbolTypes::Data) && type & SymbolTypes::Code)
+    if(symbol->is(SymbolTypes::Data) && (type & SymbolTypes::Code))
     {
         symbol->name = name;
         symbol->type = type;

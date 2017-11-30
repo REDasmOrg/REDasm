@@ -32,7 +32,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         void loadImports();
 
     private:
-        template<typename THUNK, int ordinalflag> void readDescriptor(const ImageImportDescriptor& importdescriptor);
+        template<typename THUNK, u64 ordinalflag> void readDescriptor(const ImageImportDescriptor& importdescriptor);
 
     private:
         ImageDosHeader* _dosheader;
@@ -42,7 +42,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         u64 _petype, _imagebase, _sectionalignment, _entrypoint;
 };
 
-template<typename THUNK, int ordinalflag> void PeFormat::readDescriptor(const ImageImportDescriptor& importdescriptor)
+template<typename THUNK, u64 ordinalflag> void PeFormat::readDescriptor(const ImageImportDescriptor& importdescriptor)
 {
     // Check if OFT exists
     THUNK* thunk = RVA_POINTER(THUNK, importdescriptor.OriginalFirstThunk ? importdescriptor.OriginalFirstThunk :

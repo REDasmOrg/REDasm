@@ -64,7 +64,7 @@ template<cs_arch arch, size_t mode> bool CapstoneProcessorPlugin<arch, mode>::de
     const uint8_t* pdata = reinterpret_cast<const uint8_t*>(buffer.data);
     cs_insn* insn = cs_malloc(this->_cshandle);
 
-    if(!cs_disasm_iter(this->_cshandle, &pdata, &buffer.length, &address, insn))
+    if(!cs_disasm_iter(this->_cshandle, &pdata, reinterpret_cast<size_t*>(&buffer.length), &address, insn))
         return false;
 
     if(cs_insn_group(this->_cshandle, insn, CS_GRP_JUMP))

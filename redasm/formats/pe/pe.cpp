@@ -243,9 +243,9 @@ void PeFormat::loadImports()
     for(size_t i = 0; i < importtable[i].FirstThunk; i++)
     {
         if(this->bits() == 64)
-            this->readDescriptor<ImageThunkData64, IMAGE_ORDINAL_FLAG64>(importtable[i]);
+            this->readDescriptor<ImageThunkData64, static_cast<u64>(IMAGE_ORDINAL_FLAG64)>(importtable[i]);
         else
-            this->readDescriptor<ImageThunkData32, IMAGE_ORDINAL_FLAG32>(importtable[i]);
+            this->readDescriptor<ImageThunkData32, static_cast<u64>(IMAGE_ORDINAL_FLAG32)>(importtable[i]);
     }
 }
 

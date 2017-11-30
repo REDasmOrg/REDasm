@@ -54,7 +54,7 @@ class SymbolTable
         SymbolTable();
         u64 size() const;
         bool contains(address_t address) const;
-        bool create(address_t address, const std::string& name, u32 flags);
+        bool create(address_t address, const std::string& name, u32 type);
         Symbol* entryPoint();
         Symbol* symbol(address_t address);
         Symbol* symbol(const std::string& name);
@@ -75,6 +75,7 @@ class SymbolTable
         bool createLocation(address_t address, u32 type);
 
     private:
+        void promoteSymbol(Symbol* symbol, const std::string& name, u32 type);
         void eraseInVector(address_t address);
 
     private:

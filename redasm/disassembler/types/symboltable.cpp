@@ -17,15 +17,18 @@ bool SymbolTable::contains(address_t address) const
     return this->_byaddress.find(address) != this->_byaddress.end();
 }
 
-bool SymbolTable::create(address_t address, const std::string &name, u32 flags)
+bool SymbolTable::create(address_t address, const std::string &name, u32 type)
 {
     auto it = this->_byaddress.find(address);
 
     if(it != this->_byaddress.end())
+    {
+        this->promoteSymbol(&it->second, name, type);
         return false;
+    }
 
     this->_addresses.push_back(address);
-    this->_byaddress[address] = Symbol(flags, address, name);
+    this->_byaddress[address] = Symbol(type, address, name);
     this->_byname[name] = address;
     return true;
 }
@@ -184,6 +187,18 @@ bool SymbolTable::createWString(address_t address)
 bool SymbolTable::createLocation(address_t address, u32 type)
 {
     return this->create(address, REDasm::symbol("loc", address), type);
+}
+
+void SymbolTable::promoteSymbol(Symbol *symbol, const std::string &name, u32 type)
+{
+    if(symbol->is(SymbolTypes::Locked) || symbol->is(SymbolTypes::Function))
+        return;
+
+    if(symbol->is(SymbolTypes::Data) && type & SymbolTypes::Code)
+    {
+        symbol->name = name;
+        symbol->type = type;
+    }
 }
 
 void SymbolTable::eraseInVector(address_t address)

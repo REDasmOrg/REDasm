@@ -198,7 +198,7 @@ void PeFormat::loadExports()
                 continue;
 
             namedfunction = true;
-            this->defineSymbol(funcep, RVA_POINTER(const char, names[j]), SymbolTypes::Locked | symboltype);
+            this->defineSymbol(funcep, RVA_POINTER(const char, names[j]), symboltype);
             break;
         }
 

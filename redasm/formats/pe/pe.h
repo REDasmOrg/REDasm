@@ -80,7 +80,7 @@ template<typename THUNK, u64 ordinalflag> void PeFormat::readDescriptor(const Im
                 importname = PEUtils::importName(descriptorname, importname);
         }
 
-        this->defineSymbol(address, importname, SymbolTypes::Locked | SymbolTypes::Import);
+        this->defineSymbol(address, importname, SymbolTypes::Import);
     }
 }
 

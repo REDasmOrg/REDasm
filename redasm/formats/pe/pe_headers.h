@@ -58,8 +58,8 @@ struct ImageOptionalHeader64
     u16 MajorImageVersion, MinorImageVersion;
     u16 MajorSubsystemVersion, MinorSubsystemVersion;
     u32 Win32VersionValue, SizeOfImage, SizeOfHeaders;
-    u32 CheckSum, Subsystem;
-    u16 DllCharacteristics;
+    u32 CheckSum;
+    u16 Subsystem, DllCharacteristics;
     u64 SizeOfStackReserve, SizeOfStackCommit;
     u64 SizeOfHeapReserve, SizeOfHeapCommit;
     u32 LoaderFlags, NumberOfRvaAndSizes;

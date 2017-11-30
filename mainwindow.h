@@ -28,6 +28,7 @@ class MainWindow : public QMainWindow
 
     private:
         void centerWindow();
+        void applyTheme();
         void load(const QString &s);
         void analyze();
         void display(REDasm::ProcessorPlugin* processor, REDasm::FormatPlugin* format);

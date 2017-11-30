@@ -37,7 +37,7 @@ int DisassemblerDocument::lineFromAddress(address_t address) const
 
 void DisassemblerDocument::setTheme(const QString &theme)
 {
-    QFile f(QString(":/themes/%1.json").arg(theme));
+    QFile f(QString(":/themes/disassembler/%1.json").arg(theme));
 
     if(!f.open(QFile::ReadOnly))
     {

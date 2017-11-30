@@ -12,7 +12,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     REDasm::init();
-
+    this->applyTheme();
     ui->setupUi(this);
 
     this->_lblstatus = new QLabel(this);
@@ -76,6 +76,17 @@ void MainWindow::centerWindow()
     QRect position = this->frameGeometry();
     position.moveCenter(QDesktopWidget().availableGeometry().center());
     this->move(position.topLeft());
+}
+
+void MainWindow::applyTheme()
+{
+    QFile f(":/themes/application/redasm.css");
+
+    if(!f.open(QFile::ReadOnly))
+        return;
+
+    qApp->setStyleSheet(f.readAll());
+    f.close();
 }
 
 void MainWindow::load(const QString& s)

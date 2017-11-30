@@ -137,3 +137,7 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     resources.qrc \
     themes.qrc
+
+DISTFILES += \
+    themes/application/flat.json \
+    themes/disassembler/dark.json

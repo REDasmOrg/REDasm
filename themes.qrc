@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>themes/light.json</file>
+        <file>themes/disassembler/light.json</file>
+        <file>themes/application/redasm.css</file>
     </qresource>
 </RCC>

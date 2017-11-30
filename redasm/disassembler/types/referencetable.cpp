@@ -38,12 +38,22 @@ ReferenceMap::const_iterator ReferenceTable::end() const
     return this->_references.end();
 }
 
-ReferenceMap::const_iterator ReferenceTable::references(REDasm::Symbol* symbol) const
+ReferenceMap::const_iterator ReferenceTable::references(const REDasm::Symbol* symbol) const
 {
     return this->_references.find(symbol->address);
 }
 
-ReferenceVector ReferenceTable::referencesToVector(Symbol *symbol) const
+u64 ReferenceTable::referencesCount(const Symbol *symbol) const
+{
+    auto it = this->references(symbol);
+
+    if(it != this->_references.end())
+        return it->second.size();
+
+    return 0;
+}
+
+ReferenceVector ReferenceTable::referencesToVector(const Symbol *symbol) const
 {
     auto it = this->_references.find(symbol->address);
 

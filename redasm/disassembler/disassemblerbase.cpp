@@ -80,20 +80,25 @@ bool DisassemblerBase::hasReferences(Symbol *symbol)
     return this->_referencetable.hasReferences(symbol);
 }
 
-ReferenceVector DisassemblerBase::getReferences(Symbol *symbol)
+ReferenceVector DisassemblerBase::getReferences(const Symbol *symbol)
 {
     if(symbol->is(SymbolTypes::Pointer))
     {
         Symbol* ptrsymbol = this->dereferenceSymbol(symbol);
 
         if(ptrsymbol)
-            symbol = ptrsymbol;
+            return this->_referencetable.referencesToVector(ptrsymbol);
     }
 
     if(symbol)
         return this->_referencetable.referencesToVector(symbol);
 
     return ReferenceVector();
+}
+
+u64 DisassemblerBase::getReferencesCount(const Symbol *symbol)
+{
+    return this->_referencetable.referencesCount(symbol);
 }
 
 u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
@@ -132,17 +137,18 @@ std::string DisassemblerBase::readWString(const Symbol *symbol) const
     return this->readWString(symbol->address);
 }
 
-Symbol *DisassemblerBase::dereferenceSymbol(Symbol *symbol, u64* value)
+Symbol *DisassemblerBase::dereferenceSymbol(const Symbol *symbol, u64* value)
 {
     address_t a = 0;
+    Symbol* ptrsymbol = NULL;
 
     if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, a))
-        symbol = this->_symboltable.symbol(a);
+        ptrsymbol = this->_symboltable.symbol(a);
 
     if(value)
         *value = a;
 
-    return symbol;
+    return ptrsymbol;
 }
 
 bool DisassemblerBase::dereferencePointer(address_t address, u64 &value) const

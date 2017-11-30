@@ -20,8 +20,9 @@ class ReferenceTable
         bool hasReferences(Symbol* symbol) const;
         ReferenceMap::const_iterator begin() const;
         ReferenceMap::const_iterator end() const;
-        ReferenceMap::const_iterator references(Symbol *symbol) const;
-        ReferenceVector referencesToVector(Symbol *symbol) const;
+        ReferenceMap::const_iterator references(const Symbol *symbol) const;
+        u64 referencesCount(const Symbol *symbol) const;
+        ReferenceVector referencesToVector(const Symbol *symbol) const;
 
     public:
         static ReferenceVector toVector(const ReferenceSet& refset);

@@ -139,5 +139,4 @@ RESOURCES += \
     themes.qrc
 
 DISTFILES += \
-    themes/application/flat.json \
-    themes/disassembler/dark.json
+    themes/application/flat.json

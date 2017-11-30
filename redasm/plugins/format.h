@@ -29,6 +29,8 @@ class FormatPlugin: public Plugin
         const SegmentVector& segments() const;
         const SymbolTable& symbols() const;
         Segment *segment(address_t address);
+        Segment *segmentAt(u64 index);
+        Segment *segmentByName(const std::string& name);
         virtual offset_t offset(address_t address) const;
         virtual Analyzer *createAnalyzer(DisassemblerFunctions* dfunctions) const;
 

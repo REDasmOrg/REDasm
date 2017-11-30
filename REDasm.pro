@@ -72,7 +72,8 @@ SOURCES += main.cpp\
     redasm/disassembler/types/symboltable.cpp \
     redasm/processors/x86/x86printer.cpp \
     redasm/formats/pe/ordinals/msvbvm60.cpp \
-    redasm/formats/pe/ordinals/msvbvm50.cpp
+    redasm/formats/pe/ordinals/msvbvm50.cpp \
+    redasm/support/coff/coff_symboltable.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -127,7 +128,10 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/types/symboltable.h \
     redasm/processors/x86/x86printer.h \
     redasm/formats/pe/ordinals/msvbvm60.h \
-    redasm/formats/pe/ordinals/msvbvm50.h
+    redasm/formats/pe/ordinals/msvbvm50.h \
+    redasm/support/coff/coff_symboltable.h \
+    redasm/support/coff/coff_types.h \
+    redasm/support/coff/coff_constants.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

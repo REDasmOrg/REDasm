@@ -30,23 +30,23 @@
 #define EV_NONE         0
 #define EV_CURRENT      1
 
-#define EM_NONE	     	0
-#define EM_M32	        1
-#define EM_SPARC    	2
-#define EM_386		    3
-#define EM_68K	        4
-#define EM_88K		    5
-#define EM_486		    6
-#define EM_860		    7
+#define EM_NONE       0
+#define EM_M32         1
+#define EM_SPARC     2
+#define EM_386      3
+#define EM_68K         4
+#define EM_88K      5
+#define EM_486      6
+#define EM_860      7
 #define EM_MIPS         8
-#define EM_MIPS_RS4_BE	10
-#define EM_PARISC	    15
-#define EM_SPARC32PLUS	18
-#define EM_PPC		    20
-#define EM_PPC64	    21
+#define EM_MIPS_RS4_BE 10
+#define EM_PARISC     15
+#define EM_SPARC32PLUS 18
+#define EM_PPC      20
+#define EM_PPC64     21
 #define EM_S390         22
-#define EM_SH		    42
-#define EM_SPARCV9	    43
+#define EM_SH      42
+#define EM_SPARCV9     43
 #define EM_H8_300H      47
 #define EM_H8S          48
 #define EM_IA_64        50
@@ -57,18 +57,18 @@
 #define EM_CYGNUS_V850  0x9080
 #define EM_S390_OLD     0xA390
 
-#define PT_NULL		    0
-#define PT_LOAD		    1
-#define PT_DYNAMIC	    2
-#define PT_INTERP	    3
-#define PT_NOTE		    4
-#define PT_SHLIB	    5
-#define PT_PHDR		    6
-#define PT_LOOS		    0x60000000
-#define PT_HIOS		    0x6fffffff
-#define PT_LOPROC	    0x70000000
-#define PT_HIPROC	    0x7fffffff
-#define PT_GNU_EH_FRAME	0x6474e550
+#define PT_NULL      0
+#define PT_LOAD      1
+#define PT_DYNAMIC     2
+#define PT_INTERP     3
+#define PT_NOTE      4
+#define PT_SHLIB     5
+#define PT_PHDR      6
+#define PT_LOOS      0x60000000
+#define PT_HIOS      0x6fffffff
+#define PT_LOPROC     0x70000000
+#define PT_HIPROC     0x7fffffff
+#define PT_GNU_EH_FRAME 0x6474e550
 
 #define PF_X            0x1
 #define PF_W            0x2
@@ -117,9 +117,9 @@
 #define STT_COMMON      5
 #define STT_TLS         6
 
-#define STV_DEFAULT	    0
-#define STV_INTERNAL	1
-#define STV_HIDDEN	    2
-#define STV_PROTECTED	3
+#define STV_DEFAULT     0
+#define STV_INTERNAL 1
+#define STV_HIDDEN     2
+#define STV_PROTECTED 3
 
 #endif // ELF_CONSTANTS_H

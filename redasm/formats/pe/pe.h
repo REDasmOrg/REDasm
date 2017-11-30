@@ -30,6 +30,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         void loadSections();
         void loadExports();
         void loadImports();
+        void loadSymbolTable();
 
     private:
         template<typename THUNK, u64 ordinalflag> void readDescriptor(const ImageImportDescriptor& importdescriptor);

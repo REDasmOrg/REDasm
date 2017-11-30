@@ -72,4 +72,18 @@
 #define IMAGE_ORDINAL_FLAG64               0x8000000000000000ULL
 #define IMAGE_ORDINAL_FLAG32                          0x80000000
 
+// Debug Info
+#define IMAGE_DEBUG_TYPE_UNKNOWN                               0
+#define IMAGE_DEBUG_TYPE_COFF                                  1
+#define IMAGE_DEBUG_TYPE_CODEVIEW                              2
+#define IMAGE_DEBUG_TYPE_FPO                                   3
+#define IMAGE_DEBUG_TYPE_MISC                                  4
+#define IMAGE_DEBUG_TYPE_EXCEPTION                             5
+#define IMAGE_DEBUG_TYPE_FIXUP                                 6
+#define IMAGE_DEBUG_TYPE_OMAP_TO_SRC                           7
+#define IMAGE_DEBUG_TYPE_OMAP_FROM_SRC                         8
+#define IMAGE_DEBUG_TYPE_BORLAND                               9
+#define IMAGE_DEBUG_TYPE_RESERVED10                           10
+#define IMAGE_DEBUG_TYPE_CLSID                                11
+
 #endif // PE_CONSTANTS_H

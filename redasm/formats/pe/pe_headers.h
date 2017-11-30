@@ -99,6 +99,14 @@ struct ImageExportDirectory
     u32 AddressOfFunctions, AddressOfNames, AddressOfNameOrdinals;
 };
 
+struct ImageDebugDirectory
+{
+    u32 Characteristics, TimeDateStamp;
+    u16 MajorVersion, MinorVersion;
+    u32 Type, SizeOfData;
+    u32 AddressOfRawData, PointerToRawData;
+};
+
 struct ImageImportDescriptor
 {
     union { u32 Characteristics, OriginalFirstThunk; };

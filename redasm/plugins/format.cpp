@@ -28,6 +28,24 @@ Segment *FormatPlugin::segment(address_t address)
     return NULL;
 }
 
+Segment *FormatPlugin::segmentAt(u64 index)
+{
+    return &this->_segments[index];
+}
+
+Segment *FormatPlugin::segmentByName(const std::string &name)
+{
+    for(auto it = this->_segments.begin(); it != this->_segments.end(); it++)
+    {
+        Segment& segment = *it;
+
+        if(segment.name == name)
+            return &segment;
+    }
+
+    return NULL;
+}
+
 offset_t FormatPlugin::offset(address_t address) const
 {
     for(auto it = this->_segments.begin(); it != this->_segments.end(); it++)

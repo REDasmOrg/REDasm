@@ -2,6 +2,7 @@
 #include "pe_constants.h"
 #include "pe_analyzer.h"
 #include "vb/vb_analyzer.h"
+#include "../../support/coff/coff_symboltable.h"
 
 namespace REDasm {
 
@@ -98,6 +99,7 @@ bool PeFormat::load(u8 *rawformat)
     this->loadSections();
     this->loadExports();
     this->loadImports();
+    this->loadSymbolTable();
 
     FormatPluginT<ImageDosHeader>::load(rawformat);
     return true;
@@ -123,20 +125,6 @@ u64 PeFormat::rvaToOffset(u64 rva, bool *ok) const
 
 void PeFormat::loadSections()
 {
-    address_t iatrvastart = 0, iatrvaend = 0;
-    const ImageDataDirectory& iatdir = this->_datadirectory[IMAGE_DIRECTORY_ENTRY_IAT];
-
-    if(iatdir.VirtualAddress) // Take care of IAT's location
-    {
-        iatrvastart = iatdir.VirtualAddress;
-        iatrvaend = iatdir.VirtualAddress + iatdir.Size;
-
-        this->defineSegment(".idata", this->rvaToOffset(iatdir.VirtualAddress),
-                                      this->_imagebase + iatdir.VirtualAddress,
-                                      iatdir.Size,
-                                      SegmentTypes::Data | SegmentTypes::Read);
-    }
-
     for(size_t i = 0; i < this->_ntheaders->FileHeader.NumberOfSections; i++)
     {
         const ImageSectionHeader& section = this->_sectiontable[i];
@@ -158,14 +146,6 @@ void PeFormat::loadSections()
             flags |= SegmentTypes::Bss;
 
         u64 size = section.Misc.VirtualSize;
-        address_t rva = section.VirtualAddress;
-
-        if((rva >= iatrvastart) && (rva < iatrvaend))
-        {
-            rva += iatdir.Size;
-            size -= iatdir.Size;
-        }
-
         u64 diff = size & this->_sectionalignment;
 
         if(diff)
@@ -176,7 +156,7 @@ void PeFormat::loadSections()
         if(name.empty()) // Rename unnamed sections
             name = "sect" + std::to_string(i);
 
-        this->defineSegment(name, section.PointerToRawData, this->_imagebase + rva, size, flags);
+        this->defineSegment(name, section.PointerToRawData, this->_imagebase + section.VirtualAddress, size, flags);
     }
 
     Segment* segment = this->segment(this->_entrypoint);
@@ -247,6 +227,27 @@ void PeFormat::loadImports()
         else
             this->readDescriptor<ImageThunkData32, static_cast<u64>(IMAGE_ORDINAL_FLAG32)>(importtable[i]);
     }
+}
+
+void PeFormat::loadSymbolTable()
+{
+    if(!this->_ntheaders->FileHeader.PointerToSymbolTable || !this->_ntheaders->FileHeader.NumberOfSymbols)
+        return;
+
+    COFF::loadSymbols([this](const std::string& name, COFF::COFF_Entry* entry) {
+                      if(this->segmentByName(name)) // Ignore segment informations
+                          return;
+
+                      const Segment* segment = this->segmentAt(entry->e_scnum - 1);
+                      address_t address = segment->address + entry->e_value;
+
+                      if(segment->is(SegmentTypes::Code) && (entry->e_sclass == C_EXT))
+                          this->defineFunction(address, name);
+                      else
+                          this->defineSymbol(address, name, SymbolTypes::Data);
+    },
+    this->pointer<u8>(this->_ntheaders->FileHeader.PointerToSymbolTable),
+    this->_ntheaders->FileHeader.NumberOfSymbols);
 }
 
 }

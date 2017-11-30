@@ -27,17 +27,17 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
         const REDasm::Segment& s = this->_format->segments()[index.row()];
 
         if(index.column() == 0)
-            return QString::fromStdString(s.name);
-        else if(index.column() == 1)
             return S_TO_QS(REDasm::hex(s.address, this->_format->bits()));
-        else if(index.column() == 2)
+        else if(index.column() == 1)
             return S_TO_QS(REDasm::hex(s.endaddress, this->_format->bits()));
+        else if(index.column() == 2)
+            return QString::fromStdString(s.name);
         else if(index.column() == 3)
             return this->segmentFlags(s);
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() == 0)
+        if(index.column() == 2)
             return QColor(Qt::darkGreen);
         else if(index.column() == 3)
             return QColor(Qt::darkRed);
@@ -47,7 +47,7 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::TextAlignmentRole)
         return Qt::AlignCenter;
-    else if(role == Qt::FontRole && index.column() >= 1)
+    else if(role == Qt::FontRole && index.column() != 3)
         return QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
     return QVariant();
@@ -59,13 +59,13 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
         return QVariant();
 
     if(section == 0)
-        return "Name";
-
-    if(section == 1)
         return "Start Address";
 
-    if(section == 2)
+    if(section == 1)
         return "End Address";
+
+    if(section == 2)
+        return "Name";
 
     if(section == 3)
         return "Type";

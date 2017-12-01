@@ -21,7 +21,7 @@ class ListingMap : public QWidget
         void render(REDasm::Disassembler *disassembler);
 
     private:
-        const Item *segmentBase(REDasm::Disassembler* disassembler, REDasm::Symbol* symbol) const;
+        const Item *segmentBase(REDasm::Disassembler* disassembler, REDasm::SymbolPtr symbol) const;
 
     protected:
         virtual void paintEvent(QPaintEvent *);

@@ -7,7 +7,7 @@ ReferencesModel::ReferencesModel(REDasm::Disassembler* disassembler, QObject *pa
     this->setDisassembler(disassembler);
 }
 
-void ReferencesModel::xref(address_t currentaddress, REDasm::Symbol* symbol)
+void ReferencesModel::xref(address_t currentaddress, const REDasm::SymbolPtr& symbol)
 {
     this->beginResetModel();
     this->_currentaddress = currentaddress;

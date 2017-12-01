@@ -11,14 +11,14 @@ PsxExeAnalyzer::PsxExeAnalyzer(DisassemblerFunctions *dfunctions): Analyzer(dfun
 
 void PsxExeAnalyzer::analyze(Listing& listing)
 {
-    listing.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &listing](Symbol* symbol) -> bool {
+    listing.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &listing](const SymbolPtr& symbol) -> bool {
         return this->analyzeFunction(listing, this->_psyq46, symbol);
     });
 
     this->detectMain(listing);
 }
 
-bool PsxExeAnalyzer::analyzeFunction(Listing& listing, const Signatures& psyq, Symbol *symbol)
+bool PsxExeAnalyzer::analyzeFunction(Listing& listing, const Signatures& psyq, const SymbolPtr &symbol)
 {
     if(symbol->type & SymbolTypes::Locked)
         return true;
@@ -37,7 +37,7 @@ bool PsxExeAnalyzer::analyzeFunction(Listing& listing, const Signatures& psyq, S
 
         symbol->type |= SymbolTypes::Import;
         symbol->lock();
-        symboltable->rename(symbol, obj.at("name").to_str());
+        symboltable->update(symbol, obj.at("name").to_str());
         break;
     }
 
@@ -47,7 +47,7 @@ bool PsxExeAnalyzer::analyzeFunction(Listing& listing, const Signatures& psyq, S
 void PsxExeAnalyzer::detectMain(Listing &listing)
 {
     SymbolTable* symboltable = listing.symbolTable();
-    Symbol* symentry = symboltable->entryPoint();
+    SymbolPtr symentry = symboltable->entryPoint();
 
     if(!symentry)
         return;
@@ -58,14 +58,14 @@ void PsxExeAnalyzer::detectMain(Listing &listing)
         if(instruction->mnemonic != "jal")
             return true;
 
-        Symbol* symbol = symboltable->symbol(instruction->operands[0].u_value);
+        SymbolPtr symbol = symboltable->symbol(instruction->operands[0].u_value);
 
         if(!symbol)
             return !initheap; // Continue until InitHeap is found
 
         if(initheap) {
             symbol->lock();
-            symboltable->rename(symbol, "main");
+            symboltable->update(symbol, "main");
             return false;
         }
 

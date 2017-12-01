@@ -9,11 +9,11 @@ namespace REDasm {
 
 Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlugin *format): DisassemblerBase(buffer, format), _processor(processor)
 {
-    this->_printer = PrinterPtr(this->_processor->createPrinter(this, &this->_symboltable));
+    this->_printer = PrinterPtr(this->_processor->createPrinter(this, this->_symboltable));
 
     this->_listing.setFormat(this->_format);
     this->_listing.setProcessor(this->_processor);
-    this->_listing.setSymbolTable(&this->_symboltable);
+    this->_listing.setSymbolTable(this->_symboltable);
     this->_listing.setReferenceTable(&this->_referencetable);
 }
 
@@ -64,13 +64,13 @@ std::string Disassembler::comment(const InstructionPtr &instruction) const
 
 void Disassembler::disassembleFunction(address_t address)
 {
-    Symbol* symbol = this->_symboltable.symbol(address);
+    SymbolPtr symbol = this->_symboltable->symbol(address);
 
     if(!symbol || symbol->isFunction())
         return;
 
-    this->_symboltable.erase(address);
-    this->_symboltable.createFunction(address);
+    this->_symboltable->erase(address);
+    this->_symboltable->createFunction(address);
     this->disassemble(address);
 
     STATUS("Analyzing...");
@@ -81,7 +81,7 @@ void Disassembler::disassembleFunction(address_t address)
 void Disassembler::disassemble()
 {
     // Preload format functions for analysis
-    this->_symboltable.iterate(SymbolTypes::Function, [this](Symbol* symbol) -> bool {
+    this->_symboltable->iterate(SymbolTypes::Function, [this](SymbolPtr symbol) -> bool {
         this->disassemble(symbol->address);
         return true;
     });
@@ -94,7 +94,7 @@ void Disassembler::disassemble()
         a->analyze(this->_listing);
     }
 
-    this->_symboltable.sort();
+    this->_symboltable->sort();
 }
 
 InstructionPtr Disassembler::disassembleInstruction(address_t address)
@@ -109,8 +109,8 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
     size_t cases = 0;
     address_t address = op.mem.displacement, target = 0;
 
-    this->_symboltable.createLocation(address, SymbolTypes::Data);
-    Symbol* jmpsymbol = this->_symboltable.symbol(address);
+    this->_symboltable->createLocation(address, SymbolTypes::Data);
+    SymbolPtr jmpsymbol = this->_symboltable->symbol(address);
 
     while(this->readAddress(address, op.mem.scale, target))
     {
@@ -122,9 +122,9 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
         isjumptable = true;
         this->disassemble(target);
 
-        if(this->_symboltable.createLocation(target, SymbolTypes::Code))
+        if(this->_symboltable->createLocation(target, SymbolTypes::Code))
         {
-            Symbol* symbol = this->_symboltable.symbol(target);
+            SymbolPtr symbol = this->_symboltable->symbol(target);
             auto it = this->_listing.find(target);
 
             if(it != this->_listing.end())
@@ -152,14 +152,14 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
         return;
 
     u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value, opvalue = value;
-    Symbol* symbol = this->_symboltable.symbol(value);
+    SymbolPtr symbol = this->_symboltable->symbol(value);
 
     if(!symbol || (symbol && !symbol->is(SymbolTypes::Import))) // Don't try to dereference imports
     {
         if(operand.is(OperandTypes::Memory) && (operand.isRead() || instruction->is(InstructionTypes::Branch)))
         {
             if(this->dereferencePointer(value, opvalue)) // Try to read pointed memory
-                this->_symboltable.createLocation(value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
+                this->_symboltable->createLocation(value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
         }
     }
 
@@ -178,9 +178,9 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
             if(operand.index == index)
             {
                 if(symbol && !symbol->isFunction()) // This symbol will be promoted to function
-                    this->_symboltable.erase(opvalue);
+                    this->_symboltable->erase(opvalue);
 
-                if(this->_symboltable.createFunction(opvalue)) // This operand is the target
+                if(this->_symboltable->createFunction(opvalue)) // This operand is the target
                     this->disassemble(opvalue);
             }
         }
@@ -200,7 +200,7 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
                 else if(!dir)
                     instruction->cmt("Infinite loop");
 
-                this->_symboltable.createLocation(opvalue, SymbolTypes::Code);
+                this->_symboltable->createLocation(opvalue, SymbolTypes::Code);
             }
             else
                 this->checkJumpTable(instruction, operand);
@@ -209,20 +209,20 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
         {
             if(wide)
             {
-                this->_symboltable.createWString(opvalue);
+                this->_symboltable->createWString(opvalue);
                 instruction->cmt("UNICODE: " + this->readWString(opvalue));
             }
             else
             {
-                this->_symboltable.createString(opvalue);
+                this->_symboltable->createString(opvalue);
                 instruction->cmt("STRING: " + this->readString(opvalue));
             }
         }
         else
-            this->_symboltable.createLocation(opvalue, SymbolTypes::Data);
+            this->_symboltable->createLocation(opvalue, SymbolTypes::Data);
     }
 
-    symbol = this->_symboltable.symbol(opvalue);
+    symbol = this->_symboltable->symbol(opvalue);
 
     if(symbol)
         this->_referencetable.push(symbol, instruction);

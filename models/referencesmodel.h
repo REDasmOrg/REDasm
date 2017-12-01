@@ -14,7 +14,7 @@ class ReferencesModel : public DisassemblerModel
 
     public:
         explicit ReferencesModel(REDasm::Disassembler *disassembler, QObject *parent = 0);
-        void xref(address_t currentaddress, REDasm::Symbol *symbol);
+        void xref(address_t currentaddress, const REDasm::SymbolPtr &symbol);
 
     public:
         virtual QModelIndex index(int row, int column, const QModelIndex &) const;

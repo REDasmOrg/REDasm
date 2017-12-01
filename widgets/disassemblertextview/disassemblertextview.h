@@ -18,7 +18,7 @@ class DisassemblerTextView : public QTextBrowser
         void setDisassembler(REDasm::Disassembler* disassembler);
 
     public slots:
-        void goTo(REDasm::Symbol* symbol);
+        void goTo(const REDasm::SymbolPtr& symbol);
         void goTo(address_t address);
         void rename(address_t address);
         void goBack();
@@ -53,7 +53,7 @@ class DisassemblerTextView : public QTextBrowser
         void canGoForwardChanged();
         void invalidateSymbols();
         void hexDumpRequested(address_t address);
-        void symbolRenamed(const REDasm::Symbol* symbol);
+        void symbolRenamed(const REDasm::SymbolPtr& symbol);
         void addressChanged(address_t address);
 
     private:

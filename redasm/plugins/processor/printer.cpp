@@ -30,11 +30,11 @@ std::string Printer::out(const InstructionPtr &instruction, std::function<void (
         {
            if(it->is(OperandTypes::Immediate) || it->is(OperandTypes::Memory))
             {
-                Symbol* symbol = this->_symboltable->symbol(it->is(OperandTypes::Immediate) ? operand.s_value : operand.u_value);
+                SymbolPtr symbol = this->_symboltable->symbol(it->is(OperandTypes::Immediate) ? operand.s_value : operand.u_value);
 
                 if(symbol)
                 {
-                    Symbol* ptrsymbol = NULL;
+                    SymbolPtr ptrsymbol = NULL;
 
                     if(symbol->is(SymbolTypes::Pointer))
                     {
@@ -92,7 +92,7 @@ std::string Printer::mem(const MemoryOperand &memop) const
 
     if(memop.displacement)
     {
-        Symbol* symbol = this->_symboltable->symbol(memop.displacement);
+        SymbolPtr symbol = this->_symboltable->symbol(memop.displacement);
 
         if(!s.empty() && ((memop.displacement > 0) || symbol))
             s += " + ";

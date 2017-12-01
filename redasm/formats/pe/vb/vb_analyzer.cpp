@@ -21,7 +21,7 @@ VBAnalyzer::VBAnalyzer(DisassemblerFunctions *dfunctions): PEAnalyzer(dfunctions
 void VBAnalyzer::analyze(Listing &listing)
 {
     SymbolTable* symboltable = listing.symbolTable();
-    Symbol* entrypoint = symboltable->entryPoint();
+    SymbolPtr entrypoint = symboltable->entryPoint();
 
     if(!entrypoint)
         return;
@@ -40,13 +40,13 @@ void VBAnalyzer::analyze(Listing &listing)
     callinstruction->type |= InstructionTypes::Stop;
     pushinstruction->comments.clear();
 
-    Symbol* thunrtdata = symboltable->symbol(pushinstruction->operands[0].u_value);
-    symboltable->rename(thunrtdata, "thunRTData");
+    SymbolPtr thunrtdata = symboltable->symbol(pushinstruction->operands[0].u_value);
 
     if(thunrtdata)
     {
         thunrtdata->type = SymbolTypes::Data;
         thunrtdata->lock();
+        symboltable->update(thunrtdata, "thunRTData");
     }
 
     this->decompile(listing, thunrtdata);
@@ -106,7 +106,7 @@ void VBAnalyzer::decompileObject(Listing& listing, const VBPublicObjectDescripto
     }
 }
 
-void VBAnalyzer::decompile(Listing& listing, Symbol* thunrtdata)
+void VBAnalyzer::decompile(Listing& listing, SymbolPtr thunrtdata)
 {
     if(!thunrtdata)
         return;

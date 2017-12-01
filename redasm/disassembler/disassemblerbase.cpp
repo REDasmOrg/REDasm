@@ -5,7 +5,7 @@ namespace REDasm {
 
 DisassemblerBase::DisassemblerBase(Buffer buffer, FormatPlugin *format): DisassemblerFunctions(), _format(format), _buffer(buffer)
 {
-    this->_symboltable = format->symbols(); // Initialize symbol table
+    this->_symboltable = format->symbols();
 }
 
 DisassemblerBase::~DisassemblerBase()
@@ -23,9 +23,9 @@ FormatPlugin *DisassemblerBase::format()
     return this->_format;
 }
 
-SymbolTable *DisassemblerBase::symbols()
+SymbolTable *DisassemblerBase::symbolTable()
 {
-    return &this->_symboltable;
+    return this->_symboltable;
 }
 
 void DisassemblerBase::loggerCallback(const DisassemblerBase::ReportCallback &cb)
@@ -40,7 +40,7 @@ void DisassemblerBase::statusCallback(const DisassemblerBase::ReportCallback &cb
 
 bool DisassemblerBase::dataToString(address_t address)
 {
-    Symbol* symbol = this->_symboltable.symbol(address);
+    SymbolPtr symbol = this->_symboltable->symbol(address);
 
     if(!symbol)
         return false;
@@ -69,10 +69,10 @@ bool DisassemblerBase::dataToString(address_t address)
         wide ? instruction->cmt("UNICODE: " + s) : instruction->cmt("STRING: " + s);
     });
 
-    return this->_symboltable.rename(symbol, "str_" + REDasm::hex(address, 0, false));
+    return this->_symboltable->update(symbol, "str_" + REDasm::hex(address, 0, false));
 }
 
-bool DisassemblerBase::hasReferences(Symbol *symbol)
+bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
 {
     if(!symbol)
         return false;
@@ -80,11 +80,11 @@ bool DisassemblerBase::hasReferences(Symbol *symbol)
     return this->_referencetable.hasReferences(symbol);
 }
 
-ReferenceVector DisassemblerBase::getReferences(const Symbol *symbol)
+ReferenceVector DisassemblerBase::getReferences(const SymbolPtr& symbol)
 {
     if(symbol->is(SymbolTypes::Pointer))
     {
-        Symbol* ptrsymbol = this->dereferenceSymbol(symbol);
+        SymbolPtr ptrsymbol = this->dereferenceSymbol(symbol);
 
         if(ptrsymbol)
             return this->_referencetable.referencesToVector(ptrsymbol);
@@ -96,7 +96,7 @@ ReferenceVector DisassemblerBase::getReferences(const Symbol *symbol)
     return ReferenceVector();
 }
 
-u64 DisassemblerBase::getReferencesCount(const Symbol *symbol)
+u64 DisassemblerBase::getReferencesCount(const SymbolPtr &symbol)
 {
     return this->_referencetable.referencesCount(symbol);
 }
@@ -117,7 +117,7 @@ u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
     return count;
 }
 
-std::string DisassemblerBase::readString(const Symbol *symbol) const
+std::string DisassemblerBase::readString(const SymbolPtr &symbol) const
 {
     address_t memaddress = 0;
 
@@ -127,7 +127,7 @@ std::string DisassemblerBase::readString(const Symbol *symbol) const
     return this->readString(symbol->address);
 }
 
-std::string DisassemblerBase::readWString(const Symbol *symbol) const
+std::string DisassemblerBase::readWString(const SymbolPtr &symbol) const
 {
     address_t memaddress = 0;
 
@@ -137,13 +137,13 @@ std::string DisassemblerBase::readWString(const Symbol *symbol) const
     return this->readWString(symbol->address);
 }
 
-Symbol *DisassemblerBase::dereferenceSymbol(const Symbol *symbol, u64* value)
+SymbolPtr DisassemblerBase::dereferenceSymbol(const SymbolPtr& symbol, u64* value)
 {
     address_t a = 0;
-    Symbol* ptrsymbol = NULL;
+    SymbolPtr ptrsymbol;
 
     if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, a))
-        ptrsymbol = this->_symboltable.symbol(a);
+        ptrsymbol = this->_symboltable->symbol(a);
 
     if(value)
         *value = a;

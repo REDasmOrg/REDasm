@@ -8,7 +8,7 @@ ReferenceTable::ReferenceTable()
 
 }
 
-void ReferenceTable::push(Symbol *symbol, const InstructionPtr &instruction)
+void ReferenceTable::push(const SymbolPtr& symbol, const InstructionPtr &instruction)
 {
     auto it = this->_references.find(symbol->address);
 
@@ -23,7 +23,7 @@ void ReferenceTable::push(Symbol *symbol, const InstructionPtr &instruction)
     it->second.insert(instruction);
 }
 
-bool ReferenceTable::hasReferences(Symbol *symbol) const
+bool ReferenceTable::hasReferences(const SymbolPtr& symbol) const
 {
     return this->references(symbol) != this->_references.end();
 }
@@ -38,12 +38,12 @@ ReferenceMap::const_iterator ReferenceTable::end() const
     return this->_references.end();
 }
 
-ReferenceMap::const_iterator ReferenceTable::references(const REDasm::Symbol* symbol) const
+ReferenceMap::const_iterator ReferenceTable::references(const REDasm::SymbolPtr& symbol) const
 {
     return this->_references.find(symbol->address);
 }
 
-u64 ReferenceTable::referencesCount(const Symbol *symbol) const
+u64 ReferenceTable::referencesCount(const SymbolPtr& symbol) const
 {
     auto it = this->references(symbol);
 
@@ -53,7 +53,7 @@ u64 ReferenceTable::referencesCount(const Symbol *symbol) const
     return 0;
 }
 
-ReferenceVector ReferenceTable::referencesToVector(const Symbol *symbol) const
+ReferenceVector ReferenceTable::referencesToVector(const SymbolPtr& symbol) const
 {
     auto it = this->_references.find(symbol->address);
 

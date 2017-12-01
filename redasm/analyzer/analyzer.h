@@ -18,9 +18,9 @@ class Analyzer
         virtual void analyze(Listing& listing);
 
     private:
-        void findTrampolines(Listing& listing, Symbol *symbol);
-        Symbol* findTrampolines_x86(Listing::iterator& it, SymbolTable *symboltable, const ProcessorPlugin *processor);
-        Symbol* findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable);
+        void findTrampolines(Listing& listing, SymbolPtr symbol);
+        SymbolPtr findTrampolines_x86(Listing::iterator& it, SymbolTable *symboltable, const ProcessorPlugin *processor);
+        SymbolPtr findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable);
 
     protected:
         void createFunction(SymbolTable* symboltable, const std::string& name, address_t address);

@@ -16,13 +16,13 @@ class ReferenceTable
 {
     public:
         ReferenceTable();
-        void push(Symbol* symbol, const InstructionPtr& instruction);
-        bool hasReferences(Symbol* symbol) const;
+        void push(const SymbolPtr &symbol, const InstructionPtr& instruction);
+        bool hasReferences(const SymbolPtr &symbol) const;
         ReferenceMap::const_iterator begin() const;
         ReferenceMap::const_iterator end() const;
-        ReferenceMap::const_iterator references(const Symbol *symbol) const;
-        u64 referencesCount(const Symbol *symbol) const;
-        ReferenceVector referencesToVector(const Symbol *symbol) const;
+        ReferenceMap::const_iterator references(const SymbolPtr& symbol) const;
+        u64 referencesCount(const SymbolPtr &symbol) const;
+        ReferenceVector referencesToVector(const SymbolPtr &symbol) const;
 
     public:
         static ReferenceVector toVector(const ReferenceSet& refset);

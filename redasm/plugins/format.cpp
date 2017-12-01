@@ -12,9 +12,9 @@ const SegmentVector &FormatPlugin::segments() const
     return _segments;
 }
 
-const SymbolTable &FormatPlugin::symbols() const
+SymbolTable *FormatPlugin::symbols()
 {
-    return this->_symbol;
+    return &this->_symbol;
 }
 
 Segment *FormatPlugin::segment(address_t address)

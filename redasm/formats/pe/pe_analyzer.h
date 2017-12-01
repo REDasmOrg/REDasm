@@ -15,7 +15,7 @@ class PEAnalyzer: public Analyzer
         virtual void analyze(Listing& listing);
 
     private:
-        Symbol* getImport(Listing& listing, const std::string& library, const std::string& api);
+        SymbolPtr getImport(Listing& listing, const std::string& library, const std::string& api);
         ReferenceVector getAPIReferences(Listing &listing, const std::string& library, const std::string& api);
         void findStopAPI(Listing& listing, const std::string &library, const std::string &api);
         void findAllWndProc(Listing& listing);

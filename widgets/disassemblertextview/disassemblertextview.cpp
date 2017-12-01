@@ -64,7 +64,7 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
     this->_disdocument->setTheme("light");
     this->disassemble();
 
-    REDasm::Symbol* symbol = disassembler->symbols()->entryPoint();
+    REDasm::SymbolPtr symbol = disassembler->symbolTable()->entryPoint();
 
     if(symbol)
         this->display(symbol->address);
@@ -90,7 +90,7 @@ void DisassemblerTextView::display(address_t address)
     this->focusLine(line);
 }
 
-void DisassemblerTextView::goTo(REDasm::Symbol *symbol)
+void DisassemblerTextView::goTo(const REDasm::SymbolPtr &symbol)
 {
     this->goTo(symbol->address);
 }
@@ -237,7 +237,7 @@ void DisassemblerTextView::adjustContextMenu()
     QJsonObject data = this->_disdocument->decode(encdata);
     this->_menuaddress = data["address"].toVariant().toULongLong();
     REDasm::Segment* segment = this->_disassembler->format()->segment(this->_menuaddress);
-    REDasm::Symbol* symbol = this->_disassembler->symbols()->symbol(this->_menuaddress);
+    REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(this->_menuaddress);
 
     this->_actrename->setVisible(symbol != NULL);
 
@@ -345,7 +345,7 @@ void DisassemblerTextView::focusLineAt(address_t address)
 
 void DisassemblerTextView::showReferences(address_t address)
 {
-    REDasm::Symbol* symbol = this->_disassembler->symbols()->symbol(address);
+    REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(address);
 
     if(!symbol)
         return;
@@ -357,16 +357,16 @@ void DisassemblerTextView::showReferences(address_t address)
 
 void DisassemblerTextView::rename(address_t address)
 {
-    REDasm::Symbol* symbol = this->_disassembler->symbols()->symbol(address);
+    REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(address);
 
     if(!symbol)
         return;
 
-    REDasm::SymbolTable* symboltable = this->_disassembler->symbols();
+    REDasm::SymbolTable* symboltable = this->_disassembler->symbolTable();
     QString sym = S_TO_QS(symbol->name), s = QInputDialog::getText(this, QString("Rename %1").arg(sym), "Symbol name:", QLineEdit::Normal, sym);
     std::string newsym = s.simplified().replace(" ", "_").toStdString();
 
-    if(s.simplified().isEmpty() || !symboltable->rename(symbol, newsym))
+    if(s.simplified().isEmpty() || !symboltable->update(symbol, newsym))
         return;
 
     this->updateListing();

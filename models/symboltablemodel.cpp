@@ -2,35 +2,51 @@
 #include <QFontDatabase>
 #include <QColor>
 
-SymbolTableModel::SymbolTableModel(QObject *parent) : DisassemblerModel(parent), _symbols(NULL)
+SymbolTableModel::SymbolTableModel(QObject *parent) : DisassemblerModel(parent), _symboltable(NULL), _symbolflags(REDasm::SymbolTypes::None)
 {
 
 }
 
 void SymbolTableModel::setDisassembler(REDasm::Disassembler *disassembler)
 {
-    this->beginResetModel();
     DisassemblerModel::setDisassembler(disassembler);
-    this->_symbols = disassembler->symbols();
+    this->_symboltable = disassembler->symbolTable();
+    this->loadSymbols();
+}
+
+void SymbolTableModel::setSymbolFlags(u32 symbolflags)
+{
+    this->_symbolflags = symbolflags;
+    this->loadSymbols();
+}
+
+void SymbolTableModel::loadSymbols()
+{
+    if(!this->_symboltable || (this->_symbolflags == REDasm::SymbolTypes::None))
+        return;
+
+    this->beginResetModel();
+    this->_symbols.clear();
+
+    this->_symboltable->iterate(this->_symbolflags, [this](const REDasm::SymbolPtr& symbol) -> bool {
+        this->_symbols << symbol;
+        return true;
+    });
+
     this->endResetModel();
 }
 
 QModelIndex SymbolTableModel::index(int row, int column, const QModelIndex &) const
 {
-    const REDasm::Symbol* symbol = this->_symbols->at(row);
-
-    if(!symbol)
-        return QModelIndex();
-
-    return this->createIndex(row, column, const_cast<REDasm::Symbol*>(symbol));
+    return this->createIndex(row, column, this->_symbols.at(row).get());
 }
 
 QVariant SymbolTableModel::data(const QModelIndex &index, int role) const
 {
-    if(!this->_symbols || !index.isValid())
+    if(!this->_disassembler || !this->_symboltable || !index.isValid())
         return QVariant();
 
-    const REDasm::Symbol* symbol = reinterpret_cast<const REDasm::Symbol*>(index.internalPointer());
+    const REDasm::SymbolPtr& symbol = this->_symbols.at(index.row());
 
     if(role == Qt::DisplayRole)
     {
@@ -91,10 +107,7 @@ QVariant SymbolTableModel::headerData(int section, Qt::Orientation orientation, 
 
 int SymbolTableModel::rowCount(const QModelIndex&) const
 {
-    if(!this->_symbols)
-        return 0;
-
-    return this->_symbols->size();
+    return this->_symbols.length();
 }
 
 int SymbolTableModel::columnCount(const QModelIndex&) const

@@ -73,7 +73,8 @@ SOURCES += main.cpp\
     redasm/processors/x86/x86printer.cpp \
     redasm/formats/pe/ordinals/msvbvm60.cpp \
     redasm/formats/pe/ordinals/msvbvm50.cpp \
-    redasm/support/coff/coff_symboltable.cpp
+    redasm/support/coff/coff_symboltable.cpp \
+    redasm/support/cachemap.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -131,7 +132,8 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/ordinals/msvbvm50.h \
     redasm/support/coff/coff_symboltable.h \
     redasm/support/coff/coff_types.h \
-    redasm/support/coff/coff_constants.h
+    redasm/support/coff/coff_constants.h \
+    redasm/support/cachemap.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

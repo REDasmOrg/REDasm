@@ -10,10 +10,11 @@ class SymbolTableFilterModel : public QSortFilterProxyModel
 
     public:
         explicit SymbolTableFilterModel(QObject *parent = 0);
+        REDasm::SymbolPtr symbol(const QModelIndex index) const;
         const QString& filterName() const;
         void setDisassembler(REDasm::Disassembler* disassembler);
+        void setSymbolFlags(u32 symbolflags);
         void setFilterName(const QString& name);
-        void setFilterSymbol(u32 flags);
 
     protected:
         virtual bool filterAcceptsRow(int source_row, const QModelIndex&) const;
@@ -21,7 +22,6 @@ class SymbolTableFilterModel : public QSortFilterProxyModel
     private:
         SymbolTableModel* _symboltablemodel;
         QString _filtername;
-        u32 _filtersymbol;
 };
 
 #endif // SYMBOLTABLEFILTERMODEL_H

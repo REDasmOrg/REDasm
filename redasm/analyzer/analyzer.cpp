@@ -14,13 +14,13 @@ Analyzer::~Analyzer()
 
 void Analyzer::analyze(Listing &listing)
 {
-    listing.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &listing](Symbol* symbol) -> bool {
+    listing.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &listing](SymbolPtr symbol) -> bool {
         this->findTrampolines(listing, symbol);
         return true;
     });
 }
 
-void Analyzer::findTrampolines(Listing &listing, Symbol* symbol)
+void Analyzer::findTrampolines(Listing &listing, SymbolPtr symbol)
 {
     if(symbol->is(SymbolTypes::Locked))
         return;
@@ -33,7 +33,7 @@ void Analyzer::findTrampolines(Listing &listing, Symbol* symbol)
 
     const ProcessorPlugin* processor = listing.processor();
     ReferenceTable* references = listing.referenceTable();
-    Symbol* symimport = NULL;
+    SymbolPtr symimport;
 
     if(PROCESSOR_IS(processor, "x86"))
         symimport = this->findTrampolines_x86(it, symboltable, processor);
@@ -44,11 +44,11 @@ void Analyzer::findTrampolines(Listing &listing, Symbol* symbol)
         return;
 
     symbol->type |= SymbolTypes::Locked;
-    symboltable->rename(symbol, "_" + REDasm::normalize(symimport->name));
+    symboltable->update(symbol, "_" + REDasm::normalize(symimport->name));
     references->push(symimport, it->second);
 }
 
-Symbol* Analyzer::findTrampolines_x86(Listing::iterator& it, SymbolTable* symboltable, const ProcessorPlugin* processor)
+SymbolPtr Analyzer::findTrampolines_x86(Listing::iterator& it, SymbolTable* symboltable, const ProcessorPlugin* processor)
 {
     const InstructionPtr& instruction = it->second;
 
@@ -63,7 +63,7 @@ Symbol* Analyzer::findTrampolines_x86(Listing::iterator& it, SymbolTable* symbol
     return symboltable->symbol(target);
 }
 
-Symbol* Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable)
+SymbolPtr Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable)
 {
     const InstructionPtr& instruction1 = it->second;
     const InstructionPtr& instruction2 = (++it)->second;
@@ -79,10 +79,10 @@ Symbol* Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symbol
     if(!this->_dfunctions->readAddress(target, sizeof(u32), importaddress))
         return NULL;
 
-    Symbol *symbol = symboltable->symbol(target), *impsymbol = symboltable->symbol(importaddress);
+    SymbolPtr symbol = symboltable->symbol(target), impsymbol = symboltable->symbol(importaddress);
 
     if(symbol)
-        symboltable->rename(symbol, "imp." + impsymbol->name);
+        symboltable->update(symbol, "imp." + impsymbol->name);
 
     return impsymbol;
 }

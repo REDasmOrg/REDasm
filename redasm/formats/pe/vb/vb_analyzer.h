@@ -17,7 +17,7 @@ class VBAnalyzer : public PEAnalyzer
     private:
         void disassembleTrampoline(u32 eventva, const std::string &name, Listing &listing);
         void decompileObject(Listing &listing, const VBPublicObjectDescriptor& pubobjdescr);
-        void decompile(Listing &listing, Symbol *thunrtdata);
+        void decompile(Listing &listing, SymbolPtr thunrtdata);
 
     private:
         const PeFormat* _peformat;

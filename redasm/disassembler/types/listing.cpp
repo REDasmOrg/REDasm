@@ -32,7 +32,7 @@ void Listing::setFormat(FormatPlugin *format)
     this->_format = format;
 }
 
-address_t Listing::getStop(const Symbol *symbol)
+address_t Listing::getStop(const SymbolPtr& symbol)
 {
     return this->getStop(symbol->address);
 }
@@ -86,7 +86,7 @@ address_t Listing::getStop(address_t address)
     return address;
 }
 
-std::string Listing::getSignature(Symbol* symbol)
+std::string Listing::getSignature(const SymbolPtr& symbol)
 {
     std::string sig;
     auto it = this->find(symbol->address);
@@ -105,7 +105,7 @@ std::string Listing::getSignature(Symbol* symbol)
     return sig;
 }
 
-void Listing::iterate(const Symbol* symbol, InstructionCallback f)
+void Listing::iterate(const SymbolPtr& symbol, InstructionCallback f)
 {
     if(!this->_processor)
         return;
@@ -130,11 +130,11 @@ void Listing::iterateAll(InstructionCallback cbinstruction, SymbolCallback cbsta
     if(!this->_processor)
         return;
 
-    Symbol* currentsymbol = NULL;
+    SymbolPtr currentsymbol;
     address_t target = 0, endaddress = 0;
 
     std::for_each(this->begin(), this->end(), [this, cbinstruction, cbstart, cbend, cblabel, &currentsymbol, &target, &endaddress](const Listing::Item& item) {
-        Symbol* symbol = this->_symboltable->symbol(item.first);
+        SymbolPtr symbol = this->_symboltable->symbol(item.first);
 
         if(symbol && symbol->isFunction())
         {
@@ -157,7 +157,7 @@ void Listing::iterateAll(InstructionCallback cbinstruction, SymbolCallback cbsta
 
 bool Listing::isFunctionStart(address_t address)
 {
-    Symbol* symbol = this->_symboltable->symbol(address);
+    SymbolPtr symbol = this->_symboltable->symbol(address);
 
     if(!symbol)
         return false;

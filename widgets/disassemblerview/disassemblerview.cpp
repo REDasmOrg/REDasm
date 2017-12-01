@@ -16,19 +16,19 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     ui->tbGoto->setShortcut(QKeySequence(Qt::Key_G));
 
     this->_functionsmodel = new SymbolTableFilterModel(ui->tvFunctions);
-    this->_functionsmodel->setFilterSymbol(REDasm::SymbolTypes::FunctionMask);
+    this->_functionsmodel->setSymbolFlags(REDasm::SymbolTypes::FunctionMask);
     ui->tvFunctions->setModel(this->_functionsmodel);
 
     this->_importsmodel = new SymbolTableFilterModel(ui->tvFunctions);
-    this->_importsmodel->setFilterSymbol(REDasm::SymbolTypes::ImportMask);
+    this->_importsmodel->setSymbolFlags(REDasm::SymbolTypes::ImportMask);
     ui->tvImports->setModel(this->_importsmodel);
 
     this->_exportsmodel = new SymbolTableFilterModel(ui->tvFunctions);
-    this->_exportsmodel->setFilterSymbol(REDasm::SymbolTypes::ExportMask);
+    this->_exportsmodel->setSymbolFlags(REDasm::SymbolTypes::ExportMask);
     ui->tvExports->setModel(this->_exportsmodel);
 
     this->_stringsmodel = new SymbolTableFilterModel(ui->tvStrings);
-    this->_stringsmodel->setFilterSymbol(REDasm::SymbolTypes::StringMask);
+    this->_stringsmodel->setSymbolFlags(REDasm::SymbolTypes::StringMask);
     ui->tvStrings->setModel(this->_stringsmodel);
 
     this->_segmentsmodel = new SegmentsModel(ui->tvSegments);
@@ -139,8 +139,7 @@ void DisassemblerView::seekToSymbol(const QModelIndex &index)
 
     const SymbolTableFilterModel* filtermodel = static_cast<const SymbolTableFilterModel*>(index.model());
     QModelIndex srcindex = filtermodel->mapToSource(index);
-    REDasm::Symbol* symbol = reinterpret_cast<REDasm::Symbol*>(srcindex.internalPointer());
-
+    REDasm::SymbolPtr symbol = filtermodel->symbol(srcindex);
     const REDasm::Segment* segment = this->_disassembler->format()->segment(symbol->address);
 
     if(!segment)
@@ -158,7 +157,7 @@ void DisassemblerView::xrefSymbol(const QModelIndex &index)
 
     const SymbolTableFilterModel* filtermodel = static_cast<const SymbolTableFilterModel*>(index.model());
     QModelIndex srcindex = filtermodel->mapToSource(index);
-    REDasm::Symbol* symbol = reinterpret_cast<REDasm::Symbol*>(srcindex.internalPointer());
+    REDasm::SymbolPtr symbol = filtermodel->symbol(srcindex);
 
     if(!this->_disassembler->hasReferences(symbol))
     {
@@ -184,7 +183,7 @@ void DisassemblerView::displayAddress(address_t address)
     this->_lblstatus->setText(s);
 }
 
-void DisassemblerView::updateModel(const REDasm::Symbol *symbol)
+void DisassemblerView::updateModel(const REDasm::SymbolPtr &symbol)
 {
     if(!symbol)
     {

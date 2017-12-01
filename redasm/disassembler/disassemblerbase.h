@@ -10,7 +10,6 @@
 #include <functional>
 #include "../plugins/format.h"
 #include "types/referencetable.h"
-#include "types/symboltable.h"
 #include "disassemblerfunctions.h"
 
 namespace REDasm {
@@ -25,19 +24,19 @@ class DisassemblerBase: public DisassemblerFunctions
         virtual ~DisassemblerBase();
         Buffer& buffer();
         FormatPlugin* format();
-        SymbolTable* symbols();
+        SymbolTable* symbolTable();
         void loggerCallback(const ReportCallback& cb);
         void statusCallback(const ReportCallback& cb);
         bool dataToString(address_t address);
-        bool hasReferences(Symbol* symbol);
-        ReferenceVector getReferences(const Symbol *symbol);
-        u64 getReferencesCount(const Symbol *symbol);
+        bool hasReferences(const SymbolPtr &symbol);
+        ReferenceVector getReferences(const SymbolPtr &symbol);
+        u64 getReferencesCount(const SymbolPtr &symbol);
 
     public: // Primitive functions
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
-        virtual std::string readString(const Symbol* symbol) const;
-        virtual std::string readWString(const Symbol* symbol) const;
-        virtual Symbol *dereferenceSymbol(const Symbol *symbol, u64 *value = NULL);
+        virtual std::string readString(const SymbolPtr& symbol) const;
+        virtual std::string readWString(const SymbolPtr& symbol) const;
+        virtual SymbolPtr dereferenceSymbol(const SymbolPtr &symbol, u64 *value = NULL);
         virtual bool dereferencePointer(address_t address, u64& value) const;
         virtual bool readAddress(address_t address, size_t size, u64 &value) const;
         virtual bool readOffset(offset_t offset, size_t size, u64 &value) const;
@@ -54,7 +53,7 @@ class DisassemblerBase: public DisassemblerFunctions
         ReportCallback _logcallback;
         ReportCallback _statuscallback;
         ReferenceTable _referencetable;
-        SymbolTable _symboltable;
+        SymbolTable* _symboltable;
         FormatPlugin* _format;
         Buffer _buffer;
 };

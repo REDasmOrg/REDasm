@@ -14,7 +14,7 @@ class PsxExeAnalyzer: public Analyzer
         virtual void analyze(Listing &listing);
 
     private:
-        bool analyzeFunction(Listing &listing, const Signatures &psyq, Symbol* symbol);
+        bool analyzeFunction(Listing &listing, const Signatures &psyq, const SymbolPtr& symbol);
         void detectMain(Listing& listing);
 
     private:

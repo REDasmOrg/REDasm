@@ -13,14 +13,9 @@
 #define INDENT_COMMENT 10
 #define INDENT_WIDTH 2
 
-DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler): QDomDocument(), _currentsymbol(NULL), _disassembler(disassembler), _symbols(disassembler->symbols())
+DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler): QDomDocument(), _disassembler(disassembler), _symbols(disassembler->symbolTable())
 {
 
-}
-
-const REDasm::Symbol *DisassemblerDocument::currentFunction() const
-{
-    return this->_currentsymbol;
 }
 
 QColor DisassemblerDocument::lineColor() const
@@ -59,9 +54,9 @@ void DisassemblerDocument::populate()
     this->clear();
 
     listing.iterateAll([this](const REDasm::InstructionPtr& i) { this->appendChild(this->createInstructionElement(i)); },
-                       [this](const REDasm::Symbol* s) { this->appendChild(this->createFunctionElement(s)); },
-                       [this](const REDasm::Symbol*)   { this->appendChild(this->createEmptyElement()); },
-                       [this](const REDasm::Symbol* s) { this->appendChild(this->createLabelElement(s)); });
+                       [this](const REDasm::SymbolPtr& s) { this->appendChild(this->createFunctionElement(s)); },
+                       [this](const REDasm::SymbolPtr&)   { this->appendChild(this->createEmptyElement()); },
+                       [this](const REDasm::SymbolPtr& s) { this->appendChild(this->createLabelElement(s)); });
 }
 
 QDomElement DisassemblerDocument::getDisassemblerElement(const QString &type, address_t address, int *index, QDomElement& e) const
@@ -104,12 +99,12 @@ QDomElement DisassemblerDocument::getDisassemblerElement(const QString &type, ad
     return this->getDisassemblerElement(type, address, index, e);
 }
 
-QDomNode DisassemblerDocument::createGotoElement(const REDasm::Symbol *symbol, bool showxrefs)
+QDomNode DisassemblerDocument::createGotoElement(const REDasm::SymbolPtr& symbol, bool showxrefs)
 {
     return this->createGotoElement(symbol, S_TO_QS(symbol->name), showxrefs);
 }
 
-QDomNode DisassemblerDocument::createGotoElement(const REDasm::Symbol* symbol, const QString &label, bool showxrefs)
+QDomNode DisassemblerDocument::createGotoElement(const REDasm::SymbolPtr& symbol, const QString &label, bool showxrefs)
 {
     QJsonObject data = { { "action", DisassemblerDocument::XRefAction },
                          { "address", ADDRESS_VARIANT(symbol->address) } };
@@ -250,14 +245,14 @@ QDomNode DisassemblerDocument::createOperandElement(const REDasm::Operand &opera
 
     if(operand.is(REDasm::OperandTypes::Immediate) || operand.is(REDasm::OperandTypes::Memory))
     {
-        REDasm::Symbol* symbol = this->_symbols->symbol(operand.is(REDasm::OperandTypes::Immediate) ? operand.s_value :
-                                                                                                      operand.u_value);
+        REDasm::SymbolPtr symbol = this->_symbols->symbol(operand.is(REDasm::OperandTypes::Immediate) ? operand.s_value :
+                                                                                                        operand.u_value);
 
         if(symbol)
         {
             if(symbol->is(REDasm::SymbolTypes::Pointer))
             {
-                REDasm::Symbol* ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
+                REDasm::SymbolPtr ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
 
                 if(ptrsymbol)
                     symbol = ptrsymbol;
@@ -271,7 +266,7 @@ QDomNode DisassemblerDocument::createOperandElement(const REDasm::Operand &opera
     }
     else if(operand.is(REDasm::OperandTypes::Displacement))
     {
-        REDasm::Symbol* symbol = this->_symbols->symbol(operand.mem.displacement);
+        REDasm::SymbolPtr symbol = this->_symbols->symbol(operand.mem.displacement);
 
         if(symbol)
             e = this->createGotoElement(symbol, opstr, !operand.mem.displacementOnly()).toElement();
@@ -284,7 +279,7 @@ QDomNode DisassemblerDocument::createOperandElement(const REDasm::Operand &opera
     return e;
 }
 
-QDomNode DisassemblerDocument::createFunctionElement(const REDasm::Symbol* symbol)
+QDomNode DisassemblerDocument::createFunctionElement(const REDasm::SymbolPtr& symbol)
 {
     QDomElement f = this->createElement("font");
     f.setAttribute("address", HEX_ADDRESS(symbol->address));
@@ -304,7 +299,7 @@ QDomNode DisassemblerDocument::createEmptyElement()
     return e;
 }
 
-QDomNode DisassemblerDocument::createLabelElement(const REDasm::Symbol *symbol)
+QDomNode DisassemblerDocument::createLabelElement(const REDasm::SymbolPtr& symbol)
 {
     REDasm::ReferenceVector refs = this->_disassembler->getReferences(symbol);
 

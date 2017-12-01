@@ -26,10 +26,10 @@ void PEAnalyzer::analyze(Listing &listing)
     this->findAllWndProc(listing);
 }
 
-Symbol *PEAnalyzer::getImport(Listing &listing, const std::string &library, const std::string &api)
+SymbolPtr PEAnalyzer::getImport(Listing &listing, const std::string &library, const std::string &api)
 {
     SymbolTable* symboltable = listing.symbolTable();
-    Symbol* symbol = symboltable->symbol(IMPORT_TRAMPOLINE(library, api));
+    SymbolPtr symbol = symboltable->symbol(IMPORT_TRAMPOLINE(library, api));
 
     if(!symbol)
         symbol = symboltable->symbol(IMPORT_NAME(library, api));
@@ -40,7 +40,7 @@ Symbol *PEAnalyzer::getImport(Listing &listing, const std::string &library, cons
 ReferenceVector PEAnalyzer::getAPIReferences(Listing& listing, const std::string &library, const std::string &api)
 {
     ReferenceTable* referencetable = listing.referenceTable();
-    Symbol* symbol = this->getImport(listing, library, api);
+    SymbolPtr symbol = this->getImport(listing, library, api);
 
     if(!symbol)
         return ReferenceVector();
@@ -101,13 +101,13 @@ void PEAnalyzer::findWndProc(Listing &listing, const InstructionPtr& callinstruc
                 if(segment && segment->is(SegmentTypes::Code))
                 {
                     SymbolTable* symboltable = listing.symbolTable();
-                    Symbol* symbol = symboltable->symbol(address);
+                    SymbolPtr symbol = symboltable->symbol(address);
                     std::string name = "DlgProc_" + REDasm::hex(address, 0, false);
 
                     if(symbol)
                     {
                         symbol->type = SymbolTypes::Function;
-                        symboltable->rename(symbol, name);
+                        symboltable->update(symbol, name);
                     }
                     else
                         symboltable->createFunction(address, name);

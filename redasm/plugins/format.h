@@ -27,7 +27,7 @@ class FormatPlugin: public Plugin
     public:
         FormatPlugin();
         const SegmentVector& segments() const;
-        const SymbolTable& symbols() const;
+        SymbolTable* symbols();
         Segment *segment(address_t address);
         Segment *segmentAt(u64 index);
         Segment *segmentByName(const std::string& name);

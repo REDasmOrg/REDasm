@@ -10,6 +10,10 @@ class SymbolTableModel : public DisassemblerModel
     public:
         explicit SymbolTableModel(QObject *parent = 0);
         virtual void setDisassembler(REDasm::Disassembler* disassembler);
+        void setSymbolFlags(u32 symbolflags);
+
+    private:
+        void loadSymbols();
 
     public:
         virtual QModelIndex index(int row, int column, const QModelIndex &) const;
@@ -19,7 +23,11 @@ class SymbolTableModel : public DisassemblerModel
         virtual int columnCount(const QModelIndex&) const;
 
     private:
-        const REDasm::SymbolTable* _symbols;
+        REDasm::SymbolTable* _symboltable;
+        QList<REDasm::SymbolPtr> _symbols;
+        u32 _symbolflags;
+
+    friend class SymbolTableFilterModel;
 };
 
 #endif // SYMBOLTABLEMODEL_H

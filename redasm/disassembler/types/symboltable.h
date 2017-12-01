@@ -4,6 +4,7 @@
 #include <functional>
 #include <unordered_map>
 #include <map>
+#include "../../support/cachemap.h"
 #include "../../redasm.h"
 
 namespace REDasm {
@@ -45,26 +46,38 @@ struct Symbol
     bool isFunction() const { return type & SymbolTypes::FunctionMask; }
 };
 
-typedef std::map<address_t, Symbol> SymbolsByAddress;
-typedef std::unordered_map<std::string, address_t> SymbolsByName;
+typedef std::shared_ptr<Symbol> SymbolPtr;
+
+class SymbolCache: public CacheMap<address_t, SymbolPtr>
+{
+    public:
+        SymbolCache(): CacheMap<address_t, SymbolPtr>() { this->setName("symboltable"); }
+        virtual ~SymbolCache() { }
+
+    protected:
+        virtual std::string name() const { return "symbols"; }
+        virtual void serialize(const SymbolPtr& value, std::fstream& fs);
+        virtual void deserialize(SymbolPtr& value, std::fstream& fs);
+};
 
 class SymbolTable
 {
+    private:
+        typedef std::unordered_map<std::string, address_t> SymbolsByName;
+
     public:
         SymbolTable();
         u64 size() const;
         bool contains(address_t address) const;
         bool create(address_t address, const std::string& name, u32 type);
-        Symbol* entryPoint();
-        Symbol* symbol(address_t address);
-        Symbol* symbol(const std::string& name);
-        Symbol* at(u64 index);
-        const Symbol *at(u64 index) const;
-        const Symbol *getNearestLocation(address_t address) const;
-        std::string getName(address_t address) const;
-        void iterate(u32 symbolflags, std::function<bool(Symbol* symbol)> f);
+        SymbolPtr entryPoint();
+        SymbolPtr symbol(address_t address);
+        SymbolPtr symbol(const std::string& name);
+        SymbolPtr at(u64 index);
+        std::string getName(address_t address);
+        void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
         bool erase(address_t address);
-        bool rename(Symbol* symbol, const std::string &name);
+        bool update(SymbolPtr symbol, const std::string &name);
         void sort();
 
     public:
@@ -75,13 +88,13 @@ class SymbolTable
         bool createLocation(address_t address, u32 type);
 
     private:
-        void promoteSymbol(Symbol* symbol, const std::string& name, u32 type);
+        void promoteSymbol(address_t address, const std::string& name, u32 type);
         void eraseInVector(address_t address);
 
     private:
         AddressVector _addresses;
-        SymbolsByAddress _byaddress;
         SymbolsByName _byname;
+        SymbolCache _byaddress;
 };
 
 }

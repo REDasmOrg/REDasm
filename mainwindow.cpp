@@ -97,6 +97,7 @@ void MainWindow::load(const QString& s)
         return;
 
     QFileInfo fi(s);
+    QDir::setCurrent(fi.path());
     this->setWindowTitle(fi.fileName());
 
     this->_loadeddata = f.readAll();

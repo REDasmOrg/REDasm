@@ -16,12 +16,10 @@ class Listing: public std::map<address_t, InstructionPtr>
 {
     public:
         typedef std::pair<address_t, InstructionPtr> Item;
-        typedef std::pair<address_t, Symbol*> LabelItem;
-        typedef std::map<address_t, Symbol*> LabelMap;
 
     private:
         typedef std::function<void(const InstructionPtr&)> InstructionCallback;
-        typedef std::function<void(const Symbol*)> SymbolCallback;
+        typedef std::function<void(const SymbolPtr&)> SymbolCallback;
 
     public:
         Listing();
@@ -33,9 +31,9 @@ class Listing: public std::map<address_t, InstructionPtr>
         void setProcessor(ProcessorPlugin *processor);
         void setSymbolTable(SymbolTable* symboltable);
         void setReferenceTable(ReferenceTable* referencetable);
-        address_t getStop(const Symbol *symbol);
-        std::string getSignature(Symbol *symbol);
-        void iterate(const Symbol *symbol, InstructionCallback f);
+        address_t getStop(const SymbolPtr &symbol);
+        std::string getSignature(const SymbolPtr &symbol);
+        void iterate(const SymbolPtr &symbol, InstructionCallback f);
         void iterateAll(InstructionCallback cbinstruction, SymbolCallback cbstart, SymbolCallback cbend, SymbolCallback cblabel);
 
     private:

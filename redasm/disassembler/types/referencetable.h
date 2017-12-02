@@ -8,15 +8,17 @@
 
 namespace REDasm {
 
-typedef std::vector<InstructionPtr> ReferenceVector;
-typedef std::set<InstructionPtr> ReferenceSet;
-typedef std::unordered_map<address_t, ReferenceSet> ReferenceMap;
+typedef std::vector<address_t> ReferenceVector;
 
 class ReferenceTable
 {
+    private:
+        typedef std::set<address_t> ReferenceSet;
+        typedef std::unordered_map<address_t, ReferenceSet> ReferenceMap;
+
     public:
         ReferenceTable();
-        void push(const SymbolPtr &symbol, const InstructionPtr& instruction);
+        void push(const SymbolPtr &symbol, address_t address);
         bool hasReferences(const SymbolPtr &symbol) const;
         ReferenceMap::const_iterator begin() const;
         ReferenceMap::const_iterator end() const;

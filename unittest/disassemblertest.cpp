@@ -178,15 +178,15 @@ void DisassemblerTest::testOllyDump(Disassembler *disassembler)
     TEST_SYMBOL("Checking Function @ 00403bdc", symbol, symbol->isFunction());
 
     auto it = listing.find(0x00403bea);
-    TEST("Checking CALL @ 0x00403bea", it != listing.end() && it->second->is(InstructionTypes::Call));
+    TEST("Checking CALL @ 0x00403bea", it != listing.end());
 
     if(it == listing.end())
         return;
 
     address_t target = 0;
-    const InstructionPtr& instruction = it->second;
+    InstructionPtr instruction = *it;
     ProcessorPlugin* processor = disassembler->processor();
-    TEST("Validating CALL @ 0x00403bea target", processor->target(instruction, &target));
+    TEST("Validating CALL @ 0x00403bea target", instruction->is(InstructionTypes::Call) && processor->target(instruction, &target));
 
     symbol = symboltable->symbol(target);
     TEST_SYMBOL("Checking if target a data-pointer", symbol, symbol->is(SymbolTypes::Pointer) && symbol->is(SymbolTypes::Data));
@@ -245,13 +245,13 @@ void DisassemblerTest::testIoliARM(Disassembler *disassembler)
     Listing& listing = disassembler->listing();
 
     auto it = listing.find(0x00011064);
-    TEST("Checking LDR @ 0x00011064", it != listing.end() && it->second->mnemonic == "ldr");
+    TEST("Checking LDR @ 0x00011064", it != listing.end());
 
     if(it == listing.end())
         return;
 
-    InstructionPtr instruction = it->second;
-    TEST("Checking LDR's operands count", instruction->operands.size() >= 2);
+    InstructionPtr instruction = *it;
+    TEST("Checking LDR's operands count", (instruction->mnemonic == "ldr") && (instruction->operands.size() >= 2));
 
     Operand op = instruction->operands[1];
     TEST("Checking LDR's operand 2", op.is(OperandTypes::Memory));
@@ -263,14 +263,15 @@ void DisassemblerTest::testIoliARM(Disassembler *disassembler)
     TEST_SYMBOL("Checking LDR's operand 2 dereferenced string", symbol, symbol->is(SymbolTypes::String));
 
     it = listing.find(0x00011088);
-    TEST("Checking LDR @ 0x00011088", it != listing.end() && it->second->mnemonic == "ldr");
+    TEST("Checking LDR @ 0x00011088", it != listing.end());
 
     if(it == listing.end())
         return;
 
     u64 value = 0;
-    instruction = it->second;
-    TEST("Checking LDR's operands count", instruction->operands.size() >= 2);
+    instruction = *it;
+    TEST("Checking LDR's operands count", (instruction->mnemonic == "ldr") && (instruction->operands.size() >= 2));
+
     op = instruction->operands[1];
     TEST("Checking LDR's operand 2", op.is(OperandTypes::Memory));
 

@@ -17,7 +17,7 @@ void ReferencesModel::xref(address_t currentaddress, const REDasm::SymbolPtr& sy
 
 QModelIndex ReferencesModel::index(int row, int column, const QModelIndex &) const
 {
-    return this->createIndex(row, column, this->_referencevector[row].get());
+    return this->createIndex(row, column, this->_referencevector[row]);
 }
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
@@ -25,7 +25,8 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
     if(!this->_disassembler)
         return QVariant();
 
-    const REDasm::InstructionPtr& instruction = this->_referencevector[index.row()];
+    REDasm::Listing& listing = this->_disassembler->listing();
+    REDasm::InstructionPtr instruction = listing[this->_referencevector[index.row()]];
 
     if(role == Qt::DisplayRole)
     {

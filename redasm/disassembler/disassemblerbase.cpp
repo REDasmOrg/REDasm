@@ -38,40 +38,6 @@ void DisassemblerBase::statusCallback(const DisassemblerBase::ReportCallback &cb
     this->_statuscallback = cb;
 }
 
-bool DisassemblerBase::dataToString(address_t address)
-{
-    SymbolPtr symbol = this->_symboltable->symbol(address);
-
-    if(!symbol)
-        return false;
-
-    bool wide = false;
-    this->locationIsString(address, &wide);
-
-    std::string s;
-    ReferenceVector refs = this->_referencetable.referencesToVector(symbol);
-
-    symbol->type &= (~SymbolTypes::Data);
-    symbol->type |= wide ? SymbolTypes::WideString : SymbolTypes::String;;
-
-    if(wide)
-    {
-        symbol->type |= SymbolTypes::WideString;
-        s = this->readWString(address);
-    }
-    else
-    {
-        symbol->type |= SymbolTypes::String;
-        s = this->readString(address);
-    }
-
-    std::for_each(refs.begin(), refs.end(), [s, wide](InstructionPtr& instruction) {
-        wide ? instruction->cmt("UNICODE: " + s) : instruction->cmt("STRING: " + s);
-    });
-
-    return this->_symboltable->update(symbol, "str_" + REDasm::hex(address, 0, false));
-}
-
 bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
 {
     if(!symbol)

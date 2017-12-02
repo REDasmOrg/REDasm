@@ -47,12 +47,7 @@ bool ARMProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
 
 bool ARMProcessor::target(const InstructionPtr &instruction, address_t *target, int *index) const
 {
-    if(!instruction->userdata)
-        return false;
-
-    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
-
-    switch(insn->id)
+    switch(instruction->id)
     {
         case ARM_INS_B:
             SET_TARGET_INDEX(0);

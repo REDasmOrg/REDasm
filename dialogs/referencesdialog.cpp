@@ -22,7 +22,6 @@ void ReferencesDialog::on_tvReferences_doubleClicked(const QModelIndex &index)
     if(!index.isValid() || !index.internalPointer())
         return;
 
-    REDasm::Instruction* instruction = reinterpret_cast<REDasm::Instruction*>(index.internalPointer());
-    emit jumpTo(instruction->address);
+    emit jumpTo(index.internalId());
     this->accept();
 }

@@ -175,7 +175,7 @@ struct Operand
 
 struct Instruction
 {
-    Instruction(): address(0), type(0), size(0), segment(NULL), userdata(NULL) { }
+    Instruction(): address(0), type(0), size(0), id(0), userdata(NULL) { }
     ~Instruction() { reset(); }
 
     std::function<void(void*)> free;
@@ -185,8 +185,8 @@ struct Instruction
     std::list<std::string> comments;
     address_t address;
     u32 type, size;
-    Segment* segment;
-    void* userdata;
+    u64 id;         // Backend Specific
+    void* userdata; // It doesn't survive after Processor::decode() by design
 
     bool is(u32 t) const { return type & t; }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
@@ -241,7 +241,6 @@ template<typename T> Instruction& Instruction::local(s32 index, register_t base,
 typedef std::shared_ptr<Instruction> InstructionPtr;
 typedef std::vector<Operand> OperandList;
 
-typedef std::set<address_t> AddressSet;
 typedef std::vector<address_t> AddressVector;
 typedef std::vector<Segment> SegmentVector;
 }

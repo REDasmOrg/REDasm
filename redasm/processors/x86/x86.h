@@ -90,12 +90,7 @@ template<cs_mode mode> bool X86Processor<mode>::decode(Buffer buffer, const Inst
 
 template<cs_mode mode> bool X86Processor<mode>::target(const InstructionPtr &instruction, address_t *target, int *index) const
 {
-    if(!instruction->userdata)
-        return false;
-
-    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
-
-    switch(insn->id)
+    switch(instruction->id)
     {
         case X86_INS_JA:
         case X86_INS_JAE:

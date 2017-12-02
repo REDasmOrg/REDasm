@@ -18,6 +18,7 @@ class Disassembler: public DisassemblerBase
         void disassemble();
 
     public: // Primitive functions
+        virtual bool dataToString(address_t address);
         virtual InstructionPtr disassembleInstruction(address_t address);
         virtual void disassemble(address_t address);
 

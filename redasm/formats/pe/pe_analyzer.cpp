@@ -57,8 +57,10 @@ void PEAnalyzer::findStopAPI(Listing &listing, const std::string& library, const
 {
     ReferenceVector refs = this->getAPIReferences(listing, library, api);
 
-    std::for_each(refs.begin(), refs.end(), [](const InstructionPtr& instruction) {
-       instruction->type |= InstructionTypes::Stop;
+    std::for_each(refs.begin(), refs.end(), [&listing](address_t address) {
+        InstructionPtr instruction = listing[address];
+        instruction->type |= InstructionTypes::Stop;
+        listing.update(instruction);
     });
 }
 
@@ -68,15 +70,15 @@ void PEAnalyzer::findAllWndProc(Listing &listing)
     {
         ReferenceVector refs = this->getAPIReferences(listing, "user32.dll", it->second);
 
-        std::for_each(refs.begin(), refs.end(), [this, &listing, it](const InstructionPtr& instruction) {
-            this->findWndProc(listing, instruction, it->first);
+        std::for_each(refs.begin(), refs.end(), [this, &listing, it](address_t address) {
+            this->findWndProc(listing, address, it->first);
         });
     }
 }
 
-void PEAnalyzer::findWndProc(Listing &listing, const InstructionPtr& callinstruction, size_t argidx)
+void PEAnalyzer::findWndProc(Listing &listing, address_t address, size_t argidx)
 {
-    auto it = listing.find(callinstruction->address);
+    auto it = listing.find(address);
 
     if(it == listing.end())
         return;
@@ -86,7 +88,7 @@ void PEAnalyzer::findWndProc(Listing &listing, const InstructionPtr& callinstruc
 
     while(arg < argidx)
     {
-        const InstructionPtr& instruction = it->second;
+        const InstructionPtr& instruction = *it;
 
         if(instruction->is(InstructionTypes::Push))
         {

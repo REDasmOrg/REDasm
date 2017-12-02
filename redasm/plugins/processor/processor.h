@@ -80,6 +80,7 @@ template<cs_arch arch, size_t mode> bool CapstoneProcessorPlugin<arch, mode>::de
         instruction->type |= InstructionTypes::Privileged;
 
     instruction->mnemonic = insn->mnemonic;
+    instruction->id = insn->id;
     instruction->size = insn->size;
     instruction->userdata = insn;
     instruction->free = [](void* userdata) { cs_free(reinterpret_cast<cs_insn*>(userdata), 1); };

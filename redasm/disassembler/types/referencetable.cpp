@@ -8,19 +8,19 @@ ReferenceTable::ReferenceTable()
 
 }
 
-void ReferenceTable::push(const SymbolPtr& symbol, const InstructionPtr &instruction)
+void ReferenceTable::push(const SymbolPtr& symbol, address_t address)
 {
     auto it = this->_references.find(symbol->address);
 
     if(it == this->_references.end())
     {
         ReferenceSet rs;
-        rs.insert(instruction);
+        rs.insert(address);
         this->_references[symbol->address] = rs;
         return;
     }
 
-    it->second.insert(instruction);
+    it->second.insert(address);
 }
 
 bool ReferenceTable::hasReferences(const SymbolPtr& symbol) const
@@ -28,17 +28,17 @@ bool ReferenceTable::hasReferences(const SymbolPtr& symbol) const
     return this->references(symbol) != this->_references.end();
 }
 
-ReferenceMap::const_iterator ReferenceTable::begin() const
+ReferenceTable::ReferenceMap::const_iterator ReferenceTable::begin() const
 {
     return this->_references.begin();
 }
 
-ReferenceMap::const_iterator ReferenceTable::end() const
+ReferenceTable::ReferenceMap::const_iterator ReferenceTable::end() const
 {
     return this->_references.end();
 }
 
-ReferenceMap::const_iterator ReferenceTable::references(const REDasm::SymbolPtr& symbol) const
+ReferenceTable::ReferenceMap::const_iterator ReferenceTable::references(const REDasm::SymbolPtr& symbol) const
 {
     return this->_references.find(symbol->address);
 }
@@ -66,7 +66,7 @@ ReferenceVector ReferenceTable::referencesToVector(const SymbolPtr& symbol) cons
 ReferenceVector ReferenceTable::toVector(const ReferenceSet &refset)
 {
     ReferenceVector rv;
-    std::for_each(refset.begin(), refset.end(), [&rv](const InstructionPtr& instruction) { rv.push_back(instruction); });
+    std::for_each(refset.begin(), refset.end(), [&rv](address_t address) { rv.push_back(address); });
     return rv;
 }
 

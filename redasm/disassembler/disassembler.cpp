@@ -97,6 +97,42 @@ void Disassembler::disassemble()
     this->_symboltable->sort();
 }
 
+bool Disassembler::dataToString(address_t address)
+{
+    SymbolPtr symbol = this->_symboltable->symbol(address);
+
+    if(!symbol)
+        return false;
+
+    bool wide = false;
+    this->locationIsString(address, &wide);
+
+    std::string s;
+    ReferenceVector refs = this->_referencetable.referencesToVector(symbol);
+
+    symbol->type &= (~SymbolTypes::Data);
+    symbol->type |= wide ? SymbolTypes::WideString : SymbolTypes::String;;
+
+    if(wide)
+    {
+        symbol->type |= SymbolTypes::WideString;
+        s = this->readWString(address);
+    }
+    else
+    {
+        symbol->type |= SymbolTypes::String;
+        s = this->readString(address);
+    }
+
+    std::for_each(refs.begin(), refs.end(), [this, s, wide](address_t address) {
+        InstructionPtr instruction = this->_listing[address];
+        wide ? instruction->cmt("UNICODE: " + s) : instruction->cmt("STRING: " + s);
+        this->_listing.update(instruction);
+    });
+
+    return this->_symboltable->update(symbol, "str_" + REDasm::hex(address, 0, false));
+}
+
 InstructionPtr Disassembler::disassembleInstruction(address_t address)
 {
     Buffer b = this->_buffer + this->_format->offset(address);
@@ -129,13 +165,14 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
 
             if(it != this->_listing.end())
             {
-                InstructionPtr& tgtinstruction = it->second;
+                InstructionPtr tgtinstruction = *it;
                 tgtinstruction->cmt("JUMP_TABLE @ " + REDasm::hex(instruction->address) + " case " + std::to_string(cases));
-                this->_referencetable.push(jmpsymbol, tgtinstruction);
+                this->_listing.update(tgtinstruction);
+                this->_referencetable.push(jmpsymbol, tgtinstruction->address);
             }
 
             if(symbol)
-                this->_referencetable.push(symbol, instruction);
+                this->_referencetable.push(symbol, instruction->address);
         }
 
         address += op.mem.scale;
@@ -200,6 +237,7 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
                 else if(!dir)
                     instruction->cmt("Infinite loop");
 
+                this->_listing.update(instruction);
                 this->_symboltable->createLocation(opvalue, SymbolTypes::Code);
             }
             else
@@ -217,6 +255,8 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
                 this->_symboltable->createString(opvalue);
                 instruction->cmt("STRING: " + this->readString(opvalue));
             }
+
+            this->_listing.update(instruction);
         }
         else
             this->_symboltable->createLocation(opvalue, SymbolTypes::Data);
@@ -225,7 +265,7 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
     symbol = this->_symboltable->symbol(opvalue);
 
     if(symbol)
-        this->_referencetable.push(symbol, instruction);
+        this->_referencetable.push(symbol, instruction->address);
 }
 
 void Disassembler::disassemble(address_t address)
@@ -281,7 +321,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
         });
     }
 
-    this->_listing[address] = instruction;
+    this->_listing.commit(address, instruction);
     return instruction;
 }
 

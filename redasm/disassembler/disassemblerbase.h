@@ -27,7 +27,6 @@ class DisassemblerBase: public DisassemblerFunctions
         SymbolTable* symbolTable();
         void loggerCallback(const ReportCallback& cb);
         void statusCallback(const ReportCallback& cb);
-        bool dataToString(address_t address);
         bool hasReferences(const SymbolPtr &symbol);
         ReferenceVector getReferences(const SymbolPtr &symbol);
         u64 getReferencesCount(const SymbolPtr &symbol);

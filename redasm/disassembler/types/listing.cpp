@@ -2,7 +2,12 @@
 
 namespace REDasm {
 
-Listing::Listing(): std::map<address_t, InstructionPtr>(), _processor(NULL), _referencetable(NULL), _symboltable(NULL)
+Listing::Listing(): cache_map<address_t, InstructionPtr>("instructions"), _processor(NULL), _referencetable(NULL), _symboltable(NULL)
+{
+
+}
+
+Listing::~Listing()
 {
 
 }
@@ -62,7 +67,7 @@ address_t Listing::getStop(address_t address)
 
     while(it != this->end())
     {
-        const InstructionPtr& instruction = it->second;
+        const InstructionPtr& instruction = *it;
         address = instruction->address;
 
         if(instruction->is(InstructionTypes::Stop))
@@ -76,7 +81,10 @@ address_t Listing::getStop(address_t address)
 
         it++;
 
-        if(this->isFunctionStart(it->second->address)) // Don't overlap functions
+        if((it == this->end()))
+            break;
+
+        if(this->isFunctionStart((*it)->address)) // Don't overlap functions
             return address;
     }
 
@@ -94,7 +102,7 @@ std::string Listing::getSignature(const SymbolPtr& symbol)
 
     for(; it != this->end(); it++)
     {
-        const InstructionPtr& instruction = it->second;
+        InstructionPtr instruction = *it;
 
         if(instruction->address > endaddress)
             break;
@@ -115,7 +123,7 @@ void Listing::iterate(const SymbolPtr& symbol, InstructionCallback f)
 
     for(; it != this->end(); it++)
     {
-        const InstructionPtr& instruction = it->second;
+        InstructionPtr instruction = *it;
 
         if(instruction->address > endaddress)
             break;
@@ -133,8 +141,8 @@ void Listing::iterateAll(InstructionCallback cbinstruction, SymbolCallback cbsta
     SymbolPtr currentsymbol;
     address_t target = 0, endaddress = 0;
 
-    std::for_each(this->begin(), this->end(), [this, cbinstruction, cbstart, cbend, cblabel, &currentsymbol, &target, &endaddress](const Listing::Item& item) {
-        SymbolPtr symbol = this->_symboltable->symbol(item.first);
+    std::for_each(this->begin(), this->end(), [this, cbinstruction, cbstart, cbend, cblabel, &currentsymbol, &target, &endaddress](const InstructionPtr& instruction) {
+        SymbolPtr symbol = this->_symboltable->symbol(instruction->address);
 
         if(symbol && symbol->isFunction())
         {
@@ -145,13 +153,82 @@ void Listing::iterateAll(InstructionCallback cbinstruction, SymbolCallback cbsta
         else if(symbol && symbol->is(SymbolTypes::Code))
             cblabel(symbol);
 
-        cbinstruction(item.second);
+        cbinstruction(instruction);
 
-        if((item.first == endaddress) && currentsymbol)
+        if((instruction->address == endaddress) && currentsymbol)
         {
             cbend(currentsymbol);
             currentsymbol = NULL;
         }
+    });
+}
+
+void Listing::update(const InstructionPtr &instruction)
+{
+    this->commit(instruction->address, instruction);
+}
+
+void Listing::serialize(const InstructionPtr &value, std::fstream &fs)
+{
+    Serializer::serializeScalar(fs, value->address);
+    Serializer::serializeScalar(fs, value->type);
+    Serializer::serializeScalar(fs, value->size);
+    Serializer::serializeScalar(fs, value->id);
+
+    Serializer::serializeString(fs, value->mnemonic);
+    Serializer::serializeString(fs, value->signature);
+
+    Serializer::serializeArray<std::vector, Operand>(fs, value->operands, [this, &fs](const Operand& op) {
+        Serializer::serializeScalar(fs, op.loc_index);
+        Serializer::serializeScalar(fs, op.type);
+        Serializer::serializeScalar(fs, op.index);
+
+        Serializer::serializeScalar(fs, op.reg.type);
+        Serializer::serializeScalar(fs, op.reg.r);
+
+        Serializer::serializeScalar(fs, op.mem.base);
+        Serializer::serializeScalar(fs, op.mem.index);
+        Serializer::serializeScalar(fs, op.mem.scale);
+        Serializer::serializeScalar(fs, op.mem.displacement);
+
+        Serializer::serializeScalar(fs, op.u_value);
+    });
+
+    Serializer::serializeArray<std::list, std::string>(fs, value->comments, [this, &fs](const std::string& s) {
+        Serializer::serializeString(fs, s);
+    });
+}
+
+void Listing::deserialize(InstructionPtr &value, std::fstream &fs)
+{
+    value = std::make_shared<Instruction>();
+
+    Serializer::deserializeScalar(fs, &value->address);
+    Serializer::deserializeScalar(fs, &value->type);
+    Serializer::deserializeScalar(fs, &value->size);
+    Serializer::deserializeScalar(fs, &value->id);
+
+    Serializer::deserializeString(fs, value->mnemonic);
+    Serializer::deserializeString(fs, value->signature);
+
+    Serializer::deserializeArray<std::vector, Operand>(fs, value->operands, [this, &fs](Operand& op) {
+        Serializer::deserializeScalar(fs, &op.loc_index);
+        Serializer::deserializeScalar(fs, &op.type);
+        Serializer::deserializeScalar(fs, &op.index);
+
+        Serializer::deserializeScalar(fs, &op.reg.type);
+        Serializer::deserializeScalar(fs, &op.reg.r);
+
+        Serializer::deserializeScalar(fs, &op.mem.base);
+        Serializer::deserializeScalar(fs, &op.mem.index);
+        Serializer::deserializeScalar(fs, &op.mem.scale);
+        Serializer::deserializeScalar(fs, &op.mem.displacement);
+
+        Serializer::deserializeScalar(fs, &op.u_value);
+    });
+
+    Serializer::deserializeArray<std::list, std::string>(fs, value->comments, [this, &fs](std::string& s) {
+        Serializer::deserializeString(fs, s);
     });
 }
 

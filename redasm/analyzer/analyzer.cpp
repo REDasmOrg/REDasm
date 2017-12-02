@@ -45,12 +45,12 @@ void Analyzer::findTrampolines(Listing &listing, SymbolPtr symbol)
 
     symbol->type |= SymbolTypes::Locked;
     symboltable->update(symbol, "_" + REDasm::normalize(symimport->name));
-    references->push(symimport, it->second);
+    references->push(symimport, it.key);
 }
 
 SymbolPtr Analyzer::findTrampolines_x86(Listing::iterator& it, SymbolTable* symboltable, const ProcessorPlugin* processor)
 {
-    const InstructionPtr& instruction = it->second;
+    const InstructionPtr& instruction = *it;
 
     if(!instruction->is(InstructionTypes::Jump))
         return NULL;
@@ -65,8 +65,8 @@ SymbolPtr Analyzer::findTrampolines_x86(Listing::iterator& it, SymbolTable* symb
 
 SymbolPtr Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable)
 {
-    const InstructionPtr& instruction1 = it->second;
-    const InstructionPtr& instruction2 = (++it)->second;
+    const InstructionPtr& instruction1 = *it;
+    const InstructionPtr& instruction2 = *(++it);
 
     if((instruction1->mnemonic != "ldr") && (instruction2->mnemonic != "ldr"))
         return NULL;

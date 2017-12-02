@@ -19,7 +19,7 @@ class PEAnalyzer: public Analyzer
         ReferenceVector getAPIReferences(Listing &listing, const std::string& library, const std::string& api);
         void findStopAPI(Listing& listing, const std::string &library, const std::string &api);
         void findAllWndProc(Listing& listing);
-        void findWndProc(Listing& listing, const InstructionPtr &callinstruction, size_t argidx);
+        void findWndProc(Listing& listing, address_t address, size_t argidx);
 
     private:
         std::list<APIInfo> _wndprocapi;

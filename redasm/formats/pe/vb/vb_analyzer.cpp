@@ -31,14 +31,17 @@ void VBAnalyzer::analyze(Listing &listing)
     if(it == listing.end())
         return;
 
-    const InstructionPtr& pushinstruction = it->second;
-    const InstructionPtr& callinstruction = (++it)->second;
+    const InstructionPtr& pushinstruction = *it;
+    const InstructionPtr& callinstruction = *(++it);
 
     if(!pushinstruction->is(InstructionTypes::Push) && !callinstruction->is(InstructionTypes::Call))
         return;
 
     callinstruction->type |= InstructionTypes::Stop;
     pushinstruction->comments.clear();
+
+    listing.update(callinstruction);
+    listing.update(pushinstruction);
 
     SymbolPtr thunrtdata = symboltable->symbol(pushinstruction->operands[0].u_value);
 

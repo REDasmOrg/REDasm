@@ -70,12 +70,7 @@ template<size_t mode> bool MIPSProcessor<mode>::decode(Buffer buffer, const Inst
 
 template<size_t mode> bool MIPSProcessor<mode>::target(const InstructionPtr &instruction, address_t *target, int *index) const
 {
-    if(!instruction->userdata)
-        return false;
-
-    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
-
-    switch(insn->id)
+    switch(instruction->id)
     {
         case MIPS_INS_J:
         case MIPS_INS_JAL:

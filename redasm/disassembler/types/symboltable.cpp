@@ -5,17 +5,17 @@ namespace REDasm {
 // SymbolCache
 void SymbolCache::serialize(const SymbolPtr &value, std::fstream &fs)
 {
-    fs.write(reinterpret_cast<const char*>(&value->type), sizeof(u32));
-    fs.write(reinterpret_cast<const char*>(&value->address), sizeof(address_t));
-    Serializer::serialize(fs, value->name);
+    Serializer::serializeScalar(fs, value->type);
+    Serializer::serializeScalar(fs, value->address);
+    Serializer::serializeString(fs, value->name);
 }
 
 void SymbolCache::deserialize(SymbolPtr &value, std::fstream &fs)
 {
     value = std::make_shared<Symbol>();
-    fs.read(reinterpret_cast<char*>(&value->type), sizeof(u32));
-    fs.read(reinterpret_cast<char*>(&value->address), sizeof(address_t));
-    Serializer::deserialize(fs, value->name);
+    Serializer::deserializeScalar(fs, &value->type);
+    Serializer::deserializeScalar(fs, &value->address);
+    Serializer::deserializeString(fs, value->name);
 }
 
 // SymbolTable

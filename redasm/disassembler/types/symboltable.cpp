@@ -12,6 +12,7 @@ void SymbolCache::serialize(const SymbolPtr &value, std::fstream &fs)
 
 void SymbolCache::deserialize(SymbolPtr &value, std::fstream &fs)
 {
+    value = std::make_shared<Symbol>();
     fs.read(reinterpret_cast<char*>(&value->type), sizeof(u32));
     fs.read(reinterpret_cast<char*>(&value->address), sizeof(address_t));
     Serializer::deserialize(fs, value->name);
@@ -28,16 +29,18 @@ u64 SymbolTable::size() const
     return this->_addresses.size();
 }
 
-bool SymbolTable::contains(address_t address) const
+bool SymbolTable::contains(address_t address)
 {
-    return this->_byaddress.contains(address);
+    return this->_byaddress.find(address) != this->_byaddress.end();
 }
 
 bool SymbolTable::create(address_t address, const std::string &name, u32 type)
 {
-    if(this->_byaddress.contains(address))
+    auto it = this->_byaddress.find(address);
+
+    if(it != this->_byaddress.end())
     {
-        this->promoteSymbol(address, name, type);
+        this->promoteSymbol(*it, name, type);
         return false;
     }
 
@@ -57,24 +60,19 @@ SymbolPtr SymbolTable::symbol(const std::string &name)
     auto it = this->_byname.find(name);
 
     if(it != this->_byname.end())
-    {
-        SymbolPtr symbol = std::make_shared<Symbol>();
-
-        if(this->_byaddress.get(it->second, symbol))
-            return symbol;
-    }
+        return this->_byaddress[it->second];
 
     return NULL;
 }
 
 SymbolPtr SymbolTable::symbol(address_t address)
 {
-    if(!this->_byaddress.contains(address))
+    auto it = this->_byaddress.find(address);
+
+    if(it == this->_byaddress.end())
         return NULL;
 
-    SymbolPtr symbol = std::make_shared<Symbol>();
-    this->_byaddress.get(address, symbol);
-    return symbol;
+    return *it;
 }
 
 SymbolPtr SymbolTable::at(u64 index)
@@ -82,22 +80,7 @@ SymbolPtr SymbolTable::at(u64 index)
     if(index >= this->_addresses.size())
         throw std::runtime_error("SymbolTable[]: Index out of range");
 
-    SymbolPtr symbol = std::make_shared<Symbol>();
-    this->_byaddress.get(this->_addresses[index], symbol);
-    return symbol;
-}
-
-std::string SymbolTable::getName(address_t address)
-{
-    if(!this->_byaddress.contains(address))
-        return std::string();
-
-    SymbolPtr symbol = std::make_shared<Symbol>();
-
-    if(this->_byaddress.get(address, symbol))
-        return symbol->name;
-
-    return std::string();
+    return this->symbol(this->_addresses[index]);
 }
 
 void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)> f)
@@ -106,7 +89,7 @@ void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)
 
     for(auto it = this->_byaddress.begin(); it != this->_byaddress.end(); it++)
     {
-        SymbolPtr symbol = this->symbol(it->first);
+        SymbolPtr symbol = *it;
 
         if(!((symbol->type & SymbolTypes::LockedMask) & symbolflags))
             continue;
@@ -123,16 +106,18 @@ void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)
 
 bool SymbolTable::erase(address_t address)
 {
-    if(!this->_byaddress.contains(address))
+    auto it = this->_byaddress.find(address);
+
+    if(it == this->_byaddress.end())
         return false;
 
-    SymbolPtr symbol = this->symbol(address);
+    SymbolPtr symbol = *it;
 
     if(!symbol || symbol->is(SymbolTypes::Locked))
         return false;
 
     this->eraseInVector(address);
-    this->_byaddress.erase(address);
+    this->_byaddress.erase(it);
     this->_byname.erase(symbol->name);
     return true;
 }
@@ -184,11 +169,9 @@ bool SymbolTable::createLocation(address_t address, u32 type)
     return this->create(address, REDasm::symbol("loc", address), type);
 }
 
-void SymbolTable::promoteSymbol(address_t address, const std::string &name, u32 type)
+void SymbolTable::promoteSymbol(SymbolPtr symbol, const std::string &name, u32 type)
 {
-    SymbolPtr symbol = std::make_shared<Symbol>();
-
-    if(!this->_byaddress.get(address, symbol) || symbol->is(SymbolTypes::Locked) || symbol->is(SymbolTypes::Function))
+    if(symbol->is(SymbolTypes::Locked) || symbol->is(SymbolTypes::Function))
         return;
 
     if(symbol->is(SymbolTypes::Data) && (type & SymbolTypes::Code))
@@ -197,7 +180,7 @@ void SymbolTable::promoteSymbol(address_t address, const std::string &name, u32 
         symbol->type = type;
     }
 
-    this->_byaddress.commit(address, symbol);
+    this->_byaddress.commit(symbol->address, symbol);
 }
 
 void SymbolTable::eraseInVector(address_t address)

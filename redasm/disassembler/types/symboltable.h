@@ -48,14 +48,13 @@ struct Symbol
 
 typedef std::shared_ptr<Symbol> SymbolPtr;
 
-class SymbolCache: public CacheMap<address_t, SymbolPtr>
+class SymbolCache: public cache_map<address_t, SymbolPtr>
 {
     public:
-        SymbolCache(): CacheMap<address_t, SymbolPtr>() { this->setName("symboltable"); }
+        SymbolCache(): cache_map<address_t, SymbolPtr>("symboltable") { }
         virtual ~SymbolCache() { }
 
     protected:
-        virtual std::string name() const { return "symbols"; }
         virtual void serialize(const SymbolPtr& value, std::fstream& fs);
         virtual void deserialize(SymbolPtr& value, std::fstream& fs);
 };
@@ -68,13 +67,12 @@ class SymbolTable
     public:
         SymbolTable();
         u64 size() const;
-        bool contains(address_t address) const;
+        bool contains(address_t address);
         bool create(address_t address, const std::string& name, u32 type);
         SymbolPtr entryPoint();
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);
         SymbolPtr at(u64 index);
-        std::string getName(address_t address);
         void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
         bool erase(address_t address);
         bool update(SymbolPtr symbol, const std::string &name);
@@ -88,7 +86,7 @@ class SymbolTable
         bool createLocation(address_t address, u32 type);
 
     private:
-        void promoteSymbol(address_t address, const std::string& name, u32 type);
+        void promoteSymbol(SymbolPtr symbol, const std::string& name, u32 type);
         void eraseInVector(address_t address);
 
     private:

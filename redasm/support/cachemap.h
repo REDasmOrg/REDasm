@@ -20,24 +20,46 @@ void deserialize(std::fstream& fs, std::string& s);
 
 } // namespace Serializer
 
-template<typename T1, typename T2> class CacheMap
+template<typename T1, typename T2> class cache_map // Use STL's coding style for this type
 {
     private:
-        typedef std::map<T1, offset_t> OffsetMap;
+        typedef cache_map<T1, T2> type;
+        typedef std::map<T1, offset_t> offset_map;
+        typedef typename offset_map::iterator offset_iterator;
 
     public:
-        typedef typename OffsetMap::iterator iterator;
+        class iterator: public std::iterator<std::random_access_iterator_tag, T2> {
+            public:
+                explicit iterator(type& container, const offset_iterator& offit): _container(container), _offit(offit), key(offit->first) { }
+                iterator& operator++() { _offit++; update(); return *this; }
+                iterator& operator--() { _offit--; update(); return *this; }
+                iterator operator++(int) { iterator copy = *this; _offit++; update(); return copy; }
+                iterator operator--(int) { iterator copy = *this; _offit--; update(); return copy; }
+                bool operator==(const iterator& rhs) const { return _offit == rhs._offit; }
+                bool operator!=(const iterator& rhs) const { return _offit != rhs._offit; }
+                T2 operator *() { return _container[key]; }
+
+            private:
+                void update() { key = _offit->first; }
+
+            private:
+                type& _container;
+                offset_iterator _offit;
+
+            public:
+                T1 key;
+        };
 
     public:
-        CacheMap();
-        ~CacheMap();
-        CacheMap::iterator begin() { return this->_offsets.begin(); }
-        CacheMap::iterator end() { return this->_offsets.end(); }
-        void setName(const std::string& name) { this->_name = name; }
-        bool contains(const T1& key) const { return this->_offsets.find(key) != this->_offsets.end(); }
+        cache_map(): _name(CACHE_DEFAULT) { }
+        cache_map(const std::string& name): _name(name) { }
+        ~cache_map();
+        iterator begin() { return iterator(*this, this->_offsets.begin()); }
+        iterator end() { return iterator(*this, this->_offsets.end()); }
+        iterator find(const T1& key) { auto it = this->_offsets.find(key); return iterator(*this, it); }
         void commit(const T1& key, const T2& value);
-        bool get(const T1& key, T2& value);
-        void erase(const T1& key);
+        void erase(const iterator& it);
+        T2 operator[](const T1& key);
 
     protected:
         virtual void serialize(const T2& value, std::fstream& fs) = 0;
@@ -45,15 +67,11 @@ template<typename T1, typename T2> class CacheMap
 
     private:
         std::string _name;
-        OffsetMap _offsets;
+        offset_map _offsets;
         std::fstream _file;
 };
 
-template<typename T1, typename T2> CacheMap<T1, T2>::CacheMap(): _name(CACHE_DEFAULT)
-{
-}
-
-template<typename T1, typename T2> CacheMap<T1, T2>::~CacheMap()
+template<typename T1, typename T2> cache_map<T1, T2>::~cache_map()
 {
     if(!this->_file.is_open())
         return;
@@ -62,7 +80,7 @@ template<typename T1, typename T2> CacheMap<T1, T2>::~CacheMap()
     std::remove(CACHE_FILE.c_str());
 }
 
-template<typename T1, typename T2> void CacheMap<T1, T2>::commit(const T1& key, const T2 &value)
+template<typename T1, typename T2> void cache_map<T1, T2>::commit(const T1& key, const T2 &value)
 {
     if(!this->_file.is_open())
     {
@@ -77,30 +95,29 @@ template<typename T1, typename T2> void CacheMap<T1, T2>::commit(const T1& key, 
     this->_file.clear(); // Reset error state
 }
 
-template<typename T1, typename T2> bool CacheMap<T1, T2>::get(const T1& key, T2 &value)
+template<typename T1, typename T2> void cache_map<T1, T2>::erase(const cache_map<T1, T2>::iterator &it)
 {
-    if(!this->_file.is_open())
-        return false;
+    auto oit = this->_offsets.find(it.key);
 
+    if(oit == this->_offsets.end())
+        return;
+
+    this->_offsets.erase(oit);
+}
+
+template<typename T1, typename T2> T2 cache_map<T1, T2>::operator[](const T1& key)
+{
     auto it = this->_offsets.find(key);
 
     if(it == this->_offsets.end())
-        return false;
+        return T2();
+
+    T2 value;
 
     this->_file.seekg(it->second, std::ios::beg);
     this->deserialize(value, this->_file);
     this->_file.clear(); // Reset error state
-    return true;
-}
-
-template<typename T1, typename T2> void CacheMap<T1, T2>::erase(const T1& key)
-{
-    auto it = this->_offsets.find(key);
-
-    if(it == this->_offsets.end())
-        return;
-
-    this->_offsets.erase(it);
+    return value;
 }
 
 } // namespace REDasm

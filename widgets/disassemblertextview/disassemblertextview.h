@@ -26,10 +26,11 @@ class DisassemblerTextView : public QPlainTextEdit
         void goForward();
 
     protected:
+        virtual void resizeEvent(QResizeEvent *e);
         virtual void wheelEvent(QWheelEvent *e);
         virtual void mouseReleaseEvent(QMouseEvent *e);
-        virtual void resizeEvent(QResizeEvent *e);
         virtual void mouseDoubleClickEvent(QMouseEvent *e);
+        virtual void keyPressEvent(QKeyEvent *e);
 
     private:
         void createContextMenu();
@@ -38,6 +39,7 @@ class DisassemblerTextView : public QPlainTextEdit
         void updateAddress();
         void display(address_t address);
         void showReferences(address_t address);
+        int getCursorAnchor(address_t &address);
 
     signals:
         void gotoRequested();

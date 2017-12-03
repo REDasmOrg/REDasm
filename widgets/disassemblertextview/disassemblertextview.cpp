@@ -146,6 +146,12 @@ void DisassemblerTextView::goForward()
     this->display(address);
 }
 
+void DisassemblerTextView::resizeEvent(QResizeEvent *e)
+{
+    QPlainTextEdit::resizeEvent(e);
+    this->highlightWords();
+}
+
 void DisassemblerTextView::wheelEvent(QWheelEvent *e)
 {
     QPlainTextEdit::wheelEvent(e);
@@ -159,34 +165,36 @@ void DisassemblerTextView::mouseReleaseEvent(QMouseEvent *e)
     QPlainTextEdit::mouseReleaseEvent(e);
 }
 
-void DisassemblerTextView::resizeEvent(QResizeEvent *e)
-{
-    QPlainTextEdit::resizeEvent(e);
-    this->highlightWords();
-}
-
 void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     QPlainTextEdit::mouseDoubleClickEvent(e);
 
-    QTextCursor cursor = this->textCursor();
-    QTextCharFormat charformat = cursor.charFormat();
+    int action = 0;
+    address_t address = 0;
 
-    if(!charformat.isAnchor())
+    if(!(action = this->getCursorAnchor(address)))
         return;
-
-    QJsonObject data = DisassemblerDocument::decode(charformat.anchorHref());
-    int action = data["action"].toInt();
-
-    if(action == DisassemblerDocument::NoAction)
-        return;
-
-    address_t address = data["address"].toVariant().toULongLong();
 
     if(action == DisassemblerDocument::XRefAction)
         this->showReferences(address);
     else if(action == DisassemblerDocument::GotoAction)
         this->goTo(address);
+}
+
+void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
+{
+    QPlainTextEdit::keyPressEvent(e);
+
+    if(e->key() == Qt::Key_X)
+    {
+        int action = 0;
+        address_t address = 0;
+
+        if(!(action = this->getCursorAnchor(address)))
+            return;
+
+        this->showReferences(address);
+    }
 }
 
 void DisassemblerTextView::createContextMenu()
@@ -313,6 +321,23 @@ void DisassemblerTextView::showReferences(address_t address)
     ReferencesDialog dlgreferences(this->_disassembler, this->_currentaddress, symbol, this);
     connect(&dlgreferences, &ReferencesDialog::jumpTo, [this](address_t address) { this->goTo(address); });
     dlgreferences.exec();
+}
+
+int DisassemblerTextView::getCursorAnchor(address_t& address)
+{
+    QTextCursor cursor = this->textCursor();
+    QTextCharFormat charformat = cursor.charFormat();
+
+    if(!charformat.isAnchor())
+        return DisassemblerDocument::NoAction;
+
+    QJsonObject data = DisassemblerDocument::decode(charformat.anchorHref());
+    int action = data["action"].toInt();
+
+    if(action != DisassemblerDocument::NoAction)
+        address = data["address"].toVariant().toULongLong();
+
+    return action;
 }
 
 void DisassemblerTextView::rename(address_t address)

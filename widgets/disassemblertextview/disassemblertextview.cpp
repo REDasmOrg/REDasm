@@ -1,6 +1,7 @@
 #include "disassemblertextview.h"
 #include "../../dialogs/referencesdialog.h"
 #include <QFontDatabase>
+#include <QJsonDocument>
 #include <QInputDialog>
 #include <QHeaderView>
 #include <QMouseEvent>
@@ -9,27 +10,31 @@
 #include <QAction>
 #include <QtMath>
 #include <QMenu>
-#include <QFile>
+#include <QDebug>
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent) : QTextBrowser(parent), _disdocument(NULL), _disassembler(NULL), _currentaddress(0), _menuaddress(0)
+#define THEME_VALUE(name) (this->_theme.contains(name) ? QColor(this->_theme[name].toString()) : QColor())
+
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(parent), _disdocument(NULL), _disassembler(NULL), _currentaddress(0), _menuaddress(0)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setPointSize(12);
     font.setStyleHint(QFont::TypeWriter);
 
-    this->setFont(font);
-    this->setFrameStyle(QFrame::NoFrame);
-    this->setWordWrapMode(QTextOption::NoWrap);
-    this->setOpenLinks(false);
+    this->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
+    this->setWordWrapMode(QTextOption::NoWrap);
+    this->setFrameStyle(QFrame::NoFrame);
+    this->setCenterOnScroll(true);
+    this->setFont(font);
     this->createContextMenu();
 
-    connect(this, &DisassemblerTextView::customContextMenuRequested, [this](const QPoint& pt) {
-        this->highlightLineAt(pt);
+    viewport()->setCursor(Qt::ArrowCursor);
+
+    this->_highlighter = new DisassemblerHighlighter(this->document());
+
+    connect(this, &DisassemblerTextView::customContextMenuRequested, [this](const QPoint&) {
         this->_contextmenu->exec(QCursor::pos());
     });
-
-    connect(this, &DisassemblerTextView::anchorClicked, [this](const QUrl& encdata) { this->executeAnchor(encdata.toString()); });
 }
 
 DisassemblerTextView::~DisassemblerTextView()
@@ -59,10 +64,9 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
         delete this->_disdocument;
 
     this->_disassembler = disassembler;
-
-    this->_disdocument = new DisassemblerDocument(disassembler);
-    this->_disdocument->setTheme("light");
-    this->disassemble();
+    this->_disdocument = new DisassemblerDocument(disassembler, "light", this->document(), this->textCursor(), this);
+    this->_highlighter->setHighlightColor(this->_disdocument->highlightColor());
+    this->_highlighter->setSeekColor(this->_disdocument->seekColor());
 
     REDasm::SymbolPtr symbol = disassembler->symbolTable()->entryPoint();
 
@@ -83,11 +87,32 @@ void DisassemblerTextView::goTo(address_t address)
 
 void DisassemblerTextView::display(address_t address)
 {
-    if(!this->_disdocument)
+    if(!this->_disdocument || (this->_currentaddress == address))
         return;
 
-    int line = this->_disdocument->lineFromAddress(address);
-    this->focusLine(line);
+    QTextDocument* document = this->document();
+    QTextCursor cursor = this->textCursor();
+    bool searchforward = address > this->_currentaddress;
+
+    for(QTextBlock b = !this->_currentaddress ? document->begin(): cursor.block(); b.isValid(); b = searchforward ? b.next() : b.previous())
+    {
+        QTextBlockFormat blockformat = b.blockFormat();
+
+        if(!blockformat.hasProperty(DisassemblerDocument::IsInstructionBlock))
+            continue;
+
+        bool ok = false;
+        address_t blockaddress = blockformat.property(DisassemblerDocument::Address).toULongLong(&ok);
+
+        if(!ok || (blockaddress != address))
+            continue;
+
+        this->setTextCursor(QTextCursor(b));
+        this->ensureCursorVisible();
+        this->updateAddress();
+        this->highlightWords();
+        break;
+    }
 }
 
 void DisassemblerTextView::goTo(const REDasm::SymbolPtr &symbol)
@@ -121,19 +146,36 @@ void DisassemblerTextView::goForward()
     this->display(address);
 }
 
-void DisassemblerTextView::mouseReleaseEvent(QMouseEvent *ev)
+void DisassemblerTextView::wheelEvent(QWheelEvent *e)
 {
-    QTextCursor cursor = this->textCursor();
-
-    if(!cursor.hasSelection())
-        this->highlightLineAt(ev->pos());
-
-    QTextBrowser::mouseReleaseEvent(ev);
+    QPlainTextEdit::wheelEvent(e);
+    this->highlightWords();
 }
 
-void DisassemblerTextView::executeAnchor(const QString &encdata)
+void DisassemblerTextView::mouseReleaseEvent(QMouseEvent *e)
 {
-    QJsonObject data = DisassemblerDocument::decode(encdata);
+    this->updateAddress();
+    this->highlightWords();
+    QPlainTextEdit::mouseReleaseEvent(e);
+}
+
+void DisassemblerTextView::resizeEvent(QResizeEvent *e)
+{
+    QPlainTextEdit::resizeEvent(e);
+    this->highlightWords();
+}
+
+void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    QPlainTextEdit::mouseDoubleClickEvent(e);
+
+    QTextCursor cursor = this->textCursor();
+    QTextCharFormat charformat = cursor.charFormat();
+
+    if(!charformat.isAnchor())
+        return;
+
+    QJsonObject data = DisassemblerDocument::decode(charformat.anchorHref());
     int action = data["action"].toInt();
 
     if(action == DisassemblerDocument::NoAction)
@@ -147,37 +189,6 @@ void DisassemblerTextView::executeAnchor(const QString &encdata)
         this->goTo(address);
 }
 
-int DisassemblerTextView::lineFromPos(const QPoint &pos) const
-{
-    qreal h = this->fontMetrics().height(), offset = this->verticalScrollBar()->value() / h;
-    return qFloor(offset + (pos.y() / h));
-}
-
-int DisassemblerTextView::firstVisibleLine() const
-{
-    return this->lineFromPos(QPoint(0, 0));
-}
-
-int DisassemblerTextView::lastVisibleLine() const
-{
-    return this->lineFromPos(QPoint(0, this->height()));
-}
-
-int DisassemblerTextView::visibleLines() const
-{
-    return this->height() / this->fontMetrics().height();
-}
-
-void DisassemblerTextView::centerSelection()
-{
-    int fl = this->firstVisibleLine(), hl = this->visibleLines() / 2;
-
-    if(this->textCursor().blockNumber() <= fl)
-        this->verticalScrollBar()->setValue((fl - hl) * this->fontMetrics().height());
-    else
-        this->verticalScrollBar()->setValue((fl + hl) * this->fontMetrics().height());
-}
-
 void DisassemblerTextView::createContextMenu()
 {
     this->_contextmenu = new QMenu(this);
@@ -187,7 +198,6 @@ void DisassemblerTextView::createContextMenu()
     this->_actcreatefunction = this->_contextmenu->addAction("Create Function", [this]() {
         this->_disassembler->disassembleFunction(this->_menuaddress);
 
-        this->updateListing();
         this->display(this->_currentaddress);
         emit invalidateSymbols();
     });
@@ -196,7 +206,6 @@ void DisassemblerTextView::createContextMenu()
         if(!this->_disassembler->dataToString(this->_menuaddress))
             return;
 
-        this->updateListing();
         this->display(this->_currentaddress);
         emit invalidateSymbols();
     });
@@ -262,85 +271,36 @@ void DisassemblerTextView::adjustContextMenu()
     this->_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
 }
 
-void DisassemblerTextView::disassemble()
+void DisassemblerTextView::highlightWords()
 {
-    this->_disdocument->populate();
-    this->setHtml(this->_disdocument->toString());
-}
-
-void DisassemblerTextView::updateListing()
-{
-    int oldvalue = this->verticalScrollBar()->value();
-    this->disassemble();
-    this->verticalScrollBar()->setValue(oldvalue);
-}
-
-void DisassemblerTextView::highlightLineAt(const QPoint &pos)
-{
-    int line = qMax(0, this->lineFromPos(pos));
-    this->highlightLine(line);
-}
-
-void DisassemblerTextView::highlightLine(int line)
-{
-    if(!this->_disdocument)
+    if(!this->_disdocument || !this->_currentaddress)
         return;
 
-    QTextDocument* document = this->document();
-    QTextBlock block = document->findBlockByLineNumber(line);
+    QTextCursor cursor = this->textCursor();
+    cursor.select(QTextCursor::WordUnderCursor);
 
-    if(!block.isValid())
-        return;
+    QString currentaddress = HEX_ADDRESS(this->_currentaddress);
 
-    QTextCursor cursor(block);
-    cursor.select(QTextCursor::LineUnderCursor);
+    for(QTextBlock b = this->firstVisibleBlock(); b.isValid() && b.isVisible(); b = b.next())
+        this->_highlighter->highlight(cursor.selectedText(), currentaddress, b);
+}
 
-    QTextEdit::ExtraSelection selection;
-    selection.format.setBackground(QColor(this->_disdocument->lineColor()));
-    selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-    selection.cursor = cursor;
-    selection.cursor.clearSelection();
+void DisassemblerTextView::updateAddress()
+{
+    QTextCursor cursor = this->textCursor();
+    QTextBlockFormat blockformat = cursor.blockFormat();
 
-    QList<QTextBrowser::ExtraSelection> extraselections;
-    extraselections << selection;
-    this->setExtraSelections(extraselections);
-
-    QDomNodeList nodes = this->_disdocument->childNodes();
-    QDomElement e = nodes.item(line).toElement();
-
-    if(e.isNull() || !e.hasAttribute("address"))
+    if(!blockformat.hasProperty(DisassemblerDocument::Address))
         return;
 
     bool ok = false;
-    this->_currentaddress = e.attribute("address").toULongLong(&ok, 16);
+    address_t address = blockformat.property(DisassemblerDocument::Address).toULongLong(&ok);
 
-    if(ok)
-        emit addressChanged(this->_currentaddress);
-}
-
-void DisassemblerTextView::focusLine(int line)
-{
-    if(line < 0)
+    if(!ok || address == this->_currentaddress)
         return;
 
-    QTextDocument* document = this->document();
-    QTextBlock block = document->findBlockByLineNumber(line);
-
-    if(!block.isValid())
-        return;
-
-    QTextCursor cursor(block);
-    cursor.movePosition(QTextCursor::StartOfBlock);
-
-    this->setTextCursor(cursor);
-    this->highlightLine(line);
-    this->centerSelection();
-}
-
-void DisassemblerTextView::focusLineAt(address_t address)
-{
-    int line = this->_disdocument->lineFromAddress(address);
-    this->focusLine(line);
+    this->_currentaddress = address;
+    emit addressChanged(this->_currentaddress);
 }
 
 void DisassemblerTextView::showReferences(address_t address)
@@ -369,6 +329,5 @@ void DisassemblerTextView::rename(address_t address)
     if(s.simplified().isEmpty() || !symboltable->update(symbol, newsym))
         return;
 
-    this->updateListing();
     emit symbolRenamed(symbol);
 }

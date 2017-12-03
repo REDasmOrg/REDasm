@@ -2,32 +2,43 @@
 #include <QJsonDocument>
 #include <QVariant>
 #include <QFile>
-#include <QDebug>
 
-#define THEME_VALUE_S(name) (this->_theme.contains(name) ? this->_theme[name].toString() : QString())
-#define HEX_ADDRESS(address) S_TO_QS(REDasm::hex(address, this->_disassembler->format()->bits()))
-#define HEX_ADDRESS_NP(address) S_TO_QS(REDasm::hex(address, this->_disassembler->format()->bits(), false))
-#define HEX_ADDRESS_NO_BITS(address) S_TO_QS(REDasm::hex(address))
+#define THEME_VALUE(name)        (this->_theme.contains(name) ? QColor(this->_theme[name].toString()) : QColor())
 #define ADDRESS_VARIANT(address) QJsonValue::fromVariant(QVariant::fromValue(address))
-
 #define INDENT_COMMENT 10
 #define INDENT_WIDTH 2
 
-DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler): QDomDocument(), _disassembler(disassembler), _symbols(disassembler->symbolTable())
+DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler, const QString& theme, QTextDocument* textdocument, const QTextCursor& textcursor, QObject *parent): QObject(parent)
 {
+    this->_disassembler = disassembler;
+    this->_symbols = disassembler->symbolTable();
+    this->_document = textdocument;
+    this->_textcursor = textcursor;
+    this->_segment = NULL;
 
+    this->setTheme(theme);
+    textdocument->setUndoRedoEnabled(false);
+
+    REDasm::Listing& listing = this->_disassembler->listing();
+
+    this->_textcursor.beginEditBlock();
+
+    listing.iterateAll([this](const REDasm::InstructionPtr& i) { this->appendInstruction(i); },
+                       [this](const REDasm::SymbolPtr& s) { this->appendFunction(s); },
+                       [this](const REDasm::SymbolPtr&)   { this->_textcursor.insertBlock(); },
+                       [this](const REDasm::SymbolPtr& s) { this->appendLabel(s); });
+
+    this->_textcursor.endEditBlock();
 }
 
-QColor DisassemblerDocument::lineColor() const
+QColor DisassemblerDocument::highlightColor() const
 {
-    return QColor(THEME_VALUE_S("line"));
+    return QColor(THEME_VALUE("highlight"));
 }
 
-int DisassemblerDocument::lineFromAddress(address_t address) const
+QColor DisassemblerDocument::seekColor() const
 {
-    int index = -1;
-    this->getDisassemblerElement("instruction", address, &index);
-    return index;
+    return QColor(THEME_VALUE("seek"));
 }
 
 void DisassemblerDocument::setTheme(const QString &theme)
@@ -48,200 +59,123 @@ void DisassemblerDocument::setTheme(const QString &theme)
     f.close();
 }
 
-void DisassemblerDocument::populate()
+void DisassemblerDocument::appendLabel(const REDasm::SymbolPtr &symbol)
 {
-    REDasm::Listing& listing = this->_disassembler->listing();
-    this->clear();
+    REDasm::ReferenceVector refs = this->_disassembler->getReferences(symbol);
 
-    listing.iterateAll([this](const REDasm::InstructionPtr& i) { this->appendChild(this->createInstructionElement(i)); },
-                       [this](const REDasm::SymbolPtr& s) { this->appendChild(this->createFunctionElement(s)); },
-                       [this](const REDasm::SymbolPtr&)   { this->appendChild(this->createEmptyElement()); },
-                       [this](const REDasm::SymbolPtr& s) { this->appendChild(this->createLabelElement(s)); });
+    QJsonObject data = { { "action", refs.size() > 1 ? DisassemblerDocument::XRefAction : DisassemblerDocument::GotoAction },
+                         { "address", ADDRESS_VARIANT(refs.size() > 1 ? symbol->address : refs.front()) } };
+
+    QTextCharFormat charformat;
+    charformat.setForeground(THEME_VALUE("label_fg"));
+
+    charformat.setAnchor(true);
+    charformat.setAnchorHref(DisassemblerDocument::encode(data));
+    charformat.setFontUnderline(true);
+
+    this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address) + INDENT_WIDTH), QTextCharFormat());
+    this->_textcursor.insertText(S_TO_QS(symbol->name) + ":", charformat);
+    this->_textcursor.insertBlock();
 }
 
-QDomElement DisassemblerDocument::getDisassemblerElement(const QString &type, address_t address, int *index, QDomElement& e) const
+void DisassemblerDocument::appendFunction(const REDasm::SymbolPtr &symbol)
 {
-    bool found = false;
-    int i = 0;
+    QTextBlockFormat blockformat;
+    blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(symbol->address));
+    blockformat.setProperty(DisassemblerDocument::IsFunctionBlock, true);
+    this->_textcursor.setBlockFormat(blockformat);
 
-    if(e.isNull())
-        e = this->firstChildElement();
+    QTextCharFormat charformat;
+    charformat.setForeground(THEME_VALUE("function_fg"));
 
-    for(; !e.isNull(); e = e.nextSiblingElement(), i++)
-    {
-        if((e.attribute("type") != type) || !e.hasAttribute("address"))
-            continue;
+    this->_textcursor.setCharFormat(charformat);
+    this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address)));
+    this->_textcursor.insertText(QString("=").repeated(20));
+    this->_textcursor.insertText(" FUNCTION ");
 
-        bool ok = false;
-        address_t elmaddress = e.attribute("address").toULongLong(&ok, 16);
+    QTextCharFormat symcharformat = charformat;
+    this->setMetaData(symcharformat, symbol, true);
+    this->_textcursor.setCharFormat(symcharformat);
+    this->_textcursor.insertText(S_TO_QS(symbol->name));
 
-        if(!ok || (address != elmaddress))
-            continue;
-
-        found = true;
-        break;
-    }
-
-    if(index)
-        *index = found ? i : -1;
-
-    return e;
+    this->_textcursor.setCharFormat(charformat);
+    this->_textcursor.insertText(" ");
+    this->_textcursor.insertText(QString("=").repeated(20));
+    this->_textcursor.insertBlock();
 }
 
-QDomElement DisassemblerDocument::getDisassemblerElement(const QString &type, address_t address, QDomElement &e) const
+void DisassemblerDocument::appendInstruction(const REDasm::InstructionPtr &instruction)
 {
-    return this->getDisassemblerElement(type, address, NULL, e);
-}
+    QTextBlockFormat blockformat;
+    blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(instruction->address));
+    blockformat.setProperty(DisassemblerDocument::IsInstructionBlock, true);
+    this->_textcursor.setBlockFormat(blockformat);
 
-QDomElement DisassemblerDocument::getDisassemblerElement(const QString &type, address_t address, int *index) const
-{
-    QDomElement e;
-    return this->getDisassemblerElement(type, address, index, e);
-}
+    this->appendAddress(instruction);
+    this->appendMnemonic(instruction);
 
-QDomNode DisassemblerDocument::createGotoElement(const REDasm::SymbolPtr& symbol, bool showxrefs)
-{
-    return this->createGotoElement(symbol, S_TO_QS(symbol->name), showxrefs);
-}
-
-QDomNode DisassemblerDocument::createGotoElement(const REDasm::SymbolPtr& symbol, const QString &label, bool showxrefs)
-{
-    QJsonObject data = { { "action", DisassemblerDocument::XRefAction },
-                         { "address", ADDRESS_VARIANT(symbol->address) } };
-
-    if(symbol->is(REDasm::SymbolTypes::Code))
-    {
-        if(!showxrefs)
-            data["action"] = DisassemblerDocument::GotoAction;
-
-        return this->createAnchorElement(label, data, THEME_VALUE_S("function_fg"));
-    }
-    else if(symbol->is(REDasm::SymbolTypes::String))
-        return this->createAnchorElement(label, data, THEME_VALUE_S("string_fg"));
-
-    return this->createAnchorElement(label, data, THEME_VALUE_S("data_fg"));
-}
-
-QDomNode DisassemblerDocument::createAnchorElement(const QString& label, const QJsonObject data, const QString& color)
-{
-    return this->createAnchorElement(this->createTextNode(label), data, color);
-}
-
-QDomNode DisassemblerDocument::createAnchorElement(const QDomNode &n, const QJsonObject data, const QString& color)
-{
-    QDomElement e = this->createElement("a");
-    e.setAttribute("href", (!data.isEmpty() ? DisassemblerDocument::encode(data) : "#"));
-
-    if(!color.isEmpty())
-        e.setAttribute("style", QString("color: %1").arg(color));
-
-    e.appendChild(n);
-    return e;
-}
-
-QDomNode DisassemblerDocument::createInfoElement(address_t address, const QDomNode& node, const QString &type)
-{
-    QDomElement e = this->createElement("div");
-    REDasm::FormatPlugin* format = this->_disassembler->format();
-    const REDasm::Segment* segment = format->segment(address);
-    int width = format->bits() / 4;
-
-    if(segment)
-        width += segment->name.length();
-
-    if(!type.isEmpty())
-        e.setAttribute("type", type);
-
-    e.setAttribute("address", HEX_ADDRESS(address));
-    e.appendChild(this->createTextNode(QString("\u00A0").repeated(width + INDENT_WIDTH)));
-    e.appendChild(node);
-    return e;
-}
-
-QDomNode DisassemblerDocument::createAddressElement(const REDasm::InstructionPtr &instruction)
-{
-    QString address;
-    REDasm::FormatPlugin* format = this->_disassembler->format();
-    const REDasm::Segment* segment = format->segment(instruction->address);
-
-    if(segment)
-        address = S_TO_QS(segment->name);
-    else
-        address = "unk";
-
-    address += ":" + HEX_ADDRESS_NP(instruction->address);
-
-    QDomElement e = this->createElement("font");
-    e.setAttribute("color", THEME_VALUE_S("address_fg"));
-    e.appendChild(this->createTextNode(address));
-    return e;
-}
-
-QDomNode DisassemblerDocument::createInstructionElement(const REDasm::InstructionPtr &instruction)
-{
-    QDomElement elminstruction = this->createElement("div");
-    elminstruction.setAttribute("address", HEX_ADDRESS(instruction->address));
-    elminstruction.setAttribute("type", "instruction");
-    elminstruction.appendChild(this->createAddressElement(instruction));
-    elminstruction.appendChild(this->createTextNode("\u00A0\u00A0"));
-    elminstruction.appendChild(this->createMnemonicElement(instruction));
-    elminstruction.appendChild(this->createTextNode("\u00A0"));
-
-    this->_disassembler->out(instruction, [this, &elminstruction](const REDasm::Operand& operand, const std::string& opstr) {
+    this->_disassembler->out(instruction, [this](const REDasm::Operand& operand, const std::string& opstr) {
         if(operand.index > 0)
-            elminstruction.appendChild(this->createTextNode(", "));
+            this->_textcursor.insertText(", ", QTextCharFormat());
 
-        elminstruction.appendChild(this->createOperandElement(operand, S_TO_QS(opstr)));
+        this->appendOperand(operand, S_TO_QS(opstr));
     });
 
-    elminstruction.appendChild(this->createCommentElement(instruction));
-    return elminstruction;
+    this->appendComment(instruction);
+    this->_textcursor.insertBlock();
 }
 
-QDomNode DisassemblerDocument::createMnemonicElement(const REDasm::InstructionPtr &instruction)
+void DisassemblerDocument::appendAddress(const REDasm::InstructionPtr &instruction)
 {
-    QDomText elmmnemonic = this->createTextNode(S_TO_QS(instruction->mnemonic));
+    const REDasm::Segment* segment = this->getSegment(instruction->address);
+    QString address = segment ? S_TO_QS(segment->name) : "unk";
 
-    if(!instruction->type)
-        return elmmnemonic;
+    QTextCharFormat charformat;
+    charformat.setForeground(THEME_VALUE("address_fg"));
 
-    QDomElement e = this->createElement("font");
+    this->_textcursor.setCharFormat(charformat);
+    this->_textcursor.insertText(QString("%1:%2 ").arg(address, HEX_ADDRESS(instruction->address)));
+}
+
+void DisassemblerDocument::appendMnemonic(const REDasm::InstructionPtr &instruction)
+{
+    QTextCharFormat charformat;
 
     if(instruction->isInvalid())
-        e.setAttribute("color", THEME_VALUE_S("instruction_invalid"));
+        charformat.setForeground(THEME_VALUE("instruction_invalid"));
     else if(instruction->is(REDasm::InstructionTypes::Stop))
-        e.setAttribute("color", THEME_VALUE_S("instruction_stop"));
+        charformat.setForeground(THEME_VALUE("instruction_stop"));
     else if(instruction->is(REDasm::InstructionTypes::Nop))
-        e.setAttribute("color", THEME_VALUE_S("instruction_nop"));
+        charformat.setForeground(THEME_VALUE("instruction_nop"));
     else if(instruction->is(REDasm::InstructionTypes::Call))
-        e.setAttribute("color", THEME_VALUE_S("instruction_call"));
+        charformat.setForeground(THEME_VALUE("instruction_call"));
     else if(instruction->is(REDasm::InstructionTypes::Jump))
     {
         if(instruction->is(REDasm::InstructionTypes::Conditional))
-            e.setAttribute("color", THEME_VALUE_S("instruction_jmp_c"));
+            charformat.setForeground(THEME_VALUE("instruction_jmp_c"));
         else
-            e.setAttribute("color", THEME_VALUE_S("instruction_jmp"));
+            charformat.setForeground(THEME_VALUE("instruction_jmp"));
     }
 
-    e.appendChild(elmmnemonic);
-    return e;
+    this->_textcursor.insertText(QString(" ").repeated(INDENT_WIDTH + 2), QTextCharFormat());
+    this->_textcursor.insertText(S_TO_QS(instruction->mnemonic) + " ", charformat);
 }
 
-QDomNode DisassemblerDocument::createCommentElement(const REDasm::InstructionPtr &instruction)
+void DisassemblerDocument::appendComment(const REDasm::InstructionPtr &instruction)
 {
     if(instruction->comments.empty())
-        return QDomNode();
+        return;
 
-    QDomElement e = this->createElement("font");
-    e.setAttribute("color", THEME_VALUE_S("comment_fg"));
-    e.appendChild(this->createTextNode(QString("\u00A0").repeated(INDENT_COMMENT) + S_TO_QS(this->_disassembler->comment(instruction))));
-    return e;
+    QTextCharFormat charformat;
+    charformat.setForeground(THEME_VALUE("comment_fg"));
+
+    this->_textcursor.insertText(QString(" ").repeated(this->getIndent(instruction->address) + INDENT_COMMENT), QTextCharFormat());
+    this->_textcursor.insertText(S_TO_QS(this->_disassembler->comment(instruction)), charformat);
 }
 
-QDomNode DisassemblerDocument::createOperandElement(const REDasm::Operand &operand, const QString& opstr)
+void DisassemblerDocument::appendOperand(const REDasm::Operand &operand, const QString &opstr)
 {
-    QDomElement e = this->createElement("font");
-    e.appendChild(this->createTextNode(opstr));
+    QTextCharFormat charformat;
 
     if(operand.is(REDasm::OperandTypes::Immediate) || operand.is(REDasm::OperandTypes::Memory))
     {
@@ -258,60 +192,70 @@ QDomNode DisassemblerDocument::createOperandElement(const REDasm::Operand &opera
                     symbol = ptrsymbol;
             }
 
-            e = this->createGotoElement(symbol, opstr).toElement();
+            this->setMetaData(charformat, symbol);
         }
         else
-            e.setAttribute("color", operand.is(REDasm::OperandTypes::Immediate) ? THEME_VALUE_S("immediate_fg") :
-                                                                                  THEME_VALUE_S("memory_fg"));
+            charformat.setForeground(operand.is(REDasm::OperandTypes::Immediate) ? THEME_VALUE("immediate_fg") :
+                                                                                   THEME_VALUE("memory_fg"));
     }
     else if(operand.is(REDasm::OperandTypes::Displacement))
     {
         REDasm::SymbolPtr symbol = this->_symbols->symbol(operand.mem.displacement);
 
         if(symbol)
-            e = this->createGotoElement(symbol, opstr, !operand.mem.displacementOnly()).toElement();
+            this->setMetaData(charformat, symbol, !operand.mem.displacementOnly());
         else
-            e.setAttribute("color", THEME_VALUE_S("displacement_fg"));
+            charformat.setForeground(THEME_VALUE("displacement_fg"));
     }
     else if(operand.is(REDasm::OperandTypes::Register))
-        e.setAttribute("color", THEME_VALUE_S("register_fg"));
+        charformat.setForeground(THEME_VALUE("register_fg"));
 
-    return e;
+    this->_textcursor.insertText(opstr, charformat);
 }
 
-QDomNode DisassemblerDocument::createFunctionElement(const REDasm::SymbolPtr& symbol)
+int DisassemblerDocument::getIndent(address_t address)
 {
-    QDomElement f = this->createElement("font");
-    f.setAttribute("address", HEX_ADDRESS(symbol->address));
-    f.setAttribute("color", THEME_VALUE_S("function_fg"));
-    f.appendChild(this->createTextNode(QString("=").repeated(20) + " "));
-    f.appendChild(this->createTextNode("FUNCTION "));
-    f.appendChild(this->createGotoElement(symbol, true));
-    f.appendChild(this->createTextNode(" " + QString("=").repeated(20)));
+    const REDasm::FormatPlugin* format = this->_disassembler->format();
+    const REDasm::Segment* segment = this->getSegment(address);
 
-    return this->createInfoElement(symbol->address, f, "function_start");
+    int width = format->bits() / 4;
+
+    if(segment)
+        width += segment->name.length();
+
+    return width + INDENT_WIDTH;
 }
 
-QDomNode DisassemblerDocument::createEmptyElement()
+const REDasm::Segment *DisassemblerDocument::getSegment(address_t address)
 {
-    QDomElement e = this->createElement("div");
-    e.appendChild(this->createTextNode("\u00A0"));
-    return e;
+    if(this->_segment && this->_segment->contains(address))
+        return this->_segment;
+
+    REDasm::FormatPlugin* format = this->_disassembler->format();
+    this->_segment = format->segment(address);
+    return this->_segment;
 }
 
-QDomNode DisassemblerDocument::createLabelElement(const REDasm::SymbolPtr& symbol)
+void DisassemblerDocument::setMetaData(QTextCharFormat& charformat, const REDasm::SymbolPtr &symbol, bool showxrefs)
 {
-    REDasm::ReferenceVector refs = this->_disassembler->getReferences(symbol);
+    QJsonObject data = { { "action",  DisassemblerDocument::XRefAction },
+                         { "address", ADDRESS_VARIANT(symbol->address) } };
 
-    QJsonObject data = { { "action", refs.size() > 1 ? DisassemblerDocument::XRefAction : DisassemblerDocument::GotoAction },
-                         { "address", ADDRESS_VARIANT(refs.size() > 1 ? symbol->address : refs.front()) } };
+    if(symbol->is(REDasm::SymbolTypes::Code))
+    {
+        if(!showxrefs)
+            data["action"] = DisassemblerDocument::GotoAction;
 
-    QString addrstring = HEX_ADDRESS(symbol->address);
-    QDomNode a = this->createAnchorElement(S_TO_QS(symbol->name) + ":", data, THEME_VALUE_S("label_fg"));
-    QDomElement e = this->createInfoElement(symbol->address, a, "label").toElement();
+        charformat.setForeground(THEME_VALUE("function_fg"));
+    }
+    else if(symbol->is(REDasm::SymbolTypes::String))
+        charformat.setForeground(THEME_VALUE("string_fg"));
+    else
+        charformat.setForeground(THEME_VALUE("data_fg"));
 
-    e.setAttribute("address", addrstring);
-    return e;
+    charformat.setFontUnderline(true);
+    charformat.setAnchor(true);
+    charformat.setAnchorHref(DisassemblerDocument::encode(data));
 }
 
 QJsonObject DisassemblerDocument::decode(const QString &data)

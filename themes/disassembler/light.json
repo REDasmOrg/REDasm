@@ -4,8 +4,10 @@
     "comment_fg": "#16a085",
     "string_fg": "#8eb021",
     "data_fg": "#9b59b6",
+    "label_fg": "#3f669e",
 
-    "line": "#ffffbb",
+    "highlight": "#ffffbb",
+    "seek": "#5b48a2",
 
     "register_fg": "#27ae60",
     "immediate_fg": "#394c81",

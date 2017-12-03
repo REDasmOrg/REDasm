@@ -1,49 +1,46 @@
 #ifndef DISASSEMBLERDOCUMENT_H
 #define DISASSEMBLERDOCUMENT_H
 
-#include <QDomDocument>
+#include <QTextDocument>
+#include <QTextCursor>
 #include <QJsonObject>
 #include <QColor>
-#include <QHash>
 #include <QUrl>
 #include "../../redasm/disassembler/disassembler.h"
 
-#define S_TO_QS(s) QString::fromStdString(s)
+#define S_TO_QS(s)           QString::fromStdString(s)
+#define HEX_ADDRESS(address) S_TO_QS(REDasm::hex(address, this->_disassembler->format()->bits(), false))
 
-class DisassemblerDocument: public QDomDocument
+class DisassemblerDocument: public QObject
 {
-    public:
-        enum
-        {
-            NoAction = 0,
-            GotoAction,
-            XRefAction
-        };
+    Q_OBJECT
 
     public:
-        DisassemblerDocument(REDasm::Disassembler* disassembler);
-        QColor lineColor() const;
-        int lineFromAddress(address_t address) const;
+        enum { UnknownBlock = 0,
+               Address,
+               IsFunctionBlock, IsInstructionBlock, IsLabelBlock };
+
+        enum { NoAction = 0, GotoAction, XRefAction };
+
+    public:
+        DisassemblerDocument(REDasm::Disassembler* disassembler, const QString& theme, QTextDocument *document, const QTextCursor &cursor, QObject* parent = 0);
+        QColor highlightColor() const;
+        QColor seekColor() const;
         void setTheme(const QString& theme);
-        void populate();
 
     private:
-        QDomElement getDisassemblerElement(const QString& type, address_t address, int* index, QDomElement &e) const;
-        QDomElement getDisassemblerElement(const QString& type, address_t address, QDomElement &e) const;
-        QDomElement getDisassemblerElement(const QString& type, address_t address, int* index = NULL) const;
-        QDomNode createGotoElement(const REDasm::SymbolPtr &symbol, bool showxrefs = false);
-        QDomNode createGotoElement(const REDasm::SymbolPtr &symbol, const QString& label, bool showxrefs = false);
-        QDomNode createAnchorElement(const QString &label, const QJsonObject data = QJsonObject(), const QString& color = QString());
-        QDomNode createAnchorElement(const QDomNode& n, const QJsonObject data = QJsonObject(), const QString &color = QString());
-        QDomNode createInfoElement(address_t address, const QDomNode &node, const QString& type);
-        QDomNode createAddressElement(const REDasm::InstructionPtr &instruction);
-        QDomNode createInstructionElement(const REDasm::InstructionPtr &instruction);
-        QDomNode createMnemonicElement(const REDasm::InstructionPtr &instruction);
-        QDomNode createCommentElement(const REDasm::InstructionPtr &instruction);
-        QDomNode createOperandElement(const REDasm::Operand& operand, const QString &opstr);
-        QDomNode createFunctionElement(const REDasm::SymbolPtr &symbol);
-        QDomNode createLabelElement(const REDasm::SymbolPtr& symbol);
-        QDomNode createEmptyElement();
+        void appendLabel(const REDasm::SymbolPtr& symbol);
+        void appendFunction(const REDasm::SymbolPtr& symbol);
+        void appendInstruction(const REDasm::InstructionPtr& instruction);
+        void appendAddress(const REDasm::InstructionPtr& instruction);
+        void appendMnemonic(const REDasm::InstructionPtr& instruction);
+        void appendComment(const REDasm::InstructionPtr& instruction);
+        void appendOperand(const REDasm::Operand& operand, const QString& opstr);
+
+    private:
+        int getIndent(address_t address);
+        const REDasm::Segment *getSegment(address_t address);
+        void setMetaData(QTextCharFormat &charformat, const REDasm::SymbolPtr &symbol, bool showxrefs = false);
 
     public:
         static QJsonObject decode(const QString &data);
@@ -52,8 +49,11 @@ class DisassemblerDocument: public QDomDocument
         static QString encode(const QJsonObject &json);
 
     private:
+        REDasm::Segment* _segment;
         REDasm::Disassembler* _disassembler;
         REDasm::SymbolTable* _symbols;
+        QTextDocument* _document;
+        QTextCursor _textcursor;
         QJsonObject _theme;
 };
 

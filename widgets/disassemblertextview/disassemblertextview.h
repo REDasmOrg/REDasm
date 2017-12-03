@@ -1,11 +1,12 @@
 #ifndef DISASSEMBLERTEXTVIEW_H
 #define DISASSEMBLERTEXTVIEW_H
 
-#include <QTextBrowser>
+#include <QPlainTextEdit>
 #include <QStack>
 #include "disassemblerdocument.h"
+#include "disassemblerhighlighter.h"
 
-class DisassemblerTextView : public QTextBrowser
+class DisassemblerTextView : public QPlainTextEdit
 {
     Q_OBJECT
 
@@ -25,27 +26,18 @@ class DisassemblerTextView : public QTextBrowser
         void goForward();
 
     protected:
-        virtual void mouseReleaseEvent(QMouseEvent *ev);
-
-    private slots:
-        void executeAnchor(const QString &encdata);
+        virtual void wheelEvent(QWheelEvent *e);
+        virtual void mouseReleaseEvent(QMouseEvent *e);
+        virtual void resizeEvent(QResizeEvent *e);
+        virtual void mouseDoubleClickEvent(QMouseEvent *e);
 
     private:
-        int lineFromPos(const QPoint& pos) const;
-        int firstVisibleLine() const;
-        int lastVisibleLine() const;
-        int visibleLines() const;
-        void centerSelection();
         void createContextMenu();
         void adjustContextMenu();
+        void highlightWords();
+        void updateAddress();
         void display(address_t address);
-        void highlightLineAt(const QPoint& pos);
-        void highlightLine(int line);
-        void focusLine(int line);
-        void focusLineAt(address_t address);
         void showReferences(address_t address);
-        void disassemble();
-        void updateListing();
 
     signals:
         void gotoRequested();
@@ -59,6 +51,7 @@ class DisassemblerTextView : public QTextBrowser
     private:
         QStack<address_t> _backstack, _forwardstack;
         DisassemblerDocument* _disdocument;
+        DisassemblerHighlighter* _highlighter;
         REDasm::Disassembler* _disassembler;
         QAction *_actrename, *_actcreatefunction, *_actcreatestring, *_actxrefs, *_actfollow, *_actgoto, *_acthexdump, *_actback, *_actforward, *_actcopy, *_actselectall;
         QMenu* _contextmenu;

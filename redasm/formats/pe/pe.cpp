@@ -241,7 +241,7 @@ void PeFormat::loadSymbolTable()
                       const Segment* segment = this->segmentAt(entry->e_scnum - 1);
                       address_t address = segment->address + entry->e_value;
 
-                      if(segment->is(SegmentTypes::Code) && (entry->e_sclass == C_EXT))
+                      if(segment->is(SegmentTypes::Code))// && (entry->e_sclass == C_EXT))
                           this->defineFunction(address, name);
                       else
                           this->defineSymbol(address, name, SymbolTypes::Data);

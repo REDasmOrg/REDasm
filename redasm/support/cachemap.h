@@ -12,6 +12,8 @@
 #include <fstream>
 #include "../redasm.h"
 
+#define BUFFER_SIZE 32 * 1024 * 1024 // 32MB
+
 namespace REDasm {
 
 namespace Serializer {
@@ -73,7 +75,7 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
         };
 
     public:
-        cache_map(): _name(CACHE_DEFAULT) { }
+        cache_map(): _name(CACHE_DEFAULT) { this->_file.rdbuf()->pubsetbuf(this->_buffer, BUFFER_SIZE); }
         cache_map(const std::string& name): _name(name) { }
         ~cache_map();
         iterator begin() { return iterator(*this, this->_offsets.begin()); }
@@ -88,6 +90,7 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
         virtual void deserialize(T2& value, std::fstream& fs) = 0;
 
     private:
+        char _buffer[BUFFER_SIZE];
         std::string _name;
         offset_map _offsets;
         std::fstream _file;
@@ -108,6 +111,7 @@ template<typename T1, typename T2> void cache_map<T1, T2>::commit(const T1& key,
     {
         this->_file.open(CACHE_FILE, std::ios::in | std::ios::out |
                                      std::ios::trunc | std::ios::binary);
+
     }
 
     this->_file.seekp(0, std::ios::end); // Ignore old key -> value reference, if any

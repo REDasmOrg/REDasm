@@ -90,6 +90,8 @@ void DisassemblerTextView::display(address_t address)
     if(!this->_disdocument || (this->_currentaddress == address))
         return;
 
+    this->_disdocument->generate(address, this->textCursor());
+
     QTextDocument* document = this->document();
     QTextCursor cursor = this->textCursor();
     bool searchforward = address > this->_currentaddress;

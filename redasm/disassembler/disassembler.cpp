@@ -81,7 +81,7 @@ void Disassembler::disassembleFunction(address_t address)
 void Disassembler::disassemble()
 {
     // Preload format functions for analysis
-    this->_symboltable->iterate(SymbolTypes::Function, [this](SymbolPtr symbol) -> bool {
+    this->_symboltable->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
         this->disassemble(symbol->address);
         return true;
     });
@@ -94,7 +94,11 @@ void Disassembler::disassemble()
         a->analyze(this->_listing);
     }
 
+    STATUS("Sorting symbols...");
     this->_symboltable->sort();
+
+    STATUS("Calculating bounds...");
+    this->_listing.calculateBounds();
 }
 
 bool Disassembler::dataToString(address_t address)

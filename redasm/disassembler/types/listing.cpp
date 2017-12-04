@@ -37,11 +37,6 @@ void Listing::setFormat(FormatPlugin *format)
     this->_format = format;
 }
 
-address_t Listing::getStop(const SymbolPtr& symbol)
-{
-    return this->getStop(symbol->address);
-}
-
 void Listing::setProcessor(ProcessorPlugin *processor)
 {
     this->_processor = processor;
@@ -75,8 +70,13 @@ address_t Listing::getStop(address_t address)
 
         if(instruction->is(InstructionTypes::Jump) && this->_processor->target(instruction, &target))
         {
-            if(this->find(target) != this->end())
-                maxtarget = std::max(target, maxtarget);
+            if((target > address) && (this->find(target) != this->end()))
+            {
+                SymbolPtr symbol = this->_symboltable->symbol(target);
+
+                if(!symbol || !symbol->isFunction())
+                    maxtarget = std::max(target, maxtarget);
+            }
         }
 
         it++;
@@ -94,11 +94,29 @@ address_t Listing::getStop(address_t address)
     return address;
 }
 
+bool Listing::getFunctionBounds(address_t address, address_t *start, address_t *end) const
+{
+    for(auto it = this->_bounds.begin(); it != this->_bounds.end(); it++)
+    {
+        if((address >= it->first) && (address <= it->second))
+        {
+            if(start) *start = it->first;
+            if(end) *end = it->second;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 std::string Listing::getSignature(const SymbolPtr& symbol)
 {
     std::string sig;
+    address_t endaddress = 0;
     auto it = this->find(symbol->address);
-    address_t endaddress = this->getStop(symbol);
+
+    if(!this->getFunctionBounds(symbol->address, NULL, &endaddress))
+        return std::string();
 
     for(; it != this->end(); it++)
     {
@@ -115,10 +133,14 @@ std::string Listing::getSignature(const SymbolPtr& symbol)
 
 void Listing::iterate(const SymbolPtr& symbol, InstructionCallback f)
 {
-    if(!this->_processor)
+    if(!this->_processor )
         return;
 
-    address_t endaddress = this->getStop(symbol->address);
+    address_t endaddress = 0;
+
+    if(!this->getFunctionBounds(symbol->address, NULL, &endaddress))
+        return;
+
     auto it = this->find(symbol->address);
 
     for(; it != this->end(); it++)
@@ -133,39 +155,62 @@ void Listing::iterate(const SymbolPtr& symbol, InstructionCallback f)
     }
 }
 
-void Listing::iterateAll(InstructionCallback cbinstruction, SymbolCallback cbstart, SymbolCallback cbend, SymbolCallback cblabel)
+bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cbinstruction, Listing::SymbolCallback cbstart, Listing::SymbolCallback cbend, Listing::SymbolCallback cblabel)
 {
     if(!this->_processor)
-        return;
+        return false;
 
-    SymbolPtr currentsymbol;
-    address_t target = 0, endaddress = 0;
+    address_t startaddress = 0, endaddress = 0;
 
-    std::for_each(this->begin(), this->end(), [this, cbinstruction, cbstart, cbend, cblabel, &currentsymbol, &target, &endaddress](const InstructionPtr& instruction) {
-        SymbolPtr symbol = this->_symboltable->symbol(instruction->address);
+    if(!this->getFunctionBounds(address, &startaddress, &endaddress))
+        return false;
 
-        if(symbol && symbol->isFunction())
-        {
-            currentsymbol = symbol;
-            endaddress = this->getStop(symbol);
-            cbstart(currentsymbol);
-        }
-        else if(symbol && symbol->is(SymbolTypes::Code))
+    auto it = this->find(startaddress);
+    SymbolPtr symbol = NULL, functionsymbol = this->_symboltable->symbol(startaddress);
+
+    if(functionsymbol)
+        cbstart(functionsymbol);
+
+    while(it != this->end())
+    {
+        symbol = this->_symboltable->symbol(it.key);
+
+        if(symbol && !symbol->isFunction() && symbol->is(SymbolTypes::Code))
             cblabel(symbol);
 
-        cbinstruction(instruction);
+        cbinstruction(*it);
 
-        if((instruction->address == endaddress) && currentsymbol)
-        {
-            cbend(currentsymbol);
-            currentsymbol = NULL;
-        }
+        if(it.key == endaddress)
+            break;
+
+        it++;
+    }
+
+    if(functionsymbol)
+        cbend(functionsymbol);
+
+    return true;
+}
+
+void Listing::iterateAll(InstructionCallback cbinstruction, SymbolCallback cbstart, SymbolCallback cbend, SymbolCallback cblabel)
+{
+    this->_symboltable->iterate(SymbolTypes::FunctionMask, [this, cbinstruction, cbstart, cbend, cblabel](const SymbolPtr& symbol) -> bool {
+        this->iterateFunction(symbol->address, cbinstruction, cbstart, cbend, cblabel);
+        return true;
     });
 }
 
 void Listing::update(const InstructionPtr &instruction)
 {
     this->commit(instruction->address, instruction);
+}
+
+void Listing::calculateBounds()
+{
+    this->_symboltable->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
+        this->_bounds[symbol->address] = this->getStop(symbol->address);
+        return true;
+    });
 }
 
 void Listing::serialize(const InstructionPtr &value, std::fstream &fs)

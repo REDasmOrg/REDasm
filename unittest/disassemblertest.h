@@ -18,9 +18,9 @@ class DisassemblerTest
         void runTests();
 
     private:
-        std::string replaceAll(std::string str, const std::string& from, const std::string& to);
-        QByteArray readFile(const QString& file) const;
-        void runTest(QByteArray &data, TestCallback testcallback);
+        static std::string replaceAll(std::string str, const std::string& from, const std::string& to);
+        static QByteArray readFile(const QString& file);
+        static void runTest(QByteArray &data, const TestCallback &testcallback);
 
     private:
         void testVBEvents(REDasm::Disassembler* disassembler, const std::map<address_t, std::string>& vbevents);

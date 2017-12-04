@@ -6,7 +6,7 @@
 #include <QFile>
 
 #define TEST_PREFIX                      "/home/davide/Programmazione/Campioni/" // NOTE: Yes, hardcoded for now :(
-#define TEST_PATH(s)                      TEST_PREFIX + std::string(s)
+#define TEST_PATH(s)                     TEST_PREFIX + std::string(s)
 
 #define REPEAT_COUNT                     20
 #define REPEATED(s)                      std::string(REPEAT_COUNT, s)
@@ -49,7 +49,7 @@ void DisassemblerTest::runTests()
 {
     REDasm::init();
 
-    std::for_each(this->_tests.begin(), this->_tests.end(), [this](const TestItem& test) {
+    std::for_each(this->_tests.begin(), this->_tests.end(), [](const TestItem& test) {
         QString testpath = QString::fromStdString(test.first);
         QFileInfo fi(testpath);
 
@@ -59,14 +59,14 @@ void DisassemblerTest::runTests()
         }
 
         TEST_TITLE(qUtf8Printable(fi.fileName()));
-        QByteArray data = this->readFile(testpath);
+        QByteArray data = DisassemblerTest::readFile(testpath);
 
         if(data.isEmpty()) {
             cout << "!!! File is empty" << endl << endl;
             return;
         }
 
-        this->runTest(data, test.second);
+        DisassemblerTest::runTest(data, test.second);
         cout << REPEATED('-') << REPEATED('-') << REPEATED('-') << endl << endl;
     });
 }
@@ -87,7 +87,7 @@ string DisassemblerTest::replaceAll(std::string str, const std::string &from, co
     return str;
 }
 
-QByteArray DisassemblerTest::readFile(const QString &file) const
+QByteArray DisassemblerTest::readFile(const QString &file)
 {
     QFile f(file);
 
@@ -99,7 +99,7 @@ QByteArray DisassemblerTest::readFile(const QString &file) const
     return ba;
 }
 
-void DisassemblerTest::runTest(QByteArray &data, TestCallback testcallback)
+void DisassemblerTest::runTest(QByteArray &data, const TestCallback& testcallback)
 {
     FormatPlugin* format = REDasm::getFormat(reinterpret_cast<u8*>(data.data()));
     TEST("Format", format);
@@ -130,7 +130,7 @@ void DisassemblerTest::testVBEvents(Disassembler *disassembler, const std::map<a
     SymbolPtr symbol;
 
     std::for_each(vbevents.begin(), vbevents.end(), [this, symboltable, &symbol](const std::pair<address_t, std::string>& vbevent) {
-        std::string procname = this->replaceAll(vbevent.second, "::", "_");
+        std::string procname = DisassemblerTest::replaceAll(vbevent.second, "::", "_");
         symbol = symboltable->symbol(vbevent.first);
 
         TEST_SYMBOL_NAME("Event " + vbevent.second + " @ " + REDasm::hex(vbevent.first, 0, false),

@@ -62,8 +62,8 @@ void DisassemblerDocument::generate(address_t address, const QTextCursor& cursor
     REDasm::Listing& listing = this->_disassembler->listing();
 
     bool done = listing.iterateFunction(address, [this](const REDasm::InstructionPtr& i) { this->appendInstruction(i); },
-                                                 [this](const REDasm::SymbolPtr& s) { this->appendFunction(s); },
-                                                 [this](const REDasm::SymbolPtr& s) { this->appendEmpty(s); },
+                                                 [this](const REDasm::SymbolPtr& s) { this->appendFunctionStart(s); },
+                                                 [this](const REDasm::SymbolPtr& s) { this->appendFunctionEnd(s); },
                                                  [this](const REDasm::SymbolPtr& s) { this->appendLabel(s); });
 
     if(done)
@@ -76,10 +76,16 @@ void DisassemblerDocument::generate(address_t address, const QTextCursor& cursor
     this->_textcursor.endEditBlock();
 }
 
-void DisassemblerDocument::appendEmpty(const REDasm::SymbolPtr &symbol)
+void DisassemblerDocument::appendFunctionEnd(const REDasm::SymbolPtr &symbol)
 {
+    address_t endaddress = 0;
+    REDasm::Listing& listing = this->_disassembler->listing();
+
+    if(!listing.getFunctionBounds(symbol->address, NULL, &endaddress))
+        endaddress = symbol->address;
+
     QTextBlockFormat blockformat;
-    blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(symbol->address));
+    blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(endaddress));
     blockformat.setProperty(DisassemblerDocument::IsEmptyBlock, true);
     this->_textcursor.setBlockFormat(blockformat);
     this->_textcursor.insertBlock();
@@ -104,7 +110,7 @@ void DisassemblerDocument::appendLabel(const REDasm::SymbolPtr &symbol)
     this->_textcursor.insertBlock();
 }
 
-void DisassemblerDocument::appendFunction(const REDasm::SymbolPtr &symbol)
+void DisassemblerDocument::appendFunctionStart(const REDasm::SymbolPtr &symbol)
 {
     QTextBlockFormat blockformat;
     blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(symbol->address));

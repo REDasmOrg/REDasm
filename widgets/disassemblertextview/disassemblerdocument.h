@@ -33,9 +33,9 @@ class DisassemblerDocument: public QObject
         void generate(address_t address, const QTextCursor &cursor);
 
     private:
-        void appendEmpty(const REDasm::SymbolPtr& symbol);
+        void appendFunctionEnd(const REDasm::SymbolPtr& symbol);
         void appendLabel(const REDasm::SymbolPtr& symbol);
-        void appendFunction(const REDasm::SymbolPtr& symbol);
+        void appendFunctionStart(const REDasm::SymbolPtr& symbol);
         void appendInstruction(const REDasm::InstructionPtr& instruction);
         void appendAddress(const REDasm::InstructionPtr& instruction);
         void appendMnemonic(const REDasm::InstructionPtr& instruction);

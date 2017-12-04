@@ -54,7 +54,7 @@ void Listing::setReferenceTable(ReferenceTable *referencetable)
 
 void Listing::walk(address_t address)
 {
-    if(!this->_processor)
+    if(!this->_processor || (this->_paths.find(address) != this->_paths.end()))
         return;
 
     FunctionPath path;

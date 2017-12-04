@@ -76,6 +76,9 @@ void Disassembler::disassembleFunction(address_t address)
     STATUS("Analyzing...");
     Analyzer analyzer(this);
     analyzer.analyze(this->_listing); // Run basic analyzer
+
+    STATUS("Calculating paths...");
+    this->_listing.calculatePaths();
 }
 
 void Disassembler::disassemble()

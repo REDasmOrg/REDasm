@@ -166,7 +166,6 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
             break;
 
         isjumptable = true;
-        instruction->type = InstructionTypes::JumpTable;
         instruction->target(target);
         this->disassemble(target);
 
@@ -193,6 +192,7 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
 
     if(isjumptable)
     {
+        instruction->type = InstructionTypes::JumpTable;
         this->_listing.update(instruction);
         instruction->cmt("#" + std::to_string(cases) + " case(s) jump table");
     }

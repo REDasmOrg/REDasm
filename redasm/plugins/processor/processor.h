@@ -12,7 +12,6 @@
 
 #define DECLARE_PROCESSOR_PLUGIN(id, processor) inline ProcessorPlugin* id##_processorPlugin() { return new processor(); }
 #define PROCESSOR_IS(processor, arch) (strstr(processor->name(), arch))
-#define SET_TARGET_INDEX(x) if(index) *index = x;
 
 namespace REDasm {
 

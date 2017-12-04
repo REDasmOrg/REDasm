@@ -230,7 +230,7 @@ void DisassemblerView::filterSymbols()
 void DisassemblerView::showListing()
 {
     ui->disassemblerTextView->setDisassembler(this->_disassembler);
-    //NOTE: ui->disassemblerMap->render(this->_disassembler);
+    ui->disassemblerMap->render(this->_disassembler);
 
     this->_functionsmodel->setDisassembler(this->_disassembler);
     this->_importsmodel->setDisassembler(this->_disassembler);

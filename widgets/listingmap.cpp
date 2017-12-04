@@ -40,7 +40,7 @@ void ListingMap::render(REDasm::Disassembler* disassembler)
 
     this->_size = reloffset;
 
-    disassembler->symbolTable()->iterate(REDasm::SymbolTypes::Function, [this, disassembler](REDasm::SymbolPtr symbol) -> bool {
+    disassembler->symbolTable()->iterate(REDasm::SymbolTypes::FunctionMask, [this, disassembler](REDasm::SymbolPtr symbol) -> bool {
         const Item* segmentitem = this->segmentBase(disassembler, symbol);
 
         if(!segmentitem)

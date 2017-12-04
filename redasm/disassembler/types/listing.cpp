@@ -131,7 +131,7 @@ bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cb
     if(it == this->_paths.end())
         return false;
 
-    SymbolPtr symbol = NULL, functionsymbol = this->_symboltable->symbol(address);
+    SymbolPtr symbol = NULL, functionsymbol = this->_symboltable->symbol(it->first);
 
     if(functionsymbol)
         cbstart(functionsymbol);

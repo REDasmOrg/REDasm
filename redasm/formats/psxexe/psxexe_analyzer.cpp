@@ -54,7 +54,7 @@ void PsxExeAnalyzer::detectMain(Listing &listing)
 
     bool initheap = false;
 
-    listing.iterate(symentry, [symboltable, &initheap](const InstructionPtr& instruction)-> bool {
+    listing.iterateFunction(symentry->address, [symboltable, &initheap](const InstructionPtr& instruction)-> bool {
         if(instruction->mnemonic != "jal")
             return true;
 

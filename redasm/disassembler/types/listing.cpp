@@ -52,147 +52,110 @@ void Listing::setReferenceTable(ReferenceTable *referencetable)
     this->_referencetable = referencetable;
 }
 
-address_t Listing::getStop(address_t address)
+void Listing::walk(address_t address)
 {
     if(!this->_processor)
-        return address;
+        return;
 
-    address_t maxtarget = 0, target = 0;
-    auto it = this->find(address);
+    FunctionPath path;
+    this->walk(this->find(address), path);
 
-    while(it != this->end())
-    {
-        const InstructionPtr& instruction = *it;
-        address = instruction->address;
-
-        if(instruction->is(InstructionTypes::Stop))
-            break;
-
-        if(instruction->is(InstructionTypes::Jump) && this->_processor->target(instruction, &target))
-        {
-            if((target > address) && (this->find(target) != this->end()))
-            {
-                SymbolPtr symbol = this->_symboltable->symbol(target);
-
-                if(!symbol || !symbol->isFunction())
-                    maxtarget = std::max(target, maxtarget);
-            }
-        }
-
-        it++;
-
-        if((it == this->end()))
-            break;
-
-        if(this->isFunctionStart((*it)->address)) // Don't overlap functions
-            return address;
-    }
-
-    if(maxtarget > address)
-        return this->getStop(maxtarget);
-
-    return address;
+    if(!path.empty())
+        this->_paths[address] = path;
 }
 
-bool Listing::getFunctionBounds(address_t address, address_t *start, address_t *end) const
+void Listing::walk(Listing::iterator it, FunctionPath& path)
 {
-    for(auto it = this->_bounds.begin(); it != this->_bounds.end(); it++)
+    if((it == this->end()) || (path.find(it.key) != path.end())) // Don't reanalyze same paths
+        return;
+
+    path.insert(it.key);
+
+    address_t target = 0;
+    InstructionPtr instruction = *it;
+
+    if(instruction->is(InstructionTypes::Stop))
+        return;
+
+    if(instruction->is(InstructionTypes::Jump) && this->_processor->target(instruction, &target))
     {
-        if((address >= it->first) && (address <= it->second))
-        {
-            if(start) *start = it->first;
-            if(end) *end = it->second;
-            return true;
-        }
+        SymbolPtr symbol = this->_symboltable->symbol(target);
+        auto targetit = this->find(target);
+
+        if((!symbol || !symbol->isFunction()) && (targetit != this->end()))
+            this->walk(targetit, path);
+
+        if(!instruction->is(InstructionTypes::Conditional)) // Unconditional jumps doesn't continue execution
+            return;
     }
 
-    return false;
+    it++;
+
+    if((it != this->end()) && !this->isFunctionStart((*it)->address))
+        this->walk(it, path);
 }
 
 std::string Listing::getSignature(const SymbolPtr& symbol)
 {
     std::string sig;
-    address_t endaddress = 0;
-    auto it = this->find(symbol->address);
+    auto it = this->_paths.find(symbol->address);
 
-    if(!this->getFunctionBounds(symbol->address, NULL, &endaddress))
+    if(it == this->_paths.end())
         return std::string();
 
-    for(; it != this->end(); it++)
-    {
-        InstructionPtr instruction = *it;
+    const std::set<address_t> path = it->second;
 
-        if(instruction->address > endaddress)
-            break;
-
+    std::for_each(path.begin(), path.end(), [this, &sig](address_t address) {
+        InstructionPtr instruction = (*this)[address];
         sig += instruction->signature;
-    }
+    });
 
     return sig;
 }
 
-void Listing::iterate(const SymbolPtr& symbol, InstructionCallback f)
+bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cbinstruction)
 {
-    if(!this->_processor )
-        return;
-
-    address_t endaddress = 0;
-
-    if(!this->getFunctionBounds(symbol->address, NULL, &endaddress))
-        return;
-
-    auto it = this->find(symbol->address);
-
-    for(; it != this->end(); it++)
-    {
-        InstructionPtr instruction = *it;
-
-        if(instruction->address > endaddress)
-            break;
-
-        if(f)
-            f(instruction);
-    }
+    return this->iterateFunction(address, cbinstruction,
+                                 [](const SymbolPtr&) { },
+                                 [](const InstructionPtr&) { },
+                                 [](const SymbolPtr&) { });
 }
 
-bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cbinstruction, Listing::SymbolCallback cbstart, Listing::SymbolCallback cbend, Listing::SymbolCallback cblabel)
+bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cbinstruction, Listing::SymbolCallback cbstart, Listing::InstructionCallback cbend, Listing::SymbolCallback cblabel)
 {
     if(!this->_processor)
         return false;
 
-    address_t startaddress = 0, endaddress = 0;
+    auto it = this->findFunction(address);
 
-    if(!this->getFunctionBounds(address, &startaddress, &endaddress))
+    if(it == this->_paths.end())
         return false;
 
-    auto it = this->find(startaddress);
-    SymbolPtr symbol = NULL, functionsymbol = this->_symboltable->symbol(startaddress);
+    SymbolPtr symbol = NULL, functionsymbol = this->_symboltable->symbol(address);
 
     if(functionsymbol)
         cbstart(functionsymbol);
 
-    while(it != this->end())
-    {
-        symbol = this->_symboltable->symbol(it.key);
+    const FunctionPath& path = it->second;
+    InstructionPtr instruction;
+
+    std::for_each(path.begin(), path.end(), [this, &symbol, &instruction, &cbinstruction, &cblabel](address_t address) {
+        symbol = this->_symboltable->symbol(address);
 
         if(symbol && !symbol->isFunction() && symbol->is(SymbolTypes::Code))
             cblabel(symbol);
 
-        cbinstruction(*it);
+        instruction = (*this)[address];
+        cbinstruction(instruction);
+    });
 
-        if(it.key == endaddress)
-            break;
-
-        it++;
-    }
-
-    if(functionsymbol)
-        cbend(functionsymbol);
+    if(instruction)
+        cbend(instruction);
 
     return true;
 }
 
-void Listing::iterateAll(InstructionCallback cbinstruction, SymbolCallback cbstart, SymbolCallback cbend, SymbolCallback cblabel)
+void Listing::iterateAll(InstructionCallback cbinstruction, SymbolCallback cbstart, InstructionCallback cbend, SymbolCallback cblabel)
 {
     this->_symboltable->iterate(SymbolTypes::FunctionMask, [this, cbinstruction, cbstart, cbend, cblabel](const SymbolPtr& symbol) -> bool {
         this->iterateFunction(symbol->address, cbinstruction, cbstart, cbend, cblabel);
@@ -205,10 +168,10 @@ void Listing::update(const InstructionPtr &instruction)
     this->commit(instruction->address, instruction);
 }
 
-void Listing::calculateBounds()
+void Listing::calculatePaths()
 {
     this->_symboltable->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
-        this->_bounds[symbol->address] = this->getStop(symbol->address);
+        this->walk(symbol->address);
         return true;
     });
 }
@@ -285,6 +248,30 @@ bool Listing::isFunctionStart(address_t address)
         return false;
 
     return symbol->isFunction();
+}
+
+Listing::FunctionPaths::iterator Listing::findFunction(address_t address)
+{
+    auto it = this->_paths.find(address);
+
+    if(it != this->_paths.end())
+        return it;
+
+    for(it = this->_paths.begin(); it != this->_paths.end(); it++)
+    {
+        const FunctionPath& path = it->second;
+        address_t startaddress = *path.begin(), endaddress = *path.rbegin();
+
+        if((endaddress < address) || (startaddress > address))
+            continue;
+
+        auto pathit = path.find(address);
+
+        if(pathit != path.end())
+            return it;
+    }
+
+    return this->_paths.end();
 }
 
 }

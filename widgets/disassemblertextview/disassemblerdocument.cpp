@@ -61,31 +61,18 @@ void DisassemblerDocument::generate(address_t address, const QTextCursor& cursor
 
     REDasm::Listing& listing = this->_disassembler->listing();
 
-    bool done = listing.iterateFunction(address, [this](const REDasm::InstructionPtr& i) { this->appendInstruction(i); },
-                                                 [this](const REDasm::SymbolPtr& s) { this->appendFunctionStart(s); },
-                                                 [this](const REDasm::SymbolPtr& s) { this->appendFunctionEnd(s); },
-                                                 [this](const REDasm::SymbolPtr& s) { this->appendLabel(s); });
-
-    if(done)
-    {
-        address_t startaddress = 0, endaddress = 0;
-        listing.getFunctionBounds(address, &startaddress, &endaddress);
-        this->_generated[startaddress] = endaddress;
-    }
+    listing.iterateFunction(address, [this](const REDasm::InstructionPtr& i) { this->appendInstruction(i); },
+                                     [this](const REDasm::SymbolPtr& s) { this->appendFunctionStart(s); },
+                                     [this](const REDasm::InstructionPtr& i) { this->appendFunctionEnd(i); },
+                                     [this](const REDasm::SymbolPtr& s) { this->appendLabel(s); });
 
     this->_textcursor.endEditBlock();
 }
 
-void DisassemblerDocument::appendFunctionEnd(const REDasm::SymbolPtr &symbol)
+void DisassemblerDocument::appendFunctionEnd(const REDasm::InstructionPtr &lastinstruction)
 {
-    address_t endaddress = 0;
-    REDasm::Listing& listing = this->_disassembler->listing();
-
-    if(!listing.getFunctionBounds(symbol->address, NULL, &endaddress))
-        endaddress = symbol->address;
-
     QTextBlockFormat blockformat;
-    blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(endaddress));
+    blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(lastinstruction->address));
     blockformat.setProperty(DisassemblerDocument::IsEmptyBlock, true);
     this->_textcursor.setBlockFormat(blockformat);
     this->_textcursor.insertBlock();
@@ -138,10 +125,13 @@ void DisassemblerDocument::appendFunctionStart(const REDasm::SymbolPtr &symbol)
 
 void DisassemblerDocument::appendInstruction(const REDasm::InstructionPtr &instruction)
 {
+    this->_generated.insert(instruction->address);
+
     QTextBlockFormat blockformat;
     blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(instruction->address));
     blockformat.setProperty(DisassemblerDocument::IsInstructionBlock, true);
     this->_textcursor.setBlockFormat(blockformat);
+
 
     this->appendAddress(instruction);
     this->appendMnemonic(instruction);
@@ -320,13 +310,7 @@ void DisassemblerDocument::selectBlock(address_t address)
 
 bool DisassemblerDocument::isGenerated(address_t address)
 {
-    for(auto it = this->_generated.begin(); it != this->_generated.end(); it++)
-    {
-        if((address >= it->first) && (address <= it->second))
-            return true;
-    }
-
-    return false;
+    return this->_generated.find(address) != this->_generated.end();
 }
 
 QJsonObject DisassemblerDocument::decode(const QString &data)

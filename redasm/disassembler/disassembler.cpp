@@ -97,8 +97,8 @@ void Disassembler::disassemble()
     STATUS("Sorting symbols...");
     this->_symboltable->sort();
 
-    STATUS("Calculating bounds...");
-    this->_listing.calculateBounds();
+    STATUS("Calculating paths...");
+    this->_listing.calculatePaths();
 }
 
 bool Disassembler::dataToString(address_t address)

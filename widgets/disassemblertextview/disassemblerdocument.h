@@ -16,7 +16,7 @@ class DisassemblerDocument: public QObject
     Q_OBJECT
 
     private:
-        typedef std::map<address_t, address_t> GeneratedFunctions;
+        typedef std::set<address_t> GeneratedInstructions;
 
     public:
         enum { UnknownBlock = 0,
@@ -33,7 +33,7 @@ class DisassemblerDocument: public QObject
         void generate(address_t address, const QTextCursor &cursor);
 
     private:
-        void appendFunctionEnd(const REDasm::SymbolPtr& symbol);
+        void appendFunctionEnd(const REDasm::InstructionPtr &lastinstruction);
         void appendLabel(const REDasm::SymbolPtr& symbol);
         void appendFunctionStart(const REDasm::SymbolPtr& symbol);
         void appendInstruction(const REDasm::InstructionPtr& instruction);
@@ -59,7 +59,7 @@ class DisassemblerDocument: public QObject
         REDasm::Segment* _segment;
         REDasm::Disassembler* _disassembler;
         REDasm::SymbolTable* _symbols;
-        GeneratedFunctions _generated;
+        GeneratedInstructions _generated;
         QTextDocument* _document;
         QTextCursor _textcursor;
         QJsonObject _theme;

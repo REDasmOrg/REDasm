@@ -243,6 +243,7 @@ typedef std::vector<Operand> OperandList;
 
 typedef std::vector<address_t> AddressVector;
 typedef std::vector<Segment> SegmentVector;
-}
+
+} // namespace REDasm
 
 #endif // REDASM_H

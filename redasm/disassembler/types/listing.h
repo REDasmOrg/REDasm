@@ -18,7 +18,8 @@ class Listing: public cache_map<address_t, InstructionPtr>
     private:
         typedef std::function<void(const InstructionPtr&)> InstructionCallback;
         typedef std::function<void(const SymbolPtr&)> SymbolCallback;
-        typedef std::map<address_t, address_t> FunctionBounds;
+        typedef std::set<address_t> FunctionPath;
+        typedef std::map<address_t, FunctionPath> FunctionPaths;
 
     public:
         Listing();
@@ -28,27 +29,28 @@ class Listing: public cache_map<address_t, InstructionPtr>
         FormatPlugin *format() const;
         const ProcessorPlugin *processor() const;
         std::string getSignature(const SymbolPtr &symbol);
-        bool getFunctionBounds(address_t address, address_t *start, address_t *end) const;
         void setFormat(FormatPlugin *format);
         void setProcessor(ProcessorPlugin *processor);
         void setSymbolTable(SymbolTable* symboltable);
         void setReferenceTable(ReferenceTable* referencetable);
-        void iterate(const SymbolPtr &symbol, InstructionCallback f);
-        bool iterateFunction(address_t address, InstructionCallback cbinstruction, SymbolCallback cbstart, SymbolCallback cbend, SymbolCallback cblabel);
-        void iterateAll(InstructionCallback cbinstruction, SymbolCallback cbstart, SymbolCallback cbend, SymbolCallback cblabel);
+        bool iterateFunction(address_t address, InstructionCallback cbinstruction);
+        bool iterateFunction(address_t address, InstructionCallback cbinstruction, SymbolCallback cbstart, InstructionCallback cbend, SymbolCallback cblabel);
+        void iterateAll(InstructionCallback cbinstruction, SymbolCallback cbstart, InstructionCallback cbend, SymbolCallback cblabel);
         void update(const InstructionPtr& instruction);
-        void calculateBounds();
+        void calculatePaths();
 
     protected:
         virtual void serialize(const InstructionPtr &value, std::fstream &fs);
         virtual void deserialize(InstructionPtr &value, std::fstream &fs);
 
     private:
-        address_t getStop(address_t address);
+        void walk(address_t address);
+        void walk(iterator it, FunctionPath &path);
         bool isFunctionStart(address_t address);
+        FunctionPaths::iterator findFunction(address_t address);
 
     private:
-        FunctionBounds _bounds;
+        FunctionPaths _paths;
         FormatPlugin* _format;
         ProcessorPlugin* _processor;
         ReferenceTable* _referencetable;

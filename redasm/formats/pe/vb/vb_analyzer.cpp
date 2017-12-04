@@ -61,8 +61,6 @@ void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, Lis
     if(!eventva)
         return;
 
-    address_t target = 0;
-    const ProcessorPlugin* processor = listing.processor();
     InstructionPtr instruction = this->_dfunctions->disassembleInstruction(eventva); // Disassemble trampoline
 
     if(instruction->mnemonic == "sub")
@@ -71,8 +69,8 @@ void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, Lis
         return;
     }
 
-    if(instruction->is(InstructionTypes::Jump) && processor->target(instruction, &target))
-        this->createFunction(listing.symbolTable(), name, target);
+    if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
+        this->createFunction(listing.symbolTable(), name, instruction->target());
 }
 
 void VBAnalyzer::decompileObject(Listing& listing, const VBPublicObjectDescriptor &pubobjdescr)

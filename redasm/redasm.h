@@ -71,7 +71,7 @@ namespace InstructionTypes {
         Push        = 0x00002000, Pop  = 0x00004000,
         Compare     = 0x00008000,
 
-        Conditional = 0x01000000, Privileged = 0x02000000, JumpTable = 0x04000000,
+        Conditional = 0x01000000, Privileged = 0x02000000, JumpTable = 0x04000000 | Jump,
         Invalid     = 0x10000000,
         Branch      = Jump | Call,
     };
@@ -175,22 +175,28 @@ struct Operand
 
 struct Instruction
 {
-    Instruction(): address(0), type(0), size(0), id(0), userdata(NULL) { }
+    Instruction(): address(0), target_idx(-1), type(0), size(0), id(0), userdata(NULL) { }
     ~Instruction() { reset(); }
 
     std::function<void(void*)> free;
 
     std::string mnemonic, signature;
+    std::list<address_t> targets;   // Jump/JumpTable/Call destination(s)
     std::vector<Operand> operands;
     std::list<std::string> comments;
     address_t address;
+    s32 target_idx;                 // Target's operand index
     u32 type, size;
-    u64 id;         // Backend Specific
-    void* userdata; // It doesn't survive after Processor::decode() by design
+    u64 id;                         // Backend Specific
+    void* userdata;                 // It doesn't survive after Processor::decode() by design
 
     bool is(u32 t) const { return type & t; }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
+    bool hasTargets() const { return !targets.empty(); }
     void reset() { type = 0; operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
+    void target_op(s32 index) { target_idx = index; targets.push_back(operands[index].u_value); }
+    void target(address_t target) { targets.push_back(target); }
+    address_t target() const { return targets.front(); }
     address_t endAddress() const { return address + size; }
 
     Instruction& cmt(const std::string& s) { comments.push_back(s); return *this; }

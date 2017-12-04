@@ -183,12 +183,10 @@ void DisassemblerTest::testOllyDump(Disassembler *disassembler)
     if(it == listing.end())
         return;
 
-    address_t target = 0;
     InstructionPtr instruction = *it;
-    ProcessorPlugin* processor = disassembler->processor();
-    TEST("Validating CALL @ 0x00403bea target", instruction->is(InstructionTypes::Call) && processor->target(instruction, &target));
+    TEST("Validating CALL @ 0x00403bea target", instruction->is(InstructionTypes::Call) && instruction->hasTargets());
 
-    symbol = symboltable->symbol(target);
+    symbol = symboltable->symbol(instruction->target());
     TEST_SYMBOL("Checking if target a data-pointer", symbol, symbol->is(SymbolTypes::Pointer) && symbol->is(SymbolTypes::Data));
 
     symbol = disassembler->dereferenceSymbol(symbol);

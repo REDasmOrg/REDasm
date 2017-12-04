@@ -45,27 +45,6 @@ bool ARMProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
     return true;
 }
 
-bool ARMProcessor::target(const InstructionPtr &instruction, address_t *target, int *index) const
-{
-    switch(instruction->id)
-    {
-        case ARM_INS_B:
-            SET_TARGET_INDEX(0);
-            *target = instruction->operands[0].u_value;
-            break;
-
-        case ARM_INS_BL:
-            SET_TARGET_INDEX(0);
-            *target = instruction->operands[0].u_value;
-            break;
-
-        default:
-            return false;
-    }
-
-    return true;
-}
-
 bool ARMProcessor::isPC(register_t reg) const
 {
     return reg == ARM_REG_PC;
@@ -82,12 +61,16 @@ void ARMProcessor::analyzeInstruction(const InstructionPtr &instruction, cs_insn
             if(arm.cc != ARM_CC_AL)
                 instruction->type |= InstructionTypes::Conditional;
 
+            instruction->target_op(0);
             break;
         }
 
         case ARM_INS_BL:
+        {
             instruction->type = InstructionTypes::Call;
+            instruction->target_op(0);
             break;
+        }
 
         case ARM_INS_LDR:
         {

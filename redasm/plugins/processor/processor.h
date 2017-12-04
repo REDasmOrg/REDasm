@@ -26,7 +26,6 @@ class ProcessorPlugin: public Plugin
         ProcessorPlugin();
         virtual int flags() const;
         virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable* symboltable) const;
-        virtual bool target(const InstructionPtr& instruction, address_t* target, int* index = NULL) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual bool done(const InstructionPtr& instruction);
 

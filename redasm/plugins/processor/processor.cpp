@@ -21,15 +21,6 @@ Printer *ProcessorPlugin::createPrinter(DisassemblerFunctions *disassembler, Sym
     return NULL;
 }
 
-bool ProcessorPlugin::target(const InstructionPtr &instruction, address_t *target, int *index) const
-{
-    RE_UNUSED(instruction);
-    RE_UNUSED(target);
-    RE_UNUSED(index);
-
-    return false;
-}
-
 bool ProcessorPlugin::decode(Buffer buffer, const InstructionPtr &instruction)
 {
     std::stringstream ss;

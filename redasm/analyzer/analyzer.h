@@ -19,7 +19,7 @@ class Analyzer
 
     private:
         void findTrampolines(Listing& listing, SymbolPtr symbol);
-        SymbolPtr findTrampolines_x86(Listing::iterator& it, SymbolTable *symboltable, const ProcessorPlugin *processor);
+        SymbolPtr findTrampolines_x86(Listing::iterator& it, SymbolTable *symboltable);
         SymbolPtr findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable);
 
     protected:

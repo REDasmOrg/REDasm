@@ -12,7 +12,6 @@ class ARMProcessor: public CapstoneProcessorPlugin<CS_ARCH_ARM, CS_MODE_ARM>
         ARMProcessor();
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
-        virtual bool target(const InstructionPtr& instruction, address_t *target, int* index = NULL) const;
         virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const { return new ARMPrinter(this->_cshandle, disassembler, symboltable); }
 
     private:

@@ -36,7 +36,7 @@ void Analyzer::findTrampolines(Listing &listing, SymbolPtr symbol)
     SymbolPtr symimport;
 
     if(PROCESSOR_IS(processor, "x86"))
-        symimport = this->findTrampolines_x86(it, symboltable, processor);
+        symimport = this->findTrampolines_x86(it, symboltable);
     else if(PROCESSOR_IS(processor, "ARM"))
         symimport = this->findTrampolines_arm(it, symboltable);
 
@@ -48,19 +48,17 @@ void Analyzer::findTrampolines(Listing &listing, SymbolPtr symbol)
     references->push(symimport, it.key);
 }
 
-SymbolPtr Analyzer::findTrampolines_x86(Listing::iterator& it, SymbolTable* symboltable, const ProcessorPlugin* processor)
+SymbolPtr Analyzer::findTrampolines_x86(Listing::iterator& it, SymbolTable* symboltable)
 {
     const InstructionPtr& instruction = *it;
 
     if(!instruction->is(InstructionTypes::Jump))
         return NULL;
 
-    address_t target = 0;
-
-    if(!processor->target(instruction, &target))
+    if(!instruction->hasTargets())
         return NULL;
 
-    return symboltable->symbol(target);
+    return symboltable->symbol(instruction->target());
 }
 
 SymbolPtr Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable)

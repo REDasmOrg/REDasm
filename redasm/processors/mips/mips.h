@@ -14,14 +14,13 @@ template<size_t mode> class MIPSProcessor: public CapstoneProcessorPlugin<CS_ARC
         virtual const char* name() const;
         virtual int flags() const { return ProcessorFlags::DelaySlot; }
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
-        virtual bool target(const InstructionPtr& instruction, address_t *target, int* index = NULL) const;
         virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable *symboltable) const { return new MIPSPrinter(this->_cshandle, disassembler, symboltable); }
 
     private:
         bool makePseudo(const InstructionPtr &instruction1, const InstructionPtr &instruction2, const InstructionPtr& instructionout);
         bool decodeMips(Buffer &buffer, const InstructionPtr &instruction);
         bool checkDecodePseudo(Buffer buffer, const InstructionPtr &instruction);
-        void analyzeInstruction(cs_insn* insn, const InstructionPtr &instruction) const;
+        void analyzeInstruction(const InstructionPtr &instruction) const;
 };
 
 template<size_t mode> const char *MIPSProcessor<mode>::name() const
@@ -55,7 +54,7 @@ template<size_t mode> bool MIPSProcessor<mode>::decodeMips(Buffer& buffer, const
             instruction->imm(op.imm);
     }
 
-    this->analyzeInstruction(insn, instruction);
+    this->analyzeInstruction(instruction);
     return true;
 }
 
@@ -65,47 +64,6 @@ template<size_t mode> bool MIPSProcessor<mode>::decode(Buffer buffer, const Inst
         return false;
 
     this->checkDecodePseudo(buffer, instruction);
-    return true;
-}
-
-template<size_t mode> bool MIPSProcessor<mode>::target(const InstructionPtr &instruction, address_t *target, int *index) const
-{
-    switch(instruction->id)
-    {
-        case MIPS_INS_J:
-        case MIPS_INS_JAL:
-        case MIPS_INS_BAL:
-            SET_TARGET_INDEX(0);
-            *target = instruction->operands[0].u_value;
-            break;
-
-        case MIPS_INS_BEQZ:
-        case MIPS_INS_BNEZ:
-        case MIPS_INS_BNEL:
-        case MIPS_INS_BLEZ:
-        case MIPS_INS_BLEZC:
-        case MIPS_INS_BLEZL:
-        case MIPS_INS_BGTZ:
-        case MIPS_INS_BGEZ:
-        case MIPS_INS_BGEZC:
-        case MIPS_INS_BGEZL:
-        case MIPS_INS_BGEZAL:
-        case MIPS_INS_BGEZALL:
-        case MIPS_INS_BLTZ:
-            SET_TARGET_INDEX(1);
-            *target = instruction->operands[1].u_value;
-            break;
-
-        case MIPS_INS_BEQ:
-        case MIPS_INS_BNE:
-            SET_TARGET_INDEX(2);
-            *target = instruction->operands[2].u_value;
-            break;
-
-        default:
-            return false;
-    }
-
     return true;
 }
 
@@ -206,13 +164,18 @@ template<size_t mode> bool MIPSProcessor<mode>::checkDecodePseudo(Buffer buffer,
     return false;
 }
 
-template<size_t mode> void MIPSProcessor<mode>::analyzeInstruction(cs_insn *insn, const InstructionPtr& instruction) const
+template<size_t mode> void MIPSProcessor<mode>::analyzeInstruction(const InstructionPtr& instruction) const
 {
-    switch(insn->id)
+    switch(instruction->id)
     {
+        case MIPS_INS_J:
+            instruction->target_op(0);
+            break;
+
         case MIPS_INS_JAL:
         case MIPS_INS_BAL:
             instruction->type |= InstructionTypes::Call;
+            instruction->target_op(0);
             break;
 
         case MIPS_INS_BEQZ:
@@ -227,9 +190,15 @@ template<size_t mode> void MIPSProcessor<mode>::analyzeInstruction(cs_insn *insn
         case MIPS_INS_BGEZL:
         case MIPS_INS_BGEZAL:
         case MIPS_INS_BGEZALL:
+        case MIPS_INS_BLTZ:
+            instruction->type |= InstructionTypes::Conditional;
+            instruction->target_op(1);
+            break;
+
         case MIPS_INS_BNE:
         case MIPS_INS_BEQ:
             instruction->type |= InstructionTypes::Conditional;
+            instruction->target_op(2);
             break;
 
         case MIPS_INS_BREAK:

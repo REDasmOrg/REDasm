@@ -14,11 +14,10 @@ template<cs_mode mode> class X86Processor: public CapstoneProcessorPlugin<CS_ARC
         X86Processor(): CapstoneProcessorPlugin<CS_ARCH_X86, mode>(), _stacksize(0) { }
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
-        virtual bool target(const InstructionPtr& instruction, address_t *target, int* index = NULL) const;
         virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const { return new X86Printer(this->_cshandle, disassembler, symboltable); }
 
     private:
-        void analyzeInstruction(const InstructionPtr& instruction, cs_insn* insn);
+        void analyzeInstruction(const InstructionPtr& instruction);
         s32 localIndex(s64 disp, u32& type) const;
         s32 stackLocalIndex(s64 disp) const;
         bool isSP(register_t reg) const;
@@ -84,55 +83,8 @@ template<cs_mode mode> bool X86Processor<mode>::decode(Buffer buffer, const Inst
             instruction->reg(op.reg);
     }
 
-    this->analyzeInstruction(instruction, insn);
+    this->analyzeInstruction(instruction);
     return true;
-}
-
-template<cs_mode mode> bool X86Processor<mode>::target(const InstructionPtr &instruction, address_t *target, int *index) const
-{
-    switch(instruction->id)
-    {
-        case X86_INS_JA:
-        case X86_INS_JAE:
-        case X86_INS_JB:
-        case X86_INS_JBE:
-        case X86_INS_JE:
-        case X86_INS_JG:
-        case X86_INS_JGE:
-        case X86_INS_JL:
-        case X86_INS_JLE:
-        case X86_INS_JMP:
-        case X86_INS_JNE:
-        case X86_INS_JNO:
-        case X86_INS_JNP:
-        case X86_INS_JNS:
-        case X86_INS_JO:
-        case X86_INS_JP:
-        case X86_INS_JS:
-        case X86_INS_LOOP:
-        case X86_INS_LOOPE:
-        case X86_INS_LOOPNE:
-        case X86_INS_CALL:
-        {
-            SET_TARGET_INDEX(0);
-            const Operand& op = instruction->operands[0];
-
-            if(op.is((OperandTypes::Register)))
-                break;
-
-            if(op.is(OperandTypes::Displacement))
-                *target = op.mem.displacement;
-            else //if(op.is(OperandTypes::Immediate) || op.is(OperandTypes::Memory))
-                *target = op.u_value;
-
-            return true;
-        }
-
-        default:
-            break;
-    }
-
-    return false;
 }
 
 template<cs_mode mode> s32 X86Processor<mode>::localIndex(s64 disp, u32& type) const
@@ -221,32 +173,66 @@ template<cs_mode mode> bool X86Processor<mode>::isIP(register_t reg) const
     return false;
 }
 
-template<cs_mode mode> void X86Processor<mode>::analyzeInstruction(const InstructionPtr &instruction, cs_insn *insn)
+template<cs_mode mode> void X86Processor<mode>::analyzeInstruction(const InstructionPtr &instruction)
 {
-    switch(insn->id)
+    switch(instruction->id)
     {
-        case X86_INS_JAE:
         case X86_INS_JA:
-        case X86_INS_JBE:
+        case X86_INS_JAE:
         case X86_INS_JB:
+        case X86_INS_JBE:
         case X86_INS_JCXZ:
         case X86_INS_JECXZ:
         case X86_INS_JE:
-        case X86_INS_JGE:
         case X86_INS_JG:
-        case X86_INS_JLE:
+        case X86_INS_JGE:
         case X86_INS_JL:
+        case X86_INS_JLE:
         case X86_INS_JNE:
         case X86_INS_JNO:
         case X86_INS_JNP:
         case X86_INS_JNS:
         case X86_INS_JO:
         case X86_INS_JP:
+        case X86_INS_JS:
         case X86_INS_LOOP:
         case X86_INS_LOOPE:
         case X86_INS_LOOPNE:
+        {
             instruction->type |= InstructionTypes::Conditional;
+
+            const Operand& op = instruction->operands[0];
+
+            if(op.is((OperandTypes::Register)))
+                break;
+
+            instruction->target_idx = 0;
+
+            if(op.is(OperandTypes::Displacement))
+                instruction->target(op.mem.displacement);
+            else //if(op.is(OperandTypes::Immediate) || op.is(OperandTypes::Memory))
+                instruction->target(op.u_value);
+
             break;
+        }
+
+        case X86_INS_JMP:
+        case X86_INS_CALL:
+        {
+            const Operand& op = instruction->operands[0];
+
+            if(op.is((OperandTypes::Register)))
+                break;
+
+            instruction->target_idx = 0;
+
+            if(op.is(OperandTypes::Displacement))
+                instruction->target(op.mem.displacement);
+            else //if(op.is(OperandTypes::Immediate) || op.is(OperandTypes::Memory))
+                instruction->target(op.u_value);
+
+            break;
+        }
 
         case X86_INS_RET:
         case X86_INS_HLT:

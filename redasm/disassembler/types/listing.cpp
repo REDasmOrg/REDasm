@@ -71,19 +71,20 @@ void Listing::walk(Listing::iterator it, FunctionPath& path)
 
     path.insert(it.key);
 
-    address_t target = 0;
     InstructionPtr instruction = *it;
 
     if(instruction->is(InstructionTypes::Stop))
         return;
 
-    if(instruction->is(InstructionTypes::Jump) && this->_processor->target(instruction, &target))
+    if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
     {
-        SymbolPtr symbol = this->_symboltable->symbol(target);
-        auto targetit = this->find(target);
+        std::for_each(instruction->targets.begin(),instruction->targets.end(), [this, &path](address_t target) {
+            SymbolPtr symbol = this->_symboltable->symbol(target);
+            auto targetit = this->find(target);
 
-        if((!symbol || !symbol->isFunction()) && (targetit != this->end()))
-            this->walk(targetit, path);
+            if((!symbol || !symbol->isFunction()) && (targetit != this->end()))
+                this->walk(targetit, path);
+        });
 
         if(!instruction->is(InstructionTypes::Conditional)) // Unconditional jumps doesn't continue execution
             return;
@@ -191,12 +192,17 @@ void Listing::markEntryPoint()
 void Listing::serialize(const InstructionPtr &value, std::fstream &fs)
 {
     Serializer::serializeScalar(fs, value->address);
+    Serializer::serializeScalar(fs, value->target_idx);
     Serializer::serializeScalar(fs, value->type);
     Serializer::serializeScalar(fs, value->size);
     Serializer::serializeScalar(fs, value->id);
 
     Serializer::serializeString(fs, value->mnemonic);
     Serializer::serializeString(fs, value->signature);
+
+    Serializer::serializeArray<std::list, address_t>(fs, value->targets, [this, &fs](address_t target) {
+        Serializer::serializeScalar(fs, target);
+    });
 
     Serializer::serializeArray<std::vector, Operand>(fs, value->operands, [this, &fs](const Operand& op) {
         Serializer::serializeScalar(fs, op.loc_index);
@@ -224,12 +230,17 @@ void Listing::deserialize(InstructionPtr &value, std::fstream &fs)
     value = std::make_shared<Instruction>();
 
     Serializer::deserializeScalar(fs, &value->address);
+    Serializer::deserializeScalar(fs, &value->target_idx);
     Serializer::deserializeScalar(fs, &value->type);
     Serializer::deserializeScalar(fs, &value->size);
     Serializer::deserializeScalar(fs, &value->id);
 
     Serializer::deserializeString(fs, value->mnemonic);
     Serializer::deserializeString(fs, value->signature);
+
+    Serializer::deserializeArray<std::list, address_t>(fs, value->targets, [this, &fs](address_t& target) {
+        Serializer::deserializeScalar(fs, &target);
+    });
 
     Serializer::deserializeArray<std::vector, Operand>(fs, value->operands, [this, &fs](Operand& op) {
         Serializer::deserializeScalar(fs, &op.loc_index);

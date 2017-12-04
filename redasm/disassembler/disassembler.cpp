@@ -166,6 +166,8 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
             break;
 
         isjumptable = true;
+        instruction->type = InstructionTypes::JumpTable;
+        instruction->target(target);
         this->disassemble(target);
 
         if(this->_symboltable->createLocation(target, SymbolTypes::Code))
@@ -190,7 +192,10 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
     }
 
     if(isjumptable)
+    {
+        this->_listing.update(instruction);
         instruction->cmt("#" + std::to_string(cases) + " case(s) jump table");
+    }
 }
 
 void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &operand)
@@ -217,12 +222,9 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
 
     if(instruction->is(InstructionTypes::Call))
     {
-        int index = -1;
-        address_t target = 0;
-
-        if(this->_processor->target(instruction, &target, &index))
+        if(instruction->hasTargets())
         {
-            if(operand.index == index)
+            if(operand.index == instruction->target_idx)
             {
                 if(symbol && !symbol->isFunction()) // This symbol will be promoted to function
                     this->_symboltable->erase(opvalue);
@@ -280,9 +282,7 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
 
 void Disassembler::disassemble(address_t address)
 {
-    address_t target = 0;
     const Segment* segment = this->_format->segment(address);
-
     this->_processor->pushState();
 
     while(segment && segment->is(SegmentTypes::Code)) // Don't disassemble data/junk
@@ -293,8 +293,12 @@ void Disassembler::disassemble(address_t address)
         Buffer b = this->_buffer + this->_format->offset(address);
         InstructionPtr instruction = this->disassembleInstruction(address, b);
 
-        if(this->_processor->target(instruction, &target))
-            this->disassemble(target);
+        if(instruction->hasTargets())
+        {
+            std::for_each(instruction->targets.begin(), instruction->targets.end(), [this](address_t target) {
+                this->disassemble(target);
+            });
+        }
 
         if(this->_processor->done(instruction))
             break;

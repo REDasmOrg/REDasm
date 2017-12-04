@@ -38,6 +38,7 @@ class Listing: public cache_map<address_t, InstructionPtr>
         void iterateAll(InstructionCallback cbinstruction, SymbolCallback cbstart, InstructionCallback cbend, SymbolCallback cblabel);
         void update(const InstructionPtr& instruction);
         void calculatePaths();
+        void markEntryPoint();
 
     protected:
         virtual void serialize(const InstructionPtr &value, std::fstream &fs);

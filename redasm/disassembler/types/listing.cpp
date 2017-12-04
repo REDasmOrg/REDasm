@@ -176,6 +176,18 @@ void Listing::calculatePaths()
     });
 }
 
+void Listing::markEntryPoint()
+{
+    auto it = this->find(this->_symboltable->entryPoint()->address);
+
+    if(it == this->end())
+        return;
+
+    InstructionPtr instruction = *it;
+    instruction->cmt("Entry Point");
+    this->update(instruction);
+}
+
 void Listing::serialize(const InstructionPtr &value, std::fstream &fs)
 {
     Serializer::serializeScalar(fs, value->address);

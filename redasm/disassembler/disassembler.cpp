@@ -99,6 +99,9 @@ void Disassembler::disassemble()
 
     STATUS("Calculating paths...");
     this->_listing.calculatePaths();
+
+    STATUS("Marking Entry Point...");
+    this->_listing.markEntryPoint();
 }
 
 bool Disassembler::dataToString(address_t address)

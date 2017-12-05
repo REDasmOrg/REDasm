@@ -87,7 +87,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     this->_hexdocument->setParent(this);
 
     ui->hexEdit->setDocument(this->_hexdocument);
-    ui->tabWidget->setCurrentWidget(ui->tabOutput);
+    ui->bottomTabs->setCurrentWidget(ui->tabOutput);
 
     this->_disassemblerthread = new DisassemblerThread(disassembler, this);
 
@@ -109,9 +109,9 @@ bool DisassemblerView::busy() const
     return this->_disassemblerthread->isRunning();
 }
 
-void DisassemblerView::on_tabWidget_currentChanged(int index)
+void DisassemblerView::on_bottomTabs_currentChanged(int index)
 {
-    QWidget* w = ui->tabWidget->widget(index);
+    QWidget* w = ui->bottomTabs->widget(index);
 
     if(!w || ((w == ui->tabSegments) || (w == ui->tabOutput) || (w == ui->hexEdit)))
     {
@@ -215,7 +215,7 @@ void DisassemblerView::filterSymbols()
     if(s.length() == 1)
         return;
 
-    QWidget* w = ui->tabWidget->currentWidget();
+    QWidget* w = ui->bottomTabs->currentWidget();
 
     if(w == ui->tabFunctions)
         this->_functionsmodel->setFilterName(s);
@@ -238,14 +238,14 @@ void DisassemblerView::showListing()
     this->_stringsmodel->setDisassembler(this->_disassembler);
     this->_segmentsmodel->setDisassembler(this->_disassembler);
 
-    ui->tabWidget->setCurrentWidget(ui->tabFunctions);
+    ui->bottomTabs->setCurrentWidget(ui->tabFunctions);
     ui->tbGoto->setEnabled(true);
     emit done();
 }
 
 void DisassemblerView::showHexDump(address_t address)
 {
-    ui->tabWidget->setCurrentWidget(ui->hexEdit);
+    ui->topTabs->setCurrentWidget(ui->hexEdit);
 
     offset_t offset = this->_disassembler->format()->offset(address);
     QHexCursor* cursor = ui->hexEdit->document()->cursor();

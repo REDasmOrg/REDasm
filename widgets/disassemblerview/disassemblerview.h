@@ -25,7 +25,7 @@ class DisassemblerView : public QWidget
         bool busy() const;
 
     private slots:
-        void on_tabWidget_currentChanged(int index);
+        void on_bottomTabs_currentChanged(int index);
         void seekToSymbol(const QModelIndex &index);
         void xrefSymbol(const QModelIndex &index);
         void displayAddress(address_t address);

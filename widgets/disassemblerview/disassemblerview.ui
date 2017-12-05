@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -116,13 +116,47 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="DisassemblerTextView" name="disassemblerTextView"/>
-     <widget class="QTabWidget" name="tabWidget">
+     <widget class="QTabWidget" name="topTabs">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabDisassembly">
+       <attribute name="title">
+        <string>Disassembly</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="DisassemblerTextView" name="disassemblerTextView"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QHexEdit" name="hexEdit">
+       <attribute name="title">
+        <string>Hex Dump</string>
+       </attribute>
+      </widget>
+     </widget>
+     <widget class="QTabWidget" name="bottomTabs">
       <property name="tabPosition">
        <enum>QTabWidget::South</enum>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabSegments">
        <attribute name="title">
@@ -358,11 +392,6 @@
          </widget>
         </item>
        </layout>
-      </widget>
-      <widget class="QHexEdit" name="hexEdit">
-       <attribute name="title">
-        <string>Hex Dump</string>
-       </attribute>
       </widget>
       <widget class="QWidget" name="tabOutput">
        <attribute name="title">

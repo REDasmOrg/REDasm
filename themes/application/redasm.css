@@ -19,28 +19,53 @@ QTabBar::tab
 {
     margin-right: 6;
     border: 1px solid #7f8c8d;
-    border-top-color: transparent;
     min-width: 10ex;
     padding: 6;
 }
 
-QTabBar::tab::first
+#bottomTabs QTabBar::tab
+{
+    border-top-color: transparent;
+}
+
+#bottomTabs QTabBar::tab::first
 {
     margin-left: 0;
     border-bottom-left-radius: 8;
 }
 
-QTabBar::tab::last
+#bottomTabs QTabBar::tab::last
 {
     border-bottom-right-radius: 8;
+}
+
+#bottomTabs QTabBar::tab::!selected
+{
+    margin-bottom: 3; /* make non-selected tabs look smaller */
+}
+
+#topTabs QTabBar::tab
+{
+    border-bottom-color: transparent;
+}
+
+#topTabs QTabBar::tab::first
+{
+    margin-left: 0;
+    border-top-left-radius: 8;
+}
+
+#topTabs QTabBar::tab::last
+{
+    border-top-right-radius: 8;
+}
+
+#topTabs QTabBar::tab::!selected
+{
+    margin-top: 3; /* make non-selected tabs look smaller */
 }
 
 QTabBar::tab::selected
 {
     font-weight: bold;
-}
-
-QTabBar::tab::!selected
-{
-    margin-bottom: 3; /* make non-selected tabs look smaller */
 }

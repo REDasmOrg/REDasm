@@ -39,6 +39,7 @@ DisassemblerTest::DisassemblerTest()
     ADD_TEST_PATH("PE Test/CM01.exe", testCM01);
     ADD_TEST_PATH("PE Test/VB5CRKME.EXE", testVB5CrackMe);
     ADD_TEST_PATH("PE Test/OllyDump.dll", testOllyDump);
+    ADD_TEST_PATH("PE Test/tn_11.exe", testJumpTables);
     ADD_TEST_PATH("IOLI-crackme/bin-pocketPC/crackme0x01.arm.exe", testIoliARM);
     ADD_TEST_PATH("PE Test/tn12/scrack.exe", testSCrack);
 
@@ -276,4 +277,29 @@ void DisassemblerTest::testIoliARM(Disassembler *disassembler)
     symbol = symboltable->symbol(op.u_value);
     TEST_SYMBOL("Checking LDR's operand 2 symbol", symbol, symbol->is(SymbolTypes::Data) && symbol->is(SymbolTypes::Pointer));
     TEST("Checking dereferenced value", disassembler->dereferencePointer(symbol->address, value) && (value == 0x149a));
+}
+
+void DisassemblerTest::testJumpTables(Disassembler *disassembler)
+{
+    SymbolTable* symboltable = disassembler->symbolTable();
+    Listing& listing = disassembler->listing();
+
+    auto it = listing.find(0x00401197);
+    TEST("Checking JUMP TABLE @ 0x00401197", it != listing.end());
+
+    InstructionPtr instruction = *it;
+    TEST("Checking TARGETS count @ 0x00401197", instruction->targets.size() == 5);
+
+    if(instruction->targets.size() != 5)
+        return;
+
+    size_t i = 0;
+
+    std::for_each(instruction->targets.begin(), instruction->targets.end(), [this, &symboltable, &listing, &i](address_t target) {
+        SymbolPtr symbol = symboltable->symbol(target);
+        auto iit = listing.find(target);
+
+        TEST("Checking CASE #" + std::to_string(i) + " @ " + REDasm::hex(target), symbol && symbol->is(SymbolTypes::Code) && iit != listing.end());
+        i++;
+    });
 }

@@ -32,6 +32,7 @@ class DisassemblerTest
         void testSCrack(REDasm::Disassembler* disassembler);
         void testVB5CrackMe(REDasm::Disassembler* disassembler);
         void testIoliARM(REDasm::Disassembler* disassembler);
+        void testJumpTables(REDasm::Disassembler* disassembler);
 
     private:
         TestList _tests;

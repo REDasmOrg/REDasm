@@ -168,7 +168,7 @@ void DisassemblerDocument::appendLabel(const REDasm::SymbolPtr &symbol, bool rep
 {
     REDasm::ReferenceVector refs = this->_disassembler->getReferences(symbol);
 
-    QJsonObject data = { { "action", refs.size() > 1 ? DisassemblerDocument::XRefAction : DisassemblerDocument::GotoAction },
+    QJsonObject data = { { "action",  refs.size() > 1 ? DisassemblerDocument::XRefAction : DisassemblerDocument::GotoAction },
                          { "address", ADDRESS_VARIANT(refs.size() > 1 ? symbol->address : refs.front()) } };
 
     QTextBlockFormat blockformat;
@@ -178,7 +178,6 @@ void DisassemblerDocument::appendLabel(const REDasm::SymbolPtr &symbol, bool rep
 
     QTextCharFormat charformat;
     charformat.setForeground(THEME_VALUE("label_fg"));
-
     charformat.setAnchor(true);
     charformat.setAnchorHref(DisassemblerDocument::encode(data));
     charformat.setFontUnderline(true);

@@ -237,8 +237,13 @@ void DisassemblerTextView::createContextMenu()
 
 void DisassemblerTextView::adjustContextMenu()
 {
-    QPoint pt = this->mapFromGlobal(QCursor::pos());
-    QString encdata = this->anchorAt(pt);
+    QTextCursor cursor = this->textCursor();
+    QTextCharFormat charformat = cursor.charFormat();
+
+    if(!charformat.isAnchor())
+        return;
+
+    QString encdata = charformat.anchorHref();
 
     if(encdata.isEmpty())
     {
@@ -253,8 +258,14 @@ void DisassemblerTextView::adjustContextMenu()
         return;
     }
 
+    QTextBlockFormat blockformat = cursor.blockFormat();
     QJsonObject data = this->_disdocument->decode(encdata);
-    this->_menuaddress = data["address"].toVariant().toULongLong();
+
+    if(blockformat.hasProperty(DisassemblerDocument::IsLabelBlock))
+        this->_menuaddress = blockformat.property(DisassemblerDocument::Address).toULongLong();
+    else
+        this->_menuaddress = data["address"].toVariant().toULongLong();
+
     REDasm::Segment* segment = this->_disassembler->format()->segment(this->_menuaddress);
     REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(this->_menuaddress);
 

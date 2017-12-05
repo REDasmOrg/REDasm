@@ -224,13 +224,14 @@ template<cs_mode mode> void X86Processor<mode>::analyzeInstruction(const Instruc
             if(op.is((OperandTypes::Register)))
                 break;
 
-            instruction->target_idx = 0;
-
-            if(op.is(OperandTypes::Displacement))
+            if(op.is(OperandTypes::Displacement) && op.mem.displacementOnly())
                 instruction->target(op.mem.displacement);
-            else //if(op.is(OperandTypes::Immediate) || op.is(OperandTypes::Memory))
+            else if(op.is(OperandTypes::Immediate) || op.is(OperandTypes::Memory))
                 instruction->target(op.u_value);
+            else
+                break;
 
+            instruction->target_idx = 0;
             break;
         }
 

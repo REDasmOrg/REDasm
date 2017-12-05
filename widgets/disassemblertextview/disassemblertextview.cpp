@@ -4,13 +4,13 @@
 #include <QJsonDocument>
 #include <QInputDialog>
 #include <QHeaderView>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QTextBlock>
 #include <QScrollBar>
 #include <QAction>
 #include <QtMath>
 #include <QMenu>
-#include <QDebug>
 
 #define THEME_VALUE(name) (this->_theme.contains(name) ? QColor(this->_theme[name].toString()) : QColor())
 
@@ -362,6 +362,19 @@ void DisassemblerTextView::rename(address_t address)
 
     REDasm::SymbolTable* symboltable = this->_disassembler->symbolTable();
     QString sym = S_TO_QS(symbol->name), s = QInputDialog::getText(this, QString("Rename %1").arg(sym), "Symbol name:", QLineEdit::Normal, sym);
+
+    if(s.isEmpty())
+        return;
+
+    REDasm::SymbolPtr checksymbol = symboltable->symbol(s.toStdString());
+
+    if(checksymbol)
+    {
+        QMessageBox::warning(this, "Rename failed", "Duplicate symbol name");
+        this->rename(address);
+        return;
+    }
+
     std::string newsym = s.simplified().replace(" ", "_").toStdString();
 
     if(s.simplified().isEmpty() || !symboltable->update(symbol, newsym))

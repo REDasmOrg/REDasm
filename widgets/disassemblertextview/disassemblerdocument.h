@@ -16,7 +16,7 @@ class DisassemblerDocument: public QObject
     Q_OBJECT
 
     private:
-        typedef std::set<address_t> GeneratedInstructions;
+        typedef std::set<address_t> GeneratedBlocks;
 
     public:
         enum { UnknownBlock = 0,
@@ -31,12 +31,18 @@ class DisassemblerDocument: public QObject
         QColor seekColor() const;
         void setTheme(const QString& theme);
         void generate(address_t address, const QTextCursor &cursor);
+        void update(address_t address);
+
+    private:
+        void updateInstructions(const REDasm::SymbolPtr &symbol);
+        void updateFunction(const REDasm::SymbolPtr &symbol);
+        void updateLabels(const REDasm::SymbolPtr &symbol);
 
     private:
         void appendFunctionEnd(const REDasm::InstructionPtr &lastinstruction);
-        void appendLabel(const REDasm::SymbolPtr& symbol);
-        void appendFunctionStart(const REDasm::SymbolPtr& symbol);
-        void appendInstruction(const REDasm::InstructionPtr& instruction);
+        void appendLabel(const REDasm::SymbolPtr& symbol, bool replace = false);
+        void appendFunctionStart(const REDasm::SymbolPtr& symbol, bool replace = false);
+        void appendInstruction(const REDasm::InstructionPtr& instruction, bool replace = false);
         void appendAddress(const REDasm::InstructionPtr& instruction);
         void appendMnemonic(const REDasm::InstructionPtr& instruction);
         void appendComment(const REDasm::InstructionPtr& instruction);
@@ -46,8 +52,10 @@ class DisassemblerDocument: public QObject
         int getIndent(address_t address);
         const REDasm::Segment *getSegment(address_t address);
         void setMetaData(QTextCharFormat &charformat, const REDasm::SymbolPtr &symbol, bool showxrefs = false);
-        void selectBlock(address_t address);
-        bool isGenerated(address_t address);
+        void moveToBlock(address_t address);
+        bool selectBlock(address_t address);
+        bool isInstructionGenerated(address_t address);
+        bool isLabelGenerated(address_t address);
 
     public:
         static QJsonObject decode(const QString &data);
@@ -59,7 +67,7 @@ class DisassemblerDocument: public QObject
         REDasm::Segment* _segment;
         REDasm::Disassembler* _disassembler;
         REDasm::SymbolTable* _symbols;
-        GeneratedInstructions _generated;
+        GeneratedBlocks _generatedinstructions;
         QTextDocument* _document;
         QTextCursor _textcursor;
         QJsonObject _theme;

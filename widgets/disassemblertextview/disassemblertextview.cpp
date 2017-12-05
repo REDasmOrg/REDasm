@@ -208,7 +208,7 @@ void DisassemblerTextView::createContextMenu()
     this->_actcreatefunction = this->_contextmenu->addAction("Create Function", [this]() {
         this->_disassembler->disassembleFunction(this->_menuaddress);
 
-        this->display(this->_currentaddress);
+        this->_disdocument->update(this->_menuaddress);
         emit invalidateSymbols();
     });
 
@@ -216,7 +216,7 @@ void DisassemblerTextView::createContextMenu()
         if(!this->_disassembler->dataToString(this->_menuaddress))
             return;
 
-        this->display(this->_currentaddress);
+        this->_disdocument->update(this->_menuaddress);
         emit invalidateSymbols();
     });
 
@@ -356,5 +356,6 @@ void DisassemblerTextView::rename(address_t address)
     if(s.simplified().isEmpty() || !symboltable->update(symbol, newsym))
         return;
 
+    this->_disdocument->update(address);
     emit symbolRenamed(symbol);
 }

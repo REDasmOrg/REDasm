@@ -1,5 +1,9 @@
+<p align="center">
+  <img width=256 height=256 src="https://github.com/Dax89/REDasm/blob/master/artwork/redasm.png?raw=true"/>
+</p>
+
 # REDasm
-Experimental crossplatform, multiarchitecture disassembler
+A crossplatform, multiarchitecture disassembler.
 
 <p align="center">
 <img height="450" src="https://github.com/Dax89/REDasm/blob/master/artwork/REDasm.png?raw=true">

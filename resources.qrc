@@ -8,5 +8,6 @@
         <file>res/about.png</file>
         <file>res/database.png</file>
         <file>res/database_import.png</file>
+        <file>res/logo.png</file>
     </qresource>
 </RCC>

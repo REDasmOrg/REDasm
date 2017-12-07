@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "widgets/disassemblerview/disassemblerview.h"
 #include "dialogs/databasedialog.h"
+#include "dialogs/aboutdialog.h"
 #include <QDragEnterEvent>
 #include <QDesktopWidget>
 #include <QMimeDatabase>
@@ -171,5 +172,6 @@ void MainWindow::on_tbDatabase_clicked()
 
 void MainWindow::on_tbAbout_clicked()
 {
-    QMessageBox::information(this, "About REDasm", "REDasm Disassembler\nVersion 1.0\nBy Dax");
+    AboutDialog dlgabout;
+    dlgabout.exec();
 }

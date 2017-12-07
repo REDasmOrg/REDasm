@@ -79,7 +79,8 @@ SOURCES += main.cpp\
     redasm/signatures/patparser.cpp \
     models/databasemodel.cpp \
     redasm/support/serializer.cpp \
-    redasm/signatures/signaturedb.cpp
+    redasm/signatures/signaturedb.cpp \
+    dialogs/aboutdialog.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -144,13 +145,15 @@ HEADERS  += mainwindow.h \
     redasm/signatures/patparser.h \
     models/databasemodel.h \
     redasm/support/serializer.h \
-    redasm/signatures/signaturedb.h
+    redasm/signatures/signaturedb.h \
+    dialogs/aboutdialog.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \
     dialogs/referencesdialog.ui \
     dialogs/gotodialog.ui \
-    dialogs/databasedialog.ui
+    dialogs/databasedialog.ui \
+    dialogs/aboutdialog.ui
 
 RESOURCES += \
     resources.qrc \

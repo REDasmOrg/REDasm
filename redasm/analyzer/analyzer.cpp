@@ -1,8 +1,9 @@
 #include "analyzer.h"
+#include "../support/hash.h"
 
 namespace REDasm {
 
-Analyzer::Analyzer(DisassemblerFunctions *dfunctions): _dfunctions(dfunctions)
+Analyzer::Analyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signaturefiles): _dfunctions(dfunctions), _signaturefiles(signaturefiles)
 {
 
 }
@@ -14,8 +15,51 @@ Analyzer::~Analyzer()
 
 void Analyzer::analyze(Listing &listing)
 {
+    this->loadSignatures(listing);
+
     listing.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &listing](SymbolPtr symbol) -> bool {
         this->findTrampolines(listing, symbol);
+        return true;
+    });
+}
+
+bool Analyzer::checkCrc16(const SymbolPtr& symbol, const Signature& signature)
+{
+    Buffer buffer;
+
+    if(!this->_dfunctions->getBuffer(symbol->address + SIGNATURE_PATTERN_LENGTH, buffer))
+        return false;
+
+    if(buffer.length < signature.alen)
+        return false;
+
+    if(Hash::crc16(buffer.data, signature.alen) == signature.asum)
+        return true;
+
+    return false;
+}
+
+void Analyzer::loadSignatures(Listing& listing)
+{
+    std::for_each(this->_signaturefiles.begin(), this->_signaturefiles.end(), [this, &listing](const std::string& signaturefile) {
+        SignatureDB sigdb;
+
+        if(sigdb.readPath(signaturefile))
+            this->findSignatures(sigdb, listing);
+    });
+}
+
+void Analyzer::findSignatures(const SignatureDB &signaturedb, Listing& listing)
+{
+    listing.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &signaturedb, &listing](SymbolPtr symbol) -> bool {
+        Signature signature;
+        std::string pattern = this->_dfunctions->readHex(symbol->address, SIGNATURE_PATTERN_LENGTH);
+
+        if(signaturedb.match(pattern, signature) && this->checkCrc16(symbol, signature)) {
+            symbol->lock();
+            listing.symbolTable()->update(symbol, signature.name);
+        }
+
         return true;
     });
 }

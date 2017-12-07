@@ -26,13 +26,14 @@ class FormatPlugin: public Plugin
 {
     public:
         FormatPlugin();
-        const SegmentVector& segments() const;
+        const SegmentList& segments() const;
         SymbolTable* symbols();
         Segment *segment(address_t address);
         Segment *segmentAt(u64 index);
         Segment *segmentByName(const std::string& name);
+        const SignatureFiles& signatures() const;
         virtual offset_t offset(address_t address) const;
-        virtual Analyzer *createAnalyzer(DisassemblerFunctions* dfunctions) const;
+        virtual Analyzer *createAnalyzer(DisassemblerFunctions* dfunctions, const SignatureFiles &signatures) const;
 
     public:
         virtual u32 bits() const = 0;
@@ -40,6 +41,7 @@ class FormatPlugin: public Plugin
         virtual bool load(u8* format);
 
     protected:
+        void addSignature(const std::string& signaturefile);
         void defineSegment(const std::string& name, offset_t offset, address_t address, u64 size, u32 flags);
         void defineSymbol(address_t address, const std::string& name, u32 flags);
         void defineFunction(address_t address, const std::string &name);
@@ -47,7 +49,8 @@ class FormatPlugin: public Plugin
 
     private:
         SymbolTable _symbol;
-        SegmentVector _segments;
+        SegmentList _segments;
+        SignatureFiles _signatures;
 };
 
 template<typename T> class FormatPluginT: public FormatPlugin

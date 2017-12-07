@@ -74,7 +74,7 @@ void Disassembler::disassembleFunction(address_t address)
     this->disassemble(address);
 
     STATUS("Analyzing...");
-    Analyzer analyzer(this);
+    Analyzer analyzer(this, this->_format->signatures());
     analyzer.analyze(this->_listing); // Run basic analyzer
 
     STATUS("Calculating paths...");
@@ -89,19 +89,22 @@ void Disassembler::disassemble()
         return true;
     });
 
-    std::unique_ptr<Analyzer> a(this->_format->createAnalyzer(this));
+    std::unique_ptr<Analyzer> a(this->_format->createAnalyzer(this, this->_format->signatures()));
+
+    STATUS("Calculating paths...");
+    this->_listing.calculatePaths();
 
     if(a)
     {
         STATUS("Analyzing...");
         a->analyze(this->_listing);
+
+        STATUS("Recalculating paths...");
+        this->_listing.calculatePaths();
     }
 
     STATUS("Sorting symbols...");
     this->_symboltable->sort();
-
-    STATUS("Calculating paths...");
-    this->_listing.calculatePaths();
 
     STATUS("Marking Entry Point...");
     this->_listing.markEntryPoint();

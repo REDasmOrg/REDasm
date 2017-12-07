@@ -1,9 +1,6 @@
 [submodule "depends/capstone"]
 	path = depends/capstone
 	url = https://github.com/aquynh/capstone
-[submodule "depends/picojson"]
-	path = depends/picojson
-	url = https://github.com/kazuho/picojson.git
 [submodule "widgets/QHexEdit"]
 	path = widgets/QHexEdit
 	url = https://github.com/Dax89/QHexEdit.git

@@ -12,7 +12,7 @@ ListingMap::ListingMap(QWidget *parent) : QWidget(parent), _size(0)
 void ListingMap::render(REDasm::Disassembler* disassembler)
 {
     u64 reloffset = 0;
-    const REDasm::SegmentVector& segments = disassembler->format()->segments();
+    const REDasm::SegmentList& segments = disassembler->format()->segments();
 
     this->_size = 0;
     this->_segments.clear();

@@ -90,7 +90,7 @@ class SymbolTable
         void eraseInVector(address_t address);
 
     private:
-        AddressVector _addresses;
+        AddressList _addresses;
         SymbolsByName _byname;
         SymbolCache _byaddress;
 };

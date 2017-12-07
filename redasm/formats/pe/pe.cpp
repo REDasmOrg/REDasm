@@ -55,12 +55,12 @@ offset_t PeFormat::offset(address_t address) const
     return this->rvaToOffset(address);
 }
 
-Analyzer *PeFormat::createAnalyzer(DisassemblerFunctions *dfunctions) const
+Analyzer *PeFormat::createAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signatures) const
 {
     if(this->_petype == PeType::VisualBasic)
-        return new VBAnalyzer(dfunctions);
+        return new VBAnalyzer(dfunctions, signatures);
 
-    return new PEAnalyzer(dfunctions);
+    return new PEAnalyzer(dfunctions, signatures);
 }
 
 bool PeFormat::load(u8 *rawformat)

@@ -14,7 +14,7 @@ extern std::unordered_map<std::string, ProcessorPlugin_Entry> processors;
 
 FormatPlugin* getFormat(u8* data);
 ProcessorPlugin* getProcessor(const char *id);
-void init();
+void init(const std::string &searchpath);
 
 }
 

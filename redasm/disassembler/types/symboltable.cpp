@@ -1,4 +1,5 @@
 #include "symboltable.h"
+#include "../../support/serializer.h"
 
 namespace REDasm {
 

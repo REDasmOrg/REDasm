@@ -7,7 +7,7 @@ FormatPlugin::FormatPlugin(): Plugin()
 
 }
 
-const SegmentVector &FormatPlugin::segments() const
+const SegmentList &FormatPlugin::segments() const
 {
     return _segments;
 }
@@ -46,6 +46,11 @@ Segment *FormatPlugin::segmentByName(const std::string &name)
     return NULL;
 }
 
+const SignatureFiles &FormatPlugin::signatures() const
+{
+    return this->_signatures;
+}
+
 offset_t FormatPlugin::offset(address_t address) const
 {
     for(auto it = this->_segments.begin(); it != this->_segments.end(); it++)
@@ -59,9 +64,9 @@ offset_t FormatPlugin::offset(address_t address) const
     return address;
 }
 
-Analyzer* FormatPlugin::createAnalyzer(DisassemblerFunctions *dfunctions) const
+Analyzer* FormatPlugin::createAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles& signatures) const
 {
-    return new Analyzer(dfunctions);
+    return new Analyzer(dfunctions, signatures);
 }
 
 bool FormatPlugin::load(u8 *format)
@@ -73,6 +78,11 @@ bool FormatPlugin::load(u8 *format)
     });
 
     return false;
+}
+
+void FormatPlugin::addSignature(const std::string &signaturefile)
+{
+    this->_signatures.push_back(signaturefile);
 }
 
 void FormatPlugin::defineSegment(const std::string &name, offset_t offset, address_t address, u64 size, u32 flags)

@@ -11,7 +11,7 @@ class PeFormat;
 class VBAnalyzer : public PEAnalyzer
 {
     public:
-        VBAnalyzer(DisassemblerFunctions* dfunctions);
+        VBAnalyzer(DisassemblerFunctions* dfunctions, const SignatureFiles& signatures);
         virtual void analyze(Listing &listing);
 
     private:

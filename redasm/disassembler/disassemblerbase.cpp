@@ -103,6 +103,24 @@ std::string DisassemblerBase::readWString(const SymbolPtr &symbol) const
     return this->readWString(symbol->address);
 }
 
+std::string DisassemblerBase::readHex(address_t address, u32 count) const
+{
+    Buffer data;
+
+    if(!this->getBuffer(address, data))
+        return std::string();
+
+    count = std::min(static_cast<u64>(count), this->_buffer.length);
+
+    std::stringstream ss;
+    ss << std::hex << std::setfill('0');
+
+    for(u64 i = 0; i < count; i++)
+        ss << std::uppercase << std::setw(2) << static_cast<size_t>(data[i]);
+
+    return ss.str();
+}
+
 SymbolPtr DisassemblerBase::dereferenceSymbol(const SymbolPtr& symbol, u64* value)
 {
     address_t a = 0;
@@ -131,6 +149,17 @@ bool DisassemblerBase::readAddress(address_t address, size_t size, u64 &value) c
 
     offset_t offset = this->_format->offset(address);
     return this->readOffset(offset, size, value);
+}
+
+bool DisassemblerBase::getBuffer(address_t address, Buffer &data) const
+{
+    Segment* segment = this->_format->segment(address);
+
+    if(!segment || segment->is(SegmentTypes::Bss))
+        return false;
+
+    data = this->_buffer + this->_format->offset(address);
+    return true;
 }
 
 bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 &value) const

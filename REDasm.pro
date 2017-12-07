@@ -39,7 +39,6 @@ SOURCES += main.cpp\
     models/disassemblermodel.cpp \
     models/segmentsmodel.cpp \
     redasm/analyzer/analyzer.cpp \
-    redasm/analyzer/signatures.cpp \
     redasm/disassembler/disassembler.cpp \
     widgets/listingmap.cpp \
     models/referencesmodel.cpp \
@@ -74,8 +73,13 @@ SOURCES += main.cpp\
     redasm/formats/pe/ordinals/msvbvm60.cpp \
     redasm/formats/pe/ordinals/msvbvm50.cpp \
     redasm/support/coff/coff_symboltable.cpp \
-    redasm/support/cachemap.cpp \
-    widgets/disassemblertextview/disassemblerhighlighter.cpp
+    widgets/disassemblertextview/disassemblerhighlighter.cpp \
+    dialogs/databasedialog.cpp \
+    redasm/support/hash.cpp \
+    redasm/signatures/patparser.cpp \
+    models/databasemodel.cpp \
+    redasm/support/serializer.cpp \
+    redasm/signatures/signaturedb.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -90,7 +94,6 @@ HEADERS  += mainwindow.h \
     models/disassemblermodel.h \
     models/segmentsmodel.h \
     redasm/analyzer/analyzer.h \
-    redasm/analyzer/signatures.h \
     redasm/disassembler/disassembler.h \
     widgets/listingmap.h \
     models/referencesmodel.h \
@@ -135,16 +138,24 @@ HEADERS  += mainwindow.h \
     redasm/support/coff/coff_types.h \
     redasm/support/coff/coff_constants.h \
     redasm/support/cachemap.h \
-    widgets/disassemblertextview/disassemblerhighlighter.h
+    widgets/disassemblertextview/disassemblerhighlighter.h \
+    dialogs/databasedialog.h \
+    redasm/support/hash.h \
+    redasm/signatures/patparser.h \
+    models/databasemodel.h \
+    redasm/support/serializer.h \
+    redasm/signatures/signaturedb.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \
     dialogs/referencesdialog.ui \
-    dialogs/gotodialog.ui
+    dialogs/gotodialog.ui \
+    dialogs/databasedialog.ui
 
 RESOURCES += \
     resources.qrc \
     themes.qrc
 
 DISTFILES += \
-    themes/application/flat.json
+    themes/application/flat.json \
+    runtime.pri

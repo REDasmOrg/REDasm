@@ -3,22 +3,17 @@
 
 #include <unordered_map>
 #include "../../analyzer/analyzer.h"
-#include "../../analyzer/signatures.h"
 
 namespace REDasm {
 
 class PsxExeAnalyzer: public Analyzer
 {
     public:
-        PsxExeAnalyzer(DisassemblerFunctions* dfunctions);
+        PsxExeAnalyzer(DisassemblerFunctions* dfunctions, const SignatureFiles& signaturefiles);
         virtual void analyze(Listing &listing);
 
     private:
-        bool analyzeFunction(Listing &listing, const Signatures &psyq, const SymbolPtr& symbol);
         void detectMain(Listing& listing);
-
-    private:
-        Signatures _psyq46;
 };
 
 }

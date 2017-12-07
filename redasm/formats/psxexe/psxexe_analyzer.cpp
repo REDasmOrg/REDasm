@@ -1,47 +1,16 @@
 #include "psxexe_analyzer.h"
-#include "../../analyzer/signatures.h"
 #include "../../plugins/format.h"
 
 namespace REDasm {
 
-PsxExeAnalyzer::PsxExeAnalyzer(DisassemblerFunctions *dfunctions): Analyzer(dfunctions)
+PsxExeAnalyzer::PsxExeAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signaturefiles): Analyzer(dfunctions, signaturefiles)
 {
-    this->_psyq46.load("signatures/psyq46.json");
 }
 
 void PsxExeAnalyzer::analyze(Listing& listing)
 {
-    listing.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &listing](const SymbolPtr& symbol) -> bool {
-        return this->analyzeFunction(listing, this->_psyq46, symbol);
-    });
-
+    Analyzer::analyze(listing);
     this->detectMain(listing);
-}
-
-bool PsxExeAnalyzer::analyzeFunction(Listing& listing, const Signatures& psyq, const SymbolPtr &symbol)
-{
-    if(symbol->type & SymbolTypes::Locked)
-        return true;
-
-    SymbolTable* symboltable = listing.symbolTable();
-    std::string fsig = listing.getSignature(symbol);
-    const picojson::array arr = psyq.signatures();
-
-    for(auto it = arr.begin(); it != arr.end(); it++)
-    {
-        const picojson::object& obj = it->get<picojson::object>();
-        std::string psig = obj.at("signature").to_str();
-
-        if(!psyq.match(fsig, psig))
-            continue;
-
-        symbol->type |= SymbolTypes::Import;
-        symbol->lock();
-        symboltable->update(symbol, obj.at("name").to_str());
-        break;
-    }
-
-    return true;
 }
 
 void PsxExeAnalyzer::detectMain(Listing &listing)

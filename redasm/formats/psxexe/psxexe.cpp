@@ -27,9 +27,9 @@ const char *PsxExeFormat::processor() const
     return "mips32";
 }
 
-Analyzer *PsxExeFormat::createAnalyzer(DisassemblerFunctions *dfunctions) const
+Analyzer *PsxExeFormat::createAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signatures) const
 {
-    return new PsxExeAnalyzer(dfunctions);
+    return new PsxExeAnalyzer(dfunctions, signatures);
 }
 
 bool PsxExeFormat::load(u8* rawformat)
@@ -39,6 +39,7 @@ bool PsxExeFormat::load(u8* rawformat)
     if(strncmp(format->id, PSXEXE_SIGNATURE, PSXEXE_SIGNATURE_SIZE))
         return false;
 
+    this->addSignature("psyq");
     this->defineSegment("TEXT", PSXEXE_TEXT_OFFSET, format->t_addr, format->t_size, SegmentTypes::Code | SegmentTypes::Data);
     this->defineEntryPoint(format->pc0);
 

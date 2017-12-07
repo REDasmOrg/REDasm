@@ -1,4 +1,5 @@
 #include "listing.h"
+#include "../../support/serializer.h"
 
 namespace REDasm {
 

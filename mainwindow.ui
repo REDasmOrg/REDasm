@@ -86,6 +86,23 @@
         </widget>
        </item>
        <item>
+        <widget class="QToolButton" name="tbDatabase">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="resources.qrc">
+           <normaloff>:/res/database.png</normaloff>:/res/database.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QToolButton" name="tbAbout">
          <property name="enabled">
           <bool>true</bool>

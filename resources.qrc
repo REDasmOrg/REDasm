@@ -6,5 +6,7 @@
         <file>res/forward.png</file>
         <file>res/goto.png</file>
         <file>res/about.png</file>
+        <file>res/database.png</file>
+        <file>res/database_import.png</file>
     </qresource>
 </RCC>

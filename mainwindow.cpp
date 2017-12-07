@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "widgets/disassemblerview/disassemblerview.h"
+#include "dialogs/databasedialog.h"
 #include <QDragEnterEvent>
 #include <QDesktopWidget>
 #include <QMimeDatabase>
@@ -11,7 +12,7 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    REDasm::init();
+    REDasm::init(QDir::currentPath().toStdString());
     this->applyTheme();
     ui->setupUi(this);
 
@@ -160,6 +161,12 @@ void MainWindow::display(REDasm::ProcessorPlugin* processor, REDasm::FormatPlugi
 
     ui->stackView->removeWidget(oldwidget);
     oldwidget->deleteLater();
+}
+
+void MainWindow::on_tbDatabase_clicked()
+{
+    DatabaseDialog dlgdatabase(this);
+    dlgdatabase.exec();
 }
 
 void MainWindow::on_tbAbout_clicked()

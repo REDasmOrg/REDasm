@@ -35,8 +35,10 @@ class DisassemblerBase: public DisassemblerFunctions
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
         virtual std::string readString(const SymbolPtr& symbol) const;
         virtual std::string readWString(const SymbolPtr& symbol) const;
+        virtual std::string readHex(address_t address, u32 count) const;
         virtual SymbolPtr dereferenceSymbol(const SymbolPtr &symbol, u64 *value = NULL);
         virtual bool dereferencePointer(address_t address, u64& value) const;
+        virtual bool getBuffer(address_t address, Buffer& data) const;
         virtual bool readAddress(address_t address, size_t size, u64 &value) const;
         virtual bool readOffset(offset_t offset, size_t size, u64 &value) const;
 

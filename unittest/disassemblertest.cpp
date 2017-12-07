@@ -4,6 +4,7 @@
 #include <QString>
 #include <QFileInfo>
 #include <QFile>
+#include <QDir>
 
 #define TEST_PREFIX                      "/home/davide/Programmazione/Campioni/" // NOTE: Yes, hardcoded for now :(
 #define TEST_PATH(s)                     TEST_PREFIX + std::string(s)
@@ -48,7 +49,7 @@ DisassemblerTest::DisassemblerTest()
 
 void DisassemblerTest::runTests()
 {
-    REDasm::init();
+    REDasm::init(QDir::currentPath().toStdString());
 
     std::for_each(this->_tests.begin(), this->_tests.end(), [](const TestItem& test) {
         QString testpath = QString::fromStdString(test.first);

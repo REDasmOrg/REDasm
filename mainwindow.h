@@ -24,6 +24,7 @@ class MainWindow : public QMainWindow
 
     private slots:
         void on_tbOpen_clicked();
+        void on_tbDatabase_clicked();
         void on_tbAbout_clicked();
 
     private:

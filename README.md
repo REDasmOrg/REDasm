@@ -2,11 +2,10 @@
   <img width=256 height=256 src="https://github.com/Dax89/REDasm/blob/master/artwork/redasm.png?raw=true"/>
 </p>
 
-# REDasm
-A crossplatform, multiarchitecture disassembler.
-
+#
 <p align="center">
-<img height="450" src="https://github.com/Dax89/REDasm/blob/master/artwork/REDasm.png?raw=true">
+  A crossplatform, multiarchitecture disassembler.
+  <img height="450" src="https://github.com/Dax89/REDasm/blob/master/artwork/REDasm.png?raw=true">
 </p>
 
 ## Project Status

@@ -2,7 +2,7 @@
 Experimental crossplatform, multiarchitecture disassembler
 
 <p align="center">
-<img height="450" src="https://github.com/Dax89/REDasm/blob/master/screenshots/REDasm.png?raw=true">
+<img height="450" src="https://github.com/Dax89/REDasm/blob/master/artwork/REDasm.png?raw=true">
 </p>
 
 ## Project Status

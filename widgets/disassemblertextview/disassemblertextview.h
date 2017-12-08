@@ -3,7 +3,7 @@
 
 #include <QPlainTextEdit>
 #include <QStack>
-#include "disassemblerdocument.h"
+#include "disassemblertextdocument.h"
 #include "disassemblerhighlighter.h"
 
 class DisassemblerTextView : public QPlainTextEdit
@@ -52,7 +52,7 @@ class DisassemblerTextView : public QPlainTextEdit
 
     private:
         QStack<address_t> _backstack, _forwardstack;
-        DisassemblerDocument* _disdocument;
+        DisassemblerTextDocument* _disdocument;
         DisassemblerHighlighter* _highlighter;
         REDasm::Disassembler* _disassembler;
         QAction *_actrename, *_actcreatefunction, *_actcreatestring, *_actxrefs, *_actfollow, *_actgoto, *_acthexdump, *_actback, *_actforward, *_actcopy, *_actselectall;

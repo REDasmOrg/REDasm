@@ -1,6 +1,5 @@
 #include "disassemblerdocument.h"
 #include <QJsonDocument>
-#include <QTextBlock>
 #include <QVariant>
 #include <QFile>
 
@@ -9,12 +8,11 @@
 #define INDENT_COMMENT 10
 #define INDENT_WIDTH 2
 
-DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler, const QString& theme, QTextDocument* textdocument, const QTextCursor& textcursor, QObject *parent): QObject(parent)
+DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler, const QString& theme, QTextDocument* textdocument, QObject *parent): QObject(parent)
 {
     this->_disassembler = disassembler;
     this->_symbols = disassembler->symbolTable();
     this->_document = textdocument;
-    this->_textcursor = textcursor;
     this->_segment = NULL;
 
     this->setTheme(theme);
@@ -49,24 +47,13 @@ void DisassemblerDocument::setTheme(const QString &theme)
     f.close();
 }
 
-void DisassemblerDocument::generate(address_t address, const QTextCursor& cursor)
+bool DisassemblerDocument::generate(address_t address, const QTextCursor& cursor)
 {
     if(this->isInstructionGenerated(address))
-        return;
+        return false;
 
     this->_textcursor = cursor;
-
-    this->moveToBlock(address);
-    this->_textcursor.beginEditBlock();
-
-    REDasm::Listing& listing = this->_disassembler->listing();
-
-    listing.iterateFunction(address, [this](const REDasm::InstructionPtr& i) { this->appendInstruction(i); },
-                                     [this](const REDasm::SymbolPtr& s) { this->appendFunctionStart(s); },
-                                     [this](const REDasm::InstructionPtr& i) { this->appendFunctionEnd(i); },
-                                     [this](const REDasm::SymbolPtr& s) { this->appendLabel(s); });
-
-    this->_textcursor.endEditBlock();
+    return true;
 }
 
 void DisassemblerDocument::update(address_t address)
@@ -226,8 +213,9 @@ void DisassemblerDocument::appendInstruction(const REDasm::InstructionPtr &instr
     blockformat.setProperty(DisassemblerDocument::IsInstructionBlock, true);
     this->_textcursor.setBlockFormat(blockformat);
 
-
     this->appendAddress(instruction);
+    this->_textcursor.insertText(QString(" ").repeated(this->indentWidth()), QTextCharFormat());
+    this->appendPathInfo(instruction);
     this->appendMnemonic(instruction);
 
     this->_disassembler->out(instruction, [this](const REDasm::Operand& operand, const std::string& opstr) {
@@ -255,6 +243,22 @@ void DisassemblerDocument::appendAddress(const REDasm::InstructionPtr &instructi
     this->_textcursor.insertText(QString("%1:%2 ").arg(address, HEX_ADDRESS(instruction->address)));
 }
 
+void DisassemblerDocument::appendPathInfo(const REDasm::InstructionPtr& instruction)
+{
+    if(instruction->blockIs(REDasm::BlockInfo::Ignore))
+    {
+        this->_textcursor.insertText("  ");
+        return;
+    }
+
+    if(instruction->blockIs(REDasm::BlockInfo::BlockStart))
+        this->_textcursor.insertText("/ ");
+    else if(instruction->blockIs(REDasm::BlockInfo::BlockEnd))
+        this->_textcursor.insertText("\\ ");
+    else
+        this->_textcursor.insertText("| ");
+}
+
 void DisassemblerDocument::appendMnemonic(const REDasm::InstructionPtr &instruction)
 {
     QTextCharFormat charformat;
@@ -275,7 +279,6 @@ void DisassemblerDocument::appendMnemonic(const REDasm::InstructionPtr &instruct
             charformat.setForeground(THEME_VALUE("instruction_jmp"));
     }
 
-    this->_textcursor.insertText(QString(" ").repeated(INDENT_WIDTH + 2), QTextCharFormat());
     this->_textcursor.insertText(S_TO_QS(instruction->mnemonic) + " ", charformat);
 }
 
@@ -331,6 +334,11 @@ void DisassemblerDocument::appendOperand(const REDasm::Operand &operand, const Q
     this->_textcursor.insertText(opstr, charformat);
 }
 
+int DisassemblerDocument::indentWidth() const
+{
+    return INDENT_WIDTH + 2;
+}
+
 int DisassemblerDocument::getIndent(address_t address)
 {
     const REDasm::FormatPlugin* format = this->_disassembler->format();
@@ -374,34 +382,6 @@ void DisassemblerDocument::setMetaData(QTextCharFormat& charformat, const REDasm
     charformat.setFontUnderline(true);
     charformat.setAnchor(true);
     charformat.setAnchorHref(DisassemblerDocument::encode(data));
-}
-
-void DisassemblerDocument::moveToBlock(address_t address)
-{
-    QTextBlock b = this->_textcursor.block();
-
-    if(!b.blockFormat().hasProperty(DisassemblerDocument::Address))
-        b = this->_document->begin();
-
-    address_t currentaddress = b.blockFormat().property(DisassemblerDocument::Address).toULongLong();
-    bool searchforward = address > currentaddress;
-
-    for(; b.isValid(); b = searchforward ? b.next() : b.previous())
-    {
-        QTextBlockFormat blockformat = b.blockFormat();
-        address_t blockaddress = blockformat.property(DisassemblerDocument::Address).toULongLong();
-
-        if(!searchforward && (blockaddress < address))
-            break;
-
-        if(searchforward && (blockaddress > address))
-            break;
-    }
-
-    if(!b.isValid())
-        this->_textcursor.movePosition(searchforward ? QTextCursor::End : QTextCursor::Start);
-    else
-        this->_textcursor.setPosition(b.position());
 }
 
 bool DisassemblerDocument::selectBlock(address_t address)

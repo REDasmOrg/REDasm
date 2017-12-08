@@ -22,6 +22,12 @@ class Listing: public cache_map<address_t, InstructionPtr>
         typedef std::map<address_t, FunctionPath> FunctionPaths;
 
     public:
+        struct GraphPath { std::list<address_t> block;
+                           std::list< std::shared_ptr<GraphPath> > paths; };
+
+        typedef std::shared_ptr<GraphPath> GraphPathPtr;
+
+    public:
         Listing();
         virtual ~Listing();
         ReferenceTable* referenceTable() const;
@@ -33,6 +39,7 @@ class Listing: public cache_map<address_t, InstructionPtr>
         void setProcessor(ProcessorPlugin *processor);
         void setSymbolTable(SymbolTable* symboltable);
         void setReferenceTable(ReferenceTable* referencetable);
+        GraphPathPtr buildGraph(address_t address);
         bool iterateFunction(address_t address, InstructionCallback cbinstruction);
         bool iterateFunction(address_t address, InstructionCallback cbinstruction, SymbolCallback cbstart, InstructionCallback cbend, SymbolCallback cblabel);
         void iterateAll(InstructionCallback cbinstruction, SymbolCallback cbstart, InstructionCallback cbend, SymbolCallback cblabel);
@@ -46,7 +53,9 @@ class Listing: public cache_map<address_t, InstructionPtr>
 
     private:
         void walk(address_t address);
-        void walk(iterator it, FunctionPath &path);
+        void walk(Listing::iterator it, FunctionPath &path);
+        void updateBlockInfo(FunctionPath& path);
+        void buildGraph(const GraphPathPtr& graph, const FunctionPath& path, FunctionPath::iterator from);
         bool isFunctionStart(address_t address);
         FunctionPaths::iterator findFunction(address_t address);
 

@@ -33,7 +33,6 @@ SOURCES += main.cpp\
     redasm/plugins/format.cpp \
     widgets/disassemblerview/disassemblerview.cpp \
     widgets/disassemblertextview/disassemblertextview.cpp \
-    widgets/disassemblertextview/disassemblerdocument.cpp \
     models/symboltablemodel.cpp \
     models/symboltablefiltermodel.cpp \
     models/disassemblermodel.cpp \
@@ -80,7 +79,12 @@ SOURCES += main.cpp\
     models/databasemodel.cpp \
     redasm/support/serializer.cpp \
     redasm/signatures/signaturedb.cpp \
-    dialogs/aboutdialog.cpp
+    dialogs/aboutdialog.cpp \
+    widgets/disassemblergraphview/disassemblergraphview.cpp \
+    widgets/disassemblerview/disassemblerdocument.cpp \
+    widgets/disassemblertextview/disassemblertextdocument.cpp \
+    widgets/disassemblergraphview/disassemblergraphdocument.cpp \
+    widgets/disassemblergraphview/functionblockitem.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -89,7 +93,6 @@ HEADERS  += mainwindow.h \
     redasm/plugins/plugins.h \
     widgets/disassemblerview/disassemblerview.h \
     widgets/disassemblertextview/disassemblertextview.h \
-    widgets/disassemblertextview/disassemblerdocument.h \
     models/symboltablemodel.h \
     models/symboltablefiltermodel.h \
     models/disassemblermodel.h \
@@ -146,7 +149,12 @@ HEADERS  += mainwindow.h \
     models/databasemodel.h \
     redasm/support/serializer.h \
     redasm/signatures/signaturedb.h \
-    dialogs/aboutdialog.h
+    dialogs/aboutdialog.h \
+    widgets/disassemblergraphview/disassemblergraphview.h \
+    widgets/disassemblerview/disassemblerdocument.h \
+    widgets/disassemblertextview/disassemblertextdocument.h \
+    widgets/disassemblergraphview/disassemblergraphdocument.h \
+    widgets/disassemblergraphview/functionblockitem.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

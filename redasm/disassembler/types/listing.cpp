@@ -61,17 +61,19 @@ void Listing::walk(address_t address)
     FunctionPath path;
     this->walk(this->find(address), path);
 
-    if(!path.empty())
-        this->_paths[address] = path;
+    if(path.empty())
+        return;
+
+    this->updateBlockInfo(path);
+    this->_paths[address] = path;
 }
 
-void Listing::walk(Listing::iterator it, FunctionPath& path)
+void Listing::walk(Listing::iterator it, FunctionPath &path)
 {
     if((it == this->end()) || (path.find(it.key) != path.end())) // Don't reanalyze same paths
         return;
 
     path.insert(it.key);
-
     InstructionPtr instruction = *it;
 
     if(instruction->is(InstructionTypes::Stop))
@@ -97,6 +99,49 @@ void Listing::walk(Listing::iterator it, FunctionPath& path)
         this->walk(it, path);
 }
 
+void Listing::updateBlockInfo(Listing::FunctionPath &path)
+{
+    auto it = path.begin();
+    InstructionPtr lastinstruction;
+    SymbolPtr lastsymbol;
+
+    while(it != path.end())
+    {
+        InstructionPtr instruction = (*this)[*it];
+        SymbolPtr symbol = this->_symboltable->symbol(instruction->address);
+
+        if(instruction->is(InstructionTypes::Stop))
+            instruction->blockinfo = BlockInfo::GraphEnd | (IS_LABEL(symbol) ? BlockInfo::Ignore : BlockInfo::BlockEnd);
+        else if(IS_LABEL(symbol))
+        {
+            if(lastinstruction)
+            {
+                lastinstruction->blockinfo = BlockInfo::GraphEnd | (IS_LABEL(lastsymbol) ? BlockInfo::Ignore : BlockInfo::BlockEnd);
+                this->update(lastinstruction);
+            }
+
+            instruction->blockinfo = BlockInfo::BlockStart | BlockInfo::GraphStart;
+        }
+
+        this->update(instruction);
+        lastinstruction = instruction;
+        lastsymbol = symbol;
+        it++;
+    }
+
+    InstructionPtr firstinstruction = (*this)[*path.begin()];
+    lastinstruction = (*this)[*path.rbegin()];
+
+    firstinstruction->blockinfo = BlockInfo::BlockStart | BlockInfo::GraphStart;
+    this->update(firstinstruction);
+
+    if(firstinstruction == lastinstruction)
+        return;
+
+    lastinstruction->blockinfo = BlockInfo::BlockEnd | BlockInfo::GraphEnd;
+    this->update(lastinstruction);
+}
+
 std::string Listing::getSignature(const SymbolPtr& symbol)
 {
     std::string sig;
@@ -105,7 +150,7 @@ std::string Listing::getSignature(const SymbolPtr& symbol)
     if(it == this->_paths.end())
         return std::string();
 
-    const std::set<address_t> path = it->second;
+    const FunctionPath& path = it->second;
 
     std::for_each(path.begin(), path.end(), [this, &sig](address_t address) {
         InstructionPtr instruction = (*this)[address];
@@ -115,12 +160,54 @@ std::string Listing::getSignature(const SymbolPtr& symbol)
     return sig;
 }
 
+void Listing::buildGraph(const Listing::GraphPathPtr &graph, const Listing::FunctionPath& path, Listing::FunctionPath::iterator from)
+{
+    if(from == path.end())
+        return;
+
+    InstructionPtr instruction;
+
+    for(auto it = from; it != path.end(); it++)
+    {
+        instruction = (*this)[*it];
+
+        /*
+        if(instruction->blockIs(BlockInfo::GraphStart))
+        {
+            GraphPathPtr subgraph = std::make_shared<GraphPath>();
+            subgraph->block.push_back(*it);
+            graph->paths.push_back(subgraph);
+            this->buildGraph(subgraph, path, ++it);
+            break;
+        }
+        */
+
+        graph->block.push_back(*it);
+
+        //if(instruction->blockIs(BlockInfo::GraphEnd))
+            //break;
+    }
+}
+
+Listing::GraphPathPtr Listing::buildGraph(address_t address)
+{
+    if(!this->_processor)
+        return NULL;
+
+    auto it = this->findFunction(address);
+
+    if(it == this->_paths.end())
+        return NULL;
+
+    FunctionPath& path = it->second;
+    GraphPathPtr rootgraph = std::make_shared<GraphPath>();
+    this->buildGraph(rootgraph, path, path.begin());
+    return rootgraph;
+}
+
 bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cbinstruction)
 {
-    return this->iterateFunction(address, cbinstruction,
-                                 [](const SymbolPtr&) { },
-                                 [](const InstructionPtr&) { },
-                                 [](const SymbolPtr&) { });
+    return this->iterateFunction(address, cbinstruction, NULL, NULL, NULL);
 }
 
 bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cbinstruction, Listing::SymbolCallback cbstart, Listing::InstructionCallback cbend, Listing::SymbolCallback cblabel)
@@ -135,7 +222,7 @@ bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cb
 
     SymbolPtr symbol = NULL, functionsymbol = this->_symboltable->symbol(it->first);
 
-    if(functionsymbol)
+    if(cbstart && functionsymbol)
         cbstart(functionsymbol);
 
     const FunctionPath& path = it->second;
@@ -144,14 +231,14 @@ bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cb
     std::for_each(path.begin(), path.end(), [this, &symbol, &instruction, &cbinstruction, &cblabel](address_t address) {
         symbol = this->_symboltable->symbol(address);
 
-        if(symbol && !symbol->isFunction() && symbol->is(SymbolTypes::Code))
+        if(cblabel && IS_LABEL(symbol))
             cblabel(symbol);
 
         instruction = (*this)[address];
         cbinstruction(instruction);
     });
 
-    if(instruction)
+    if(cbend && instruction)
         cbend(instruction);
 
     return true;
@@ -172,6 +259,8 @@ void Listing::update(const InstructionPtr &instruction)
 
 void Listing::calculatePaths()
 {
+    this->_paths.clear(); // Invalidate previous paths
+
     this->_symboltable->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
         this->walk(symbol->address);
         return true;
@@ -196,6 +285,7 @@ void Listing::serialize(const InstructionPtr &value, std::fstream &fs)
     Serializer::serializeScalar(fs, value->target_idx);
     Serializer::serializeScalar(fs, value->type);
     Serializer::serializeScalar(fs, value->size);
+    Serializer::serializeScalar(fs, value->blockinfo);
     Serializer::serializeScalar(fs, value->id);
 
     Serializer::serializeString(fs, value->mnemonic);
@@ -234,6 +324,7 @@ void Listing::deserialize(InstructionPtr &value, std::fstream &fs)
     Serializer::deserializeScalar(fs, &value->target_idx);
     Serializer::deserializeScalar(fs, &value->type);
     Serializer::deserializeScalar(fs, &value->size);
+    Serializer::deserializeScalar(fs, &value->blockinfo);
     Serializer::deserializeScalar(fs, &value->id);
 
     Serializer::deserializeString(fs, value->mnemonic);

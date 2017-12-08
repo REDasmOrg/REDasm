@@ -64,7 +64,7 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
         delete this->_disdocument;
 
     this->_disassembler = disassembler;
-    this->_disdocument = new DisassemblerDocument(disassembler, "light", this->document(), this->textCursor(), this);
+    this->_disdocument = new DisassemblerTextDocument(disassembler, "light", this->document(), this);
     this->_highlighter->setHighlightColor(this->_disdocument->highlightColor());
     this->_highlighter->setSeekColor(this->_disdocument->seekColor());
 
@@ -100,11 +100,11 @@ void DisassemblerTextView::display(address_t address)
     {
         QTextBlockFormat blockformat = b.blockFormat();
 
-        if(!blockformat.hasProperty(DisassemblerDocument::IsInstructionBlock))
+        if(!blockformat.hasProperty(DisassemblerTextDocument::IsInstructionBlock))
             continue;
 
         bool ok = false;
-        address_t blockaddress = blockformat.property(DisassemblerDocument::Address).toULongLong(&ok);
+        address_t blockaddress = blockformat.property(DisassemblerTextDocument::Address).toULongLong(&ok);
 
         if(!ok || (blockaddress != address))
             continue;
@@ -177,9 +177,9 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
     if(!(action = this->getCursorAnchor(address)))
         return;
 
-    if(action == DisassemblerDocument::XRefAction)
+    if(action == DisassemblerTextDocument::XRefAction)
         this->showReferences(address);
-    else if(action == DisassemblerDocument::GotoAction)
+    else if(action == DisassemblerTextDocument::GotoAction)
         this->goTo(address);
 }
 
@@ -261,8 +261,8 @@ void DisassemblerTextView::adjustContextMenu()
     QTextBlockFormat blockformat = cursor.blockFormat();
     QJsonObject data = this->_disdocument->decode(encdata);
 
-    if(blockformat.hasProperty(DisassemblerDocument::IsLabelBlock))
-        this->_menuaddress = blockformat.property(DisassemblerDocument::Address).toULongLong();
+    if(blockformat.hasProperty(DisassemblerTextDocument::IsLabelBlock))
+        this->_menuaddress = blockformat.property(DisassemblerTextDocument::Address).toULongLong();
     else
         this->_menuaddress = data["address"].toVariant().toULongLong();
 
@@ -311,11 +311,11 @@ void DisassemblerTextView::updateAddress()
     QTextCursor cursor = this->textCursor();
     QTextBlockFormat blockformat = cursor.blockFormat();
 
-    if(!blockformat.hasProperty(DisassemblerDocument::Address))
+    if(!blockformat.hasProperty(DisassemblerTextDocument::Address))
         return;
 
     bool ok = false;
-    address_t address = blockformat.property(DisassemblerDocument::Address).toULongLong(&ok);
+    address_t address = blockformat.property(DisassemblerTextDocument::Address).toULongLong(&ok);
 
     if(!ok || address == this->_currentaddress)
         return;
@@ -342,12 +342,12 @@ int DisassemblerTextView::getCursorAnchor(address_t& address)
     QTextCharFormat charformat = cursor.charFormat();
 
     if(!charformat.isAnchor())
-        return DisassemblerDocument::NoAction;
+        return DisassemblerTextDocument::NoAction;
 
-    QJsonObject data = DisassemblerDocument::decode(charformat.anchorHref());
+    QJsonObject data = DisassemblerTextDocument::decode(charformat.anchorHref());
     int action = data["action"].toInt();
 
-    if(action != DisassemblerDocument::NoAction)
+    if(action != DisassemblerTextDocument::NoAction)
         address = data["address"].toVariant().toULongLong();
 
     return action;

@@ -7,6 +7,8 @@
 #include "../../support/cachemap.h"
 #include "../../redasm.h"
 
+#define IS_LABEL(symbol) (symbol && !symbol->isFunction() && symbol->is(REDasm::SymbolTypes::Code))
+
 namespace REDasm {
 
 namespace SymbolTypes {

@@ -84,7 +84,8 @@ SOURCES += main.cpp\
     widgets/disassemblerview/disassemblerdocument.cpp \
     widgets/disassemblertextview/disassemblertextdocument.cpp \
     widgets/disassemblergraphview/disassemblergraphdocument.cpp \
-    widgets/disassemblergraphview/functionblockitem.cpp
+    widgets/disassemblergraphview/functionblockitem.cpp \
+    redasm/disassembler/graph/graphbuilder.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -154,7 +155,9 @@ HEADERS  += mainwindow.h \
     widgets/disassemblerview/disassemblerdocument.h \
     widgets/disassemblertextview/disassemblertextdocument.h \
     widgets/disassemblergraphview/disassemblergraphdocument.h \
-    widgets/disassemblergraphview/functionblockitem.h
+    widgets/disassemblergraphview/functionblockitem.h \
+    redasm/disassembler/graph/graphbuilder.h \
+    redasm/disassembler/graph/graphnode.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

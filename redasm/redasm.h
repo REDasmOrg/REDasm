@@ -92,7 +92,7 @@ namespace OperandTypes {
     };
 }
 
-namespace BlockInfo {
+namespace BlockTypes {
     enum: u32 {
         None        = 0x00000000,
         BlockStart  = 0x00000001,
@@ -194,7 +194,7 @@ struct Operand
 
 struct Instruction
 {
-    Instruction(): address(0), target_idx(-1), type(0), size(0), blockinfo(0), id(0), userdata(NULL) { }
+    Instruction(): address(0), target_idx(-1), type(0), size(0), blocktype(0), id(0), userdata(NULL) { }
     ~Instruction() { reset(); }
 
     std::function<void(void*)> free;
@@ -205,12 +205,12 @@ struct Instruction
     std::list<std::string> comments;
     address_t address;
     s32 target_idx;                 // Target's operand index
-    u32 type, size, blockinfo;
+    u32 type, size, blocktype;
     u64 id;                         // Backend Specific
     void* userdata;                 // It doesn't survive after Processor::decode() by design
 
     bool is(u32 t) const { return type & t; }
-    bool blockIs(u32 t) const { return blockinfo & t; }
+    bool blockIs(u32 t) const { return blocktype & t; }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
     bool hasTargets() const { return !targets.empty(); }
     void reset() { type = 0; operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }

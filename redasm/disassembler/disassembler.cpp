@@ -124,7 +124,7 @@ bool Disassembler::dataToString(address_t address)
     ReferenceVector refs = this->_referencetable.referencesToVector(symbol);
 
     symbol->type &= (~SymbolTypes::Data);
-    symbol->type |= wide ? SymbolTypes::WideString : SymbolTypes::String;;
+    symbol->type |= wide ? SymbolTypes::WideString : SymbolTypes::String;
 
     if(wide)
     {

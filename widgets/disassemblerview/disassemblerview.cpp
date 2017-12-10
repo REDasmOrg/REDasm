@@ -49,7 +49,6 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     connect(ui->disassemblerTextView, &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
     connect(ui->disassemblerTextView, &DisassemblerTextView::symbolRenamed, this, &DisassemblerView::updateModel);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
-    connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, ui->disassemblerGraphView, &DisassemblerGraphView::display);
     connect(ui->disassemblerTextView, &DisassemblerTextView::invalidateSymbols, [this]() { this->updateModel(NULL);});
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoBackChanged, [this]() { ui->tbBack->setEnabled(ui->disassemblerTextView->canGoBack()); });
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoForwardChanged, [this]() { ui->tbForward->setEnabled(ui->disassemblerTextView->canGoForward()); });
@@ -109,6 +108,17 @@ bool DisassemblerView::busy() const
         return false;
 
     return this->_disassemblerthread->isRunning();
+}
+
+void DisassemblerView::on_topTabs_currentChanged(int index)
+{
+    QWidget* w = ui->topTabs->widget(index);
+
+    if(!w)
+        return;
+
+    if(w == ui->disassemblerGraphView)
+        ui->disassemblerGraphView->display(ui->disassemblerTextView->currentAddress());
 }
 
 void DisassemblerView::on_bottomTabs_currentChanged(int index)

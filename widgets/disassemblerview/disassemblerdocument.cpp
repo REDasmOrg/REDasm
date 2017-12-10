@@ -245,15 +245,15 @@ void DisassemblerDocument::appendAddress(const REDasm::InstructionPtr &instructi
 
 void DisassemblerDocument::appendPathInfo(const REDasm::InstructionPtr& instruction)
 {
-    if(instruction->blockIs(REDasm::BlockInfo::Ignore))
+    if(instruction->blockIs(REDasm::BlockTypes::Ignore))
     {
         this->_textcursor.insertText("  ");
         return;
     }
 
-    if(instruction->blockIs(REDasm::BlockInfo::BlockStart))
+    if(instruction->blockIs(REDasm::BlockTypes::BlockStart))
         this->_textcursor.insertText("/ ");
-    else if(instruction->blockIs(REDasm::BlockInfo::BlockEnd))
+    else if(instruction->blockIs(REDasm::BlockTypes::BlockEnd))
         this->_textcursor.insertText("\\ ");
     else
         this->_textcursor.insertText("| ");

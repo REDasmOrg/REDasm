@@ -53,9 +53,14 @@ u64 ReferenceTable::referencesCount(const SymbolPtr& symbol) const
     return 0;
 }
 
-ReferenceVector ReferenceTable::referencesToVector(const SymbolPtr& symbol) const
+ReferenceVector ReferenceTable::referencesToVector(const SymbolPtr &symbol) const
 {
-    auto it = this->_references.find(symbol->address);
+    return this->referencesToVector(symbol->address);
+}
+
+ReferenceVector ReferenceTable::referencesToVector(address_t address) const
+{
+    auto it = this->_references.find(address);
 
     if(it == this->_references.end())
         return ReferenceVector();

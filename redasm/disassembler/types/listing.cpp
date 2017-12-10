@@ -111,16 +111,22 @@ void Listing::updateBlockInfo(Listing::FunctionPath &path)
         SymbolPtr symbol = this->_symboltable->symbol(instruction->address);
 
         if(instruction->is(InstructionTypes::Stop))
-            instruction->blockinfo = BlockInfo::GraphEnd | (IS_LABEL(symbol) ? BlockInfo::Ignore : BlockInfo::BlockEnd);
+            instruction->blocktype |= BlockTypes::GraphEnd | (IS_LABEL(symbol) ? BlockTypes::Ignore : BlockTypes::BlockEnd);
         else if(IS_LABEL(symbol))
         {
             if(lastinstruction)
             {
-                lastinstruction->blockinfo = BlockInfo::GraphEnd | (IS_LABEL(lastsymbol) ? BlockInfo::Ignore : BlockInfo::BlockEnd);
+                lastinstruction->blocktype |= BlockTypes::GraphEnd | (IS_LABEL(lastsymbol) ? BlockTypes::Ignore : BlockTypes::BlockEnd);
                 this->update(lastinstruction);
             }
 
-            instruction->blockinfo = BlockInfo::BlockStart | BlockInfo::GraphStart;
+            instruction->blocktype |= BlockTypes::BlockStart | BlockTypes::GraphStart;
+        }
+        else if(lastinstruction && lastinstruction->is(InstructionTypes::Jump))
+        {
+            lastinstruction->blocktype |= BlockTypes::GraphEnd;
+            instruction->blocktype |= BlockTypes::GraphStart;
+            this->update(lastinstruction);
         }
 
         this->update(instruction);
@@ -132,13 +138,13 @@ void Listing::updateBlockInfo(Listing::FunctionPath &path)
     InstructionPtr firstinstruction = (*this)[*path.begin()];
     lastinstruction = (*this)[*path.rbegin()];
 
-    firstinstruction->blockinfo = BlockInfo::BlockStart | BlockInfo::GraphStart;
+    firstinstruction->blocktype = BlockTypes::BlockStart | BlockTypes::GraphStart;
     this->update(firstinstruction);
 
     if(firstinstruction == lastinstruction)
         return;
 
-    lastinstruction->blockinfo = BlockInfo::BlockEnd | BlockInfo::GraphEnd;
+    lastinstruction->blocktype = BlockTypes::BlockEnd | BlockTypes::GraphEnd;
     this->update(lastinstruction);
 }
 
@@ -158,51 +164,6 @@ std::string Listing::getSignature(const SymbolPtr& symbol)
     });
 
     return sig;
-}
-
-void Listing::buildGraph(const Listing::GraphPathPtr &graph, const Listing::FunctionPath& path, Listing::FunctionPath::iterator from)
-{
-    if(from == path.end())
-        return;
-
-    InstructionPtr instruction;
-
-    for(auto it = from; it != path.end(); it++)
-    {
-        instruction = (*this)[*it];
-
-        /*
-        if(instruction->blockIs(BlockInfo::GraphStart))
-        {
-            GraphPathPtr subgraph = std::make_shared<GraphPath>();
-            subgraph->block.push_back(*it);
-            graph->paths.push_back(subgraph);
-            this->buildGraph(subgraph, path, ++it);
-            break;
-        }
-        */
-
-        graph->block.push_back(*it);
-
-        //if(instruction->blockIs(BlockInfo::GraphEnd))
-            //break;
-    }
-}
-
-Listing::GraphPathPtr Listing::buildGraph(address_t address)
-{
-    if(!this->_processor)
-        return NULL;
-
-    auto it = this->findFunction(address);
-
-    if(it == this->_paths.end())
-        return NULL;
-
-    FunctionPath& path = it->second;
-    GraphPathPtr rootgraph = std::make_shared<GraphPath>();
-    this->buildGraph(rootgraph, path, path.begin());
-    return rootgraph;
 }
 
 bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cbinstruction)
@@ -285,7 +246,7 @@ void Listing::serialize(const InstructionPtr &value, std::fstream &fs)
     Serializer::serializeScalar(fs, value->target_idx);
     Serializer::serializeScalar(fs, value->type);
     Serializer::serializeScalar(fs, value->size);
-    Serializer::serializeScalar(fs, value->blockinfo);
+    Serializer::serializeScalar(fs, value->blocktype);
     Serializer::serializeScalar(fs, value->id);
 
     Serializer::serializeString(fs, value->mnemonic);
@@ -324,7 +285,7 @@ void Listing::deserialize(InstructionPtr &value, std::fstream &fs)
     Serializer::deserializeScalar(fs, &value->target_idx);
     Serializer::deserializeScalar(fs, &value->type);
     Serializer::deserializeScalar(fs, &value->size);
-    Serializer::deserializeScalar(fs, &value->blockinfo);
+    Serializer::deserializeScalar(fs, &value->blocktype);
     Serializer::deserializeScalar(fs, &value->id);
 
     Serializer::deserializeString(fs, value->mnemonic);

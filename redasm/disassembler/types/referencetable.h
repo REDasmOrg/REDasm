@@ -25,6 +25,7 @@ class ReferenceTable
         ReferenceMap::const_iterator references(const SymbolPtr& symbol) const;
         u64 referencesCount(const SymbolPtr &symbol) const;
         ReferenceVector referencesToVector(const SymbolPtr &symbol) const;
+        ReferenceVector referencesToVector(address_t address) const;
 
     public:
         static ReferenceVector toVector(const ReferenceSet& refset);

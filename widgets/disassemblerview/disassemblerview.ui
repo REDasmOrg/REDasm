@@ -145,30 +145,11 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabGraph">
+      <widget class="DisassemblerGraphView" name="disassemblerGraphView">
        <attribute name="title">
         <string>Graph</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="DisassemblerGraphView" name="disassemblerGraphView"/>
-        </item>
-       </layout>
+       <layout class="QVBoxLayout" name="verticalLayout_2"/>
       </widget>
       <widget class="QHexEdit" name="hexEdit">
        <attribute name="title">
@@ -497,8 +478,9 @@
   </customwidget>
   <customwidget>
    <class>DisassemblerGraphView</class>
-   <extends>QGraphicsView</extends>
+   <extends>QWidget</extends>
    <header>widgets/disassemblergraphview/disassemblergraphview.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

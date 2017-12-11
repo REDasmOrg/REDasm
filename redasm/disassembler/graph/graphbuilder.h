@@ -11,6 +11,7 @@ class GraphBuilder // Keep graph interface separated from Listing class
 {
     public:
         typedef ogdf::NodeElement Node;
+        typedef ogdf::EdgeElement Edge;
         typedef std::set<address_t> Block;
         typedef std::map<address_t, ogdf::NodeElement*> Nodes;
         typedef std::list<ogdf::EdgeElement*> Edges;
@@ -18,7 +19,9 @@ class GraphBuilder // Keep graph interface separated from Listing class
 
     public:
         GraphBuilder(Listing& listing);
+        ogdf::GraphAttributes& graphAttributes();
         const Nodes &nodes();
+        const Edges &edges();
         void position(Node *node, double& x, double& y) const;
         void iterateBlocks(std::function<void(Node*, const Block&, double&, double&)> cb);
         void build(address_t address);
@@ -31,7 +34,7 @@ class GraphBuilder // Keep graph interface separated from Listing class
         void buildBlocks();
         void buildEdges();
         void buildNodes(const Listing::FunctionPath& path);
-        void addEdge(ogdf::NodeElement* from, ogdf::NodeElement* to);
+        void addEdge(ogdf::NodeElement* from, ogdf::NodeElement* to, ogdf::Color::Name colorname);
         address_t firstAddress(ogdf::NodeElement *node);
         address_t lastAddress(ogdf::NodeElement* node);
         ogdf::NodeElement* addNode(address_t address);

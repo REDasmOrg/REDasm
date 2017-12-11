@@ -2,8 +2,8 @@
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/layered/OptimalRanking.h>
 #include <ogdf/layered/MedianHeuristic.h>
+#include <ogdf/fileformats/GraphIO.h>
 
-#define GRAPH_PADDING   10
 #define BOTTOM_OF(node) (node->y + node->height + GRAPH_PADDING)
 #define CENTER_X(node)  (node->x + node->width / 2)
 #define MIDDLE_W(node)  (node->width / 2)
@@ -16,12 +16,24 @@ using namespace ogdf;
 GraphBuilder::GraphBuilder(Listing &listing): _currentaddress(0), _listing(listing)
 {
     this->_ga.init(this->_graph, GraphAttributes::nodeGraphics |
-                                 GraphAttributes::edgeGraphics);
+                                 GraphAttributes::edgeGraphics |
+                                 GraphAttributes::edgeArrow    |
+                                 GraphAttributes::edgeStyle);
+}
+
+GraphAttributes &GraphBuilder::graphAttributes()
+{
+    return this->_ga;
 }
 
 const GraphBuilder::Nodes &GraphBuilder::nodes()
 {
     return this->_nodes;
+}
+
+const GraphBuilder::Edges &GraphBuilder::edges()
+{
+    return this->_edges;
 }
 
 void GraphBuilder::position(GraphBuilder::Node* node, double &x, double &y) const
@@ -63,16 +75,15 @@ void GraphBuilder::build(address_t address)
 void GraphBuilder::layout()
 {
     OptimalHierarchyLayout* ohl = new OptimalHierarchyLayout();
-    ohl->layerDistance(30.0);
-    ohl->nodeDistance(25.0);
-    ohl->weightBalancing(0.8);
+    ohl->nodeDistance(10.0);
+    ohl->layerDistance(20.0);
 
     SugiyamaLayout sl;
-    sl.setRanking(new OptimalRanking());
-    sl.setCrossMin(new MedianHeuristic());
-    sl.alignSiblings(false);
+    sl.alignSiblings(true);
     sl.setLayout(ohl);
     sl.call(this->_ga);
+
+    //GraphIO::drawSVG(this->_ga, "/home/davide/graph.svg");
 }
 
 void GraphBuilder::checkReferences(const SymbolPtr &symbol, const Listing::FunctionPath& path)
@@ -108,7 +119,7 @@ void GraphBuilder::checkFirst(NodeElement* node)
         NodeElement* refnode = this->findNode(address);
 
         if(refnode)
-            this->addEdge(refnode, node);
+            this->addEdge(refnode, node, Color::Name::Blue);
     });
 }
 
@@ -124,7 +135,7 @@ void GraphBuilder::checkLast(NodeElement* node)
         NodeElement* nextnode = this->findNode(instruction->endAddress());
 
         if(nextnode)
-            this->addEdge(node, nextnode);
+            this->addEdge(node, nextnode, Color::Name::Blue);
 
         return;
     }
@@ -133,7 +144,7 @@ void GraphBuilder::checkLast(NodeElement* node)
         auto nit = this->_nodes.find(target);
 
         if(nit != this->_nodes.end())
-            this->addEdge(node, nit->second);
+            this->addEdge(node, nit->second, Color::Name::Green);
     });
 
     if(instruction->is(InstructionTypes::Conditional))
@@ -141,7 +152,7 @@ void GraphBuilder::checkLast(NodeElement* node)
         auto nit = this->_nodes.find(instruction->endAddress());
 
         if(nit != this->_nodes.end())
-            this->addEdge(node, nit->second);
+            this->addEdge(node, nit->second, Color::Name::Red);
     }
 }
 
@@ -197,9 +208,10 @@ void GraphBuilder::buildNodes(const Listing::FunctionPath &path)
     this->buildEdges();
 }
 
-void GraphBuilder::addEdge(NodeElement *from, NodeElement *to)
+void GraphBuilder::addEdge(NodeElement *from, NodeElement *to, Color::Name colorname)
 {
     EdgeElement* edge = this->_graph.newEdge(from, to);
+    this->_ga.strokeColor(edge) = colorname;
     this->_edges.push_back(edge);
 }
 

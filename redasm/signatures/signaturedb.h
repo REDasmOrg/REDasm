@@ -38,7 +38,6 @@ class SignatureDB
         SignatureDB& operator<<(const SignatureList& signatures);
         SignatureDB& operator<<(Signature signature);
         const Signature& operator[](size_t index) const;
-        static void setPath(const std::string& path);
 
     private:
         std::string uncollide(const std::string &name);
@@ -46,7 +45,6 @@ class SignatureDB
         void eachHexByte(const std::string& hexstring, std::function<bool(const std::string&, u32)> cb) const;
 
     private:
-        static std::string _path;
         std::string _name;
         std::set<std::string> _duplicates;                // Signatures
         std::unordered_map<std::string, u32> _collisions; // Names

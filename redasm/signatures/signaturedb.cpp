@@ -9,8 +9,6 @@
 
 namespace REDasm {
 
-std::string SignatureDB::_path;
-
 SignatureDB::SignatureDB()
 {
 
@@ -136,11 +134,7 @@ bool SignatureDB::read(const std::string &file)
 
 bool SignatureDB::readPath(const std::string &signame)
 {
-#ifdef _WIN32
-    return this->read(_path + "\\rdb\\" + signame + RDB_SIGNATURE_EXT);
-#else
-    return this->read(_path + "/rdb/" + signame + RDB_SIGNATURE_EXT);
-#endif
+    return this->read(REDasm::makeDbPath("rdb", signame + RDB_SIGNATURE_EXT));
 }
 
 SignatureDB &SignatureDB::operator<<(const SignatureList &signatures)
@@ -201,11 +195,6 @@ SignatureDB &SignatureDB::operator<<(Signature signature)
 const Signature &SignatureDB::operator[](size_t index) const
 {
     return this->_signatures[index];
-}
-
-void SignatureDB::setPath(const std::string &path)
-{
-    _path = path;
 }
 
 std::string SignatureDB::uncollide(const std::string &name)

@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include "../../redasm.h"
-#include "ordinals/pe_ordinals_types.h"
+#include "pe_ordinals.h"
 
 namespace REDasm {
 

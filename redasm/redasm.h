@@ -32,6 +32,29 @@ typedef u64 offset_t;
 
 namespace REDasm {
 
+namespace Runtime {
+
+extern std::string rntSearchPath;
+extern std::string rntDirSeparator;
+
+} // namespace Runtime
+
+inline const std::string& searchPath() {  return Runtime::rntSearchPath; }
+
+template<typename... T> std::string makePath(const std::string& p1, const std::string& p2, T... args) {
+    std::string path = p1 + Runtime::rntDirSeparator + p2;
+    std::vector<std::string> v = { args... };
+
+    for(size_t i = 0; i < v.size(); i++)
+        path += Runtime::rntDirSeparator + v[i];
+
+    return path;
+}
+
+template<typename...T> std::string makeRntPath(const std::string& p, T... args) { return REDasm::makePath(Runtime::rntSearchPath, p, args...); }
+template<typename...T> std::string makeDbPath(const std::string& p, T... args) { return REDasm::makeRntPath("database", p, args...); }
+template<typename...T> std::string makeFormatPath(const std::string& p, T... args) { return REDasm::makeDbPath("formats", p, args...); }
+
 namespace ByteOrder {
     enum { LittleEndian = 0, BigEndian = 1, };
 

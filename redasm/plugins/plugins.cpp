@@ -5,7 +5,6 @@
 #include "../processors/x86/x86.h"
 #include "../processors/mips/mips.h"
 #include "../processors/arm/arm.h"
-#include "../signatures/signaturedb.h"
 
 #define REGISTER_FORMAT_PLUGIN(id)    REDasm::formats.push_back(&id##_formatPlugin)
 #define REGISTER_PROCESSOR_PLUGIN(id) REDasm::processors[#id] = &id##_processorPlugin
@@ -17,7 +16,7 @@ std::unordered_map<std::string, ProcessorPlugin_Entry> processors;
 
 void init(const std::string& searchpath)
 {
-    SignatureDB::setPath(searchpath);
+    Runtime::rntSearchPath = searchpath;
 
     REGISTER_FORMAT_PLUGIN(pe);
     REGISTER_FORMAT_PLUGIN(elf32);

@@ -1,5 +1,9 @@
 DEPENDS_ROOT       = $$PWD
 
+# ================ Single Header Libraries =================
+INCLUDEPATH += $$DEPENDS_ROOT/include
+# ==========================================================
+
 # ======================== Capstone ========================
 CAPSTONE_SRC       = $$DEPENDS_ROOT/capstone
 CAPSTONE_BUILD     = $$OUT_PWD/capstone

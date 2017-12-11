@@ -69,8 +69,6 @@ SOURCES += main.cpp\
     redasm/disassembler/types/referencetable.cpp \
     redasm/disassembler/types/symboltable.cpp \
     redasm/processors/x86/x86printer.cpp \
-    redasm/formats/pe/ordinals/msvbvm60.cpp \
-    redasm/formats/pe/ordinals/msvbvm50.cpp \
     redasm/support/coff/coff_symboltable.cpp \
     widgets/disassemblertextview/disassemblerhighlighter.cpp \
     dialogs/databasedialog.cpp \
@@ -85,7 +83,9 @@ SOURCES += main.cpp\
     widgets/disassemblertextview/disassemblertextdocument.cpp \
     widgets/disassemblergraphview/disassemblergraphdocument.cpp \
     widgets/disassemblergraphview/functionblockitem.cpp \
-    redasm/disassembler/graph/graphbuilder.cpp
+    redasm/disassembler/graph/graphbuilder.cpp \
+    redasm/redasm.cpp \
+    redasm/formats/pe/pe_ordinals.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -128,7 +128,6 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/vb/vb_header.h \
     redasm/formats/pe/vb/vb_components.h \
     redasm/formats/pe/pe_imports.h \
-    redasm/formats/pe/ordinals/pe_ordinals_types.h \
     redasm/processors/arm/arm.h \
     redasm/processors/arm/armprinter.h \
     redasm/disassembler/disassemblerfunctions.h \
@@ -137,8 +136,6 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/types/referencetable.h \
     redasm/disassembler/types/symboltable.h \
     redasm/processors/x86/x86printer.h \
-    redasm/formats/pe/ordinals/msvbvm60.h \
-    redasm/formats/pe/ordinals/msvbvm50.h \
     redasm/support/coff/coff_symboltable.h \
     redasm/support/coff/coff_types.h \
     redasm/support/coff/coff_constants.h \
@@ -157,7 +154,8 @@ HEADERS  += mainwindow.h \
     widgets/disassemblergraphview/disassemblergraphdocument.h \
     widgets/disassemblergraphview/functionblockitem.h \
     redasm/disassembler/graph/graphbuilder.h \
-    redasm/disassembler/graph/graphnode.h
+    redasm/disassembler/graph/graphnode.h \
+    redasm/formats/pe/pe_ordinals.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

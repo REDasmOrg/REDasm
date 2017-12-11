@@ -26,12 +26,12 @@ void DisassemblerGraphView::display(address_t address)
     if(!this->_disassembler)
         return;
 
-    REDasm::Listing& listing = this->_disassembler->listing();
-    REDasm::GraphBuilder gb(listing);
+    //REDasm::Listing& listing = this->_disassembler->listing();
+    //REDasm::GraphBuilder gb(listing);
 
-    gb.build(address);
+    //gb.build(address);
     this->scale(1.0, 1.0); // Reset zoom
-    this->renderGraph(gb);
+    //this->renderGraph(gb);
 }
 
 void DisassemblerGraphView::wheelEvent(QWheelEvent *event)

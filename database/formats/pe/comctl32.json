@@ -26,7 +26,7 @@
     "26":"ImageList_AddIcon",
     "27":"ImageList_AddMasked",
     "28":"ImageList_BeginDrag",
-    "29":"ImageList_Copy",,
+    "29":"ImageList_Copy",
     "30":"ImageList_Create",
     "31":"ImageList_Destroy",
     "32":"ImageList_DragEnter",

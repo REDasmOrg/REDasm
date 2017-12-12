@@ -94,7 +94,7 @@ namespace InstructionTypes {
         Push        = 0x00002000, Pop  = 0x00004000,
         Compare     = 0x00008000,
 
-        Conditional = 0x01000000, Privileged = 0x02000000, JumpTable = 0x04000000 | Jump,
+        Conditional = 0x01000000, Privileged = 0x02000000, JumpTable = 0x04000000,
         Invalid     = 0x10000000,
         Branch      = Jump | Call,
     };

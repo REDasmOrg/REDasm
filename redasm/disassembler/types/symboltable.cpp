@@ -125,7 +125,7 @@ bool SymbolTable::erase(address_t address)
 
 bool SymbolTable::update(SymbolPtr symbol, const std::string& name)
 {
-    if(!symbol || (symbol->name == name))
+    if(!symbol || symbol->isEP() || (symbol->name == name))
         return false;
 
     auto it = this->_byname.find(symbol->name);

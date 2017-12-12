@@ -46,6 +46,7 @@ struct Symbol
 
     bool is(u32 t) const { return type & t; }
     bool isFunction() const { return type & SymbolTypes::FunctionMask; }
+    bool isEP() const { return name == ENTRYPOINT_FUNCTION; }
 };
 
 typedef std::shared_ptr<Symbol> SymbolPtr;

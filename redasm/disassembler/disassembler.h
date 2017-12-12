@@ -14,6 +14,8 @@ class Disassembler: public DisassemblerBase
         virtual ~Disassembler();
         ProcessorPlugin* processor();
         Listing &listing();
+        bool canBeJumpTable(address_t address);
+        size_t walkJumpTable(const InstructionPtr &instruction, address_t address, std::function<void(address_t)> cb);
         void disassembleFunction(address_t address);
         void disassemble();
 

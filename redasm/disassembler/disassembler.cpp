@@ -32,6 +32,64 @@ Listing& Disassembler::listing()
     return this->_listing;
 }
 
+bool Disassembler::canBeJumpTable(address_t address)
+{
+    address_t cbaddress = 0;
+
+    if(!this->readAddress(address, this->_format->bits() / 8, cbaddress))
+        return false;
+
+    Segment* segment = this->_format->segment(cbaddress);
+    return segment && segment->is(SegmentTypes::Code);
+}
+
+size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t address, std::function<void(address_t)> cb)
+{
+    size_t cases = 0;
+    address_t target = 0;
+    size_t sz = this->_format->bits() / 8;
+    SymbolPtr jmpsymbol = this->_symboltable->symbol(address);
+
+    while(this->readAddress(address, sz, target))
+    {
+        Segment* segment = this->_format->segment(target);
+
+        if(!segment || !segment->is(SegmentTypes::Code))
+            break;
+
+        instruction->target(target);
+        cb(target);
+
+        this->_symboltable->createLocation(target, SymbolTypes::Code);
+        auto it = this->_listing.find(target);
+
+        if(it != this->_listing.end())
+        {
+            InstructionPtr tgtinstruction = *it;
+            tgtinstruction->cmt("JUMP_TABLE @ " + REDasm::hex(instruction->address) + " case " + std::to_string(cases));
+            this->_listing.update(tgtinstruction);
+            this->_referencetable.push(jmpsymbol, tgtinstruction->address);
+        }
+
+        SymbolPtr symbol = this->_symboltable->symbol(target);
+
+        if(symbol)
+            this->_referencetable.push(symbol, instruction->address);
+
+        address += sz;
+        cases++;
+    }
+
+    if(cases)
+    {
+        instruction->type |= InstructionTypes::JumpTable;
+        instruction->cmt("#" + std::to_string(cases) + " case(s) jump table");
+        this->_listing.update(instruction);
+    }
+
+    return cases;
+}
+
 std::string Disassembler::out(const InstructionPtr &instruction, std::function<void (const Operand &, const std::string&)> opfunc)
 {
     if(this->_printer)
@@ -66,7 +124,7 @@ void Disassembler::disassembleFunction(address_t address)
 {
     SymbolPtr symbol = this->_symboltable->symbol(address);
 
-    if(!symbol || symbol->isFunction())
+    if(symbol && symbol->isFunction())
         return;
 
     this->_symboltable->erase(address);
@@ -154,51 +212,15 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address)
 
 void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Operand& op)
 {
-    bool isjumptable = false;
-    size_t cases = 0;
-    address_t address = op.mem.displacement, target = 0;
-
+    address_t address = op.mem.displacement;
     this->_symboltable->createLocation(address, SymbolTypes::Data);
-    SymbolPtr jmpsymbol = this->_symboltable->symbol(address);
 
-    while(this->readAddress(address, op.mem.scale, target))
-    {
-        Segment* segment = this->_format->segment(target);
+    if(!this->canBeJumpTable(address))
+        return;
 
-        if(!segment || !segment->is(SegmentTypes::Code))
-            break;
-
-        isjumptable = true;
-        instruction->target(target);
-        this->disassemble(target);
-
-        if(this->_symboltable->createLocation(target, SymbolTypes::Code))
-        {
-            SymbolPtr symbol = this->_symboltable->symbol(target);
-            auto it = this->_listing.find(target);
-
-            if(it != this->_listing.end())
-            {
-                InstructionPtr tgtinstruction = *it;
-                tgtinstruction->cmt("JUMP_TABLE @ " + REDasm::hex(instruction->address) + " case " + std::to_string(cases));
-                this->_listing.update(tgtinstruction);
-                this->_referencetable.push(jmpsymbol, tgtinstruction->address);
-            }
-
-            if(symbol)
-                this->_referencetable.push(symbol, instruction->address);
-        }
-
-        address += op.mem.scale;
-        cases++;
-    }
-
-    if(isjumptable)
-    {
-        instruction->type = InstructionTypes::JumpTable;
-        this->_listing.update(instruction);
-        instruction->cmt("#" + std::to_string(cases) + " case(s) jump table");
-    }
+    this->walkJumpTable(instruction, address, [this](address_t target) {
+       this->disassemble(target);
+    });
 }
 
 void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &operand)

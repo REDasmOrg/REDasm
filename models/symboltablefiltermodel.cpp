@@ -32,6 +32,12 @@ void SymbolTableFilterModel::setFilterName(const QString &name)
     this->invalidateFilter();
 }
 
+void SymbolTableFilterModel::reloadSymbols()
+{
+    this->invalidate();
+    static_cast<SymbolTableModel*>(this->sourceModel())->loadSymbols();
+}
+
 bool SymbolTableFilterModel::filterAcceptsRow(int source_row, const QModelIndex &) const
 {
     QModelIndex index = this->sourceModel()->index(source_row, 1);

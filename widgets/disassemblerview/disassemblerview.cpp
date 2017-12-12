@@ -199,20 +199,20 @@ void DisassemblerView::updateModel(const REDasm::SymbolPtr &symbol)
 {
     if(!symbol)
     {
-        this->_functionsmodel->invalidate();
-        this->_stringsmodel->invalidate();
+        this->_functionsmodel->reloadSymbols();
+        this->_stringsmodel->reloadSymbols();
         return;
     }
 
     if(symbol->isFunction())
     {
-        this->_functionsmodel->invalidate();
-        this->_exportsmodel->invalidate();
+        this->_functionsmodel->reloadSymbols();
+        this->_exportsmodel->reloadSymbols();
     }
     else if(symbol->is(REDasm::SymbolTypes::ImportMask))
-        this->_importsmodel->invalidate();
+        this->_importsmodel->reloadSymbols();
     else if(symbol->is(REDasm::SymbolTypes::String))
-        this->_stringsmodel->invalidate();
+        this->_stringsmodel->reloadSymbols();
 }
 
 void DisassemblerView::log(const QString &s)

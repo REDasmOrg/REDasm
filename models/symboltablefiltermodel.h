@@ -15,12 +15,12 @@ class SymbolTableFilterModel : public QSortFilterProxyModel
         void setDisassembler(REDasm::Disassembler* disassembler);
         void setSymbolFlags(u32 symbolflags);
         void setFilterName(const QString& name);
+        void reloadSymbols();
 
     protected:
         virtual bool filterAcceptsRow(int source_row, const QModelIndex&) const;
 
     private:
-        SymbolTableModel* _symboltablemodel;
         QString _filtername;
 };
 

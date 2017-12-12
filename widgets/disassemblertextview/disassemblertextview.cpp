@@ -14,7 +14,7 @@
 
 #define THEME_VALUE(name) (this->_theme.contains(name) ? QColor(this->_theme[name].toString()) : QColor())
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(parent), _disdocument(NULL), _disassembler(NULL), _currentaddress(0), _menuaddress(0)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(parent), _disdocument(NULL), _disassembler(NULL), _currentaddress(0), _symboladdress(0)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setPointSize(12);
@@ -56,6 +56,11 @@ bool DisassemblerTextView::canGoForward() const
 address_t DisassemblerTextView::currentAddress() const
 {
     return this->_currentaddress;
+}
+
+address_t DisassemblerTextView::symbolAddress() const
+{
+    return this->_symboladdress;
 }
 
 void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
@@ -164,6 +169,14 @@ void DisassemblerTextView::mouseReleaseEvent(QMouseEvent *e)
 {
     this->updateAddress();
     this->highlightWords();
+
+    address_t address = 0;
+
+    if(this->getCursorAnchor(address))
+        this->updateSymbolAddress(address);
+    else
+        emit symbolDeselected();
+
     QPlainTextEdit::mouseReleaseEvent(e);
 }
 
@@ -203,39 +216,39 @@ void DisassemblerTextView::createContextMenu()
 {
     this->_contextmenu = new QMenu(this);
 
-    this->_actrename = this->_contextmenu->addAction("Rename", [this]() { this->rename(this->_menuaddress);} );
+    this->_actrename = this->_contextmenu->addAction("Rename", [this]() { this->rename(this->_symboladdress);} );
 
     this->_actcreatefunction = this->_contextmenu->addAction("Create Function", [this]() {
-        this->_disassembler->disassembleFunction(this->_menuaddress);
+        this->_disassembler->disassembleFunction(this->_symboladdress);
 
-        this->_disdocument->update(this->_menuaddress);
+        this->_disdocument->update(this->_symboladdress);
         emit invalidateSymbols();
     });
 
     this->_actcreatestring = this->_contextmenu->addAction("Create String", [this]() {
-        if(!this->_disassembler->dataToString(this->_menuaddress))
+        if(!this->_disassembler->dataToString(this->_symboladdress))
             return;
 
-        this->_disdocument->update(this->_menuaddress);
+        this->_disdocument->update(this->_symboladdress);
         emit invalidateSymbols();
     });
 
     this->_actanalyzejumptable = this->_contextmenu->addAction("Analyze Jump Table", [this]() {
         REDasm::Listing& listing = this->_disassembler->listing();
 
-        this->_disassembler->walkJumpTable(listing[this->_currentaddress], this->_menuaddress, [this](address_t target) {
+        this->_disassembler->walkJumpTable(listing[this->_currentaddress], this->_symboladdress, [this](address_t target) {
             this->_disassembler->disassembleFunction(target);
         });
 
-        this->_disdocument->update(this->_menuaddress);
+        this->_disdocument->update(this->_symboladdress);
         emit invalidateSymbols();
     });
 
     this->_contextmenu->addSeparator();
-    this->_actxrefs = this->_contextmenu->addAction("Cross References", [this]() { this->showReferences(this->_menuaddress); });
-    this->_actfollow = this->_contextmenu->addAction("Follow", [this]() { this->goTo(this->_menuaddress); });
+    this->_actxrefs = this->_contextmenu->addAction("Cross References", [this]() { this->showReferences(this->_symboladdress); });
+    this->_actfollow = this->_contextmenu->addAction("Follow", [this]() { this->goTo(this->_symboladdress); });
     this->_actgoto = this->_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
-    this->_acthexdump = this->_contextmenu->addAction("Hex Dump", [this]() { emit hexDumpRequested(this->_menuaddress); });
+    this->_acthexdump = this->_contextmenu->addAction("Hex Dump", [this]() { emit hexDumpRequested(this->_symboladdress); });
     this->_contextmenu->addSeparator();
     this->_actback = this->_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
     this->_actforward = this->_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward);
@@ -274,22 +287,22 @@ void DisassemblerTextView::adjustContextMenu()
     QJsonObject data = this->_disdocument->decode(encdata);
 
     if(blockformat.hasProperty(DisassemblerTextDocument::IsLabelBlock))
-        this->_menuaddress = blockformat.property(DisassemblerTextDocument::Address).toULongLong();
+        this->updateSymbolAddress(blockformat.property(DisassemblerTextDocument::Address).toULongLong());
     else
-        this->_menuaddress = data["address"].toVariant().toULongLong();
+        this->updateSymbolAddress(data["address"].toVariant().toULongLong());
 
-    REDasm::Segment* segment = this->_disassembler->format()->segment(this->_menuaddress);
-    REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(this->_menuaddress);
+    REDasm::Segment* segment = this->_disassembler->format()->segment(this->_symboladdress);
+    REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(this->_symboladdress);
 
     this->_actrename->setVisible(symbol != NULL);
-    this->_actanalyzejumptable->setVisible(this->_disassembler->canBeJumpTable(this->_menuaddress));
+    this->_actanalyzejumptable->setVisible(this->_disassembler->canBeJumpTable(this->_symboladdress));
 
     this->_actcreatefunction->setVisible(segment && segment->is(REDasm::SegmentTypes::Code) &&
                                          symbol && !symbol->isFunction() && !symbol->is(REDasm::SymbolTypes::String));
 
     if((segment && segment->is(REDasm::SegmentTypes::Data)) && (symbol && !symbol->isFunction() && symbol->is(REDasm::SymbolTypes::Data)))
     {
-        u64 c = this->_disassembler->locationIsString(this->_menuaddress);
+        u64 c = this->_disassembler->locationIsString(this->_symboladdress);
 
         if(c > 1)
             this->_actcreatestring->setVisible(c > 1);
@@ -335,6 +348,15 @@ void DisassemblerTextView::updateAddress()
 
     this->_currentaddress = address;
     emit addressChanged(this->_currentaddress);
+}
+
+void DisassemblerTextView::updateSymbolAddress(address_t address)
+{
+    if(this->_symboladdress == address)
+        return;
+
+    this->_symboladdress = address;
+    emit symbolAddressChanged();
 }
 
 void DisassemblerTextView::showReferences(address_t address)

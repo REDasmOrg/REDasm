@@ -2,13 +2,29 @@
 #include <QFontDatabase>
 #include <QColor>
 
-ReferencesModel::ReferencesModel(REDasm::Disassembler* disassembler, QObject *parent) : DisassemblerModel(parent), _currentaddress(0)
+ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent), _currentaddress(0)
 {
-    this->setDisassembler(disassembler);
+
+}
+
+void ReferencesModel::clear()
+{
+    this->beginResetModel();
+    this->_referencevector.clear();
+    this->endResetModel();
 }
 
 void ReferencesModel::xref(address_t currentaddress, const REDasm::SymbolPtr& symbol)
 {
+    if(!this->_disassembler)
+        return;
+
+    if(!symbol)
+    {
+        this->clear();
+        return;
+    }
+
     this->beginResetModel();
     this->_currentaddress = currentaddress;
     this->_referencevector = this->_disassembler->getReferences(symbol);

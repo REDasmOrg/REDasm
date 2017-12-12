@@ -13,7 +13,7 @@ class ReferencesModel : public DisassemblerModel
         typedef std::vector<REDasm::InstructionPtr> ReferenceVector;
 
     public:
-        explicit ReferencesModel(REDasm::Disassembler *disassembler, QObject *parent = 0);
+        explicit ReferencesModel(QObject *parent = 0);
         void xref(address_t currentaddress, const REDasm::SymbolPtr &symbol);
 
     public:
@@ -22,6 +22,9 @@ class ReferencesModel : public DisassemblerModel
         virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
         virtual int rowCount(const QModelIndex&) const;
         virtual int columnCount(const QModelIndex&) const;
+
+    public slots:
+        void clear();
 
     private:
         QString direction(const REDasm::InstructionPtr& instruction) const;

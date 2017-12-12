@@ -28,17 +28,6 @@ QTabBar::tab
     border-top-color: transparent;
 }
 
-#bottomTabs QTabBar::tab::first
-{
-    margin-left: 0;
-    border-bottom-left-radius: 8;
-}
-
-#bottomTabs QTabBar::tab::last
-{
-    border-bottom-right-radius: 8;
-}
-
 #bottomTabs QTabBar::tab::!selected
 {
     margin-bottom: 3; /* make non-selected tabs look smaller */
@@ -47,17 +36,6 @@ QTabBar::tab
 #topTabs QTabBar::tab
 {
     border-bottom-color: transparent;
-}
-
-#topTabs QTabBar::tab::first
-{
-    margin-left: 0;
-    border-top-left-radius: 8;
-}
-
-#topTabs QTabBar::tab::last
-{
-    border-top-right-radius: 8;
 }
 
 #topTabs QTabBar::tab::!selected

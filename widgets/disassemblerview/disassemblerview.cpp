@@ -6,7 +6,10 @@
 DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), _hexdocument(NULL), _lblstatus(lblstatus), _disassembler(NULL), _disassemblerthread(NULL)
 {
     ui->setupUi(this);
-    ui->splitter->setStretchFactor(0, 1);
+    ui->vSplitter->setStretchFactor(0, 1);
+
+    ui->hSplitter->setSizes((QList<int>() << this->width() * 0.20
+                                          << this->width() * 0.80));
 
     ui->hexEdit->setReadOnly(true);
     ui->hexEdit->setFrameShape(QFrame::NoFrame);
@@ -34,13 +37,22 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     this->_segmentsmodel = new SegmentsModel(ui->tvSegments);
     ui->tvSegments->setModel(this->_segmentsmodel);
 
-    ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    this->_referencesmodel = new ReferencesModel(ui->tvReferences);
+    ui->tvReferences->setModel(this->_referencesmodel);
+
+    ui->tvFunctions->setColumnHidden(0, true);
+    ui->tvFunctions->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tvFunctions->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+
+    ui->tvReferences->setColumnHidden(0, true);
+    ui->tvReferences->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    ui->tvReferences->header()->setSectionResizeMode(2, QHeaderView::Stretch);
+
     ui->tvImports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvExports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-    ui->tvFunctions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvImports->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvExports->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -49,6 +61,8 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     connect(ui->disassemblerTextView, &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
     connect(ui->disassemblerTextView, &DisassemblerTextView::symbolRenamed, this, &DisassemblerView::updateModel);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
+    connect(ui->disassemblerTextView, &DisassemblerTextView::symbolAddressChanged, this, &DisassemblerView::displayReferences);
+    connect(ui->disassemblerTextView, &DisassemblerTextView::symbolDeselected, this->_referencesmodel, &ReferencesModel::clear);
     connect(ui->disassemblerTextView, &DisassemblerTextView::invalidateSymbols, [this]() { this->updateModel(NULL);});
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoBackChanged, [this]() { ui->tbBack->setEnabled(ui->disassemblerTextView->canGoBack()); });
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoForwardChanged, [this]() { ui->tbForward->setEnabled(ui->disassemblerTextView->canGoForward()); });
@@ -57,12 +71,14 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     connect(ui->tbForward, &QToolButton::clicked, ui->disassemblerTextView, &DisassemblerTextView::goForward);
     connect(ui->tbGoto, &QToolButton::clicked, this, &DisassemblerView::showGoto);
 
+    connect(ui->tvReferences, &QTableView::doubleClicked, this, &DisassemblerView::seekToXRef);
     connect(ui->tvFunctions, &QTableView::doubleClicked, this, &DisassemblerView::seekToSymbol);
     connect(ui->tvExports, &QTableView::doubleClicked, this, &DisassemblerView::seekToSymbol);
     connect(ui->tvImports, &QTableView::doubleClicked, this, &DisassemblerView::xrefSymbol);
     connect(ui->tvStrings, &QTableView::doubleClicked, this, &DisassemblerView::xrefSymbol);
 
     connect(ui->leFilter, &QLineEdit::textChanged, [this](const QString&) { this->filterSymbols(); });
+    connect(ui->leFunctionFilter, &QLineEdit::textChanged, [this](const QString&) { this->filterFunctions(); });
 }
 
 DisassemblerView::~DisassemblerView()
@@ -132,9 +148,7 @@ void DisassemblerView::on_bottomTabs_currentChanged(int index)
         return;
     }
 
-    if(w == ui->tabFunctions)
-        ui->leFilter->setText(this->_functionsmodel->filterName());
-    else if(w == ui->tabImports)
+    if(w == ui->tabImports)
         ui->leFilter->setText(this->_importsmodel->filterName());
     else if(w == ui->tabExports)
         ui->leFilter->setText(this->_exportsmodel->filterName());
@@ -142,6 +156,20 @@ void DisassemblerView::on_bottomTabs_currentChanged(int index)
         ui->leFilter->setText(this->_stringsmodel->filterName());
 
     ui->leFilter->setEnabled(true);
+}
+
+void DisassemblerView::seekToXRef(const QModelIndex &index)
+{
+    if(!index.isValid() || !index.internalPointer())
+        return;
+
+    address_t address = static_cast<address_t>(index.internalId());
+    const REDasm::Segment* segment = this->_disassembler->format()->segment(address);
+
+    if(!segment)
+        return;
+
+    ui->disassemblerTextView->goTo(address);
 }
 
 void DisassemblerView::seekToSymbol(const QModelIndex &index)
@@ -195,6 +223,12 @@ void DisassemblerView::displayAddress(address_t address)
     this->_lblstatus->setText(s);
 }
 
+void DisassemblerView::displayReferences()
+{
+    REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(ui->disassemblerTextView->symbolAddress());
+    this->_referencesmodel->xref(ui->disassemblerTextView->currentAddress(), symbol);
+}
+
 void DisassemblerView::updateModel(const REDasm::SymbolPtr &symbol)
 {
     if(!symbol)
@@ -220,6 +254,16 @@ void DisassemblerView::log(const QString &s)
     ui->pteOutput->insertPlainText(s + "\n");
 }
 
+void DisassemblerView::filterFunctions()
+{
+    QString s = ui->leFunctionFilter->text();
+
+    if(s.length() == 1)
+        return;
+
+    this->_functionsmodel->setFilterName(s);
+}
+
 void DisassemblerView::filterSymbols()
 {
     QString s = ui->leFilter->text();
@@ -229,9 +273,7 @@ void DisassemblerView::filterSymbols()
 
     QWidget* w = ui->bottomTabs->currentWidget();
 
-    if(w == ui->tabFunctions)
-        this->_functionsmodel->setFilterName(s);
-    else if(w == ui->tabImports)
+    if(w == ui->tabImports)
         this->_importsmodel->setFilterName(s);
     else if(w == ui->tabExports)
         this->_exportsmodel->setFilterName(s);
@@ -241,17 +283,18 @@ void DisassemblerView::filterSymbols()
 
 void DisassemblerView::showListing()
 {
-    ui->disassemblerTextView->setDisassembler(this->_disassembler);
-    ui->disassemblerMap->render(this->_disassembler);
-
     this->_functionsmodel->setDisassembler(this->_disassembler);
     this->_importsmodel->setDisassembler(this->_disassembler);
     this->_exportsmodel->setDisassembler(this->_disassembler);
     this->_stringsmodel->setDisassembler(this->_disassembler);
     this->_segmentsmodel->setDisassembler(this->_disassembler);
+    this->_referencesmodel->setDisassembler(this->_disassembler);
 
-    ui->bottomTabs->setCurrentWidget(ui->tabFunctions);
+    ui->disassemblerTextView->setDisassembler(this->_disassembler);
+    ui->disassemblerMap->render(this->_disassembler);
+    ui->bottomTabs->setCurrentWidget(ui->tabStrings);
     ui->tbGoto->setEnabled(true);
+
     emit done();
 }
 

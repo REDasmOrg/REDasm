@@ -16,6 +16,7 @@ class DisassemblerTextView : public QPlainTextEdit
         bool canGoBack() const;
         bool canGoForward() const;
         address_t currentAddress() const;
+        address_t symbolAddress() const;
         void setDisassembler(REDasm::Disassembler* disassembler);
 
     public slots:
@@ -37,6 +38,7 @@ class DisassemblerTextView : public QPlainTextEdit
         void adjustContextMenu();
         void highlightWords();
         void updateAddress();
+        void updateSymbolAddress(address_t address);
         void display(address_t address);
         void showReferences(address_t address);
         int getCursorAnchor(address_t &address);
@@ -48,6 +50,8 @@ class DisassemblerTextView : public QPlainTextEdit
         void invalidateSymbols();
         void hexDumpRequested(address_t address);
         void symbolRenamed(const REDasm::SymbolPtr& symbol);
+        void symbolAddressChanged();
+        void symbolDeselected();
         void addressChanged(address_t address);
 
     private:
@@ -57,7 +61,7 @@ class DisassemblerTextView : public QPlainTextEdit
         REDasm::Disassembler* _disassembler;
         QAction *_actrename, *_actcreatefunction, *_actcreatestring, *_actanalyzejumptable, *_actxrefs, *_actfollow, *_actgoto, *_acthexdump, *_actback, *_actforward, *_actcopy, *_actselectall;
         QMenu* _contextmenu;
-        address_t _currentaddress, _menuaddress;
+        address_t _currentaddress, _symboladdress;
 };
 
 #endif // DISASSEMBLERTEXTVIEW_H

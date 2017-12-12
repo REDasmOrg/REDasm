@@ -6,7 +6,8 @@ ReferencesDialog::ReferencesDialog(REDasm::Disassembler *disassembler, address_t
     ui->setupUi(this);
     this->setWindowTitle(QString("%1 References").arg(QString::fromStdString(symbol->name)));
 
-    this->_referencesmodel = new ReferencesModel(disassembler, ui->tvReferences);
+    this->_referencesmodel = new ReferencesModel(ui->tvReferences);
+    this->_referencesmodel->setDisassembler(disassembler);
     this->_referencesmodel->xref(currentaddress, symbol);
 
     ui->tvReferences->setModel(this->_referencesmodel);

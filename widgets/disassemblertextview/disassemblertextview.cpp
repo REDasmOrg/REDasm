@@ -220,6 +220,17 @@ void DisassemblerTextView::createContextMenu()
         emit invalidateSymbols();
     });
 
+    this->_actanalyzejumptable = this->_contextmenu->addAction("Analyze Jump Table", [this]() {
+        REDasm::Listing& listing = this->_disassembler->listing();
+
+        this->_disassembler->walkJumpTable(listing[this->_currentaddress], this->_menuaddress, [this](address_t target) {
+            this->_disassembler->disassembleFunction(target);
+        });
+
+        this->_disdocument->update(this->_menuaddress);
+        emit invalidateSymbols();
+    });
+
     this->_contextmenu->addSeparator();
     this->_actxrefs = this->_contextmenu->addAction("Cross References", [this]() { this->showReferences(this->_menuaddress); });
     this->_actfollow = this->_contextmenu->addAction("Follow", [this]() { this->goTo(this->_menuaddress); });
@@ -250,6 +261,7 @@ void DisassemblerTextView::adjustContextMenu()
         this->_actrename->setVisible(false);
         this->_actcreatefunction->setVisible(false);
         this->_actcreatestring->setVisible(false);
+        this->_actanalyzejumptable->setVisible(false);
         this->_actxrefs->setVisible(false);
         this->_actback->setVisible(this->canGoBack());
         this->_actforward->setVisible(this->canGoForward());
@@ -270,6 +282,7 @@ void DisassemblerTextView::adjustContextMenu()
     REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(this->_menuaddress);
 
     this->_actrename->setVisible(symbol != NULL);
+    this->_actanalyzejumptable->setVisible(this->_disassembler->canBeJumpTable(this->_menuaddress));
 
     this->_actcreatefunction->setVisible(segment && segment->is(REDasm::SegmentTypes::Code) &&
                                          symbol && !symbol->isFunction() && !symbol->is(REDasm::SymbolTypes::String));

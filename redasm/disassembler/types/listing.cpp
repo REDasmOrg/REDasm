@@ -230,7 +230,12 @@ void Listing::calculatePaths()
 
 void Listing::markEntryPoint()
 {
-    auto it = this->find(this->_symboltable->entryPoint()->address);
+    SymbolPtr symbol = this->_symboltable->entryPoint();
+
+    if(!symbol)
+        return;
+
+    auto it = this->find(symbol->address);
 
     if(it == this->end())
         return;

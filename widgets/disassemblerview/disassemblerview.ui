@@ -127,6 +127,9 @@
         </property>
         <item>
          <widget class="QLineEdit" name="leFunctionFilter">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="placeholderText">
            <string>Filter</string>
           </property>

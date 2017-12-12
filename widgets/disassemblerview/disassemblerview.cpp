@@ -8,8 +8,8 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     ui->setupUi(this);
     ui->vSplitter->setStretchFactor(0, 1);
 
-    ui->hSplitter->setSizes((QList<int>() << this->width() * 0.20
-                                          << this->width() * 0.80));
+    ui->hSplitter->setSizes((QList<int>() << this->width() * 0.30
+                                          << this->width() * 0.70));
 
     ui->hexEdit->setReadOnly(true);
     ui->hexEdit->setFrameShape(QFrame::NoFrame);
@@ -41,8 +41,8 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     ui->tvReferences->setModel(this->_referencesmodel);
 
     ui->tvFunctions->setColumnHidden(0, true);
+    ui->tvFunctions->setColumnHidden(2, true);
     ui->tvFunctions->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-    ui->tvFunctions->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     ui->tvReferences->setColumnHidden(0, true);
     ui->tvReferences->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -294,6 +294,7 @@ void DisassemblerView::showListing()
     ui->disassemblerMap->render(this->_disassembler);
     ui->bottomTabs->setCurrentWidget(ui->tabStrings);
     ui->tbGoto->setEnabled(true);
+    ui->leFunctionFilter->setEnabled(true);
 
     emit done();
 }

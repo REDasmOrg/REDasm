@@ -63,6 +63,9 @@ bool SignatureDB::match(const std::string &pattern, Signature& signature) const
         return true;
     });
 
+    if(!currentgraph)
+        return false;
+
     if(!failed && currentgraph->isLeaf() && (currentgraph->index > -1))
     {
         signature = this->_signatures[currentgraph->index];

@@ -6,7 +6,11 @@
 DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), _hexdocument(NULL), _lblstatus(lblstatus), _disassembler(NULL), _disassemblerthread(NULL)
 {
     ui->setupUi(this);
-    ui->vSplitter->setStretchFactor(0, 1);
+    ui->vSplitter->setSizes((QList<int>() << this->width() * 0.70
+                                          << this->width() * 0.30));
+
+    ui->vSplitter2->setSizes((QList<int>() << this->width() * 0.70
+                                           << this->width() * 0.30));
 
     ui->hSplitter->setSizes((QList<int>() << this->width() * 0.30
                                           << this->width() * 0.70));

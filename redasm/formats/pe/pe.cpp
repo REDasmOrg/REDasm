@@ -143,8 +143,11 @@ void PeFormat::checkDelphi(const PEResources& peresources)
                                                                          &datasize);
 
     BorlandVersion borlandver(packageinfo, ri, datasize);
-    bool b = borlandver.isDelphi();
-    b = borlandver.isTurboCpp();
+
+    if(borlandver.isDelphi())
+        this->_petype = PeFormat::Delphi;
+    else if(borlandver.isTurboCpp())
+        this->_petype = PeFormat::TurboCpp;
 
     std::string sig = borlandver.getSignature();
 

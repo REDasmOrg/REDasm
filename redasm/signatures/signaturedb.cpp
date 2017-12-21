@@ -9,7 +9,7 @@
 
 namespace REDasm {
 
-SignatureDB::SignatureDB()
+SignatureDB::SignatureDB(): _signaturetype(SignatureDB::REDasmSignature), _longestpattern(0)
 {
 
 }
@@ -17,6 +17,16 @@ SignatureDB::SignatureDB()
 u32 SignatureDB::count() const
 {
     return this->_signatures.size();
+}
+
+u32 SignatureDB::longestPattern() const
+{
+    return this->_longestpattern;
+}
+
+u32 SignatureDB::signatureType() const
+{
+    return this->_signaturetype;
 }
 
 SignatureList::iterator SignatureDB::begin()
@@ -29,12 +39,17 @@ SignatureList::iterator SignatureDB::end()
     return this->_signatures.end();
 }
 
-bool SignatureDB::match(const std::string &pattern, Signature& signature) const
+void SignatureDB::setSignatureType(u32 signaturetype)
+{
+    this->_signaturetype = signaturetype;
+}
+
+bool SignatureDB::match(const std::string &hexbytes, Signature& signature) const
 {
     bool failed = false;
     GraphPtr currentgraph;
 
-    this->eachHexByte(pattern, [this, &currentgraph, &failed](const std::string& pattern, u32 i) -> bool {
+    this->eachHexByte(hexbytes, [this, &currentgraph, &failed](const std::string& pattern, u32 i) -> bool {
         if(i == 0) {
             auto it = this->_graph.find(pattern);
 
@@ -54,7 +69,9 @@ bool SignatureDB::match(const std::string &pattern, Signature& signature) const
         auto it = this->findEdge(currentgraph, pattern);
 
         if(it == currentgraph->edges.end()) {
-            failed = true;
+            if(!currentgraph->isLeaf())
+                failed = true;
+
             return false;
         }
         else
@@ -90,6 +107,8 @@ bool SignatureDB::write(const std::string &name, const std::string& file)
     ofs.write(RDB_SIGNATURE, 3);
     Serializer::serializeString(ofs, this->_name);
     Serializer::serializeScalar(ofs, this->_signatures.size(), sizeof(u32));
+    Serializer::serializeScalar(ofs, this->_signaturetype);
+    Serializer::serializeScalar(ofs, this->_longestpattern);
 
     std::for_each(this->_signatures.begin(), this->_signatures.end(), [&ofs](const Signature& sig) {
         Serializer::serializeString(ofs, sig.name);
@@ -119,6 +138,8 @@ bool SignatureDB::read(const std::string &file)
     u32 count = 0;
     Serializer::deserializeString(ifs, this->_name);
     Serializer::deserializeScalar(ifs, &count);
+    Serializer::deserializeScalar(ifs, &this->_signaturetype);
+    Serializer::deserializeScalar(ifs, &this->_longestpattern);
 
     for(u32 i = 0; i < count; i++)
     {
@@ -153,6 +174,8 @@ SignatureDB &SignatureDB::operator<<(Signature signature)
 {
     if(this->_duplicates.find(signature.pattern) != this->_duplicates.end())
         return *this;
+
+    this->_longestpattern = std::max(this->_longestpattern, static_cast<u32>(signature.length()));
 
     signature.name = this->uncollide(signature.name);
     this->_duplicates.insert(signature.pattern);

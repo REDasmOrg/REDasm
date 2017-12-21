@@ -19,7 +19,7 @@ class Analyzer
         virtual void analyze(Listing& listing);
 
     private:
-        bool checkCrc16(const SymbolPtr &symbol, const Signature &signature);
+        bool checkCrc16(const SymbolPtr &symbol, const Signature &signature, const SignatureDB &signaturedb);
         void loadSignatures(Listing &listing);
         void findSignatures(const SignatureDB& signaturedb, Listing& listing);
         void findTrampolines(Listing& listing, SymbolPtr symbol);
@@ -31,7 +31,7 @@ class Analyzer
         void createFunction(SymbolTable* symboltable, address_t address);
 
     protected:
-        DisassemblerFunctions* _dfunctions;
+        DisassemblerFunctions* _disassembler;
         const SignatureFiles& _signaturefiles;
 };
 

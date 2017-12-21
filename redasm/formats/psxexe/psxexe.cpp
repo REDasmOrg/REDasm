@@ -39,7 +39,7 @@ bool PsxExeFormat::load(u8* rawformat)
     if(strncmp(format->id, PSXEXE_SIGNATURE, PSXEXE_SIGNATURE_SIZE))
         return false;
 
-    this->addSignature("psyq");
+    this->addSignature("psyq47");
     this->defineSegment("TEXT", PSXEXE_TEXT_OFFSET, format->t_addr, format->t_size, SegmentTypes::Code | SegmentTypes::Data);
     this->defineEntryPoint(format->pc0);
 

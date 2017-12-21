@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-Analyzer::Analyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signaturefiles): _dfunctions(dfunctions), _signaturefiles(signaturefiles)
+Analyzer::Analyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signaturefiles): _disassembler(dfunctions), _signaturefiles(signaturefiles)
 {
 
 }
@@ -23,11 +23,14 @@ void Analyzer::analyze(Listing &listing)
     });
 }
 
-bool Analyzer::checkCrc16(const SymbolPtr& symbol, const Signature& signature)
+bool Analyzer::checkCrc16(const SymbolPtr& symbol, const Signature& signature, const SignatureDB& signaturedb)
 {
+    if(signaturedb.signatureType() != SignatureDB::IDASignature)
+        return true;
+
     Buffer buffer;
 
-    if(!this->_dfunctions->getBuffer(symbol->address + SIGNATURE_PATTERN_LENGTH, buffer))
+    if(!this->_disassembler->getBuffer(symbol->address + signature.length(), buffer))
         return false;
 
     if(buffer.length < signature.alen)
@@ -53,9 +56,9 @@ void Analyzer::findSignatures(const SignatureDB &signaturedb, Listing& listing)
 {
     listing.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &signaturedb, &listing](SymbolPtr symbol) -> bool {
         Signature signature;
-        std::string pattern = this->_dfunctions->readHex(symbol->address, SIGNATURE_PATTERN_LENGTH);
+        std::string pattern = this->_disassembler->readHex(symbol->address, signaturedb.longestPattern());
 
-        if(signaturedb.match(pattern, signature) && this->checkCrc16(symbol, signature)) {
+        if(signaturedb.match(pattern, signature) && this->checkCrc16(symbol, signature, signaturedb)) {
             symbol->lock();
             listing.symbolTable()->update(symbol, signature.name);
         }
@@ -118,7 +121,7 @@ SymbolPtr Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symb
 
     u64 target = instruction1->operands[1].u_value, importaddress = 0;
 
-    if(!this->_dfunctions->readAddress(target, sizeof(u32), importaddress))
+    if(!this->_disassembler->readAddress(target, sizeof(u32), importaddress))
         return NULL;
 
     SymbolPtr symbol = symboltable->symbol(target), impsymbol = symboltable->symbol(importaddress);
@@ -137,7 +140,7 @@ void Analyzer::createFunction(SymbolTable *symboltable, const std::string &name,
         symboltable->symbol(address)->lock();
     }
 
-    this->_dfunctions->disassemble(address);
+    this->_disassembler->disassemble(address);
 }
 
 void Analyzer::createFunction(SymbolTable *symboltable, address_t address)
@@ -148,7 +151,7 @@ void Analyzer::createFunction(SymbolTable *symboltable, address_t address)
         symboltable->symbol(address)->lock();
     }
 
-    this->_dfunctions->disassemble(address);
+    this->_disassembler->disassemble(address);
 }
 
 } // namespace REDasm

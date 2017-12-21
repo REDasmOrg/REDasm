@@ -61,7 +61,7 @@ void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, Lis
     if(!eventva)
         return;
 
-    InstructionPtr instruction = this->_dfunctions->disassembleInstruction(eventva); // Disassemble trampoline
+    InstructionPtr instruction = this->_disassembler->disassembleInstruction(eventva); // Disassemble trampoline
 
     if(instruction->mnemonic == "sub")
     {

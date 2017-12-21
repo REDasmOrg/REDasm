@@ -12,7 +12,7 @@ DatabaseModel::DatabaseModel(QObject *parent) : QAbstractListModel(parent)
 void DatabaseModel::loadPats(const QStringList &patfiles)
 {
     REDasm::PatParser patparser;
-
+    this->_signaturedb.setSignatureType(REDasm::SignatureDB::IDASignature);
     this->beginResetModel();
 
     std::for_each(patfiles.begin(), patfiles.end(), [this, &patparser](const QString& file) {

@@ -114,7 +114,7 @@ void PEAnalyzer::findWndProc(Listing &listing, address_t address, size_t argidx)
                     else
                         symboltable->createFunction(address, name);
 
-                    this->_dfunctions->disassemble(address);
+                    this->_disassembler->disassemble(address);
                 }
             }
         }

@@ -148,6 +148,9 @@ struct Signature
     std::string name, pattern;
     u8 alen;
     u16 asum;
+
+    Signature(): alen(0), asum(0) { }
+    u32 length() const { return pattern.size(); }
 };
 
 struct Segment

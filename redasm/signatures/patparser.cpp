@@ -91,9 +91,13 @@ bool PatParser::parse(std::ifstream &fs)
     if(pi.name.empty()) // Skip unnamed signatures
         return true;
 
-    this->_signatures.push_back({ pi.name, pi.pattern,
-                                  static_cast<u8>(pi.alen),
-                                  static_cast<u16>(pi.asum) });
+    Signature sig;
+    sig.name = pi.name;
+    sig.pattern = pi.pattern;
+    sig.alen = pi.alen;
+    sig.asum = pi.asum;
+
+    this->_signatures.push_back(sig);
     return true;
 }
 

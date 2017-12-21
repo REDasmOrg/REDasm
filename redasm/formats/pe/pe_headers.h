@@ -107,6 +107,33 @@ struct ImageDebugDirectory
     u32 AddressOfRawData, PointerToRawData;
 };
 
+struct ImageResourceDirectory
+{
+    u32 Characteristics, TimeDateStamp;
+    u16 MajorVersion, MinorVersion;
+    u16 NumberOfNamedEntries, NumberOfIdEntries;
+    // ImageResourceDirectoryEntry DirectoryEntries[];
+};
+
+struct ImageResourceDirectoryEntry
+{
+    union
+    {
+        struct { u32 NameOffset:31, NameIsString:1; };
+        u32 Name;
+        u16 Id;
+    };
+
+    union
+    {
+        u32 OffsetToData;
+        struct { u32 OffsetToDirectory:31, DataIsDirectory:1; };
+    };
+};
+
+struct ImageResourceDirStringU { u16 Length; char NameString[1]; };
+struct ImageResourceDataEntry { u32 OffsetToData, Size, CodePage, Reserved; };
+
 struct ImageImportDescriptor
 {
     union { u32 Characteristics, OriginalFirstThunk; };

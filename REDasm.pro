@@ -85,7 +85,9 @@ SOURCES += main.cpp\
     widgets/disassemblergraphview/functionblockitem.cpp \
     redasm/disassembler/graph/graphbuilder.cpp \
     redasm/redasm.cpp \
-    redasm/formats/pe/pe_ordinals.cpp
+    redasm/formats/pe/pe_ordinals.cpp \
+    redasm/formats/pe/pe_resources.cpp \
+    redasm/formats/pe/borland/borland_version.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -155,7 +157,10 @@ HEADERS  += mainwindow.h \
     widgets/disassemblergraphview/functionblockitem.h \
     redasm/disassembler/graph/graphbuilder.h \
     redasm/disassembler/graph/graphnode.h \
-    redasm/formats/pe/pe_ordinals.h
+    redasm/formats/pe/pe_ordinals.h \
+    redasm/formats/pe/pe_resources.h \
+    redasm/formats/pe/borland/borland_types.h \
+    redasm/formats/pe/borland/borland_version.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

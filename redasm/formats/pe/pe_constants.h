@@ -72,6 +72,10 @@
 #define IMAGE_ORDINAL_FLAG64               0x8000000000000000ULL
 #define IMAGE_ORDINAL_FLAG32                          0x80000000
 
+// Resource Directory
+#define IMAGE_RESOURCE_NAME_IS_STRING                 0x80000000
+#define IMAGE_RESOURCE_DATA_IS_DIRECTORY              0x80000000
+
 // Debug Info
 #define IMAGE_DEBUG_TYPE_UNKNOWN                               0
 #define IMAGE_DEBUG_TYPE_COFF                                  1

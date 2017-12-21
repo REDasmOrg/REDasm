@@ -2,6 +2,7 @@
 #include "pe_constants.h"
 #include "pe_analyzer.h"
 #include "vb/vb_analyzer.h"
+#include "borland/borland_version.h"
 #include "../../support/coff/coff_symboltable.h"
 
 namespace REDasm {
@@ -100,6 +101,7 @@ bool PeFormat::load(u8 *rawformat)
     this->loadExports();
     this->loadImports();
     this->loadSymbolTable();
+    this->checkResources();
 
     FormatPluginT<ImageDosHeader>::load(rawformat);
     return true;
@@ -121,6 +123,47 @@ u64 PeFormat::rvaToOffset(u64 rva, bool *ok) const
     }
 
     return rva;
+}
+
+void PeFormat::checkDelphi(const PEResources& peresources)
+{
+    PEResources::ResourceItem ri = peresources.find(PEResources::RCDATA);
+
+    if(!ri.second)
+        return;
+
+    ri = peresources.find("PACKAGEINFO", ri);
+
+    if(!ri.second)
+        return;
+
+    u64 datasize = 0;
+    PackageInfoHeader* packageinfo = peresources.data<PackageInfoHeader>(ri, this->_format,
+                                                                         [this](address_t a) -> offset_t { return this->rvaToOffset(a); },
+                                                                         &datasize);
+
+    BorlandVersion borlandver(packageinfo, ri, datasize);
+    bool b = borlandver.isDelphi();
+    b = borlandver.isTurboCpp();
+
+    std::string sig = borlandver.getSignature();
+
+    if(sig.empty())
+        return;
+
+    this->addSignature(sig);
+}
+
+void PeFormat::checkResources()
+{
+    const ImageDataDirectory& resourcedatadir = this->_datadirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE];
+
+    if(!resourcedatadir.VirtualAddress)
+        return;
+
+    ImageResourceDirectory* resourcedir = RVA_POINTER(ImageResourceDirectory, resourcedatadir.VirtualAddress);
+    PEResources peresources(resourcedir);
+    this->checkDelphi(peresources);
 }
 
 void PeFormat::loadSections()

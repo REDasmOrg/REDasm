@@ -3,6 +3,7 @@
 
 #include "../../plugins/plugins.h"
 #include "pe_headers.h"
+#include "pe_resources.h"
 #include "pe_imports.h"
 #include "pe_utils.h"
 
@@ -14,7 +15,7 @@ namespace REDasm {
 class PeFormat: public FormatPluginT<ImageDosHeader>
 {
     private:
-        enum PeType { None, VisualBasic, Borland };
+        enum PeType { None, VisualBasic, Delphi, TurboCpp };
 
     public:
         PeFormat();
@@ -27,6 +28,8 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
 
     private:
         u64 rvaToOffset(u64 rva, bool* ok = NULL) const;
+        void checkDelphi(const REDasm::PEResources &peresources);
+        void checkResources();
         void loadSections();
         void loadExports();
         void loadImports();

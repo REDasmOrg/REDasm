@@ -93,20 +93,22 @@ bool CHIP8Processor::decode2xxx(u16 opcode, const InstructionPtr &instruction) c
 bool CHIP8Processor::decode3xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "ske";
-    instruction->type = InstructionTypes::Compare;
+    instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
 
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->imm(opcode & 0x00FF);
+    instruction->target(instruction->endAddress() + instruction->size);
     return true;
 }
 
 bool CHIP8Processor::decode4xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "skne";
-    instruction->type = InstructionTypes::Compare;
+    instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
 
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->imm(opcode & 0x00FF);
+    instruction->target(instruction->endAddress() + instruction->size);
     return true;
 }
 
@@ -116,10 +118,11 @@ bool CHIP8Processor::decode5xxx(u16 opcode, const InstructionPtr &instruction) c
         return false;
 
     instruction->mnemonic = "skre";
-    instruction->type = InstructionTypes::Compare;
+    instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
 
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->reg((opcode & 0x00F0) >> 4);
+    instruction->target(instruction->endAddress() + instruction->size);
     return true;
 }
 
@@ -194,10 +197,11 @@ bool CHIP8Processor::decode9xxx(u16 opcode, const InstructionPtr &instruction) c
         return false;
 
     instruction->mnemonic = "skrne";
-    instruction->type = InstructionTypes::Compare;
+    instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
 
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->reg((opcode & 0x00F0) >> 4);
+    instruction->target(instruction->endAddress() + instruction->size);
     return true;
 }
 

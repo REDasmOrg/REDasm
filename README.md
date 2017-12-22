@@ -11,14 +11,18 @@
 ## Project Status
 
 ### Supported Formats
-- PE Executable (VB6 Decompilation is supported)
-- PSX Executables
-- ELF Executables
+| Format | Supported | Info |
+|--------|-----------|------|
+| PE | Yes | VB6 can be decompiled, Delphi support is WIP |
+| ELF | Yes ||
+| PSX | Yes | PsyQ 4.7 signatures available |
 
 ### Supported Architectures
-- x86 (with Capstone backend)
-- MIPS (with Capstone backend)
-- ARM (with Capstone backend)
+| Format | Capstone | Info |
+|--------|-----------|------|
+| x86 | Yes | |
+| MIPS | Yes ||
+| ARM | Yes |32 bit only|
 
 ## How to compile
 I don't provide prebuilt binaries yet, these are the steps required to compile REDasm:

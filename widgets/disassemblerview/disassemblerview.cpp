@@ -83,6 +83,10 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
 
     connect(ui->leFilter, &QLineEdit::textChanged, [this](const QString&) { this->filterSymbols(); });
     connect(ui->leFunctionFilter, &QLineEdit::textChanged, [this](const QString&) { this->filterFunctions(); });
+
+    REDasm::setLoggerCallback([this](const std::string& s) {
+        QMetaObject::invokeMethod(this, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
+    });
 }
 
 DisassemblerView::~DisassemblerView()
@@ -97,10 +101,6 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 {
     this->_disassembler = disassembler;
     this->log(QString("Found format '%1'").arg(S_TO_QS(disassembler->format()->name())));
-
-    disassembler->loggerCallback([this](std::string s) {
-        QMetaObject::invokeMethod(this, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
-    });
 
     REDasm::Buffer& buffer = disassembler->buffer();
     this->_hexdocument = QHexDocument::fromMemory(reinterpret_cast<const char*>(buffer.data), buffer.length);

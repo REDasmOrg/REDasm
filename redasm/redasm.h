@@ -34,12 +34,18 @@ namespace REDasm {
 
 namespace Runtime {
 
+typedef std::function<void(const std::string&)> LogCallback;
+
 extern std::string rntSearchPath;
 extern std::string rntDirSeparator;
+extern LogCallback rntLogCallback;
+extern LogCallback rntStatusCallback;
 
 } // namespace Runtime
 
 inline const std::string& searchPath() {  return Runtime::rntSearchPath; }
+inline void log(const std::string& s) { Runtime::rntLogCallback(s); }
+inline void status(const std::string& s) { Runtime::rntStatusCallback(s); }
 
 template<typename... T> std::string makePath(const std::string& p1, const std::string& p2, T... args) {
     std::string path = p1 + Runtime::rntDirSeparator + p2;

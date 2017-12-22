@@ -4,9 +4,6 @@
 #define MIN_STRING       4
 #define MAX_STRING       200
 
-#define STATUS(s) if(_statuscallback) _statuscallback((s));
-#define LOG(s)    if(_logcallback) _logcallback((s));
-
 #include <functional>
 #include "../plugins/format.h"
 #include "types/referencetable.h"
@@ -17,16 +14,11 @@ namespace REDasm {
 class DisassemblerBase: public DisassemblerFunctions
 {
     public:
-        typedef std::function<void(std::string)> ReportCallback;
-
-    public:
         DisassemblerBase(Buffer buffer, FormatPlugin* format);
         virtual ~DisassemblerBase();
         Buffer& buffer();
         FormatPlugin* format();
         SymbolTable* symbolTable();
-        void loggerCallback(const ReportCallback& cb);
-        void statusCallback(const ReportCallback& cb);
         bool hasReferences(const SymbolPtr &symbol);
         ReferenceVector getReferences(const SymbolPtr &symbol);
         u64 getReferencesCount(const SymbolPtr &symbol);
@@ -51,8 +43,6 @@ class DisassemblerBase: public DisassemblerFunctions
         template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 
    protected:
-        ReportCallback _logcallback;
-        ReportCallback _statuscallback;
         ReferenceTable _referencetable;
         SymbolTable* _symboltable;
         FormatPlugin* _format;

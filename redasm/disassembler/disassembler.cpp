@@ -131,11 +131,11 @@ void Disassembler::disassembleFunction(address_t address)
     this->_symboltable->createFunction(address);
     this->disassemble(address);
 
-    STATUS("Analyzing...");
+    REDasm::status("Analyzing...");
     Analyzer analyzer(this, this->_format->signatures());
     analyzer.analyze(this->_listing); // Run basic analyzer
 
-    STATUS("Calculating paths...");
+    REDasm::status("Calculating paths...");
     this->_listing.calculatePaths();
 }
 
@@ -149,22 +149,22 @@ void Disassembler::disassemble()
 
     std::unique_ptr<Analyzer> a(this->_format->createAnalyzer(this, this->_format->signatures()));
 
-    STATUS("Calculating paths...");
+    REDasm::status("Calculating paths...");
     this->_listing.calculatePaths();
 
     if(a)
     {
-        STATUS("Analyzing...");
+        REDasm::status("Analyzing...");
         a->analyze(this->_listing);
 
-        STATUS("Recalculating paths...");
+        REDasm::status("Recalculating paths...");
         this->_listing.calculatePaths();
     }
 
-    STATUS("Sorting symbols...");
+    REDasm::status("Sorting symbols...");
     this->_symboltable->sort();
 
-    STATUS("Marking Entry Point...");
+    REDasm::status("Marking Entry Point...");
     this->_listing.markEntryPoint();
 }
 
@@ -340,7 +340,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
     InstructionPtr instruction = std::make_shared<Instruction>();
     instruction->address = address;
 
-    STATUS("Disassembling " + REDasm::hex(address));
+    REDasm::status("Disassembling " + REDasm::hex(address));
 
     if(!this->_processor->decode(b, instruction))
     {
@@ -349,7 +349,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
         instruction->size = 1;
         instruction->imm(static_cast<u64>(*b));
 
-        LOG("Invalid instruction at " + REDasm::hex(address));
+        REDasm::log("Invalid instruction at " + REDasm::hex(address));
     }
     else
     {

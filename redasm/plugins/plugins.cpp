@@ -61,4 +61,7 @@ ProcessorPlugin *getProcessor(const char* id)
     return (it->second)();
 }
 
+void setLoggerCallback(Runtime::LogCallback logcb) { Runtime::rntLogCallback = logcb; }
+void setStatusCallback(Runtime::LogCallback logcb) { Runtime::rntStatusCallback = logcb; }
+
 }

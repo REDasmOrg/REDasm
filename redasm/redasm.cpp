@@ -1,4 +1,5 @@
 #include "redasm.h"
+#include <iostream>
 
 namespace REDasm {
 
@@ -11,6 +12,9 @@ std::string rntDirSeparator = "\\";
 #else
 std::string rntDirSeparator = "/";
 #endif
+
+LogCallback rntLogCallback = [](const std::string& s) { std::cout << s << std::endl; };
+LogCallback rntStatusCallback = [](const std::string&) { };
 
 }
 

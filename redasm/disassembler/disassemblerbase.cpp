@@ -28,16 +28,6 @@ SymbolTable *DisassemblerBase::symbolTable()
     return this->_symboltable;
 }
 
-void DisassemblerBase::loggerCallback(const DisassemblerBase::ReportCallback &cb)
-{
-    this->_logcallback = cb;
-}
-
-void DisassemblerBase::statusCallback(const DisassemblerBase::ReportCallback &cb)
-{
-    this->_statuscallback = cb;
-}
-
 bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
 {
     if(!symbol)
@@ -176,7 +166,7 @@ bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 &value) cons
         value = *reinterpret_cast<u64*>(pdest.data);
     else
     {
-        LOG("Invalid size: " + std::to_string(size));
+        REDasm::log("Invalid size: " + std::to_string(size));
         return false;
     }
 

@@ -31,8 +31,8 @@ class MainWindow : public QMainWindow
         void centerWindow();
         void applyTheme();
         void load(const QString &s);
-        void analyze();
-        void display(REDasm::ProcessorPlugin* processor, REDasm::FormatPlugin* format);
+        bool checkPlugins(REDasm::FormatPlugin **format, REDasm::ProcessorPlugin **processor);
+        void initDisassembler();
 
     private:
         Ui::MainWindow *ui;

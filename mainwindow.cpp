@@ -13,7 +13,12 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    REDasm::setStatusCallback([this](std::string s) {
+        QMetaObject::invokeMethod(this->_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
+    });
+
     REDasm::init(QDir::currentPath().toStdString());
+
     this->applyTheme();
     ui->setupUi(this);
 
@@ -106,44 +111,50 @@ void MainWindow::load(const QString& s)
     f.close();
 
     if(!this->_loadeddata.isEmpty())
-        this->analyze();
+        this->initDisassembler();
 }
 
-void MainWindow::analyze()
+bool MainWindow::checkPlugins(REDasm::FormatPlugin** format, REDasm::ProcessorPlugin** processor)
 {
-    REDasm::FormatPlugin* format = REDasm::getFormat(reinterpret_cast<u8*>(this->_loadeddata.data()));
+    *format = REDasm::getFormat(reinterpret_cast<u8*>(this->_loadeddata.data()));
 
-    if(!format)
+    if(!(*format))
     {
         QMessageBox::information(this, "Info", "Unsupported Format");
-        return;
+        return false;
     }
 
-    REDasm::ProcessorPlugin* processor = REDasm::getProcessor(format->processor());
-
-    if(!processor)
+    if(!(*format)->processor())
     {
-        if(!format->processor())
-            QMessageBox::information(this, "Format Error", "Invalid processor");
-        else
-            QMessageBox::information(this, "Processor not found", QString("Cannot find processor '%1'").arg(QString::fromUtf8(format->processor())));
-
-        return;
+        QMessageBox::information(this, "Format Error", "Invalid processor");
+        return false;
     }
 
-    this->display(processor, format);
+    *processor = REDasm::getProcessor((*format)->processor());
+
+    if(!(*processor))
+    {
+        QMessageBox::information(this, "Processor not found", QString("Cannot find processor '%1'").arg(QString::fromUtf8((*format)->processor())));
+        return false;
+    }
+
+    return true;
 }
 
-void MainWindow::display(REDasm::ProcessorPlugin* processor, REDasm::FormatPlugin* format)
+void MainWindow::initDisassembler()
 {
     REDasm::Buffer buffer(this->_loadeddata.data(), this->_loadeddata.length());
     DisassemblerView *olddv = NULL, *dv = new DisassemblerView(this->_lblstatus, ui->stackView);
+    REDasm::FormatPlugin* format = NULL;
+    REDasm::ProcessorPlugin* processor = NULL;
+
+    if(!this->checkPlugins(&format, &processor))
+    {
+        dv->deleteLater();
+        return;
+    }
+
     REDasm::Disassembler* disassembler = new REDasm::Disassembler(buffer, processor, format);
-
-    disassembler->statusCallback([this](std::string s) {
-        QMetaObject::invokeMethod(this->_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
-    });
-
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 

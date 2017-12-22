@@ -6,6 +6,8 @@
 #include "../processors/x86/x86.h"
 #include "../processors/mips/mips.h"
 #include "../processors/arm/arm.h"
+//#include "../processors/arm/arm64.h"
+#include "../processors/chip8/chip8.h"
 
 #define REGISTER_FORMAT_PLUGIN(id)    REDasm::formats.push_back(&id##_formatPlugin)
 #define REGISTER_PROCESSOR_PLUGIN(id) REDasm::processors[#id] = &id##_processorPlugin
@@ -32,6 +34,7 @@ void init(const std::string& searchpath)
     REGISTER_PROCESSOR_PLUGIN(mips64);
     REGISTER_PROCESSOR_PLUGIN(arm);
     //REGISTER_PROCESSOR_PLUGIN(arm64);
+    REGISTER_PROCESSOR_PLUGIN(chip8);
 }
 
 FormatPlugin *getFormat(u8 *data)

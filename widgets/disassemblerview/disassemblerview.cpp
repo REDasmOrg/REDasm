@@ -100,7 +100,8 @@ DisassemblerView::~DisassemblerView()
 void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 {
     this->_disassembler = disassembler;
-    this->log(QString("Found format '%1'").arg(S_TO_QS(disassembler->format()->name())));
+    this->log(QString("Found format '%1' with '%2'").arg(S_TO_QS(disassembler->format()->name()),
+                                                         S_TO_QS(disassembler->processor()->name())));
 
     REDasm::Buffer& buffer = disassembler->buffer();
     this->_hexdocument = QHexDocument::fromMemory(reinterpret_cast<const char*>(buffer.data), buffer.length);

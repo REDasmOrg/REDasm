@@ -14,7 +14,7 @@
 
 #define THEME_VALUE(name) (this->_theme.contains(name) ? QColor(this->_theme[name].toString()) : QColor())
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(parent), _disdocument(NULL), _disassembler(NULL), _currentaddress(0), _symboladdress(0)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(parent), _disdocument(NULL), _disassembler(NULL), _currentaddress(INT64_MAX), _symboladdress(0)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setPointSize(12);

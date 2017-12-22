@@ -23,6 +23,7 @@
 | x86 | Yes | |
 | MIPS | Yes ||
 | ARM | Yes |32 bit only|
+| CHIP-8 | NO | Just for fun :)|
 
 ## How to compile
 I don't provide prebuilt binaries yet, these are the steps required to compile REDasm:

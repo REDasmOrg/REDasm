@@ -61,23 +61,6 @@ template<typename...T> std::string makeRntPath(const std::string& p, T... args) 
 template<typename...T> std::string makeDbPath(const std::string& p, T... args) { return REDasm::makeRntPath("database", p, args...); }
 template<typename...T> std::string makeFormatPath(const std::string& p, T... args) { return REDasm::makeDbPath("formats", p, args...); }
 
-namespace ByteOrder {
-    enum { LittleEndian = 0, BigEndian = 1, };
-
-    /*
-    static int current()
-    {
-        int i = 1;
-        char* p = reinterpret_cast<char*>(&i);
-
-        if (p[0] == 1)
-            return ByteOrder::LittleEndian;
-
-        return ByteOrder::BigEndian;
-    }
-    */
-}
-
 namespace SegmentTypes {
     enum: u32 {
         None       = 0x00000000,

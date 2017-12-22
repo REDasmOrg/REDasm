@@ -89,7 +89,10 @@ SOURCES += main.cpp\
     redasm/formats/pe/pe_resources.cpp \
     redasm/formats/pe/borland/borland_version.cpp \
     dialogs/manualloaddialog.cpp \
-    redasm/formats/binary/binary.cpp
+    redasm/formats/binary/binary.cpp \
+    redasm/processors/chip8/chip8.cpp \
+    redasm/support/endianness.cpp \
+    redasm/processors/chip8/chip8printer.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -164,7 +167,10 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/borland/borland_types.h \
     redasm/formats/pe/borland/borland_version.h \
     dialogs/manualloaddialog.h \
-    redasm/formats/binary/binary.h
+    redasm/formats/binary/binary.h \
+    redasm/processors/chip8/chip8.h \
+    redasm/support/endianness.h \
+    redasm/processors/chip8/chip8printer.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

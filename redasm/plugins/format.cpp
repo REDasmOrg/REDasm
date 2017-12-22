@@ -69,6 +69,11 @@ Analyzer* FormatPlugin::createAnalyzer(DisassemblerFunctions *dfunctions, const 
     return new Analyzer(dfunctions, signatures);
 }
 
+bool FormatPlugin::isBinary() const
+{
+    return false;
+}
+
 bool FormatPlugin::load(u8 *format)
 {
     RE_UNUSED(format);

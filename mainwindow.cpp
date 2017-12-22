@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "widgets/disassemblerview/disassemblerview.h"
+#include "dialogs/manualloaddialog.h"
 #include "dialogs/databasedialog.h"
 #include "dialogs/aboutdialog.h"
 #include <QDragEnterEvent>
@@ -118,16 +119,12 @@ bool MainWindow::checkPlugins(REDasm::FormatPlugin** format, REDasm::ProcessorPl
 {
     *format = REDasm::getFormat(reinterpret_cast<u8*>(this->_loadeddata.data()));
 
-    if(!(*format))
+    if((*format)->isBinary()) // Use manual loader
     {
-        QMessageBox::information(this, "Info", "Unsupported Format");
-        return false;
-    }
+        ManualLoadDialog dlgmanload(*format, this->_loadeddata.size(), this);
 
-    if(!(*format)->processor())
-    {
-        QMessageBox::information(this, "Format Error", "Invalid processor");
-        return false;
+        if(dlgmanload.exec() != ManualLoadDialog::Accepted)
+            return false;
     }
 
     *processor = REDasm::getProcessor((*format)->processor());

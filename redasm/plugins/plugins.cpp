@@ -1,4 +1,5 @@
 #include "plugins.h"
+#include "../formats/binary/binary.h"
 #include "../formats/pe/pe.h"
 #include "../formats/elf/elf.h"
 #include "../formats/psxexe/psxexe.h"
@@ -22,6 +23,7 @@ void init(const std::string& searchpath)
     REGISTER_FORMAT_PLUGIN(elf32);
     REGISTER_FORMAT_PLUGIN(elf64);
     REGISTER_FORMAT_PLUGIN(psxexe);
+    REGISTER_FORMAT_PLUGIN(binary); // Always last choice
 
     REGISTER_PROCESSOR_PLUGIN(x86_16);
     REGISTER_PROCESSOR_PLUGIN(x86_32);

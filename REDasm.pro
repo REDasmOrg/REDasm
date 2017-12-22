@@ -87,7 +87,9 @@ SOURCES += main.cpp\
     redasm/redasm.cpp \
     redasm/formats/pe/pe_ordinals.cpp \
     redasm/formats/pe/pe_resources.cpp \
-    redasm/formats/pe/borland/borland_version.cpp
+    redasm/formats/pe/borland/borland_version.cpp \
+    dialogs/manualloaddialog.cpp \
+    redasm/formats/binary/binary.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -160,14 +162,17 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/pe_ordinals.h \
     redasm/formats/pe/pe_resources.h \
     redasm/formats/pe/borland/borland_types.h \
-    redasm/formats/pe/borland/borland_version.h
+    redasm/formats/pe/borland/borland_version.h \
+    dialogs/manualloaddialog.h \
+    redasm/formats/binary/binary.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \
     dialogs/referencesdialog.ui \
     dialogs/gotodialog.ui \
     dialogs/databasedialog.ui \
-    dialogs/aboutdialog.ui
+    dialogs/aboutdialog.ui \
+    dialogs/manualloaddialog.ui
 
 RESOURCES += \
     resources.qrc \

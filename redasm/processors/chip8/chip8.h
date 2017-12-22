@@ -31,6 +31,7 @@ class CHIP8Processor : public ProcessorPlugin
         bool decodeBxxx(u16 opcode, const InstructionPtr& instruction) const;
         bool decodeCxxx(u16 opcode, const InstructionPtr& instruction) const;
         bool decodeDxxx(u16 opcode, const InstructionPtr& instruction) const;
+        bool decodeExxx(u16 opcode, const InstructionPtr& instruction) const;
         bool decodeFxxx(u16 opcode, const InstructionPtr& instruction) const;
 
     private:

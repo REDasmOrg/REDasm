@@ -11,7 +11,13 @@ CHIP8Printer::CHIP8Printer(DisassemblerFunctions *disassembler, SymbolTable *sym
 std::string CHIP8Printer::reg(const RegisterOperand &regop) const
 {
     std::stringstream ss;
-    ss << "r" << std::hex << regop.r;
+
+    if(regop.type == 1) // key
+        ss << "v";
+    else
+        ss << "r";
+
+    ss << std::hex << regop.r;
     return ss.str();
 }
 

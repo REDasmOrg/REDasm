@@ -22,6 +22,7 @@ CHIP8Processor::CHIP8Processor(): _index(0)
     SET_DECODE_TO(0xB000, decodeBxxx);
     SET_DECODE_TO(0xC000, decodeCxxx);
     SET_DECODE_TO(0xD000, decodeDxxx);
+    SET_DECODE_TO(0xE000, decodeExxx);
     SET_DECODE_TO(0xF000, decodeFxxx);
 }
 
@@ -240,6 +241,22 @@ bool CHIP8Processor::decodeDxxx(u16 opcode, const InstructionPtr &instruction) c
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->reg((opcode & 0x00F0) >> 4);
     instruction->imm(opcode & 0x000F);
+    return true;
+}
+
+bool CHIP8Processor::decodeExxx(u16 opcode, const InstructionPtr &instruction) const
+{
+    u16 op = opcode & 0xFF;
+
+    if(op == 0x9E)
+        instruction->mnemonic = "skp";
+    else if(op == 0xA1)
+        instruction->mnemonic = "sknp";
+
+    instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
+
+    instruction->reg((opcode & 0x0F00) >> 8, 1); // 1 = key
+    instruction->target(instruction->endAddress() + instruction->size);
     return true;
 }
 

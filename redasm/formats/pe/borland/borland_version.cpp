@@ -36,7 +36,7 @@ std::string BorlandVersion::getSignature() const
         return "delphi06";
 
     if(this->contains("SysInit"))
-        return "delphi6";
+        return "delphi7";
 
     return std::string();
 }

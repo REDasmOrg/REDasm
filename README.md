@@ -11,19 +11,19 @@
 ## Project Status
 
 ### Supported Formats
-| Format | Supported | Info |
-|--------|-----------|------|
-| PE | Yes | VB6 can be decompiled, Delphi support is WIP |
-| ELF | Yes ||
-| PSX | Yes | PsyQ 4.7 signatures available |
+| Format | Notes |
+|--------|------|
+| PE | VB6 can be decompiled, Delphi support is WIP |
+| ELF | |
+| PSX | | PsyQ 4.7 signatures available |
 
 ### Supported Architectures
-| Format | Capstone | Info |
+| Format | Capstone Backend | Notes |
 |--------|-----------|------|
 | x86 | Yes | |
 | MIPS | Yes ||
 | ARM | Yes |32 bit only|
-| CHIP-8 | NO | Just for fun :)|
+| CHIP-8 | No | Just for fun :)|
 
 ## How to compile
 I don't provide prebuilt binaries yet, these are the steps required to compile REDasm:

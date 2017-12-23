@@ -39,10 +39,20 @@ void DisassemblerTextDocument::moveToBlock(address_t address)
         address_t blockaddress = blockformat.property(DisassemblerDocument::Address).toULongLong();
 
         if(!searchforward && (blockaddress < address))
+        {
+            if(b.isValid())
+                b = b.next(); // Insert data from the next block
+
             break;
+        }
 
         if(searchforward && (blockaddress > address))
+        {
+            if(b.isValid())
+                b = b.previous();  // Insert data from the previous block
+
             break;
+        }
     }
 
     if(!b.isValid())

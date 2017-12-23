@@ -39,8 +39,6 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(pare
 
 DisassemblerTextView::~DisassemblerTextView()
 {
-    if(this->_disdocument)
-        delete this->_disdocument;
 }
 
 bool DisassemblerTextView::canGoBack() const

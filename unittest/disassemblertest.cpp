@@ -45,10 +45,12 @@ DisassemblerTest::DisassemblerTest()
     ADD_TEST_PATH("PE Test/tn12/scrack.exe", testSCrack);
 
     ADD_TEST_PATH_NULL("PE Test/CorruptedIT.exe", NULL);
+
 }
 
 void DisassemblerTest::runTests()
 {
+    REDasm::setLoggerCallback([](const std::string&) { });
     REDasm::init(QDir::currentPath().toStdString());
 
     std::for_each(this->_tests.begin(), this->_tests.end(), [](const TestItem& test) {

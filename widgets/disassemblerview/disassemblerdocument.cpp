@@ -14,7 +14,9 @@ DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler, c
     this->_symbols = disassembler->symbolTable();
     this->_document = textdocument;
     this->_segment = NULL;
+    this->_printer = REDasm::PrinterPtr(disassembler->processor()->createPrinter(disassembler, disassembler->symbolTable()));
 
+    this->setCurrentPrinter(this->_printer);
     this->setTheme(theme);
     textdocument->setUndoRedoEnabled(false);
 }
@@ -53,6 +55,7 @@ bool DisassemblerDocument::generate(address_t address, const QTextCursor& cursor
         return false;
 
     this->_textcursor = cursor;
+    this->setCurrentPrinter(this->_printer);
     return true;
 }
 
@@ -217,18 +220,61 @@ void DisassemblerDocument::appendInstruction(const REDasm::InstructionPtr &instr
     this->_textcursor.insertText(QString(" ").repeated(this->indentWidth()), QTextCharFormat());
     this->appendPathInfo(instruction);
     this->appendMnemonic(instruction);
+    this->appendOperands(instruction);
+    this->appendComment(instruction);
 
-    this->_disassembler->out(instruction, [this](const REDasm::Operand& operand, const std::string& opstr) {
+    if(!replace)
+        this->_textcursor.insertBlock();
+}
+
+void DisassemblerDocument::appendOperands(const REDasm::InstructionPtr &instruction)
+{
+    this->_currentprinter->out(instruction, [this](const REDasm::Operand& operand, const std::string& opstr) {
         if(operand.index > 0)
             this->_textcursor.insertText(", ", QTextCharFormat());
 
         this->appendOperand(operand, S_TO_QS(opstr));
     });
+}
 
-    this->appendComment(instruction);
+void DisassemblerDocument::appendOperand(const REDasm::Operand &operand, const QString &opstr)
+{
+    QTextCharFormat charformat;
 
-    if(!replace)
-        this->_textcursor.insertBlock();
+    if(operand.is(REDasm::OperandTypes::Immediate) || operand.is(REDasm::OperandTypes::Memory))
+    {
+        REDasm::SymbolPtr symbol = this->_symbols->symbol(operand.is(REDasm::OperandTypes::Immediate) ? operand.s_value :
+                                                                                                        operand.u_value);
+
+        if(symbol)
+        {
+            if(symbol->is(REDasm::SymbolTypes::Pointer))
+            {
+                REDasm::SymbolPtr ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
+
+                if(ptrsymbol)
+                    symbol = ptrsymbol;
+            }
+
+            this->setMetaData(charformat, symbol);
+        }
+        else
+            charformat.setForeground(operand.is(REDasm::OperandTypes::Immediate) ? THEME_VALUE("immediate_fg") :
+                                                                                   THEME_VALUE("memory_fg"));
+    }
+    else if(operand.is(REDasm::OperandTypes::Displacement))
+    {
+        REDasm::SymbolPtr symbol = this->_symbols->symbol(operand.mem.displacement);
+
+        if(symbol)
+            this->setMetaData(charformat, symbol, !operand.mem.displacementOnly());
+        else
+            charformat.setForeground(THEME_VALUE("displacement_fg"));
+    }
+    else if(operand.is(REDasm::OperandTypes::Register))
+        charformat.setForeground(THEME_VALUE("register_fg"));
+
+    this->_textcursor.insertText(opstr, charformat);
 }
 
 void DisassemblerDocument::appendAddress(const REDasm::InstructionPtr &instruction)
@@ -294,46 +340,6 @@ void DisassemblerDocument::appendComment(const REDasm::InstructionPtr &instructi
     this->_textcursor.insertText(S_TO_QS(this->_disassembler->comment(instruction)), charformat);
 }
 
-void DisassemblerDocument::appendOperand(const REDasm::Operand &operand, const QString &opstr)
-{
-    QTextCharFormat charformat;
-
-    if(operand.is(REDasm::OperandTypes::Immediate) || operand.is(REDasm::OperandTypes::Memory))
-    {
-        REDasm::SymbolPtr symbol = this->_symbols->symbol(operand.is(REDasm::OperandTypes::Immediate) ? operand.s_value :
-                                                                                                        operand.u_value);
-
-        if(symbol)
-        {
-            if(symbol->is(REDasm::SymbolTypes::Pointer))
-            {
-                REDasm::SymbolPtr ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
-
-                if(ptrsymbol)
-                    symbol = ptrsymbol;
-            }
-
-            this->setMetaData(charformat, symbol);
-        }
-        else
-            charformat.setForeground(operand.is(REDasm::OperandTypes::Immediate) ? THEME_VALUE("immediate_fg") :
-                                                                                   THEME_VALUE("memory_fg"));
-    }
-    else if(operand.is(REDasm::OperandTypes::Displacement))
-    {
-        REDasm::SymbolPtr symbol = this->_symbols->symbol(operand.mem.displacement);
-
-        if(symbol)
-            this->setMetaData(charformat, symbol, !operand.mem.displacementOnly());
-        else
-            charformat.setForeground(THEME_VALUE("displacement_fg"));
-    }
-    else if(operand.is(REDasm::OperandTypes::Register))
-        charformat.setForeground(THEME_VALUE("register_fg"));
-
-    this->_textcursor.insertText(opstr, charformat);
-}
-
 int DisassemblerDocument::indentWidth() const
 {
     return INDENT_WIDTH + 2;
@@ -360,6 +366,14 @@ const REDasm::Segment *DisassemblerDocument::getSegment(address_t address)
     REDasm::FormatPlugin* format = this->_disassembler->format();
     this->_segment = format->segment(address);
     return this->_segment;
+}
+
+void DisassemblerDocument::setCurrentPrinter(const REDasm::PrinterPtr &printer)
+{
+    if(this->_currentprinter == printer)
+            return;
+
+    this->_currentprinter = printer;
 }
 
 void DisassemblerDocument::setMetaData(QTextCharFormat& charformat, const REDasm::SymbolPtr &symbol, bool showxrefs)

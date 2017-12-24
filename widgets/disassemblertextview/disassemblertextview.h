@@ -11,12 +11,16 @@ class DisassemblerTextView : public QPlainTextEdit
     Q_OBJECT
 
     public:
+        enum EmitMode { Normal, VMIL };
+
+    public:
         explicit DisassemblerTextView(QWidget *parent = 0);
         ~DisassemblerTextView();
         bool canGoBack() const;
         bool canGoForward() const;
         address_t currentAddress() const;
         address_t symbolAddress() const;
+        void setEmitMode(u32 emitmode);
         void setDisassembler(REDasm::Disassembler* disassembler);
 
     public slots:
@@ -55,6 +59,7 @@ class DisassemblerTextView : public QPlainTextEdit
         void addressChanged(address_t address);
 
     private:
+        u32 _emitmode;
         QStack<address_t> _backstack, _forwardstack;
         DisassemblerTextDocument* _disdocument;
         DisassemblerHighlighter* _highlighter;

@@ -16,7 +16,7 @@ class Printer
         virtual std::string out(const InstructionPtr& instruction, std::function<void(const Operand&, const std::string&)> opfunc) const;
         virtual std::string out(const InstructionPtr& instruction) const;
 
-    protected:
+    public: // Operand privitives
         virtual std::string reg(const RegisterOperand& regop) const = 0;
         virtual std::string mem(const MemoryOperand& memop) const;
         virtual std::string ptr(const std::string& expr) const;

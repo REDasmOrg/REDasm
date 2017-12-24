@@ -15,7 +15,7 @@ class FormatPlugin;
 
 class Listing: public cache_map<address_t, InstructionPtr>
 {
-    private:
+    public:
         typedef std::function<void(const InstructionPtr&)> InstructionCallback;
         typedef std::function<void(const SymbolPtr&)> SymbolCallback;
         typedef std::set<address_t> FunctionPath;

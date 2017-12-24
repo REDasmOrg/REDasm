@@ -14,6 +14,7 @@ class ReferencesModel : public DisassemblerModel
 
     public:
         explicit ReferencesModel(QObject *parent = 0);
+        virtual void setDisassembler(REDasm::Disassembler* disassembler);
         void xref(address_t currentaddress, const REDasm::SymbolPtr &symbol);
 
     public:
@@ -31,6 +32,7 @@ class ReferencesModel : public DisassemblerModel
 
     private:
         REDasm::ReferenceVector _referencevector;
+        REDasm::PrinterPtr _printer;
         address_t _currentaddress;
 };
 

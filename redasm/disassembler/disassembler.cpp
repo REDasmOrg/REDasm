@@ -90,22 +90,6 @@ size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t 
     return cases;
 }
 
-std::string Disassembler::out(const InstructionPtr &instruction, std::function<void (const Operand &, const std::string&)> opfunc)
-{
-    if(this->_printer)
-        return this->_printer->out(instruction, opfunc);
-
-    return std::string();
-}
-
-std::string Disassembler::out(const InstructionPtr &instruction)
-{
-    if(this->_printer)
-        return this->_printer->out(instruction);
-
-    return std::string();
-}
-
 std::string Disassembler::comment(const InstructionPtr &instruction) const
 {
      std::string res;
@@ -118,6 +102,24 @@ std::string Disassembler::comment(const InstructionPtr &instruction) const
      });
 
      return "# " + res;
+}
+
+bool Disassembler::iterateVMIL(address_t address, Listing::InstructionCallback cbinstruction, Listing::SymbolCallback cbstart, Listing::InstructionCallback cbend, Listing::SymbolCallback cblabel)
+{
+    std::unique_ptr<VMIL::Emulator> emulator(this->_processor->createEmulator(this));
+
+    if(!emulator)
+        return false;
+
+    return this->_listing.iterateFunction(address, [this, &emulator, &cbinstruction](const InstructionPtr& instruction) {
+        VMIL::Emulator::VMILInstructionList vminstructions;
+        emulator->translate(instruction, vminstructions);
+
+        std::for_each(vminstructions.begin(), vminstructions.end(), [cbinstruction](const VMIL::VMILInstructionPtr& vminstruction) {
+           cbinstruction(vminstruction);
+        });
+
+    }, cbstart, cbend, cblabel);
 }
 
 void Disassembler::disassembleFunction(address_t address)

@@ -92,7 +92,11 @@ SOURCES += main.cpp\
     redasm/formats/binary/binary.cpp \
     redasm/processors/chip8/chip8.cpp \
     redasm/support/endianness.cpp \
-    redasm/processors/chip8/chip8printer.cpp
+    redasm/processors/chip8/chip8printer.cpp \
+    redasm/vmil/vmil_instructions.cpp \
+    redasm/vmil/vmil_emulator.cpp \
+    redasm/processors/chip8/chip8emulator.cpp \
+    redasm/vmil/vmil_printer.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -170,7 +174,12 @@ HEADERS  += mainwindow.h \
     redasm/formats/binary/binary.h \
     redasm/processors/chip8/chip8.h \
     redasm/support/endianness.h \
-    redasm/processors/chip8/chip8printer.h
+    redasm/processors/chip8/chip8printer.h \
+    redasm/vmil/vmil_instructions.h \
+    redasm/vmil/vmil_types.h \
+    redasm/vmil/vmil_emulator.h \
+    redasm/processors/chip8/chip8emulator.h \
+    redasm/vmil/vmil_printer.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

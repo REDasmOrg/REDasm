@@ -44,16 +44,18 @@ class DisassemblerDocument: public QObject
         virtual void appendLabel(const REDasm::SymbolPtr& symbol, bool replace = false);
         virtual void appendFunctionStart(const REDasm::SymbolPtr& symbol, bool replace = false);
         virtual void appendInstruction(const REDasm::InstructionPtr& instruction, bool replace = false);
+        virtual void appendOperands(const REDasm::InstructionPtr& instruction);
+        virtual void appendOperand(const REDasm::Operand& operand, const QString& opstr);
         virtual void appendAddress(const REDasm::InstructionPtr& instruction);
         virtual void appendPathInfo(const REDasm::InstructionPtr &instruction);
         virtual void appendMnemonic(const REDasm::InstructionPtr& instruction);
         virtual void appendComment(const REDasm::InstructionPtr& instruction);
-        virtual void appendOperand(const REDasm::Operand& operand, const QString& opstr);
 
     protected:
         virtual int indentWidth() const;
         int getIndent(address_t address);
         const REDasm::Segment *getSegment(address_t address);
+        void setCurrentPrinter(const REDasm::PrinterPtr& printer);
         void setMetaData(QTextCharFormat &charformat, const REDasm::SymbolPtr &symbol, bool showxrefs = false);
         bool selectBlock(address_t address);
         bool isInstructionGenerated(address_t address);
@@ -68,6 +70,7 @@ class DisassemblerDocument: public QObject
         REDasm::Segment* _segment;
         REDasm::Disassembler* _disassembler;
         REDasm::SymbolTable* _symbols;
+        REDasm::PrinterPtr _currentprinter, _printer;
         GeneratedBlocks _generatedinstructions;
         QTextDocument* _document;
         QTextCursor _textcursor;

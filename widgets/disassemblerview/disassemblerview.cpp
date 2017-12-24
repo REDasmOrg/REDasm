@@ -138,7 +138,9 @@ void DisassemblerView::on_topTabs_currentChanged(int index)
     if(!w)
         return;
 
-    if(w == ui->disassemblerGraphView)
+    if(w == ui->tabVMIL)
+        ui->vmilTextView->goTo(ui->disassemblerTextView->currentAddress());
+    else if(w == ui->disassemblerGraphView)
         ui->disassemblerGraphView->display(ui->disassemblerTextView->currentAddress());
 }
 
@@ -295,6 +297,8 @@ void DisassemblerView::showListing()
     this->_segmentsmodel->setDisassembler(this->_disassembler);
     this->_referencesmodel->setDisassembler(this->_disassembler);
 
+    ui->vmilTextView->setEmitMode(DisassemblerTextView::VMIL);
+    ui->vmilTextView->setDisassembler(this->_disassembler);
     ui->disassemblerTextView->setDisassembler(this->_disassembler);
     ui->disassemblerMap->render(this->_disassembler);
     ui->bottomTabs->setCurrentWidget(ui->tabStrings);

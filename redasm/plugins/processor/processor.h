@@ -7,6 +7,7 @@
 #include <cstring>
 #include "../../disassembler/disassemblerfunctions.h"
 #include "../../support/utils.h"
+#include "../../vmil/vmil_emulator.h"
 #include "../base.h"
 #include "printer.h"
 
@@ -24,7 +25,8 @@ class ProcessorPlugin: public Plugin
     public:
         ProcessorPlugin();
         virtual int flags() const;
-        virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable* symboltable) const;
+        virtual VMIL::Emulator* createEmulator(DisassemblerFunctions* disassembler) const;
+        virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable* symboltable) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual bool done(const InstructionPtr& instruction);
 

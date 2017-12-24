@@ -7,6 +7,12 @@ ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent), _c
 
 }
 
+void ReferencesModel::setDisassembler(REDasm::Disassembler *disassembler)
+{
+    DisassemblerModel::setDisassembler(disassembler);
+    this->_printer = REDasm::PrinterPtr(disassembler->processor()->createPrinter(disassembler, disassembler->symbolTable()));
+}
+
 void ReferencesModel::clear()
 {
     this->beginResetModel();
@@ -51,7 +57,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         else if(index.column() == 1)
             return this->direction(instruction);
         else if(index.column() == 2)
-            return S_TO_QS(this->_disassembler->out(instruction));
+            return S_TO_QS(this->_printer->out(instruction));
     }
     else if(role == Qt::BackgroundRole)
     {

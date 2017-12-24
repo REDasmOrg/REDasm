@@ -13,11 +13,16 @@ int ProcessorPlugin::flags() const
     return ProcessorFlags::None;
 }
 
+VMIL::Emulator *ProcessorPlugin::createEmulator(DisassemblerFunctions *disassembler) const
+{
+    RE_UNUSED(disassembler);
+    return NULL;
+}
+
 Printer *ProcessorPlugin::createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const
 {
     RE_UNUSED(disassembler);
     RE_UNUSED(symboltable);
-
     return NULL;
 }
 

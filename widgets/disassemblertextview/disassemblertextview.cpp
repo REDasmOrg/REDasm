@@ -14,7 +14,7 @@
 
 #define THEME_VALUE(name) (this->_theme.contains(name) ? QColor(this->_theme[name].toString()) : QColor())
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(parent), _disdocument(NULL), _disassembler(NULL), _currentaddress(INT64_MAX), _symboladdress(0)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(parent), _emitmode(DisassemblerTextView::Normal), _disdocument(NULL), _disassembler(NULL), _currentaddress(INT64_MAX), _symboladdress(0)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setPointSize(12);
@@ -61,6 +61,11 @@ address_t DisassemblerTextView::symbolAddress() const
     return this->_symboladdress;
 }
 
+void DisassemblerTextView::setEmitMode(u32 emitmode)
+{
+    this->_emitmode = emitmode;
+}
+
 void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
 {
     if(this->_disdocument)
@@ -90,6 +95,13 @@ void DisassemblerTextView::goTo(address_t address)
 
 void DisassemblerTextView::display(address_t address)
 {
+    if(this->_emitmode == EmitMode::VMIL)
+    {
+        this->clear();
+        this->_disdocument->generateVMIL(address, this->textCursor());
+        return;
+    }
+
     if(!this->_disdocument || (this->_currentaddress == address))
         return;
 

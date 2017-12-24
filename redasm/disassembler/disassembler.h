@@ -25,9 +25,8 @@ class Disassembler: public DisassemblerBase
         virtual void disassemble(address_t address);
 
     public:
-        std::string out(const InstructionPtr& instruction, std::function<void(const Operand&, const std::string&)> opfunc);
-        std::string out(const InstructionPtr& instruction);
         std::string comment(const InstructionPtr& instruction) const;
+        bool iterateVMIL(address_t address, Listing::InstructionCallback cbinstruction, Listing::SymbolCallback cbstart, Listing::InstructionCallback cbend, Listing::SymbolCallback cblabel);
 
     private:
         void checkJumpTable(const InstructionPtr& instruction, const Operand &op);

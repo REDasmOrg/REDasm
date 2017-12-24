@@ -7,7 +7,7 @@
 
 namespace REDasm {
 
-CHIP8Processor::CHIP8Processor(): _index(0)
+CHIP8Processor::CHIP8Processor()
 {
     SET_DECODE_TO(0x0000, decode0xxx);
     SET_DECODE_TO(0x1000, decode1xxx);
@@ -64,7 +64,7 @@ bool CHIP8Processor::decode0xxx(u16 opcode, const InstructionPtr &instruction) c
         instruction->mnemonic = "clr";
     else if(opcode == 0x00EE)
     {
-        instruction->mnemonic = "rts";
+        instruction->mnemonic = "ret";
         instruction->type = InstructionTypes::Stop;
     }
     else
@@ -79,7 +79,7 @@ bool CHIP8Processor::decode0xxx(u16 opcode, const InstructionPtr &instruction) c
 
 bool CHIP8Processor::decode1xxx(u16 opcode, const InstructionPtr &instruction) const
 {
-    instruction->mnemonic = "jump";
+    instruction->mnemonic = "jmp";
     instruction->type = InstructionTypes::Jump;
 
     instruction->imm(opcode & 0x0FFF);
@@ -212,22 +212,22 @@ bool CHIP8Processor::decode9xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decodeAxxx(u16 opcode, const InstructionPtr &instruction) // const
+bool CHIP8Processor::decodeAxxx(u16 opcode, const InstructionPtr &instruction) const
 {
-    instruction->mnemonic = "loadi";
+    instruction->mnemonic = "load";
     instruction->type = InstructionTypes::Compare;
 
-    this->_index = opcode & 0x0FFF;
-    instruction->imm(this->_index);
+    instruction->reg(CHIP8_REG_I_ID, CHIP8_REG_I);
+    instruction->imm(opcode & 0x0FFF);
     return true;
 }
 
 bool CHIP8Processor::decodeBxxx(u16 opcode, const InstructionPtr &instruction) const
 {
-    instruction->mnemonic = "jumpi";
+    instruction->mnemonic = "jmp";
     instruction->type = InstructionTypes::Jump;
 
-    instruction->imm((opcode & 0x0FFF) + this->_index);
+    instruction->imm(opcode & 0x0FFF);
     return true;
 }
 
@@ -261,7 +261,7 @@ bool CHIP8Processor::decodeExxx(u16 opcode, const InstructionPtr &instruction) c
 
     instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
 
-    instruction->reg((opcode & 0x0F00) >> 8, 1); // 1 = key
+    instruction->reg((opcode & 0x0F00) >> 8);
     instruction->target(instruction->endAddress() + instruction->size);
     return true;
 }

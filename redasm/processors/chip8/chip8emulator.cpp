@@ -34,25 +34,37 @@ void CHIP8Emulator::translate(const InstructionPtr &instruction, VMILInstruction
     {
         u8 t = instruction->id = 0x000F;
 
-        if(t == 1)
+        if(t == 0x1)
             vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Or);
-        else if(t == 2)
+        else if(t == 0x2)
             vminstruction = this->createInstruction(instruction, VMIL::Opcodes::And);
-        else if(t == 3)
+        else if(t == 0x3)
             vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Xor);
-        else if(t == 4)
+        else if(t == 0x4)
             vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Add);
-        else if(t == 5)
+        else if(t == 0x5)
             vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Sub);
+        else if(t == 0x6)
+            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Rsh);
+        else if(t == 0xE)
+            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Lsh);
         else
         {
             vminstruction = this->invalidInstruction(instruction);
             return;
         }
 
-        vminstruction->op(instruction->operands[0]);
-        vminstruction->op(instruction->operands[0]);
-        vminstruction->op(instruction->operands[1]);
+        if((t == 0x6) || (t == 0xE))
+        {
+            vminstruction->op(instruction->operands[0]);
+            vminstruction->imm(1);
+        }
+        else
+        {
+            vminstruction->op(instruction->operands[0]);
+            vminstruction->op(instruction->operands[0]);
+            vminstruction->op(instruction->operands[1]);
+        }
     }
     else
         vminstruction = this->invalidInstruction(instruction);

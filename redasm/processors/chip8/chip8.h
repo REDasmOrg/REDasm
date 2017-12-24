@@ -1,6 +1,12 @@
 #ifndef CHIP8PROCESSOR_H
 #define CHIP8PROCESSOR_H
 
+/*
+ * References:
+ * - https://en.wikipedia.org/wiki/CHIP-8
+ * - https://massung.github.io/CHIP-8
+ */
+
 #include "../../plugins/plugins.h"
 
 namespace REDasm {

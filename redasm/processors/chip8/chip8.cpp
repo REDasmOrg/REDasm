@@ -263,7 +263,7 @@ bool CHIP8Processor::decodeExxx(u16 opcode, const InstructionPtr &instruction) c
         instruction->mnemonic = "sknp";
 
     instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
-    instruction->reg((opcode & 0x0F00) >> 8);
+    instruction->reg((opcode & 0x0F00) >> 8, CHIP8_REG_K);
     instruction->target(instruction->endAddress() + instruction->size);
     return true;
 }

@@ -20,7 +20,7 @@ std::string CHIP8Printer::reg(const RegisterOperand &regop) const
         return "st";
 
     std::stringstream ss;
-    ss << "v" << std::hex << regop.r;
+    ss << ((regop.type == CHIP8_REG_K) ? "k" : "v") << std::hex << regop.r;
     return ss.str();
 }
 

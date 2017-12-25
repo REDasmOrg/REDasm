@@ -3,6 +3,7 @@
 
 /*
  * References:
+ * - http://www.multigesture.net/wp-content/uploads/mirror/goldroad/chip8_instruction_set.shtml
  * - https://en.wikipedia.org/wiki/CHIP-8
  * - https://massung.github.io/CHIP-8
  */

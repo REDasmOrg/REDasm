@@ -200,7 +200,7 @@ bool CHIP8Processor::decode8xxx(u16 opcode, const InstructionPtr &instruction) c
 
     instruction->reg((opcode & 0x0F00) >> 8);
 
-    if((op == 0x6) || (op == 0xE)) // Shift instructions
+    if((op != 0x6) && (op != 0xE)) // Skip 2nd operand if op == shift_instructions
         instruction->reg((opcode & 0x00F0) >> 4);
 
     return true;

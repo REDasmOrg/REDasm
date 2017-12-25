@@ -214,7 +214,7 @@ struct Instruction
 
     std::function<void(void*)> free;
 
-    std::string mnemonic, signature;
+    std::string mnemonic, bytes;
     std::list<address_t> targets;   // Jump/JumpTable/Call destination(s)
     std::vector<Operand> operands;
     std::list<std::string> comments;

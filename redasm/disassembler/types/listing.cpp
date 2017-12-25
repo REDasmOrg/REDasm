@@ -160,7 +160,7 @@ std::string Listing::getSignature(const SymbolPtr& symbol)
 
     std::for_each(path.begin(), path.end(), [this, &sig](address_t address) {
         InstructionPtr instruction = (*this)[address];
-        sig += instruction->signature;
+        sig += instruction->bytes;
     });
 
     return sig;
@@ -255,7 +255,7 @@ void Listing::serialize(const InstructionPtr &value, std::fstream &fs)
     Serializer::serializeScalar(fs, value->id);
 
     Serializer::serializeString(fs, value->mnemonic);
-    Serializer::serializeString(fs, value->signature);
+    Serializer::serializeString(fs, value->bytes);
 
     Serializer::serializeArray<std::list, address_t>(fs, value->targets, [this, &fs](address_t target) {
         Serializer::serializeScalar(fs, target);
@@ -294,7 +294,7 @@ void Listing::deserialize(InstructionPtr &value, std::fstream &fs)
     Serializer::deserializeScalar(fs, &value->id);
 
     Serializer::deserializeString(fs, value->mnemonic);
-    Serializer::deserializeString(fs, value->signature);
+    Serializer::deserializeString(fs, value->bytes);
 
     Serializer::deserializeArray<std::list, address_t>(fs, value->targets, [this, &fs](address_t& target) {
         Serializer::deserializeScalar(fs, &target);

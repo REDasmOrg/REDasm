@@ -115,8 +115,8 @@ VMILInstructionPtr Emulator::invalidInstruction(const InstructionPtr& instructio
 {
     VMILInstructionPtr vminstruction = this->createInstruction(instruction, Opcodes::Unkn);
 
-    if(!instruction->signature.empty())
-        vminstruction->cmt("Bytes: " + instruction->signature);
+    if(!instruction->bytes.empty())
+        vminstruction->cmt("Bytes: " + instruction->bytes);
 
     return vminstruction;
 }

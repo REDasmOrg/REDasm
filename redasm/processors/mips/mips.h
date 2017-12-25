@@ -130,7 +130,7 @@ template<size_t mode> bool MIPSProcessor<mode>::makePseudo(const InstructionPtr 
             return false;
     }
 
-    instructionout->signature += instruction2->signature;
+    instructionout->bytes += instruction2->bytes;
     instructionout->size += instruction2->size;
     return true;
 }

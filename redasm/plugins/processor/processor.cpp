@@ -37,7 +37,7 @@ bool ProcessorPlugin::decode(Buffer buffer, const InstructionPtr &instruction)
         ss << std::setw(2) << static_cast<size_t>(b);
     }
 
-    instruction->signature = ss.str();
+    instruction->bytes = ss.str();
     return true;
 }
 

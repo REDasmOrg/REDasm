@@ -294,12 +294,12 @@ bool CHIP8Processor::decodeFxxx(u16 opcode, const InstructionPtr &instruction) c
         instruction->mnemonic = "bcd";
     else if(op == 0x55)
     {
-        instruction->mnemonic = "str";
+        instruction->mnemonic = "stra";
         instruction->type = InstructionTypes::Store;
     }
     else if(op == 0x65)
     {
-        instruction->mnemonic = "ldr";
+        instruction->mnemonic = "ldra";
         instruction->type = InstructionTypes::Load;
     }
     else

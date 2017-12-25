@@ -181,6 +181,8 @@ void CHIP8Emulator::translateFxxx(const InstructionPtr &instruction, VMIL::VMILI
 
     if(op == 0x33)
         this->translateBCD(instruction, vminstruction, vminstructions);
+    else if((op == 0x55) || (op == 0x65))
+        this->translatexxRA(instruction, vminstruction, vminstructions);
 }
 
 void CHIP8Emulator::translateBCD(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::Emulator::VMILInstructionList &vminstructions)
@@ -249,6 +251,50 @@ void CHIP8Emulator::translateBCD(const InstructionPtr &instruction, VMIL::VMILIn
     }
 
     vminstruction->cmt("*** End BCD ***");
+}
+
+void CHIP8Emulator::translatexxRA(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::Emulator::VMILInstructionList &vminstructions)
+{
+    if(!instruction->is(InstructionTypes::Load) && !instruction->is(InstructionTypes::Store))
+        return;
+
+    vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Str);
+    vminstruction->reg(VMIL_REGISTER(0)); // i
+    vminstruction->reg(CHIP8_REG_I_ID, CHIP8_REG_I);
+
+    if(instruction->is(InstructionTypes::Load))
+        vminstruction->cmt("*** Begin Load ***");
+    else
+        vminstruction->cmt("*** Begin Store ***");
+
+    vminstruction->cmt("Load i");
+    vminstructions.push_back(vminstruction);
+
+    u32 opcode = instruction->is(InstructionTypes::Load) ? VMIL::Opcodes::Ldm : VMIL::Opcodes::Stm;
+    const Operand& op = instruction->op(0);
+
+    for(register_t r = op.reg.r; r >= 0; r--)
+    {
+        vminstruction = this->createInstruction(instruction, opcode, VMIL_INSTRUCTION_I(vminstructions));
+        vminstruction->reg(VMIL_REGISTER(0));
+        vminstruction->reg(r, op.reg.type);
+        vminstructions.push_back(vminstruction);
+
+        if(r)
+        {
+            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Sub, VMIL_INSTRUCTION_I(vminstructions));
+            vminstruction->reg(VMIL_REGISTER(0));
+            vminstruction->reg(VMIL_REGISTER(0));
+            vminstruction->imm(1);
+            vminstruction->cmt("i--");
+            vminstructions.push_back(vminstruction);
+        }
+    }
+
+    if(instruction->is(InstructionTypes::Load))
+        vminstruction->cmt("*** End Load ***");
+    else
+        vminstruction->cmt("*** End Store ***");
 }
 
 } // namespace REDasm

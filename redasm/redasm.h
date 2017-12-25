@@ -160,10 +160,10 @@ struct Segment
 struct RegisterOperand
 {
     RegisterOperand(): type(0), r(REGISTER_INVALID) { }
-    RegisterOperand(u32 type, register_t r): type(type), r(r) { }
+    RegisterOperand(u64 type, register_t r): type(type), r(r) { }
     RegisterOperand(register_t r): type(0), r(r) { }
 
-    u32 type;
+    u64 type;
     register_t r;
 
     bool isValid() const { return r != REGISTER_INVALID; }
@@ -234,6 +234,7 @@ struct Instruction
     address_t target() const { return targets.front(); }
     address_t endAddress() const { return address + size; }
 
+    Operand& op(size_t idx) { return operands[idx]; }
     Instruction& cmt(const std::string& s) { comments.push_back(s); return *this; }
     Instruction& op(Operand op) { op.index = operands.size(); operands.push_back(op); return *this; }
     Instruction& mem(address_t v) { operands.push_back(Operand(OperandTypes::Memory, v, operands.size())); return *this; }

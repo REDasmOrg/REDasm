@@ -11,7 +11,7 @@ VMILPrinter::VMILPrinter(const PrinterPtr &srcprinter, DisassemblerFunctions *di
 std::string VMILPrinter::reg(const RegisterOperand &regop) const
 {
     if(regop.type == VMIL_REG_OPERAND)
-        return "t" + std::to_string(regop.r);
+        return "$vreg" + std::to_string(regop.r);
 
     return this->_srcprinter->reg(regop);
 }

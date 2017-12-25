@@ -22,6 +22,7 @@ class CHIP8Emulator : public VMIL::Emulator
         void translate6xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList&);
         void translate7xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList&);
         void translate8xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList&);
+        void translateAxxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList&);
 
     private:
         TranslateMap _translatemap;

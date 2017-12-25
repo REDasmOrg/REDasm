@@ -1,8 +1,8 @@
 #include "chip8emulator.h"
 
-#define TRANSLATE_OPCODE(opcode) _translatemap[opcode * 0x1000] = [this](const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions) { \
-                                                                    translate##opcode##xxx(instruction, vminstruction, vminstructions); \
-                                                                   }
+#define TRANSLATE_OPCODE(opcode) _translatemap[0x ## opcode * 0x1000] = [this](const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions) { \
+                                                                            translate##opcode##xxx(instruction, vminstruction, vminstructions); \
+                                                                        }
 
 namespace REDasm {
 
@@ -13,6 +13,7 @@ CHIP8Emulator::CHIP8Emulator(DisassemblerFunctions *disassembler): VMIL::Emulato
     TRANSLATE_OPCODE(6);
     TRANSLATE_OPCODE(7);
     TRANSLATE_OPCODE(8);
+    TRANSLATE_OPCODE(A);
 }
 
 void CHIP8Emulator::translate(const InstructionPtr &instruction, VMILInstructionList &vminstructions)
@@ -96,6 +97,13 @@ void CHIP8Emulator::translate8xxx(const InstructionPtr &instruction, VMIL::VMILI
         vminstruction->op(instruction->operands[0]);
         vminstruction->op(instruction->operands[1]);
     }
+}
+
+void CHIP8Emulator::translateAxxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::Emulator::VMILInstructionList &)
+{
+    vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Str);
+    vminstruction->op(instruction->op(0));
+    vminstruction->op(instruction->op(1));
 }
 
 } // namespace REDasm

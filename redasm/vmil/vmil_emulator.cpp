@@ -59,7 +59,7 @@ void Emulator::reset()
     this->_memory.clear();
 }
 
-VMILInstructionPtr Emulator::createIfEqual(const InstructionPtr& instruction, size_t opidx1, size_t opidx2, Emulator::VMILInstructionList &vminstructions, u32 cbvmilopcode, CondCallback cb) const
+VMILInstructionPtr Emulator::createEQ(const InstructionPtr& instruction, size_t opidx1, size_t opidx2, Emulator::VMILInstructionList &vminstructions, u32 cbvmilopcode, CondCallback cb) const
 {
     VMILInstructionPtr vminstruction;
 
@@ -73,6 +73,22 @@ VMILInstructionPtr Emulator::createIfEqual(const InstructionPtr& instruction, si
     vminstruction->address = VMIL_INSTRUCTION_ADDRESS_I(instruction, 1);
     vminstruction->reg(VMIL_REGISTER(0));
     vminstruction->reg(VMIL_REGISTER(0));
+    vminstructions.push_back(vminstruction);
+
+    VMILInstructionPtr cbinstruction = this->createInstruction(instruction, cbvmilopcode);
+    cbinstruction->address = VMIL_INSTRUCTION_ADDRESS_I(instruction, 2);
+    cb(cbinstruction, VMIL_REGISTER_ID(0));
+    return cbinstruction;
+}
+
+VMILInstructionPtr Emulator::createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, Emulator::VMILInstructionList &vminstructions, u32 cbvmilopcode, Emulator::CondCallback cb) const
+{
+    VMILInstructionPtr vminstruction;
+
+    vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Xor);
+    vminstruction->reg(VMIL_REGISTER(0));
+    vminstruction->op(instruction->op(opidx1));
+    vminstruction->op(instruction->op(opidx2));
     vminstructions.push_back(vminstruction);
 
     VMILInstructionPtr cbinstruction = this->createInstruction(instruction, cbvmilopcode);

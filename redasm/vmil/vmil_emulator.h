@@ -27,7 +27,8 @@ class Emulator
         void reset();
 
     protected:
-        VMILInstructionPtr createIfEqual(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode, CondCallback cb) const;
+        VMILInstructionPtr createEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode, CondCallback cb) const;
+        VMILInstructionPtr createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode, CondCallback cb) const;
         VMILInstructionPtr createInstruction(const InstructionPtr &instruction, u32 vmilopcode, u32 index = 0) const;
         VMILInstructionPtr invalidInstruction(const InstructionPtr &instruction) const;
 

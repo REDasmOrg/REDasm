@@ -10,9 +10,11 @@ CHIP8Emulator::CHIP8Emulator(DisassemblerFunctions *disassembler): VMIL::Emulato
 {
     TRANSLATE_OPCODE(1);
     TRANSLATE_OPCODE(3);
+    TRANSLATE_OPCODE(4);
     TRANSLATE_OPCODE(6);
     TRANSLATE_OPCODE(7);
     TRANSLATE_OPCODE(8);
+    TRANSLATE_OPCODE(9);
     TRANSLATE_OPCODE(A);
 }
 
@@ -41,11 +43,25 @@ void CHIP8Emulator::translate1xxx(const InstructionPtr &instruction, VMIL::VMILI
 
 void CHIP8Emulator::translate3xxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::Emulator::VMILInstructionList &vminstructions)
 {
-    vminstruction = this->createIfEqual(instruction, 0, 1, vminstructions, VMIL::Opcodes::Jcc, [this, instruction](VMIL::VMILInstructionPtr& vminstruction, VMIL::vmilregister_t reg) {
+    vminstruction = this->createEQ(instruction, 0, 1, vminstructions, VMIL::Opcodes::Jcc, [this, instruction](VMIL::VMILInstructionPtr& vminstruction, VMIL::vmilregister_t reg) {
         vminstruction->reg(VMIL_REGISTER(reg));
         vminstruction->imm(VMIL_ADDRESS(instruction->target()));
         vminstruction->target_idx = 1;
     });
+}
+
+void CHIP8Emulator::translate4xxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::Emulator::VMILInstructionList &vminstructions)
+{
+    vminstruction = this->createNEQ(instruction, 0, 1, vminstructions, VMIL::Opcodes::Jcc, [this, instruction](VMIL::VMILInstructionPtr& vminstruction, VMIL::vmilregister_t reg) {
+        vminstruction->reg(VMIL_REGISTER(reg));
+        vminstruction->imm(VMIL_ADDRESS(instruction->target()));
+        vminstruction->target_idx = 1;
+    });
+}
+
+void CHIP8Emulator::translate5xxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::Emulator::VMILInstructionList &vminstructions)
+{
+    this->translate3xxx(instruction, vminstruction, vminstructions);
 }
 
 void CHIP8Emulator::translate6xxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::Emulator::VMILInstructionList &)
@@ -64,7 +80,7 @@ void CHIP8Emulator::translate7xxx(const InstructionPtr &instruction, VMIL::VMILI
 
 void CHIP8Emulator::translate8xxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::Emulator::VMILInstructionList &)
 {
-    u8 t = instruction->id = 0x000F;
+    u8 t = instruction->id & 0x000F;
 
     if(t == 0x1)
         vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Or);
@@ -81,10 +97,7 @@ void CHIP8Emulator::translate8xxx(const InstructionPtr &instruction, VMIL::VMILI
     else if(t == 0xE)
         vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Lsh);
     else
-    {
-        vminstruction = this->invalidInstruction(instruction);
         return;
-    }
 
     if((t == 0x6) || (t == 0xE))
     {
@@ -97,6 +110,14 @@ void CHIP8Emulator::translate8xxx(const InstructionPtr &instruction, VMIL::VMILI
         vminstruction->op(instruction->operands[0]);
         vminstruction->op(instruction->operands[1]);
     }
+}
+
+void CHIP8Emulator::translate9xxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::Emulator::VMILInstructionList &vminstructions)
+{
+    if((instruction->id & 0x000F) != 0)
+        return;
+
+    this->translate4xxx(instruction, vminstruction, vminstructions);
 }
 
 void CHIP8Emulator::translateAxxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::Emulator::VMILInstructionList &)

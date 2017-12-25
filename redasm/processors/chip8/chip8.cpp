@@ -61,11 +61,24 @@ bool CHIP8Processor::decode(Buffer buffer, const InstructionPtr &instruction)
 bool CHIP8Processor::decode0xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     if(opcode == 0x00E0)
-        instruction->mnemonic = "clr";
+        instruction->mnemonic = "cls";
     else if(opcode == 0x00EE)
     {
-        instruction->mnemonic = "ret";
+        instruction->mnemonic = "rts";
         instruction->type = InstructionTypes::Stop;
+    }
+    else if(opcode == 0x00FB) // SuperChip only
+        instruction->mnemonic = "scright";
+    else if(opcode == 0x00FC) // SuperChip only
+        instruction->mnemonic = "scleft";
+    else if(opcode == 0x00FE) // SuperChip only
+        instruction->mnemonic = "low";
+    else if(opcode == 0x00FF) // SuperChip only
+        instruction->mnemonic = "high";
+    else if((opcode & 0x00F0) == 0x00C0) // SuperChip only
+    {
+        instruction->mnemonic = "scdown";
+        instruction->imm(opcode & 0x000F);
     }
     else
     {
@@ -81,7 +94,6 @@ bool CHIP8Processor::decode1xxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "jmp";
     instruction->type = InstructionTypes::Jump;
-
     instruction->imm(opcode & 0x0FFF);
     instruction->target_op(0);
     return true;
@@ -91,7 +103,6 @@ bool CHIP8Processor::decode2xxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "call";
     instruction->type = InstructionTypes::Call;
-
     instruction->imm(opcode & 0x0FFF);
     instruction->target_op(0);
     return true;
@@ -101,7 +112,6 @@ bool CHIP8Processor::decode3xxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "ske";
     instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
-
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->imm(opcode & 0x00FF);
     instruction->target(instruction->endAddress() + instruction->size);
@@ -112,7 +122,6 @@ bool CHIP8Processor::decode4xxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "skne";
     instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
-
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->imm(opcode & 0x00FF);
     instruction->target(instruction->endAddress() + instruction->size);
@@ -124,9 +133,8 @@ bool CHIP8Processor::decode5xxx(u16 opcode, const InstructionPtr &instruction) c
     if((opcode & 0x000F) != 0)
         return false;
 
-    instruction->mnemonic = "skre";
+    instruction->mnemonic = "ske";
     instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
-
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->reg((opcode & 0x00F0) >> 4);
     instruction->target(instruction->endAddress() + instruction->size);
@@ -135,8 +143,7 @@ bool CHIP8Processor::decode5xxx(u16 opcode, const InstructionPtr &instruction) c
 
 bool CHIP8Processor::decode6xxx(u16 opcode, const InstructionPtr &instruction) const
 {
-    instruction->mnemonic = "load";
-
+    instruction->mnemonic = "mov";
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->imm(opcode & 0x00FF);
     return true;
@@ -146,7 +153,6 @@ bool CHIP8Processor::decode7xxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "add";
     instruction->type = InstructionTypes::Add;
-
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->imm(opcode & 0x00FF);
     return true;
@@ -157,7 +163,7 @@ bool CHIP8Processor::decode8xxx(u16 opcode, const InstructionPtr &instruction) c
     u8 op = opcode & 0x000F;
 
     if(op == 0x0)
-        instruction->mnemonic = "move";
+        instruction->mnemonic = "mov";
     else if(op == 0x1)
     {
         instruction->mnemonic = "or";
@@ -175,7 +181,7 @@ bool CHIP8Processor::decode8xxx(u16 opcode, const InstructionPtr &instruction) c
     }
     else if(op == 0x4)
     {
-        instruction->mnemonic = "addr";
+        instruction->mnemonic = "add";
         instruction->type = InstructionTypes::Add;
     }
     else if(op == 0x5)
@@ -185,6 +191,8 @@ bool CHIP8Processor::decode8xxx(u16 opcode, const InstructionPtr &instruction) c
     }
     else if(op == 0x6)
         instruction->mnemonic = "shr";
+    else if(op == 0x7)
+        instruction->mnemonic = "sub";
     else if(op == 0xE)
         instruction->mnemonic = "shl";
     else
@@ -192,7 +200,7 @@ bool CHIP8Processor::decode8xxx(u16 opcode, const InstructionPtr &instruction) c
 
     instruction->reg((opcode & 0x0F00) >> 8);
 
-    if(op < 0x6)
+    if((op == 0x6) || (op == 0xE)) // Shift instructions
         instruction->reg((opcode & 0x00F0) >> 4);
 
     return true;
@@ -203,9 +211,8 @@ bool CHIP8Processor::decode9xxx(u16 opcode, const InstructionPtr &instruction) c
     if((opcode & 0x000F) != 0)
         return false;
 
-    instruction->mnemonic = "skrne";
+    instruction->mnemonic = "skne";
     instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
-
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->reg((opcode & 0x00F0) >> 4);
     instruction->target(instruction->endAddress() + instruction->size);
@@ -214,9 +221,8 @@ bool CHIP8Processor::decode9xxx(u16 opcode, const InstructionPtr &instruction) c
 
 bool CHIP8Processor::decodeAxxx(u16 opcode, const InstructionPtr &instruction) const
 {
-    instruction->mnemonic = "load";
-    instruction->type = InstructionTypes::Compare;
-
+    instruction->mnemonic = "mov";
+    instruction->type = InstructionTypes::Load;
     instruction->reg(CHIP8_REG_I_ID, CHIP8_REG_I);
     instruction->imm(opcode & 0x0FFF);
     return true;
@@ -226,15 +232,13 @@ bool CHIP8Processor::decodeBxxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "jmp";
     instruction->type = InstructionTypes::Jump;
-
-    instruction->imm(opcode & 0x0FFF);
+    instruction->disp(CHIP8_REG_V0_ID, opcode & 0x0FFF);
     return true;
 }
 
 bool CHIP8Processor::decodeCxxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "rand";
-
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->imm(opcode & 0x00FF);
     return true;
@@ -243,7 +247,6 @@ bool CHIP8Processor::decodeCxxx(u16 opcode, const InstructionPtr &instruction) c
 bool CHIP8Processor::decodeDxxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "draw";
-
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->reg((opcode & 0x00F0) >> 4);
     instruction->imm(opcode & 0x000F);
@@ -260,7 +263,6 @@ bool CHIP8Processor::decodeExxx(u16 opcode, const InstructionPtr &instruction) c
         instruction->mnemonic = "sknp";
 
     instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
-
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->target(instruction->endAddress() + instruction->size);
     return true;
@@ -271,26 +273,35 @@ bool CHIP8Processor::decodeFxxx(u16 opcode, const InstructionPtr &instruction) c
     u16 op = opcode & 0x00FF;
 
     if(op == 0x07)
-        instruction->mnemonic = "moved";
+        instruction->mnemonic = "gdelay";
     else if(op == 0x0A)
-        instruction->mnemonic = "keyd";
+        instruction->mnemonic = "wkey";
     else if(op == 0x15)
-        instruction->mnemonic = "loadd";
+        instruction->mnemonic = "sdelay";
     else if(op == 0x18)
-        instruction->mnemonic = "loads";
+        instruction->mnemonic = "ssound";
     else if(op == 0x1E)
     {
-        instruction->mnemonic = "addi";
+        instruction->mnemonic = "add";
         instruction->type = InstructionTypes::Add;
+        instruction->reg(CHIP8_REG_I_ID, CHIP8_REG_I);
     }
     else if(op == 0x29)
-        instruction->mnemonic = "ldspr";
+        instruction->mnemonic = "font";
+    else if(op == 0x30) // SuperChip only
+        instruction->mnemonic = "xfont";
     else if(op == 0x33)
         instruction->mnemonic = "bcd";
     else if(op == 0x55)
-        instruction->mnemonic = "stor";
+    {
+        instruction->mnemonic = "str";
+        instruction->type = InstructionTypes::Store;
+    }
     else if(op == 0x65)
-        instruction->mnemonic = "read";
+    {
+        instruction->mnemonic = "ldr";
+        instruction->type = InstructionTypes::Load;
+    }
     else
         return false;
 

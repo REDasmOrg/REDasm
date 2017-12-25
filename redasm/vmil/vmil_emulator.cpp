@@ -113,7 +113,12 @@ VMILInstructionPtr Emulator::createInstruction(const InstructionPtr& instruction
 
 VMILInstructionPtr Emulator::invalidInstruction(const InstructionPtr& instruction) const
 {
-    return this->createInstruction(instruction, Opcodes::Unkn);
+    VMILInstructionPtr vminstruction = this->createInstruction(instruction, Opcodes::Unkn);
+
+    if(!instruction->signature.empty())
+        vminstruction->cmt("Bytes: " + instruction->signature);
+
+    return vminstruction;
 }
 
 void Emulator::write(const Operand &operand, u64 value)

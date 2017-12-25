@@ -22,15 +22,16 @@
 #define VMIL_INS_UNDEF "undef"
 #define VMIL_INS_UNKN  "unkn"
 
-#define VMIL_REG_OPERAND                           0x8000000000000000
-#define VMIL_TRUE                                  1
-#define VMIL_FALSE                                 0
-#define VMIL_ADDRESS_SHIFT                         0x100
-#define VMIL_ADDRESS_I(address, idx)               ((address * VMIL_ADDRESS_SHIFT) + idx)
-#define VMIL_ADDRESS(address)                      VMIL_ADDRESS_I(address, 0)
+#define VMIL_REG_OPERAND                             0x8000000000000000
+#define VMIL_TRUE                                    1
+#define VMIL_FALSE                                   0
+#define VMIL_ADDRESS_SHIFT                           0x100
+#define VMIL_ADDRESS_I(address, idx)                 ((address * VMIL_ADDRESS_SHIFT) + idx)
+#define VMIL_ADDRESS(address)                        VMIL_ADDRESS_I(address, 0)
 #define VMIL_INSTRUCTION_ADDRESS_I(instruction, idx) VMIL_ADDRESS_I(instruction->address, idx)
-#define VMIL_REGISTER_ID(i)                        i
-#define VMIL_REGISTER(i)                           VMIL_REGISTER_ID(i), VMIL_REG_OPERAND
+#define VMIL_INSTRUCTION_I(vminstructions)           vminstructions.size()
+#define VMIL_REGISTER_ID(i)                          i
+#define VMIL_REGISTER(i)                             VMIL_REGISTER_ID(i), VMIL_REG_OPERAND
 
 namespace REDasm {
 namespace VMIL {

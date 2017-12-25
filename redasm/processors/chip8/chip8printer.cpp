@@ -1,4 +1,5 @@
 #include "chip8printer.h"
+#include "chip8registers.h"
 #include <sstream>
 
 namespace REDasm {

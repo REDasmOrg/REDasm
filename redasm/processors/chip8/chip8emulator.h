@@ -17,15 +17,20 @@ class CHIP8Emulator : public VMIL::Emulator
         virtual void translate(const InstructionPtr& instruction, VMILInstructionList& vminstructions);
 
     private:
-        void translate1xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList&);
+        void translate1xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
         void translate3xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
         void translate4xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
         void translate5xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
-        void translate6xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList&);
-        void translate7xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList&);
-        void translate8xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList&);
-        void translate9xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList&vminstructions);
-        void translateAxxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList&);
+        void translate6xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
+        void translate7xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
+        void translate8xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
+        void translate9xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
+        void translateAxxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
+        void translateExxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
+        void translateFxxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
+
+    private:
+        void translateBCD(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions);
 
     private:
         TranslateMap _translatemap;

@@ -179,7 +179,8 @@ HEADERS  += mainwindow.h \
     redasm/vmil/vmil_types.h \
     redasm/vmil/vmil_emulator.h \
     redasm/processors/chip8/chip8emulator.h \
-    redasm/vmil/vmil_printer.h
+    redasm/vmil/vmil_printer.h \
+    redasm/processors/chip8/chip8registers.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

@@ -32,6 +32,8 @@ class ProcessorPlugin: public Plugin
         virtual bool done(const InstructionPtr& instruction);
 
     public:
+        bool hasFlag(u32 flag) const;
+        bool hasVMIL() const;
         void pushState();
         void popState();
 

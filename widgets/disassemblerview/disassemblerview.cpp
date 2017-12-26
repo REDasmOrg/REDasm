@@ -3,6 +3,8 @@
 #include "../../dialogs/referencesdialog.h"
 #include <QMessageBox>
 
+#define VMIL_TAB_INDEX 1
+
 DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), _hexdocument(NULL), _lblstatus(lblstatus), _disassembler(NULL), _disassemblerthread(NULL)
 {
     ui->setupUi(this);
@@ -17,6 +19,8 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
 
     ui->hexEdit->setReadOnly(true);
     ui->hexEdit->setFrameShape(QFrame::NoFrame);
+
+    ui->topTabs->removeTab(VMIL_TAB_INDEX); // Hide VMIL tab by default
 
     ui->tbBack->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
     ui->tbForward->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
@@ -297,8 +301,13 @@ void DisassemblerView::showListing()
     this->_segmentsmodel->setDisassembler(this->_disassembler);
     this->_referencesmodel->setDisassembler(this->_disassembler);
 
-    ui->vmilTextView->setEmitMode(DisassemblerTextView::VMIL);
-    ui->vmilTextView->setDisassembler(this->_disassembler);
+    if(this->_disassembler->processor()->hasVMIL())
+    {
+        ui->vmilTextView->setEmitMode(DisassemblerTextView::VMIL);
+        ui->vmilTextView->setDisassembler(this->_disassembler);
+        ui->topTabs->insertTab(VMIL_TAB_INDEX, ui->tabVMIL, "VMIL");
+    }
+
     ui->disassemblerTextView->setDisassembler(this->_disassembler);
     ui->disassemblerMap->render(this->_disassembler);
     ui->bottomTabs->setCurrentWidget(ui->tabStrings);

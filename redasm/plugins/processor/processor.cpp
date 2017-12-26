@@ -69,6 +69,16 @@ bool ProcessorPlugin::done(const InstructionPtr &instruction)
     return false;
 }
 
+bool ProcessorPlugin::hasFlag(u32 flag) const
+{
+    return this->flags() & flag;
+}
+
+bool ProcessorPlugin::hasVMIL() const
+{
+    return this->hasFlag(ProcessorFlags::HasVMIL);
+}
+
 void ProcessorPlugin::pushState()
 {
     this->_statestack.push(ProcessorFlags::None);

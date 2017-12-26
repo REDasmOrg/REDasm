@@ -19,6 +19,24 @@ MIPSEmulator::MIPSEmulator(DisassemblerFunctions *disassembler): VMIL::Emulator(
     VMIL_TRANSLATE_OPCODE(MIPS_INS_SW,  Sxx);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_SWR, Sxx);
 
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_ADD, Math);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_ADDI, Math);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_ADDIU, Math);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_SUB, Math);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_SUBU, Math);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_MUL, Math);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_MULT, Math);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_MULTU, Math);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_DIV, Math);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_DIVU, Math);
+
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_AND, Bitwise);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_ANDI, Bitwise);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_OR, Bitwise);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_ORI, Bitwise);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_XOR, Bitwise);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_XORI, Bitwise);
+
     VMIL_TRANSLATE_OPCODE(MIPS_INS_LUI, LUI); // Handles macros
     VMIL_TRANSLATE_OPCODE(MIPS_INS_NOP, NOP);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_SLL, SLL);
@@ -162,6 +180,93 @@ void MIPSEmulator::translateSRL(const InstructionPtr &instruction, VMIL::VMILIns
     vminstruction->op(instruction->op(0));
     vminstruction->op(instruction->op(1));
     vminstruction->op(instruction->op(2));
+    vminstructions.push_back(vminstruction);
+}
+
+void MIPSEmulator::translateMath(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
+{
+    switch(instruction->id)
+    {
+        case MIPS_INS_ADD:
+        case MIPS_INS_ADDI:
+        case MIPS_INS_ADDIU:
+            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Add);
+            break;
+
+        case MIPS_INS_SUB:
+        case MIPS_INS_SUBU:
+            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Sub);
+            break;
+
+        case MIPS_INS_MUL:
+        case MIPS_INS_MULT:
+        case MIPS_INS_MULTU:
+            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Mul);
+            break;
+
+        case MIPS_INS_DIV:
+        case MIPS_INS_DIVU:
+            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Div);
+            break;
+
+        default:
+            return;
+    }
+
+    if(instruction->operands.size() == 2)
+    {
+        vminstruction->op(instruction->op(0));
+        vminstruction->op(instruction->op(0));
+        vminstruction->op(instruction->op(1));
+    }
+    else
+    {
+
+        vminstruction->op(instruction->op(0));
+        vminstruction->op(instruction->op(1));
+        vminstruction->op(instruction->op(2));
+    }
+
+    vminstructions.push_back(vminstruction);
+}
+
+void MIPSEmulator::translateBitwise(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
+{
+    switch(instruction->id)
+    {
+        case MIPS_INS_AND:
+        case MIPS_INS_ANDI:
+            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::And);
+            break;
+
+        case MIPS_INS_OR:
+        case MIPS_INS_ORI:
+            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Or);
+            break;
+
+        case MIPS_INS_XOR:
+        case MIPS_INS_XORI:
+            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Xor);
+            break;
+
+        default:
+            return;
+    }
+
+    if(instruction->operands.size() == 2)
+    {
+        vminstruction->op(instruction->op(0));
+        vminstruction->op(instruction->op(0));
+        vminstruction->op(instruction->op(1));
+    }
+    else
+    {
+
+        vminstruction->op(instruction->op(0));
+        vminstruction->op(instruction->op(1));
+        vminstruction->op(instruction->op(2));
+    }
+
     vminstructions.push_back(vminstruction);
 }
 

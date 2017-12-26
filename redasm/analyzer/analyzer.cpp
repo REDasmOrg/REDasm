@@ -49,10 +49,13 @@ void Analyzer::loadSignatures(Listing& listing)
 
         if(sigdb.readPath(signaturefile))
             this->findSignatures(sigdb, listing);
+
+        int zzz = 0;
+        zzz++;
     });
 }
 
-void Analyzer::findSignatures(const SignatureDB &signaturedb, Listing& listing)
+void Analyzer::findSignatures(SignatureDB &signaturedb, Listing& listing)
 {
     listing.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &signaturedb, &listing](SymbolPtr symbol) -> bool {
         Signature signature;

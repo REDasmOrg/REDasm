@@ -14,7 +14,7 @@ class SignatureDB
 {
     private:
         struct Graph;
-        typedef std::shared_ptr<Graph> GraphPtr;
+        typedef std::unique_ptr<Graph> GraphPtr;
         typedef std::list<GraphPtr> EdgeList;
 
         struct Graph {
@@ -23,6 +23,7 @@ class SignatureDB
             s32 index;
 
             Graph(): index(-1) { }
+            Graph(const std::string& pattern): pattern(pattern), index(-1) { }
             bool isLeaf() const { return edges.empty(); }
         };
 
@@ -37,7 +38,7 @@ class SignatureDB
         SignatureList::iterator begin();
         SignatureList::iterator end();
         void setSignatureType(u32 signaturetype);
-        bool match(const std::string& hexbytes, Signature &signature) const;
+        bool match(const std::string& hexbytes, Signature &signature);
         bool write(const std::string& name, const std::string &file);
         bool read(const std::string& file);
         bool readPath(const std::string& signame);
@@ -47,7 +48,7 @@ class SignatureDB
 
     private:
         std::string uncollide(const std::string &name);
-        EdgeList::iterator findEdge(const GraphPtr& graph, const std::string& pattern) const;
+        EdgeList::iterator findEdge(Graph *graph, const std::string& pattern);
         void eachHexByte(const std::string& hexstring, std::function<bool(const std::string&, u32)> cb) const;
 
     private:

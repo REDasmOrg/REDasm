@@ -13,6 +13,12 @@
 #include <set>
 #include "support/utils.h"
 
+#if __cplusplus <= 201103L
+namespace std {
+template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... args) { return std::unique_ptr<T>(new T(std::forward<Args>(args)...)); }
+}
+#endif
+
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;

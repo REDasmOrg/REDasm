@@ -44,22 +44,22 @@ void SignatureDB::setSignatureType(u32 signaturetype)
     this->_signaturetype = signaturetype;
 }
 
-bool SignatureDB::match(const std::string &hexbytes, Signature& signature) const
+bool SignatureDB::match(const std::string &hexbytes, Signature& signature)
 {
     bool failed = false;
-    GraphPtr currentgraph;
+    Graph* currentgraph = NULL;
 
     this->eachHexByte(hexbytes, [this, &currentgraph, &failed](const std::string& pattern, u32 i) -> bool {
         if(i == 0) {
             auto it = this->_graph.find(pattern);
 
             if(it != this->_graph.end())
-                currentgraph = it->second;
+                currentgraph = it->second.get();
             else
                 it = this->_graph.find(WILDCARD_BYTE);
 
             if(it != this->_graph.end())
-                currentgraph = it->second;
+                currentgraph = it->second.get();
             else
                 return false;
 
@@ -75,7 +75,7 @@ bool SignatureDB::match(const std::string &hexbytes, Signature& signature) const
             return false;
         }
         else
-            currentgraph = *it;
+            currentgraph = (*it).get();
 
         return true;
     });
@@ -180,35 +180,32 @@ SignatureDB &SignatureDB::operator<<(Signature signature)
     signature.name = this->uncollide(signature.name);
     this->_duplicates.insert(signature.pattern);
 
-    GraphPtr currentgraph;
+    Graph* currentgraph = NULL;
 
-    this->eachHexByte(signature.pattern, [this, &currentgraph](const std::string pattern, u32 i) -> bool {
+    this->eachHexByte(signature.pattern, [this, &currentgraph](const std::string& pattern, u32 i) -> bool {
         if(i == 0) {
             auto it = this->_graph.find(pattern);
 
             if(it == this->_graph.end())
             {
-                currentgraph = std::make_shared<Graph>();
-                currentgraph->pattern = pattern;
-                this->_graph[pattern] = currentgraph;
+                this->_graph[pattern] = std::make_unique<Graph>(pattern);
+                currentgraph = this->_graph[pattern].get();
             }
             else
-                currentgraph = it->second;
-
-            return true;
+                currentgraph = it->second.get();
         }
+        else {
+            auto it = this->findEdge(currentgraph, pattern);
 
-        auto it = this->findEdge(currentgraph, pattern);
+            if(it == currentgraph->edges.end())
+            {
+                currentgraph->edges.push_back(std::make_unique<Graph>(pattern));
+                currentgraph = currentgraph->edges.back().get();
 
-        if(it == currentgraph->edges.end())
-        {
-            GraphPtr graph = std::make_shared<Graph>();
-            graph->pattern = pattern;
-            currentgraph->edges.push_back(graph);
-            currentgraph = graph;
+            }
+            else
+                currentgraph = (*it).get();
         }
-        else
-            currentgraph = *it;
 
         return true;
     });
@@ -235,7 +232,7 @@ std::string SignatureDB::uncollide(const std::string &name)
     return name;
 }
 
-SignatureDB::EdgeList::iterator SignatureDB::findEdge(const SignatureDB::GraphPtr &graph, const std::string &pattern) const
+SignatureDB::EdgeList::iterator SignatureDB::findEdge(Graph* graph, const std::string &pattern)
 {
     EdgeList::iterator wit = graph->edges.end();
 

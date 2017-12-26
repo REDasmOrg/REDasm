@@ -21,7 +21,7 @@ class Analyzer
     private:
         bool checkCrc16(const SymbolPtr &symbol, const Signature &signature, const SignatureDB &signaturedb);
         void loadSignatures(Listing &listing);
-        void findSignatures(const SignatureDB& signaturedb, Listing& listing);
+        void findSignatures(SignatureDB &signaturedb, Listing& listing);
         void findTrampolines(Listing& listing, SymbolPtr symbol);
         SymbolPtr findTrampolines_x86(Listing::iterator& it, SymbolTable *symboltable);
         SymbolPtr findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable);

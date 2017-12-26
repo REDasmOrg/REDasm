@@ -13,19 +13,20 @@ namespace REDasm {
 class SignatureDB
 {
     private:
-        struct Graph;
-        typedef std::unique_ptr<Graph> GraphPtr;
-        typedef std::list<GraphPtr> EdgeList;
-
         struct Graph {
             std::string pattern;
-            EdgeList edges;
             s32 index;
+            bool isleaf;
 
-            Graph(): index(-1) { }
-            Graph(const std::string& pattern): pattern(pattern), index(-1) { }
-            bool isLeaf() const { return edges.empty(); }
+            Graph(): index(-1), isleaf(true) { }
+            Graph(const std::string& pattern): pattern(pattern), index(-1), isleaf(true) { }
         };
+
+        typedef std::unique_ptr<Graph> GraphPtr;
+        typedef std::list<GraphPtr> EdgeList;
+        typedef std::unordered_map<std::string, u32> CollisionMap;
+        typedef std::unordered_map<std::string, GraphPtr> GraphMap;
+        typedef std::unordered_map<Graph*, EdgeList> EdgeMap;
 
     public:
         enum: u32 { REDasmSignature, IDASignature };
@@ -48,15 +49,16 @@ class SignatureDB
 
     private:
         std::string uncollide(const std::string &name);
-        EdgeList::iterator findEdge(Graph *graph, const std::string& pattern);
+        EdgeList::iterator findEdge(EdgeList &edges, const std::string& pattern);
         void eachHexByte(const std::string& hexstring, std::function<bool(const std::string&, u32)> cb) const;
 
     private:
-        u32 _signaturetype, _longestpattern;              // Signature type, Longest pattern length
+        u32 _signaturetype, _longestpattern; // Signature type, Longest pattern length
         std::string _name;
-        std::set<std::string> _duplicates;                // Signatures
-        std::unordered_map<std::string, u32> _collisions; // Names
-        std::unordered_map<std::string, GraphPtr> _graph; // Matching Graph
+        std::set<std::string> _duplicates;   // Signatures
+        CollisionMap _collisions;            // Names
+        GraphMap _graph;                     // Matching Graph
+        EdgeMap _edges;                      // Edges
         SignatureList _signatures;
 };
 

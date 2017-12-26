@@ -66,10 +66,11 @@ bool SignatureDB::match(const std::string &hexbytes, Signature& signature)
             return true;
         }
 
-        auto it = this->findEdge(currentgraph, pattern);
+        EdgeList& edges = this->_edges[currentgraph];
+        auto it = this->findEdge(edges, pattern);
 
-        if(it == currentgraph->edges.end()) {
-            if(!currentgraph->isLeaf())
+        if(it == edges.end()) {
+            if(!currentgraph->isleaf)
                 failed = true;
 
             return false;
@@ -83,7 +84,7 @@ bool SignatureDB::match(const std::string &hexbytes, Signature& signature)
     if(!currentgraph)
         return false;
 
-    if(!failed && currentgraph->isLeaf() && (currentgraph->index > -1))
+    if(!failed && currentgraph->isleaf && (currentgraph->index > -1))
     {
         signature = this->_signatures[currentgraph->index];
         return true;
@@ -190,17 +191,21 @@ SignatureDB &SignatureDB::operator<<(Signature signature)
             {
                 this->_graph[pattern] = std::make_unique<Graph>(pattern);
                 currentgraph = this->_graph[pattern].get();
+                this->_edges[currentgraph] = EdgeList(); // Initialize Edges for this Graph
             }
             else
                 currentgraph = it->second.get();
         }
         else {
-            auto it = this->findEdge(currentgraph, pattern);
+            EdgeList& edges = this->_edges[currentgraph];
+            auto it = this->findEdge(edges, pattern);
 
-            if(it == currentgraph->edges.end())
+            if(it == edges.end())
             {
-                currentgraph->edges.push_back(std::make_unique<Graph>(pattern));
-                currentgraph = currentgraph->edges.back().get();
+                edges.push_back(std::make_unique<Graph>(pattern));
+                currentgraph->isleaf = false;
+                currentgraph = edges.back().get();
+                this->_edges[currentgraph] = EdgeList(); // Initialize Edges for this Graph
 
             }
             else
@@ -232,11 +237,11 @@ std::string SignatureDB::uncollide(const std::string &name)
     return name;
 }
 
-SignatureDB::EdgeList::iterator SignatureDB::findEdge(Graph* graph, const std::string &pattern)
+SignatureDB::EdgeList::iterator SignatureDB::findEdge(EdgeList& edges, const std::string &pattern)
 {
-    EdgeList::iterator wit = graph->edges.end();
+    EdgeList::iterator wit = edges.end();
 
-    for(auto it = graph->edges.begin(); it != graph->edges.end(); it++)
+    for(auto it = edges.begin(); it != edges.end(); it++)
     {
         if((*it)->pattern == pattern)
             return it;
@@ -244,10 +249,10 @@ SignatureDB::EdgeList::iterator SignatureDB::findEdge(Graph* graph, const std::s
             wit = it;
     }
 
-    if(wit != graph->edges.end())
+    if(wit != edges.end())
         return wit;
 
-    return graph->edges.end();
+    return edges.end();
 }
 
 void SignatureDB::eachHexByte(const std::string &hexstring, std::function<bool(const std::string &, u32)> cb) const

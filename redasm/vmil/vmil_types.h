@@ -51,6 +51,7 @@ typedef address_t vmiladdress_t;
 typedef register_t vmilregister_t;
 typedef Instruction VMILInstruction;
 typedef InstructionPtr VMILInstructionPtr;
+typedef std::vector<VMILInstructionPtr> VMILInstructionList;
 
 } // namespace VMIL
 } // namespace REDasm

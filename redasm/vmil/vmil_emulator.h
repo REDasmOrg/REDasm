@@ -1,8 +1,9 @@
 #ifndef VMIL_EMULATOR_H
 #define VMIL_EMULATOR_H
 
-#include "../redasm.h"
+#include <unordered_map>
 #include "../disassembler/disassemblerfunctions.h"
+#include "../redasm.h"
 #include "vmil_instructions.h"
 
 namespace REDasm {
@@ -17,8 +18,9 @@ class Emulator
         typedef std::unordered_map<register_t, u64> Registers;
         typedef std::unordered_map<address_t, u64> Memory;
 
-    public:
-        typedef std::vector<VMILInstructionPtr> VMILInstructionList;
+    protected:
+        typedef std::function<void(const InstructionPtr&, VMIL::VMILInstructionPtr&, VMILInstructionList& vminstructions)> TranslateCallback;
+        typedef std::unordered_map<instruction_id_t, TranslateCallback> TranslateMap;
 
     public:
         Emulator(DisassemblerFunctions* disassembler);

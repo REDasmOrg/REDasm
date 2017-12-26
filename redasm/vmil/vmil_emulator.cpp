@@ -66,7 +66,7 @@ void Emulator::reset()
     this->_memory.clear();
 }
 
-VMILInstructionPtr Emulator::createEQ(const InstructionPtr& instruction, size_t opidx1, size_t opidx2, Emulator::VMILInstructionList &vminstructions, u32 cbvmilopcode, CondCallback cb) const
+VMILInstructionPtr Emulator::createEQ(const InstructionPtr& instruction, size_t opidx1, size_t opidx2, VMIL::VMILInstructionList &vminstructions, u32 cbvmilopcode, CondCallback cb) const
 {
     VMILInstructionPtr vminstruction;
 
@@ -88,7 +88,7 @@ VMILInstructionPtr Emulator::createEQ(const InstructionPtr& instruction, size_t 
     return cbinstruction;
 }
 
-VMILInstructionPtr Emulator::createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, Emulator::VMILInstructionList &vminstructions, u32 cbvmilopcode, Emulator::CondCallback cb) const
+VMILInstructionPtr Emulator::createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMIL::VMILInstructionList &vminstructions, u32 cbvmilopcode, Emulator::CondCallback cb) const
 {
     VMILInstructionPtr vminstruction;
 

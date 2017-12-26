@@ -96,7 +96,8 @@ SOURCES += main.cpp\
     redasm/processors/x86/x86_printer.cpp \
     redasm/processors/arm/arm_printer.cpp \
     redasm/processors/chip8/chip8_printer.cpp \
-    redasm/processors/chip8/chip8_emulator.cpp
+    redasm/processors/chip8/chip8_emulator.cpp \
+    redasm/processors/mips/mips_emulator.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -180,7 +181,8 @@ HEADERS  += mainwindow.h \
     redasm/processors/arm/arm_printer.h \
     redasm/processors/chip8/chip8_emulator.h \
     redasm/processors/chip8/chip8_printer.h \
-    redasm/processors/chip8/chip8_registers.h
+    redasm/processors/chip8/chip8_registers.h \
+    redasm/processors/mips/mips_emulator.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

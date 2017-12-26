@@ -116,7 +116,7 @@ bool Disassembler::iterateVMIL(address_t address, Listing::InstructionCallback c
         return false;
 
     return this->_listing.iterateFunction(address, [this, &emulator, &cbinstruction](const InstructionPtr& instruction) {
-        VMIL::Emulator::VMILInstructionList vminstructions;
+        VMIL::VMILInstructionList vminstructions;
         emulator->translate(instruction, vminstructions);
 
         std::for_each(vminstructions.begin(), vminstructions.end(), [cbinstruction](const VMIL::VMILInstructionPtr& vminstruction) {

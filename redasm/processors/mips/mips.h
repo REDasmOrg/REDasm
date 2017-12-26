@@ -3,6 +3,7 @@
 
 #include "../../plugins/plugins.h"
 #include "mips_printer.h"
+#include "mips_emulator.h"
 #include "mips_quirks.h"
 
 namespace REDasm {
@@ -12,8 +13,9 @@ template<size_t mode> class MIPSProcessor: public CapstoneProcessorPlugin<CS_ARC
     public:
         MIPSProcessor(): CapstoneProcessorPlugin<CS_ARCH_MIPS, mode>() { }
         virtual const char* name() const;
-        virtual u32 flags() const { return ProcessorFlags::DelaySlot; }
+        virtual u32 flags() const { return ProcessorFlags::DelaySlot | ProcessorFlags::HasVMIL; }
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
+        virtual VMIL::Emulator* createEmulator(DisassemblerFunctions *disassembler) const { return new MIPSEmulator(disassembler); }
         virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable *symboltable) const { return new MIPSPrinter(this->_cshandle, disassembler, symboltable); }
 
     private:

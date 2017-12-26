@@ -250,6 +250,8 @@ struct Instruction
     void reset() { type = 0; operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
     void target_op(s32 index) { target_idx = index; targets.push_back(operands[index].u_value); }
     void target(address_t target) { targets.push_back(target); }
+    void op_size(s32 index, u32 size) { operands[index].size = size; }
+    u32 op_size(s32 index) const { return operands[index].size; }
     address_t target() const { return targets.front(); }
     address_t endAddress() const { return address + size; }
 

@@ -87,6 +87,28 @@ instruction_id_t Emulator::getInstructionId(const InstructionPtr &instruction) c
     return instruction->id;
 }
 
+vmilregister_t Emulator::createMemDisp(const InstructionPtr &instruction, size_t opidx, VMILInstructionList &vminstructions) const
+{
+    Operand opmem = instruction->op(opidx);
+
+    VMILInstructionPtr vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Str);
+    vminstruction->reg(VMIL_REGISTER(0));
+    vminstruction->reg(opmem.mem.base.r, opmem.type);
+    vminstructions.push_back(vminstruction);
+
+    if(opmem.mem.displacement)
+    {
+        vminstruction = this->createInstruction(instruction, (opmem.mem.displacement > 0) ? VMIL::Opcodes::Add :
+                                                                                            VMIL::Opcodes::Sub, VMIL_INSTRUCTION_I(vminstructions));
+        vminstruction->reg(VMIL_REGISTER(0));
+        vminstruction->reg(VMIL_REGISTER(0));
+        vminstruction->imm(opmem.mem.displacement);
+        vminstructions.push_back(vminstruction);
+    }
+
+    return VMIL_REGISTER_ID(0);
+}
+
 VMILInstructionPtr Emulator::createEQ(const InstructionPtr& instruction, size_t opidx1, size_t opidx2, VMIL::VMILInstructionList &vminstructions, u32 cbvmilopcode, CondCallback cb) const
 {
     VMILInstructionPtr vminstruction;

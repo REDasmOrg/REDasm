@@ -365,7 +365,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
     }
     else
     {
-        if(this->_emulator)
+        if(this->_processor->canEmulateVMIL() && this->_emulator)
             this->_emulator->emulate(instruction);
 
         const OperandList& operands = instruction->operands;

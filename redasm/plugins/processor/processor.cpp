@@ -79,6 +79,11 @@ bool ProcessorPlugin::hasVMIL() const
     return this->hasFlag(ProcessorFlags::HasVMIL);
 }
 
+bool ProcessorPlugin::canEmulateVMIL() const
+{
+    return this->hasFlag(ProcessorFlags::EmulateVMIL);
+}
+
 void ProcessorPlugin::pushState()
 {
     this->_statestack.push(ProcessorFlags::None);

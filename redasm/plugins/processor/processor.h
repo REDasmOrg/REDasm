@@ -18,7 +18,7 @@ namespace REDasm {
 
 namespace ProcessorFlags {
     enum: u32 { None    = 0, DelaySlot = 1,
-                HasVMIL = 0x0001000 };
+                HasVMIL = 0x00010000, EmulateVMIL = 0x00020000 };
 }
 
 class ProcessorPlugin: public Plugin
@@ -34,6 +34,7 @@ class ProcessorPlugin: public Plugin
     public:
         bool hasFlag(u32 flag) const;
         bool hasVMIL() const;
+        bool canEmulateVMIL() const;
         void pushState();
         void popState();
 

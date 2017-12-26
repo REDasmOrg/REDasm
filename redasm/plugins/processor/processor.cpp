@@ -8,7 +8,7 @@ ProcessorPlugin::ProcessorPlugin(): Plugin()
 {
 }
 
-int ProcessorPlugin::flags() const
+u32 ProcessorPlugin::flags() const
 {
     return ProcessorFlags::None;
 }

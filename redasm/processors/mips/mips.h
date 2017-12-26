@@ -12,7 +12,7 @@ template<size_t mode> class MIPSProcessor: public CapstoneProcessorPlugin<CS_ARC
     public:
         MIPSProcessor(): CapstoneProcessorPlugin<CS_ARCH_MIPS, mode>() { }
         virtual const char* name() const;
-        virtual int flags() const { return ProcessorFlags::DelaySlot; }
+        virtual u32 flags() const { return ProcessorFlags::DelaySlot; }
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable *symboltable) const { return new MIPSPrinter(this->_cshandle, disassembler, symboltable); }
 

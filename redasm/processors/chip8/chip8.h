@@ -21,6 +21,7 @@ class CHIP8Processor : public ProcessorPlugin
     public:
         CHIP8Processor();
         virtual const char* name() const;
+        virtual u32 flags() const;
         virtual VMIL::Emulator* createEmulator(DisassemblerFunctions* disassembler) const;
         virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable* symboltable) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);

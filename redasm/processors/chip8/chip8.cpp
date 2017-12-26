@@ -32,6 +32,11 @@ const char *CHIP8Processor::name() const
     return "CHIP-8 Processor";
 }
 
+u32 CHIP8Processor::flags() const
+{
+    return ProcessorFlags::HasVMIL;
+}
+
 VMIL::Emulator *CHIP8Processor::createEmulator(DisassemblerFunctions *disassembler) const
 {
     return new CHIP8Emulator(disassembler);

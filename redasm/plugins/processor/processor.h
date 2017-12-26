@@ -17,14 +17,15 @@
 namespace REDasm {
 
 namespace ProcessorFlags {
-    enum { None = 0, DelaySlot = 1 };
+    enum: u32 { None    = 0, DelaySlot = 1,
+                HasVMIL = 0x0001000 };
 }
 
 class ProcessorPlugin: public Plugin
 {
     public:
         ProcessorPlugin();
-        virtual int flags() const;
+        virtual u32 flags() const;
         virtual VMIL::Emulator* createEmulator(DisassemblerFunctions* disassembler) const;
         virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable* symboltable) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);

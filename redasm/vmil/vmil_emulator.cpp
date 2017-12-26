@@ -36,20 +36,27 @@ Emulator::Emulator(DisassemblerFunctions *disassembler): _disassembler(disassemb
     SET_NULL_OPCODE(Unkn);
 }
 
-bool Emulator::emulate(const VMILInstructionPtr &instruction)
+Emulator::~Emulator()
 {
-    auto it = this->_opmap.find(instruction->id);
 
-    if(it == this->_opmap.end())
-    {
-        REDasm::log("Cannot emulate '" + instruction->mnemonic + "' instruction");
-        return false;
-    }
+}
 
-    if(it->second)
-        it->second(instruction);
+void Emulator::emulate(const InstructionPtr &instruction)
+{
+    VMILInstructionList vminstructions;
+    this->translate(instruction, vminstructions);
 
-    return true;
+    std::for_each(vminstructions.begin(), vminstructions.end(), [this](const VMILInstructionPtr& vminstruction) {
+        auto it = this->_opmap.find(vminstruction->id);
+
+        if(it == this->_opmap.end()) {
+            REDasm::log("Cannot emulate '" + vminstruction->mnemonic + "' instruction");
+            return;
+        }
+
+        if(it->second)
+            it->second(vminstruction);
+    });
 }
 
 void Emulator::reset()

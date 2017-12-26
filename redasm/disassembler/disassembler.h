@@ -35,6 +35,7 @@ class Disassembler: public DisassemblerBase
 
     private:
         ProcessorPlugin* _processor;
+        VMIL::Emulator* _emulator;
         PrinterPtr _printer;
         Listing _listing;
 };

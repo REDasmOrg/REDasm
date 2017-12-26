@@ -10,6 +10,7 @@ namespace REDasm {
 Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlugin *format): DisassemblerBase(buffer, format), _processor(processor)
 {
     this->_printer = PrinterPtr(this->_processor->createPrinter(this, this->_symboltable));
+    this->_emulator = processor->hasVMIL() ? processor->createEmulator(this) : NULL;
 
     this->_listing.setFormat(this->_format);
     this->_listing.setProcessor(this->_processor);
@@ -19,6 +20,9 @@ Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlug
 
 Disassembler::~Disassembler()
 {
+    if(this->_emulator)
+        delete this->_emulator;
+
     delete this->_processor;
 }
 
@@ -129,6 +133,9 @@ void Disassembler::disassembleFunction(address_t address)
     if(symbol && symbol->isFunction())
         return;
 
+    if(this->_emulator)
+        this->_emulator->reset();
+
     this->_symboltable->erase(address);
     this->_symboltable->createFunction(address);
     this->disassemble(address);
@@ -145,6 +152,9 @@ void Disassembler::disassemble()
 {
     // Preload format functions for analysis
     this->_symboltable->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
+        if(this->_emulator)
+            this->_emulator->reset();
+
         this->disassemble(symbol->address);
         return true;
     });
@@ -355,6 +365,9 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
     }
     else
     {
+        if(this->_emulator)
+            this->_emulator->emulate(instruction);
+
         const OperandList& operands = instruction->operands;
 
         std::for_each(operands.begin(), operands.end(), [this, instruction](const Operand& operand) {

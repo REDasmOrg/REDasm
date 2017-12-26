@@ -22,8 +22,9 @@ class Emulator
 
     public:
         Emulator(DisassemblerFunctions* disassembler);
+        virtual ~Emulator();
         virtual void translate(const InstructionPtr& instruction, VMILInstructionList& vminstructions) = 0;
-        bool emulate(const VMILInstructionPtr& instruction);
+        void emulate(const InstructionPtr &instruction);
         void reset();
 
     protected:

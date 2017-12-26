@@ -28,6 +28,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     this->centerWindow();
     this->setAcceptDrops(true);
+
+    connect(ui->action_Open, &QAction::triggered, this, &MainWindow::on_tbOpen_clicked);
+    connect(ui->action_Database, &QAction::triggered, this, &MainWindow::on_tbDatabase_clicked);
+    connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::on_tbAbout_clicked);
 }
 
 MainWindow::~MainWindow()

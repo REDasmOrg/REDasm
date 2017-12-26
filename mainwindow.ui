@@ -205,7 +205,7 @@
     <property name="title">
      <string>&amp;REDasm</string>
     </property>
-    <addaction name="action_Database_2"/>
+    <addaction name="action_Database"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -222,11 +222,6 @@
     <string>&amp;Open</string>
    </property>
   </action>
-  <action name="action_Database">
-   <property name="text">
-    <string>&amp;Database</string>
-   </property>
-  </action>
   <action name="action_Exit">
    <property name="text">
     <string>&amp;Exit</string>
@@ -240,7 +235,7 @@
     <string>&amp;Save</string>
    </property>
   </action>
-  <action name="action_Database_2">
+  <action name="action_Database">
    <property name="text">
     <string>&amp;Database</string>
    </property>

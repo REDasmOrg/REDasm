@@ -154,7 +154,7 @@ void PeFormat::checkDelphi(const PEResources& peresources)
     if(sig.empty())
         return;
 
-    REDasm::log("Borland signature '" + sig + "' detected");
+    REDasm::log("Signature '" + sig + "' detected");
     this->addSignature(sig);
 }
 

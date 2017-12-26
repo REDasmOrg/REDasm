@@ -49,9 +49,6 @@ void Analyzer::loadSignatures(Listing& listing)
 
         if(sigdb.readPath(signaturefile))
             this->findSignatures(sigdb, listing);
-
-        int zzz = 0;
-        zzz++;
     });
 }
 

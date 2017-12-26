@@ -13,6 +13,6 @@ class MIPSPrinter : public CapstonePrinter
         virtual std::string mem(const MemoryOperand& memop) const;
 };
 
-}
+} // namespace REDasm
 
-#endif // MIPSPRINTER_H
+#endif // MIPS_PRINTER_H

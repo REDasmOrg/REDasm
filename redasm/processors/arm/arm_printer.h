@@ -1,5 +1,5 @@
-#ifndef ARMPRINTER_H
-#define ARMPRINTER_H
+#ifndef ARM_PRINTER_H
+#define ARM_PRINTER_H
 
 #include "../../plugins/processor/printer.h"
 
@@ -14,4 +14,4 @@ class ARMPrinter: public CapstonePrinter
 
 } // namespace REDasm
 
-#endif // ARMPRINTER_H
+#endif // ARM_PRINTER_H

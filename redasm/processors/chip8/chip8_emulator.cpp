@@ -1,5 +1,5 @@
-#include "chip8emulator.h"
-#include "chip8registers.h"
+#include "chip8_emulator.h"
+#include "chip8_registers.h"
 
 #define TRANSLATE_OPCODE(opcode) _translatemap[0x ## opcode * 0x1000] = [this](const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMILInstructionList& vminstructions) { \
                                                                             translate##opcode##xxx(instruction, vminstruction, vminstructions); \

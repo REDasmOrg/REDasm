@@ -1,5 +1,5 @@
-#ifndef CHIP8EMULATOR_H
-#define CHIP8EMULATOR_H
+#ifndef CHIP8_EMULATOR_H
+#define CHIP8_EMULATOR_H
 
 #include <unordered_map>
 #include "../../vmil/vmil_emulator.h"
@@ -39,4 +39,4 @@ class CHIP8Emulator : public VMIL::Emulator
 
 } // namespace REDasm
 
-#endif // CHIP8EMULATOR_H
+#endif // CHIP8_EMULATOR_H

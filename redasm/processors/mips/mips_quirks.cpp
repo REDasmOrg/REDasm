@@ -1,4 +1,4 @@
-#include "mipsquirks.h"
+#include "mips_quirks.h"
 
 #define COP2_INS_MASK 0x03E00000
 #define COP2_OPCODE   0x00000012

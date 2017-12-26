@@ -1,5 +1,5 @@
-#ifndef X86PRINTER_H
-#define X86PRINTER_H
+#ifndef X86_PRINTER_H
+#define X86_PRINTER_H
 
 #include "../../plugins/processor/printer.h"
 
@@ -14,4 +14,4 @@ class X86Printer: public CapstonePrinter
 
 } // namespace REDasm
 
-#endif // X86PRINTER_H
+#endif // X86_PRINTER_H

@@ -1,7 +1,7 @@
 #include "chip8.h"
 #include "../../support/endianness.h"
-#include "chip8printer.h"
-#include "chip8emulator.h"
+#include "chip8_printer.h"
+#include "chip8_emulator.h"
 
 #define SET_DECODE_TO(opmask, cb) _opcodemap[opmask] = [this](u16 opcode, const InstructionPtr& instruction) -> bool { return cb(opcode, instruction); };
 

@@ -2,7 +2,7 @@
 #define X86_H
 
 #include "../../plugins/plugins.h"
-#include "x86printer.h"
+#include "x86_printer.h"
 
 #define X86_REGISTER(reg) ((reg == X86_REG_INVALID) ? REGISTER_INVALID : reg)
 

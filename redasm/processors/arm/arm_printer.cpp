@@ -1,4 +1,4 @@
-#include "armprinter.h"
+#include "arm_printer.h"
 
 namespace REDasm {
 

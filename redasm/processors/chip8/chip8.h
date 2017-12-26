@@ -9,7 +9,7 @@
  */
 
 #include "../../plugins/plugins.h"
-#include "chip8registers.h"
+#include "chip8_registers.h"
 
 namespace REDasm {
 

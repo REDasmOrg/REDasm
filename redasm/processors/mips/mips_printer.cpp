@@ -1,5 +1,5 @@
-#include "mipsprinter.h"
-#include "mipsquirks.h"
+#include "mips_printer.h"
+#include "mips_quirks.h"
 
 namespace REDasm {
 

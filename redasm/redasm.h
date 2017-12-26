@@ -31,6 +31,7 @@ typedef int64_t s64;
 typedef s64 register_t;
 typedef u64 address_t;
 typedef u64 offset_t;
+typedef u64 instruction_id_t;
 
 #define RE_UNUSED(x)           (void)x
 #define ENTRYPOINT_FUNCTION    "entrypoint"
@@ -227,7 +228,7 @@ struct Instruction
     address_t address;
     s32 target_idx;                 // Target's operand index
     u32 type, size, blocktype;
-    u64 id;                         // Backend Specific
+    instruction_id_t id;            // Backend Specific
     void* userdata;                 // It doesn't survive after Processor::decode() by design
 
     bool is(u32 t) const { return type & t; }

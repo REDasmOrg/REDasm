@@ -13,7 +13,7 @@ class Emulator
     private:
         typedef std::function<void(const InstructionPtr&)> OpCallback;
         typedef std::function<void(VMILInstructionPtr&, vmilregister_t)> CondCallback;
-        typedef std::unordered_map<u32, OpCallback> OpMap;
+        typedef std::unordered_map<instruction_id_t, OpCallback> OpMap;
         typedef std::unordered_map<register_t, u64> Registers;
         typedef std::unordered_map<address_t, u64> Memory;
 

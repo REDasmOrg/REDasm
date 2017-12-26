@@ -111,6 +111,18 @@ namespace OperandTypes {
     };
 }
 
+namespace OperandSizes {
+    enum: u32 {
+        Undefined  = 0,
+        Byte       = 1,
+        Word       = 2,
+        Dword      = 4,
+        Qword      = 8,
+    };
+
+    std::string size(u32 opsize);
+}
+
 namespace BlockTypes {
     enum: u32 {
         None        = 0x00000000,
@@ -190,14 +202,14 @@ struct MemoryOperand
 
 struct Operand
 {
-    Operand(): loc_index(-1), type(OperandTypes::None), index(-1), u_value(0) { }
-    Operand(u32 type, s32 value, s32 pos): loc_index(-1), type(type), index(pos), s_value(value) { }
-    Operand(u32 type, u32 value, s32 pos): loc_index(-1), type(type), index(pos), u_value(value) { }
-    Operand(u32 type, s64 value, s32 pos): loc_index(-1), type(type), index(pos), s_value(value) { }
-    Operand(u32 type, u64 value, s32 pos): loc_index(-1), type(type), index(pos), u_value(value) { }
+    Operand(): loc_index(-1), type(OperandTypes::None), size(OperandSizes::Undefined), index(-1), u_value(0) { }
+    Operand(u32 type, s32 value, s32 pos): loc_index(-1), type(type), size(OperandSizes::Undefined), index(pos), s_value(value) { }
+    Operand(u32 type, u32 value, s32 pos): loc_index(-1), type(type), size(OperandSizes::Undefined), index(pos), u_value(value) { }
+    Operand(u32 type, s64 value, s32 pos): loc_index(-1), type(type), size(OperandSizes::Undefined), index(pos), s_value(value) { }
+    Operand(u32 type, u64 value, s32 pos): loc_index(-1), type(type), size(OperandSizes::Undefined), index(pos), u_value(value) { }
 
     s64 loc_index;
-    u32 type;
+    u32 type, size;
     s32 index;
     RegisterOperand reg;
     MemoryOperand mem;

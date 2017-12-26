@@ -6,6 +6,12 @@
 #include "../redasm.h"
 #include "vmil_instructions.h"
 
+#define VMIL_TRANSLATE_CALLBACK(id) [this](const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMIL::VMILInstructionList& vminstructions) { \
+                                            translate##id(instruction, vminstruction, vminstructions); \
+                                        }
+
+#define VMIL_TRANSLATE_OPCODE(key, id) _translatemap[key] = VMIL_TRANSLATE_CALLBACK(id)
+
 namespace REDasm {
 namespace VMIL {
 
@@ -25,11 +31,12 @@ class Emulator
     public:
         Emulator(DisassemblerFunctions* disassembler);
         virtual ~Emulator();
-        virtual void translate(const InstructionPtr& instruction, VMILInstructionList& vminstructions) = 0;
+        void translate(const InstructionPtr& instruction, VMILInstructionList& vminstructions);
         void emulate(const InstructionPtr &instruction);
         void reset();
 
     protected:
+        virtual instruction_id_t getInstructionId(const InstructionPtr& instruction) const;
         VMILInstructionPtr createEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode, CondCallback cb) const;
         VMILInstructionPtr createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode, CondCallback cb) const;
         VMILInstructionPtr createInstruction(const InstructionPtr &instruction, u32 vmilopcode, u32 index = 0) const;
@@ -63,6 +70,9 @@ class Emulator
         void emulateStm(const VMILInstructionPtr& instruction);
         void emulateBisz(const VMILInstructionPtr& instruction);
         void emulateJcc(const VMILInstructionPtr& instruction);
+
+    protected:
+        TranslateMap _translatemap;
 
     private:
         DisassemblerFunctions* _disassembler;

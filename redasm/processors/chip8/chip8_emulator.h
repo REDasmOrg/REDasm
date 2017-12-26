@@ -9,7 +9,9 @@ class CHIP8Emulator : public VMIL::Emulator
 {
     public:
         CHIP8Emulator(DisassemblerFunctions* disassembler);
-        virtual void translate(const InstructionPtr& instruction, VMIL::VMILInstructionList& vminstructions);
+
+    protected:
+        virtual instruction_id_t getInstructionId(const InstructionPtr &instruction) const;
 
     private:
         void translate1xxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMIL::VMILInstructionList& vminstructions);
@@ -27,9 +29,6 @@ class CHIP8Emulator : public VMIL::Emulator
     private:
         void translateBCD(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMIL::VMILInstructionList& vminstructions);
         void translatexxRA(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMIL::VMILInstructionList& vminstructions);
-
-    private:
-        TranslateMap _translatemap;
 };
 
 } // namespace REDasm

@@ -7,9 +7,4 @@ MIPSEmulator::MIPSEmulator(DisassemblerFunctions *disassembler): VMIL::Emulator(
 
 }
 
-void MIPSEmulator::translate(const InstructionPtr &instruction, VMIL::VMILInstructionList &vminstructions)
-{
-
-}
-
 } // namespace REDasm

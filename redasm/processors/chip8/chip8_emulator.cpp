@@ -1,40 +1,25 @@
 #include "chip8_emulator.h"
 #include "chip8_registers.h"
 
-#define TRANSLATE_OPCODE(opcode) _translatemap[0x ## opcode * 0x1000] = [this](const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMIL::VMILInstructionList& vminstructions) { \
-                                                                            translate##opcode##xxx(instruction, vminstruction, vminstructions); \
-                                                                        }
-
 namespace REDasm {
 
 CHIP8Emulator::CHIP8Emulator(DisassemblerFunctions *disassembler): VMIL::Emulator(disassembler)
 {
-    TRANSLATE_OPCODE(1);
-    TRANSLATE_OPCODE(3);
-    TRANSLATE_OPCODE(4);
-    TRANSLATE_OPCODE(6);
-    TRANSLATE_OPCODE(7);
-    TRANSLATE_OPCODE(8);
-    TRANSLATE_OPCODE(9);
-    TRANSLATE_OPCODE(A);
-    TRANSLATE_OPCODE(E);
-    TRANSLATE_OPCODE(F);
+    VMIL_TRANSLATE_OPCODE(0x1000, 1xxx);
+    VMIL_TRANSLATE_OPCODE(0x3000, 3xxx);
+    VMIL_TRANSLATE_OPCODE(0x4000, 4xxx);
+    VMIL_TRANSLATE_OPCODE(0x6000, 6xxx);
+    VMIL_TRANSLATE_OPCODE(0x7000, 7xxx);
+    VMIL_TRANSLATE_OPCODE(0x7000, 8xxx);
+    VMIL_TRANSLATE_OPCODE(0x9000, 9xxx);
+    VMIL_TRANSLATE_OPCODE(0xA000, Axxx);
+    VMIL_TRANSLATE_OPCODE(0xE000, Exxx);
+    VMIL_TRANSLATE_OPCODE(0xF000, Fxxx);
 }
 
-void CHIP8Emulator::translate(const InstructionPtr &instruction, VMIL::VMILInstructionList &vminstructions)
+instruction_id_t CHIP8Emulator::getInstructionId(const InstructionPtr &instruction) const
 {
-    u16 op = instruction->id & 0xF000;
-    VMIL::VMILInstructionPtr vminstruction;
-    auto it = this->_translatemap.find(op);
-
-    if(it != this->_translatemap.end())
-        it->second(instruction, vminstruction, vminstructions);
-
-    if(!vminstructions.empty())
-        return;
-
-    vminstruction = this->invalidInstruction(instruction);
-    vminstructions.push_back(vminstruction);
+    return instruction->id & 0xF000;
 }
 
 void CHIP8Emulator::translate1xxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList& vminstructions)

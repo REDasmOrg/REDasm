@@ -8,14 +8,11 @@ namespace REDasm {
 
 class MIPSEmulator : public VMIL::Emulator
 {
-
-
     public:
         MIPSEmulator(DisassemblerFunctions* disassembler);
-        virtual void translate(const InstructionPtr& instruction, VMIL::VMILInstructionList& vminstructions);
 
     private:
-
+        TranslateMap _translatemap;
 };
 
 } // namespace REDasm

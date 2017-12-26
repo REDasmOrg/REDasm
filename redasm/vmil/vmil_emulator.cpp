@@ -41,6 +41,22 @@ Emulator::~Emulator()
 
 }
 
+void Emulator::translate(const InstructionPtr &instruction, VMILInstructionList &vminstructions)
+{
+    instruction_id_t id = this->getInstructionId(instruction);
+    VMIL::VMILInstructionPtr vminstruction;
+
+    auto it = this->_translatemap.find(id);
+
+    if(it != this->_translatemap.end())
+        it->second(instruction, vminstruction, vminstructions);
+
+    if(!vminstructions.empty())
+        return;
+
+    vminstructions.push_back(this->invalidInstruction(instruction));
+}
+
 void Emulator::emulate(const InstructionPtr &instruction)
 {
     VMILInstructionList vminstructions;
@@ -64,6 +80,11 @@ void Emulator::reset()
     this->_tempregisters.clear();
     this->_registers.clear();
     this->_memory.clear();
+}
+
+instruction_id_t Emulator::getInstructionId(const InstructionPtr &instruction) const
+{
+    return instruction->id;
 }
 
 VMILInstructionPtr Emulator::createEQ(const InstructionPtr& instruction, size_t opidx1, size_t opidx2, VMIL::VMILInstructionList &vminstructions, u32 cbvmilopcode, CondCallback cb) const

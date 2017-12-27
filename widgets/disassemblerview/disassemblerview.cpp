@@ -223,13 +223,23 @@ void DisassemblerView::xrefSymbol(const QModelIndex &index)
 
 void DisassemblerView::displayAddress(address_t address)
 {
-    int bits = this->_disassembler->format()->bits();
-    offset_t offset = this->_disassembler->format()->offset(address);
+    REDasm::SymbolPtr symbol = this->_disassembler->listing().getFunction(address);
     const REDasm::Segment* segment = this->_disassembler->format()->segment(address);
+    offset_t offset = this->_disassembler->format()->offset(address);
+    s64 foffset = symbol ? address - symbol->address : 0;
+    int bits = this->_disassembler->format()->bits();
+    QString soffset;
 
-    QString s = QString("<b>%1:%2</b>\u00A0\u00A0[%3]\u00A0\u00A0\u00A0\u00A0").arg(segment ? S_TO_QS(segment->name) : "unk",
-                                                                                    S_TO_QS(REDasm::hex(address, bits, false)),
-                                                                                    S_TO_QS(REDasm::hex(offset, bits, false)));
+    if(foffset > 0)
+        soffset = "+" + QString::number(foffset, 16);
+    else if(foffset < 0)
+        soffset = "-" + QString::number(foffset, 16);
+
+    QString s = QString("<b>%1:%2</b>\u00A0\u00A0[%3]\u00A0\u00A0<b>%4%5</b>").arg(segment ? S_TO_QS(segment->name) : "unk",
+                                                                                   S_TO_QS(REDasm::hex(address, bits, false)),
+                                                                                   S_TO_QS(REDasm::hex(offset, bits, false)),
+                                                                                   symbol ? S_TO_QS(symbol->name) : QString(),
+                                                                                   soffset);
 
     this->_lblstatus->setText(s);
 }

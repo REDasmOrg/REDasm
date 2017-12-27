@@ -31,6 +31,8 @@ class Emulator
     public:
         Emulator(DisassemblerFunctions* disassembler);
         virtual ~Emulator();
+        void setDefaultRegister(vmilregister_t reg);
+        vmilregister_t defaultRegister() const;
         void translate(const InstructionPtr& instruction, VMILInstructionList& vminstructions);
         void emulate(const InstructionPtr &instruction);
         void reset();
@@ -38,8 +40,8 @@ class Emulator
     protected:
         virtual instruction_id_t getInstructionId(const InstructionPtr& instruction) const;
         vmilregister_t createMemDisp(const InstructionPtr& instruction, size_t opidx, VMILInstructionList& vminstructions) const;
-        VMILInstructionPtr createEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode, CondCallback cb) const;
-        VMILInstructionPtr createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode, CondCallback cb) const;
+        VMILInstructionPtr createEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode) const;
+        VMILInstructionPtr createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode) const;
         VMILInstructionPtr createInstruction(const InstructionPtr &instruction, u32 vmilopcode, u32 index = 0) const;
         VMILInstructionPtr invalidInstruction(const InstructionPtr &instruction) const;
 
@@ -76,6 +78,7 @@ class Emulator
         TranslateMap _translatemap;
 
     private:
+        vmilregister_t _defregister;
         DisassemblerFunctions* _disassembler;
         OpMap _opmap;
         Registers _tempregisters;

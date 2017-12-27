@@ -33,22 +33,20 @@ void CHIP8Emulator::translate1xxx(const InstructionPtr &instruction, VMIL::VMILI
 
 void CHIP8Emulator::translate3xxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions)
 {
-    vminstruction = this->createEQ(instruction, 0, 1, vminstructions, VMIL::Opcodes::Jcc, [this, instruction](VMIL::VMILInstructionPtr& vminstruction, VMIL::vmilregister_t reg) {
-        vminstruction->reg(VMIL_REGISTER(reg));
-        vminstruction->imm(VMIL_ADDRESS(instruction->target()));
-        vminstruction->target_idx = 1;
-    });
+    vminstruction = this->createEQ(instruction, 0, 1, vminstructions, VMIL::Opcodes::Jcc);
+    vminstruction->reg(VMIL_DEFAULT_REGISTER);
+    vminstruction->imm(VMIL_ADDRESS(instruction->target()));
+    vminstruction->target_idx = 1;
 
     vminstructions.push_back(vminstruction);
 }
 
 void CHIP8Emulator::translate4xxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions)
 {
-    vminstruction = this->createNEQ(instruction, 0, 1, vminstructions, VMIL::Opcodes::Jcc, [this, instruction](VMIL::VMILInstructionPtr& vminstruction, VMIL::vmilregister_t reg) {
-        vminstruction->reg(VMIL_REGISTER(reg));
-        vminstruction->imm(VMIL_ADDRESS(instruction->target()));
-        vminstruction->target_idx = 1;
-    });
+    vminstruction = this->createNEQ(instruction, 0, 1, vminstructions, VMIL::Opcodes::Jcc);
+    vminstruction->reg(VMIL_DEFAULT_REGISTER);
+    vminstruction->imm(VMIL_ADDRESS(instruction->target()));
+    vminstruction->target_idx = 1;
 
     vminstructions.push_back(vminstruction);
 }

@@ -32,6 +32,7 @@
 #define VMIL_INSTRUCTION_I(vminstructions)           vminstructions.size()
 #define VMIL_REGISTER_ID(i)                          i
 #define VMIL_REGISTER(i)                             VMIL_REGISTER_ID(i), VMIL_REG_OPERAND
+#define VMIL_DEFAULT_REGISTER                        VMIL_REGISTER(defaultRegister())
 
 namespace REDasm {
 namespace VMIL {

@@ -13,7 +13,7 @@
 namespace REDasm {
 namespace VMIL {
 
-Emulator::Emulator(DisassemblerFunctions *disassembler): _disassembler(disassembler)
+Emulator::Emulator(DisassemblerFunctions *disassembler): _disassembler(disassembler), _defregister(VMIL_REGISTER_ID(0))
 {
     SET_EXECUTE_OPCODE(Add);
     SET_EXECUTE_OPCODE(Sub);
@@ -39,6 +39,16 @@ Emulator::Emulator(DisassemblerFunctions *disassembler): _disassembler(disassemb
 Emulator::~Emulator()
 {
 
+}
+
+void Emulator::setDefaultRegister(vmilregister_t reg)
+{
+    this->_defregister = reg;
+}
+
+vmilregister_t Emulator::defaultRegister() const
+{
+    return this->_defregister;
 }
 
 void Emulator::translate(const InstructionPtr &instruction, VMILInstructionList &vminstructions)
@@ -92,7 +102,7 @@ vmilregister_t Emulator::createMemDisp(const InstructionPtr &instruction, size_t
     Operand opmem = instruction->op(opidx);
 
     VMILInstructionPtr vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Str);
-    vminstruction->reg(VMIL_REGISTER(0));
+    vminstruction->reg(VMIL_REGISTER(this->_defregister));
     vminstruction->reg(opmem.mem.base.r, opmem.type);
     vminstructions.push_back(vminstruction);
 
@@ -100,8 +110,8 @@ vmilregister_t Emulator::createMemDisp(const InstructionPtr &instruction, size_t
     {
         vminstruction = this->createInstruction(instruction, (opmem.mem.displacement > 0) ? VMIL::Opcodes::Add :
                                                                                             VMIL::Opcodes::Sub, VMIL_INSTRUCTION_I(vminstructions));
-        vminstruction->reg(VMIL_REGISTER(0));
-        vminstruction->reg(VMIL_REGISTER(0));
+        vminstruction->reg(VMIL_REGISTER(this->_defregister));
+        vminstruction->reg(VMIL_REGISTER(this->_defregister));
         vminstruction->imm(opmem.mem.displacement);
         vminstructions.push_back(vminstruction);
     }
@@ -109,41 +119,39 @@ vmilregister_t Emulator::createMemDisp(const InstructionPtr &instruction, size_t
     return VMIL_REGISTER_ID(0);
 }
 
-VMILInstructionPtr Emulator::createEQ(const InstructionPtr& instruction, size_t opidx1, size_t opidx2, VMIL::VMILInstructionList &vminstructions, u32 cbvmilopcode, CondCallback cb) const
+VMILInstructionPtr Emulator::createEQ(const InstructionPtr& instruction, size_t opidx1, size_t opidx2, VMIL::VMILInstructionList &vminstructions, u32 cbvmilopcode) const
 {
     VMILInstructionPtr vminstruction;
 
     vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Xor);
-    vminstruction->reg(VMIL_REGISTER(0));
+    vminstruction->reg(VMIL_REGISTER(this->_defregister));
     vminstruction->op(instruction->op(opidx1));
     vminstruction->op(instruction->op(opidx2));
     vminstructions.push_back(vminstruction);
 
     vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Bisz);
     vminstruction->address = VMIL_INSTRUCTION_ADDRESS_I(instruction, 1);
-    vminstruction->reg(VMIL_REGISTER(0));
-    vminstruction->reg(VMIL_REGISTER(0));
+    vminstruction->reg(VMIL_REGISTER(this->_defregister));
+    vminstruction->reg(VMIL_REGISTER(this->_defregister));
     vminstructions.push_back(vminstruction);
 
     VMILInstructionPtr cbinstruction = this->createInstruction(instruction, cbvmilopcode);
     cbinstruction->address = VMIL_INSTRUCTION_ADDRESS_I(instruction, 2);
-    cb(cbinstruction, VMIL_REGISTER_ID(0));
     return cbinstruction;
 }
 
-VMILInstructionPtr Emulator::createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMIL::VMILInstructionList &vminstructions, u32 cbvmilopcode, Emulator::CondCallback cb) const
+VMILInstructionPtr Emulator::createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMIL::VMILInstructionList &vminstructions, u32 cbvmilopcode) const
 {
     VMILInstructionPtr vminstruction;
 
     vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Xor);
-    vminstruction->reg(VMIL_REGISTER(0));
+    vminstruction->reg(VMIL_REGISTER(this->_defregister));
     vminstruction->op(instruction->op(opidx1));
     vminstruction->op(instruction->op(opidx2));
     vminstructions.push_back(vminstruction);
 
     VMILInstructionPtr cbinstruction = this->createInstruction(instruction, cbvmilopcode);
     cbinstruction->address = VMIL_INSTRUCTION_ADDRESS_I(instruction, 2);
-    cb(cbinstruction, VMIL_REGISTER_ID(0));
     return cbinstruction;
 }
 

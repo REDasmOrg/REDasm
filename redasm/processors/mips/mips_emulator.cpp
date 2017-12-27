@@ -45,7 +45,7 @@ MIPSEmulator::MIPSEmulator(DisassemblerFunctions *disassembler): VMIL::Emulator(
 
 void MIPSEmulator::translateLxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
-    VMIL::vmilregister_t r = this->createMemDisp(instruction, 1, vminstructions);
+    this->createDisplacement(instruction, 1, vminstructions);
     vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Ldm, VMIL_INSTRUCTION_I(vminstructions));
 
     if((instruction->id == MIPS_INS_LWL) || (instruction->id == MIPS_INS_LWR))
@@ -53,7 +53,7 @@ void MIPSEmulator::translateLxx(const InstructionPtr &instruction, VMIL::VMILIns
     else
         vminstruction->op(instruction->op(0));
 
-    vminstruction->reg(VMIL_REGISTER(r));
+    vminstruction->reg(VMIL_DEFAULT_REGISTER);
     vminstructions.push_back(vminstruction);
 
     switch(instruction->id)
@@ -110,9 +110,9 @@ void MIPSEmulator::translateSxx(const InstructionPtr &instruction, VMIL::VMILIns
         vminstructions.push_back(vminstruction);
     }
 
-    VMIL::vmilregister_t r = this->createMemDisp(instruction, 1, vminstructions);
+    this->createDisplacement(instruction, 1, vminstructions);
     vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Stm, VMIL_INSTRUCTION_I(vminstructions));
-    vminstruction->reg(VMIL_REGISTER(r));
+    vminstruction->reg(VMIL_DEFAULT_REGISTER);
 
     if((instruction->id == MIPS_INS_SWL) || (instruction->id == MIPS_INS_SWR))
         vminstruction->reg(VMIL_REGISTER(1)); // Temporary register for HI/LO part management

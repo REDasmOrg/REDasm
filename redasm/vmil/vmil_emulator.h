@@ -39,7 +39,7 @@ class Emulator
 
     protected:
         virtual instruction_id_t getInstructionId(const InstructionPtr& instruction) const;
-        vmilregister_t createMemDisp(const InstructionPtr& instruction, size_t opidx, VMILInstructionList& vminstructions) const;
+        void createDisplacement(const InstructionPtr& instruction, size_t opidx, VMILInstructionList& vminstructions) const;
         VMILInstructionPtr createEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode) const;
         VMILInstructionPtr createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode) const;
         VMILInstructionPtr createInstruction(const InstructionPtr &instruction, u32 vmilopcode, u32 index = 0) const;

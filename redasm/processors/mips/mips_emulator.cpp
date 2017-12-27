@@ -45,8 +45,8 @@ MIPSEmulator::MIPSEmulator(DisassemblerFunctions *disassembler): VMIL::Emulator(
 
 void MIPSEmulator::translateLxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
-    this->createDisplacement(instruction, 1, vminstructions);
-    vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Ldm, VMIL_INSTRUCTION_I(vminstructions));
+    this->emitDisplacement(instruction, 1, vminstructions);
+    vminstruction = VMIL::emitLdm(instruction, VMIL_INSTRUCTION_I(vminstructions));
 
     if((instruction->id == MIPS_INS_LWL) || (instruction->id == MIPS_INS_LWR))
         vminstruction->reg(VMIL_REGISTER(1)); // Temporary register for HI/LO part management
@@ -80,13 +80,13 @@ void MIPSEmulator::translateLxx(const InstructionPtr &instruction, VMIL::VMILIns
 
     if((instruction->id == MIPS_INS_LWL) || (instruction->id == MIPS_INS_LWR))
     {
-        vminstruction = this->createInstruction(instruction, VMIL::Opcodes::And, VMIL_INSTRUCTION_I(vminstructions));
+        vminstruction = VMIL::emitAnd(instruction, VMIL_INSTRUCTION_I(vminstructions));
         vminstruction->reg(VMIL_REGISTER(1));
         vminstruction->reg(VMIL_REGISTER(1));
         vminstruction->imm((instruction->id == MIPS_INS_LWL) ? 0x0000FFFF : 0xFFFF0000);
         vminstructions.push_back(vminstruction);
 
-        vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Or, VMIL_INSTRUCTION_I(vminstructions));
+        vminstruction = VMIL::emitOr(instruction, VMIL_INSTRUCTION_I(vminstructions));
         vminstruction->op(instruction->op(0));
         vminstruction->op(instruction->op(0));
         vminstruction->reg(VMIL_REGISTER(1));
@@ -98,20 +98,20 @@ void MIPSEmulator::translateSxx(const InstructionPtr &instruction, VMIL::VMILIns
 {
     if((instruction->id == MIPS_INS_SWL) || (instruction->id == MIPS_INS_SWR))
     {
-        vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Str, VMIL_INSTRUCTION_I(vminstructions));
+        vminstruction = VMIL::emitStr(instruction, VMIL_INSTRUCTION_I(vminstructions));
         vminstruction->reg(VMIL_REGISTER(1));
         vminstruction->op(instruction->op(0));
         vminstructions.push_back(vminstruction);
 
-        vminstruction = this->createInstruction(instruction, VMIL::Opcodes::And, VMIL_INSTRUCTION_I(vminstructions));
+        vminstruction = VMIL::emitAnd(instruction, VMIL_INSTRUCTION_I(vminstructions));
         vminstruction->reg(VMIL_REGISTER(1));
         vminstruction->reg(VMIL_REGISTER(1));
         vminstruction->imm((instruction->id == MIPS_INS_LWL) ? 0x0000FFFF : 0xFFFF0000);
         vminstructions.push_back(vminstruction);
     }
 
-    this->createDisplacement(instruction, 1, vminstructions);
-    vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Stm, VMIL_INSTRUCTION_I(vminstructions));
+    this->emitDisplacement(instruction, 1, vminstructions);
+    vminstruction = VMIL::emitStm(instruction, VMIL_INSTRUCTION_I(vminstructions));
     vminstruction->reg(VMIL_DEFAULT_REGISTER);
 
     if((instruction->id == MIPS_INS_SWL) || (instruction->id == MIPS_INS_SWR))
@@ -144,14 +144,14 @@ void MIPSEmulator::translateSxx(const InstructionPtr &instruction, VMIL::VMILIns
 
 void MIPSEmulator::translateLUI(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
-    vminstruction = this->createInstruction(instruction, VMIL::Str);
+    vminstruction = VMIL::emitStr(instruction);
     vminstruction->op(instruction->op(0));
     vminstruction->op(instruction->op(1));
     vminstructions.push_back(vminstruction);
 
     if(instruction->size == 4)
     {
-        vminstruction = this->createInstruction(instruction, VMIL::Lsh, VMIL_INSTRUCTION_I(vminstructions));
+        vminstruction = VMIL::emitLsh(instruction, VMIL_INSTRUCTION_I(vminstructions));
         vminstruction->op(instruction->op(0));
         vminstruction->op(instruction->op(0));
         vminstruction->imm(16);
@@ -161,13 +161,13 @@ void MIPSEmulator::translateLUI(const InstructionPtr &instruction, VMIL::VMILIns
 
 void MIPSEmulator::translateNOP(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
-    vminstruction = this->createInstruction(instruction, VMIL::Nop);
+    vminstruction = VMIL::emitNop(instruction);
     vminstructions.push_back(vminstruction);
 }
 
 void MIPSEmulator::translateSLL(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
-    vminstruction = this->createInstruction(instruction, VMIL::Lsh);
+    vminstruction = VMIL::emitLsh(instruction);
     vminstruction->op(instruction->op(0));
     vminstruction->op(instruction->op(1));
     vminstruction->op(instruction->op(2));
@@ -176,7 +176,7 @@ void MIPSEmulator::translateSLL(const InstructionPtr &instruction, VMIL::VMILIns
 
 void MIPSEmulator::translateSRL(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
-    vminstruction = this->createInstruction(instruction, VMIL::Rsh);
+    vminstruction = VMIL::emitRsh(instruction);
     vminstruction->op(instruction->op(0));
     vminstruction->op(instruction->op(1));
     vminstruction->op(instruction->op(2));
@@ -190,23 +190,23 @@ void MIPSEmulator::translateMath(const InstructionPtr &instruction, VMIL::VMILIn
         case MIPS_INS_ADD:
         case MIPS_INS_ADDI:
         case MIPS_INS_ADDIU:
-            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Add);
+            vminstruction = VMIL::emitAdd(instruction);
             break;
 
         case MIPS_INS_SUB:
         case MIPS_INS_SUBU:
-            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Sub);
+            vminstruction = VMIL::emitSub(instruction);
             break;
 
         case MIPS_INS_MUL:
         case MIPS_INS_MULT:
         case MIPS_INS_MULTU:
-            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Mul);
+            vminstruction = VMIL::emitMul(instruction);
             break;
 
         case MIPS_INS_DIV:
         case MIPS_INS_DIVU:
-            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Div);
+            vminstruction = VMIL::emitDiv(instruction);
             break;
 
         default:
@@ -236,17 +236,17 @@ void MIPSEmulator::translateBitwise(const InstructionPtr &instruction, VMIL::VMI
     {
         case MIPS_INS_AND:
         case MIPS_INS_ANDI:
-            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::And);
+            vminstruction = VMIL::emitAnd(instruction);
             break;
 
         case MIPS_INS_OR:
         case MIPS_INS_ORI:
-            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Or);
+            vminstruction = VMIL::emitOr(instruction);
             break;
 
         case MIPS_INS_XOR:
         case MIPS_INS_XORI:
-            vminstruction = this->createInstruction(instruction, VMIL::Opcodes::Xor);
+            vminstruction = VMIL::emitXor(instruction);
             break;
 
         default:

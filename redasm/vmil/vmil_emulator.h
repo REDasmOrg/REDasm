@@ -39,11 +39,11 @@ class Emulator
 
     protected:
         virtual instruction_id_t getInstructionId(const InstructionPtr& instruction) const;
-        void createDisplacement(const InstructionPtr& instruction, size_t opidx, VMILInstructionList& vminstructions) const;
-        VMILInstructionPtr createEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode) const;
-        VMILInstructionPtr createNEQ(const InstructionPtr &instruction, size_t opidx1, size_t opidx2, VMILInstructionList& vminstructions, u32 cbvmilopcode) const;
-        VMILInstructionPtr createInstruction(const InstructionPtr &instruction, u32 vmilopcode, u32 index = 0) const;
-        VMILInstructionPtr invalidInstruction(const InstructionPtr &instruction) const;
+        void emitDisplacement(const InstructionPtr& instruction, u32 opidx, VMILInstructionList& vminstructions) const;
+        void emitEQ(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
+        void emitNEQ(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
+        void emitLT(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
+        void emitGT(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
 
     private:
         void write(const Operand& operand, u64 value);

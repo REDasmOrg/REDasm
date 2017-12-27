@@ -26,5 +26,18 @@ VMILInstructionDef instructions[] = { VMIL_INSTRUCTION(ADD, Add),
                                       VMIL_INSTRUCTION_T(UNDEF, Undef, None),
                                       VMIL_INSTRUCTION_T(UNKN, Unkn, None) };
 
+VMILInstructionPtr emitInstruction(const REDasm::InstructionPtr& instruction, vmilopcode_t opcode, u64 index) {
+    const VMIL::VMILInstructionDef& vmilinstruction = VMIL::instructions[opcode];
+
+    VMILInstructionPtr vminstruction = std::make_shared<VMILInstruction>();
+    vminstruction->address = VMIL_INSTRUCTION_ADDRESS_I(instruction, index);
+    vminstruction->mnemonic = vmilinstruction.mnemonic;
+    vminstruction->id = vmilinstruction.id;
+    vminstruction->type = vmilinstruction.type;
+    vminstruction->blocktype = instruction->blocktype;
+
+    return vminstruction;
+}
+
 } // namespace VMIL
 } // namespace REDasm

@@ -50,6 +50,7 @@ struct VMILInstructionDef { std::string mnemonic; u32 id, type; };
 
 typedef address_t vmiladdress_t;
 typedef register_t vmilregister_t;
+typedef u32 vmilopcode_t;
 typedef Instruction VMILInstruction;
 typedef InstructionPtr VMILInstructionPtr;
 typedef std::vector<VMILInstructionPtr> VMILInstructionList;

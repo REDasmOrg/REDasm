@@ -21,6 +21,7 @@ MIPSEmulator::MIPSEmulator(DisassemblerFunctions *disassembler): VMIL::Emulator(
 
     VMIL_TRANSLATE_OPCODE(MIPS_INS_ADD, Math);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_ADDI, Math);
+    VMIL_TRANSLATE_OPCODE(MIPS_INS_ADDU, Math);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_ADDIU, Math);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_SUB, Math);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_SUBU, Math);
@@ -189,6 +190,7 @@ void MIPSEmulator::translateMath(const InstructionPtr &instruction, VMIL::VMILIn
     {
         case MIPS_INS_ADD:
         case MIPS_INS_ADDI:
+        case MIPS_INS_ADDU:
         case MIPS_INS_ADDIU:
             vminstruction = VMIL::emitAdd(instruction);
             break;

@@ -5,19 +5,19 @@ namespace REDasm {
 
 MIPSEmulator::MIPSEmulator(DisassemblerFunctions *disassembler): VMIL::Emulator(disassembler)
 {
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LB,  Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LH,  Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LWL, Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LB,  Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LH,  Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LWL, Lxx);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_LW,  Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LBU, Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LHU, Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LWR, Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LBU, Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LHU, Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LWR, Lxx);
 
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SB,  Sxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SH,  Sxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SWL, Sxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SB,  Sxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SH,  Sxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SWL, Sxx);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_SW,  Sxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SWR, Sxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SWR, Sxx);
 
     VMIL_TRANSLATE_OPCODE(MIPS_INS_ADD, Math);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_ADDI, Math);
@@ -145,6 +145,9 @@ void MIPSEmulator::translateSxx(const InstructionPtr &instruction, VMIL::VMILIns
 
 void MIPSEmulator::translateLUI(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
+    if((instruction->mnemonic != "li") && (instruction->mnemonic != "lui")) // FIXME: Don't decode all macro instructions
+        return;
+
     vminstruction = VMIL::emitStr(instruction);
     vminstruction->op(instruction->op(0));
     vminstruction->op(instruction->op(1));

@@ -7,7 +7,7 @@ Printer::Printer(DisassemblerFunctions *disassembler, SymbolTable *symboltable):
 
 }
 
-std::string Printer::out(const InstructionPtr &instruction, std::function<void (const Operand&, const std::string &)> opfunc) const
+std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback opfunc) const
 {
     const OperandList& operands = instruction->operands;
     std::string s = instruction->mnemonic;
@@ -58,8 +58,13 @@ std::string Printer::out(const InstructionPtr &instruction, std::function<void (
                 continue;
         }
 
+        std::string opsize = OperandSizes::size(operand.size);
+
         if(opfunc)
-            opfunc(*it, opstr);
+            opfunc(*it, opsize, opstr);
+
+        if(!opsize.empty())
+            s += opsize + " ";
 
         s += opstr;
     }
@@ -69,7 +74,7 @@ std::string Printer::out(const InstructionPtr &instruction, std::function<void (
 
 std::string Printer::out(const InstructionPtr &instruction) const
 {
-    return this->out(instruction, [](const Operand&, const std::string&) { });
+    return this->out(instruction, [](const Operand&, const std::string&, const std::string&) { });
 }
 
 std::string Printer::mem(const MemoryOperand &memop) const

@@ -12,8 +12,11 @@ namespace REDasm {
 class Printer
 {
     public:
+        typedef std::function<void(const Operand&, const std::string&, const std::string&)> OpCallback;
+
+    public:
         Printer(DisassemblerFunctions* disassembler, SymbolTable* symboltable);
-        virtual std::string out(const InstructionPtr& instruction, std::function<void(const Operand&, const std::string&)> opfunc) const;
+        virtual std::string out(const InstructionPtr& instruction, OpCallback opfunc) const;
         virtual std::string out(const InstructionPtr& instruction) const;
 
     public: // Operand privitives

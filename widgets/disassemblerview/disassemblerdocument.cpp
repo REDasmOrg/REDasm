@@ -229,16 +229,19 @@ void DisassemblerDocument::appendInstruction(const REDasm::InstructionPtr &instr
 
 void DisassemblerDocument::appendOperands(const REDasm::InstructionPtr &instruction)
 {
-    this->_currentprinter->out(instruction, [this](const REDasm::Operand& operand, const std::string& opstr) {
+    this->_currentprinter->out(instruction, [this](const REDasm::Operand& operand, const std::string& opsize, const std::string& opstr) {
         if(operand.index > 0)
             this->_textcursor.insertText(", ", QTextCharFormat());
 
-        this->appendOperand(operand, S_TO_QS(opstr));
+        this->appendOperand(operand, S_TO_QS(opsize), S_TO_QS(opstr));
     });
 }
 
-void DisassemblerDocument::appendOperand(const REDasm::Operand &operand, const QString &opstr)
+void DisassemblerDocument::appendOperand(const REDasm::Operand &operand, const QString& opsize, const QString &opstr)
 {
+    if(!opsize.isEmpty())
+        this->_textcursor.insertText(opsize + " ", QTextCharFormat());
+
     QTextCharFormat charformat;
 
     if(operand.is(REDasm::OperandTypes::Immediate) || operand.is(REDasm::OperandTypes::Memory))

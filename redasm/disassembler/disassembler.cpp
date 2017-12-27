@@ -406,19 +406,14 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
     }
     else
     {
-        bool ok = true;
-
         if(this->_processor->canEmulateVMIL() && this->_emulator)
-            ok = this->_emulator->emulate(instruction);
+            this->_emulator->emulate(instruction);
 
         const OperandList& operands = instruction->operands;
 
         std::for_each(operands.begin(), operands.end(), [this, instruction](const Operand& operand) {
             this->analyzeOp(instruction, operand);
         });
-
-        if(!ok)
-            this->_emulator->reset(); // Reset VM if emulation is failed
     }
 
     this->_listing.commit(address, instruction);

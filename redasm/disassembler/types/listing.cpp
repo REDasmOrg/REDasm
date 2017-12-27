@@ -59,7 +59,7 @@ void Listing::walk(address_t address)
         return;
 
     FunctionPath path;
-    this->walk(this->find(address), path);
+    Listing::walk(this, this->find(address), path);
 
     if(path.empty())
         return;
@@ -68,9 +68,9 @@ void Listing::walk(address_t address)
     this->_paths[address] = path;
 }
 
-void Listing::walk(Listing::iterator it, FunctionPath &path)
+void Listing::walk(Listing* listing, Listing::iterator it, FunctionPath &path)
 {
-    if((it == this->end()) || (path.find(it.key) != path.end())) // Don't reanalyze same paths
+    if((it == listing->end()) || (path.find(it.key) != path.end())) // Don't reanalyze same paths
         return;
 
     path.insert(it.key);
@@ -81,12 +81,12 @@ void Listing::walk(Listing::iterator it, FunctionPath &path)
 
     if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
     {
-        std::for_each(instruction->targets.begin(),instruction->targets.end(), [this, &path](address_t target) {
-            SymbolPtr symbol = this->_symboltable->symbol(target);
-            auto targetit = this->find(target);
+        std::for_each(instruction->targets.begin(),instruction->targets.end(), [listing, &path](address_t target) {
+            SymbolPtr symbol = listing->_symboltable->symbol(target);
+            auto targetit = listing->find(target);
 
-            if((!symbol || !symbol->isFunction()) && (targetit != this->end()))
-                this->walk(targetit, path);
+            if((!symbol || !symbol->isFunction()) && (targetit != listing->end()))
+                Listing::walk(listing, targetit, path);
         });
 
         if(!instruction->is(InstructionTypes::Conditional)) // Unconditional jumps doesn't continue execution
@@ -95,8 +95,8 @@ void Listing::walk(Listing::iterator it, FunctionPath &path)
 
     it++;
 
-    if((it != this->end()) && !this->isFunctionStart((*it)->address))
-        this->walk(it, path);
+    if((it != listing->end()) && !listing->isFunctionStart((*it)->address))
+        Listing::walk(listing, it, path);
 }
 
 void Listing::updateBlockInfo(Listing::FunctionPath &path)

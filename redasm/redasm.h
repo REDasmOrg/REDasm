@@ -260,7 +260,7 @@ struct Instruction
     Instruction& op(Operand op) { op.index = operands.size(); operands.push_back(op); return *this; }
     Instruction& mem(address_t v) { operands.push_back(Operand(OperandTypes::Memory, v, operands.size())); return *this; }
     template<typename T> Instruction& imm(T v) { operands.push_back(Operand(OperandTypes::Immediate, v, operands.size())); return *this; }
-    template<typename T> Instruction& disp(register_t base, T displacement) { return disp(base, REGISTER_INVALID, displacement); }
+    template<typename T> Instruction& disp(register_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
     template<typename T> Instruction& disp(register_t base, register_t index, T displacement) { return disp(base, index, 1, displacement); }
     template<typename T> Instruction& disp(register_t base, register_t index, s32 scale, T displacement);
     template<typename T> Instruction& arg(s32 index, register_t base, T displacement) { return local(index, base, displacement, OperandTypes::Argument); }

@@ -133,9 +133,6 @@ void Disassembler::disassembleFunction(address_t address)
     if(symbol && symbol->isFunction())
         return;
 
-    if(this->_emulator)
-        this->_emulator->reset();
-
     this->_symboltable->erase(address);
     this->_symboltable->createFunction(address);
     this->disassemble(address);
@@ -150,11 +147,13 @@ void Disassembler::disassembleFunction(address_t address)
 
 void Disassembler::disassemble()
 {
+    SymbolPtr entrypoint = this->_symboltable->entryPoint();
+
+    if(entrypoint)
+        this->disassemble(entrypoint->address); // Disassemble entry point first
+
     // Preload format functions for analysis
     this->_symboltable->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
-        if(this->_emulator)
-            this->_emulator->reset();
-
         this->disassemble(symbol->address);
         return true;
     });
@@ -222,9 +221,9 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address)
     return this->disassembleInstruction(address, b);
 }
 
-void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Operand& op)
+void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Operand& operand)
 {
-    address_t address = op.mem.displacement;
+    address_t address = operand.mem.displacement;
     this->_symboltable->createLocation(address, SymbolTypes::Data);
 
     if(!this->canBeJumpTable(address))
@@ -235,10 +234,52 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
     });
 }
 
+void Disassembler::checkRegister(const InstructionPtr &instruction, const Operand &operand)
+{
+    if(instruction->address == 0x8003C30C)
+    {
+        int zzz = 0;
+        zzz++;
+    }
+
+    if(!this->_processor->canEmulateVMIL() || !this->_emulator)
+        return;
+
+    if(!instruction->is(InstructionTypes::Branch) || !operand.is(OperandTypes::Register) || (operand.index != instruction->target_idx))
+        return;
+
+    address_t target = 0;
+
+    if(!this->_emulator->read(operand, target))
+        return;
+
+    this->disassemble(target);
+
+    if(instruction->is(InstructionTypes::Call))
+        this->_symboltable->createFunction(target);
+    else
+        this->_symboltable->createLocation(target, SymbolTypes::Code);
+
+    auto it = this->_listing.find(target);
+
+    if(it == this->_listing.end())
+        return;
+
+    SymbolPtr symbol = this->_symboltable->symbol(target);
+
+    instruction->target(target);
+    instruction->cmt(symbol->name);
+    this->_listing.update(instruction);
+    this->_referencetable.push(symbol, instruction->address);
+}
+
 void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &operand)
 {
     if(operand.is(OperandTypes::Register))
+    {
+        this->checkRegister(instruction, operand);
         return;
+    }
 
     u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value, opvalue = value;
     SymbolPtr symbol = this->_symboltable->symbol(value);
@@ -322,7 +363,7 @@ void Disassembler::disassemble(address_t address)
     const Segment* segment = this->_format->segment(address);
     this->_processor->pushState();
 
-    while(segment && segment->is(SegmentTypes::Code)) // Don't disassemble data/junk
+    while(segment && segment->is(SegmentTypes::Code)) // Don't disassemble data
     {
         if(this->_listing.find(address) != this->_listing.end())
             break;

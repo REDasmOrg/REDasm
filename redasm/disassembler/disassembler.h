@@ -29,7 +29,8 @@ class Disassembler: public DisassemblerBase
         bool iterateVMIL(address_t address, Listing::InstructionCallback cbinstruction, Listing::SymbolCallback cbstart, Listing::InstructionCallback cbend, Listing::SymbolCallback cblabel);
 
     private:
-        void checkJumpTable(const InstructionPtr& instruction, const Operand &op);
+        void checkJumpTable(const InstructionPtr& instruction, const Operand &operand);
+        void checkRegister(const InstructionPtr& instruction, const Operand &operand);
         void analyzeOp(const InstructionPtr& instruction, const Operand& operand);
         InstructionPtr disassembleInstruction(address_t address, Buffer &b);
 

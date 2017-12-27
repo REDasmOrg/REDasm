@@ -13,17 +13,17 @@ namespace REDasm {
 
 namespace SymbolTypes {
     enum: u32 {
-        None           = 0x00000000,
-        Data           = 0x00000001, String = 0x00000002, Code = 0x00000004,
+        None               = 0x00000000,
+        Data               = 0x00000001, String = 0x00000002, Code = 0x00000004,
 
-        Function       = 0x00000100 | Code,
-        EntryPoint     = 0x00001000 | Function,
-        Import         = 0x00002000 | Data,
-        ExportData     = 0x00004000 | Data,
-        ExportFunction = 0x00008000 | EntryPoint,
-        WideString     = 0x01000000 | String,
-        Pointer        = 0x02000000,
-        Locked         = 0x10000000,
+        Function           = 0x00000100 | Code,
+        EntryPoint         = 0x00001000 | Function,
+        Import             = 0x00002000 | Data,
+        ExportData         = 0x00004000 | Data,
+        ExportFunction     = 0x00008000 | EntryPoint,
+        WideString         = 0x01000000 | String,
+        Pointer            = 0x02000000,
+        Locked             = 0x10000000,
 
         LockedMask         = ~Locked,
         FunctionMask       = Function                      & ~(Code       | Locked),

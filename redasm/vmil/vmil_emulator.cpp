@@ -3,7 +3,8 @@
 #define SET_EXECUTE_OPCODE(op) _opmap[VMIL::Opcodes::op] = [this](const InstructionPtr& instruction) { emulate##op(instruction); }
 #define SET_NULL_OPCODE(op)    _opmap[VMIL::Opcodes::op] = NULL;
 
-#define EXECUTE_MATH_OPCODE(instruction, mathop) u64 res = this->read(instruction->operands[1]) mathop \
+#define EXECUTE_MATH_OPCODE(instruction, mathop) if(!this->canExecute(instruction)) return; \
+                                                 u64 res = this->read(instruction->operands[1]) mathop \
                                                            this->read(instruction->operands[2]); \
                                                  this->write(instruction->operands[0], res)
 
@@ -13,7 +14,7 @@
 namespace REDasm {
 namespace VMIL {
 
-Emulator::Emulator(DisassemblerFunctions *disassembler): _disassembler(disassembler), _defregister(VMIL_REGISTER_ID(0))
+Emulator::Emulator(DisassemblerFunctions *disassembler): _defregister(VMIL_REGISTER_ID(0)), _disassembler(disassembler)
 {
     SET_EXECUTE_OPCODE(Add);
     SET_EXECUTE_OPCODE(Sub);
@@ -30,9 +31,9 @@ Emulator::Emulator(DisassemblerFunctions *disassembler): _disassembler(disassemb
     SET_EXECUTE_OPCODE(Stm);
     SET_EXECUTE_OPCODE(Bisz);
     SET_EXECUTE_OPCODE(Jcc);
+    SET_EXECUTE_OPCODE(Undef);
 
     SET_NULL_OPCODE(Nop);
-    SET_NULL_OPCODE(Undef);
     SET_NULL_OPCODE(Unkn);
 }
 
@@ -49,6 +50,22 @@ void Emulator::setDefaultRegister(vmilregister_t reg)
 vmilregister_t Emulator::defaultRegister() const
 {
     return this->_defregister;
+}
+
+bool Emulator::read(const Operand &operand, u64 &value)
+{
+    if(operand.is(OperandTypes::Register))
+    {
+        if(!this->isRegisterValid(operand.reg))
+            return false;
+
+        value = this->read(operand);
+        return true;
+    }
+
+    bool ok = false;
+    value = this->readMemory(operand.u_value, operand.size, &ok);
+    return ok;
 }
 
 void Emulator::translate(const InstructionPtr &instruction, VMILInstructionList &vminstructions)
@@ -146,14 +163,58 @@ void Emulator::emitNEQ(const InstructionPtr &instruction, u32 opidx1, u32 opidx2
     vminstructions.push_back(vminstruction);
 }
 
-void Emulator::write(const Operand &operand, u64 value)
+bool Emulator::canExecute(const VMILInstructionPtr &instruction)
 {
-    if(operand.is(OperandTypes::Memory))
+    for(auto it = instruction->operands.begin(); it != instruction->operands.end(); it++)
     {
-        this->writeMemory(operand.u_value, value);
+        if((*it).is(OperandTypes::Register) && !this->isRegisterValid((*it).reg))
+            return false;
+    }
+
+    return true;
+}
+
+bool Emulator::isRegisterValid(const RegisterOperand &regop)
+{
+    if(regop.type == VMIL_REG_OPERAND)
+        return this->_tempregisters.find(regop.r) != this->_tempregisters.end();
+
+    return this->_registers.find(regop.r) != this->_registers.end();
+}
+
+void Emulator::invalidateRegister(const RegisterOperand &regop)
+{
+    if(regop.type == VMIL_REG_OPERAND)
+    {
+        auto it = this->_tempregisters.find(regop.r);
+
+        if(it == this->_tempregisters.end())
+            return;
+
+        this->_tempregisters.erase(it);
         return;
     }
 
+    auto it = this->_registers.find(regop.r);
+
+    if(it == this->_registers.end())
+        return;
+
+    this->_registers.erase(it);
+}
+
+void Emulator::invalidateRegisters(const VMILInstructionPtr &instruction)
+{
+    std::for_each(instruction->operands.begin(), instruction->operands.end(), [this](const Operand& operand) {
+        if(!operand.is(OperandTypes::Register))
+            return;
+
+        this->invalidateRegister(operand.reg);
+    });
+}
+
+void Emulator::write(const Operand &operand, u64 value)
+{
     if(!operand.is(OperandTypes::Register))
         return;
 
@@ -172,8 +233,6 @@ u64 Emulator::read(const Operand &operand)
 
         return this->read(operand.reg.r);
     }
-    else if(operand.is(OperandTypes::Memory))
-        return this->readMemory(operand.u_value);
 
     return operand.u_value;
 }
@@ -203,18 +262,25 @@ void Emulator::writeMemory(address_t address, u64 value)
     this->_memory[address] = value;
 }
 
-u64 Emulator::readMemory(address_t address)
+u64 Emulator::readMemory(address_t address, u64 size, bool* ok)
 {
+    if(!size)
+    {
+        REDasm::log("Invalid read size @ " + REDasm::hex(address));
+        *ok = false;
+        return 0;
+    }
+
     auto it = this->_memory.find(address);
 
     if(it != this->_memory.end())
+    {
+        *ok = true;
         return it->second;
+    }
 
     u64 value = 0;
-
-    if(!this->_disassembler->readAddress(address, 4, value))  // TODO: Set operand size
-        REDasm::log("Cannot read @ " + REDasm::hex(address));
-
+    *ok = this->_disassembler->readAddress(address, size, value);
     return value;
 }
 
@@ -241,22 +307,65 @@ u64 Emulator::readRegister(Emulator::Registers &registers, register_t reg)
 void Emulator::emulateAdd(const VMILInstructionPtr &instruction)  { EXECUTE_MATH_OPCODE(instruction, +);  }
 void Emulator::emulateSub(const VMILInstructionPtr &instruction)  { EXECUTE_MATH_OPCODE(instruction, -);  }
 void Emulator::emulateMul(const VMILInstructionPtr &instruction)  { EXECUTE_MATH_OPCODE(instruction, *);  }
-void Emulator::emulateDiv(const VMILInstructionPtr &instruction)  { EXECUTE_MATH_OPCODE(instruction, /);  }
 void Emulator::emulateMod(const VMILInstructionPtr &instruction)  { EXECUTE_MATH_OPCODE(instruction, %);  }
 void Emulator::emulateLsh(const VMILInstructionPtr &instruction)  { EXECUTE_MATH_OPCODE(instruction, <<); }
 void Emulator::emulateRsh(const VMILInstructionPtr &instruction)  { EXECUTE_MATH_OPCODE(instruction, >>); }
 void Emulator::emulateAnd(const VMILInstructionPtr &instruction)  { EXECUTE_MATH_OPCODE(instruction, &);  }
 void Emulator::emulateOr(const VMILInstructionPtr &instruction)   { EXECUTE_MATH_OPCODE(instruction, |);  }
 void Emulator::emulateXor(const VMILInstructionPtr &instruction)  { EXECUTE_MATH_OPCODE(instruction, ^);  }
-void Emulator::emulateStr(const VMILInstructionPtr &instruction)  { DATA_TRANSFER(instruction, 1, 0); }
-void Emulator::emulateLdm(const VMILInstructionPtr &instruction)  { DATA_TRANSFER(instruction, 1, 0); }
-void Emulator::emulateStm(const VMILInstructionPtr &instruction)  { DATA_TRANSFER(instruction, 1, 0); }
 void Emulator::emulateBisz(const VMILInstructionPtr &instruction) { SET_CONDITION(instruction, 1, 0); }
+void Emulator::emulateStr(const VMILInstructionPtr &instruction)  { DATA_TRANSFER(instruction, 1, 0); }
+
+void Emulator::emulateDiv(const VMILInstructionPtr &instruction)
+{
+    u64 value = this->read(instruction->op(2));
+
+    if(!value) // Don't execute division by zero
+    {
+        this->invalidateRegisters(instruction);
+        return;
+    }
+
+    EXECUTE_MATH_OPCODE(instruction, /);
+}
+
+void Emulator::emulateLdm(const VMILInstructionPtr &instruction)
+{
+    if(!this->canExecute(instruction))
+        return;
+
+    bool ok = false;
+    Operand& srcop = instruction->op(1);
+    address_t address = this->read(srcop);
+    u64 value = this->readMemory(address, srcop.size, &ok);
+
+    if(ok)
+        this->write(instruction->op(0), value);
+}
+
+void Emulator::emulateStm(const VMILInstructionPtr &instruction)
+{
+    if(!this->canExecute(instruction))
+        return;
+
+    address_t address = this->read(instruction->op(0));
+    this->writeMemory(address, this->read(instruction->op(1)));
+}
 
 void Emulator::emulateJcc(const VMILInstructionPtr &instruction)
 {
     u64 cond = this->read(instruction->operands[0]);
     instruction->cmt("Jumps condition to " + REDasm::hex(this->read(instruction->operands[1])) + " = " + (cond ? "TRUE" : "FALSE"));
+}
+
+void Emulator::emulateUndef(const VMILInstructionPtr &instruction)
+{
+    Operand& op = instruction->op(0);
+
+    if(!op.is(OperandTypes::Register))
+        return;
+
+    this->invalidateRegister(op.reg);
 }
 
 } // namespace VMIL

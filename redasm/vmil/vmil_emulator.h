@@ -33,6 +33,7 @@ class Emulator
         virtual ~Emulator();
         void setDefaultRegister(vmilregister_t reg);
         vmilregister_t defaultRegister() const;
+        bool read(const Operand &operand, u64& value);
         void translate(const InstructionPtr& instruction, VMILInstructionList& vminstructions);
         void emulate(const InstructionPtr &instruction);
         void reset();
@@ -46,15 +47,19 @@ class Emulator
         void emitGT(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
 
     private:
+        bool canExecute(const VMILInstructionPtr& instruction);
+        bool isRegisterValid(const RegisterOperand &regop);
+        void invalidateRegister(const RegisterOperand& regop);
+        void invalidateRegisters(const VMILInstructionPtr &instruction);
         void write(const Operand& operand, u64 value);
-        u64 read(const Operand& operand);
-        void writeT(register_t reg, u64 value);
         void write(register_t reg, u64 value);
-        u64 readT(register_t reg);
-        u64 read(register_t reg);
+        void writeT(register_t reg, u64 value);
         void writeMemory(address_t address, u64 value);
-        u64 readMemory(address_t address);
         void writeRegister(Registers& registers, register_t reg, u64 value);
+        u64 read(const Operand& operand);
+        u64 read(register_t reg);
+        u64 readT(register_t reg);
+        u64 readMemory(address_t address, u64 size, bool *ok);
         u64 readRegister(Registers& registers, register_t reg);
 
     private:
@@ -73,6 +78,7 @@ class Emulator
         void emulateStm(const VMILInstructionPtr& instruction);
         void emulateBisz(const VMILInstructionPtr& instruction);
         void emulateJcc(const VMILInstructionPtr& instruction);
+        void emulateUndef(const VMILInstructionPtr& instruction);
 
     protected:
         TranslateMap _translatemap;

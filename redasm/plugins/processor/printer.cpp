@@ -130,6 +130,9 @@ CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerFunctions *disassembl
 
 std::string CapstonePrinter::reg(const RegisterOperand& regop) const
 {
+    if(!regop.r)
+        return "unkreg";
+
     return cs_reg_name(this->_cshandle, regop.r);
 }
 

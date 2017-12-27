@@ -130,8 +130,11 @@ CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerFunctions *disassembl
 
 std::string CapstonePrinter::reg(const RegisterOperand& regop) const
 {
-    if(!regop.r)
+    if(regop.r <= 0)
+    {
+        REDasm::log("Unknown register with id " + std::to_string(regop.r));
         return "unkreg";
+    }
 
     return cs_reg_name(this->_cshandle, regop.r);
 }

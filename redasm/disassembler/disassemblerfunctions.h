@@ -20,7 +20,7 @@ class DisassemblerFunctions
         virtual bool dataToString(address_t address) = 0;
         virtual SymbolPtr dereferenceSymbol(const SymbolPtr& symbol, u64* value = NULL) = 0;
         virtual InstructionPtr disassembleInstruction(address_t address) = 0;
-        virtual void disassemble(address_t address) = 0;
+        virtual bool disassemble(address_t address) = 0;
 };
 
 } // namespace REDasm

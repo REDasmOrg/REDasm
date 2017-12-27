@@ -236,12 +236,6 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
 
 void Disassembler::checkRegister(const InstructionPtr &instruction, const Operand &operand)
 {
-    if(instruction->address == 0x8003C30C)
-    {
-        int zzz = 0;
-        zzz++;
-    }
-
     if(!this->_processor->canEmulateVMIL() || !this->_emulator)
         return;
 
@@ -253,7 +247,8 @@ void Disassembler::checkRegister(const InstructionPtr &instruction, const Operan
     if(!this->_emulator->read(operand, target))
         return;
 
-    this->disassemble(target);
+    if(!this->disassemble(target))
+        return;
 
     if(instruction->is(InstructionTypes::Call))
         this->_symboltable->createFunction(target);
@@ -358,9 +353,13 @@ void Disassembler::analyzeOp(const InstructionPtr &instruction, const Operand &o
         this->_referencetable.push(symbol, instruction->address);
 }
 
-void Disassembler::disassemble(address_t address)
+bool Disassembler::disassemble(address_t address)
 {
     const Segment* segment = this->_format->segment(address);
+
+    if(!segment || !segment->is(SegmentTypes::Code))
+        return false;
+
     this->_processor->pushState();
 
     while(segment && segment->is(SegmentTypes::Code)) // Don't disassemble data
@@ -386,6 +385,7 @@ void Disassembler::disassemble(address_t address)
     }
 
     this->_processor->popState();
+    return true;
 }
 
 InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b)
@@ -406,14 +406,19 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
     }
     else
     {
+        bool ok = true;
+
         if(this->_processor->canEmulateVMIL() && this->_emulator)
-            this->_emulator->emulate(instruction);
+            ok = this->_emulator->emulate(instruction);
 
         const OperandList& operands = instruction->operands;
 
         std::for_each(operands.begin(), operands.end(), [this, instruction](const Operand& operand) {
             this->analyzeOp(instruction, operand);
         });
+
+        if(!ok)
+            this->_emulator->reset(); // Reset VM if emulation is failed
     }
 
     this->_listing.commit(address, instruction);

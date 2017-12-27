@@ -166,6 +166,16 @@ std::string Listing::getSignature(const SymbolPtr& symbol)
     return sig;
 }
 
+SymbolPtr Listing::getFunction(address_t address)
+{
+    FunctionPaths::iterator it = this->findFunction(address);
+
+    if(it == this->_paths.end())
+        return NULL;
+
+    return this->_symboltable->symbol(it->first);
+}
+
 bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cbinstruction)
 {
     return this->iterateFunction(address, cbinstruction, NULL, NULL, NULL);

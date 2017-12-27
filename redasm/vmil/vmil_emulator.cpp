@@ -68,7 +68,7 @@ bool Emulator::read(const Operand &operand, u64 &value)
     return ok;
 }
 
-void Emulator::translate(const InstructionPtr &instruction, VMILInstructionList &vminstructions)
+bool Emulator::translate(const InstructionPtr &instruction, VMILInstructionList &vminstructions)
 {
     instruction_id_t id = this->getInstructionId(instruction);
     VMIL::VMILInstructionPtr vminstruction;
@@ -79,15 +79,16 @@ void Emulator::translate(const InstructionPtr &instruction, VMILInstructionList 
         it->second(instruction, vminstruction, vminstructions);
 
     if(!vminstructions.empty())
-        return;
+        return true;
 
     vminstructions.push_back(VMIL::emitUnkn(instruction));
+    return false;
 }
 
-void Emulator::emulate(const InstructionPtr &instruction)
+bool Emulator::emulate(const InstructionPtr &instruction)
 {
     VMILInstructionList vminstructions;
-    this->translate(instruction, vminstructions);
+    bool ok = this->translate(instruction, vminstructions);
 
     std::for_each(vminstructions.begin(), vminstructions.end(), [this](const VMILInstructionPtr& vminstruction) {
         auto it = this->_opmap.find(vminstruction->id);
@@ -100,6 +101,8 @@ void Emulator::emulate(const InstructionPtr &instruction)
         if(it->second)
             it->second(vminstruction);
     });
+
+    return ok;
 }
 
 void Emulator::reset()

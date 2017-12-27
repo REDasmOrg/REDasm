@@ -34,8 +34,8 @@ class Emulator
         void setDefaultRegister(vmilregister_t reg);
         vmilregister_t defaultRegister() const;
         bool read(const Operand &operand, u64& value);
-        void translate(const InstructionPtr& instruction, VMILInstructionList& vminstructions);
-        void emulate(const InstructionPtr &instruction);
+        bool translate(const InstructionPtr& instruction, VMILInstructionList& vminstructions);
+        bool emulate(const InstructionPtr &instruction);
         void reset();
 
     protected:

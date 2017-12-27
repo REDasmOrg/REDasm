@@ -29,6 +29,7 @@ class Listing: public cache_map<address_t, InstructionPtr>
         FormatPlugin *format() const;
         const ProcessorPlugin *processor() const;
         std::string getSignature(const SymbolPtr &symbol);
+        SymbolPtr getFunction(address_t address);
         void setFormat(FormatPlugin *format);
         void setProcessor(ProcessorPlugin *processor);
         void setSymbolTable(SymbolTable* symboltable);

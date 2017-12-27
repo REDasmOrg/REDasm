@@ -22,7 +22,7 @@ class Disassembler: public DisassemblerBase
     public: // Primitive functions
         virtual bool dataToString(address_t address);
         virtual InstructionPtr disassembleInstruction(address_t address);
-        virtual void disassemble(address_t address);
+        virtual bool disassemble(address_t address);
 
     public:
         std::string comment(const InstructionPtr& instruction) const;

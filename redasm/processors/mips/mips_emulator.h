@@ -9,6 +9,7 @@ class MIPSEmulator : public VMIL::Emulator
 {
     public:
         MIPSEmulator(DisassemblerFunctions* disassembler);
+        virtual bool emulate(const InstructionPtr &instruction);
 
     private:
         void translateLxx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMIL::VMILInstructionList& vminstructions) const;

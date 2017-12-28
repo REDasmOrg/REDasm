@@ -42,8 +42,13 @@ MIPSEmulator::MIPSEmulator(DisassemblerFunctions *disassembler): VMIL::Emulator(
     VMIL_TRANSLATE_OPCODE(MIPS_INS_NOP, NOP);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_SLL, SLL);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_SRL, SRL);
+}
 
-    this->write(MIPS_REG_0, 0); // Initialize $zero
+bool MIPSEmulator::emulate(const InstructionPtr &instruction)
+{
+    this->write(MIPS_REG_ZERO, 0); // Initialize $zero
+
+    return VMIL::Emulator::emulate(instruction);
 }
 
 void MIPSEmulator::translateLxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const

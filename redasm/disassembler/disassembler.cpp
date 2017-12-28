@@ -236,10 +236,7 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
 
 void Disassembler::checkRegister(const InstructionPtr &instruction, const Operand &operand)
 {
-    if(!this->_processor->canEmulateVMIL() || !this->_emulator)
-        return;
-
-    if(!instruction->is(InstructionTypes::Branch) || !operand.is(OperandTypes::Register) || (operand.index != instruction->target_idx))
+    if(!this->_emulator || !instruction->is(InstructionTypes::Branch) || !operand.is(OperandTypes::Register) || (operand.index != instruction->target_idx))
         return;
 
     address_t target = 0;
@@ -247,17 +244,14 @@ void Disassembler::checkRegister(const InstructionPtr &instruction, const Operan
     if(!this->_emulator->read(operand, target))
         return;
 
-    if(!this->disassemble(target))
+    if(!this->_processor->canEmulateVMIL())
+    {
+        instruction->cmt(REDasm::hex(target));
+        REDasm::log("VMIL @ " + REDasm::hex(instruction->address) + " jump to " + REDasm::hex(target));
         return;
+    }
 
-    if(instruction->is(InstructionTypes::Call))
-        this->_symboltable->createFunction(target);
-    else
-        this->_symboltable->createLocation(target, SymbolTypes::Code);
-
-    auto it = this->_listing.find(target);
-
-    if(it == this->_listing.end())
+    if(!this->disassemble(target))
         return;
 
     SymbolPtr symbol = this->_symboltable->symbol(target);

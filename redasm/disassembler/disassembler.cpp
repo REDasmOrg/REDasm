@@ -254,6 +254,11 @@ void Disassembler::checkRegister(const InstructionPtr &instruction, const Operan
     if(!this->disassemble(target))
         return;
 
+    if(instruction->is(InstructionTypes::Call))
+        this->_symboltable->createFunction(target);
+    else
+        this->_symboltable->createLocation(target, SymbolTypes::Code);
+
     SymbolPtr symbol = this->_symboltable->symbol(target);
 
     instruction->target(target);

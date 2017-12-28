@@ -35,7 +35,7 @@ class Emulator
         vmilregister_t defaultRegister() const;
         bool read(const Operand &operand, u64& value);
         bool translate(const InstructionPtr& instruction, VMILInstructionList& vminstructions);
-        bool emulate(const InstructionPtr &instruction);
+        virtual bool emulate(const InstructionPtr &instruction);
         void reset();
 
     protected:
@@ -45,6 +45,7 @@ class Emulator
         void emitNEQ(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
         void emitLT(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
         void emitGT(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
+        void write(register_t reg, u64 value);
 
     private:
         bool canExecute(const VMILInstructionPtr& instruction);
@@ -52,8 +53,7 @@ class Emulator
         void invalidateRegister(const RegisterOperand& regop);
         void invalidateRegisters(const VMILInstructionPtr &instruction);
         void write(const Operand& operand, u64 value);
-        void write(register_t reg, u64 value);
-        void writeT(register_t reg, u64 value);
+        void writeT(vmilregister_t reg, u64 value);
         void writeMemory(address_t address, u64 value);
         void writeRegister(Registers& registers, register_t reg, u64 value);
         u64 read(const Operand& operand);

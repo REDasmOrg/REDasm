@@ -240,7 +240,7 @@ u64 Emulator::read(const Operand &operand)
     return operand.u_value;
 }
 
-void Emulator::writeT(register_t reg, u64 value)
+void Emulator::writeT(vmilregister_t reg, u64 value)
 {
     this->writeRegister(this->_tempregisters, reg, value);
 }

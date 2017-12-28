@@ -247,7 +247,7 @@ struct Instruction
     bool blockIs(u32 t) const { return blocktype & t; }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
     bool hasTargets() const { return !targets.empty(); }
-    void reset() { type = 0; operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
+    void reset() { target_idx = -1, type = blocktype = id = 0; targets.clear(); operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
     void target_op(s32 index) { target_idx = index; targets.push_back(operands[index].u_value); }
     void target(address_t target) { targets.push_back(target); }
     void op_size(s32 index, u32 size) { operands[index].size = size; }

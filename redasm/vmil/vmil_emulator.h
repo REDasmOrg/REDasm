@@ -36,7 +36,7 @@ class Emulator
         bool read(const Operand &operand, u64& value);
         bool translate(const InstructionPtr& instruction, VMILInstructionList& vminstructions);
         virtual bool emulate(const InstructionPtr &instruction);
-        void reset();
+        virtual void reset();
 
     protected:
         virtual instruction_id_t getInstructionId(const InstructionPtr& instruction) const;
@@ -45,6 +45,7 @@ class Emulator
         void emitNEQ(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
         void emitLT(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
         void emitGT(const InstructionPtr &instruction, u32 opidx1, u32 opidx2, VMILInstructionList& vminstructions) const;
+        void invalidateRegister(register_t reg);
         void write(register_t reg, u64 value);
 
     private:

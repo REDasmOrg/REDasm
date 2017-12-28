@@ -166,6 +166,16 @@ void Emulator::emitNEQ(const InstructionPtr &instruction, u32 opidx1, u32 opidx2
     vminstructions.push_back(vminstruction);
 }
 
+void Emulator::invalidateRegister(register_t reg)
+{
+    auto it = this->_registers.find(reg);
+
+    if(it == this->_registers.end())
+        return;
+
+    this->_registers.erase(it);
+}
+
 bool Emulator::canExecute(const VMILInstructionPtr &instruction)
 {
     for(auto it = instruction->operands.begin(); it != instruction->operands.end(); it++)
@@ -198,12 +208,7 @@ void Emulator::invalidateRegister(const RegisterOperand &regop)
         return;
     }
 
-    auto it = this->_registers.find(regop.r);
-
-    if(it == this->_registers.end())
-        return;
-
-    this->_registers.erase(it);
+    this->invalidateRegister(regop.r);
 }
 
 void Emulator::invalidateRegisters(const VMILInstructionPtr &instruction)

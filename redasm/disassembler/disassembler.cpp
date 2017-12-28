@@ -356,9 +356,14 @@ bool Disassembler::disassemble(address_t address)
 
     this->_processor->pushState();
 
-    while(segment && segment->is(SegmentTypes::Code)) // Don't disassemble data
+    while(segment && segment->is(SegmentTypes::Code)) // Don't disassemble data (1)
     {
         if(this->_listing.find(address) != this->_listing.end())
+            break;
+
+        SymbolPtr symbol = this->_symboltable->symbol(address);
+
+        if(symbol && !symbol->is(SymbolTypes::Code))  // Don't disassemble data (2)
             break;
 
         Buffer b = this->_buffer + this->_format->offset(address);

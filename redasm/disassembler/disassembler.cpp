@@ -244,10 +244,11 @@ void Disassembler::checkRegister(const InstructionPtr &instruction, const Operan
     if(!this->_emulator->read(operand, target))
         return;
 
+    REDasm::log("VMIL @ " + REDasm::hex(instruction->address) + " jump to " + REDasm::hex(target));
+
     if(!this->_processor->canEmulateVMIL())
     {
         instruction->cmt("=" + REDasm::hex(target));
-        REDasm::log("VMIL @ " + REDasm::hex(instruction->address) + " jump to " + REDasm::hex(target));
         return;
     }
 

@@ -246,7 +246,7 @@ void Disassembler::checkRegister(const InstructionPtr &instruction, const Operan
 
     if(!this->_processor->canEmulateVMIL())
     {
-        instruction->cmt(REDasm::hex(target));
+        instruction->cmt("=" + REDasm::hex(target));
         REDasm::log("VMIL @ " + REDasm::hex(instruction->address) + " jump to " + REDasm::hex(target));
         return;
     }
@@ -257,7 +257,7 @@ void Disassembler::checkRegister(const InstructionPtr &instruction, const Operan
     SymbolPtr symbol = this->_symboltable->symbol(target);
 
     instruction->target(target);
-    instruction->cmt(symbol->name);
+    instruction->cmt("=" + symbol->name);
     this->_listing.update(instruction);
     this->_referencetable.push(symbol, instruction->address);
 }
@@ -405,7 +405,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
     }
     else
     {
-        if(this->_processor->canEmulateVMIL() && this->_emulator)
+        if(this->_emulator)
             this->_emulator->emulate(instruction);
 
         const OperandList& operands = instruction->operands;

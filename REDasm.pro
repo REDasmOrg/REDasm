@@ -98,7 +98,8 @@ SOURCES += main.cpp\
     redasm/processors/chip8/chip8_printer.cpp \
     redasm/processors/chip8/chip8_emulator.cpp \
     redasm/processors/mips/mips_emulator.cpp \
-    redasm/formats/dex/dex.cpp
+    redasm/formats/dex/dex.cpp \
+    redasm/processors/dalvik/dalvik.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -186,7 +187,8 @@ HEADERS  += mainwindow.h \
     redasm/processors/mips/mips_emulator.h \
     redasm/formats/dex/dex.h \
     redasm/formats/dex/dex_constants.h \
-    redasm/formats/dex/dex_header.h
+    redasm/formats/dex/dex_header.h \
+    redasm/processors/dalvik/dalvik.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

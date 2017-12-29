@@ -1,5 +1,5 @@
-#ifndef CHIP8PROCESSOR_H
-#define CHIP8PROCESSOR_H
+#ifndef CHIP8_H
+#define CHIP8_H
 
 /*
  * References:
@@ -52,4 +52,4 @@ DECLARE_PROCESSOR_PLUGIN(chip8, CHIP8Processor)
 
 } // namespace REDasm
 
-#endif // CHIP8PROCESSOR_H
+#endif // CHIP8_H

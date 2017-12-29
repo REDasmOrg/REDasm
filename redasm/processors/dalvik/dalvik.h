@@ -12,7 +12,7 @@ class DalvikProcessor : public ProcessorPlugin
         virtual const char* name() const;
 };
 
-DECLARE_PROCESSOR_PLUGIN(dalvik, DalvikProcessor)
+DECLARE_PROCESSOR_PLUGIN(DalvikProcessor, dalvik)
 
 } // namespace REDasm
 

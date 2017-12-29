@@ -48,7 +48,7 @@ class CHIP8Processor : public ProcessorPlugin
         std::map<u16, OpCodeCallback> _opcodemap;
 };
 
-DECLARE_PROCESSOR_PLUGIN(chip8, CHIP8Processor)
+DECLARE_PROCESSOR_PLUGIN(CHIP8Processor, chip8)
 
 } // namespace REDasm
 

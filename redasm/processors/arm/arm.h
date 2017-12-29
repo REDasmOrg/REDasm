@@ -19,7 +19,7 @@ class ARMProcessor: public CapstoneProcessorPlugin<CS_ARCH_ARM, CS_MODE_ARM>
         void analyzeInstruction(const InstructionPtr& instruction, cs_insn* insn) const;
 };
 
-DECLARE_PROCESSOR_PLUGIN(arm, ARMProcessor)
+DECLARE_PROCESSOR_PLUGIN(ARMProcessor, arm)
 
 } // namespace REDasm
 

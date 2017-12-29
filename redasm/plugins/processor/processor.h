@@ -12,7 +12,7 @@
 #include "../base.h"
 #include "printer.h"
 
-#define DECLARE_PROCESSOR_PLUGIN(id, processor) inline ProcessorPlugin* id##_processorPlugin() { return new processor(); }
+#define DECLARE_PROCESSOR_PLUGIN(processor, id) inline ProcessorPlugin* id##_processorPlugin() { return new processor(); }
 #define PROCESSOR_IS(processor, arch) (strstr(processor->name(), arch))
 
 namespace REDasm {

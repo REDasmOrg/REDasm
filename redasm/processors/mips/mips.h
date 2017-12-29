@@ -230,8 +230,8 @@ template<size_t mode> void MIPSProcessor<mode>::analyzeInstruction(const Instruc
 typedef MIPSProcessor<CS_MODE_MIPS64> MIPS32Processor;
 typedef MIPSProcessor<CS_MODE_MIPS64 | CS_MODE_MIPSGP64> MIPS64Processor;
 
-DECLARE_PROCESSOR_PLUGIN(mips32, MIPS32Processor)
-DECLARE_PROCESSOR_PLUGIN(mips64, MIPS64Processor)
+DECLARE_PROCESSOR_PLUGIN(MIPS32Processor, mips32)
+DECLARE_PROCESSOR_PLUGIN(MIPS64Processor, mips64)
 
 }
 

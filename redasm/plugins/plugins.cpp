@@ -1,15 +1,23 @@
+#define WRAP_TO_STRING(...)         #__VA_ARGS__
+#define FORMAT_PLUGIN(format)       WRAP_TO_STRING(../formats/format/format.h)
+#define PROCESSOR_PLUGIN(processor) WRAP_TO_STRING(../processors/processor/processor.h)
+
 #include "plugins.h"
-#include "../formats/binary/binary.h"
-#include "../formats/pe/pe.h"
-#include "../formats/elf/elf.h"
-#include "../formats/psxexe/psxexe.h"
-#include "../formats/dex/dex.h"
-#include "../processors/x86/x86.h"
-#include "../processors/mips/mips.h"
-#include "../processors/arm/arm.h"
-#include "../processors/dalvik/dalvik.h"
-//#include "../processors/arm/arm64.h"
-#include "../processors/chip8/chip8.h"
+
+/* *** Formats *** */
+#include FORMAT_PLUGIN(binary)
+#include FORMAT_PLUGIN(pe)
+#include FORMAT_PLUGIN(elf)
+#include FORMAT_PLUGIN(psxexe)
+#include FORMAT_PLUGIN(dex)
+
+/* *** Processors *** */
+#include PROCESSOR_PLUGIN(x86)
+#include PROCESSOR_PLUGIN(mips)
+#include PROCESSOR_PLUGIN(arm)
+#include PROCESSOR_PLUGIN(dalvik)
+//#include PROCESSOR_PLUGIN(arm64)
+#include PROCESSOR_PLUGIN(chip8)
 
 #define REGISTER_FORMAT_PLUGIN(id)    REDasm::formats.push_back(&id##_formatPlugin)
 #define REGISTER_PROCESSOR_PLUGIN(id) REDasm::processors[#id] = &id##_processorPlugin

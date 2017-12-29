@@ -9,6 +9,9 @@ namespace REDasm {
 
 Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlugin *format): DisassemblerBase(buffer, format), _processor(processor)
 {
+    if(!format->isBinary())
+        processor->setEndianness(format->endianness());
+
     this->_printer = PrinterPtr(this->_processor->createPrinter(this, this->_symboltable));
     this->_emulator = processor->hasVMIL() ? processor->createEmulator(this) : NULL;
 

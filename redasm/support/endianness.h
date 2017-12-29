@@ -6,6 +6,9 @@
 #include "../redasm.h"
 
 namespace REDasm {
+
+typedef u32 endianness_t;
+
 namespace Endianness {
 
 enum { LittleEndian = 0, BigEndian = 1, };

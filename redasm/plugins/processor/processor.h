@@ -6,6 +6,7 @@
 #include <stack>
 #include <cstring>
 #include "../../disassembler/disassemblerfunctions.h"
+#include "../../support/endianness.h"
 #include "../../support/utils.h"
 #include "../../vmil/vmil_emulator.h"
 #include "../base.h"
@@ -31,16 +32,34 @@ class ProcessorPlugin: public Plugin
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual bool done(const InstructionPtr& instruction);
 
+    protected:
+        template<typename T> T read(Buffer& buffer);
+
     public:
         bool hasFlag(u32 flag) const;
         bool hasVMIL() const;
         bool canEmulateVMIL() const;
+        endianness_t endianness() const;
+        void setEndianness(endianness_t endianness);
         void pushState();
         void popState();
 
     private:
         std::stack<u32> _statestack;
+        endianness_t _endianness;
 };
+
+template<typename T> T ProcessorPlugin::read(Buffer& buffer)
+{
+    T t = *(reinterpret_cast<T*>(buffer.data));
+
+    if(this->endianness() == Endianness::BigEndian)
+        Endianness::cfbe(t);
+    else
+        Endianness::cfle(t);
+
+    return t;
+}
 
 template<cs_arch arch, size_t mode> class CapstoneProcessorPlugin: public ProcessorPlugin
 {

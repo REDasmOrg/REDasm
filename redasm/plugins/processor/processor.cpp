@@ -4,7 +4,7 @@
 
 namespace REDasm {
 
-ProcessorPlugin::ProcessorPlugin(): Plugin()
+ProcessorPlugin::ProcessorPlugin(): Plugin(), _endianness(Endianness::LittleEndian)
 {
 }
 
@@ -82,6 +82,16 @@ bool ProcessorPlugin::hasVMIL() const
 bool ProcessorPlugin::canEmulateVMIL() const
 {
     return this->hasFlag(ProcessorFlags::EmulateVMIL);
+}
+
+endianness_t ProcessorPlugin::endianness() const
+{
+    return this->_endianness;
+}
+
+void ProcessorPlugin::setEndianness(endianness_t endianness)
+{
+    this->_endianness = endianness;
 }
 
 void ProcessorPlugin::pushState()

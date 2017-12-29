@@ -9,6 +9,8 @@ namespace REDasm {
 
 CHIP8Processor::CHIP8Processor()
 {
+    this->setEndianness(Endianness::BigEndian);
+
     SET_DECODE_TO(0x0000, decode0xxx);
     SET_DECODE_TO(0x1000, decode1xxx);
     SET_DECODE_TO(0x2000, decode2xxx);
@@ -49,8 +51,7 @@ Printer *CHIP8Processor::createPrinter(DisassemblerFunctions *disassembler, Symb
 
 bool CHIP8Processor::decode(Buffer buffer, const InstructionPtr &instruction)
 {
-    u16 opcode = *reinterpret_cast<u16*>(buffer.data);
-    Endianness::cfbe(opcode); // Chip8 is BE
+    u16 opcode = this->read<u16>(buffer);
 
     instruction->id = opcode;
     instruction->size = sizeof(u16);

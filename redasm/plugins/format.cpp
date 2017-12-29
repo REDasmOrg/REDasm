@@ -69,6 +69,11 @@ Analyzer* FormatPlugin::createAnalyzer(DisassemblerFunctions *dfunctions, const 
     return new Analyzer(dfunctions, signatures);
 }
 
+endianness_t FormatPlugin::endianness() const
+{
+    return Endianness::LittleEndian; // Use LE by default
+}
+
 bool FormatPlugin::isBinary() const
 {
     return false;

@@ -9,7 +9,7 @@
 
 namespace REDasm {
 
-PsxExeFormat::PsxExeFormat()
+PsxExeFormat::PsxExeFormat(): FormatPluginT<PsxExeHeader>()
 {
 
 }

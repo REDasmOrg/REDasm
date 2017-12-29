@@ -3,6 +3,7 @@
 #include "../formats/pe/pe.h"
 #include "../formats/elf/elf.h"
 #include "../formats/psxexe/psxexe.h"
+#include "../formats/dex/dex.h"
 #include "../processors/x86/x86.h"
 #include "../processors/mips/mips.h"
 #include "../processors/arm/arm.h"
@@ -25,6 +26,7 @@ void init(const std::string& searchpath)
     REGISTER_FORMAT_PLUGIN(elf32);
     REGISTER_FORMAT_PLUGIN(elf64);
     REGISTER_FORMAT_PLUGIN(psxexe);
+    REGISTER_FORMAT_PLUGIN(dex);
     REGISTER_FORMAT_PLUGIN(binary); // Always last choice
 
     REGISTER_PROCESSOR_PLUGIN(x86_16);

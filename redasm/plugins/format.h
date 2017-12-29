@@ -60,6 +60,7 @@ template<typename T> class FormatPluginT: public FormatPlugin
 {
     public:
         FormatPluginT(): FormatPlugin() { }
+        template<typename U> inline offset_t fileoffset(U* ptr) const { return reinterpret_cast<u8*>(ptr) - reinterpret_cast<u8*>(this->_format); }
         template<typename U> inline U* pointer(s64 offset) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(_format) + offset); }
         template<typename U, typename V> inline U* relpointer(V* base, s64 offset) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(base) + offset); }
 

@@ -65,6 +65,9 @@ template<ELF_PARAMS_T> const char* ELFFormat<ELF_PARAMS_D>::processor() const
         case EM_MIPS:
             return this->bits() == 32 ? "mips32" : "mips64";
 
+        case EM_ARM:
+            return this->bits() == 32 ? "arm" : "arm64";
+
         default:
             break;
     }

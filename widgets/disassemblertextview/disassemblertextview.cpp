@@ -78,6 +78,14 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
 
     REDasm::SymbolPtr symbol = disassembler->symbolTable()->entryPoint();
 
+    if(!symbol)
+    {
+        disassembler->symbolTable()->iterate(REDasm::SymbolTypes::FunctionMask, [&symbol](const REDasm::SymbolPtr& s) -> bool {
+            symbol = s;
+            return false;
+        });
+    }
+
     if(symbol)
         this->display(symbol->address);
 }

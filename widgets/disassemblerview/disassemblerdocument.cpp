@@ -56,6 +56,10 @@ bool DisassemblerDocument::generate(address_t address, const QTextCursor& cursor
 
     this->_textcursor = cursor;
     this->setCurrentPrinter(this->_printer);
+
+    if(!this->_currentprinter)
+        return false;
+
     return true;
 }
 

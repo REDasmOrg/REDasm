@@ -20,4 +20,9 @@ std::string wtoa(const std::wstring& ws)
     return s;
 }
 
+std::string quoted(const std::string &s)
+{
+    return "\"" + s + "\"";
+}
+
 }

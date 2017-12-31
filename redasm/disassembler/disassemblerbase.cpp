@@ -18,11 +18,6 @@ Buffer &DisassemblerBase::buffer()
     return this->_buffer;
 }
 
-FormatPlugin *DisassemblerBase::format()
-{
-    return this->_format;
-}
-
 SymbolTable *DisassemblerBase::symbolTable()
 {
     return this->_symboltable;
@@ -55,6 +50,11 @@ ReferenceVector DisassemblerBase::getReferences(const SymbolPtr& symbol)
 u64 DisassemblerBase::getReferencesCount(const SymbolPtr &symbol)
 {
     return this->_referencetable.referencesCount(symbol);
+}
+
+FormatPlugin *DisassemblerBase::format()
+{
+    return this->_format;
 }
 
 u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const

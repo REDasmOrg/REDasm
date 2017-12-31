@@ -17,13 +17,13 @@ class DisassemblerBase: public DisassemblerFunctions
         DisassemblerBase(Buffer buffer, FormatPlugin* format);
         virtual ~DisassemblerBase();
         Buffer& buffer();
-        FormatPlugin* format();
         SymbolTable* symbolTable();
         bool hasReferences(const SymbolPtr &symbol);
         ReferenceVector getReferences(const SymbolPtr &symbol);
         u64 getReferencesCount(const SymbolPtr &symbol);
 
     public: // Primitive functions
+        virtual FormatPlugin* format();
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
         virtual std::string readString(const SymbolPtr& symbol) const;
         virtual std::string readWString(const SymbolPtr& symbol) const;

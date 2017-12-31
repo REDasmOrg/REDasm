@@ -71,7 +71,7 @@ bool DalvikProcessor::decodeInvoke(Buffer &buffer, const InstructionPtr &instruc
         }
     }
 
-    instruction->imm(midx);
+    instruction->imm(midx, DalvikOperands::MethodIndex);
     instruction->type = InstructionTypes::Call;
     instruction->mnemonic = "invoke-" + kind;
     return true;

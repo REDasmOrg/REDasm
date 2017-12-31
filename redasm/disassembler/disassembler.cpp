@@ -29,11 +29,6 @@ Disassembler::~Disassembler()
     delete this->_processor;
 }
 
-ProcessorPlugin *Disassembler::processor()
-{
-    return this->_processor;
-}
-
 Listing& Disassembler::listing()
 {
     return this->_listing;
@@ -180,6 +175,11 @@ void Disassembler::disassemble()
 
     REDasm::status("Marking Entry Point...");
     this->_listing.markEntryPoint();
+}
+
+ProcessorPlugin *Disassembler::processor()
+{
+    return this->_processor;
 }
 
 bool Disassembler::dataToString(address_t address)

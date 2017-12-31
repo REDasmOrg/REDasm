@@ -4,6 +4,7 @@
 // https://source.android.com/devices/tech/dalvik/dex-format
 
 #include "../../plugins/plugins.h"
+#include "../../processors/dalvik/dalvik_metadata.h"
 #include "dex_header.h"
 
 namespace REDasm {
@@ -18,6 +19,10 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         virtual endianness_t endianness() const;
         virtual bool load(u8 *rawformat);
 
+    public:
+        std::string getString(u32 idx) const;
+        std::string getMethod(u32 idx) const;
+
     private:
         bool getClassData(const DEXClassItem& dexclass, DEXClassData& dexclassdata);
         void loadMethod(const DEXClassItem &dexclass, const DEXEncodedMethod& dexmethod);
@@ -25,7 +30,6 @@ class DEXFormat : public FormatPluginT<DEXHeader>
 
     private:
         u32 getULeb128(u8 **data) const;
-        std::string getString(u32 idx) const;
         static bool validateSignature(DEXHeader *format);
         static std::string normalized(const std::string& classname, const std::string& methodname = std::string());
 

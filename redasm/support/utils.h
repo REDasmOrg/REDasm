@@ -10,6 +10,7 @@ namespace REDasm
 {
 
 std::string normalize(std::string s);
+std::string quoted(const std::string& s);
 std::string wtoa(const std::wstring& wide);
 
 template<typename T> std::string wtoa(T* ws, size_t len)

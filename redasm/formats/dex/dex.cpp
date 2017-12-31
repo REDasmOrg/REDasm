@@ -58,6 +58,22 @@ bool DEXFormat::load(u8 *rawformat)
     return true;
 }
 
+std::string DEXFormat::getString(u32 idx) const
+{
+    if(!this->_strings)
+        return std::string();
+
+    u8* pstringdata = pointer<u8>((this->_strings + idx)->string_data_off);
+    u32 len = this->getULeb128(&pstringdata);
+
+    return std::string(reinterpret_cast<const char*>(pstringdata), len);
+}
+
+std::string DEXFormat::getMethod(u32 idx) const
+{
+    return this->normalized(this->getString(idx));
+}
+
 bool DEXFormat::getClassData(const DEXClassItem &dexclass, DEXClassData &dexclassdata)
 {
     if(!dexclass.class_data_off)
@@ -148,17 +164,6 @@ u32 DEXFormat::getULeb128(u8 **data) const
     value |= ((**data & 0x7F) << (i * 7));
     (*data)++;
     return value;
-}
-
-std::string DEXFormat::getString(u32 idx) const
-{
-    if(!this->_strings)
-        return std::string();
-
-    u8* pstringdata = pointer<u8>((this->_strings + idx)->string_data_off);
-    u32 len = this->getULeb128(&pstringdata);
-
-    return std::string(reinterpret_cast<const char*>(pstringdata), len);
 }
 
 bool DEXFormat::validateSignature(DEXHeader* format)

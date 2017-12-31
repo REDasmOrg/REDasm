@@ -1,5 +1,6 @@
 #include "dalvik.h"
 #include "dalvik_printer.h"
+#include "dalvik_metadata.h"
 
 #define SET_DECODE_OPCODE_TO(opcode) _opcodemap[0x##opcode] = [this](Buffer& buffer, const InstructionPtr& instruction) -> bool { return decode##opcode(buffer, instruction); }
 
@@ -219,7 +220,7 @@ bool DalvikProcessor::decode1A(Buffer &buffer, const InstructionPtr &instruction
     instruction->mnemonic = "const-string";
     instruction->size = sizeof(u16) * 2;
     instruction->reg(*buffer++);
-    instruction->imm(this->read<u16>(buffer));
+    instruction->imm(this->read<u16>(buffer), DalvikOperands::StringIndex);
     return true;
 }
 

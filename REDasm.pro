@@ -190,7 +190,8 @@ HEADERS  += mainwindow.h \
     redasm/formats/dex/dex_constants.h \
     redasm/formats/dex/dex_header.h \
     redasm/processors/dalvik/dalvik.h \
-    redasm/processors/dalvik/dalvik_printer.h
+    redasm/processors/dalvik/dalvik_printer.h \
+    redasm/processors/dalvik/dalvik_metadata.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

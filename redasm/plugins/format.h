@@ -46,9 +46,9 @@ class FormatPlugin: public Plugin
     protected:
         void addSignature(const std::string& signaturefile);
         void defineSegment(const std::string& name, offset_t offset, address_t address, u64 size, u32 flags);
-        void defineSymbol(address_t address, const std::string& name, u32 flags);
-        void defineFunction(address_t address, const std::string &name);
-        void defineEntryPoint(address_t address);
+        void defineSymbol(address_t address, const std::string& name, u32 type, u32 extratype = 0);
+        void defineFunction(address_t address, const std::string &name, u32 extratype = 0);
+        void defineEntryPoint(address_t address, u32 extratype = 0);
 
     private:
         SymbolTable _symbol;

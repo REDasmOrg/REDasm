@@ -7,6 +7,7 @@ namespace REDasm {
 void SymbolCache::serialize(const SymbolPtr &value, std::fstream &fs)
 {
     Serializer::serializeScalar(fs, value->type);
+    Serializer::serializeScalar(fs, value->extra_type);
     Serializer::serializeScalar(fs, value->address);
     Serializer::serializeString(fs, value->name);
 }
@@ -15,6 +16,7 @@ void SymbolCache::deserialize(SymbolPtr &value, std::fstream &fs)
 {
     value = std::make_shared<Symbol>();
     Serializer::deserializeScalar(fs, &value->type);
+    Serializer::deserializeScalar(fs, &value->extra_type);
     Serializer::deserializeScalar(fs, &value->address);
     Serializer::deserializeString(fs, value->name);
 }
@@ -35,7 +37,7 @@ bool SymbolTable::contains(address_t address)
     return this->_byaddress.find(address) != this->_byaddress.end();
 }
 
-bool SymbolTable::create(address_t address, const std::string &name, u32 type)
+bool SymbolTable::create(address_t address, const std::string &name, u32 type, u32 extratype)
 {
     auto it = this->_byaddress.find(address);
 
@@ -46,7 +48,7 @@ bool SymbolTable::create(address_t address, const std::string &name, u32 type)
     }
 
     this->_addresses.push_back(address);
-    this->_byaddress.commit(address, std::make_shared<Symbol>(type, address, name));
+    this->_byaddress.commit(address, std::make_shared<Symbol>(type, extratype, address, name));
     this->_byname[name] = address;
     return true;
 }

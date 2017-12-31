@@ -100,19 +100,19 @@ void FormatPlugin::defineSegment(const std::string &name, offset_t offset, addre
     this->_segments.push_back(Segment(name, offset, address, size, flags));
 }
 
-void FormatPlugin::defineSymbol(address_t address, const std::string &name, u32 flags)
+void FormatPlugin::defineSymbol(address_t address, const std::string &name, u32 type, u32 extratype)
 {
-    this->_symbol.create(address, name, flags | SymbolTypes::Locked);
+    this->_symbol.create(address, name, type | SymbolTypes::Locked, extratype);
 }
 
-void FormatPlugin::defineFunction(address_t address, const std::string& name)
+void FormatPlugin::defineFunction(address_t address, const std::string& name, u32 extratype)
 {
-    this->defineSymbol(address, name, SymbolTypes::Function);
+    this->defineSymbol(address, name, SymbolTypes::Function, extratype);
 }
 
-void FormatPlugin::defineEntryPoint(address_t address)
+void FormatPlugin::defineEntryPoint(address_t address, u32 extratype)
 {
-    this->defineSymbol(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint);
+    this->defineSymbol(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, extratype);
 }
 
 }

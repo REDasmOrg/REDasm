@@ -33,7 +33,7 @@ class ProcessorPlugin: public Plugin
         virtual bool done(const InstructionPtr& instruction);
 
     protected:
-        template<typename T> T read(Buffer& buffer);
+        template<typename T> T read(Buffer& buffer) const;
 
     public:
         bool hasFlag(u32 flag) const;
@@ -49,7 +49,7 @@ class ProcessorPlugin: public Plugin
         endianness_t _endianness;
 };
 
-template<typename T> T ProcessorPlugin::read(Buffer& buffer)
+template<typename T> T ProcessorPlugin::read(Buffer& buffer) const
 {
     T t = *(reinterpret_cast<T*>(buffer.data));
 

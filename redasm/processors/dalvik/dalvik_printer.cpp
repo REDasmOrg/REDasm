@@ -16,14 +16,24 @@ std::string DalvikPrinter::reg(const RegisterOperand &regop) const
 
 std::string DalvikPrinter::imm(const Operand &op) const
 {
-    if(op.extra_type)
-    {
-        DEXFormat* dexformat = dynamic_cast<DEXFormat*>(this->_disassembler->format());
+    DEXFormat* dexformat = NULL;
 
-        if(dexformat && (op.extra_type == DalvikOperands::StringIndex))
-            return REDasm::quoted(dexformat->getString(op.u_value));
-        else if(dexformat && (op.extra_type == DalvikOperands::MethodIndex))
-            return dexformat->getMethod(op.u_value);
+    if(op.extra_type && (dexformat = dynamic_cast<DEXFormat*>(this->_disassembler->format())))
+    {
+        switch(op.extra_type)
+        {
+            case DalvikOperands::StringIndex:
+                return REDasm::quoted(dexformat->getString(op.u_value));
+
+            case DalvikOperands::TypeIndex:
+                return dexformat->getType(op.u_value);
+
+            case DalvikOperands::MethodIndex:
+                return dexformat->getMethod(op.u_value);
+
+            default:
+                break;
+        }
     }
 
     return Printer::imm(op);

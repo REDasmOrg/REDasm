@@ -215,10 +215,7 @@ struct Operand
     RegisterOperand reg;
     MemoryOperand mem;
 
-    union {
-        s64 s_value;
-        u64 u_value;
-    };
+    union { s64 s_value; u64 u_value; };
 
     void r() { type |= OperandTypes::Read;  }
     void w() { type |= OperandTypes::Write; }

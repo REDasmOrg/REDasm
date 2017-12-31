@@ -21,11 +21,12 @@ class DEXFormat : public FormatPluginT<DEXHeader>
 
     public:
         std::string getString(u32 idx) const;
+        std::string getType(u32 idx) const;
         std::string getMethod(u32 idx) const;
 
     private:
         bool getClassData(const DEXClassItem& dexclass, DEXClassData& dexclassdata);
-        void loadMethod(const DEXClassItem &dexclass, const DEXEncodedMethod& dexmethod);
+        void loadMethod(const DEXEncodedMethod& dexmethod, u32 idx);
         void loadClass(const DEXClassItem& dexclass);
 
     private:

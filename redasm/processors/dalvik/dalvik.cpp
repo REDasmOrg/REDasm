@@ -264,7 +264,7 @@ bool DalvikProcessor::decode22(Buffer &buffer, const InstructionPtr &instruction
     instruction->mnemonic = "new-instance";
     instruction->size = sizeof(u16) * 2;
     instruction->reg(*buffer++);
-    instruction->imm(this->read<u16>(buffer));
+    instruction->imm(this->read<u16>(buffer), DalvikOperands::TypeIndex);
     return true;
 }
 

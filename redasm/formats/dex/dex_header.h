@@ -67,10 +67,10 @@ struct DEXClassData
     u32 static_fields_size, instance_fields_size;
     u32 direct_methods_size, virtual_methods_size;
 
-    std::list<DEXEncodedField> static_fields;
-    std::list<DEXEncodedField> instance_fields;
-    std::list<DEXEncodedMethod> direct_methods;
-    std::list<DEXEncodedMethod> virtual_methods;
+    std::vector<DEXEncodedField> static_fields;
+    std::vector<DEXEncodedField> instance_fields;
+    std::vector<DEXEncodedMethod> direct_methods;
+    std::vector<DEXEncodedMethod> virtual_methods;
 };
 
 } // namespace REDasm

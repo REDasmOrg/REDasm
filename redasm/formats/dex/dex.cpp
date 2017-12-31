@@ -128,13 +128,13 @@ bool DEXFormat::getClassData(const DEXClassItem &dexclass, DEXClassData &dexclas
     return true;
 }
 
-void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod, u32 idx)
+void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod)
 {
     if(!dexmethod.code_off)
         return;
 
     DEXCodeItem* dexcode = pointer<DEXCodeItem>(dexmethod.code_off);
-    this->defineFunction(fileoffset(&dexcode->insns), this->getMethod(idx));
+    this->defineFunction(fileoffset(&dexcode->insns), this->getMethod(dexmethod.method_idx_diff));
 }
 
 void DEXFormat::loadClass(const DEXClassItem &dexclass)
@@ -144,11 +144,13 @@ void DEXFormat::loadClass(const DEXClassItem &dexclass)
     if(!this->getClassData(dexclass, dexclassdata))
         return;
 
-    for(u32 i = 0; i < dexclassdata.direct_methods.size(); i++)
-        this->loadMethod(dexclassdata.direct_methods[i], i);
+    std::for_each(dexclassdata.direct_methods.begin(), dexclassdata.direct_methods.end(), [this, dexclass](const DEXEncodedMethod& dexmethod) {
+        this->loadMethod(dexmethod);
+    });
 
-    for(u32 i = 0; i < dexclassdata.virtual_methods.size(); i++)
-        this->loadMethod(dexclassdata.virtual_methods[i], i);
+    std::for_each(dexclassdata.virtual_methods.begin(), dexclassdata.virtual_methods.end(), [this, dexclass](const DEXEncodedMethod& dexmethod) {
+        this->loadMethod(dexmethod);
+    });
 }
 
 u32 DEXFormat::getULeb128(u8 **data) const

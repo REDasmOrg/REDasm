@@ -26,7 +26,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
 
     private:
         bool getClassData(const DEXClassItem& dexclass, DEXClassData& dexclassdata);
-        void loadMethod(const DEXEncodedMethod& dexmethod, u32 idx);
+        void loadMethod(const DEXEncodedMethod& dexmethod);
         void loadClass(const DEXClassItem& dexclass);
 
     private:

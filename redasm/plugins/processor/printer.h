@@ -20,7 +20,7 @@ class Printer
         virtual std::string out(const InstructionPtr& instruction) const;
 
     public: // Operand privitives
-        virtual std::string reg(const RegisterOperand& regop) const = 0;
+        virtual std::string reg(const RegisterOperand& regop) const;
         virtual std::string mem(const MemoryOperand& memop) const;
         virtual std::string ptr(const std::string& expr) const;
         virtual std::string loc(const Operand& op) const;

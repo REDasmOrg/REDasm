@@ -77,6 +77,11 @@ std::string Printer::out(const InstructionPtr &instruction) const
     return this->out(instruction, [](const Operand&, const std::string&, const std::string&) { });
 }
 
+std::string Printer::reg(const RegisterOperand &regop) const
+{
+    return "$" + std::to_string(regop.r);
+}
+
 std::string Printer::mem(const MemoryOperand &memop) const
 {
     std::string s;

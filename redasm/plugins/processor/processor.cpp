@@ -21,9 +21,7 @@ VMIL::Emulator *ProcessorPlugin::createEmulator(DisassemblerFunctions *disassemb
 
 Printer *ProcessorPlugin::createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const
 {
-    RE_UNUSED(disassembler);
-    RE_UNUSED(symboltable);
-    return NULL;
+    return new Printer(disassembler, symboltable);
 }
 
 bool ProcessorPlugin::decode(Buffer buffer, const InstructionPtr &instruction)

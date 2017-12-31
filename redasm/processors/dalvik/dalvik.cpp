@@ -43,20 +43,36 @@ bool DalvikProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
     return res;
 }
 
-bool DalvikProcessor::decodeInvokeMethod(Buffer &buffer, const InstructionPtr &instruction, const std::string &kind) const
+bool DalvikProcessor::decodeInvoke(Buffer &buffer, const InstructionPtr &instruction, const std::string &kind) const
 {
     u8 b = *buffer++;
     u8 argc = b >> 4;
+
+    instruction->size = sizeof(u16) * 2;
+
+    if((argc > 4) && ((argc % 4) == 1))
+    {
+        instruction->reg(b & 0xF);
+        argc--;
+    }
+
     u16 midx = this->read<u16>(buffer);
 
-    for(u8 i = 0, p = 0; i < argc; i++)
+    if(argc)
     {
-        //b = this->read<u8>(buffer);
+        u16 argwords = std::max(1, argc / 4);
+        instruction->size += sizeof(u16) * argwords;
+
+        for(u16 argword = 0, c = 0; (c < argc) && (argword < argwords); argword++)
+        {
+            for(u8 i = 0; (c < argc) && (i < (4 * 8)); i += 4, c++)
+                instruction->reg((argword & (0xF << i)) >> i);
+        }
     }
 
     instruction->imm(midx);
+    instruction->type = InstructionTypes::Call;
     instruction->mnemonic = "invoke-" + kind;
-    instruction->size = (sizeof(u8) + sizeof(u16)) + (argc * sizeof(u16));
     return true;
 }
 
@@ -200,7 +216,11 @@ bool DalvikProcessor::decode19(Buffer &buffer, const InstructionPtr &instruction
 
 bool DalvikProcessor::decode1A(Buffer &buffer, const InstructionPtr &instruction) const
 {
-    return false;
+    instruction->mnemonic = "const-string";
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(*buffer++);
+    instruction->imm(this->read<u16>(buffer));
+    return true;
 }
 
 bool DalvikProcessor::decode1B(Buffer &buffer, const InstructionPtr &instruction) const
@@ -240,7 +260,11 @@ bool DalvikProcessor::decode21(Buffer &buffer, const InstructionPtr &instruction
 
 bool DalvikProcessor::decode22(Buffer &buffer, const InstructionPtr &instruction) const
 {
-    return false;
+    instruction->mnemonic = "new-instance";
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(*buffer++);
+    instruction->imm(this->read<u16>(buffer));
+    return true;
 }
 
 bool DalvikProcessor::decode23(Buffer &buffer, const InstructionPtr &instruction) const
@@ -620,22 +644,22 @@ bool DalvikProcessor::decode6D(Buffer &buffer, const InstructionPtr &instruction
 
 bool DalvikProcessor::decode6E(Buffer &buffer, const InstructionPtr &instruction) const
 {
-    return false;
+    return this->decodeInvoke(buffer, instruction, "virtual");
 }
 
 bool DalvikProcessor::decode6F(Buffer &buffer, const InstructionPtr &instruction) const
 {
-    return false;
+    return this->decodeInvoke(buffer, instruction, "super");
 }
 
 bool DalvikProcessor::decode70(Buffer &buffer, const InstructionPtr &instruction) const
 {
-    return this->decodeInvokeMethod(buffer, instruction, "direct");
+    return this->decodeInvoke(buffer, instruction, "direct");
 }
 
 bool DalvikProcessor::decode71(Buffer &buffer, const InstructionPtr &instruction) const
 {
-    return false;
+    return this->decodeInvoke(buffer, instruction, "static");
 }
 
 bool DalvikProcessor::decode72(Buffer &buffer, const InstructionPtr &instruction) const

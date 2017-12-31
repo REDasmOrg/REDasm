@@ -1,6 +1,7 @@
 #ifndef DALVIK_H
 #define DALVIK_H
 
+// http://pallergabor.uw.hu/androidblog/dalvik_opcodes.html
 #include "../../plugins/plugins.h"
 
 #define DEX_DECLARE_DECODE(opcode) bool decode##opcode(Buffer& buffer, const InstructionPtr& instruction) const
@@ -24,7 +25,7 @@ class DalvikProcessor : public ProcessorPlugin
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
 
     private:
-        bool decodeInvokeMethod(Buffer& buffer, const InstructionPtr& instruction, const std::string& kind) const;
+        bool decodeInvoke(Buffer& buffer, const InstructionPtr& instruction, const std::string& kind) const;
 
     private:
         DEX_DECLARE_DECODES(0);

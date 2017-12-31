@@ -38,7 +38,7 @@ bool ProcessorPlugin::decode(Buffer buffer, const InstructionPtr &instruction)
     }
 
     instruction->bytes = ss.str();
-    return true;
+    return false;
 }
 
 bool ProcessorPlugin::done(const InstructionPtr &instruction)

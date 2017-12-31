@@ -108,7 +108,8 @@ template<cs_arch arch, size_t mode> bool CapstoneProcessorPlugin<arch, mode>::de
     instruction->userdata = insn;
     instruction->free = [](void* userdata) { cs_free(reinterpret_cast<cs_insn*>(userdata), 1); };
 
-    return ProcessorPlugin::decode(buffer, instruction);
+    ProcessorPlugin::decode(buffer, instruction);
+    return true;
 }
 
 typedef std::function<ProcessorPlugin*()> ProcessorPlugin_Entry;

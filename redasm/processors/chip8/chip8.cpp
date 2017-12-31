@@ -61,7 +61,8 @@ bool CHIP8Processor::decode(Buffer buffer, const InstructionPtr &instruction)
     if((it == this->_opcodemap.end()) || !it->second(opcode, instruction))
         return false;
 
-    return ProcessorPlugin::decode(buffer, instruction);
+    ProcessorPlugin::decode(buffer, instruction);
+    return true;
 }
 
 bool CHIP8Processor::decode0xxx(u16 opcode, const InstructionPtr &instruction) const

@@ -27,6 +27,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         u32 getULeb128(u8 **data) const;
         std::string getString(u32 idx) const;
         static bool validateSignature(DEXHeader *format);
+        static std::string normalized(const std::string& classname, const std::string& methodname = std::string());
 
     private:
         DEXTypeItem* _types;

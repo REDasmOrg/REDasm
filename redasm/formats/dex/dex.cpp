@@ -111,9 +111,10 @@ void DEXFormat::loadMethod(const DEXClassItem& dexclass, const DEXEncodedMethod 
         return;
 
     std::string classname = this->getString(this->_types[dexclass.class_idx].descriptor_idx);
-    std::string name = this->getString(this->_methods[dexmethod.method_idx_diff].name_idx);
+    std::string methodname = this->getString(this->_methods[dexmethod.method_idx_diff].name_idx);
     DEXCodeItem* dexcode = pointer<DEXCodeItem>(dexmethod.code_off);
-    this->defineFunction(fileoffset(&dexcode->insns), classname + " " + name);
+
+    this->defineFunction(fileoffset(&dexcode->insns), DEXFormat::normalized(classname, methodname));
 }
 
 void DEXFormat::loadClass(const DEXClassItem &dexclass)
@@ -178,6 +179,23 @@ bool DEXFormat::validateSignature(DEXHeader* format)
         return false;
 
     return true;
+}
+
+std::string DEXFormat::normalized(const std::string &classname, const std::string &methodname)
+{
+    std::string s = classname;
+
+    if(s.front() == 'L')
+       s.erase(s.begin());
+
+    if(s.back() == ';')
+        s.pop_back();
+
+    if(!methodname.empty())
+        s += "." + methodname;
+
+    std::replace(s.begin(), s.end(), '/', '.');
+    return s;
 }
 
 } // namespace REDasm

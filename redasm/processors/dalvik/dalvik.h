@@ -20,7 +20,11 @@ class DalvikProcessor : public ProcessorPlugin
     public:
         DalvikProcessor();
         virtual const char* name() const;
+        virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
+
+    private:
+        bool decodeInvokeMethod(Buffer& buffer, const InstructionPtr& instruction, const std::string& kind) const;
 
     private:
         DEX_DECLARE_DECODES(0);

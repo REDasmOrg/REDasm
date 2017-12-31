@@ -1,4 +1,5 @@
 #include "dalvik.h"
+#include "dalvik_printer.h"
 
 #define SET_DECODE_OPCODE_TO(opcode) _opcodemap[0x##opcode] = [this](Buffer& buffer, const InstructionPtr& instruction) -> bool { return decode##opcode(buffer, instruction); }
 
@@ -22,6 +23,11 @@ const char *DalvikProcessor::name() const
     return "Dalvik VM";
 }
 
+Printer *DalvikProcessor::createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const
+{
+    return new DalvikPrinter(disassembler, symboltable);
+}
+
 bool DalvikProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
 {
     u8 opcode = *buffer;
@@ -31,9 +37,27 @@ bool DalvikProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
     if(it == this->_opcodemap.end())
         return false;
 
+    buffer++; // Skip opcode
     bool res = it->second(buffer, instruction);
     ProcessorPlugin::decode(buffer, instruction);
     return res;
+}
+
+bool DalvikProcessor::decodeInvokeMethod(Buffer &buffer, const InstructionPtr &instruction, const std::string &kind) const
+{
+    u8 b = *buffer++;
+    u8 argc = b >> 4;
+    u16 midx = this->read<u16>(buffer);
+
+    for(u8 i = 0, p = 0; i < argc; i++)
+    {
+        //b = this->read<u8>(buffer);
+    }
+
+    instruction->imm(midx);
+    instruction->mnemonic = "invoke-" + kind;
+    instruction->size = (sizeof(u8) + sizeof(u16)) + (argc * sizeof(u16));
+    return true;
 }
 
 bool DalvikProcessor::decode00(Buffer &buffer, const InstructionPtr &instruction) const
@@ -108,6 +132,14 @@ bool DalvikProcessor::decode0D(Buffer &buffer, const InstructionPtr &instruction
 
 bool DalvikProcessor::decode0E(Buffer &buffer, const InstructionPtr &instruction) const
 {
+    if(*buffer == 0x00)
+    {
+        instruction->mnemonic = "return-void";
+        instruction->type = InstructionTypes::Stop;
+        instruction->size = sizeof(u16);
+        return true;
+    }
+
     return false;
 }
 
@@ -598,7 +630,7 @@ bool DalvikProcessor::decode6F(Buffer &buffer, const InstructionPtr &instruction
 
 bool DalvikProcessor::decode70(Buffer &buffer, const InstructionPtr &instruction) const
 {
-    return false;
+    return this->decodeInvokeMethod(buffer, instruction, "direct");
 }
 
 bool DalvikProcessor::decode71(Buffer &buffer, const InstructionPtr &instruction) const

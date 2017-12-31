@@ -9,6 +9,19 @@ DalvikPrinter::DalvikPrinter(DisassemblerFunctions *disassembler, SymbolTable *s
 
 }
 
+void DalvikPrinter::prologue(const SymbolPtr &symbol, Printer::PrologueCallback plgfunc)
+{
+    DEXFormat* dexformat = dynamic_cast<DEXFormat*>(this->_disassembler->format());
+
+    if(!dexformat)
+    {
+        Printer::prologue(symbol, plgfunc);
+        return;
+    }
+
+    plgfunc(dexformat->getReturnType(symbol->extra_type) + " ", symbol->name, dexformat->getParameters(symbol->extra_type));
+}
+
 std::string DalvikPrinter::reg(const RegisterOperand &regop) const
 {
     return "v" + std::to_string(regop.r);

@@ -41,12 +41,13 @@ bool DEXFormat::load(u8 *rawformat)
     if((!format->type_ids_off || !format->type_ids_size) || (!format->string_ids_off || !format->string_ids_size))
         return false;
 
-    if((!format->method_ids_off || !format->method_ids_size))
+    if((!format->method_ids_off || !format->method_ids_size) || (!format->proto_ids_off || !format->proto_ids_size))
         return false;
 
     this->_types = pointer<DEXTypeItem>(format->type_ids_off);
     this->_strings = pointer<DEXStringItem>(format->string_ids_off);
     this->_methods = pointer<DEXMethodItem>(format->method_ids_off);
+    this->_protos = pointer<DEXProtoItem>(format->proto_ids_off);
 
     this->defineSegment("DATA", format->data_off, format->data_off, format->data_size, SegmentTypes::Code);
     DEXClassItem* dexclasses = pointer<DEXClassItem>(format->class_defs_off);
@@ -72,13 +73,34 @@ std::string DEXFormat::getString(u32 idx) const
 std::string DEXFormat::getType(u32 idx) const
 {
     const DEXTypeItem& dextype = this->_types[idx];
-    return this->normalized(this->getString(dextype.descriptor_idx));
+    return this->getNormalizedString(dextype.descriptor_idx);
 }
 
 std::string DEXFormat::getMethod(u32 idx) const
 {
     const DEXMethodItem& dexmethod = this->_methods[idx];
-    return this->normalized(this->getType(dexmethod.class_idx), this->getString(dexmethod.name_idx));
+
+    return this->getType(dexmethod.class_idx) + "." +
+           this->getNormalizedString(dexmethod.name_idx);
+}
+
+std::string DEXFormat::getReturnType(u32 methodidx) const
+{
+    const DEXMethodItem& dexmethod = this->_methods[methodidx];
+    const DEXProtoItem& dexproto = this->_protos[dexmethod.proto_idx];
+
+    return this->getNormalizedString(this->_types[dexproto.return_type_idx].descriptor_idx);
+}
+
+std::string DEXFormat::getParameters(u32 methodidx) const
+{
+    const DEXMethodItem& dexmethod = this->_methods[methodidx];
+    const DEXProtoItem& dexproto = this->_protos[dexmethod.proto_idx];
+
+    if(!dexproto.parameters_off)
+        return "()";
+
+    return "(" + this->getTypeList(dexproto.parameters_off) + ")";
 }
 
 bool DEXFormat::getClassData(const DEXClassItem &dexclass, DEXClassData &dexclassdata)
@@ -134,7 +156,7 @@ void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod)
         return;
 
     DEXCodeItem* dexcode = pointer<DEXCodeItem>(dexmethod.code_off);
-    this->defineFunction(fileoffset(&dexcode->insns), this->getMethod(dexmethod.method_idx_diff));
+    this->defineFunction(fileoffset(&dexcode->insns), this->getMethod(dexmethod.method_idx_diff), dexmethod.method_idx_diff);
 }
 
 void DEXFormat::loadClass(const DEXClassItem &dexclass)
@@ -153,6 +175,11 @@ void DEXFormat::loadClass(const DEXClassItem &dexclass)
     });
 }
 
+std::string DEXFormat::getNormalizedString(u32 idx) const
+{
+    return this->normalized(this->getString(idx));
+}
+
 u32 DEXFormat::getULeb128(u8 **data) const
 {
     size_t i = 0;
@@ -168,6 +195,24 @@ u32 DEXFormat::getULeb128(u8 **data) const
     value |= ((**data & 0x7F) << (i * 7));
     (*data)++;
     return value;
+}
+
+std::string DEXFormat::getTypeList(u32 typelistoff) const
+{
+    u32 size = *pointer<u32>(typelistoff);
+    DEXTypeItem* dextype = pointer<DEXTypeItem>(typelistoff + sizeof(u32));
+
+    std::string s;
+
+    for(u32 i = 0; i < size; i++)
+    {
+        if(i)
+            s += ", ";
+
+        s += this->getType(dextype[i].descriptor_idx);
+    }
+
+    return s;
 }
 
 bool DEXFormat::validateSignature(DEXHeader* format)
@@ -190,18 +235,34 @@ bool DEXFormat::validateSignature(DEXHeader* format)
     return true;
 }
 
-std::string DEXFormat::normalized(const std::string &classname, const std::string &methodname)
+std::string DEXFormat::normalized(const std::string &type)
 {
-    std::string s = classname;
+    if(type == "V")
+        return "void";
+    else if(type == "Z")
+        return "boolean";
+    else if(type == "B")
+        return "byte";
+    else if(type == "S")
+        return "short";
+    else if(type == "C")
+        return "char";
+    else if(type == "I")
+        return "int";
+    else if(type == "L")
+        return "long";
+    else if(type == "F")
+        return "float";
+    else if(type == "D")
+        return "double";
+
+    std::string s = type;
 
     if(s.front() == 'L')
        s.erase(s.begin());
 
     if(s.back() == ';')
         s.pop_back();
-
-    if(!methodname.empty())
-        s += "." + methodname;
 
     std::replace(s.begin(), s.end(), '/', '.');
     return s;

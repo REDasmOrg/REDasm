@@ -29,7 +29,7 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
         if(opstr.empty()) // Try with default algorithm...
         {
            if(it->is(OperandTypes::Immediate) || it->is(OperandTypes::Memory))
-            {
+           {
                 SymbolPtr symbol = this->_symboltable->symbol(it->is(OperandTypes::Immediate) ? operand.s_value : operand.u_value);
 
                 if(symbol)
@@ -45,10 +45,8 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
                     else
                         opstr = symbol->name;
                 }
-                else if(it->is(OperandTypes::Immediate))
-                    opstr = REDasm::hex(operand.s_value);
                 else
-                    opstr = REDasm::hex(operand.u_value);
+                    opstr = this->imm(operand);
             }
             else if(it->is(OperandTypes::Displacement))
                 opstr = this->mem(operand.mem);
@@ -116,16 +114,24 @@ std::string Printer::mem(const MemoryOperand &memop) const
     return std::string();
 }
 
-std::string Printer::ptr(const std::string &expr) const
-{
-    return expr;
-}
-
 std::string Printer::loc(const Operand &op) const
 {
     RE_UNUSED(op);
 
     return std::string();
+}
+
+std::string Printer::imm(const Operand &op) const
+{
+    if(op.is(OperandTypes::Immediate))
+        return REDasm::hex(op.s_value);
+
+    return REDasm::hex(op.u_value);
+}
+
+std::string Printer::ptr(const std::string &expr) const
+{
+    return expr;
 }
 
 CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerFunctions *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable), _cshandle(cshandle)

@@ -79,6 +79,10 @@ bool DalvikProcessor::decodeInvoke(Buffer &buffer, const InstructionPtr &instruc
 
 bool DalvikProcessor::decode00(Buffer &buffer, const InstructionPtr &instruction) const
 {
+    RE_UNUSED(buffer);
+
+    instruction->mnemonic = "nop";
+    instruction->size = sizeof(u16);
     return false;
 }
 

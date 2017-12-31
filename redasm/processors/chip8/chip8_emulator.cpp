@@ -262,7 +262,7 @@ void CHIP8Emulator::translatexxRA(const InstructionPtr &instruction, VMIL::VMILI
     {
         vminstruction = VMIL::emitInstruction(instruction, opcode, VMIL_INSTRUCTION_I(vminstructions));
         vminstruction->reg(VMIL_REGISTER(0));
-        vminstruction->reg(r, op.reg.type);
+        vminstruction->reg(r, op.reg.extra_type);
         vminstructions.push_back(vminstruction);
 
         if(r)

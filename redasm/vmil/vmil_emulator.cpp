@@ -189,7 +189,7 @@ bool Emulator::canExecute(const VMILInstructionPtr &instruction)
 
 bool Emulator::isRegisterValid(const RegisterOperand &regop)
 {
-    if(regop.type == VMIL_REG_OPERAND)
+    if(regop.extra_type == VMIL_REG_OPERAND)
         return this->_tempregisters.find(regop.r) != this->_tempregisters.end();
 
     return this->_registers.find(regop.r) != this->_registers.end();
@@ -197,7 +197,7 @@ bool Emulator::isRegisterValid(const RegisterOperand &regop)
 
 void Emulator::invalidateRegister(const RegisterOperand &regop)
 {
-    if(regop.type == VMIL_REG_OPERAND)
+    if(regop.extra_type == VMIL_REG_OPERAND)
     {
         auto it = this->_tempregisters.find(regop.r);
 
@@ -226,7 +226,7 @@ void Emulator::write(const Operand &operand, u64 value)
     if(!operand.is(OperandTypes::Register))
         return;
 
-    if(operand.reg.type == VMIL_REG_OPERAND)
+    if(operand.reg.extra_type == VMIL_REG_OPERAND)
         this->writeT(operand.reg.r, value);
     else
         this->write(operand.reg.r, value);
@@ -236,7 +236,7 @@ u64 Emulator::read(const Operand &operand)
 {
     if(operand.is(OperandTypes::Register))
     {
-        if(operand.reg.type == VMIL_REG_OPERAND)
+        if(operand.reg.extra_type == VMIL_REG_OPERAND)
             return this->readT(operand.reg.r);
 
         return this->read(operand.reg.r);

@@ -10,7 +10,7 @@ MIPSPrinter::MIPSPrinter(csh cshandle, DisassemblerFunctions *disassembler, Symb
 
 std::string MIPSPrinter::reg(const RegisterOperand &regop) const
 {
-    if(regop.type & MIPSRegisterTypes::Cop2Register)
+    if(regop.extra_type & MIPSRegisterTypes::Cop2Register)
         return "$" + REDasm::dec(regop.r);
 
     return "$" + CapstonePrinter::reg(regop);

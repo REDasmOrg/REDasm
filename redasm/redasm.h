@@ -179,11 +179,11 @@ struct Segment
 
 struct RegisterOperand
 {
-    RegisterOperand(): type(0), r(REGISTER_INVALID) { }
-    RegisterOperand(u64 type, register_t r): type(type), r(r) { }
-    RegisterOperand(register_t r): type(0), r(r) { }
+    RegisterOperand(): extra_type(0), r(REGISTER_INVALID) { }
+    RegisterOperand(u64 type, register_t r): extra_type(type), r(r) { }
+    RegisterOperand(register_t r): extra_type(0), r(r) { }
 
-    u64 type;
+    u64 extra_type;
     register_t r;
 
     bool isValid() const { return r != REGISTER_INVALID; }
@@ -203,14 +203,14 @@ struct MemoryOperand
 
 struct Operand
 {
-    Operand(): loc_index(-1), type(OperandTypes::None), size(OperandSizes::Undefined), index(-1), u_value(0) { }
-    Operand(u32 type, s32 value, s32 pos): loc_index(-1), type(type), size(OperandSizes::Undefined), index(pos), s_value(value) { }
-    Operand(u32 type, u32 value, s32 pos): loc_index(-1), type(type), size(OperandSizes::Undefined), index(pos), u_value(value) { }
-    Operand(u32 type, s64 value, s32 pos): loc_index(-1), type(type), size(OperandSizes::Undefined), index(pos), s_value(value) { }
-    Operand(u32 type, u64 value, s32 pos): loc_index(-1), type(type), size(OperandSizes::Undefined), index(pos), u_value(value) { }
+    Operand(): loc_index(-1), type(OperandTypes::None), extra_type(0), size(OperandSizes::Undefined), index(-1), u_value(0) { }
+    Operand(u32 type, u32 extratype, s32 value, s32 pos): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(pos), s_value(value) { }
+    Operand(u32 type, u32 extratype, u32 value, s32 pos): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(pos), u_value(value) { }
+    Operand(u32 type, u32 extratype, s64 value, s32 pos): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(pos), s_value(value) { }
+    Operand(u32 type, u32 extratype, u64 value, s32 pos): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(pos), u_value(value) { }
 
     s64 loc_index;
-    u32 type, size;
+    u32 type, extra_type, size;
     s32 index;
     RegisterOperand reg;
     MemoryOperand mem;
@@ -259,8 +259,8 @@ struct Instruction
     Operand& op(size_t idx) { return operands[idx]; }
     Instruction& cmt(const std::string& s) { comments.push_back(s); return *this; }
     Instruction& op(Operand op) { op.index = operands.size(); operands.push_back(op); return *this; }
-    Instruction& mem(address_t v) { operands.push_back(Operand(OperandTypes::Memory, v, operands.size())); return *this; }
-    template<typename T> Instruction& imm(T v) { operands.push_back(Operand(OperandTypes::Immediate, v, operands.size())); return *this; }
+    Instruction& mem(address_t v, u32 extratype = 0) { operands.push_back(Operand(OperandTypes::Memory, extratype, v, operands.size())); return *this; }
+    template<typename T> Instruction& imm(T v, u32 extratype = 0) { operands.push_back(Operand(OperandTypes::Immediate, extratype, v, operands.size())); return *this; }
     template<typename T> Instruction& disp(register_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
     template<typename T> Instruction& disp(register_t base, register_t index, T displacement) { return disp(base, index, 1, displacement); }
     template<typename T> Instruction& disp(register_t base, register_t index, s32 scale, T displacement);

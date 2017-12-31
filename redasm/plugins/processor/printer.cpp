@@ -7,6 +7,12 @@ Printer::Printer(DisassemblerFunctions *disassembler, SymbolTable *symboltable):
 
 }
 
+void Printer::prologue(Printer::PrologueCallback plgfunc)
+{
+    std::string s(20, '=');
+    plgfunc(s + " FUNCTION ", " " + s);
+}
+
 std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback opfunc) const
 {
     const OperandList& operands = instruction->operands;

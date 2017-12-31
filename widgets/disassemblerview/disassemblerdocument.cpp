@@ -195,17 +195,23 @@ void DisassemblerDocument::appendFunctionStart(const REDasm::SymbolPtr &symbol, 
 
     this->_textcursor.setCharFormat(charformat);
     this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address)));
-    this->_textcursor.insertText(QString("=").repeated(20));
-    this->_textcursor.insertText(" FUNCTION ");
 
-    QTextCharFormat symcharformat = charformat;
-    this->setMetaData(symcharformat, symbol, true);
-    this->_textcursor.setCharFormat(symcharformat);
-    this->_textcursor.insertText(S_TO_QS(symbol->name));
 
-    this->_textcursor.setCharFormat(charformat);
-    this->_textcursor.insertText(" ");
-    this->_textcursor.insertText(QString("=").repeated(20));
+    this->_currentprinter->prologue([this, &charformat, symbol](const std::string& pre, const std::string& post) {
+        if(!pre.empty())
+            this->_textcursor.insertText(S_TO_QS(pre));
+
+        QTextCharFormat symcharformat = charformat;
+        this->setMetaData(symcharformat, symbol, true);
+        this->_textcursor.setCharFormat(symcharformat);
+        this->_textcursor.insertText(S_TO_QS(symbol->name));
+
+        if(!post.empty())
+        {
+            this->_textcursor.setCharFormat(charformat);
+            this->_textcursor.insertText(S_TO_QS(post));
+        }
+    });
 
     if(!replace)
         this->_textcursor.insertBlock();

@@ -283,7 +283,7 @@ std::string DEXFormat::normalized(const std::string &type)
         return "char";
     else if(type == "I")
         return "int";
-    else if(type == "L")
+    else if(type == "J")
         return "long";
     else if(type == "F")
         return "float";

@@ -231,7 +231,7 @@ u32 DEXFormat::getULeb128(u8 **data) const
 std::string DEXFormat::getTypeList(u32 typelistoff) const
 {
     u32 size = *pointer<u32>(typelistoff);
-    DEXTypeIdItem* dextype = pointer<DEXTypeIdItem>(typelistoff + sizeof(u32));
+    DEXTypeItem* dextypeitem = pointer<DEXTypeItem>(typelistoff + sizeof(u32));
 
     std::string s;
 
@@ -240,7 +240,7 @@ std::string DEXFormat::getTypeList(u32 typelistoff) const
         if(i)
             s += ", ";
 
-        s += this->getType(dextype[i].descriptor_idx);
+        s += this->getType(dextypeitem[i].type_idx);
     }
 
     return s;

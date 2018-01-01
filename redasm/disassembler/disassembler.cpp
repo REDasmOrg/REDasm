@@ -407,10 +407,12 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
     {
         instruction->type = InstructionTypes::Invalid;
         instruction->mnemonic = INVALID_MNEMONIC;
-        instruction->size = 1;
-        instruction->imm(static_cast<u64>(*b));
 
-        REDasm::log("Invalid instruction at " + REDasm::hex(address));
+        if(!instruction->size)
+            instruction->size = 1;
+
+        instruction->imm(static_cast<u64>(*b));
+        REDasm::log("Invalid instruction @ " + REDasm::hex(address) + (!instruction->bytes.empty() ? " (bytes: " + instruction->bytes + ")" : ""));
     }
     else
     {

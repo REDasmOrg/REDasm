@@ -23,6 +23,8 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         std::string getString(u32 idx) const;
         std::string getType(u32 idx) const;
         std::string getMethod(u32 idx) const;
+        std::string getMethodProto(u32 idx) const;
+        std::string getField(u32 idx) const;
         std::string getReturnType(u32 methodidx) const;
         std::string getParameters(u32 methodidx) const;
 
@@ -42,6 +44,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         DEXTypeItem* _types;
         DEXStringItem* _strings;
         DEXMethodItem* _methods;
+        DEXFieldItem* _fields;
         DEXProtoItem* _protos;
 };
 

@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-DEXFormat::DEXFormat(): _types(NULL), _strings(NULL), _methods(NULL)
+DEXFormat::DEXFormat(): _types(NULL), _strings(NULL), _methods(NULL), _fields(NULL), _protos(NULL)
 {
 
 }
@@ -49,6 +49,9 @@ bool DEXFormat::load(u8 *rawformat)
     this->_methods = pointer<DEXMethodItem>(format->method_ids_off);
     this->_protos = pointer<DEXProtoItem>(format->proto_ids_off);
 
+    if(format->field_ids_off && format->field_ids_size)
+        this->_fields = pointer<DEXFieldItem>(format->field_ids_off);
+
     this->defineSegment("DATA", format->data_off, format->data_off, format->data_size, SegmentTypes::Code);
     DEXClassItem* dexclasses = pointer<DEXClassItem>(format->class_defs_off);
 
@@ -72,20 +75,45 @@ std::string DEXFormat::getString(u32 idx) const
 
 std::string DEXFormat::getType(u32 idx) const
 {
+    if(idx >= this->_format->type_ids_size)
+        return "type_" + std::to_string(idx);
+
     const DEXTypeItem& dextype = this->_types[idx];
     return this->getNormalizedString(dextype.descriptor_idx);
 }
 
 std::string DEXFormat::getMethod(u32 idx) const
 {
+    if(idx >= this->_format->method_ids_size)
+        return "method_" + std::to_string(idx);
+
     const DEXMethodItem& dexmethod = this->_methods[idx];
 
-    return this->getType(dexmethod.class_idx) + "." +
-           this->getNormalizedString(dexmethod.name_idx);
+    return this->getType(dexmethod.class_idx) + "->" +
+            this->getNormalizedString(dexmethod.name_idx);
+}
+
+std::string DEXFormat::getMethodProto(u32 idx) const
+{
+    return this->getMethod(idx) + this->getParameters(idx) + ":" + this->getReturnType(idx);
+}
+
+std::string DEXFormat::getField(u32 idx) const
+{
+    if(!this->_fields || (idx >= this->_format->field_ids_size))
+        return "field_" + std::to_string(idx);
+
+    const DEXFieldItem& dexfield = this->_fields[idx];
+
+    return this->getType(dexfield.class_idx) + "->" +
+           this->getNormalizedString(dexfield.name_idx) + ":" + this->getType(dexfield.type_idx);
 }
 
 std::string DEXFormat::getReturnType(u32 methodidx) const
 {
+    if(methodidx >= this->_format->method_ids_size)
+        return std::string();
+
     const DEXMethodItem& dexmethod = this->_methods[methodidx];
     const DEXProtoItem& dexproto = this->_protos[dexmethod.proto_idx];
 
@@ -94,6 +122,9 @@ std::string DEXFormat::getReturnType(u32 methodidx) const
 
 std::string DEXFormat::getParameters(u32 methodidx) const
 {
+    if(methodidx >= this->_format->method_ids_size)
+        return std::string();
+
     const DEXMethodItem& dexmethod = this->_methods[methodidx];
     const DEXProtoItem& dexproto = this->_protos[dexmethod.proto_idx];
 

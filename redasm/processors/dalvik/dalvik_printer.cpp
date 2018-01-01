@@ -42,7 +42,10 @@ std::string DalvikPrinter::imm(const Operand &op) const
                 return dexformat->getType(op.u_value);
 
             case DalvikOperands::MethodIndex:
-                return dexformat->getMethod(op.u_value);
+                return dexformat->getMethodProto(op.u_value);
+
+            case DalvikOperands::FieldIndex:
+                return dexformat->getField(op.u_value);
 
             default:
                 break;

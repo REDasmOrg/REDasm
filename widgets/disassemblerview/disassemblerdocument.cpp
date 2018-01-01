@@ -191,7 +191,7 @@ void DisassemblerDocument::appendFunctionStart(const REDasm::SymbolPtr &symbol, 
     this->_textcursor.setBlockFormat(blockformat);
 
     QTextCharFormat charformat;
-    charformat.setForeground(THEME_VALUE("function_fg"));
+    charformat.setForeground(THEME_VALUE("header_fg"));
 
     this->_textcursor.setCharFormat(charformat);
     this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address)));
@@ -210,6 +210,14 @@ void DisassemblerDocument::appendFunctionStart(const REDasm::SymbolPtr &symbol, 
             this->_textcursor.setCharFormat(charformat);
             this->_textcursor.insertText(S_TO_QS(post));
         }
+    });
+
+    charformat.setForeground(THEME_VALUE("prologue_fg"));
+    this->_textcursor.setCharFormat(charformat);
+
+    this->_currentprinter->prologue(symbol, [this, symbol](const std::string& line) {
+        this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address)));
+        this->_textcursor.insertText(S_TO_QS(line));
     });
 
     if(!replace)
@@ -398,7 +406,7 @@ void DisassemblerDocument::setMetaData(QTextCharFormat& charformat, const REDasm
         if(!showxrefs)
             data["action"] = DisassemblerDocument::GotoAction;
 
-        charformat.setForeground(THEME_VALUE("function_fg"));
+        charformat.setForeground(THEME_VALUE("header_fg"));
     }
     else if(symbol->is(REDasm::SymbolTypes::String))
         charformat.setForeground(THEME_VALUE("string_fg"));

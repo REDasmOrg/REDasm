@@ -1,6 +1,7 @@
 {
     "address_fg": "#6a89b4",
-    "function_fg": "#3f669e",
+    "header_fg": "#3f669e",
+    "prologue_fg": "#95a5a6",
     "comment_fg": "#16a085",
     "string_fg": "#8eb021",
     "data_fg": "#9b59b6",

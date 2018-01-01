@@ -13,6 +13,12 @@ void Printer::header(const SymbolPtr &symbol, Printer::HeaderCallback headerfunc
     headerfunc(s + " FUNCTION ", symbol->name, " " + s);
 }
 
+void Printer::prologue(const SymbolPtr &symbol, Printer::PrologueCallback prologuefunc)
+{
+    RE_UNUSED(symbol);
+    RE_UNUSED(prologuefunc);
+}
+
 std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback opfunc) const
 {
     const OperandList& operands = instruction->operands;

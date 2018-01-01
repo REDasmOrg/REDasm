@@ -24,7 +24,15 @@ void DalvikPrinter::prologue(const SymbolPtr &symbol, Printer::PrologueCallback 
 
 std::string DalvikPrinter::reg(const RegisterOperand &regop) const
 {
-    return "v" + std::to_string(regop.r);
+    std::string s = "v" + std::to_string(regop.r);
+
+    if(regop.extra_type & DalvikOperands::ParameterFirst)
+        s = "{" + s;
+
+    if(regop.extra_type & DalvikOperands::ParameterLast)
+        s += "}";
+
+    return s;
 }
 
 std::string DalvikPrinter::imm(const Operand &op) const

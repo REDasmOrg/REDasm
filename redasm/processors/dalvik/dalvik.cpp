@@ -200,12 +200,14 @@ bool DalvikProcessor::decodeInvoke(Buffer &buffer, const InstructionPtr &instruc
 {
     u8 b = *buffer++;
     u8 argc = b >> 4;
+    bool needsfirst = true;
 
     instruction->size = sizeof(u16) * 2;
 
     if((argc > 4) && ((argc % 4) == 1))
     {
-        instruction->reg(b & 0xF);
+        needsfirst = false;
+        instruction->reg(b & 0xF, DalvikOperands::ParameterFirst);
         argc--;
     }
 
@@ -219,7 +221,18 @@ bool DalvikProcessor::decodeInvoke(Buffer &buffer, const InstructionPtr &instruc
         for(u16 argword = 0, c = 0; (c < argc) && (argword < argwords); argword++)
         {
             for(u8 i = 0; (c < argc) && (i < (4 * 8)); i += 4, c++)
-                instruction->reg((argword & (0xF << i)) >> i);
+            {
+                register_t reg = (argword & (0xF << i)) >> i;
+                u64 regtype = DalvikOperands::Normal;
+
+                if(needsfirst && !c)
+                    regtype |= DalvikOperands::ParameterFirst;
+
+                if(c == (argc - 1))
+                    regtype |= DalvikOperands::ParameterLast;
+
+                instruction->reg(reg, regtype);
+            }
         }
     }
 
@@ -303,11 +316,7 @@ bool DalvikProcessor::decode1F(Buffer &buffer, const InstructionPtr &instruction
 bool DalvikProcessor::decode20(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_t(buffer, instruction, "instance-of"); }
 bool DalvikProcessor::decode21(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2(buffer, instruction, "array-length"); }
 bool DalvikProcessor::decode22(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_t(buffer, instruction, "new-instance"); }
-
-bool DalvikProcessor::decode23(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
+bool DalvikProcessor::decode23(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_t(buffer, instruction, "new-array"); }
 
 bool DalvikProcessor::decode24(Buffer &buffer, const InstructionPtr &instruction) const
 {

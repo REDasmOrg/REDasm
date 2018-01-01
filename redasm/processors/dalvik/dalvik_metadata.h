@@ -6,7 +6,8 @@
 namespace REDasm {
 
 namespace DalvikOperands {
-enum: u32 { MethodIndex = 1, TypeIndex, StringIndex, FieldIndex, };
+enum: u32 { Normal = 0, MethodIndex, TypeIndex, StringIndex, FieldIndex,
+            ParameterFirst = 0x1000, ParameterLast = 0x2000 };
 }
 
 } // namespace REDasm

@@ -79,6 +79,7 @@ bool DalvikProcessor::decodeOp2(Buffer &buffer, const InstructionPtr &instructio
 bool DalvikProcessor::decodeOp3(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic, u32 type) const
 {
     instruction->mnemonic = mnemonic;
+    instruction->type = type;
     instruction->size = sizeof(u16) * 2;
     instruction->reg(*buffer++);
     instruction->reg(*buffer++);

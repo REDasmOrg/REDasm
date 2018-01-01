@@ -134,6 +134,47 @@ std::string DEXFormat::getParameters(u32 methodidx) const
     return "(" + this->getTypeList(dexproto.parameters_off) + ")";
 }
 
+bool DEXFormat::getMethodInfo(u32 methodidx, DEXEncodedMethod &dexmethod)
+{
+    auto it = this->_encmethods.find(methodidx);
+
+    if(it == this->_encmethods.end())
+        return false;
+
+    dexmethod = it->second;
+    return true;
+}
+
+bool DEXFormat::getDebugInfo(u32 methodidx, DEXDebugInfo &debuginfo)
+{
+    auto it = this->_codeitems.find(methodidx);
+
+    if(it == this->_codeitems.end())
+        return false;
+
+    DEXCodeItem* dexcode = it->second;
+
+    if(!dexcode->debug_info_off)
+        return false;
+
+    u8* pdebuginfo = pointer<u8>(dexcode->debug_info_off);
+
+    debuginfo.line_start = this->getULeb128(&pdebuginfo);
+    debuginfo.parameters_size = this->getULeb128(&pdebuginfo);
+
+    for(u32 i = 0; i < debuginfo.parameters_size; i++)
+    {
+        s32 idx = this->getULeb128p1(&pdebuginfo);
+
+        if(idx == DEX_NO_INDEX)
+            debuginfo.parameter_names.push_back(std::string());
+        else
+            debuginfo.parameter_names.push_back(this->getNormalizedString(idx));
+    }
+
+    return true;
+}
+
 bool DEXFormat::getClassData(const DEXClassIdItem &dexclass, DEXClassData &dexclassdata)
 {
     if(!dexclass.class_data_off)
@@ -192,6 +233,10 @@ void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
         idx += dexmethod.method_idx_diff;
 
     DEXCodeItem* dexcode = pointer<DEXCodeItem>(dexmethod.code_off);
+
+    this->_encmethods[idx] = dexmethod;
+    this->_codeitems[idx] = dexcode;
+
     this->defineFunction(fileoffset(&dexcode->insns), this->getMethod(idx), idx);
 }
 
@@ -235,6 +280,11 @@ u32 DEXFormat::getULeb128(u8 **data) const
     value |= ((**data & 0x7F) << (i * 7));
     (*data)++;
     return value;
+}
+
+s32 DEXFormat::getULeb128p1(u8 **data) const
+{
+    return static_cast<s32>(this->getULeb128(data)) - 1;
 }
 
 std::string DEXFormat::getTypeList(u32 typelistoff) const

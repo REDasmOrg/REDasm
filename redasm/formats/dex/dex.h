@@ -27,6 +27,8 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         std::string getField(u32 idx) const;
         std::string getReturnType(u32 methodidx) const;
         std::string getParameters(u32 methodidx) const;
+        bool getMethodInfo(u32 methodidx, DEXEncodedMethod& dexmethod);
+        bool getDebugInfo(u32 methodidx, DEXDebugInfo& debuginfo);
 
     private:
         bool getClassData(const DEXClassIdItem& dexclass, DEXClassData& dexclassdata);
@@ -36,11 +38,14 @@ class DEXFormat : public FormatPluginT<DEXHeader>
     private:
         std::string getNormalizedString(u32 idx) const;
         u32 getULeb128(u8 **data) const;
+        s32 getULeb128p1(u8 **data) const;
         std::string getTypeList(u32 typelistoff) const;
         static bool validateSignature(DEXHeader *format);
         static std::string normalized(const std::string& type);
 
     private:
+        std::unordered_map<u16, DEXCodeItem*> _codeitems;
+        std::unordered_map<u16, DEXEncodedMethod> _encmethods;
         DEXTypeIdItem* _types;
         DEXStringIdItem* _strings;
         DEXMethodIdItem* _methods;

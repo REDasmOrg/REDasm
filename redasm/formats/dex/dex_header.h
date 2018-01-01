@@ -64,6 +64,12 @@ struct DEXTypeItem { u16 type_idx; };
 struct DEXEncodedField { u32 field_idx_diff, access_flags; };
 struct DEXEncodedMethod { u32 method_idx_diff, access_flags, code_off; };
 
+struct DEXDebugInfo
+{
+    u32 line_start, parameters_size;
+    std::vector<std::string> parameter_names;
+};
+
 struct DEXClassData
 {
     u32 static_fields_size, instance_fields_size;

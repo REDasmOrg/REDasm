@@ -6,7 +6,7 @@
 #define DEX_FILE_MAGIC              "dex"
 #define DEX_ENDIAN_CONSTANT         0x12345678
 #define DEX_REVERSE_ENDIAN_CONSTANT 0x78563412
-#define DEX_NO_INDEX                0xFFFFFFFF
+#define DEX_NO_INDEX                -1
 
 namespace REDasm {
 

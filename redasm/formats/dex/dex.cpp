@@ -181,13 +181,18 @@ bool DEXFormat::getClassData(const DEXClassIdItem &dexclass, DEXClassData &dexcl
     return true;
 }
 
-void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod)
+void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
 {
     if(!dexmethod.code_off)
         return;
 
+    if(!idx)
+        idx = dexmethod.method_idx_diff;
+    else
+        idx += dexmethod.method_idx_diff;
+
     DEXCodeItem* dexcode = pointer<DEXCodeItem>(dexmethod.code_off);
-    this->defineFunction(fileoffset(&dexcode->insns), this->getMethod(dexmethod.method_idx_diff), dexmethod.method_idx_diff);
+    this->defineFunction(fileoffset(&dexcode->insns), this->getMethod(idx), idx);
 }
 
 void DEXFormat::loadClass(const DEXClassIdItem &dexclass)
@@ -197,12 +202,16 @@ void DEXFormat::loadClass(const DEXClassIdItem &dexclass)
     if(!this->getClassData(dexclass, dexclassdata))
         return;
 
-    std::for_each(dexclassdata.direct_methods.begin(), dexclassdata.direct_methods.end(), [this, dexclass](const DEXEncodedMethod& dexmethod) {
-        this->loadMethod(dexmethod);
+    u16 idx = 0;
+
+    std::for_each(dexclassdata.direct_methods.begin(), dexclassdata.direct_methods.end(), [this, dexclass, &idx](const DEXEncodedMethod& dexmethod) {
+        this->loadMethod(dexmethod, idx);
     });
 
-    std::for_each(dexclassdata.virtual_methods.begin(), dexclassdata.virtual_methods.end(), [this, dexclass](const DEXEncodedMethod& dexmethod) {
-        this->loadMethod(dexmethod);
+    idx = 0;
+
+    std::for_each(dexclassdata.virtual_methods.begin(), dexclassdata.virtual_methods.end(), [this, dexclass, &idx](const DEXEncodedMethod& dexmethod) {
+        this->loadMethod(dexmethod, idx);
     });
 }
 

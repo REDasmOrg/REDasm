@@ -30,7 +30,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
 
     private:
         bool getClassData(const DEXClassIdItem& dexclass, DEXClassData& dexclassdata);
-        void loadMethod(const DEXEncodedMethod& dexmethod);
+        void loadMethod(const DEXEncodedMethod& dexmethod, u16 &idx);
         void loadClass(const DEXClassIdItem& dexclass);
 
     private:

@@ -268,6 +268,9 @@ bool DEXFormat::validateSignature(DEXHeader* format)
 
 std::string DEXFormat::normalized(const std::string &type)
 {
+    if(type[0] == '[')
+        return DEXFormat::normalized(type.substr(1)) + "[]";
+
     if(type == "V")
         return "void";
     else if(type == "Z")

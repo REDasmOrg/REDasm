@@ -96,6 +96,15 @@ bool DalvikProcessor::decodeOp2_s(Buffer &buffer, const InstructionPtr &instruct
     return true;
 }
 
+bool DalvikProcessor::decodeOp2_t(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic) const
+{
+    instruction->mnemonic = mnemonic;
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(*buffer++);
+    instruction->imm(this->read<u16>(buffer), DalvikOperands::TypeIndex);
+    return true;
+}
+
 bool DalvikProcessor::decodeOp2_f(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic, u32 type) const
 {
     instruction->mnemonic = mnemonic;
@@ -150,6 +159,40 @@ bool DalvikProcessor::decodeOp3_f(Buffer &buffer, const InstructionPtr &instruct
     instruction->reg(*buffer & 0xF);
     instruction->reg((*buffer++ & 0xF0) >> 4);
     instruction->imm(this->read<u16>(buffer), DalvikOperands::FieldIndex);
+    return true;
+}
+
+bool DalvikProcessor::decodeOp3_t(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic, u32 type) const
+{
+    instruction->mnemonic = mnemonic;
+    instruction->type = type;
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(*buffer & 0xF);
+    instruction->reg((*buffer++ & 0xF0) >> 4);
+    instruction->imm(this->read<u16>(buffer), DalvikOperands::TypeIndex);
+    return true;
+}
+
+bool DalvikProcessor::decodeIfOp2(Buffer &buffer, const InstructionPtr &instruction, const std::string &cond) const
+{
+    instruction->mnemonic = "if-" + cond;
+    instruction->type = InstructionTypes::Jump | InstructionTypes::Conditional;
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(*buffer++ & 0xF);
+    instruction->imm(instruction->address + (sizeof(u16) * this->read<s16>(buffer)));
+    instruction->target_op(1);
+    return true;
+}
+
+bool DalvikProcessor::decodeIfOp3(Buffer &buffer, const InstructionPtr &instruction, const std::string &cond) const
+{
+    instruction->mnemonic = "if-" + cond;
+    instruction->type = InstructionTypes::Jump | InstructionTypes::Conditional;
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(*buffer & 0xF);
+    instruction->reg((*buffer++ & 0xF0) >> 4);
+    instruction->imm(instruction->address + (sizeof(u16) * this->read<s16>(buffer)));
+    instruction->target_op(2);
     return true;
 }
 
@@ -253,44 +296,13 @@ bool DalvikProcessor::decode1B(Buffer &buffer, const InstructionPtr &instruction
     return false;
 }
 
-bool DalvikProcessor::decode1C(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode1D(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode1E(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode1F(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode20(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode21(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode22(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    instruction->mnemonic = "new-instance";
-    instruction->size = sizeof(u16) * 2;
-    instruction->reg(*buffer++);
-    instruction->imm(this->read<u16>(buffer), DalvikOperands::TypeIndex);
-    return true;
-}
+bool DalvikProcessor::decode1C(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_t(buffer, instruction, "const-class"); }
+bool DalvikProcessor::decode1D(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp1(buffer, instruction, "monitor-enter"); }
+bool DalvikProcessor::decode1E(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp0(buffer, instruction, "monitor-exit"); }
+bool DalvikProcessor::decode1F(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_t(buffer, instruction, "check-cast"); }
+bool DalvikProcessor::decode20(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_t(buffer, instruction, "instance-of"); }
+bool DalvikProcessor::decode21(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2(buffer, instruction, "array-length"); }
+bool DalvikProcessor::decode22(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_t(buffer, instruction, "new-instance"); }
 
 bool DalvikProcessor::decode23(Buffer &buffer, const InstructionPtr &instruction) const
 {
@@ -312,19 +324,26 @@ bool DalvikProcessor::decode26(Buffer &buffer, const InstructionPtr &instruction
     return false;
 }
 
-bool DalvikProcessor::decode27(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
+bool DalvikProcessor::decode27(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp1(buffer, instruction, "throw-vx"); }
 
 bool DalvikProcessor::decode28(Buffer &buffer, const InstructionPtr &instruction) const
 {
-    return false;
+    instruction->mnemonic = "goto";
+    instruction->type = InstructionTypes::Jump;
+    instruction->size = sizeof(u16);
+    instruction->imm(instruction->address + (static_cast<s8>(*buffer) * sizeof(u16)));
+    instruction->target_op(0);
+    return true;
 }
 
 bool DalvikProcessor::decode29(Buffer &buffer, const InstructionPtr &instruction) const
 {
-    return false;
+    instruction->mnemonic = "goto/16";
+    instruction->type = InstructionTypes::Jump;
+    instruction->size = sizeof(u16) * 2;
+    instruction->imm(instruction->address + (this->read<s16>(buffer) * sizeof(u16)));
+    instruction->target_op(0);
+    return true;
 }
 
 bool DalvikProcessor::decode2A(Buffer &buffer, const InstructionPtr &instruction) const
@@ -342,90 +361,23 @@ bool DalvikProcessor::decode2C(Buffer &buffer, const InstructionPtr &instruction
     return false;
 }
 
-bool DalvikProcessor::decode2D(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode2E(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode2F(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode30(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode31(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode32(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode33(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode34(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode35(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode36(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode37(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode38(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode39(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode3A(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode3B(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode3C(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode3D(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
+bool DalvikProcessor::decode2D(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3(buffer, instruction, "cmpl-float"); }
+bool DalvikProcessor::decode2E(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3(buffer, instruction, "cmpg-float"); }
+bool DalvikProcessor::decode2F(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3(buffer, instruction, "cmpl-double"); }
+bool DalvikProcessor::decode30(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3(buffer, instruction, "cmpg-double"); }
+bool DalvikProcessor::decode31(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3(buffer, instruction, "cmp-long"); }
+bool DalvikProcessor::decode32(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp3(buffer, instruction, "eq"); }
+bool DalvikProcessor::decode33(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp3(buffer, instruction, "ne"); }
+bool DalvikProcessor::decode34(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp3(buffer, instruction, "lt"); }
+bool DalvikProcessor::decode35(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp3(buffer, instruction, "ge"); }
+bool DalvikProcessor::decode36(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp3(buffer, instruction, "gt"); }
+bool DalvikProcessor::decode37(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp3(buffer, instruction, "le"); }
+bool DalvikProcessor::decode38(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp3(buffer, instruction, "eqz"); }
+bool DalvikProcessor::decode39(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp2(buffer, instruction, "nez"); }
+bool DalvikProcessor::decode3A(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp2(buffer, instruction, "ltz"); }
+bool DalvikProcessor::decode3B(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp2(buffer, instruction, "gez"); }
+bool DalvikProcessor::decode3C(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp2(buffer, instruction, "gtz"); }
+bool DalvikProcessor::decode3D(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeIfOp2(buffer, instruction, "lez"); }
 
 bool DalvikProcessor::decode3E(Buffer &buffer, const InstructionPtr &instruction) const
 {

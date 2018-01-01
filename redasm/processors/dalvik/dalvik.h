@@ -30,12 +30,16 @@ class DalvikProcessor : public ProcessorPlugin
         bool decodeOp2(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
         bool decodeOp3(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;
         bool decodeOp2_s(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
+        bool decodeOp2_t(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
         bool decodeOp2_f(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;
         bool decodeOp2_16(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
         bool decodeOp2_imm4(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
         bool decodeOp2_imm16(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
         bool decodeOp2_imm32(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
         bool decodeOp3_f(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;
+        bool decodeOp3_t(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;
+        bool decodeIfOp2(Buffer& buffer, const InstructionPtr& instruction, const std::string& cond) const;
+        bool decodeIfOp3(Buffer& buffer, const InstructionPtr& instruction, const std::string& cond) const;
         bool decodeInvoke(Buffer& buffer, const InstructionPtr& instruction, const std::string& kind) const;
 
     private:

@@ -43,6 +43,8 @@ bool DalvikProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
 
     if(res)
         instruction->id = opcode;
+    else
+        instruction->size = sizeof(u16); // Dalvik uses always 16-bit aligned instructions
 
     ProcessorPlugin::decode(buffer, instruction);
     return res;

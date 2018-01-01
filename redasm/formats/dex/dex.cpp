@@ -55,7 +55,7 @@ bool DEXFormat::load(u8 *rawformat)
     this->defineSegment("DATA", format->data_off, format->data_off, format->data_size, SegmentTypes::Code);
     DEXClassIdItem* dexclasses = pointer<DEXClassIdItem>(format->class_defs_off);
 
-    for(u32 i = 0, sz = 0; sz < format->class_defs_size; i++, sz += sizeof(DEXClassIdItem))
+    for(u32 i = 0; i < format->class_defs_size; i++)
         this->loadClass(dexclasses[i]);
 
     FormatPluginT<DEXHeader>::load(rawformat);

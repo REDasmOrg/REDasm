@@ -25,6 +25,13 @@ class DalvikProcessor : public ProcessorPlugin
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
 
     private:
+        bool decodeOp0(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;
+        bool decodeOp1(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;
+        bool decodeOp2(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
+        bool decodeOp2_s(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
+        bool decodeOp2_f(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;
+        bool decodeOp2_16(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
+        bool decodeOp3_f(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;
         bool decodeInvoke(Buffer& buffer, const InstructionPtr& instruction, const std::string& kind) const;
 
     private:

@@ -40,8 +40,78 @@ bool DalvikProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
 
     buffer++; // Skip opcode
     bool res = it->second(buffer, instruction);
+
+    if(res)
+        instruction->id = opcode;
+
     ProcessorPlugin::decode(buffer, instruction);
     return res;
+}
+
+bool DalvikProcessor::decodeOp0(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic, u32 type) const
+{
+    RE_UNUSED(buffer);
+    instruction->mnemonic = mnemonic;
+    instruction->type = type;
+    instruction->size = sizeof(u16);
+    return true;
+}
+
+bool DalvikProcessor::decodeOp1(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic, u32 type) const
+{
+    instruction->mnemonic = mnemonic;
+    instruction->type = type;
+    instruction->size = sizeof(u16);
+    instruction->reg(*buffer & 0xF);
+    return true;
+}
+
+bool DalvikProcessor::decodeOp2(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic) const
+{
+    instruction->mnemonic = mnemonic;
+    instruction->size = sizeof(u16);
+    instruction->reg(*buffer & 0xF);
+    instruction->reg((*buffer & 0xF0) >> 4);
+    return true;
+}
+
+bool DalvikProcessor::decodeOp2_s(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic) const
+{
+    instruction->mnemonic = mnemonic;
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(*buffer++);
+    instruction->imm(this->read<u16>(buffer), DalvikOperands::StringIndex);
+    return true;
+}
+
+bool DalvikProcessor::decodeOp2_f(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic, u32 type) const
+{
+    instruction->mnemonic = mnemonic;
+    instruction->type = type;
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(*buffer++);
+    instruction->imm(this->read<u16>(buffer), DalvikOperands::FieldIndex);
+    return true;
+}
+
+bool DalvikProcessor::decodeOp2_16(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic) const
+{
+    instruction->mnemonic = mnemonic;
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(*buffer++);
+    instruction->reg(this->read<u16>(buffer));
+    return true;
+}
+
+bool DalvikProcessor::decodeOp3_f(Buffer &buffer, const InstructionPtr &instruction, const std::string &mnemonic, u32 type) const
+{
+    instruction->mnemonic = mnemonic;
+    instruction->type = type;
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(*buffer & 0xF);
+    instruction->reg((*buffer++ & 0xF0) >> 4);
+    instruction->imm(this->read<u16>(buffer), DalvikOperands::FieldIndex);
+    return true;
 }
 
 bool DalvikProcessor::decodeInvoke(Buffer &buffer, const InstructionPtr &instruction, const std::string &kind) const
@@ -77,24 +147,9 @@ bool DalvikProcessor::decodeInvoke(Buffer &buffer, const InstructionPtr &instruc
     return true;
 }
 
-bool DalvikProcessor::decode00(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    RE_UNUSED(buffer);
-
-    instruction->mnemonic = "nop";
-    instruction->size = sizeof(u16);
-    return false;
-}
-
-bool DalvikProcessor::decode01(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode02(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
+bool DalvikProcessor::decode00(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp0(buffer, instruction, "nop"); }
+bool DalvikProcessor::decode01(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2(buffer, instruction, "move"); }
+bool DalvikProcessor::decode02(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_16(buffer, instruction, "move/from16"); }
 
 bool DalvikProcessor::decode03(Buffer &buffer, const InstructionPtr &instruction) const
 {
@@ -106,78 +161,29 @@ bool DalvikProcessor::decode04(Buffer &buffer, const InstructionPtr &instruction
     return false;
 }
 
-bool DalvikProcessor::decode05(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
+bool DalvikProcessor::decode05(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_16(buffer, instruction, "move-wide/from16"); }
 
 bool DalvikProcessor::decode06(Buffer &buffer, const InstructionPtr &instruction) const
 {
     return false;
 }
 
-bool DalvikProcessor::decode07(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode08(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
+bool DalvikProcessor::decode07(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2(buffer, instruction, "move-object"); }
+bool DalvikProcessor::decode08(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_16(buffer, instruction, "move-object/from16"); }
 
 bool DalvikProcessor::decode09(Buffer &buffer, const InstructionPtr &instruction) const
 {
     return false;
 }
 
-bool DalvikProcessor::decode0A(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode0B(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode0C(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode0D(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode0E(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    if(*buffer == 0x00)
-    {
-        instruction->mnemonic = "return-void";
-        instruction->type = InstructionTypes::Stop;
-        instruction->size = sizeof(u16);
-        return true;
-    }
-
-    return false;
-}
-
-bool DalvikProcessor::decode0F(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode10(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode11(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
+bool DalvikProcessor::decode0A(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp1(buffer, instruction, "move-result"); }
+bool DalvikProcessor::decode0B(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp1(buffer, instruction, "move-result-wide");}
+bool DalvikProcessor::decode0C(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp1(buffer, instruction, "move-result-object");}
+bool DalvikProcessor::decode0D(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp1(buffer, instruction, "move-exception"); }
+bool DalvikProcessor::decode0E(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp0(buffer, instruction, "return-void", InstructionTypes::Stop); }
+bool DalvikProcessor::decode0F(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp1(buffer, instruction, "return", InstructionTypes::Stop); }
+bool DalvikProcessor::decode10(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp1(buffer, instruction, "return-wide", InstructionTypes::Stop); }
+bool DalvikProcessor::decode11(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp1(buffer, instruction, "return-object", InstructionTypes::Stop); }
 
 bool DalvikProcessor::decode12(Buffer &buffer, const InstructionPtr &instruction) const
 {
@@ -219,14 +225,7 @@ bool DalvikProcessor::decode19(Buffer &buffer, const InstructionPtr &instruction
     return false;
 }
 
-bool DalvikProcessor::decode1A(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    instruction->mnemonic = "const-string";
-    instruction->size = sizeof(u16) * 2;
-    instruction->reg(*buffer++);
-    instruction->imm(this->read<u16>(buffer), DalvikOperands::StringIndex);
-    return true;
-}
+bool DalvikProcessor::decode1A(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_s(buffer, instruction, "const-string"); }
 
 bool DalvikProcessor::decode1B(Buffer &buffer, const InstructionPtr &instruction) const
 {
@@ -507,170 +506,39 @@ bool DalvikProcessor::decode51(Buffer &buffer, const InstructionPtr &instruction
     return false;
 }
 
-bool DalvikProcessor::decode52(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode53(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode54(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode55(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode56(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode57(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode58(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode59(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode5A(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode5B(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode5C(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode5D(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode5E(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode5F(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode60(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode61(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode62(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode63(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode64(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode65(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode66(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode67(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode68(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode69(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode6A(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode6B(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode6C(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode6D(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
-
-bool DalvikProcessor::decode6E(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return this->decodeInvoke(buffer, instruction, "virtual");
-}
-
-bool DalvikProcessor::decode6F(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return this->decodeInvoke(buffer, instruction, "super");
-}
-
-bool DalvikProcessor::decode70(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return this->decodeInvoke(buffer, instruction, "direct");
-}
-
-bool DalvikProcessor::decode71(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return this->decodeInvoke(buffer, instruction, "static");
-}
-
-bool DalvikProcessor::decode72(Buffer &buffer, const InstructionPtr &instruction) const
-{
-    return false;
-}
+bool DalvikProcessor::decode52(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iget", InstructionTypes::Load); }
+bool DalvikProcessor::decode53(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iget-wide", InstructionTypes::Load); }
+bool DalvikProcessor::decode54(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iget-object", InstructionTypes::Load); }
+bool DalvikProcessor::decode55(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iget-boolean", InstructionTypes::Load); }
+bool DalvikProcessor::decode56(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iget-byte", InstructionTypes::Load); }
+bool DalvikProcessor::decode57(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iget-char", InstructionTypes::Load); }
+bool DalvikProcessor::decode58(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iget-short", InstructionTypes::Load); }
+bool DalvikProcessor::decode59(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iput", InstructionTypes::Store); }
+bool DalvikProcessor::decode5A(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iput-wide", InstructionTypes::Store); }
+bool DalvikProcessor::decode5B(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iput-object", InstructionTypes::Store); }
+bool DalvikProcessor::decode5C(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iput-boolean", InstructionTypes::Store); }
+bool DalvikProcessor::decode5D(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iput-byte", InstructionTypes::Store); }
+bool DalvikProcessor::decode5E(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iput-char", InstructionTypes::Store); }
+bool DalvikProcessor::decode5F(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp3_f(buffer, instruction, "iput-short", InstructionTypes::Store); }
+bool DalvikProcessor::decode60(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sget", InstructionTypes::Load); }
+bool DalvikProcessor::decode61(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sget-wide", InstructionTypes::Load); }
+bool DalvikProcessor::decode62(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sget-object", InstructionTypes::Load); }
+bool DalvikProcessor::decode63(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sget-boolean", InstructionTypes::Load); }
+bool DalvikProcessor::decode64(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sget-byte", InstructionTypes::Load); }
+bool DalvikProcessor::decode65(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sget-char", InstructionTypes::Load); }
+bool DalvikProcessor::decode66(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sget-short", InstructionTypes::Load); }
+bool DalvikProcessor::decode67(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sput", InstructionTypes::Store); }
+bool DalvikProcessor::decode68(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sput-wide", InstructionTypes::Store); }
+bool DalvikProcessor::decode69(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sput-object", InstructionTypes::Store); }
+bool DalvikProcessor::decode6A(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sput-boolean", InstructionTypes::Store); }
+bool DalvikProcessor::decode6B(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sput-byte", InstructionTypes::Store); }
+bool DalvikProcessor::decode6C(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sput-char", InstructionTypes::Store); }
+bool DalvikProcessor::decode6D(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeOp2_f(buffer, instruction, "sput-short", InstructionTypes::Store); }
+bool DalvikProcessor::decode6E(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeInvoke(buffer, instruction, "virtual"); }
+bool DalvikProcessor::decode6F(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeInvoke(buffer, instruction, "super"); }
+bool DalvikProcessor::decode70(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeInvoke(buffer, instruction, "direct"); }
+bool DalvikProcessor::decode71(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeInvoke(buffer, instruction, "static"); }
+bool DalvikProcessor::decode72(Buffer &buffer, const InstructionPtr &instruction) const { return this->decodeInvoke(buffer, instruction, "interface"); }
 
 bool DalvikProcessor::decode73(Buffer &buffer, const InstructionPtr &instruction) const
 {

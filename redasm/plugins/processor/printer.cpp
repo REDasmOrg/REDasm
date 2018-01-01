@@ -7,10 +7,10 @@ Printer::Printer(DisassemblerFunctions *disassembler, SymbolTable *symboltable):
 
 }
 
-void Printer::prologue(const SymbolPtr &symbol, Printer::PrologueCallback plgfunc)
+void Printer::header(const SymbolPtr &symbol, Printer::HeaderCallback headerfunc)
 {
     std::string s(20, '=');
-    plgfunc(s + " FUNCTION ", symbol->name, " " + s);
+    headerfunc(s + " FUNCTION ", symbol->name, " " + s);
 }
 
 std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback opfunc) const

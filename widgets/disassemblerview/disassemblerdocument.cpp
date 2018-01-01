@@ -196,8 +196,7 @@ void DisassemblerDocument::appendFunctionStart(const REDasm::SymbolPtr &symbol, 
     this->_textcursor.setCharFormat(charformat);
     this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address)));
 
-
-    this->_currentprinter->prologue(symbol, [this, &charformat, symbol](const std::string& pre, const std::string& sym, const std::string& post) {
+    this->_currentprinter->header(symbol, [this, &charformat, symbol](const std::string& pre, const std::string& sym, const std::string& post) {
         if(!pre.empty())
             this->_textcursor.insertText(S_TO_QS(pre));
 

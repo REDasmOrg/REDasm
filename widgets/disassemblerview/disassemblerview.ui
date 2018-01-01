@@ -161,11 +161,14 @@
           <property name="itemsExpandable">
            <bool>false</bool>
           </property>
+          <property name="allColumnsShowFocus">
+           <bool>true</bool>
+          </property>
           <property name="expandsOnDoubleClick">
            <bool>false</bool>
           </property>
           <attribute name="headerVisible">
-           <bool>false</bool>
+           <bool>true</bool>
           </attribute>
           <attribute name="headerStretchLastSection">
            <bool>false</bool>

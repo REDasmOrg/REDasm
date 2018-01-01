@@ -1,5 +1,6 @@
 #include "dalvik.h"
 #include "dalvik_printer.h"
+#include "dalvik_opcodes.h"
 #include "dalvik_metadata.h"
 
 #define SET_DECODE_OPCODE_TO(opcode) _opcodemap[0x##opcode] = [this](Buffer& buffer, const InstructionPtr& instruction) -> bool { return decode##opcode(buffer, instruction); }
@@ -31,9 +32,9 @@ Printer *DalvikProcessor::createPrinter(DisassemblerFunctions *disassembler, Sym
 
 bool DalvikProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
 {
-    u8 opcode = *buffer;
+    instruction->id = *buffer;
 
-    auto it = this->_opcodemap.find(opcode);
+    auto it = this->_opcodemap.find(instruction->id);
 
     if(it == this->_opcodemap.end())
         return false;
@@ -41,9 +42,7 @@ bool DalvikProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
     buffer++; // Skip opcode
     bool res = it->second(buffer, instruction);
 
-    if(res)
-        instruction->id = opcode;
-    else
+    if(!res)
         instruction->size = sizeof(u16); // Dalvik uses always 16-bit aligned instructions
 
     ProcessorPlugin::decode(buffer, instruction);
@@ -198,16 +197,15 @@ bool DalvikProcessor::decodeIfOp3(Buffer &buffer, const InstructionPtr &instruct
 
 bool DalvikProcessor::decodeInvoke(Buffer &buffer, const InstructionPtr &instruction, const std::string &kind) const
 {
-    u8 b = *buffer++;
-    u8 argc = b >> 4;
-    bool needsfirst = true;
+    u8 firstb = *buffer++;
+    u8 argc = firstb >> 4;
+    bool needslast = false;
 
     instruction->size = sizeof(u16) * 2;
 
     if((argc > 4) && ((argc % 4) == 1))
     {
-        needsfirst = false;
-        instruction->reg(b & 0xF, DalvikOperands::ParameterFirst);
+        needslast = true;
         argc--;
     }
 
@@ -215,26 +213,32 @@ bool DalvikProcessor::decodeInvoke(Buffer &buffer, const InstructionPtr &instruc
 
     if(argc)
     {
+        buffer += sizeof(u16);
         u16 argwords = std::max(1, argc / 4);
         instruction->size += sizeof(u16) * argwords;
 
         for(u16 argword = 0, c = 0; (c < argc) && (argword < argwords); argword++)
         {
+            u16 word = this->read<u16>(buffer);
+
             for(u8 i = 0; (c < argc) && (i < (4 * 8)); i += 4, c++)
             {
-                register_t reg = (argword & (0xF << i)) >> i;
+                register_t reg = (word & (0xF << i)) >> i;
                 u64 regtype = DalvikOperands::Normal;
 
-                if(needsfirst && !c)
+                if(!c)
                     regtype |= DalvikOperands::ParameterFirst;
 
-                if(c == (argc - 1))
+                if(!needslast && (c == (argc - 1)))
                     regtype |= DalvikOperands::ParameterLast;
 
                 instruction->reg(reg, regtype);
             }
         }
     }
+
+    if(needslast)
+        instruction->reg(firstb & 0xF, DalvikOperands::ParameterLast);
 
     instruction->imm(midx, DalvikOperands::MethodIndex);
     instruction->type = InstructionTypes::Call;

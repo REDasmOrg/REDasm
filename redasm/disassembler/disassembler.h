@@ -33,6 +33,7 @@ class Disassembler: public DisassemblerBase
         void checkRegister(const InstructionPtr& instruction, const Operand &operand);
         void analyzeOp(const InstructionPtr& instruction, const Operand& operand);
         InstructionPtr disassembleInstruction(address_t address, Buffer &b);
+        void createInvalidInstruction(const InstructionPtr& instruction, Buffer &b);
 
     private:
         ProcessorPlugin* _processor;

@@ -18,6 +18,13 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
     const OperandList& operands = instruction->operands;
     std::string s = instruction->mnemonic;
 
+    if(instruction->isInvalid())
+    {
+        s += instruction->bytes;
+        opfunc(Operand(), std::string(), instruction->bytes);
+        return s;
+    }
+
     if(!operands.empty())
         s += " ";
 

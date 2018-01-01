@@ -404,16 +404,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
     REDasm::status("Disassembling " + REDasm::hex(address));
 
     if(!this->_processor->decode(b, instruction))
-    {
-        instruction->type = InstructionTypes::Invalid;
-        instruction->mnemonic = INVALID_MNEMONIC;
-
-        if(!instruction->size)
-            instruction->size = 1;
-
-        instruction->imm(static_cast<u64>(*b));
-        REDasm::log("Invalid instruction @ " + REDasm::hex(address) + (!instruction->bytes.empty() ? " (bytes: " + instruction->bytes + ")" : ""));
-    }
+        this->createInvalidInstruction(instruction, b);
     else
     {
         if(this->_emulator)
@@ -428,6 +419,22 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
 
     this->_listing.commit(address, instruction);
     return instruction;
+}
+
+void Disassembler::createInvalidInstruction(const InstructionPtr &instruction, Buffer& b)
+{
+    instruction->type = InstructionTypes::Invalid;
+    instruction->mnemonic = INVALID_MNEMONIC;
+
+    if(instruction->bytes.empty())
+    {
+        std::stringstream ss;
+        ss << std::hex << *b;
+        instruction->bytes = ss.str();
+    }
+
+    REDasm::log("Invalid instruction @ " + REDasm::hex(instruction->address) +
+                (!instruction->bytes.empty() ? " (bytes: " + instruction->bytes + ")" : ""));
 }
 
 }

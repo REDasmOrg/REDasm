@@ -403,9 +403,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
 
     REDasm::status("Disassembling " + REDasm::hex(address));
 
-    if(!this->_processor->decode(b, instruction))
-        this->createInvalidInstruction(instruction, b);
-    else
+    if(this->_processor->decode(b, instruction))
     {
         if(this->_emulator)
             this->_emulator->emulate(instruction);
@@ -416,6 +414,8 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
             this->analyzeOp(instruction, operand);
         });
     }
+    else
+        this->createInvalidInstruction(instruction, b);
 
     this->_listing.commit(address, instruction);
     return instruction;

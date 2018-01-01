@@ -30,6 +30,7 @@ class DisassemblerDocument: public QObject
         explicit DisassemblerDocument(REDasm::Disassembler* disassembler, const QString& theme, QTextDocument *document, QObject* parent = 0);
         QColor highlightColor() const;
         QColor seekColor() const;
+        QColor dottedColor() const;
         void setTheme(const QString& theme);
         virtual bool generate(address_t address, const QTextCursor &cursor);
         void update(address_t address);

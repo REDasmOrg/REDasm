@@ -31,6 +31,11 @@ QColor DisassemblerDocument::seekColor() const
     return QColor(THEME_VALUE("seek"));
 }
 
+QColor DisassemblerDocument::dottedColor() const
+{
+    return QColor(THEME_VALUE("dotted_fg"));
+}
+
 void DisassemblerDocument::setTheme(const QString &theme)
 {
     QFile f(QString(":/themes/disassembler/%1.json").arg(theme));
@@ -212,16 +217,19 @@ void DisassemblerDocument::appendFunctionStart(const REDasm::SymbolPtr &symbol, 
         }
     });
 
-    charformat.setForeground(THEME_VALUE("prologue_fg"));
-    this->_textcursor.setCharFormat(charformat);
-
-    this->_currentprinter->prologue(symbol, [this, symbol](const std::string& line) {
-        this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address)));
-        this->_textcursor.insertText(S_TO_QS(line));
-    });
-
     if(!replace)
+    {
+        charformat.setForeground(THEME_VALUE("prologue_fg"));
+        this->_textcursor.setCharFormat(charformat);
+
+        this->_currentprinter->prologue(symbol, [this, symbol](const std::string& line) {
+            this->_textcursor.insertBlock();
+            this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address)));
+            this->_textcursor.insertText(S_TO_QS(line));
+        });
+
         this->_textcursor.insertBlock();
+    }
 }
 
 void DisassemblerDocument::appendInstruction(const REDasm::InstructionPtr &instruction, bool replace)

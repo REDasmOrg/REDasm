@@ -2,6 +2,7 @@
 
 DisassemblerHighlighter::DisassemblerHighlighter(QTextDocument *document) : QSyntaxHighlighter(document)
 {
+    this->_rgxdotted.setPattern("^[ \\t]*\\.\\w+");
 }
 
 void DisassemblerHighlighter::highlightBlock(const QString &text)
@@ -11,6 +12,24 @@ void DisassemblerHighlighter::highlightBlock(const QString &text)
 
     this->highlightWords(text);
     this->highlightSeek(text);
+    this->highlightAll(text, this->_rgxdotted, this->_dottedcolor);
+}
+
+void DisassemblerHighlighter::highlightAll(const QString &text, const QRegularExpression &regex, const QColor &color)
+{
+    if(regex.pattern().isEmpty())
+        return;
+
+    QTextCharFormat charformat;
+    charformat.setForeground(color);
+
+    QRegularExpressionMatchIterator it = regex.globalMatch(text);
+
+    while(it.hasNext())
+    {
+        QRegularExpressionMatch match = it.next();
+        this->setFormat(match.capturedStart(), match.capturedLength(), charformat);
+    }
 }
 
 void DisassemblerHighlighter::highlightWords(const QString &text)
@@ -53,6 +72,11 @@ void DisassemblerHighlighter::highlightSeek(const QString &text)
 void DisassemblerHighlighter::setHighlightColor(const QColor &color)
 {
     this->_highlightcolor = color;
+}
+
+void DisassemblerHighlighter::setDottedColor(const QColor &color)
+{
+    this->_dottedcolor = color;
 }
 
 void DisassemblerHighlighter::setSeekColor(const QColor &color)

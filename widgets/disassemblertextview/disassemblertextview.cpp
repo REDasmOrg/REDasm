@@ -75,6 +75,7 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
     this->_disdocument = new DisassemblerTextDocument(disassembler, "light", this->document(), this);
     this->_highlighter->setHighlightColor(this->_disdocument->highlightColor());
     this->_highlighter->setSeekColor(this->_disdocument->seekColor());
+    this->_highlighter->setDottedColor(this->_disdocument->dottedColor());
 
     REDasm::SymbolPtr symbol = disassembler->symbolTable()->entryPoint();
 

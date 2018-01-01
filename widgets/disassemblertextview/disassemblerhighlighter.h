@@ -12,6 +12,7 @@ class DisassemblerHighlighter : public QSyntaxHighlighter
     public:
         explicit DisassemblerHighlighter(QTextDocument *document = nullptr);
         void setHighlightColor(const QColor& color);
+        void setDottedColor(const QColor& color);
         void setSeekColor(const QColor& color);
         void highlight(const QString& word, const QString& currentaddress, const QTextBlock &block);
 
@@ -19,12 +20,13 @@ class DisassemblerHighlighter : public QSyntaxHighlighter
         virtual void highlightBlock(const QString &text);
 
     private:
+        void highlightAll(const QString& text, const QRegularExpression &regex, const QColor& color);
         void highlightWords(const QString& text);
         void highlightSeek(const QString& text);
 
     private:
-        QRegularExpression _rgxaddress;
-        QColor _highlightcolor, _seekcolor;
+        QRegularExpression _rgxaddress, _rgxdotted;
+        QColor _highlightcolor, _seekcolor, _dottedcolor;
         QString _word;
 };
 

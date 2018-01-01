@@ -25,23 +25,23 @@ struct DEXHeader
     u32 data_size, data_off;
 };
 
-struct DEXStringItem { u32 string_data_off; };
-struct DEXTypeItem { u32 descriptor_idx; };
-struct DEXProtoItem { u32 shorty_idx, return_type_idx, parameters_off; };
+struct DEXStringIdItem { u32 string_data_off; };
+struct DEXTypeIdItem { u32 descriptor_idx; };
+struct DEXProtoIdItem { u32 shorty_idx, return_type_idx, parameters_off; };
 
-struct DEXFieldItem
+struct DEXFieldIdItem
 {
     u16 class_idx, type_idx;
     u32 name_idx;
 };
 
-struct DEXMethodItem
+struct DEXMethodIdItem
 {
     u16 class_idx, proto_idx;
     u32 name_idx;
 };
 
-struct DEXClassItem
+struct DEXClassIdItem
 {
     u32 class_idx, access_flags, superclass_idx, interfaces_off;
     u32 source_file_idx, annotations_off, class_data_off, static_values_off;
@@ -56,6 +56,8 @@ struct DEXCodeItem
     //DEXTryItem tries[1];
     //DEXEncodedCatchHandlerList handlers[1];
 };
+
+struct DEXTypeItem { u16 type_idx; };
 
 // Elaborated Structures
 

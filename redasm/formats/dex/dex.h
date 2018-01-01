@@ -29,9 +29,9 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         std::string getParameters(u32 methodidx) const;
 
     private:
-        bool getClassData(const DEXClassItem& dexclass, DEXClassData& dexclassdata);
+        bool getClassData(const DEXClassIdItem& dexclass, DEXClassData& dexclassdata);
         void loadMethod(const DEXEncodedMethod& dexmethod);
-        void loadClass(const DEXClassItem& dexclass);
+        void loadClass(const DEXClassIdItem& dexclass);
 
     private:
         std::string getNormalizedString(u32 idx) const;
@@ -41,11 +41,11 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         static std::string normalized(const std::string& type);
 
     private:
-        DEXTypeItem* _types;
-        DEXStringItem* _strings;
-        DEXMethodItem* _methods;
-        DEXFieldItem* _fields;
-        DEXProtoItem* _protos;
+        DEXTypeIdItem* _types;
+        DEXStringIdItem* _strings;
+        DEXMethodIdItem* _methods;
+        DEXFieldIdItem* _fields;
+        DEXProtoIdItem* _protos;
 };
 
 DECLARE_FORMAT_PLUGIN(DEXFormat, dex)

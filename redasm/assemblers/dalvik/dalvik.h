@@ -39,6 +39,8 @@ class DalvikAssembler : public AssemblerPlugin
         bool decodeOp2_imm32(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
         bool decodeOp3_f(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;
         bool decodeOp3_t(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;
+        bool decodeOp3_imm8(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
+        bool decodeOp3_imm16(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic) const;
         bool decodeIfOp2(Buffer& buffer, const InstructionPtr& instruction, const std::string& cond) const;
         bool decodeIfOp3(Buffer& buffer, const InstructionPtr& instruction, const std::string& cond) const;
         bool decodeInvoke(Buffer& buffer, const InstructionPtr& instruction, const std::string& kind) const;

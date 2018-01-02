@@ -20,6 +20,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         virtual bool load(u8 *rawformat);
 
     public:
+        bool getMethodOffset(u32 idx, offset_t &offset) const;
         bool getStringOffset(u32 idx, offset_t &offset) const;
         std::string getString(u32 idx) const;
         std::string getType(u32 idx) const;

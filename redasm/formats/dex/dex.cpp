@@ -62,6 +62,18 @@ bool DEXFormat::load(u8 *rawformat)
     return true;
 }
 
+bool DEXFormat::getMethodOffset(u32 idx, offset_t &offset) const
+{
+    auto it = this->_codeitems.find(idx);
+
+    if(it == this->_codeitems.end())
+        return false;
+
+    DEXCodeItem* dexcode = it->second;
+    offset = fileoffset(&dexcode->insns);
+    return true;
+}
+
 bool DEXFormat::getStringOffset(u32 idx, offset_t& offset) const
 {
     if(!this->_strings || (idx >= this->_format->string_ids_size))

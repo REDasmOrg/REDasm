@@ -37,19 +37,29 @@ void DalvikAssembler::analyzeOperand(DisassemblerFunctions *disassembler, const 
 
     DEXFormat* dexformat = dynamic_cast<DEXFormat*>(disassembler->format());
 
-    if(!dexformat)
+    if(!dexformat || !operand.extra_type)
         return;
+
+    SymbolTable* symboltable = disassembler->symbolTable();
+    offset_t offset = 0;
 
     if(operand.extra_type == DalvikOperands::StringIndex)
     {
-        offset_t offset = 0;
-
         if(!dexformat->getStringOffset(operand.u_value, offset))
             return;
 
-        SymbolTable* symboltable = disassembler->symbolTable();
         symboltable->createString(offset);
         disassembler->pushReference(symboltable->symbol(offset), instruction->address);
+    }
+    else if(operand.extra_type == DalvikOperands::MethodIndex)
+    {
+        if(!dexformat->getMethodOffset(operand.u_value, offset))
+            return;
+
+        SymbolPtr symbol = symboltable->symbol(offset);
+
+        if(symbol)
+            disassembler->pushReference(symbol, instruction->address);
     }
 }
 

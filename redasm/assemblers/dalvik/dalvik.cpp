@@ -1,4 +1,5 @@
 #include "dalvik.h"
+#include "../../formats/dex/dex.h"
 #include "dalvik_printer.h"
 #include "dalvik_opcodes.h"
 #include "dalvik_metadata.h"
@@ -28,6 +29,28 @@ const char *DalvikAssembler::name() const
 Printer *DalvikAssembler::createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const
 {
     return new DalvikPrinter(disassembler, symboltable);
+}
+
+void DalvikAssembler::analyzeOperand(DisassemblerFunctions *disassembler, const InstructionPtr &instruction, const Operand &operand) const
+{
+    AssemblerPlugin::analyzeOperand(disassembler, instruction, operand);
+
+    DEXFormat* dexformat = dynamic_cast<DEXFormat*>(disassembler->format());
+
+    if(!dexformat)
+        return;
+
+    if(operand.extra_type == DalvikOperands::StringIndex)
+    {
+        offset_t offset = 0;
+
+        if(!dexformat->getStringOffset(operand.u_value, offset))
+            return;
+
+        SymbolTable* symboltable = disassembler->symbolTable();
+        symboltable->createString(offset);
+        disassembler->pushReference(symboltable->symbol(offset), instruction->address);
+    }
 }
 
 bool DalvikAssembler::decode(Buffer buffer, const InstructionPtr &instruction)

@@ -62,12 +62,23 @@ bool DEXFormat::load(u8 *rawformat)
     return true;
 }
 
+bool DEXFormat::getStringOffset(u32 idx, offset_t& offset) const
+{
+    if(!this->_strings || (idx >= this->_format->string_ids_size))
+        return false;
+
+    u8* pstringdata = pointer<u8>(this->_strings[idx].string_data_off);
+    this->getULeb128(&pstringdata);
+    offset = fileoffset(pstringdata);
+    return true;
+}
+
 std::string DEXFormat::getString(u32 idx) const
 {
     if(!this->_strings)
         return std::string();
 
-    u8* pstringdata = pointer<u8>((this->_strings + idx)->string_data_off);
+    u8* pstringdata = pointer<u8>(this->_strings[idx].string_data_off);
     u32 len = this->getULeb128(&pstringdata);
 
     return std::string(reinterpret_cast<const char*>(pstringdata), len);

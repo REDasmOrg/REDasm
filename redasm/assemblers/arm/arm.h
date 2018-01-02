@@ -6,10 +6,10 @@
 
 namespace REDasm {
 
-class ARMProcessor: public CapstoneProcessorPlugin<CS_ARCH_ARM, CS_MODE_ARM>
+class ARMAssembler: public CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_ARM>
 {
     public:
-        ARMProcessor();
+        ARMAssembler();
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const { return new ARMPrinter(this->_cshandle, disassembler, symboltable); }
@@ -19,7 +19,7 @@ class ARMProcessor: public CapstoneProcessorPlugin<CS_ARCH_ARM, CS_MODE_ARM>
         void analyzeInstruction(const InstructionPtr& instruction, cs_insn* insn) const;
 };
 
-DECLARE_PROCESSOR_PLUGIN(ARMProcessor, arm)
+DECLARE_ASSEMBLER_PLUGIN(ARMAssembler, arm)
 
 } // namespace REDasm
 

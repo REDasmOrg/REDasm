@@ -18,7 +18,7 @@ u32 DEXFormat::bits() const
     return 32;
 }
 
-const char *DEXFormat::processor() const
+const char *DEXFormat::assembler() const
 {
     return "dalvik";
 }

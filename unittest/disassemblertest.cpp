@@ -111,14 +111,14 @@ void DisassemblerTest::runTest(QByteArray &data, const TestCallback& testcallbac
     if(!format)
         return;
 
-    ProcessorPlugin* processor = REDasm::getProcessor(format->processor());
-    TEST("Processor", processor);
+    AssemblerPlugin* assembler = REDasm::getAssembler(format->assembler());
+    TEST("Assembler", assembler);
 
-    if(!processor)
+    if(!assembler)
         return;
 
     Buffer buffer(data.data(), data.length());
-    Disassembler disassembler(buffer, processor, format);
+    Disassembler disassembler(buffer, assembler, format);
 
     cout << "->> Disassembler...";
         disassembler.disassemble();

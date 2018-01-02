@@ -13,13 +13,13 @@
 
 namespace REDasm {
 
-class DalvikProcessor : public ProcessorPlugin
+class DalvikAssembler : public AssemblerPlugin
 {
     private:
         typedef std::function<bool(Buffer&, const InstructionPtr&)> DecodeCallback;
 
     public:
-        DalvikProcessor();
+        DalvikAssembler();
         virtual const char* name() const;
         virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
@@ -65,7 +65,7 @@ class DalvikProcessor : public ProcessorPlugin
 
 };
 
-DECLARE_PROCESSOR_PLUGIN(DalvikProcessor, dalvik)
+DECLARE_ASSEMBLER_PLUGIN(DalvikAssembler, dalvik)
 
 } // namespace REDasm
 

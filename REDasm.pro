@@ -46,20 +46,20 @@ SOURCES += main.cpp\
     redasm/formats/psxexe/psxexe_analyzer.cpp \
     redasm/formats/pe/pe.cpp \
     widgets/disassemblerview/disassemblerthread.cpp \
-    redasm/plugins/processor/printer.cpp \
+    redasm/plugins/assembler/printer.cpp \
     redasm/formats/pe/pe_analyzer.cpp \
     redasm/formats/pe/pe_utils.cpp \
     dialogs/gotodialog.cpp \
     redasm/formats/elf/elf.cpp \
     redasm/support/utils.cpp \
     redasm/support/demangler.cpp \
-    redasm/processors/mips/mips.cpp \
-    redasm/processors/x86/x86.cpp \
-    redasm/plugins/processor/processor.cpp \
+    redasm/assemblers/mips/mips.cpp \
+    redasm/assemblers/x86/x86.cpp \
+    redasm/plugins/assembler/assembler.cpp \
     redasm/formats/pe/vb/vb_analyzer.cpp \
     redasm/formats/pe/vb/vb_components.cpp \
     redasm/formats/pe/pe_imports.cpp \
-    redasm/processors/arm/arm.cpp \
+    redasm/assemblers/arm/arm.cpp \
     redasm/disassembler/disassemblerfunctions.cpp \
     redasm/disassembler/disassemblerbase.cpp \
     redasm/disassembler/types/listing.cpp \
@@ -86,21 +86,21 @@ SOURCES += main.cpp\
     redasm/formats/pe/borland/borland_version.cpp \
     dialogs/manualloaddialog.cpp \
     redasm/formats/binary/binary.cpp \
-    redasm/processors/chip8/chip8.cpp \
+    redasm/assemblers/chip8/chip8.cpp \
     redasm/support/endianness.cpp \
     redasm/vmil/vmil_instructions.cpp \
     redasm/vmil/vmil_emulator.cpp \
     redasm/vmil/vmil_printer.cpp \
-    redasm/processors/mips/mips_quirks.cpp \
-    redasm/processors/mips/mips_printer.cpp \
-    redasm/processors/x86/x86_printer.cpp \
-    redasm/processors/arm/arm_printer.cpp \
-    redasm/processors/chip8/chip8_printer.cpp \
-    redasm/processors/chip8/chip8_emulator.cpp \
-    redasm/processors/mips/mips_emulator.cpp \
+    redasm/assemblers/mips/mips_quirks.cpp \
+    redasm/assemblers/mips/mips_printer.cpp \
+    redasm/assemblers/x86/x86_printer.cpp \
+    redasm/assemblers/arm/arm_printer.cpp \
+    redasm/assemblers/chip8/chip8_printer.cpp \
+    redasm/assemblers/chip8/chip8_emulator.cpp \
+    redasm/assemblers/mips/mips_emulator.cpp \
     redasm/formats/dex/dex.cpp \
-    redasm/processors/dalvik/dalvik.cpp \
-    redasm/processors/dalvik/dalvik_printer.cpp
+    redasm/assemblers/dalvik/dalvik.cpp \
+    redasm/assemblers/dalvik/dalvik_printer.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -124,7 +124,7 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/pe_constants.h \
     redasm/formats/pe/pe_headers.h \
     widgets/disassemblerview/disassemblerthread.h \
-    redasm/plugins/processor/printer.h \
+    redasm/plugins/assembler/printer.h \
     redasm/formats/pe/pe_analyzer.h \
     redasm/formats/pe/pe_utils.h \
     dialogs/gotodialog.h \
@@ -134,14 +134,13 @@ HEADERS  += mainwindow.h \
     redasm/formats/elf/elf_common.h \
     redasm/support/demangler.h \
     redasm/support/utils.h \
-    redasm/processors/mips/mips.h \
-    redasm/processors/x86/x86.h \
-    redasm/plugins/processor/processor.h \
+    redasm/assemblers/mips/mips.h \
+    redasm/assemblers/x86/x86.h \
     redasm/formats/pe/vb/vb_analyzer.h \
     redasm/formats/pe/vb/vb_header.h \
     redasm/formats/pe/vb/vb_components.h \
     redasm/formats/pe/pe_imports.h \
-    redasm/processors/arm/arm.h \
+    redasm/assemblers/arm/arm.h \
     redasm/disassembler/disassemblerfunctions.h \
     redasm/disassembler/disassemblerbase.h \
     redasm/disassembler/types/listing.h \
@@ -172,27 +171,27 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/borland/borland_version.h \
     dialogs/manualloaddialog.h \
     redasm/formats/binary/binary.h \
-    redasm/processors/chip8/chip8.h \
+    redasm/assemblers/chip8/chip8.h \
     redasm/support/endianness.h \
     redasm/vmil/vmil_instructions.h \
     redasm/vmil/vmil_types.h \
     redasm/vmil/vmil_emulator.h \
     redasm/vmil/vmil_printer.h \
-    redasm/processors/mips/mips_printer.h \
-    redasm/processors/mips/mips_quirks.h \
-    redasm/processors/x86/x86_printer.h \
-    redasm/processors/arm/arm_printer.h \
-    redasm/processors/chip8/chip8_emulator.h \
-    redasm/processors/chip8/chip8_printer.h \
-    redasm/processors/chip8/chip8_registers.h \
-    redasm/processors/mips/mips_emulator.h \
+    redasm/assemblers/mips/mips_printer.h \
+    redasm/assemblers/mips/mips_quirks.h \
+    redasm/assemblers/x86/x86_printer.h \
+    redasm/assemblers/arm/arm_printer.h \
+    redasm/assemblers/chip8/chip8_emulator.h \
+    redasm/assemblers/chip8/chip8_printer.h \
+    redasm/assemblers/chip8/chip8_registers.h \
+    redasm/assemblers/mips/mips_emulator.h \
     redasm/formats/dex/dex.h \
     redasm/formats/dex/dex_constants.h \
     redasm/formats/dex/dex_header.h \
-    redasm/processors/dalvik/dalvik.h \
-    redasm/processors/dalvik/dalvik_printer.h \
-    redasm/processors/dalvik/dalvik_metadata.h \
-    redasm/processors/dalvik/dalvik_opcodes.h
+    redasm/assemblers/dalvik/dalvik.h \
+    redasm/assemblers/dalvik/dalvik_printer.h \
+    redasm/assemblers/dalvik/dalvik_metadata.h \
+    redasm/assemblers/dalvik/dalvik_opcodes.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-Listing::Listing(): cache_map<address_t, InstructionPtr>("instructions"), _processor(NULL), _referencetable(NULL), _symboltable(NULL)
+Listing::Listing(): cache_map<address_t, InstructionPtr>("instructions"), _assembler(NULL), _referencetable(NULL), _symboltable(NULL)
 {
 
 }
@@ -28,9 +28,9 @@ FormatPlugin *Listing::format() const
     return this->_format;
 }
 
-const ProcessorPlugin* Listing::processor() const
+AssemblerPlugin *Listing::assembler() const
 {
-    return this->_processor;
+    return this->_assembler;
 }
 
 void Listing::setFormat(FormatPlugin *format)
@@ -38,9 +38,9 @@ void Listing::setFormat(FormatPlugin *format)
     this->_format = format;
 }
 
-void Listing::setProcessor(ProcessorPlugin *processor)
+void Listing::setAssembler(AssemblerPlugin *assembler)
 {
-    this->_processor = processor;
+    this->_assembler = assembler;
 }
 
 void Listing::setSymbolTable(SymbolTable *symboltable)
@@ -55,7 +55,7 @@ void Listing::setReferenceTable(ReferenceTable *referencetable)
 
 void Listing::walk(address_t address)
 {
-    if(!this->_processor || (this->_paths.find(address) != this->_paths.end()))
+    if(!this->_assembler || (this->_paths.find(address) != this->_paths.end()))
         return;
 
     FunctionPath path;
@@ -183,7 +183,7 @@ bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cb
 
 bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cbinstruction, Listing::SymbolCallback cbstart, Listing::InstructionCallback cbend, Listing::SymbolCallback cblabel)
 {
-    if(!this->_processor)
+    if(!this->_assembler)
         return false;
 
     auto it = this->findFunction(address);

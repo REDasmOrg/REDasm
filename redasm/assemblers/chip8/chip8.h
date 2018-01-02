@@ -13,13 +13,13 @@
 
 namespace REDasm {
 
-class CHIP8Processor : public ProcessorPlugin
+class CHIP8Assembler : public AssemblerPlugin
 {
     private:
         typedef std::function<bool(u16, const InstructionPtr& instruction)> OpCodeCallback;
 
     public:
-        CHIP8Processor();
+        CHIP8Assembler();
         virtual const char* name() const;
         virtual u32 flags() const;
         virtual VMIL::Emulator* createEmulator(DisassemblerFunctions* disassembler) const;
@@ -48,7 +48,7 @@ class CHIP8Processor : public ProcessorPlugin
         std::map<u16, OpCodeCallback> _opcodemap;
 };
 
-DECLARE_PROCESSOR_PLUGIN(CHIP8Processor, chip8)
+DECLARE_ASSEMBLER_PLUGIN(CHIP8Assembler, chip8)
 
 } // namespace REDasm
 

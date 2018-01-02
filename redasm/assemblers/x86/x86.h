@@ -8,10 +8,10 @@
 
 namespace REDasm {
 
-template<cs_mode mode> class X86Processor: public CapstoneProcessorPlugin<CS_ARCH_X86, mode>
+template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARCH_X86, mode>
 {
     public:
-        X86Processor(): CapstoneProcessorPlugin<CS_ARCH_X86, mode>(), _stacksize(0) { }
+        X86Assembler(): CapstoneAssemblerPlugin<CS_ARCH_X86, mode>(), _stacksize(0) { }
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const { return new X86Printer(this->_cshandle, disassembler, symboltable); }
@@ -28,20 +28,20 @@ template<cs_mode mode> class X86Processor: public CapstoneProcessorPlugin<CS_ARC
         s64 _stacksize;
 };
 
-template<cs_mode mode> const char *X86Processor<mode>::name() const
+template<cs_mode mode> const char *X86Assembler<mode>::name() const
 {
     if(mode == CS_MODE_32)
-        return "x86 Processor";
+        return "x86";
 
     if(mode == CS_MODE_64)
-        return "x86_64 Processor";
+        return "x86_64";
 
-    return "Unknown x86 Processor";
+    return "Unknown x86";
 }
 
-template<cs_mode mode> bool X86Processor<mode>::decode(Buffer buffer, const InstructionPtr &instruction)
+template<cs_mode mode> bool X86Assembler<mode>::decode(Buffer buffer, const InstructionPtr &instruction)
 {
-    if(!CapstoneProcessorPlugin<CS_ARCH_X86, mode>::decode(buffer, instruction))
+    if(!CapstoneAssemblerPlugin<CS_ARCH_X86, mode>::decode(buffer, instruction))
         return false;
 
     cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
@@ -87,7 +87,7 @@ template<cs_mode mode> bool X86Processor<mode>::decode(Buffer buffer, const Inst
     return true;
 }
 
-template<cs_mode mode> s32 X86Processor<mode>::localIndex(s64 disp, u32& type) const
+template<cs_mode mode> s32 X86Assembler<mode>::localIndex(s64 disp, u32& type) const
 {
     if(disp > 0)
         type = OperandTypes::Argument;
@@ -114,7 +114,7 @@ template<cs_mode mode> s32 X86Processor<mode>::localIndex(s64 disp, u32& type) c
     return index;
 }
 
-template<cs_mode mode> s32 X86Processor<mode>::stackLocalIndex(s64 disp) const
+template<cs_mode mode> s32 X86Assembler<mode>::stackLocalIndex(s64 disp) const
 {
     s32 size = 0;
 
@@ -131,7 +131,7 @@ template<cs_mode mode> s32 X86Processor<mode>::stackLocalIndex(s64 disp) const
     return (this->_stacksize / size) - (disp / size);
 }
 
-template<cs_mode mode> bool X86Processor<mode>::isSP(register_t reg) const
+template<cs_mode mode> bool X86Assembler<mode>::isSP(register_t reg) const
 {
     if(mode == CS_MODE_16)
         return reg == X86_REG_SP;
@@ -145,7 +145,7 @@ template<cs_mode mode> bool X86Processor<mode>::isSP(register_t reg) const
     return false;
 }
 
-template<cs_mode mode> bool X86Processor<mode>::isBP(register_t reg) const
+template<cs_mode mode> bool X86Assembler<mode>::isBP(register_t reg) const
 {
     if(mode == CS_MODE_16)
         return reg == X86_REG_BP;
@@ -159,7 +159,7 @@ template<cs_mode mode> bool X86Processor<mode>::isBP(register_t reg) const
     return false;
 }
 
-template<cs_mode mode> bool X86Processor<mode>::isIP(register_t reg) const
+template<cs_mode mode> bool X86Assembler<mode>::isIP(register_t reg) const
 {
     if(mode == CS_MODE_16)
         return reg == X86_REG_IP;
@@ -173,7 +173,7 @@ template<cs_mode mode> bool X86Processor<mode>::isIP(register_t reg) const
     return false;
 }
 
-template<cs_mode mode> void X86Processor<mode>::analyzeInstruction(const InstructionPtr &instruction)
+template<cs_mode mode> void X86Assembler<mode>::analyzeInstruction(const InstructionPtr &instruction)
 {
     switch(instruction->id)
     {
@@ -276,13 +276,13 @@ template<cs_mode mode> void X86Processor<mode>::analyzeInstruction(const Instruc
     }
 }
 
-typedef X86Processor<CS_MODE_16> X86_16Processor;
-typedef X86Processor<CS_MODE_32> X86_32Processor;
-typedef X86Processor<CS_MODE_64> X86_64Processor;
+typedef X86Assembler<CS_MODE_16> X86_16Assembler;
+typedef X86Assembler<CS_MODE_32> X86_32Assembler;
+typedef X86Assembler<CS_MODE_64> X86_64Assembler;
 
-DECLARE_PROCESSOR_PLUGIN(X86_16Processor, x86_16)
-DECLARE_PROCESSOR_PLUGIN(X86_32Processor, x86_32)
-DECLARE_PROCESSOR_PLUGIN(X86_64Processor, x86_64)
+DECLARE_ASSEMBLER_PLUGIN(X86_16Assembler, x86_16)
+DECLARE_ASSEMBLER_PLUGIN(X86_32Assembler, x86_32)
+DECLARE_ASSEMBLER_PLUGIN(X86_64Assembler, x86_64)
 
 }
 

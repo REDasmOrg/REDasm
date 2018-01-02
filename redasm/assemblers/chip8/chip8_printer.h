@@ -1,7 +1,7 @@
 #ifndef CHIP8_PRINTER_H
 #define CHIP8_PRINTER_H
 
-#include "../../plugins/processor/printer.h"
+#include "../../plugins/assembler/printer.h"
 
 namespace REDasm {
 

@@ -4,7 +4,7 @@
 // https://source.android.com/devices/tech/dalvik/dex-format
 
 #include "../../plugins/plugins.h"
-#include "../../processors/dalvik/dalvik_metadata.h"
+#include "../../assemblers/dalvik/dalvik_metadata.h"
 #include "dex_header.h"
 
 namespace REDasm {
@@ -15,7 +15,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         DEXFormat();
         virtual const char* name() const;
         virtual u32 bits() const;
-        virtual const char* processor() const;
+        virtual const char* assembler() const;
         virtual endianness_t endianness() const;
         virtual bool load(u8 *rawformat);
 

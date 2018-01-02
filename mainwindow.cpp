@@ -119,7 +119,7 @@ void MainWindow::load(const QString& s)
         this->initDisassembler();
 }
 
-bool MainWindow::checkPlugins(REDasm::FormatPlugin** format, REDasm::ProcessorPlugin** processor)
+bool MainWindow::checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
 {
     *format = REDasm::getFormat(reinterpret_cast<u8*>(this->_loadeddata.data()));
 
@@ -131,11 +131,11 @@ bool MainWindow::checkPlugins(REDasm::FormatPlugin** format, REDasm::ProcessorPl
             return false;
     }
 
-    *processor = REDasm::getProcessor((*format)->processor());
+    *assembler = REDasm::getAssembler((*format)->assembler());
 
-    if(!(*processor))
+    if(!(*assembler))
     {
-        QMessageBox::information(this, "Processor not found", QString("Cannot find processor '%1'").arg(QString::fromUtf8((*format)->processor())));
+        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromUtf8((*format)->assembler())));
         return false;
     }
 
@@ -147,15 +147,15 @@ void MainWindow::initDisassembler()
     REDasm::Buffer buffer(this->_loadeddata.data(), this->_loadeddata.length());
     DisassemblerView *olddv = NULL, *dv = new DisassemblerView(this->_lblstatus, ui->stackView);
     REDasm::FormatPlugin* format = NULL;
-    REDasm::ProcessorPlugin* processor = NULL;
+    REDasm::AssemblerPlugin* assembler = NULL;
 
-    if(!this->checkPlugins(&format, &processor))
+    if(!this->checkPlugins(&format, &assembler))
     {
         dv->deleteLater();
         return;
     }
 
-    REDasm::Disassembler* disassembler = new REDasm::Disassembler(buffer, processor, format);
+    REDasm::Disassembler* disassembler = new REDasm::Disassembler(buffer, assembler, format);
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 

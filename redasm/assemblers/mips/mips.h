@@ -8,12 +8,12 @@
 
 namespace REDasm {
 
-template<size_t mode> class MIPSProcessor: public CapstoneProcessorPlugin<CS_ARCH_MIPS, mode>
+template<size_t mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>
 {
     public:
-        MIPSProcessor(): CapstoneProcessorPlugin<CS_ARCH_MIPS, mode>() { }
+        MIPSAssembler(): CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>() { }
         virtual const char* name() const;
-        virtual u32 flags() const { return ProcessorFlags::DelaySlot | ProcessorFlags::HasVMIL | ProcessorFlags::EmulateVMIL; }
+        virtual u32 flags() const { return AssemblerFlags::DelaySlot | AssemblerFlags::HasVMIL | AssemblerFlags::EmulateVMIL; }
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual VMIL::Emulator* createEmulator(DisassemblerFunctions *disassembler) const { return new MIPSEmulator(disassembler); }
         virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable *symboltable) const { return new MIPSPrinter(this->_cshandle, disassembler, symboltable); }
@@ -25,20 +25,20 @@ template<size_t mode> class MIPSProcessor: public CapstoneProcessorPlugin<CS_ARC
         void analyzeInstruction(const InstructionPtr &instruction) const;
 };
 
-template<size_t mode> const char *MIPSProcessor<mode>::name() const
+template<size_t mode> const char *MIPSAssembler<mode>::name() const
 {
     if(mode & CS_MODE_32)
-        return "MIPS32 Processor";
+        return "MIPS32";
 
     if(mode & CS_MODE_64)
-        return "MIPS64 Processor";
+        return "MIPS64";
 
-    return "Unknown MIPS Processor";
+    return "Unknown MIPS";
 }
 
-template<size_t mode> bool MIPSProcessor<mode>::decodeMips(Buffer& buffer, const InstructionPtr& instruction)
+template<size_t mode> bool MIPSAssembler<mode>::decodeMips(Buffer& buffer, const InstructionPtr& instruction)
 {
-    if(!CapstoneProcessorPlugin<CS_ARCH_MIPS, mode>::decode(buffer, instruction))
+    if(!CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decode(buffer, instruction))
         return MIPSQuirks::decode(buffer, instruction); // Handle COP2 instructions and more
 
     cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
@@ -60,7 +60,7 @@ template<size_t mode> bool MIPSProcessor<mode>::decodeMips(Buffer& buffer, const
     return true;
 }
 
-template<size_t mode> bool MIPSProcessor<mode>::decode(Buffer buffer, const InstructionPtr& instruction)
+template<size_t mode> bool MIPSAssembler<mode>::decode(Buffer buffer, const InstructionPtr& instruction)
 {
     if(!this->decodeMips(buffer, instruction))
         return false;
@@ -69,7 +69,7 @@ template<size_t mode> bool MIPSProcessor<mode>::decode(Buffer buffer, const Inst
     return true;
 }
 
-template<size_t mode> bool MIPSProcessor<mode>::makePseudo(const InstructionPtr &instruction1, const InstructionPtr& instruction2, const InstructionPtr &instructionout)
+template<size_t mode> bool MIPSAssembler<mode>::makePseudo(const InstructionPtr &instruction1, const InstructionPtr& instruction2, const InstructionPtr &instructionout)
 {
     const OperandList operands1 = instruction1->operands;
     const OperandList operands2 = instruction2->operands;
@@ -137,7 +137,7 @@ template<size_t mode> bool MIPSProcessor<mode>::makePseudo(const InstructionPtr 
     return true;
 }
 
-template<size_t mode> bool MIPSProcessor<mode>::checkDecodePseudo(Buffer buffer, const InstructionPtr &instruction)
+template<size_t mode> bool MIPSAssembler<mode>::checkDecodePseudo(Buffer buffer, const InstructionPtr &instruction)
 {
     cs_insn* insn1 = reinterpret_cast<cs_insn*>(instruction->userdata);
 
@@ -166,7 +166,7 @@ template<size_t mode> bool MIPSProcessor<mode>::checkDecodePseudo(Buffer buffer,
     return false;
 }
 
-template<size_t mode> void MIPSProcessor<mode>::analyzeInstruction(const InstructionPtr& instruction) const
+template<size_t mode> void MIPSAssembler<mode>::analyzeInstruction(const InstructionPtr& instruction) const
 {
     switch(instruction->id)
     {
@@ -227,11 +227,11 @@ template<size_t mode> void MIPSProcessor<mode>::analyzeInstruction(const Instruc
     }
 }
 
-typedef MIPSProcessor<CS_MODE_MIPS64> MIPS32Processor;
-typedef MIPSProcessor<CS_MODE_MIPS64 | CS_MODE_MIPSGP64> MIPS64Processor;
+typedef MIPSAssembler<CS_MODE_MIPS64> MIPS32Assembler;
+typedef MIPSAssembler<CS_MODE_MIPS64 | CS_MODE_MIPSGP64> MIPS64Assembler;
 
-DECLARE_PROCESSOR_PLUGIN(MIPS32Processor, mips32)
-DECLARE_PROCESSOR_PLUGIN(MIPS64Processor, mips64)
+DECLARE_ASSEMBLER_PLUGIN(MIPS32Assembler, mips32)
+DECLARE_ASSEMBLER_PLUGIN(MIPS64Assembler, mips64)
 
 }
 

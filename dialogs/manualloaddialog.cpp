@@ -6,7 +6,7 @@ ManualLoadDialog::ManualLoadDialog(REDasm::FormatPlugin *format, u64 size, QWidg
 {
     ui->setupUi(this);
     this->loadBits();
-    this->loadProcessors();
+    this->loadAssemblers();
     this->updateInputMask();
 
     connect(ui->cbBits, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this](int) { this->updateInputMask(); });
@@ -37,10 +37,10 @@ void ManualLoadDialog::loadBits()
     ui->cbBits->setCurrentIndex(2);
 }
 
-void ManualLoadDialog::loadProcessors()
+void ManualLoadDialog::loadAssemblers()
 {
-    std::for_each(REDasm::processors.begin(), REDasm::processors.end(), [this](const std::pair<std::string, REDasm::ProcessorPlugin_Entry>& item) {
-        ui->cbProcessors->addItem(QString::fromStdString(item.first));
+    std::for_each(REDasm::assemblers.begin(), REDasm::assemblers.end(), [this](const std::pair<std::string, REDasm::AssemblerPlugin_Entry>& item) {
+        ui->cbAssemblers->addItem(QString::fromStdString(item.first));
     });
 }
 
@@ -60,7 +60,7 @@ void ManualLoadDialog::on_buttonBox_accepted()
 {
     REDasm::BinaryFormat* binaryformat = dynamic_cast<REDasm::BinaryFormat*>(this->_format);
 
-    binaryformat->build(ui->cbProcessors->currentText().toStdString(),
+    binaryformat->build(ui->cbAssemblers->currentText().toStdString(),
                         ui->cbBits->currentData().toInt(),
                         ui->leOffset->text().toULongLong(NULL, 16),
                         ui->leBaseAddress->text().toULongLong(NULL, 16),

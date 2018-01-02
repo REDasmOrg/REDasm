@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <memory>
-#include "../plugins/processor/processor.h"
+#include "../plugins/assembler/assembler.h"
 #include "../disassembler/types/listing.h"
 #include "../disassembler/types/symboltable.h"
 #include "../disassembler/disassemblerfunctions.h"

@@ -14,7 +14,7 @@ DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler, c
     this->_symbols = disassembler->symbolTable();
     this->_document = textdocument;
     this->_segment = NULL;
-    this->_printer = REDasm::PrinterPtr(disassembler->processor()->createPrinter(disassembler, disassembler->symbolTable()));
+    this->_printer = REDasm::PrinterPtr(disassembler->assembler()->createPrinter(disassembler, disassembler->symbolTable()));
 
     this->setCurrentPrinter(this->_printer);
     this->setTheme(theme);

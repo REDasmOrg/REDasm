@@ -1,7 +1,7 @@
 #ifndef VMIL_PRINTER_H
 #define VMIL_PRINTER_H
 
-#include "../plugins/processor/printer.h"
+#include "../plugins/assembler/printer.h"
 #include "vmil_types.h"
 
 namespace REDasm {

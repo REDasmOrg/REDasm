@@ -4,19 +4,19 @@
 
 namespace REDasm {
 
-ARMProcessor::ARMProcessor(): CapstoneProcessorPlugin<CS_ARCH_ARM, CS_MODE_ARM>()
+ARMAssembler::ARMAssembler(): CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_ARM>()
 {
 
 }
 
-const char *ARMProcessor::name() const
+const char *ARMAssembler::name() const
 {
-    return "ARM Processor";
+    return "ARM";
 }
 
-bool ARMProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
+bool ARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
 {
-    if(!CapstoneProcessorPlugin<CS_ARCH_ARM, CS_MODE_ARM>::decode(buffer, instruction))
+    if(!CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_ARM>::decode(buffer, instruction))
         return false;
 
     cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
@@ -45,12 +45,12 @@ bool ARMProcessor::decode(Buffer buffer, const InstructionPtr &instruction)
     return true;
 }
 
-bool ARMProcessor::isPC(register_t reg) const
+bool ARMAssembler::isPC(register_t reg) const
 {
     return reg == ARM_REG_PC;
 }
 
-void ARMProcessor::analyzeInstruction(const InstructionPtr &instruction, cs_insn *insn) const
+void ARMAssembler::analyzeInstruction(const InstructionPtr &instruction, cs_insn *insn) const
 {
     const cs_arm& arm = insn->detail->arm;
 

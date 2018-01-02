@@ -239,7 +239,7 @@ struct Instruction
     s32 target_idx;                 // Target's operand index
     u32 type, size, blocktype;
     instruction_id_t id;            // Backend Specific
-    void* userdata;                 // It doesn't survive after Processor::decode() by design
+    void* userdata;                 // It doesn't survive after Assembler::decode() by design
 
     bool is(u32 t) const { return type & t; }
     bool blockIs(u32 t) const { return blocktype & t; }

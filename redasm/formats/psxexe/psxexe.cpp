@@ -24,7 +24,7 @@ u32 PsxExeFormat::bits() const
     return 32;
 }
 
-const char *PsxExeFormat::processor() const
+const char *PsxExeFormat::assembler() const
 {
     return "mips32";
 }

@@ -7,7 +7,7 @@
 
 namespace REDasm {
 
-CHIP8Processor::CHIP8Processor()
+CHIP8Assembler::CHIP8Assembler(): AssemblerPlugin()
 {
     this->setEndianness(Endianness::BigEndian);
 
@@ -29,27 +29,27 @@ CHIP8Processor::CHIP8Processor()
     SET_DECODE_TO(0xF000, decodeFxxx);
 }
 
-const char *CHIP8Processor::name() const
+const char *CHIP8Assembler::name() const
 {
-    return "CHIP-8 Processor";
+    return "CHIP-8";
 }
 
-u32 CHIP8Processor::flags() const
+u32 CHIP8Assembler::flags() const
 {
-    return ProcessorFlags::HasVMIL;
+    return AssemblerFlags::HasVMIL;
 }
 
-VMIL::Emulator *CHIP8Processor::createEmulator(DisassemblerFunctions *disassembler) const
+VMIL::Emulator *CHIP8Assembler::createEmulator(DisassemblerFunctions *disassembler) const
 {
     return new CHIP8Emulator(disassembler);
 }
 
-Printer *CHIP8Processor::createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const
+Printer *CHIP8Assembler::createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const
 {
     return new CHIP8Printer(disassembler, symboltable);
 }
 
-bool CHIP8Processor::decode(Buffer buffer, const InstructionPtr &instruction)
+bool CHIP8Assembler::decode(Buffer buffer, const InstructionPtr &instruction)
 {
     u16 opcode = this->read<u16>(buffer);
 
@@ -61,11 +61,11 @@ bool CHIP8Processor::decode(Buffer buffer, const InstructionPtr &instruction)
     if((it == this->_opcodemap.end()) || !it->second(opcode, instruction))
         return false;
 
-    ProcessorPlugin::decode(buffer, instruction);
+    AssemblerPlugin::decode(buffer, instruction);
     return true;
 }
 
-bool CHIP8Processor::decode0xxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decode0xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     if(opcode == 0x00E0)
         instruction->mnemonic = "cls";
@@ -97,7 +97,7 @@ bool CHIP8Processor::decode0xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decode1xxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decode1xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "jmp";
     instruction->type = InstructionTypes::Jump;
@@ -106,7 +106,7 @@ bool CHIP8Processor::decode1xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decode2xxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decode2xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "call";
     instruction->type = InstructionTypes::Call;
@@ -115,7 +115,7 @@ bool CHIP8Processor::decode2xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decode3xxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decode3xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "ske";
     instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
@@ -125,7 +125,7 @@ bool CHIP8Processor::decode3xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decode4xxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decode4xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "skne";
     instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
@@ -135,7 +135,7 @@ bool CHIP8Processor::decode4xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decode5xxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decode5xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     if((opcode & 0x000F) != 0)
         return false;
@@ -148,7 +148,7 @@ bool CHIP8Processor::decode5xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decode6xxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decode6xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "mov";
     instruction->reg((opcode & 0x0F00) >> 8);
@@ -156,7 +156,7 @@ bool CHIP8Processor::decode6xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decode7xxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decode7xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "add";
     instruction->type = InstructionTypes::Add;
@@ -165,7 +165,7 @@ bool CHIP8Processor::decode7xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decode8xxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decode8xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     u8 op = opcode & 0x000F;
 
@@ -213,7 +213,7 @@ bool CHIP8Processor::decode8xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decode9xxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decode9xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     if((opcode & 0x000F) != 0)
         return false;
@@ -226,7 +226,7 @@ bool CHIP8Processor::decode9xxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decodeAxxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decodeAxxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "mov";
     instruction->type = InstructionTypes::Load;
@@ -235,7 +235,7 @@ bool CHIP8Processor::decodeAxxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decodeBxxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decodeBxxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "jmp";
     instruction->type = InstructionTypes::Jump;
@@ -243,7 +243,7 @@ bool CHIP8Processor::decodeBxxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decodeCxxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decodeCxxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "rand";
     instruction->reg((opcode & 0x0F00) >> 8);
@@ -251,7 +251,7 @@ bool CHIP8Processor::decodeCxxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decodeDxxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decodeDxxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "draw";
     instruction->reg((opcode & 0x0F00) >> 8);
@@ -260,7 +260,7 @@ bool CHIP8Processor::decodeDxxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decodeExxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decodeExxx(u16 opcode, const InstructionPtr &instruction) const
 {
     u16 op = opcode & 0xFF;
 
@@ -275,7 +275,7 @@ bool CHIP8Processor::decodeExxx(u16 opcode, const InstructionPtr &instruction) c
     return true;
 }
 
-bool CHIP8Processor::decodeFxxx(u16 opcode, const InstructionPtr &instruction) const
+bool CHIP8Assembler::decodeFxxx(u16 opcode, const InstructionPtr &instruction) const
 {
     u16 op = opcode & 0x00FF;
 

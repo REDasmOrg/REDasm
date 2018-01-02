@@ -12,9 +12,9 @@ const char *BinaryFormat::name() const
     return "Binary Format";
 }
 
-const char *BinaryFormat::processor() const
+const char *BinaryFormat::assembler() const
 {
-    return this->_processor.c_str();
+    return this->_assembler.c_str();
 }
 
 u32 BinaryFormat::bits() const
@@ -33,9 +33,9 @@ bool BinaryFormat::isBinary() const
     return true;
 }
 
-void BinaryFormat::build(const std::string &proc, u32 bits, offset_t offset, address_t baseaddress, address_t entry, u64 size)
+void BinaryFormat::build(const std::string &assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entry, u64 size)
 {
-    this->_processor = proc;
+    this->_assembler = assembler;
     this->_bits = bits;
 
     this->defineSegment("seg000", offset, baseaddress, size, SegmentTypes::Code | SegmentTypes::Data);

@@ -38,7 +38,7 @@ class FormatPlugin: public Plugin
 
     public:
         virtual u32 bits() const = 0;
-        virtual const char* processor() const = 0;
+        virtual const char* assembler() const = 0;
         virtual endianness_t endianness() const;
         virtual bool isBinary() const;
         virtual bool load(u8* format);

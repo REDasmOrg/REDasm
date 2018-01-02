@@ -78,13 +78,13 @@ void Analyzer::findTrampolines(Listing &listing, SymbolPtr symbol)
     if(it == listing.end())
         return;
 
-    const ProcessorPlugin* processor = listing.processor();
+    const AssemblerPlugin* assembler = listing.assembler();
     ReferenceTable* references = listing.referenceTable();
     SymbolPtr symimport;
 
-    if(PROCESSOR_IS(processor, "x86"))
+    if(ASSEMBLER_IS(assembler, "x86"))
         symimport = this->findTrampolines_x86(it, symboltable);
-    else if(PROCESSOR_IS(processor, "ARM"))
+    else if(ASSEMBLER_IS(assembler, "ARM"))
         symimport = this->findTrampolines_arm(it, symboltable);
 
     if(!symimport || !symimport->is(SymbolTypes::Import))

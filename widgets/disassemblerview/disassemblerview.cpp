@@ -105,7 +105,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 {
     this->_disassembler = disassembler;
     this->log(QString("Found format '%1' with '%2'").arg(S_TO_QS(disassembler->format()->name()),
-                                                         S_TO_QS(disassembler->processor()->name())));
+                                                         S_TO_QS(disassembler->assembler()->name())));
 
     REDasm::Buffer& buffer = disassembler->buffer();
     this->_hexdocument = QHexDocument::fromMemory(reinterpret_cast<const char*>(buffer.data), buffer.length);
@@ -311,7 +311,7 @@ void DisassemblerView::showListing()
     this->_segmentsmodel->setDisassembler(this->_disassembler);
     this->_referencesmodel->setDisassembler(this->_disassembler);
 
-    if(this->_disassembler->processor()->hasVMIL())
+    if(this->_disassembler->assembler()->hasVMIL())
     {
         ui->vmilTextView->setEmitMode(DisassemblerTextView::VMIL);
         ui->vmilTextView->setDisassembler(this->_disassembler);

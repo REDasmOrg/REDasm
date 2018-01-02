@@ -10,7 +10,7 @@ namespace REDasm {
 class Disassembler: public DisassemblerBase
 {
     public:
-        Disassembler(Buffer buffer, ProcessorPlugin* processor, FormatPlugin* format);
+        Disassembler(Buffer buffer, AssemblerPlugin* assembler, FormatPlugin* format);
         virtual ~Disassembler();
         Listing &listing();
         bool canBeJumpTable(address_t address);
@@ -19,7 +19,7 @@ class Disassembler: public DisassemblerBase
         void disassemble();
 
     public: // Primitive functions
-        virtual ProcessorPlugin* processor();
+        virtual AssemblerPlugin* assembler();
         virtual bool dataToString(address_t address);
         virtual InstructionPtr disassembleInstruction(address_t address);
         virtual bool disassemble(address_t address);
@@ -36,7 +36,7 @@ class Disassembler: public DisassemblerBase
         void createInvalidInstruction(const InstructionPtr& instruction, Buffer &b);
 
     private:
-        ProcessorPlugin* _processor;
+        AssemblerPlugin* _assembler;
         VMIL::Emulator* _emulator;
         PrinterPtr _printer;
         Listing _listing;

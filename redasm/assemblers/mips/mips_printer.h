@@ -1,7 +1,7 @@
 #ifndef MIPSPRINTER_H
 #define MIPSPRINTER_H
 
-#include "../../plugins/processor/printer.h"
+#include "../../plugins/assembler/printer.h"
 
 namespace REDasm {
 

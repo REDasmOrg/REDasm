@@ -1,5 +1,5 @@
-#ifndef PROCESSOR_H
-#define PROCESSOR_H
+#ifndef ASSEMBLER_H
+#define ASSEMBLER_H
 
 #include <functional>
 #include <capstone.h>
@@ -12,20 +12,20 @@
 #include "../base.h"
 #include "printer.h"
 
-#define DECLARE_PROCESSOR_PLUGIN(processor, id) inline ProcessorPlugin* id##_processorPlugin() { return new processor(); }
-#define PROCESSOR_IS(processor, arch) (strstr(processor->name(), arch))
+#define DECLARE_ASSEMBLER_PLUGIN(assembler, id) inline AssemblerPlugin* id##_assemblerPlugin() { return new assembler(); }
+#define ASSEMBLER_IS(assembler, arch) (strstr(assembler->name(), arch))
 
 namespace REDasm {
 
-namespace ProcessorFlags {
+namespace AssemblerFlags {
     enum: u32 { None    = 0, DelaySlot = 1,
                 HasVMIL = 0x00010000, EmulateVMIL = 0x00020000 };
 }
 
-class ProcessorPlugin: public Plugin
+class AssemblerPlugin: public Plugin
 {
     public:
-        ProcessorPlugin();
+        AssemblerPlugin();
         virtual u32 flags() const;
         virtual VMIL::Emulator* createEmulator(DisassemblerFunctions* disassembler) const;
         virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable* symboltable) const;
@@ -49,7 +49,7 @@ class ProcessorPlugin: public Plugin
         endianness_t _endianness;
 };
 
-template<typename T> T ProcessorPlugin::read(Buffer& buffer) const
+template<typename T> T AssemblerPlugin::read(Buffer& buffer) const
 {
     T t = *(reinterpret_cast<T*>(buffer.data));
 
@@ -61,11 +61,11 @@ template<typename T> T ProcessorPlugin::read(Buffer& buffer) const
     return t;
 }
 
-template<cs_arch arch, size_t mode> class CapstoneProcessorPlugin: public ProcessorPlugin
+template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public AssemblerPlugin
 {
     public:
-        CapstoneProcessorPlugin();
-        ~CapstoneProcessorPlugin();
+        CapstoneAssemblerPlugin();
+        ~CapstoneAssemblerPlugin();
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable* symboltable) const { return new CapstonePrinter(this->_cshandle, disassembler, symboltable); }
 
@@ -73,15 +73,15 @@ template<cs_arch arch, size_t mode> class CapstoneProcessorPlugin: public Proces
         csh _cshandle;
 };
 
-template<cs_arch arch, size_t mode> CapstoneProcessorPlugin<arch, mode>::CapstoneProcessorPlugin()
+template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::CapstoneAssemblerPlugin()
 {
     cs_open(arch, static_cast<cs_mode>(mode), &this->_cshandle);
     cs_option(this->_cshandle, CS_OPT_DETAIL, CS_OPT_ON);
 }
 
-template<cs_arch arch, size_t mode> CapstoneProcessorPlugin<arch, mode>::~CapstoneProcessorPlugin() { cs_close(&this->_cshandle); }
+template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::~CapstoneAssemblerPlugin() { cs_close(&this->_cshandle); }
 
-template<cs_arch arch, size_t mode> bool CapstoneProcessorPlugin<arch, mode>::decode(Buffer buffer, const InstructionPtr& instruction)
+template<cs_arch arch, size_t mode> bool CapstoneAssemblerPlugin<arch, mode>::decode(Buffer buffer, const InstructionPtr& instruction)
 {
     u64 address = instruction->address;
     const uint8_t* pdata = reinterpret_cast<const uint8_t*>(buffer.data);
@@ -108,11 +108,11 @@ template<cs_arch arch, size_t mode> bool CapstoneProcessorPlugin<arch, mode>::de
     instruction->userdata = insn;
     instruction->free = [](void* userdata) { cs_free(reinterpret_cast<cs_insn*>(userdata), 1); };
 
-    ProcessorPlugin::decode(buffer, instruction);
+    AssemblerPlugin::decode(buffer, instruction);
     return true;
 }
 
-typedef std::function<ProcessorPlugin*()> ProcessorPlugin_Entry;
+typedef std::function<AssemblerPlugin*()> AssemblerPlugin_Entry;
 }
 
-#endif // PROCESSOR_H
+#endif // ASSEMBLER_H

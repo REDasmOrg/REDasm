@@ -7,16 +7,16 @@
 
 namespace REDasm {
 
-Disassembler::Disassembler(Buffer buffer, ProcessorPlugin *processor, FormatPlugin *format): DisassemblerBase(buffer, format), _processor(processor)
+Disassembler::Disassembler(Buffer buffer, AssemblerPlugin *assembler, FormatPlugin *format): DisassemblerBase(buffer, format), _assembler(assembler)
 {
     if(!format->isBinary())
-        processor->setEndianness(format->endianness());
+        assembler->setEndianness(format->endianness());
 
-    this->_printer = PrinterPtr(this->_processor->createPrinter(this, this->_symboltable));
-    this->_emulator = processor->hasVMIL() ? processor->createEmulator(this) : NULL;
+    this->_printer = PrinterPtr(this->_assembler->createPrinter(this, this->_symboltable));
+    this->_emulator = assembler->hasVMIL() ? assembler->createEmulator(this) : NULL;
 
     this->_listing.setFormat(this->_format);
-    this->_listing.setProcessor(this->_processor);
+    this->_listing.setAssembler(this->_assembler);
     this->_listing.setSymbolTable(this->_symboltable);
     this->_listing.setReferenceTable(&this->_referencetable);
 }
@@ -26,7 +26,7 @@ Disassembler::~Disassembler()
     if(this->_emulator)
         delete this->_emulator;
 
-    delete this->_processor;
+    delete this->_assembler;
 }
 
 Listing& Disassembler::listing()
@@ -108,7 +108,7 @@ std::string Disassembler::comment(const InstructionPtr &instruction) const
 
 bool Disassembler::iterateVMIL(address_t address, Listing::InstructionCallback cbinstruction, Listing::SymbolCallback cbstart, Listing::InstructionCallback cbend, Listing::SymbolCallback cblabel)
 {
-    std::unique_ptr<VMIL::Emulator> emulator(this->_processor->createEmulator(this));
+    std::unique_ptr<VMIL::Emulator> emulator(this->_assembler->createEmulator(this));
 
     if(!emulator)
         return false;
@@ -177,9 +177,9 @@ void Disassembler::disassemble()
     this->_listing.markEntryPoint();
 }
 
-ProcessorPlugin *Disassembler::processor()
+AssemblerPlugin *Disassembler::assembler()
 {
-    return this->_processor;
+    return this->_assembler;
 }
 
 bool Disassembler::dataToString(address_t address)
@@ -249,7 +249,7 @@ void Disassembler::checkRegister(const InstructionPtr &instruction, const Operan
 
     REDasm::log("VMIL @ " + REDasm::hex(instruction->address) + " jump to " + REDasm::hex(target));
 
-    if(!this->_processor->canEmulateVMIL())
+    if(!this->_assembler->canEmulateVMIL())
     {
         instruction->cmt("=" + REDasm::hex(target));
         return;
@@ -363,7 +363,7 @@ bool Disassembler::disassemble(address_t address)
     if(!segment || !segment->is(SegmentTypes::Code))
         return false;
 
-    this->_processor->pushState();
+    this->_assembler->pushState();
 
     while(segment && segment->is(SegmentTypes::Code)) // Don't disassemble data (1)
     {
@@ -385,14 +385,14 @@ bool Disassembler::disassemble(address_t address)
             });
         }
 
-        if(this->_processor->done(instruction))
+        if(this->_assembler->done(instruction))
             break;
 
         address += instruction->size;
         segment = this->_format->segment(address);
     }
 
-    this->_processor->popState();
+    this->_assembler->popState();
     return true;
 }
 
@@ -403,7 +403,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
 
     REDasm::status("Disassembling " + REDasm::hex(address));
 
-    if(this->_processor->decode(b, instruction))
+    if(this->_assembler->decode(b, instruction))
     {
         if(this->_emulator)
             this->_emulator->emulate(instruction);

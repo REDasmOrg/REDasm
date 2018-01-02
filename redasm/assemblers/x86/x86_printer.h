@@ -1,7 +1,7 @@
 #ifndef X86_PRINTER_H
 #define X86_PRINTER_H
 
-#include "../../plugins/processor/printer.h"
+#include "../../plugins/assembler/printer.h"
 
 namespace REDasm {
 

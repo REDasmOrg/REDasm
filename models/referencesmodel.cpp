@@ -10,7 +10,7 @@ ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent), _c
 void ReferencesModel::setDisassembler(REDasm::Disassembler *disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
-    this->_printer = REDasm::PrinterPtr(disassembler->processor()->createPrinter(disassembler, disassembler->symbolTable()));
+    this->_printer = REDasm::PrinterPtr(disassembler->assembler()->createPrinter(disassembler, disassembler->symbolTable()));
 }
 
 void ReferencesModel::clear()

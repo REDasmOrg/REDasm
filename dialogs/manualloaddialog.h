@@ -19,7 +19,7 @@ class ManualLoadDialog : public QDialog
     private:
         void initText();
         void loadBits();
-        void loadProcessors();
+        void loadAssemblers();
         void updateInputMask();
 
     private slots:

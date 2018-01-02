@@ -28,7 +28,7 @@ u32 PeFormat::bits() const
     return 0;
 }
 
-const char *PeFormat::processor() const
+const char *PeFormat::assembler() const
 {
     if(this->_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
         return "x86_32";

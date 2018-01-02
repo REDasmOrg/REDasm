@@ -7,14 +7,14 @@
 namespace REDasm {
 
 class FormatPlugin;
-class ProcessorPlugin;
+class AssemblerPlugin;
 
 class DisassemblerFunctions
 {
     public:
         DisassemblerFunctions();
         virtual FormatPlugin* format() = 0;
-        virtual ProcessorPlugin* processor() = 0;
+        virtual AssemblerPlugin* assembler() = 0;
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const = 0;
         virtual std::string readString(const SymbolPtr& symbol) const = 0;
         virtual std::string readWString(const SymbolPtr& symbol) const = 0;

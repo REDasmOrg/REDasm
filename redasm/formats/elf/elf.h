@@ -22,7 +22,7 @@ template<ELF_PARAMS_T> class ELFFormat: public FormatPluginT<EHDR>
         ELFFormat(): FormatPluginT<EHDR>(), _phdr(NULL), _shdr(NULL) { }
         virtual const char* name() const { return "ELF Format"; }
         virtual u32 bits() const;
-        virtual const char* processor() const;
+        virtual const char* assembler() const;
         virtual bool load(u8* format);
 
     protected:
@@ -52,7 +52,7 @@ template<ELF_PARAMS_T> u32 ELFFormat<ELF_PARAMS_D>::bits() const
     return 0;
 }
 
-template<ELF_PARAMS_T> const char* ELFFormat<ELF_PARAMS_D>::processor() const
+template<ELF_PARAMS_T> const char* ELFFormat<ELF_PARAMS_D>::assembler() const
 {
     switch(this->_format->e_machine)
     {

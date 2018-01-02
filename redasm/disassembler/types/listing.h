@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <map>
-#include "../../plugins/processor/processor.h"
+#include "../../plugins/assembler/assembler.h"
 #include "../../support/cachemap.h"
 #include "../../redasm.h"
 #include "referencetable.h"
@@ -27,11 +27,11 @@ class Listing: public cache_map<address_t, InstructionPtr>
         ReferenceTable* referenceTable() const;
         SymbolTable* symbolTable() const;
         FormatPlugin *format() const;
-        const ProcessorPlugin *processor() const;
+        AssemblerPlugin *assembler() const;
         std::string getSignature(const SymbolPtr &symbol);
         SymbolPtr getFunction(address_t address);
         void setFormat(FormatPlugin *format);
-        void setProcessor(ProcessorPlugin *processor);
+        void setAssembler(AssemblerPlugin *assembler);
         void setSymbolTable(SymbolTable* symboltable);
         void setReferenceTable(ReferenceTable* referencetable);
         bool iterateFunction(address_t address, InstructionCallback cbinstruction);
@@ -55,7 +55,7 @@ class Listing: public cache_map<address_t, InstructionPtr>
     private:
         FunctionPaths _paths;
         FormatPlugin* _format;
-        ProcessorPlugin* _processor;
+        AssemblerPlugin* _assembler;
         ReferenceTable* _referencetable;
         SymbolTable* _symboltable;
 

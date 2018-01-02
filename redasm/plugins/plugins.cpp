@@ -1,6 +1,6 @@
 #define WRAP_TO_STRING(...)         #__VA_ARGS__
 #define FORMAT_PLUGIN(format)       WRAP_TO_STRING(../formats/format/format.h)
-#define PROCESSOR_PLUGIN(processor) WRAP_TO_STRING(../processors/processor/processor.h)
+#define ASSEMBLER_PLUGIN(assembler) WRAP_TO_STRING(../assemblers/assembler/assembler.h)
 
 #include "plugins.h"
 
@@ -11,21 +11,21 @@
 #include FORMAT_PLUGIN(psxexe)
 #include FORMAT_PLUGIN(dex)
 
-/* *** Processors *** */
-#include PROCESSOR_PLUGIN(x86)
-#include PROCESSOR_PLUGIN(mips)
-#include PROCESSOR_PLUGIN(arm)
-#include PROCESSOR_PLUGIN(dalvik)
-//#include PROCESSOR_PLUGIN(arm64)
-#include PROCESSOR_PLUGIN(chip8)
+/* *** Assemblers *** */
+#include ASSEMBLER_PLUGIN(x86)
+#include ASSEMBLER_PLUGIN(mips)
+#include ASSEMBLER_PLUGIN(arm)
+#include ASSEMBLER_PLUGIN(dalvik)
+//#include ASSEMBLER_PLUGIN(arm64)
+#include ASSEMBLER_PLUGIN(chip8)
 
 #define REGISTER_FORMAT_PLUGIN(id)    REDasm::formats.push_back(&id##_formatPlugin)
-#define REGISTER_PROCESSOR_PLUGIN(id) REDasm::processors[#id] = &id##_processorPlugin
+#define REGISTER_ASSEMBLER_PLUGIN(id) REDasm::assemblers[#id] = &id##_assemblerPlugin
 
 namespace REDasm {
 
 std::list<FormatPlugin_Entry> formats;
-std::unordered_map<std::string, ProcessorPlugin_Entry> processors;
+std::unordered_map<std::string, AssemblerPlugin_Entry> assemblers;
 
 void init(const std::string& searchpath)
 {
@@ -38,15 +38,15 @@ void init(const std::string& searchpath)
     REGISTER_FORMAT_PLUGIN(dex);
     REGISTER_FORMAT_PLUGIN(binary); // Always last choice
 
-    REGISTER_PROCESSOR_PLUGIN(x86_16);
-    REGISTER_PROCESSOR_PLUGIN(x86_32);
-    REGISTER_PROCESSOR_PLUGIN(x86_64);
-    REGISTER_PROCESSOR_PLUGIN(mips32);
-    REGISTER_PROCESSOR_PLUGIN(mips64);
-    REGISTER_PROCESSOR_PLUGIN(arm);
-    //REGISTER_PROCESSOR_PLUGIN(arm64);
-    REGISTER_PROCESSOR_PLUGIN(dalvik);
-    REGISTER_PROCESSOR_PLUGIN(chip8);
+    REGISTER_ASSEMBLER_PLUGIN(x86_16);
+    REGISTER_ASSEMBLER_PLUGIN(x86_32);
+    REGISTER_ASSEMBLER_PLUGIN(x86_64);
+    REGISTER_ASSEMBLER_PLUGIN(mips32);
+    REGISTER_ASSEMBLER_PLUGIN(mips64);
+    REGISTER_ASSEMBLER_PLUGIN(arm);
+    //REGISTER_ASSEMBLER_PLUGIN(arm64);
+    REGISTER_ASSEMBLER_PLUGIN(dalvik);
+    REGISTER_ASSEMBLER_PLUGIN(chip8);
 }
 
 FormatPlugin *getFormat(u8 *data)
@@ -65,14 +65,14 @@ FormatPlugin *getFormat(u8 *data)
     return NULL;
 }
 
-ProcessorPlugin *getProcessor(const char* id)
+AssemblerPlugin *getAssembler(const char* id)
 {
     if(!id)
         return NULL;
 
-    auto it = processors.find(id);
+    auto it = assemblers.find(id);
 
-    if(it == processors.end())
+    if(it == assemblers.end())
         return NULL;
 
     return (it->second)();

@@ -19,13 +19,13 @@
 | Dex | WIP |
 
 ### Supported Architectures
-| Format | Capstone Backend | Notes |
+| Format | Backend | Notes |
 |--------|-----------|------|
-| x86 | Yes | |
-| MIPS | Yes ||
-| ARM | Yes |32 bit only|
-| Dalvik | No | WIP |
-| CHIP-8 | No | Just for fun :)|
+| x86 | Capstone | |
+| MIPS | Capstone ||
+| ARM | Capstone |32 bit only|
+| Dalvik | REDasm | WIP |
+| CHIP-8 | REDasm | Just for fun :)|
 
 ## How to compile
 I don't provide prebuilt binaries yet, these are the steps required to compile REDasm:

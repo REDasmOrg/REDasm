@@ -72,8 +72,8 @@ bool DalvikAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
     if(it == this->_opcodemap.end())
         return false;
 
-    buffer++; // Skip opcode
-    bool res = it->second(buffer, instruction);
+    Buffer bwords = buffer + 1;
+    bool res = it->second(bwords, instruction);
 
     if(!res)
         instruction->size = sizeof(u16); // Dalvik uses always 16-bit aligned instructions

@@ -23,6 +23,11 @@ SymbolTable *DisassemblerBase::symbolTable()
     return this->_symboltable;
 }
 
+void DisassemblerBase::pushReference(const SymbolPtr &symbol, address_t address)
+{
+    this->_referencetable.push(symbol, address);
+}
+
 bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
 {
     if(!symbol)

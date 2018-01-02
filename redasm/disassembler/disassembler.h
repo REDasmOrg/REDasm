@@ -13,13 +13,16 @@ class Disassembler: public DisassemblerBase
         Disassembler(Buffer buffer, AssemblerPlugin* assembler, FormatPlugin* format);
         virtual ~Disassembler();
         Listing &listing();
-        bool canBeJumpTable(address_t address);
+        bool canBeJumpTable(address_t address) const;
         size_t walkJumpTable(const InstructionPtr &instruction, address_t address, std::function<void(address_t)> cb);
         void disassembleFunction(address_t address);
         void disassemble();
 
     public: // Primitive functions
         virtual AssemblerPlugin* assembler();
+        virtual VMIL::Emulator* emulator();
+        virtual void checkJumpTable(const InstructionPtr& instruction, const Operand &operand);
+        virtual void updateInstruction(const InstructionPtr& instruction);
         virtual bool dataToString(address_t address);
         virtual InstructionPtr disassembleInstruction(address_t address);
         virtual bool disassemble(address_t address);
@@ -29,9 +32,6 @@ class Disassembler: public DisassemblerBase
         bool iterateVMIL(address_t address, Listing::InstructionCallback cbinstruction, Listing::SymbolCallback cbstart, Listing::InstructionCallback cbend, Listing::SymbolCallback cblabel);
 
     private:
-        void checkJumpTable(const InstructionPtr& instruction, const Operand &operand);
-        void checkRegister(const InstructionPtr& instruction, const Operand &operand);
-        void analyzeOp(const InstructionPtr& instruction, const Operand& operand);
         InstructionPtr disassembleInstruction(address_t address, Buffer &b);
         void createInvalidInstruction(const InstructionPtr& instruction, Buffer &b);
 

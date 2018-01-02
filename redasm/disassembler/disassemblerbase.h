@@ -1,9 +1,6 @@
 #ifndef DISASSEMBLERBASE_H
 #define DISASSEMBLERBASE_H
 
-#define MIN_STRING       4
-#define MAX_STRING       200
-
 #include <functional>
 #include "../plugins/format.h"
 #include "types/referencetable.h"
@@ -17,13 +14,14 @@ class DisassemblerBase: public DisassemblerFunctions
         DisassemblerBase(Buffer buffer, FormatPlugin* format);
         virtual ~DisassemblerBase();
         Buffer& buffer();
-        SymbolTable* symbolTable();
         bool hasReferences(const SymbolPtr &symbol);
         ReferenceVector getReferences(const SymbolPtr &symbol);
         u64 getReferencesCount(const SymbolPtr &symbol);
 
     public: // Primitive functions
         virtual FormatPlugin* format();
+        virtual SymbolTable* symbolTable();
+        virtual void pushReference(const SymbolPtr& symbol, address_t address);
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
         virtual std::string readString(const SymbolPtr& symbol) const;
         virtual std::string readWString(const SymbolPtr& symbol) const;
@@ -33,10 +31,8 @@ class DisassemblerBase: public DisassemblerFunctions
         virtual bool getBuffer(address_t address, Buffer& data) const;
         virtual bool readAddress(address_t address, size_t size, u64 &value) const;
         virtual bool readOffset(offset_t offset, size_t size, u64 &value) const;
-
-   protected:
-        std::string readString(address_t address) const;
-        std::string readWString(address_t address) const;
+        virtual std::string readString(address_t address) const;
+        virtual std::string readWString(address_t address) const;
 
    private:
         template<typename T> std::string readStringT(address_t address, std::function<bool(T, std::string&)> fill) const;

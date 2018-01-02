@@ -29,11 +29,9 @@ class AssemblerPlugin: public Plugin
         virtual u32 flags() const;
         virtual VMIL::Emulator* createEmulator(DisassemblerFunctions* disassembler) const;
         virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable* symboltable) const;
+        virtual void analyzeOperand(DisassemblerFunctions* disassembler, const InstructionPtr& instruction, const Operand& operand) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual bool done(const InstructionPtr& instruction);
-
-    protected:
-        template<typename T> T read(Buffer& buffer) const;
 
     public:
         bool hasFlag(u32 flag) const;
@@ -43,6 +41,10 @@ class AssemblerPlugin: public Plugin
         void setEndianness(endianness_t endianness);
         void pushState();
         void popState();
+
+    protected:
+        virtual void analyzeRegister(DisassemblerFunctions* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
+        template<typename T> T read(Buffer& buffer) const;
 
     private:
         std::stack<u32> _statestack;

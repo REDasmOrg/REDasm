@@ -33,9 +33,10 @@ typedef u64 address_t;
 typedef u64 offset_t;
 typedef u64 instruction_id_t;
 
-#define RE_UNUSED(x)           (void)x
-#define ENTRYPOINT_FUNCTION    "entrypoint"
-#define REGISTER_INVALID       static_cast<s64>(-1)
+#define RE_UNUSED(x)                               (void)x
+#define ENTRYPOINT_FUNCTION                        "entrypoint"
+#define REGISTER_INVALID                           static_cast<s64>(-1)
+#define BRANCH_DIRECTION(instruction, destination) (static_cast<s64>(destination) - static_cast<s64>(instruction->address))
 
 namespace REDasm {
 

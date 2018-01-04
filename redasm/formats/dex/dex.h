@@ -39,8 +39,6 @@ class DEXFormat : public FormatPluginT<DEXHeader>
 
     private:
         std::string getNormalizedString(u32 idx) const;
-        u32 getULeb128(u8 **data) const;
-        s32 getULeb128p1(u8 **data) const;
         std::string getTypeList(u32 typelistoff) const;
         static bool validateSignature(DEXHeader *format);
         static std::string normalized(const std::string& type);

@@ -100,7 +100,9 @@ SOURCES += main.cpp\
     redasm/assemblers/mips/mips_emulator.cpp \
     redasm/formats/dex/dex.cpp \
     redasm/assemblers/dalvik/dalvik.cpp \
-    redasm/assemblers/dalvik/dalvik_printer.cpp
+    redasm/assemblers/dalvik/dalvik_printer.cpp \
+    redasm/formats/dex/dex_statemachine.cpp \
+    redasm/formats/dex/dex_utils.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -191,7 +193,9 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/dalvik/dalvik.h \
     redasm/assemblers/dalvik/dalvik_printer.h \
     redasm/assemblers/dalvik/dalvik_metadata.h \
-    redasm/assemblers/dalvik/dalvik_opcodes.h
+    redasm/assemblers/dalvik/dalvik_opcodes.h \
+    redasm/formats/dex/dex_statemachine.h \
+    redasm/formats/dex/dex_utils.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

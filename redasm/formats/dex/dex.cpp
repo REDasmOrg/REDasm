@@ -1,5 +1,6 @@
 #include "dex.h"
 #include "dex_constants.h"
+#include "dex_utils.h"
 
 namespace REDasm {
 
@@ -80,7 +81,7 @@ bool DEXFormat::getStringOffset(u32 idx, offset_t& offset) const
         return false;
 
     u8* pstringdata = pointer<u8>(this->_strings[idx].string_data_off);
-    this->getULeb128(&pstringdata);
+    DEXUtils::getULeb128(&pstringdata);
     offset = fileoffset(pstringdata);
     return true;
 }
@@ -91,7 +92,7 @@ std::string DEXFormat::getString(u32 idx) const
         return std::string();
 
     u8* pstringdata = pointer<u8>(this->_strings[idx].string_data_off);
-    u32 len = this->getULeb128(&pstringdata);
+    u32 len = DEXUtils::getULeb128(&pstringdata);
 
     return std::string(reinterpret_cast<const char*>(pstringdata), len);
 }
@@ -182,12 +183,12 @@ bool DEXFormat::getDebugInfo(u32 methodidx, DEXDebugInfo &debuginfo)
 
     u8* pdebuginfo = pointer<u8>(dexcode->debug_info_off);
 
-    debuginfo.line_start = this->getULeb128(&pdebuginfo);
-    debuginfo.parameters_size = this->getULeb128(&pdebuginfo);
+    debuginfo.line_start = DEXUtils::getULeb128(&pdebuginfo);
+    debuginfo.parameters_size = DEXUtils::getULeb128(&pdebuginfo);
 
     for(u32 i = 0; i < debuginfo.parameters_size; i++)
     {
-        s32 idx = this->getULeb128p1(&pdebuginfo);
+        s32 idx = DEXUtils::getULeb128p1(&pdebuginfo);
 
         if(idx == DEX_NO_INDEX)
             debuginfo.parameter_names.push_back(std::string());
@@ -207,38 +208,38 @@ bool DEXFormat::getClassData(const DEXClassIdItem &dexclass, DEXClassData &dexcl
     DEXEncodedMethod dexmethod;
     u8* pclassdata = pointer<u8>(dexclass.class_data_off);
 
-    dexclassdata.static_fields_size = this->getULeb128(&pclassdata);
-    dexclassdata.instance_fields_size = this->getULeb128(&pclassdata);
-    dexclassdata.direct_methods_size = this->getULeb128(&pclassdata);
-    dexclassdata.virtual_methods_size = this->getULeb128(&pclassdata);
+    dexclassdata.static_fields_size = DEXUtils::getULeb128(&pclassdata);
+    dexclassdata.instance_fields_size = DEXUtils::getULeb128(&pclassdata);
+    dexclassdata.direct_methods_size = DEXUtils::getULeb128(&pclassdata);
+    dexclassdata.virtual_methods_size = DEXUtils::getULeb128(&pclassdata);
 
     for(u32 i = 0; i < dexclassdata.static_fields_size; i++)
     {
-        dexfield.field_idx_diff = this->getULeb128(&pclassdata);
-        dexfield.access_flags = this->getULeb128(&pclassdata);
+        dexfield.field_idx_diff = DEXUtils::getULeb128(&pclassdata);
+        dexfield.access_flags = DEXUtils::getULeb128(&pclassdata);
         dexclassdata.static_fields.push_back(dexfield);
     }
 
     for(u32 i = 0; i < dexclassdata.instance_fields_size; i++)
     {
-        dexfield.field_idx_diff = this->getULeb128(&pclassdata);
-        dexfield.access_flags = this->getULeb128(&pclassdata);
+        dexfield.field_idx_diff = DEXUtils::getULeb128(&pclassdata);
+        dexfield.access_flags = DEXUtils::getULeb128(&pclassdata);
         dexclassdata.instance_fields.push_back(dexfield);
     }
 
     for(u32 i = 0; i < dexclassdata.direct_methods_size; i++)
     {
-        dexmethod.method_idx_diff = this->getULeb128(&pclassdata);
-        dexmethod.access_flags = this->getULeb128(&pclassdata);
-        dexmethod.code_off = this->getULeb128(&pclassdata);
+        dexmethod.method_idx_diff = DEXUtils::getULeb128(&pclassdata);
+        dexmethod.access_flags = DEXUtils::getULeb128(&pclassdata);
+        dexmethod.code_off = DEXUtils::getULeb128(&pclassdata);
         dexclassdata.direct_methods.push_back(dexmethod);
     }
 
     for(u32 i = 0; i < dexclassdata.virtual_methods_size; i++)
     {
-        dexmethod.method_idx_diff = this->getULeb128(&pclassdata);
-        dexmethod.access_flags = this->getULeb128(&pclassdata);
-        dexmethod.code_off = this->getULeb128(&pclassdata);
+        dexmethod.method_idx_diff = DEXUtils::getULeb128(&pclassdata);
+        dexmethod.access_flags = DEXUtils::getULeb128(&pclassdata);
+        dexmethod.code_off = DEXUtils::getULeb128(&pclassdata);
         dexclassdata.virtual_methods.push_back(dexmethod);
     }
 
@@ -286,28 +287,6 @@ void DEXFormat::loadClass(const DEXClassIdItem &dexclass)
 std::string DEXFormat::getNormalizedString(u32 idx) const
 {
     return this->normalized(this->getString(idx));
-}
-
-u32 DEXFormat::getULeb128(u8 **data) const
-{
-    size_t i = 0;
-    u32 value = 0;
-
-    while(**data & 0x80)
-    {
-        value |= ((**data & 0x7F) << (i * 7));
-        (*data)++;
-        i++;
-    }
-
-    value |= ((**data & 0x7F) << (i * 7));
-    (*data)++;
-    return value;
-}
-
-s32 DEXFormat::getULeb128p1(u8 **data) const
-{
-    return static_cast<s32>(this->getULeb128(data)) - 1;
 }
 
 std::string DEXFormat::getTypeList(u32 typelistoff) const

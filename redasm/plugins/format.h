@@ -24,15 +24,16 @@ template<typename T> T* declareFormatPlugin(u8* data)
 }
 
 namespace FormatFlags {
-    enum: u32 { None               = 0,
-                Binary             = 1, // Internal Use
-                SkipUnexploredCode = 2 };
+    enum: u32 { None                 = 0,
+                Binary               = 1, // Internal Use
+                IgnoreUnexploredCode = 2 };
 }
 
 class FormatPlugin: public Plugin
 {
     public:
         FormatPlugin();
+        bool isBinary() const;
         const SegmentList& segments() const;
         SymbolTable* symbols();
         Segment *segment(address_t address);
@@ -40,15 +41,14 @@ class FormatPlugin: public Plugin
         Segment *segmentByName(const std::string& name);
         const SignatureFiles& signatures() const;
         u64 addressWidth() const;
-        virtual offset_t offset(address_t address) const;
-        virtual Analyzer *createAnalyzer(DisassemblerFunctions* dfunctions, const SignatureFiles &signatures) const;
 
     public:
+        virtual offset_t offset(address_t address) const;
+        virtual Analyzer *createAnalyzer(DisassemblerFunctions* dfunctions, const SignatureFiles &signatures) const;
         virtual const char* assembler() const = 0;
         virtual u32 bits() const = 0;
         virtual u32 flags() const;
         virtual endianness_t endianness() const;
-        virtual bool isBinary() const;
         virtual bool load(u8* format);
 
     protected:

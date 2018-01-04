@@ -21,7 +21,7 @@ u32 DEXFormat::bits() const
 
 u32 DEXFormat::flags() const
 {
-    return FormatFlags::SkipUnexploredCode;
+    return FormatFlags::IgnoreUnexploredCode;
 }
 
 const char *DEXFormat::assembler() const

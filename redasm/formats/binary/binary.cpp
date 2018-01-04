@@ -22,14 +22,14 @@ u32 BinaryFormat::bits() const
     return this->_bits;
 }
 
+u32 BinaryFormat::flags() const
+{
+    return FormatFlags::Binary;
+}
+
 bool BinaryFormat::load(u8 *rawformat)
 {
     FormatPluginB::load(rawformat);
-    return true;
-}
-
-bool BinaryFormat::isBinary() const
-{
     return true;
 }
 

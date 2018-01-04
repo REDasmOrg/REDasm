@@ -138,8 +138,9 @@ void Disassembler::disassembleUnexploredCode()
 void Disassembler::disassembleSegment(const Segment &segment)
 {
     SymbolPtr symbol;
+    address_t address = segment.address;
 
-    for(address_t address = segment.address; address < segment.endaddress;)
+    while(address < segment.endaddress)
     {
         symbol = this->_symboltable->symbol(address);
 
@@ -263,8 +264,7 @@ void Disassembler::disassemble()
     });
 
     // Analyze and disassemble unexplored bytes in code sections (3)
-
-    if(!(this->_format->flags() & FormatFlags::SkipUnexploredCode))
+    if(!(this->_format->flags() & FormatFlags::IgnoreUnexploredCode))
     {
         REDasm::status("Looking for missing code...");
         this->disassembleUnexploredCode();

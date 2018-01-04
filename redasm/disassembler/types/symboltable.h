@@ -37,7 +37,7 @@ namespace SymbolTypes {
 struct Symbol
 {
     Symbol(): type(0), extra_type(0), address(0) { }
-    Symbol(u32 flags, u32 extratype, address_t address, const std::string& name): type(flags), extra_type(extratype), address(address), name(name) { }
+    Symbol(u32 type, u32 extratype, address_t address, const std::string& name): type(type), extra_type(extratype), address(address), name(name) { }
     void lock() { type |= SymbolTypes::Locked; }
 
     u32 type, extra_type;

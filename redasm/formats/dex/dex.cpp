@@ -19,6 +19,11 @@ u32 DEXFormat::bits() const
     return 32;
 }
 
+u32 DEXFormat::flags() const
+{
+    return FormatFlags::SkipUnexploredCode;
+}
+
 const char *DEXFormat::assembler() const
 {
     return "dalvik";

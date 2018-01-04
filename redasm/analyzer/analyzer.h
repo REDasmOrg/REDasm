@@ -27,10 +27,6 @@ class Analyzer
         SymbolPtr findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable);
 
     protected:
-        void createFunction(SymbolTable* symboltable, const std::string& name, address_t address);
-        void createFunction(SymbolTable* symboltable, address_t address);
-
-    protected:
         DisassemblerFunctions* _disassembler;
         const SignatureFiles& _signaturefiles;
 };

@@ -14,8 +14,9 @@ class DEXFormat : public FormatPluginT<DEXHeader>
     public:
         DEXFormat();
         virtual const char* name() const;
-        virtual u32 bits() const;
         virtual const char* assembler() const;
+        virtual u32 bits() const;
+        virtual u32 flags() const;
         virtual endianness_t endianness() const;
         virtual bool load(u8 *rawformat);
 

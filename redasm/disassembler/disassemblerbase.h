@@ -54,15 +54,8 @@ template<typename T> std::string DisassemblerBase::readStringT(address_t address
     while(fill(*reinterpret_cast<T*>(b.data), s) && !b.eob())
     {
         count++;
-
-        if(count > MAX_STRING)
-            break;
-
         b += sizeof(T);
     }
-
-    if(count > MAX_STRING)
-        s += "...";
 
     return "\"" + s + "\"";
 }

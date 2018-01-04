@@ -132,26 +132,4 @@ SymbolPtr Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symb
     return impsymbol;
 }
 
-void Analyzer::createFunction(SymbolTable *symboltable, const std::string &name, address_t address)
-{
-    if(symboltable->erase(address)) // Analyzer can replace unlocked symbols
-    {
-        symboltable->createFunction(address, name);
-        symboltable->symbol(address)->lock();
-    }
-
-    this->_disassembler->disassemble(address);
-}
-
-void Analyzer::createFunction(SymbolTable *symboltable, address_t address)
-{
-    if(symboltable->erase(address)) // Analyzer can replace unlocked symbols
-    {
-        symboltable->createFunction(address);
-        symboltable->symbol(address)->lock();
-    }
-
-    this->_disassembler->disassemble(address);
-}
-
 } // namespace REDasm

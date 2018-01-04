@@ -237,27 +237,9 @@ void DisassemblerTextView::createContextMenu()
 
     this->_actrename = this->_contextmenu->addAction("Rename", [this]() { this->rename(this->_symboladdress);} );
 
-    this->_actcreatefunction = this->_contextmenu->addAction("Create Function", [this]() {
-        this->_disassembler->disassembleFunction(this->_symboladdress);
-
-        this->_disdocument->update(this->_symboladdress);
-        emit invalidateSymbols();
-    });
-
     this->_actcreatestring = this->_contextmenu->addAction("Create String", [this]() {
         if(!this->_disassembler->dataToString(this->_symboladdress))
             return;
-
-        this->_disdocument->update(this->_symboladdress);
-        emit invalidateSymbols();
-    });
-
-    this->_actanalyzejumptable = this->_contextmenu->addAction("Analyze Jump Table", [this]() {
-        REDasm::Listing& listing = this->_disassembler->listing();
-
-        this->_disassembler->walkJumpTable(listing[this->_currentaddress], this->_symboladdress, [this](address_t target) {
-            this->_disassembler->disassembleFunction(target);
-        });
 
         this->_disdocument->update(this->_symboladdress);
         emit invalidateSymbols();
@@ -291,9 +273,7 @@ void DisassemblerTextView::adjustContextMenu()
     if(encdata.isEmpty())
     {
         this->_actrename->setVisible(false);
-        this->_actcreatefunction->setVisible(false);
         this->_actcreatestring->setVisible(false);
-        this->_actanalyzejumptable->setVisible(false);
         this->_actxrefs->setVisible(false);
         this->_actback->setVisible(this->canGoBack());
         this->_actforward->setVisible(this->canGoForward());
@@ -314,10 +294,6 @@ void DisassemblerTextView::adjustContextMenu()
     REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(this->_symboladdress);
 
     this->_actrename->setVisible(symbol != NULL);
-    this->_actanalyzejumptable->setVisible(this->_disassembler->canBeJumpTable(this->_symboladdress));
-
-    this->_actcreatefunction->setVisible(segment && segment->is(REDasm::SegmentTypes::Code) &&
-                                         symbol && !symbol->isFunction() && !symbol->is(REDasm::SymbolTypes::String));
 
     if((segment && segment->is(REDasm::SegmentTypes::Data)) && (symbol && !symbol->isFunction() && symbol->is(REDasm::SymbolTypes::Data)))
     {

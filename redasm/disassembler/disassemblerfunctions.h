@@ -2,7 +2,7 @@
 #define DISASSEMBLERFUNCTIONS_H
 
 #define MIN_STRING       4
-#define MAX_STRING       200
+//#define MAX_STRING       200
 
 #include "../redasm.h"
 #include "types/symboltable.h"
@@ -40,6 +40,7 @@ class DisassemblerFunctions
         virtual bool dereferencePointer(address_t address, u64& value) const = 0;
         virtual SymbolPtr dereferenceSymbol(const SymbolPtr& symbol, u64* value = NULL) = 0;
         virtual InstructionPtr disassembleInstruction(address_t address) = 0;
+        virtual void disassembleFunction(address_t address, const std::string& name = std::string()) = 0;
         virtual bool disassemble(address_t address) = 0;
 };
 

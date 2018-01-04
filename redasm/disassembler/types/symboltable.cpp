@@ -132,12 +132,11 @@ bool SymbolTable::update(SymbolPtr symbol, const std::string& name)
 
     auto it = this->_byname.find(symbol->name);
 
-    if(it == this->_byname.end())
-        return false;
+    if(it != this->_byname.end())
+        this->_byname.erase(it);
 
     symbol->name = name;
     this->_byname[name] = symbol->address;
-    this->_byname.erase(it);
     this->_byaddress.commit(symbol->address, symbol);
     return true;
 }

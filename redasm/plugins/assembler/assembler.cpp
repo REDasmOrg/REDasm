@@ -45,6 +45,8 @@ void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const 
                 symboltable->createLocation(value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
         }
     }
+    else if(symbol->is(SymbolTypes::Pointer))
+        disassembler->dereferencePointer(value, opvalue); // read pointed memory
 
     const Segment* segment = disassembler->format()->segment(opvalue);
 
@@ -52,13 +54,7 @@ void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const 
         return;
 
     if(instruction->is(InstructionTypes::Call) && instruction->hasTargets() && (operand.index == instruction->target_idx))
-    {
-        if(symbol && !symbol->isFunction()) // This symbol will be promoted to function
-            symboltable->erase(opvalue);
-
-        if(symboltable->createFunction(opvalue)) // This operand is the target
-            disassembler->disassemble(opvalue);
-    }
+        disassembler->disassembleFunction(opvalue);
     else
     {
         bool wide = false;
@@ -201,9 +197,6 @@ void AssemblerPlugin::analyzeRegister(DisassemblerFunctions *disassembler, const
         disassembler->updateInstruction(instruction);
         return;
     }
-
-    if(!disassembler->disassemble(target))
-        return;
 
     if(instruction->is(InstructionTypes::Call))
         disassembler->symbolTable()->createFunction(target);

@@ -34,6 +34,7 @@ class AssemblerPlugin: public Plugin
         virtual bool done(const InstructionPtr& instruction);
 
     public:
+        template<typename T> T read(Buffer& buffer) const;
         bool hasFlag(u32 flag) const;
         bool hasVMIL() const;
         bool canEmulateVMIL() const;
@@ -44,7 +45,6 @@ class AssemblerPlugin: public Plugin
 
     protected:
         virtual void analyzeRegister(DisassemblerFunctions* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
-        template<typename T> T read(Buffer& buffer) const;
 
     private:
         std::stack<u32> _statestack;

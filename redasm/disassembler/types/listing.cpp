@@ -53,10 +53,15 @@ void Listing::setReferenceTable(ReferenceTable *referencetable)
     this->_referencetable = referencetable;
 }
 
-void Listing::walk(address_t address)
+void Listing::checkBounds(address_t address)
 {
-    if(!this->_assembler || (this->_paths.find(address) != this->_paths.end()))
+    if(!this->_assembler)
         return;
+
+    auto it = this->_paths.find(address);
+
+    if(it != this->_paths.end())
+        this->_paths.erase(it);
 
     FunctionPath path;
     Listing::walk(this, this->find(address), path);
@@ -176,6 +181,25 @@ SymbolPtr Listing::getFunction(address_t address)
     return this->_symboltable->symbol(it->first);
 }
 
+bool Listing::getFunctionBounds(address_t address, address_t *startaddress, address_t *endaddress)
+{
+    FunctionPaths::iterator it = this->findFunction(address);
+
+    if(it == this->_paths.end())
+        return false;
+
+    if(startaddress)
+        *startaddress = *it->second.begin();
+
+    if(endaddress)
+    {
+        InstructionPtr instruction = (*this)[*it->second.rbegin()];
+        *endaddress = instruction->endAddress();
+    }
+
+    return true;
+}
+
 bool Listing::iterateFunction(address_t address, Listing::InstructionCallback cbinstruction)
 {
     return this->iterateFunction(address, cbinstruction, NULL, NULL, NULL);
@@ -228,14 +252,34 @@ void Listing::update(const InstructionPtr &instruction)
     this->commit(instruction->address, instruction);
 }
 
-void Listing::calculatePaths()
+void Listing::splitFunctionAt(const InstructionPtr &instruction)
 {
-    this->_paths.clear(); // Invalidate previous paths
+    if(!this->stopFunctionAt(instruction))
+        return;
 
-    this->_symboltable->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
-        this->walk(symbol->address);
-        return true;
-    });
+    auto iit = this->find(instruction->endAddress());
+
+    if(iit == this->end())
+        return;
+
+    this->_symboltable->createFunction(instruction->endAddress()); // Create new function here
+    this->checkBounds(instruction->endAddress());
+}
+
+bool Listing::stopFunctionAt(const InstructionPtr &instruction)
+{
+    auto it = this->findFunction(instruction->address);
+
+    if(it == this->_paths.end())
+    {
+        REDasm::log("Cannot stop function @ " + REDasm::hex(instruction->address));
+        return false;
+    }
+
+    instruction->type |= InstructionTypes::Stop;
+    this->update(instruction);
+    this->checkBounds(it->first);
+    return true;
 }
 
 void Listing::markEntryPoint()

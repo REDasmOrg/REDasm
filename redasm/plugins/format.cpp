@@ -51,6 +51,11 @@ const SignatureFiles &FormatPlugin::signatures() const
     return this->_signatures;
 }
 
+u64 FormatPlugin::addressWidth() const
+{
+    return this->bits() / 8;
+}
+
 offset_t FormatPlugin::offset(address_t address) const
 {
     for(auto it = this->_segments.begin(); it != this->_segments.end(); it++)
@@ -69,6 +74,11 @@ Analyzer* FormatPlugin::createAnalyzer(DisassemblerFunctions *dfunctions, const 
     return new Analyzer(dfunctions, signatures);
 }
 
+u32 FormatPlugin::flags() const
+{
+    return FormatFlags::None;
+}
+
 endianness_t FormatPlugin::endianness() const
 {
     return Endianness::LittleEndian; // Use LE by default
@@ -76,7 +86,7 @@ endianness_t FormatPlugin::endianness() const
 
 bool FormatPlugin::isBinary() const
 {
-    return false;
+    return this->flags() & FormatFlags::Binary;
 }
 
 bool FormatPlugin::load(u8 *format)

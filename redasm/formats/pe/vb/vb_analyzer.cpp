@@ -37,11 +37,9 @@ void VBAnalyzer::analyze(Listing &listing)
     if(!pushinstruction->is(InstructionTypes::Push) && !callinstruction->is(InstructionTypes::Call))
         return;
 
-    callinstruction->type |= InstructionTypes::Stop;
     pushinstruction->comments.clear();
-
-    listing.update(callinstruction);
     listing.update(pushinstruction);
+    listing.stopFunctionAt(callinstruction);
 
     SymbolPtr thunrtdata = symboltable->symbol(pushinstruction->operands[0].u_value);
 
@@ -70,7 +68,7 @@ void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, Lis
     }
 
     if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
-        this->createFunction(listing.symbolTable(), name, instruction->target());
+        this->_disassembler->disassembleFunction(instruction->target(), name);
 }
 
 void VBAnalyzer::decompileObject(Listing& listing, const VBPublicObjectDescriptor &pubobjdescr)

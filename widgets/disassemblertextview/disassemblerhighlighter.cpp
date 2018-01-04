@@ -2,7 +2,7 @@
 
 DisassemblerHighlighter::DisassemblerHighlighter(QTextDocument *document) : QSyntaxHighlighter(document)
 {
-    this->_rgxdotted.setPattern("^[ \\t]*\\.\\w+");
+    this->_rgxdotted.setPattern("^[ \\t]+\\.\\w+");
 }
 
 void DisassemblerHighlighter::highlightBlock(const QString &text)

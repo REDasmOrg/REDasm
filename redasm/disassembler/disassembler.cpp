@@ -2,7 +2,8 @@
 #include <algorithm>
 #include <memory>
 
-#define INVALID_MNEMONIC "db"
+#define INVALID_MNEMONIC      "db"
+#define INSTRUCTION_THRESHOLD 10
 
 namespace REDasm {
 
@@ -44,7 +45,7 @@ bool Disassembler::canBeJumpTable(address_t address) const
     return segment && segment->is(SegmentTypes::Code);
 }
 
-size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t address, std::function<void(address_t)> cb)
+size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t address)
 {
     size_t cases = 0;
     address_t target = 0;
@@ -59,8 +60,6 @@ size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t 
             break;
 
         instruction->target(target);
-        cb(target);
-
         this->_symboltable->createLocation(target, SymbolTypes::Code);
         auto it = this->_listing.find(target);
 
@@ -123,23 +122,127 @@ bool Disassembler::iterateVMIL(address_t address, Listing::InstructionCallback c
     }, cbstart, cbend, cblabel);
 }
 
-void Disassembler::disassembleFunction(address_t address)
+void Disassembler::disassembleUnexploredCode()
+{
+    for(auto it = this->_format->segments().begin(); it != this->_format->segments().end(); it++)
+    {
+        const Segment& segment = *it;
+
+        if(!segment.is(SegmentTypes::Code))
+            continue;
+
+        this->disassembleSegment(segment);
+    }
+}
+
+void Disassembler::disassembleSegment(const Segment &segment)
+{
+    SymbolPtr symbol;
+
+    for(address_t address = segment.address; address < segment.endaddress;)
+    {
+        symbol = this->_symboltable->symbol(address);
+
+        if(symbol && (symbol->isFunction() || symbol->is(SymbolTypes::String) || symbol->is(SymbolTypes::Pointer))) // Skip functions/strings/pointers
+        {
+            if(symbol->is(SymbolTypes::String))
+            {
+                bool wide = false;
+                this->locationIsString(address, &wide);
+                address += this->readString(symbol).size() * (wide ? 2 : 1);
+            }
+            else if(symbol->is(SymbolTypes::Pointer))
+                address += this->_format->addressWidth();
+            else if(!this->_listing.getFunctionBounds(address, NULL, &address))
+                address++;
+
+            continue;
+        }
+
+        if(!this->maybeValidCode(address))
+            continue;
+
+        this->disassembleFunction(address);
+    }
+}
+
+bool Disassembler::maybeValidCode(address_t& address)
+{
+    auto it = this->_listing.find(address);
+
+    if(it != this->_listing.end())
+    {
+        address += (*it)->size;
+        return false;
+    }
+
+    u64 value = 0;
+
+    if(!this->readAddress(address, this->_format->addressWidth(), value)) // Check for address
+    {
+        address++;
+        return false;
+    }
+
+    Segment* segment = this->_format->segment(value); // Check if this value points somewhere
+
+    if(!segment)
+    {
+        address_t caddress = address;
+        InstructionPtr instruction;
+        SymbolPtr symbol;
+
+        for(u32 i = 0; i < INSTRUCTION_THRESHOLD; i++) // Try to disassemble some instructions
+        {
+            symbol = this->_symboltable->symbol(caddress);
+
+            if(symbol && symbol->isFunction()) // Don't overlap functions
+            {
+                address = caddress;
+                return false;
+            }
+
+            instruction = this->disassembleInstruction(caddress);
+            caddress += instruction->size ? instruction->size : 1;
+
+            if(instruction->isInvalid())
+            {
+                address = caddress;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    address += this->_format->addressWidth();
+    return false;
+}
+
+void Disassembler::disassembleFunction(address_t address, const std::string &name)
 {
     SymbolPtr symbol = this->_symboltable->symbol(address);
 
     if(symbol && symbol->isFunction())
         return;
 
+    auto it = this->_listing.find(address);
+
+    if(it != this->_listing.end())
+        it--;
+
+    if(it != this->_listing.end())
+        this->_listing.stopFunctionAt(*it); // Stop function @ previous address, if any
+
     this->_symboltable->erase(address);
-    this->_symboltable->createFunction(address);
+
+    if(name.empty())
+        this->_symboltable->createFunction(address);
+    else
+        this->_symboltable->createFunction(address, name);
+
     this->disassemble(address);
-
-    REDasm::status("Analyzing...");
-    Analyzer analyzer(this, this->_format->signatures());
-    analyzer.analyze(this->_listing); // Run basic analyzer
-
-    REDasm::status("Calculating paths...");
-    this->_listing.calculatePaths();
+    this->_listing.checkBounds(address);
 }
 
 void Disassembler::disassemble()
@@ -147,26 +250,32 @@ void Disassembler::disassemble()
     SymbolPtr entrypoint = this->_symboltable->entryPoint();
 
     if(entrypoint)
-        this->disassemble(entrypoint->address); // Disassemble entry point first
+    {
+        this->disassemble(entrypoint->address); // Disassemble entry point (1)
+        this->_listing.checkBounds(entrypoint->address);
+    }
 
-    // Preload format functions for analysis
+    // Preload format functions for analysis (2)
     this->_symboltable->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
         this->disassemble(symbol->address);
+        this->_listing.checkBounds(symbol->address);
         return true;
     });
 
-    std::unique_ptr<Analyzer> a(this->_format->createAnalyzer(this, this->_format->signatures()));
+    // Analyze and disassemble unexplored bytes in code sections (3)
 
-    REDasm::status("Calculating paths...");
-    this->_listing.calculatePaths();
+    if(!(this->_format->flags() & FormatFlags::SkipUnexploredCode))
+    {
+        REDasm::status("Looking for missing code...");
+        this->disassembleUnexploredCode();
+    }
+
+    std::unique_ptr<Analyzer> a(this->_format->createAnalyzer(this, this->_format->signatures()));
 
     if(a)
     {
         REDasm::status("Analyzing...");
         a->analyze(this->_listing);
-
-        REDasm::status("Recalculating paths...");
-        this->_listing.calculatePaths();
     }
 
     REDasm::status("Sorting symbols...");
@@ -241,9 +350,7 @@ void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Opera
     if(!this->canBeJumpTable(address))
         return;
 
-    this->walkJumpTable(instruction, address, [this](address_t target) {
-       this->disassemble(target);
-    });
+    this->walkJumpTable(instruction, address);
 }
 
 bool Disassembler::disassemble(address_t address)
@@ -254,26 +361,19 @@ bool Disassembler::disassemble(address_t address)
         return false;
 
     this->_assembler->pushState();
+    InstructionPtr instruction;
 
     while(segment && segment->is(SegmentTypes::Code)) // Don't disassemble data (1)
     {
         if(this->_listing.find(address) != this->_listing.end())
             break;
 
-        SymbolPtr symbol = this->_symboltable->symbol(address);
-
-        if(symbol && !symbol->is(SymbolTypes::Code))  // Don't disassemble data (2)
-            break;
+        REDasm::status("Disassembling " + REDasm::hex(address));
 
         Buffer b = this->_buffer + this->_format->offset(address);
-        InstructionPtr instruction = this->disassembleInstruction(address, b);
-
-        if(instruction->hasTargets())
-        {
-            std::for_each(instruction->targets.begin(), instruction->targets.end(), [this](address_t target) {
-                this->disassemble(target);
-            });
-        }
+        instruction = this->disassembleInstruction(address, b); // Disassemble single instruction
+        this->analyzeInstruction(instruction);                  // Analyze instruction operands
+        this->_listing.commit(address, instruction);
 
         if(this->_assembler->done(instruction))
             break;
@@ -291,40 +391,53 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
     InstructionPtr instruction = std::make_shared<Instruction>();
     instruction->address = address;
 
-    REDasm::status("Disassembling " + REDasm::hex(address));
+    if(!this->_assembler->decode(b, instruction))
+        this->makeInvalidInstruction(instruction, b);
 
-    if(this->_assembler->decode(b, instruction))
-    {
-        if(this->_emulator)
-            this->_emulator->emulate(instruction);
-
-        const OperandList& operands = instruction->operands;
-
-        std::for_each(operands.begin(), operands.end(), [this, instruction](const Operand& operand) {
-            this->_assembler->analyzeOperand(this, instruction, operand);
-        });
-    }
-    else
-        this->createInvalidInstruction(instruction, b);
-
-    this->_listing.commit(address, instruction);
     return instruction;
 }
 
-void Disassembler::createInvalidInstruction(const InstructionPtr &instruction, Buffer& b)
+void Disassembler::analyzeInstruction(const InstructionPtr &instruction)
 {
+    if(instruction->isInvalid())
+        return;
+
+    if(this->_emulator)
+        this->_emulator->emulate(instruction);
+
+    const OperandList& operands = instruction->operands;
+
+    std::for_each(operands.begin(), operands.end(), [this, instruction](const Operand& operand) {
+        this->_assembler->analyzeOperand(this, instruction, operand);
+    });
+
+    if(instruction->hasTargets())
+    {
+        std::for_each(instruction->targets.begin(), instruction->targets.end(), [this](address_t target) {
+            this->disassemble(target); // Disassemble all targets
+        });
+    }
+    else if(instruction->isInvalid())
+    {
+        REDasm::log("Invalid instruction @ " + REDasm::hex(instruction->address) +
+                    (!instruction->bytes.empty() ? " (bytes: " + instruction->bytes + ")" : ""));
+    }
+}
+
+void Disassembler::makeInvalidInstruction(const InstructionPtr &instruction, Buffer& b)
+{
+    if(!instruction->size)
+        instruction->size = 1; // Invalid instruction uses at least 1 byte
+
     instruction->type = InstructionTypes::Invalid;
     instruction->mnemonic = INVALID_MNEMONIC;
 
-    if(instruction->bytes.empty())
-    {
-        std::stringstream ss;
-        ss << std::hex << *b;
-        instruction->bytes = ss.str();
-    }
+    if(!instruction->bytes.empty())
+        return;
 
-    REDasm::log("Invalid instruction @ " + REDasm::hex(instruction->address) +
-                (!instruction->bytes.empty() ? " (bytes: " + instruction->bytes + ")" : ""));
+    std::stringstream ss;
+    ss << std::hex << *b;
+    instruction->bytes = ss.str();
 }
 
 }

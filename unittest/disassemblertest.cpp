@@ -194,7 +194,7 @@ void DisassemblerTest::testOllyDump(Disassembler *disassembler)
     TEST_SYMBOL("Checking if target a data-pointer", symbol, symbol->is(SymbolTypes::Pointer) && symbol->is(SymbolTypes::Data));
 
     symbol = disassembler->dereferenceSymbol(symbol);
-    TEST_SYMBOL("Checking if dereferenced pointer is a function", symbol, symbol->is(SymbolTypes::Function));
+    TEST_SYMBOL("Checking if dereferenced pointer is a function", symbol, symbol->isFunction());
 }
 
 void DisassemblerTest::testSCrack(Disassembler *disassembler)

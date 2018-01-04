@@ -64,7 +64,7 @@ class DisassemblerTextView : public QPlainTextEdit
         DisassemblerTextDocument* _disdocument;
         DisassemblerHighlighter* _highlighter;
         REDasm::Disassembler* _disassembler;
-        QAction *_actrename, *_actcreatefunction, *_actcreatestring, *_actanalyzejumptable, *_actxrefs, *_actfollow, *_actgoto, *_acthexdump, *_actback, *_actforward, *_actcopy, *_actselectall;
+        QAction *_actrename, *_actcreatestring, *_actxrefs, *_actfollow, *_actgoto, *_acthexdump, *_actback, *_actforward, *_actcopy, *_actselectall;
         QMenu* _contextmenu;
         address_t _currentaddress, _symboladdress;
 };

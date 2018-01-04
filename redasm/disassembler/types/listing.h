@@ -30,6 +30,7 @@ class Listing: public cache_map<address_t, InstructionPtr>
         AssemblerPlugin *assembler() const;
         std::string getSignature(const SymbolPtr &symbol);
         SymbolPtr getFunction(address_t address);
+        bool getFunctionBounds(address_t address, address_t* startaddress, address_t* endaddress);
         void setFormat(FormatPlugin *format);
         void setAssembler(AssemblerPlugin *assembler);
         void setSymbolTable(SymbolTable* symboltable);
@@ -38,7 +39,9 @@ class Listing: public cache_map<address_t, InstructionPtr>
         bool iterateFunction(address_t address, InstructionCallback cbinstruction, SymbolCallback cbstart, InstructionCallback cbend, SymbolCallback cblabel);
         void iterateAll(InstructionCallback cbinstruction, SymbolCallback cbstart, InstructionCallback cbend, SymbolCallback cblabel);
         void update(const InstructionPtr& instruction);
-        void calculatePaths();
+        void splitFunctionAt(const InstructionPtr& instruction);
+        bool stopFunctionAt(const InstructionPtr& instruction);
+        void checkBounds(address_t address);
         void markEntryPoint();
 
     protected:
@@ -46,7 +49,6 @@ class Listing: public cache_map<address_t, InstructionPtr>
         virtual void deserialize(InstructionPtr &value, std::fstream &fs);
 
     private:
-        void walk(address_t address);
         static void walk(Listing *listing, Listing::iterator it, FunctionPath &path);
         void updateBlockInfo(FunctionPath& path);
         bool isFunctionStart(address_t address);

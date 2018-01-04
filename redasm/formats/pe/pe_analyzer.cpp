@@ -59,8 +59,7 @@ void PEAnalyzer::findStopAPI(Listing &listing, const std::string& library, const
 
     std::for_each(refs.begin(), refs.end(), [&listing](address_t address) {
         InstructionPtr instruction = listing[address];
-        instruction->type |= InstructionTypes::Stop;
-        listing.update(instruction);
+        listing.splitFunctionAt(instruction);
     });
 }
 
@@ -113,8 +112,6 @@ void PEAnalyzer::findWndProc(Listing &listing, address_t address, size_t argidx)
                     }
                     else
                         symboltable->createFunction(address, name);
-
-                    this->_disassembler->disassemble(address);
                 }
             }
         }

@@ -76,6 +76,21 @@
 #define IMAGE_RESOURCE_NAME_IS_STRING                 0x80000000
 #define IMAGE_RESOURCE_DATA_IS_DIRECTORY              0x80000000
 
+// Relocations Directory
+#define IMAGE_REL_BASED_ABSOLUTE                               0
+#define IMAGE_REL_BASED_HIGH                                   1
+#define IMAGE_REL_BASED_LOW                                    2
+#define IMAGE_REL_BASED_HIGHLOW                                3
+#define IMAGE_REL_BASED_HIGHADJ                                4
+#define IMAGE_REL_BASED_MIPS_JMPADDR                           5
+#define IMAGE_REL_BASED_SECTION                                6
+#define IMAGE_REL_BASED_REL32                                  7
+
+#define IMAGE_REL_BASED_MIPS_JMPADDR16                         9
+#define IMAGE_REL_BASED_IA64_IMM64                             9
+#define IMAGE_REL_BASED_DIR64                                 10
+#define IMAGE_REL_BASED_HIGH3ADJ                              11
+
 // Debug Info
 #define IMAGE_DEBUG_TYPE_UNKNOWN                               0
 #define IMAGE_DEBUG_TYPE_COFF                                  1

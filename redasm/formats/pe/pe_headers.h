@@ -107,6 +107,8 @@ struct ImageDebugDirectory
     u32 AddressOfRawData, PointerToRawData;
 };
 
+struct ImageBaseRelocation { u32 VirtualAddress, SizeOfBlock; /* u16 TypeOffset[1]; */ };
+
 struct ImageResourceDirectory
 {
     u32 Characteristics, TimeDateStamp;

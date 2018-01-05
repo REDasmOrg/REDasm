@@ -195,7 +195,9 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/dalvik/dalvik_metadata.h \
     redasm/assemblers/dalvik/dalvik_opcodes.h \
     redasm/formats/dex/dex_statemachine.h \
-    redasm/formats/dex/dex_utils.h
+    redasm/formats/dex/dex_utils.h \
+    redasm/formats/pe/pe_debug.h \
+    redasm/formats/pe/pe_common.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

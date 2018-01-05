@@ -7,7 +7,7 @@
 #include "pe_imports.h"
 #include "pe_utils.h"
 
-#define RVA_POINTER(type, rva) (pointer<type>(rvaToOffset(rva)))
+#define RVA_POINTER(type, rva)        (pointer<type>(rvaToOffset(rva)))
 #define RVA_POINTER_OK(type, rva, ok) (pointer<type>(rvaToOffset(rva, ok)))
 
 namespace REDasm {
@@ -30,6 +30,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         u64 rvaToOffset(u64 rva, bool* ok = NULL) const;
         void checkDelphi(const REDasm::PEResources &peresources);
         void checkResources();
+        void checkDebugInfo();
         void loadSections();
         void loadExports();
         void loadImports();

@@ -64,44 +64,13 @@ void Listing::checkBounds(address_t address)
         this->_paths.erase(it);
 
     FunctionPath path;
-    Listing::walk(this, this->find(address), path);
+    this->walk(address, path);
 
     if(path.empty())
         return;
 
     this->updateBlockInfo(path);
     this->_paths[address] = path;
-}
-
-void Listing::walk(Listing* listing, Listing::iterator it, FunctionPath &path)
-{
-    if((it == listing->end()) || (path.find(it.key) != path.end())) // Don't reanalyze same paths
-        return;
-
-    path.insert(it.key);
-    InstructionPtr instruction = *it;
-
-    if(instruction->is(InstructionTypes::Stop))
-        return;
-
-    if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
-    {
-        std::for_each(instruction->targets.begin(),instruction->targets.end(), [listing, &path](address_t target) {
-            SymbolPtr symbol = listing->_symboltable->symbol(target);
-            auto targetit = listing->find(target);
-
-            if((!symbol || !symbol->isFunction()) && (targetit != listing->end()))
-                Listing::walk(listing, targetit, path);
-        });
-
-        if(!instruction->is(InstructionTypes::Conditional)) // Unconditional jumps doesn't continue execution
-            return;
-    }
-
-    it++;
-
-    if((it != listing->end()) && !listing->isFunctionStart((*it)->address))
-        Listing::walk(listing, it, path);
 }
 
 void Listing::updateBlockInfo(Listing::FunctionPath &path)
@@ -377,6 +346,47 @@ void Listing::deserialize(InstructionPtr &value, std::fstream &fs)
     Serializer::deserializeArray<std::list, std::string>(fs, value->comments, [this, &fs](std::string& s) {
         Serializer::deserializeString(fs, s);
     });
+}
+
+void Listing::walk(address_t address, Listing::FunctionPath &path)
+{
+    std::stack<address_t> pending;
+    pending.push(address);
+
+    while(!pending.empty())
+    {
+        Listing::iterator it = this->find(pending.top());
+        pending.pop();
+
+        while(it != this->end())
+        {
+            if(path.find(it.key) != path.end())
+                break;
+
+            InstructionPtr instruction = *it;
+            path.insert(it.key);
+
+            if(instruction->is(InstructionTypes::Stop))
+                break;
+
+            if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
+            {
+                std::for_each(instruction->targets.begin(),instruction->targets.end(), [this, &pending](address_t target) {
+                    if(!this->isFunctionStart(target))
+                        pending.push(target);
+                });
+
+                if(!instruction->is(InstructionTypes::Conditional)) // Unconditional jumps doesn't continue execution
+                    break;
+            }
+
+            it++;
+
+            if((it == this->end()) || this->isFunctionStart((*it)->address))
+                break;
+        }
+    }
+
 }
 
 bool Listing::isFunctionStart(address_t address)

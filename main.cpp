@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationDisplayName("REDasm 1.0");
+    a.setApplicationDisplayName("REDasm 1.0-" + QString::fromUtf8(GIT_VERSION));
 
     MainWindow w;
 

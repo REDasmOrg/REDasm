@@ -11,9 +11,10 @@ before_install:
 
 install:
     # C++14
-    - sudo apt-get install -qq g++-6
+    - sudo apt-get install -qq gcc-6 g++-6
     # Qt 5.6
     - sudo apt-get install -qq qt56base
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 90
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
     - source /opt/qt5*/bin/qt5*-env.sh
 

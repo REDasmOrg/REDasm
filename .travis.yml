@@ -5,15 +5,15 @@ group: edge
 
 matrix:
     include:
-        - os: linux
-          addons:
-            apt:
-                sources:
-                    - ubuntu-toolchain-r-test
-            packages:
-                - g++-6
-        env:
-            - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
 
 before_install:
     - sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y

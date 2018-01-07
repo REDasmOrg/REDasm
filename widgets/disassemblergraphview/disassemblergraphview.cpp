@@ -49,6 +49,7 @@ void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
         this->scale(1.0 / SCALE_FACTOR, 1.0 / SCALE_FACTOR);
 }
 
+/*
 void DisassemblerGraphView::renderGraph(REDasm::GraphBuilder &gb)
 {
     NodeLookup items;
@@ -85,7 +86,9 @@ void DisassemblerGraphView::renderGraph(REDasm::GraphBuilder &gb)
 
     //this->fitInView(this->_scene->itemsBoundingRect(), Qt::KeepAspectRatio);
 }
+*/
 
+/*
 void DisassemblerGraphView::drawArrow(REDasm::GraphBuilder::Edge* edge, REDasm::GraphBuilder& gb)
 {
     ogdf::GraphAttributes& ga = gb.graphAttributes();
@@ -169,3 +172,4 @@ QPointF DisassemblerGraphView::scenePoint(double x, double y) const
     QRectF r = this->rect();
     return QPointF(x - r.width() / 2, y - r.height() / 2);
 }
+*/

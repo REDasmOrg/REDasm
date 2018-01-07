@@ -1,11 +1,13 @@
 #ifndef GRAPHBUILDER_H
 #define GRAPHBUILDER_H
 
-#include <ogdf/layered/SugiyamaLayout.h>
+//#include <ogdf/layered/SugiyamaLayout.h>
 #include <functional>
 #include "../types/listing.h"
 
 namespace REDasm {
+
+/*
 
 class GraphBuilder // Keep graph interface separated from Listing class
 {
@@ -49,6 +51,7 @@ class GraphBuilder // Keep graph interface separated from Listing class
         Blocks _blocks;
         Edges _edges;
 };
+*/
 
 } // namespace REDasm
 

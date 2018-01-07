@@ -4,6 +4,3 @@
 [submodule "widgets/QHexEdit"]
 	path = widgets/QHexEdit
 	url = https://github.com/Dax89/QHexEdit.git
-[submodule "depends/ogdf"]
-	path = depends/ogdf
-	url = https://github.com/ogdf/ogdf.git

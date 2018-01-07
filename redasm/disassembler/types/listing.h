@@ -60,8 +60,6 @@ class Listing: public cache_map<address_t, InstructionPtr>
         AssemblerPlugin* _assembler;
         ReferenceTable* _referencetable;
         SymbolTable* _symboltable;
-
-    friend class GraphBuilder;
 };
 
 }

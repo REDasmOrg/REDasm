@@ -2,17 +2,17 @@
 #define GRAPHNODE_H
 
 #include "../../redasm.h"
-#include <ogdf/basic/Graph.h>
+//#include <ogdf/basic/Graph.h>
 
 namespace REDasm {
 
 struct GraphNode
 {
-    GraphNode(): id(0), x(0), y(0), width(0), height(0), node(NULL) { }
+    GraphNode(): id(0), x(0), y(0), width(0), height(0) { } //, node(NULL) { }
 
     u64 id;
     s32 x, y, width, height;
-    ogdf::NodeElement* node;
+    //ogdf::NodeElement* node;
     std::set<address_t> block;
     std::vector< std::shared_ptr<GraphNode> > edges;
 

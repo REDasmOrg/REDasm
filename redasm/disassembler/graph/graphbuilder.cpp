@@ -1,8 +1,8 @@
 #include "graphbuilder.h"
-#include <ogdf/layered/OptimalHierarchyLayout.h>
-#include <ogdf/layered/OptimalRanking.h>
-#include <ogdf/layered/MedianHeuristic.h>
-#include <ogdf/fileformats/GraphIO.h>
+//#include <ogdf/layered/OptimalHierarchyLayout.h>
+//#include <ogdf/layered/OptimalRanking.h>
+//#include <ogdf/layered/MedianHeuristic.h>
+//#include <ogdf/fileformats/GraphIO.h>
 
 #define BOTTOM_OF(node) (node->y + node->height + GRAPH_PADDING)
 #define CENTER_X(node)  (node->x + node->width / 2)
@@ -11,6 +11,7 @@
 
 namespace REDasm {
 
+/*
 using namespace ogdf;
 
 GraphBuilder::GraphBuilder(Listing &listing): _currentaddress(0), _listing(listing)
@@ -252,5 +253,6 @@ NodeElement *GraphBuilder::addNode(address_t address)
     this->_blocks[n] = Block();
     return n;
 }
+*/
 
 } // namespace REDasm

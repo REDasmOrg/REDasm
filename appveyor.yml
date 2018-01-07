@@ -30,5 +30,7 @@ build_script:
   - cd build
   - qmake CONFIG+=release ..
   - mingw32-make -j4
+  # Restore 'git' commands
+  - set PATH=C:\Program Files\Git\usr\bin;%PATH%
   - ps: ../ci/package.ps1
   - ps: ../ci/deploy.ps1

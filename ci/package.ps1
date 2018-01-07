@@ -14,5 +14,3 @@ Move-Item -Path $archive -Destination ..\..\..
 cd ..
 Remove-Item deploy -Recurse -Force 
 cd ..
-pwd
-dir 

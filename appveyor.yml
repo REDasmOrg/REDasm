@@ -20,7 +20,7 @@ install:
   - set QTDIR=C:\Qt\5.9.2\mingw53_32
   - set PATH=%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin;%PATH%
   # Get rid of sh.exe
-  - set PATH=%PATH:C:\Program Files (x86)\Git\bin;=%.
+  - set PATH=%PATH:C:\Program Files\Git\bin;=%.
 
 build_script:
   - g++ --version

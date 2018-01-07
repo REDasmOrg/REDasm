@@ -24,7 +24,7 @@ build_script:
   - g++ --version
   - mingw32-make --version
   # Get rid of sh.exe
-  - del C:/Program Files/Git/usr/bin/sh.exe
+  - del "C:/Program Files/Git/usr/bin/sh.exe"
   - mkdir build
   - xcopy database build\database\ /E
   - cd build

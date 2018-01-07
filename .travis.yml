@@ -25,6 +25,10 @@ install:
     - source /opt/qt5*/bin/qt5*-env.sh
 
 script:
+    # show OS/compiler version
+    - uname -a
+    - $CXX --version
+    # compile...
     - mkdir build
     - cp -r database/ build/database/
     - cd build

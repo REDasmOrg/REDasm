@@ -11,11 +11,12 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-7
+            - g++-6
       env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
 
 before_install:
+    - eval "${MATRIX_EVAL}"
     - sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y
     - sudo apt-get update -qq
 

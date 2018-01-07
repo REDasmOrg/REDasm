@@ -1,12 +1,10 @@
 $archive = $env:appveyor_build_version + ".zip"
 
-pwd
-dir release
 cd release
 mkdir deploy
 
 Copy-Item REDasm.exe deploy
-Copy-Item database deploy\database -recurse
+Copy-Item ..\database deploy\database -recurse
 cd deploy
 windeployqt --release REDasm.exe
 
@@ -16,3 +14,5 @@ Move-Item -Path $archive -Destination ..\..\..
 cd ..
 Remove-Item deploy -Recurse -Force 
 cd ..\..
+pwd
+dir 

@@ -29,6 +29,6 @@ build_script:
   - xcopy database build\database\ /E
   - cd build
   - qmake CONFIG+=release ..
-  - mingw32-make SHELL=cmd -j4
+  - mingw32-make -j4
   - ps: ../ci/package.ps1
   - ps: ../ci/deploy.ps1

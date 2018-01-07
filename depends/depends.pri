@@ -1,5 +1,15 @@
 DEPENDS_ROOT       = $$PWD
 
+# =================== CMake Generators =====================
+win32: {
+    CMAKE_GENERATOR = -G "MinGW Makefiles"
+}
+else {
+    CMAKE_GENERATOR =
+}
+# ==========================================================
+
+
 # ================ Single Header Libraries =================
 INCLUDEPATH += $$DEPENDS_ROOT/include
 # ==========================================================
@@ -11,7 +21,7 @@ CAPSTONE_BUILD     = $$OUT_PWD/capstone
 lib_capstone.commands = @echo "Compiling Capstone..."; \
                         $(MKDIR) $$CAPSTONE_BUILD && \
                         cd $$CAPSTONE_BUILD && \
-                        cmake $$CAPSTONE_SRC -DCAPSTONE_BUILD_SHARED=OFF -DCAPSTONE_BUILD_STATIC=ON -DCAPSTONE_BUILD_TESTS=OFF && \
+                        cmake $$CMAKE_GENERATOR $$CAPSTONE_SRC -DCAPSTONE_BUILD_SHARED=OFF -DCAPSTONE_BUILD_STATIC=ON -DCAPSTONE_BUILD_TESTS=OFF && \
                         $(MAKE)
 
 INCLUDEPATH += $$CAPSTONE_SRC/include

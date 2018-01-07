@@ -2,7 +2,7 @@ DEPENDS_ROOT       = $$PWD
 
 # =================== CMake Generators =====================
 win32 {
-    CMAKE_GENERATOR = -G quote(MinGW Makefiles)
+    CMAKE_GENERATOR = -G \"MinGW Makefiles\"
 }
 else {
     CMAKE_GENERATOR =

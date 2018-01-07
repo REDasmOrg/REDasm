@@ -2,6 +2,10 @@
   <img width=256 height=256 src="https://github.com/Dax89/REDasm/blob/master/artwork/logo.png?raw=true"/>
 </p>
 
+
+REDasm [![Linux Status](https://travis-ci.org/REDasmOrg/REDasm.svg?branch=master)](https://travis-ci.org/REDasmOrg/REDasm) [![Windows Status](https://ci.appveyor.com/api/projects/status/github/redasmorg/redasm?svg=true)](https://ci.appveyor.com/project/Dax89/redasm) [![Chat onTelegram](https://github.com/Patrolavia/telegram-badge/blob/master/chat.svg)](https://t.me/REDasm_Disassembler)
+====
+
 ***
 <p align="center">
   <i>A crossplatform, multiarchitecture disassembler.</i>
@@ -36,8 +40,8 @@ qmake && make
 ```
 **NOTE**: I have compiled and tested it only with GCC compiler on Linux
 
-## Dependencies
-- C++11 compiler
+## Dependencies & Requirements
+- C++11 compiler (tested on GCC 6.x)
 - Qt >= 5.6
 - [Capstone](https://github.com/aquynh/capstone) 
 - [JSON](https://github.com/nlohmann/json)

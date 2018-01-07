@@ -9,7 +9,7 @@ cd deploy
 windeployqt --release REDasm.exe
 
 7z a -tzip $archive *
-Move-Item -Path $archive -Destination ..\..\..
+Move-Item -Path $archive -Destination ..\..
 
 cd ..
 Remove-Item deploy -Recurse -Force 

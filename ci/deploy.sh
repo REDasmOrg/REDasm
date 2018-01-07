@@ -26,7 +26,7 @@ rm -rf $DEPLOY_DIR
 
 # Prepare deploy
 rm -rf $BUILD_REPO
-git clone -b builds https://${GITHUB_TOKEN}@github.com/$BUILD_ORG/$BUILD_REPO.git > /dev/null 2>&1
+git clone -b nightly https://${GITHUB_TOKEN}@github.com/$BUILD_ORG/$BUILD_REPO.git > /dev/null 2>&1
 
 cd $BUILD_REPO
 rm -rf *$OS_NAME*

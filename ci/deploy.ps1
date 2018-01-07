@@ -8,8 +8,7 @@ if(Test-Path $($env:build_repo)) {
     Remove-Item $($env:build_repo) -Recurse -Force 
 }
 
-git clone -b nightly https://$($env:github_token)@github.com/REDasmOrg/$($env:build_repo).git
-# > $null 2>&1
+git clone -b nightly https://$($env:github_token)@github.com/REDasmOrg/$($env:build_repo).git > $null 2>&1
 cd $($env:build_repo)
 Remove-Item *Windows* 
     

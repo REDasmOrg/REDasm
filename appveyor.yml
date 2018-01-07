@@ -10,14 +10,14 @@ init:
 environment:
   build_repo: REDasm-Builds
   github_token:
-    secure: 1xDbJm4/ZdjBTgkbzAHDtNOcsRwJz4u1GSfI4UEA2ZQYt1zFWURWu9+gyy9rEGck
+    secure: 6L5tNTkn5rK+d7vU1DvsIE2LvLu7KkxPoaq2ja+SjlQn37iEU/YnzjmXU15IDu17
 
 skip_tags: true
 max_jobs: 4
 
 install:
   - git submodule update --init --recursive
-  - set QTDIR=C:\Qt\5.6\mingw49_32
+  - set QTDIR=C:\Qt\5.9.2\mingw53_32
   - set PATH=%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin;%PATH%
 
 build_script:

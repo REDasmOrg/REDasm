@@ -6,7 +6,6 @@
 REDasm [![Linux Status](https://travis-ci.org/REDasmOrg/REDasm.svg?branch=master)](https://travis-ci.org/REDasmOrg/REDasm) [![Windows Status](https://ci.appveyor.com/api/projects/status/github/redasmorg/redasm?svg=true)](https://ci.appveyor.com/project/Dax89/redasm) [![Chat onTelegram](https://github.com/Patrolavia/telegram-badge/blob/master/chat.svg)](https://t.me/REDasm_Disassembler)
 ====
 
-***
 <p align="center">
   <i>A crossplatform, multiarchitecture disassembler.</i>
   <img height="450" src="https://github.com/Dax89/REDasm/blob/master/artwork/Screenshot.png?raw=true">

@@ -10,12 +10,12 @@ namespace Serializer {
 template<typename T> void serializeScalar(std::fstream& fs, T scalar, u64 size = sizeof(T)) { fs.write(reinterpret_cast<const char*>(&scalar), size); }
 template<typename T> void deserializeScalar(std::fstream& fs, T* scalar, u64 size = sizeof(T)) { fs.read(reinterpret_cast<char*>(scalar), size); }
 
-template<template<typename, typename> typename V, typename T> void serializeArray(std::fstream& fs, const V< T, std::allocator<T> >& v, std::function<void(const T&)> cb) {
+template<template<typename, typename> class V, typename T> void serializeArray(std::fstream& fs, const V< T, std::allocator<T> >& v, std::function<void(const T&)> cb) {
     Serializer::serializeScalar(fs, v.size(), sizeof(u32));
     std::for_each(v.begin(), v.end(), cb);
 }
 
-template<template<typename, typename> typename V, typename T> void deserializeArray(std::fstream& fs, V< T, std::allocator<T> >& v, std::function<void(T&)> cb) {
+template<template<typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::allocator<T> >& v, std::function<void(T&)> cb) {
 
     u32 size = 0;
     Serializer::deserializeScalar(fs, &size, sizeof(u32));

@@ -1,8 +1,8 @@
 $archive = $env:appveyor_build_version + ".zip"
 
 pwd
-dir
-cd REDasm\release
+dir release
+cd release
 mkdir deploy
 
 Copy-Item REDasm.exe deploy

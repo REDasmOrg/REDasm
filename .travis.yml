@@ -1,5 +1,4 @@
 language: cpp
-compiler: gcc
 dist: trusty
 sudo: required
 group: edge
@@ -10,7 +9,7 @@ matrix:
           addons:
             apt:
                 sources:
-                - ubuntu-toolchain-r-test
+                    - ubuntu-toolchain-r-test
             packages:
                 - g++-6
         env:

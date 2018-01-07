@@ -13,7 +13,8 @@ matrix:
           packages:
             - g++-6
       env:
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+        - CC=gcc-6
+        - CXX=g++-6
 
 before_install:
     - sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y
@@ -24,7 +25,6 @@ install:
     - source /opt/qt5*/bin/qt5*-env.sh
 
 script:
-    - eval "${MATRIX_EVAL}"
     # show OS/compiler version
     - uname -a
     - $CXX --version

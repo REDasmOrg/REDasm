@@ -1,0 +1,22 @@
+language: cpp
+compiler: gcc
+dist: trusty
+
+before_install:
+    - sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y
+    - sudo apt-get update -qq
+
+install:
+    - sudo apt-get install qt56base
+    - source /opt/qt5*/bin/qt5*-env.sh
+
+script:
+    - mkdir build
+    - cp -r database/ build/database/
+    - cd build
+    - qmake PREFIX=/usr ..
+    - make -j4
+    - sh ../ci/deploy.sh
+
+notifications:
+    email: false

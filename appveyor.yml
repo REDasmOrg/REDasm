@@ -22,7 +22,7 @@ install:
 
 build_script:
   - mkdir build
-  - xcopy database build\database /E
+  - xcopy database build\database\ /E
   - cd build
   - qmake CONFIG+=release ..
   - mingw32-make -j4

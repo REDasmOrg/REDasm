@@ -37,5 +37,5 @@ if [ -f ../$BUILD_ID.zip ]; then
     git config user.name "Travis Build Bot"
     git add -A .
     git commit -m "Updated Linux Nightly $BUILD_DATE"
-    git push --quiet origin builds > /dev/null 2>&1 
+    git push --quiet origin nightly > /dev/null 2>&1 
 fi

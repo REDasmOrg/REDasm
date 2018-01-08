@@ -13,10 +13,16 @@ void Printer::header(const SymbolPtr &symbol, Printer::HeaderCallback headerfunc
     headerfunc(s + " FUNCTION ", symbol->name, " " + s);
 }
 
-void Printer::prologue(const SymbolPtr &symbol, Printer::PrologueCallback prologuefunc)
+void Printer::prologue(const SymbolPtr &symbol, Printer::LineCallback prologuefunc)
 {
     RE_UNUSED(symbol);
     RE_UNUSED(prologuefunc);
+}
+
+void Printer::info(const InstructionPtr &instruction, LineCallback infofunc) const
+{
+    RE_UNUSED(instruction);
+    RE_UNUSED(infofunc);
 }
 
 std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback opfunc) const

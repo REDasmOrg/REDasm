@@ -219,13 +219,9 @@ void DisassemblerDocument::appendFunctionStart(const REDasm::SymbolPtr &symbol, 
 
     if(!replace)
     {
-        charformat.setForeground(THEME_VALUE("prologue_fg"));
-        this->_textcursor.setCharFormat(charformat);
-
         this->_currentprinter->prologue(symbol, [this, symbol](const std::string& line) {
             this->_textcursor.insertBlock();
-            this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address)));
-            this->_textcursor.insertText(S_TO_QS(line));
+            this->appendInfo(symbol->address, S_TO_QS(line));
         });
 
         this->_textcursor.insertBlock();
@@ -234,6 +230,14 @@ void DisassemblerDocument::appendFunctionStart(const REDasm::SymbolPtr &symbol, 
 
 void DisassemblerDocument::appendInstruction(const REDasm::InstructionPtr &instruction, bool replace)
 {
+    if(!replace)
+    {
+        this->_printer->info(instruction, [this, instruction](const std::string& info) {
+            this->appendInfo(instruction->address, S_TO_QS(info));
+            this->_textcursor.insertBlock();
+        });
+    }
+
     this->_generatedinstructions.insert(instruction->address);
 
     QTextBlockFormat blockformat;
@@ -366,6 +370,15 @@ void DisassemblerDocument::appendComment(const REDasm::InstructionPtr &instructi
 
     this->_textcursor.insertText(QString(" ").repeated(this->getIndent(instruction->address) + INDENT_COMMENT), QTextCharFormat());
     this->_textcursor.insertText(S_TO_QS(this->_disassembler->comment(instruction)), charformat);
+}
+
+void DisassemblerDocument::appendInfo(address_t address, const QString &info)
+{
+    this->_textcursor.insertText(QString(" ").repeated(this->getIndent(address)), QTextCharFormat());
+
+    QTextCharFormat charformat;
+    charformat.setForeground(THEME_VALUE("info_fg"));
+    this->_textcursor.insertText(info, charformat);
 }
 
 int DisassemblerDocument::indentWidth() const

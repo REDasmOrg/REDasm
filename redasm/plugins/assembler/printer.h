@@ -14,12 +14,13 @@ class Printer
     public:
         typedef std::function<void(const Operand&, const std::string&, const std::string&)> OpCallback;
         typedef std::function<void(const std::string&, const std::string&, const std::string&)> HeaderCallback;
-        typedef std::function<void(const std::string&)> PrologueCallback;
+        typedef std::function<void(const std::string&)> LineCallback;
 
     public:
         Printer(DisassemblerFunctions* disassembler, SymbolTable* symboltable);
         virtual void header(const SymbolPtr& symbol, HeaderCallback headerfunc);
-        virtual void prologue(const SymbolPtr& symbol, PrologueCallback prologuefunc);
+        virtual void prologue(const SymbolPtr& symbol, LineCallback prologuefunc);
+        virtual void info(const InstructionPtr& instruction, LineCallback infofunc) const;
         virtual std::string out(const InstructionPtr& instruction, OpCallback opfunc) const;
         virtual std::string out(const InstructionPtr& instruction) const;
 

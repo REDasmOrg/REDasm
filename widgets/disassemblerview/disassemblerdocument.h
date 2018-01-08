@@ -51,6 +51,7 @@ class DisassemblerDocument: public QObject
         virtual void appendPathInfo(const REDasm::InstructionPtr &instruction);
         virtual void appendMnemonic(const REDasm::InstructionPtr& instruction);
         virtual void appendComment(const REDasm::InstructionPtr& instruction);
+        virtual void appendInfo(address_t address, const QString& info);
 
     protected:
         virtual int indentWidth() const;

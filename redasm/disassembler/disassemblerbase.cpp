@@ -84,10 +84,10 @@ void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_
 
     while(this->dereferencePointer(target, target))
     {
-        if(this->locationIsString(target) < MIN_STRING)
+        if(!this->checkString(instruction, target))
             break;
 
-        this->checkString(instruction, address);
+        target = address + (count * this->_format->addressWidth());
         count++;
     }
 

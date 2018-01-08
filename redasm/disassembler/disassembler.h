@@ -33,7 +33,7 @@ class Disassembler: public DisassemblerBase
 
     private:
         void disassembleUnexploredCode();
-        void disassembleSegment(const Segment &segment);
+        void searchCode(const Segment &segment);
         void searchStrings(const Segment& segment);
         bool skipExploredData(address_t& address);
         bool maybeValidCode(address_t& address);

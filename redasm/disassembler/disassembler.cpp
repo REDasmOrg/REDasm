@@ -132,16 +132,18 @@ void Disassembler::disassembleUnexploredCode()
             continue;
 
         this->searchStrings(segment);
-        this->disassembleSegment(segment);
+        this->searchCode(segment);
     }
 }
 
-void Disassembler::disassembleSegment(const Segment &segment)
+void Disassembler::searchCode(const Segment &segment)
 {
     address_t address = segment.address;
 
     while(address < segment.endaddress)
     {
+        REDasm::status("Searching code @ " + REDasm::hex(address));
+
         if(this->skipExploredData(address))
             continue;
 
@@ -160,19 +162,25 @@ void Disassembler::searchStrings(const Segment &segment)
 
     while(address < segment.endaddress)
     {
+        REDasm::status("Searching strings @ " + REDasm::hex(address));
+
         if(this->skipExploredData(address))
             continue;
 
         if(this->locationIsString(address, &wide) >= MIN_STRING)
         {
             if(wide)
+            {
                 this->_symboltable->createWString(address);
+                address += this->readWString(address).size() * sizeof(u16);
+            }
             else
+            {
                 this->_symboltable->createString(address);
+                address += this->readString(address).size();
+            }
 
-            address += this->readString(address).size() * (wide ? sizeof(u16) : sizeof(char));
-
-            if(this->readAddress(address, 1, value) && !value) // Check for null terminator
+            if(this->readAddress(address, wide ? sizeof(u16) : sizeof(char), value) && !value) // Check for null terminator
                 address += (wide ? sizeof(u16) : sizeof(char));
 
             continue;
@@ -195,9 +203,13 @@ bool Disassembler::skipExploredData(address_t &address)
         bool wide = false;
 
         this->locationIsString(address, &wide);
-        address += this->readString(symbol).size() * (wide ? sizeof(u16) : sizeof(char));
 
-        if(this->readAddress(address, 1, value) && !value) // Check for null terminator
+        if(wide)
+            address += this->readWString(symbol).size() * sizeof(u16);
+        else
+            address += this->readString(symbol).size();
+
+        if(this->readAddress(address, wide ? sizeof(u16) : sizeof(char), value) && !value) // Check for null terminator
             address += (wide ? sizeof(u16) : sizeof(char));
 
         return true;
@@ -418,7 +430,7 @@ bool Disassembler::disassemble(address_t address)
         if(this->_listing.find(address) != this->_listing.end())
             break;
 
-        REDasm::status("Disassembling " + REDasm::hex(address));
+        REDasm::status("Disassembling @ " + REDasm::hex(address));
 
         Buffer b = this->_buffer + this->_format->offset(address);
         instruction = this->disassembleInstruction(address, b); // Disassemble single instruction

@@ -22,7 +22,7 @@ void SymbolCache::deserialize(SymbolPtr &value, std::fstream &fs)
 }
 
 // SymbolTable
-SymbolTable::SymbolTable()
+SymbolTable::SymbolTable(): _epaddress(0), _isepvalid(false)
 {
 
 }
@@ -39,6 +39,12 @@ bool SymbolTable::contains(address_t address)
 
 bool SymbolTable::create(address_t address, const std::string &name, u32 type, u32 extratype)
 {
+    if(type & SymbolTypes::EntryPointMask)
+    {
+        this->_isepvalid = true;
+        this->_epaddress = address;
+    }
+
     auto it = this->_byaddress.find(address);
 
     if(it != this->_byaddress.end())
@@ -55,7 +61,10 @@ bool SymbolTable::create(address_t address, const std::string &name, u32 type, u
 
 SymbolPtr SymbolTable::entryPoint()
 {
-    return this->symbol(ENTRYPOINT_FUNCTION);
+    if(!this->_isepvalid)
+        return NULL;
+
+    return this->symbol(this->_epaddress);
 }
 
 SymbolPtr SymbolTable::symbol(const std::string &name)
@@ -84,6 +93,12 @@ SymbolPtr SymbolTable::at(u64 index)
         throw std::runtime_error("SymbolTable[]: Index out of range");
 
     return this->symbol(this->_addresses[index]);
+}
+
+void SymbolTable::setEntryPoint(const SymbolPtr &symbol)
+{
+    this->_isepvalid = true;
+    this->_epaddress = symbol->address;
 }
 
 void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)> f)
@@ -127,7 +142,7 @@ bool SymbolTable::erase(address_t address)
 
 bool SymbolTable::update(SymbolPtr symbol, const std::string& name)
 {
-    if(!symbol || symbol->isEP() || (symbol->name == name))
+    if(!symbol || (symbol->name == name))
         return false;
 
     auto it = this->_byname.find(symbol->name);

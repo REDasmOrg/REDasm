@@ -29,6 +29,7 @@ namespace SymbolTypes {
         FunctionMask       = Function                      & ~(Code      | Locked),
         ExportMask         = (ExportData | ExportFunction) & ~(Function  | Data | Locked),
         ImportMask         = Import                        & ~(Data      | Locked),
+        EntryPointMask     = EntryPoint                    & ~(Function),
         StringMask         = String                        & ~(Pointer),
         WideStringMask     = WideString                    & ~(String    | Pointer),
     };
@@ -46,7 +47,6 @@ struct Symbol
 
     bool is(u32 t) const { return type & t; }
     bool isFunction() const { return type & SymbolTypes::FunctionMask; }
-    bool isEP() const { return name == ENTRYPOINT_FUNCTION; }
 };
 
 typedef std::shared_ptr<Symbol> SymbolPtr;
@@ -76,6 +76,7 @@ class SymbolTable
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);
         SymbolPtr at(u64 index);
+        void setEntryPoint(const SymbolPtr& symbol);
         void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
         bool erase(address_t address);
         bool update(SymbolPtr symbol, const std::string &name);
@@ -96,6 +97,8 @@ class SymbolTable
         AddressList _addresses;
         SymbolsByName _byname;
         SymbolCache _byaddress;
+        address_t _epaddress;
+        bool _isepvalid;
 };
 
 }

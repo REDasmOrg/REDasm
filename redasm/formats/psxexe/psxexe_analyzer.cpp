@@ -35,6 +35,7 @@ void PsxExeAnalyzer::detectMain(Listing &listing)
         if(initheap) {
             symbol->lock();
             symboltable->update(symbol, "main");
+            symboltable->setEntryPoint(symbol);
             return false;
         }
 

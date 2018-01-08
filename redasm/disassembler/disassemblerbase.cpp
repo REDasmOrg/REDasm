@@ -84,6 +84,9 @@ FormatPlugin *DisassemblerBase::format()
 
 u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
 {
+    if(wide)
+        *wide = false;
+
     u64 count = this->locationIsStringT<char>(address, ::isprint, [](u16 b) -> bool { return ::isalnum(b) || ::isspace(b); });
 
     if(count == 1) // Try with wide strings

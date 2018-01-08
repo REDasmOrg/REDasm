@@ -139,6 +139,7 @@ void Disassembler::disassembleSegment(const Segment &segment)
 {
     SymbolPtr symbol;
     address_t address = segment.address;
+    bool wide = false;
 
     while(address < segment.endaddress)
     {
@@ -148,7 +149,6 @@ void Disassembler::disassembleSegment(const Segment &segment)
         {
             if(symbol->is(SymbolTypes::String))
             {
-                bool wide = false;
                 this->locationIsString(address, &wide);
                 address += this->readString(symbol).size() * (wide ? 2 : 1);
             }
@@ -157,6 +157,16 @@ void Disassembler::disassembleSegment(const Segment &segment)
             else if(!this->_listing.getFunctionBounds(address, NULL, &address))
                 address++;
 
+            continue;
+        }
+        else if(this->locationIsString(address, &wide) >= MIN_STRING)
+        {
+            if(wide)
+                this->_symboltable->createWString(address);
+            else
+                this->_symboltable->createString(address);
+
+            address += this->readString(address).size() * (wide ? 2 : 1);
             continue;
         }
 

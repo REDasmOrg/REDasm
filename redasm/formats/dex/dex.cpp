@@ -51,6 +51,8 @@ bool DEXFormat::load(u8 *rawformat)
     if((!format->method_ids_off || !format->method_ids_size) || (!format->proto_ids_off || !format->proto_ids_size))
         return false;
 
+    REDasm::log("Loading DEX Version " + std::string(format->version, 3));
+
     this->_types = pointer<DEXTypeIdItem>(format->type_ids_off);
     this->_strings = pointer<DEXStringIdItem>(format->string_ids_off);
     this->_methods = pointer<DEXMethodIdItem>(format->method_ids_off);

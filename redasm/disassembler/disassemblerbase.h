@@ -63,8 +63,7 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
     if(!this->_format->segment(address))
         return 0;
 
-    bool containsalpha = false;
-    u64 count = 0;
+    u64 alphacount = 0, count = 0;
     Buffer b = this->_buffer;
     b += this->_format->offset(address);
 
@@ -72,8 +71,8 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
     {
         count++;
 
-        if(!containsalpha)
-            containsalpha = isa(*reinterpret_cast<T*>(b.data));
+        if(isa(*reinterpret_cast<T*>(b.data)))
+            alphacount++;
 
         if(count >= MIN_STRING)
             break;
@@ -81,7 +80,7 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
         b += sizeof(T);
     }
 
-    if(!containsalpha) // ...it might be just data...
+    if(!count || ((static_cast<double>(alphacount) / count) < 0.51)) // ...it might be just data, check alpha ratio...
         return 0;
 
     return count;

@@ -1,4 +1,5 @@
 #include "dex.h"
+#include "dex_statemachine.h"
 #include "dex_constants.h"
 #include "dex_utils.h"
 
@@ -187,7 +188,6 @@ bool DEXFormat::getDebugInfo(u32 methodidx, DEXDebugInfo &debuginfo)
         return false;
 
     u8* pdebuginfo = pointer<u8>(dexcode->debug_info_off);
-
     debuginfo.line_start = DEXUtils::getULeb128(&pdebuginfo);
     debuginfo.parameters_size = DEXUtils::getULeb128(&pdebuginfo);
 
@@ -201,6 +201,8 @@ bool DEXFormat::getDebugInfo(u32 methodidx, DEXDebugInfo &debuginfo)
             debuginfo.parameter_names.push_back(this->getNormalizedString(idx));
     }
 
+    DEXStateMachine dexstatemachine(fileoffset(&dexcode->insns), debuginfo);
+    dexstatemachine.execute(pdebuginfo);
     return true;
 }
 

@@ -2,6 +2,7 @@
 #define DEX_HEADER_H
 
 #include "../../redasm.h"
+#include "dex_constants.h"
 
 namespace REDasm {
 
@@ -64,10 +65,34 @@ struct DEXTypeItem { u16 type_idx; };
 struct DEXEncodedField { u32 field_idx_diff, access_flags; };
 struct DEXEncodedMethod { u32 method_idx_diff, access_flags, code_off; };
 
+enum DEXDebugDataTypes {
+    PrologueEnd, EpilogueBegin,
+    Line, File, StartLocal, StartLocalExtended, EndLocal, RestartLocal
+};
+
+struct DEXDebugData
+{
+    u32 data_type, register_num;
+    union { s32 line_no, file_idx, name_idx; };
+    s32 type_idx, sig_idx;
+
+    static DEXDebugData prologueEnd() { return { DEXDebugDataTypes::PrologueEnd, DEX_NO_INDEX_U, DEX_NO_INDEX, DEX_NO_INDEX, DEX_NO_INDEX }; }
+    static DEXDebugData epilogueBegin() { return { DEXDebugDataTypes::EpilogueBegin, DEX_NO_INDEX_U, DEX_NO_INDEX, DEX_NO_INDEX, DEX_NO_INDEX }; }
+    static DEXDebugData endLocal(u32 registernum) { return { DEXDebugDataTypes::EndLocal, registernum, DEX_NO_INDEX, DEX_NO_INDEX, DEX_NO_INDEX }; }
+    static DEXDebugData restartLocal(u32 registernum) { return { DEXDebugDataTypes::RestartLocal, registernum, DEX_NO_INDEX, DEX_NO_INDEX, DEX_NO_INDEX }; }
+    static DEXDebugData line(s32 line) { return { DEXDebugDataTypes::Line, DEX_NO_INDEX_U, line, DEX_NO_INDEX, DEX_NO_INDEX }; }
+    static DEXDebugData file(s32 file) { return { DEXDebugDataTypes::File, DEX_NO_INDEX_U, file, DEX_NO_INDEX, DEX_NO_INDEX }; }
+    static DEXDebugData local(u32 registernum, s32 nameidx, s32 typeidx) { return { DEXDebugDataTypes::StartLocal, registernum, nameidx, typeidx, DEX_NO_INDEX }; }
+    static DEXDebugData localext(u32 registernum, s32 nameidx, s32 typeidx, s32 sigidx) { return { DEXDebugDataTypes::StartLocalExtended, registernum, nameidx, typeidx, sigidx }; }
+};
+
 struct DEXDebugInfo
 {
+    DEXDebugInfo(): line_start(DEX_NO_INDEX_U), parameters_size(0) { }
+
     u32 line_start, parameters_size;
     std::vector<std::string> parameter_names;
+    std::unordered_map<u16, std::list<DEXDebugData> > debug_data;
 };
 
 struct DEXClassData

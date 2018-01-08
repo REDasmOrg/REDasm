@@ -2,6 +2,11 @@
 
 namespace REDasm {
 
+s32 DEXUtils::getSLeb128(u8 **data)
+{
+    return static_cast<s32>(DEXUtils::getULeb128(data));
+}
+
 u32 DEXUtils::getULeb128(u8 **data)
 {
     size_t i = 0;

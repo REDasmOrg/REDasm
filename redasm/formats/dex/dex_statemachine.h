@@ -4,8 +4,10 @@
 // https://source.android.com/devices/tech/dalvik/dex-format#debug-info-item
 
 #include "../../redasm.h"
+#include "dex_header.h"
 
 namespace REDasm {
+
 
 class DEXStateMachine
 {
@@ -15,15 +17,35 @@ class DEXStateMachine
                           DbgSetPrologueEnd, DbgSetEpilogueBegin, DbgSetFile,
                           DbgFirstSpecial, DbgLastSpecial = 0xFF };
 
-        typedef std::function<void()> StateCallback;
+        typedef std::function<void(u8**)> StateCallback;
         typedef std::unordered_map<u8, StateCallback> StatesMap;
 
     public:
-        DEXStateMachine();
+        DEXStateMachine(u16 address, DEXDebugInfo& debuginfo);
         void execute(u8* data);
 
     private:
+        void execute0x00(u8** data);
+        void execute0x01(u8** data);
+        void execute0x02(u8** data);
+        void execute0x03(u8** data);
+        void execute0x04(u8** data);
+        void execute0x05(u8** data);
+        void execute0x06(u8** data);
+        void execute0x07(u8** data);
+        void execute0x08(u8** data);
+        void execute0x09(u8** data);
+        void executeSpecial(u8 opcode);
+
+    private:
+        void setDebugData(const DEXDebugData& debugdata);
+
+    private:
         StatesMap _statesmap;
+        DEXDebugInfo& _debuginfo;
+        u16 _address;
+        u32 _line;
+        bool _atend;
 };
 
 } // namespace REDasm

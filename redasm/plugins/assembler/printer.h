@@ -20,7 +20,7 @@ class Printer
         Printer(DisassemblerFunctions* disassembler, SymbolTable* symboltable);
         virtual void header(const SymbolPtr& symbol, HeaderCallback headerfunc);
         virtual void prologue(const SymbolPtr& symbol, LineCallback prologuefunc);
-        virtual void info(const InstructionPtr& instruction, LineCallback infofunc) const;
+        virtual void info(const InstructionPtr& instruction, LineCallback infofunc);
         virtual std::string out(const InstructionPtr& instruction, OpCallback opfunc) const;
         virtual std::string out(const InstructionPtr& instruction) const;
 

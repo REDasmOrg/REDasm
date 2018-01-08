@@ -51,7 +51,6 @@ bool PsxExeFormat::load(u8* rawformat)
         this->defineSegment("RAM1", 0, format->t_addr + format->t_size, PSX_USER_RAM_END - (format->t_addr + format->t_size), SegmentTypes::Data | SegmentTypes::Bss);
 
     this->defineEntryPoint(format->pc0);
-
     FormatPluginT<PsxExeHeader>::load(rawformat);
     return true;
 }

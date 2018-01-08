@@ -189,7 +189,12 @@ void AssemblerPlugin::analyzeRegister(DisassemblerFunctions *disassembler, const
     if(!disassembler->emulator()->read(operand, target))
         return;
 
-    REDasm::log("VMIL @ " + REDasm::hex(instruction->address) + " jump to " + REDasm::hex(target));
+    Segment* segment = disassembler->format()->segment(target);
+
+    if(!segment || !segment->is(SegmentTypes::Code))
+        return;
+
+    REDasm::log("VMIL @ " + REDasm::hex(instruction->address) + " jumps to " + REDasm::hex(target));
 
     if(!this->canEmulateVMIL())
     {

@@ -19,7 +19,7 @@ void Printer::prologue(const SymbolPtr &symbol, Printer::LineCallback prologuefu
     RE_UNUSED(prologuefunc);
 }
 
-void Printer::info(const InstructionPtr &instruction, LineCallback infofunc) const
+void Printer::info(const InstructionPtr &instruction, LineCallback infofunc)
 {
     RE_UNUSED(instruction);
     RE_UNUSED(infofunc);

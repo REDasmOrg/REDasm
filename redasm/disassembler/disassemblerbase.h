@@ -24,6 +24,8 @@ class DisassemblerBase: public DisassemblerFunctions
         virtual u64 getReferencesCount(const SymbolPtr &symbol);
         virtual bool hasReferences(const SymbolPtr &symbol);
         virtual void pushReference(const SymbolPtr& symbol, address_t address);
+        virtual void checkLocation(const InstructionPtr& instruction, address_t address);
+        virtual bool checkString(const InstructionPtr& instruction, address_t address);
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
         virtual std::string readString(const SymbolPtr& symbol) const;
         virtual std::string readWString(const SymbolPtr& symbol) const;

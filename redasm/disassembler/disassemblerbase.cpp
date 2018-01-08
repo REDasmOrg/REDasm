@@ -77,6 +77,58 @@ void DisassemblerBase::pushReference(const SymbolPtr &symbol, address_t address)
     this->_referencetable.push(symbol, address);
 }
 
+void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_t address)
+{
+    u64 target = address;
+    u64 count = 0;
+
+    while(this->dereferencePointer(target, target))
+    {
+        if(this->locationIsString(target) < MIN_STRING)
+            break;
+
+        this->checkString(instruction, address);
+        count++;
+    }
+
+    if(count)
+    {
+        this->_symboltable->createLocation(address, SymbolTypes::Data | SymbolTypes::Pointer);
+        instruction->cmt(std::to_string(count) + " item(s) string table");
+        this->updateInstruction(instruction);
+    }
+    else
+        this->_symboltable->createLocation(address, SymbolTypes::Data);
+}
+
+bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t address)
+{
+    bool wide = false;
+
+    if(this->locationIsString(address, &wide) < MIN_STRING)
+        return false;
+
+    if(wide)
+    {
+        this->_symboltable->createWString(address);
+        instruction->cmt("WIDE STRING: " + REDasm::quoted(this->readWString(address)));
+    }
+    else
+    {
+        this->_symboltable->createString(address);
+        instruction->cmt("STRING: " + REDasm::quoted(this->readString(address)));
+    }
+
+    SymbolPtr symbol = this->_symboltable->symbol(address);
+
+    if(symbol)
+        this->_referencetable.push(symbol, instruction->address);
+
+    this->updateInstruction(instruction);
+    return true;
+}
+
+
 FormatPlugin *DisassemblerBase::format()
 {
     return this->_format;

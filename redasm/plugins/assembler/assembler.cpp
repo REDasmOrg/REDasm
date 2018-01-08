@@ -55,44 +55,32 @@ void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const 
 
     if(instruction->is(InstructionTypes::Call) && instruction->hasTargets() && (operand.index == instruction->target_idx))
         disassembler->disassembleFunction(opvalue);
-    else
+    else if(instruction->is(InstructionTypes::Jump))
     {
-        bool wide = false;
-
-        if(instruction->is(InstructionTypes::Jump))
+        if(!operand.is(OperandTypes::Displacement) || operand.mem.displacementOnly())
         {
-            if(!operand.is(OperandTypes::Displacement) || operand.mem.displacementOnly())
-            {
-                int dir = BRANCH_DIRECTION(instruction, opvalue);
+            int dir = BRANCH_DIRECTION(instruction, opvalue);
 
-                if(dir < 0)
-                    instruction->cmt("Possible loop");
-                else if(!dir)
-                    instruction->cmt("Infinite loop");
+            if(dir < 0)
+                instruction->cmt("Possible loop");
+            else if(!dir)
+                instruction->cmt("Infinite loop");
 
-                disassembler->updateInstruction(instruction);
-                symboltable->createLocation(opvalue, SymbolTypes::Code);
-            }
-            else
-                disassembler->checkJumpTable(instruction, operand);
-        }
-        else if(!segment->is(SegmentTypes::Bss) && (disassembler->locationIsString(opvalue, &wide) >= MIN_STRING))
-        {
-            if(wide)
-            {
-                symboltable->createWString(opvalue);
-                instruction->cmt("UNICODE: " + REDasm::quoted(disassembler->readWString(opvalue)));
-            }
-            else
-            {
-                symboltable->createString(opvalue);
-                instruction->cmt("STRING: " + REDasm::quoted(disassembler->readString(opvalue)));
-            }
-
-           disassembler->updateInstruction(instruction);
+            disassembler->updateInstruction(instruction);
+            symboltable->createLocation(opvalue, SymbolTypes::Code);
         }
         else
-            symboltable->createLocation(opvalue, SymbolTypes::Data);
+            disassembler->checkJumpTable(instruction, operand);
+    }
+    else if(!segment->is(SegmentTypes::Bss))
+    {
+        disassembler->checkString(instruction, opvalue);
+        return; // checkString() creates xrefs
+    }
+    else
+    {
+        disassembler->checkLocation(instruction, opvalue);
+        return; // checkLocation() creates xrefs
     }
 
     symbol = symboltable->symbol(opvalue);

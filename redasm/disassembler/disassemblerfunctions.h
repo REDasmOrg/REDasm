@@ -33,6 +33,8 @@ class DisassemblerFunctions
         virtual void pushReference(const SymbolPtr& symbol, address_t address) = 0;
         virtual void updateInstruction(const InstructionPtr& instruction) = 0;
         virtual void checkJumpTable(const InstructionPtr& instruction, const Operand &operand) = 0;
+        virtual void checkLocation(const InstructionPtr& instruction, address_t address) = 0;
+        virtual bool checkString(const InstructionPtr& instruction, address_t address) = 0;
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const = 0;
         virtual std::string readString(const SymbolPtr& symbol) const = 0;
         virtual std::string readString(address_t address) const = 0;

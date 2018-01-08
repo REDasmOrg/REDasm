@@ -1,10 +1,17 @@
 <p align="center">
-  <img width=256 height=256 src="https://github.com/Dax89/REDasm/blob/master/artwork/logo.png?raw=true"/>
+  <img width=256 height=256 src="https://github.com/Dax89/REDasm/blob/master/artwork/logo.png?raw=true"/><br>
+  <a href="https://travis-ci.org/REDasmOrg/REDasm">
+    <img src="https://travis-ci.org/REDasmOrg/REDasm.svg?branch=master">
+  </a>
+  <a href="https://ci.appveyor.com/project/Dax89/redasm">
+    <img src="https://ci.appveyor.com/api/projects/status/github/redasmorg/redasm?svg=true">
+  </a>
+  <a href="https://t.me/REDasm_Disassembler">
+    <img src="https://github.com/Patrolavia/telegram-badge/blob/master/chat.svg">
+  </a>
 </p>
 
-
-REDasm [![Linux Status](https://travis-ci.org/REDasmOrg/REDasm.svg?branch=master)](https://travis-ci.org/REDasmOrg/REDasm) [![Windows Status](https://ci.appveyor.com/api/projects/status/github/redasmorg/redasm?svg=true)](https://ci.appveyor.com/project/Dax89/redasm) [![Chat onTelegram](https://github.com/Patrolavia/telegram-badge/blob/master/chat.svg)](https://t.me/REDasm_Disassembler)
-====
+***
 
 <p align="center">
   <i>A crossplatform, multiarchitecture disassembler.</i>

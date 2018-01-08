@@ -34,7 +34,9 @@ class Disassembler: public DisassemblerBase
     private:
         void disassembleUnexploredCode();
         void disassembleSegment(const Segment &segment);
-        bool maybeValidCode(address_t &address);
+        void searchStrings(const Segment& segment);
+        bool skipExploredData(address_t& address);
+        bool maybeValidCode(address_t& address);
         InstructionPtr disassembleInstruction(address_t address, Buffer &b);
         void analyzeInstruction(const InstructionPtr& instruction);
         void makeInvalidInstruction(const InstructionPtr& instruction, Buffer &b);

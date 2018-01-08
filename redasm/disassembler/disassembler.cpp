@@ -131,35 +131,39 @@ void Disassembler::disassembleUnexploredCode()
         if(!segment.is(SegmentTypes::Code))
             continue;
 
+        this->searchStrings(segment);
         this->disassembleSegment(segment);
     }
 }
 
 void Disassembler::disassembleSegment(const Segment &segment)
 {
-    SymbolPtr symbol;
     address_t address = segment.address;
+
+    while(address < segment.endaddress)
+    {
+        if(this->skipExploredData(address))
+            continue;
+
+        if(!this->maybeValidCode(address))
+            continue;
+
+        this->disassembleFunction(address);
+    }
+}
+
+void Disassembler::searchStrings(const Segment &segment)
+{
+    address_t address = segment.address;
+    u64 value = 0;
     bool wide = false;
 
     while(address < segment.endaddress)
     {
-        symbol = this->_symboltable->symbol(address);
-
-        if(symbol && (symbol->isFunction() || symbol->is(SymbolTypes::String) || symbol->is(SymbolTypes::Pointer))) // Skip functions/strings/pointers
-        {
-            if(symbol->is(SymbolTypes::String))
-            {
-                this->locationIsString(address, &wide);
-                address += this->readString(symbol).size() * (wide ? sizeof(u16) : sizeof(char));
-            }
-            else if(symbol->is(SymbolTypes::Pointer))
-                address += this->_format->addressWidth();
-            else if(!this->_listing.getFunctionBounds(address, NULL, &address))
-                address++;
-
+        if(this->skipExploredData(address))
             continue;
-        }
-        else if(this->locationIsString(address, &wide) >= MIN_STRING)
+
+        if(this->locationIsString(address, &wide) >= MIN_STRING)
         {
             if(wide)
                 this->_symboltable->createWString(address);
@@ -167,14 +171,53 @@ void Disassembler::disassembleSegment(const Segment &segment)
                 this->_symboltable->createString(address);
 
             address += this->readString(address).size() * (wide ? sizeof(u16) : sizeof(char));
+
+            if(this->readAddress(address, 1, value) && !value) // Check for null terminator
+                address += (wide ? sizeof(u16) : sizeof(char));
+
             continue;
         }
 
-        if(!this->maybeValidCode(address))
-            continue;
-
-        this->disassembleFunction(address);
+        address++;
     }
+}
+
+bool Disassembler::skipExploredData(address_t &address)
+{
+    SymbolPtr symbol = this->_symboltable->symbol(address);
+
+    if(!symbol)
+        return false;
+
+    if(symbol->is(SymbolTypes::String))
+    {
+        u64 value = 0;
+        bool wide = false;
+
+        this->locationIsString(address, &wide);
+        address += this->readString(symbol).size() * (wide ? sizeof(u16) : sizeof(char));
+
+        if(this->readAddress(address, 1, value) && !value) // Check for null terminator
+            address += (wide ? sizeof(u16) : sizeof(char));
+
+        return true;
+    }
+
+    if(symbol->isFunction())
+    {
+        if(!this->_listing.getFunctionBounds(address, NULL, &address))
+            address++;
+
+        return true;
+    }
+
+    if(symbol->is(SymbolTypes::Pointer))
+    {
+        address += this->_format->addressWidth();
+        return true;
+    }
+
+    return false;
 }
 
 bool Disassembler::maybeValidCode(address_t& address)
@@ -201,13 +244,10 @@ bool Disassembler::maybeValidCode(address_t& address)
     {
         address_t caddress = address;
         InstructionPtr instruction;
-        SymbolPtr symbol;
 
         for(u32 i = 0; i < INSTRUCTION_THRESHOLD; i++) // Try to disassemble some instructions
         {
-            symbol = this->_symboltable->symbol(caddress);
-
-            if(symbol && symbol->isFunction()) // Don't overlap functions
+            if(this->skipExploredData(caddress))
             {
                 address = caddress;
                 return false;
@@ -218,7 +258,7 @@ bool Disassembler::maybeValidCode(address_t& address)
 
             if(instruction->isInvalid())
             {
-                address = caddress;
+                address++;
                 return false;
             }
         }

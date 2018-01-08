@@ -11,7 +11,6 @@ if(Test-Path $($env:build_repo)) {
 git clone -b nightly https://$($env:github_token)@github.com/REDasmOrg/$($env:build_repo).git > $null 2>&1
 cd $($env:build_repo)
 Remove-Item *Windows* 
-dir ..
     
 if(Test-Path ../$archive)
 {

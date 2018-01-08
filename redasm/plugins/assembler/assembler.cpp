@@ -81,12 +81,12 @@ void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const 
             if(wide)
             {
                 symboltable->createWString(opvalue);
-                instruction->cmt("UNICODE: " + disassembler->readWString(opvalue));
+                instruction->cmt("UNICODE: " + REDasm::quoted(disassembler->readWString(opvalue)));
             }
             else
             {
                 symboltable->createString(opvalue);
-                instruction->cmt("STRING: " + disassembler->readString(opvalue));
+                instruction->cmt("STRING: " + REDasm::quoted(disassembler->readString(opvalue)));
             }
 
            disassembler->updateInstruction(instruction);

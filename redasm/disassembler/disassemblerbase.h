@@ -50,16 +50,12 @@ class DisassemblerBase: public DisassemblerFunctions
 template<typename T> std::string DisassemblerBase::readStringT(address_t address, std::function<bool(T, std::string&)> fill) const
 {
     Buffer b = this->_buffer + this->_format->offset(address);
-    u64 count = 0;
     std::string s;
 
     while(fill(*reinterpret_cast<T*>(b.data), s) && !b.eob())
-    {
-        count++;
         b += sizeof(T);
-    }
 
-    return "\"" + s + "\"";
+    return s;
 }
 
 template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const

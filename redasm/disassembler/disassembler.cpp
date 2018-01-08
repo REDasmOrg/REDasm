@@ -150,7 +150,7 @@ void Disassembler::disassembleSegment(const Segment &segment)
             if(symbol->is(SymbolTypes::String))
             {
                 this->locationIsString(address, &wide);
-                address += this->readString(symbol).size() * (wide ? 2 : 1);
+                address += this->readString(symbol).size() * (wide ? sizeof(u16) : sizeof(char));
             }
             else if(symbol->is(SymbolTypes::Pointer))
                 address += this->_format->addressWidth();
@@ -166,7 +166,7 @@ void Disassembler::disassembleSegment(const Segment &segment)
             else
                 this->_symboltable->createString(address);
 
-            address += this->readString(address).size() * (wide ? 2 : 1);
+            address += this->readString(address).size() * (wide ? sizeof(u16) : sizeof(char));
             continue;
         }
 
@@ -329,12 +329,12 @@ bool Disassembler::dataToString(address_t address)
     if(wide)
     {
         symbol->type |= SymbolTypes::WideString;
-        s = this->readWString(address);
+        s = REDasm::quoted(this->readWString(address));
     }
     else
     {
         symbol->type |= SymbolTypes::String;
-        s = this->readString(address);
+        s = REDasm::quoted(this->readString(address));
     }
 
     std::for_each(refs.begin(), refs.end(), [this, s, wide](address_t address) {

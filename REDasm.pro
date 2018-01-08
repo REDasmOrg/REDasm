@@ -31,7 +31,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 win32
 {
-    RC_FILE = $$PWD/res/windows/resource.rc
+    RC_FILE = $$PWD/res/windows/resources.rc
 }
 
 SOURCES += main.cpp\

@@ -24,7 +24,7 @@ class DisassemblerDocument: public QObject
                Address,
                IsEmptyBlock, IsFunctionBlock, IsInstructionBlock, IsLabelBlock };
 
-        enum { NoAction = 0, GotoAction, XRefAction };
+        enum { NoAction = 0, GotoAction, XRefAction, LabelAction };
 
     public:
         explicit DisassemblerDocument(REDasm::Disassembler* disassembler, const QString& theme, QTextDocument *document, QObject* parent = 0);

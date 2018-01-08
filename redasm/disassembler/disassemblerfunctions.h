@@ -6,6 +6,7 @@
 
 #include "../redasm.h"
 #include "types/symboltable.h"
+#include "types/referencetable.h"
 
 namespace REDasm {
 
@@ -24,6 +25,11 @@ class DisassemblerFunctions
         virtual AssemblerPlugin* assembler() = 0;
         virtual SymbolTable* symbolTable() = 0;
         virtual VMIL::Emulator* emulator() = 0;
+        virtual ReferenceVector getReferences(address_t address) = 0;
+        virtual ReferenceVector getReferences(const SymbolPtr &symbol) = 0;
+        virtual u64 getReferencesCount(address_t address) = 0;
+        virtual u64 getReferencesCount(const SymbolPtr &symbol) = 0;
+        virtual bool hasReferences(const SymbolPtr &symbol) = 0;
         virtual void pushReference(const SymbolPtr& symbol, address_t address) = 0;
         virtual void updateInstruction(const InstructionPtr& instruction) = 0;
         virtual void checkJumpTable(const InstructionPtr& instruction, const Operand &operand) = 0;

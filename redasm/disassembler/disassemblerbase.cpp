@@ -23,17 +23,9 @@ SymbolTable *DisassemblerBase::symbolTable()
     return this->_symboltable;
 }
 
-void DisassemblerBase::pushReference(const SymbolPtr &symbol, address_t address)
+ReferenceVector DisassemblerBase::getReferences(address_t address)
 {
-    this->_referencetable.push(symbol, address);
-}
-
-bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
-{
-    if(!symbol)
-        return false;
-
-    return this->_referencetable.hasReferences(symbol);
+    return this->_referencetable.referencesToVector(address);
 }
 
 ReferenceVector DisassemblerBase::getReferences(const SymbolPtr& symbol)
@@ -43,18 +35,46 @@ ReferenceVector DisassemblerBase::getReferences(const SymbolPtr& symbol)
         SymbolPtr ptrsymbol = this->dereferenceSymbol(symbol);
 
         if(ptrsymbol)
-            return this->_referencetable.referencesToVector(ptrsymbol);
+            return this->_referencetable.referencesToVector(ptrsymbol->address);
     }
 
-    if(symbol)
-        return this->_referencetable.referencesToVector(symbol);
+    return this->_referencetable.referencesToVector(symbol->address);
+}
 
-    return ReferenceVector();
+u64 DisassemblerBase::getReferencesCount(address_t address)
+{
+    return this->_referencetable.referencesCount(address);
 }
 
 u64 DisassemblerBase::getReferencesCount(const SymbolPtr &symbol)
 {
-    return this->_referencetable.referencesCount(symbol);
+    if(symbol->is(SymbolTypes::Pointer))
+    {
+        SymbolPtr ptrsymbol = this->dereferenceSymbol(symbol);
+
+        if(ptrsymbol)
+            return this->_referencetable.referencesCount(ptrsymbol->address);
+    }
+
+    return this->_referencetable.referencesCount(symbol->address);
+}
+
+bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
+{
+    if(symbol->is(SymbolTypes::Pointer))
+    {
+        SymbolPtr ptrsymbol = this->dereferenceSymbol(symbol);
+
+        if(ptrsymbol)
+            return this->_referencetable.hasReferences(ptrsymbol->address);
+    }
+
+    return this->_referencetable.hasReferences(symbol->address);
+}
+
+void DisassemblerBase::pushReference(const SymbolPtr &symbol, address_t address)
+{
+    this->_referencetable.push(symbol, address);
 }
 
 FormatPlugin *DisassemblerBase::format()

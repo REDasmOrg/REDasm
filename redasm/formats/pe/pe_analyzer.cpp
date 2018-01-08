@@ -39,18 +39,12 @@ SymbolPtr PEAnalyzer::getImport(Listing &listing, const std::string &library, co
 
 ReferenceVector PEAnalyzer::getAPIReferences(Listing& listing, const std::string &library, const std::string &api)
 {
-    ReferenceTable* referencetable = listing.referenceTable();
     SymbolPtr symbol = this->getImport(listing, library, api);
 
     if(!symbol)
         return ReferenceVector();
 
-    auto it = referencetable->references(symbol);
-
-    if(it == referencetable->end())
-        return ReferenceVector();
-
-    return referencetable->toVector(it->second);
+    return this->_disassembler->getReferences(symbol);
 }
 
 void PEAnalyzer::findStopAPI(Listing &listing, const std::string& library, const std::string& api)

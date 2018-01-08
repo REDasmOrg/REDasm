@@ -44,6 +44,7 @@ class DisassemblerTextView : public QPlainTextEdit
         void updateAddress();
         void updateSymbolAddress(address_t address);
         void display(address_t address);
+        void checkLabel(address_t address);
         void showReferences(address_t address);
         int getCursorAnchor(address_t &address);
 

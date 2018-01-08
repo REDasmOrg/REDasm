@@ -14,13 +14,15 @@ class DisassemblerBase: public DisassemblerFunctions
         DisassemblerBase(Buffer buffer, FormatPlugin* format);
         virtual ~DisassemblerBase();
         Buffer& buffer();
-        bool hasReferences(const SymbolPtr &symbol);
-        ReferenceVector getReferences(const SymbolPtr &symbol);
-        u64 getReferencesCount(const SymbolPtr &symbol);
 
     public: // Primitive functions
         virtual FormatPlugin* format();
         virtual SymbolTable* symbolTable();
+        virtual ReferenceVector getReferences(address_t address);
+        virtual ReferenceVector getReferences(const SymbolPtr &symbol);
+        virtual u64 getReferencesCount(address_t address);
+        virtual u64 getReferencesCount(const SymbolPtr &symbol);
+        virtual bool hasReferences(const SymbolPtr &symbol);
         virtual void pushReference(const SymbolPtr& symbol, address_t address);
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
         virtual std::string readString(const SymbolPtr& symbol) const;

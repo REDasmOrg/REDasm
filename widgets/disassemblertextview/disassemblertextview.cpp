@@ -141,6 +141,23 @@ void DisassemblerTextView::display(address_t address)
     }
 }
 
+void DisassemblerTextView::checkLabel(address_t address)
+{
+    u64 c = this->_disassembler->getReferencesCount(address);
+
+    if(!c)
+        return;
+
+    if(c == 1)
+    {
+        REDasm::ReferenceVector refs = this->_disassembler->getReferences(address);
+        this->goTo(refs.front());
+        return;
+    }
+
+    this->showReferences(address);
+}
+
 void DisassemblerTextView::goTo(const REDasm::SymbolPtr &symbol)
 {
     this->goTo(symbol->address);
@@ -209,7 +226,9 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
     if(!(action = this->getCursorAnchor(address)))
         return;
 
-    if(action == DisassemblerTextDocument::XRefAction)
+    if(action == DisassemblerTextDocument::LabelAction)
+        this->checkLabel(address);
+    else if(action == DisassemblerTextDocument::XRefAction)
         this->showReferences(address);
     else if(action == DisassemblerTextDocument::GotoAction)
         this->goTo(address);
@@ -347,9 +366,6 @@ void DisassemblerTextView::updateAddress()
 
 void DisassemblerTextView::updateSymbolAddress(address_t address)
 {
-    if(this->_symboladdress == address)
-        return;
-
     this->_symboladdress = address;
     emit symbolAddressChanged();
 }

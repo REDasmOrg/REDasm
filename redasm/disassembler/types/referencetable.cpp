@@ -23,9 +23,9 @@ void ReferenceTable::push(const SymbolPtr& symbol, address_t address)
     it->second.insert(address);
 }
 
-bool ReferenceTable::hasReferences(const SymbolPtr& symbol) const
+bool ReferenceTable::hasReferences(address_t address) const
 {
-    return this->references(symbol) != this->_references.end();
+    return this->references(address) != this->_references.end();
 }
 
 ReferenceTable::ReferenceMap::const_iterator ReferenceTable::begin() const
@@ -38,24 +38,19 @@ ReferenceTable::ReferenceMap::const_iterator ReferenceTable::end() const
     return this->_references.end();
 }
 
-ReferenceTable::ReferenceMap::const_iterator ReferenceTable::references(const REDasm::SymbolPtr& symbol) const
+ReferenceTable::ReferenceMap::const_iterator ReferenceTable::references(address_t address) const
 {
-    return this->_references.find(symbol->address);
+    return this->_references.find(address);
 }
 
-u64 ReferenceTable::referencesCount(const SymbolPtr& symbol) const
+u64 ReferenceTable::referencesCount(address_t address) const
 {
-    auto it = this->references(symbol);
+    auto it = this->references(address);
 
     if(it != this->_references.end())
         return it->second.size();
 
     return 0;
-}
-
-ReferenceVector ReferenceTable::referencesToVector(const SymbolPtr &symbol) const
-{
-    return this->referencesToVector(symbol->address);
 }
 
 ReferenceVector ReferenceTable::referencesToVector(address_t address) const

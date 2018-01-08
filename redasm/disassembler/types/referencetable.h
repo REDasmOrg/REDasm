@@ -19,12 +19,11 @@ class ReferenceTable
     public:
         ReferenceTable();
         void push(const SymbolPtr &symbol, address_t address);
-        bool hasReferences(const SymbolPtr &symbol) const;
+        bool hasReferences(address_t address) const;
         ReferenceMap::const_iterator begin() const;
         ReferenceMap::const_iterator end() const;
-        ReferenceMap::const_iterator references(const SymbolPtr& symbol) const;
-        u64 referencesCount(const SymbolPtr &symbol) const;
-        ReferenceVector referencesToVector(const SymbolPtr &symbol) const;
+        ReferenceMap::const_iterator references(address_t address) const;
+        u64 referencesCount(address_t address) const;
         ReferenceVector referencesToVector(address_t address) const;
 
     public:

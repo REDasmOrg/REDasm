@@ -165,10 +165,8 @@ void DisassemblerDocument::appendFunctionEnd(const REDasm::InstructionPtr &lasti
 
 void DisassemblerDocument::appendLabel(const REDasm::SymbolPtr &symbol, bool replace)
 {
-    REDasm::ReferenceVector refs = this->_disassembler->getReferences(symbol);
-
-    QJsonObject data = { { "action",  refs.size() > 1 ? DisassemblerDocument::XRefAction : DisassemblerDocument::GotoAction },
-                         { "address", ADDRESS_VARIANT(refs.size() > 1 ? symbol->address : refs.front()) } };
+    QJsonObject data = { { "action",  DisassemblerDocument::LabelAction },
+                         { "address", ADDRESS_VARIANT(symbol->address) } };
 
     QTextBlockFormat blockformat;
     blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(symbol->address));

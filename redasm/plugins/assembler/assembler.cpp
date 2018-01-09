@@ -179,14 +179,17 @@ void AssemblerPlugin::analyzeRegister(DisassemblerFunctions *disassembler, const
 
     Segment* segment = disassembler->format()->segment(target);
 
-    if(!segment || segment->is(SegmentTypes::Bss))
+    if(!segment)
         return;
 
     if(segment->is(SegmentTypes::Data) && operand.isWrite())
     {
-        instruction->cmt("VMIL WRITE @ " + REDasm::hex(target));
+        instruction->cmt("VMIL WRITE @ " + segment->name + ":" + REDasm::hex(target));
         disassembler->updateInstruction(instruction);
-        disassembler->checkLocation(instruction, target);
+
+        if(!segment->is(SegmentTypes::Bss))
+            disassembler->checkLocation(instruction, target);
+
         return;
     }
 
@@ -205,7 +208,7 @@ void AssemblerPlugin::analyzeRegisterBranch(address_t target, DisassemblerFuncti
 
     if(!this->canEmulateVMIL())
     {
-        instruction->cmt("=" + REDasm::hex(target));
+        instruction->cmt("VMIL = " + REDasm::hex(target));
         disassembler->updateInstruction(instruction);
         return;
     }
@@ -218,7 +221,7 @@ void AssemblerPlugin::analyzeRegisterBranch(address_t target, DisassemblerFuncti
     SymbolPtr symbol = disassembler->symbolTable()->symbol(target);
 
     instruction->target(target);
-    instruction->cmt("VMIL =" + symbol->name);
+    instruction->cmt("VMIL = " + symbol->name);
     disassembler->updateInstruction(instruction);
     disassembler->pushReference(symbol, instruction->address);
 }

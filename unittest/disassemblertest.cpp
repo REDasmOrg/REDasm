@@ -166,11 +166,14 @@ void DisassemblerTest::testCM01(Disassembler *disassembler)
     symbol = symboltable->symbol(0x0040130A);
     TEST_SYMBOL_NAME("DlgProc @ 0040130A", symbol, symbol->isFunction(), "DlgProc_40130A");
 
-    symbol = symboltable->symbol(0x004020e7);
+    symbol = symboltable->symbol(0x004020E7);
     TEST_SYMBOL("Ascii String @ 004020E7", symbol, symbol->is(SymbolTypes::String));
 
-    symbol = symboltable->symbol(0x004020f4);
-    TEST_SYMBOL("Ascii String @ 004020F4", symbol, symbol->is(SymbolTypes::String));
+    symbol = symboltable->symbol(0x00402129);
+    TEST_SYMBOL("Ascii String @ 00402129", symbol, symbol->is(SymbolTypes::String));
+
+    symbol = symboltable->symbol(0x00402134);
+    TEST_SYMBOL("Ascii String @ 00402134", symbol, symbol->is(SymbolTypes::String));
 }
 
 void DisassemblerTest::testOllyDump(Disassembler *disassembler)
@@ -205,10 +208,10 @@ void DisassemblerTest::testSCrack(Disassembler *disassembler)
     TEST_SYMBOL_NAME("Import VB6 ThunRTMain", symbol, symbol->is(SymbolTypes::Function), "_msvbvm60_dll_ThunRTMain");
 
     symbol = symboltable->symbol(0x00402b1c);
-    TEST_SYMBOL("Checking Wide String @ 0x00402b1c", symbol, symbol->is(SymbolTypes::WideString));
+    TEST_SYMBOL("Wide String @ 0x00402b1c", symbol, symbol->is(SymbolTypes::WideString));
 
     symbol = symboltable->symbol(0x00402b2c);
-    TEST_SYMBOL("Checking Wide String @ 0x00402b2c", symbol, symbol->is(SymbolTypes::WideString));
+    TEST_SYMBOL("Wide String @ 0x00402b2c", symbol, symbol->is(SymbolTypes::WideString));
 
     std::map<address_t, std::string> vbevents;
     vbevents[0x00403BB0] = "main::about::Click";
@@ -234,6 +237,18 @@ void DisassemblerTest::testVB5CrackMe(Disassembler *disassembler)
 
     SymbolPtr symbol = symboltable->symbol(0x0040110E);
     TEST_SYMBOL_NAME("Import VB5 ThunRTMain", symbol, symbol->is(SymbolTypes::Function), "_msvbvm50_dll_ThunRTMain");
+
+    symbol = symboltable->symbol(0x00401EB8);
+    TEST_SYMBOL("Wide String @ 0x00401EB8", symbol, symbol->is(SymbolTypes::WideString));
+
+    symbol = symboltable->symbol(0x00401EF8);
+    TEST_SYMBOL("Wide String @ 0x00401EF8", symbol, symbol->is(SymbolTypes::WideString));
+
+    symbol = symboltable->symbol(0x00401F08);
+    TEST_SYMBOL("Wide String @ 0x00401F08", symbol, symbol->is(SymbolTypes::WideString));
+
+    symbol = symboltable->symbol(0x00401F44);
+    TEST_SYMBOL("Wide String @ 0x00401F44", symbol, symbol->is(SymbolTypes::WideString));
 
     std::map<address_t, std::string> vbevents;
     vbevents[0x004020C4] = "Form1::Command1::Click";

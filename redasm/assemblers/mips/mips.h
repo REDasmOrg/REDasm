@@ -19,9 +19,6 @@ template<size_t mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARC
         virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable *symboltable) const { return new MIPSPrinter(this->_cshandle, disassembler, symboltable); }
 
     private:
-        bool makePseudo(const InstructionPtr &instruction1, const InstructionPtr &instruction2, const InstructionPtr& instructionout);
-        bool decodeMips(Buffer &buffer, const InstructionPtr &instruction);
-        bool checkDecodePseudo(Buffer buffer, const InstructionPtr &instruction);
         void analyzeInstruction(const InstructionPtr &instruction) const;
 };
 
@@ -36,7 +33,7 @@ template<size_t mode> const char *MIPSAssembler<mode>::name() const
     return "Unknown MIPS";
 }
 
-template<size_t mode> bool MIPSAssembler<mode>::decodeMips(Buffer& buffer, const InstructionPtr& instruction)
+template<size_t mode> bool MIPSAssembler<mode>::decode(Buffer buffer, const InstructionPtr& instruction)
 {
     if(!CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decode(buffer, instruction))
         return MIPSQuirks::decode(buffer, instruction); // Handle COP2 instructions and more
@@ -60,116 +57,14 @@ template<size_t mode> bool MIPSAssembler<mode>::decodeMips(Buffer& buffer, const
     return true;
 }
 
-template<size_t mode> bool MIPSAssembler<mode>::decode(Buffer buffer, const InstructionPtr& instruction)
-{
-    if(!this->decodeMips(buffer, instruction))
-        return false;
-
-    this->checkDecodePseudo(buffer, instruction);
-    return true;
-}
-
-template<size_t mode> bool MIPSAssembler<mode>::makePseudo(const InstructionPtr &instruction1, const InstructionPtr& instruction2, const InstructionPtr &instructionout)
-{
-    const OperandList operands1 = instruction1->operands;
-    const OperandList operands2 = instruction2->operands;
-
-    if((operands2.size() == 0) || (operands2.size() > 3))
-        return false;
-
-    if((operands2.size() == 3) && (operands1[0].reg.r != operands2[1].reg.r))
-        return false;
-
-    if((operands2.size() == 2) && (operands1[0].reg.r != operands2[1].mem.base.r))
-        return false;
-
-    const cs_insn* insn1 = reinterpret_cast<cs_insn*>(instruction1->userdata);
-    const cs_insn* insn2 = reinterpret_cast<cs_insn*>(instruction2->userdata);
-
-    s64 imm1 = operands1[1].s_value;
-
-    if(insn1->id == MIPS_INS_LUI)
-        imm1 <<= 16;
-
-    switch(insn2->id)
-    {
-        case MIPS_INS_ADDIU:
-        {
-            instructionout->reset();
-            instructionout->mnemonic = "li";
-            instructionout->op(operands2[0]).imm(imm1 + operands2[2].s_value);
-            break;
-        }
-
-        case MIPS_INS_ORI:
-        {
-            instructionout->reset();
-            instructionout->mnemonic = "li";
-            instructionout->op(operands1[0]).imm(imm1 | operands2[2].s_value);
-            break;
-        }
-
-        case MIPS_INS_LW:
-        case MIPS_INS_SW:
-        case MIPS_INS_LH:
-        case MIPS_INS_SH:
-        {
-            instructionout->reset();
-            instructionout->mnemonic = insn2->mnemonic;
-            instructionout->op(operands2[0]).mem(imm1 + operands2[1].mem.displacement);
-            break;
-        }
-
-        case MIPS_INS_LHU:
-        {
-            instructionout->reset();
-            instructionout->mnemonic = "lhu";
-            instructionout->op(operands2[0]).mem(imm1 + operands2[1].mem.displacement);
-            break;
-        }
-
-        default:
-            return false;
-    }
-
-    instructionout->bytes += instruction2->bytes;
-    instructionout->size += instruction2->size;
-    return true;
-}
-
-template<size_t mode> bool MIPSAssembler<mode>::checkDecodePseudo(Buffer buffer, const InstructionPtr &instruction)
-{
-    cs_insn* insn1 = reinterpret_cast<cs_insn*>(instruction->userdata);
-
-    if(!insn1)
-        return false;
-
-    InstructionPtr nextinstruction = std::make_shared<Instruction>();
-    buffer += insn1->size;
-
-    if(!this->decodeMips(buffer, nextinstruction))
-        return false;
-
-    cs_insn* insn2 = reinterpret_cast<cs_insn*>(nextinstruction->userdata);
-
-    if(!insn2)
-        return false;
-
-    if(insn2->id == MIPS_INS_LUI)
-    {
-        nextinstruction->address = instruction->address;
-        return this->makePseudo(nextinstruction, instruction, instruction);
-    }
-    else if(insn1->id == MIPS_INS_LUI)
-        return this->makePseudo(instruction, nextinstruction, instruction);
-
-    return false;
-}
-
 template<size_t mode> void MIPSAssembler<mode>::analyzeInstruction(const InstructionPtr& instruction) const
 {
     switch(instruction->id)
     {
+        case MIPS_INS_ADDIU:
+            instruction->op(0).w();
+            break;
+
         case MIPS_INS_J:
             instruction->type = InstructionTypes::Jump;
             instruction->target_op(0);

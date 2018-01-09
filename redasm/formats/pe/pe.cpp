@@ -251,7 +251,7 @@ void PeFormat::loadSections()
         if(!section.SizeOfRawData)
             flags |= SegmentTypes::Bss;
 
-        u64 size = section.Misc.VirtualSize;
+        u64 size = section.SizeOfRawData;
         u64 diff = size & this->_sectionalignment;
 
         if(diff)

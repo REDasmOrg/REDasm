@@ -106,26 +106,27 @@ bool AssemblerPlugin::decode(Buffer buffer, const InstructionPtr &instruction)
 
 bool AssemblerPlugin::done(const InstructionPtr &instruction)
 {
-    if(this->_statestack.top() & AssemblerFlags::DelaySlot)
+    if(this->_statestack.top().first & AssemblerFlags::DelaySlot)
     {
-        this->_statestack.top() &= ~AssemblerFlags::DelaySlot;
-        return true;
+        this->_statestack.top().first &= ~AssemblerFlags::DelaySlot;
+        return this->_statestack.top().second;
     }
 
-    if((instruction->is(InstructionTypes::Jump) && !instruction->is(InstructionTypes::Conditional)))
+    if(instruction->is(InstructionTypes::Jump))
     {
         if(this->flags() & AssemblerFlags::DelaySlot)
         {
-            this->_statestack.top() |= AssemblerFlags::DelaySlot;
+            this->_statestack.top().first |= AssemblerFlags::DelaySlot;
+            this->_statestack.top().second = !instruction->is(InstructionTypes::Conditional);
             return false;
         }
 
-        return true;
+        return !instruction->is(InstructionTypes::Conditional);
     }
 
     if(instruction->is(InstructionTypes::Stop))
     {
-        this->_statestack.top() &= ~AssemblerFlags::DelaySlot;
+        this->_statestack.top().first &= ~AssemblerFlags::DelaySlot;
         return true;
     }
 
@@ -159,7 +160,7 @@ void AssemblerPlugin::setEndianness(endianness_t endianness)
 
 void AssemblerPlugin::pushState()
 {
-    this->_statestack.push(AssemblerFlags::None);
+    this->_statestack.push(std::make_pair(AssemblerFlags::None, 0));
 }
 
 void AssemblerPlugin::popState()

@@ -353,6 +353,8 @@ void Listing::walk(address_t address, Listing::FunctionPath &path)
     std::stack<address_t> pending;
     pending.push(address);
 
+    this->_assembler->pushState();
+
     while(!pending.empty())
     {
         Listing::iterator it = this->find(pending.top());
@@ -366,19 +368,16 @@ void Listing::walk(address_t address, Listing::FunctionPath &path)
             InstructionPtr instruction = *it;
             path.insert(it.key);
 
-            if(instruction->is(InstructionTypes::Stop))
-                break;
-
             if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
             {
                 std::for_each(instruction->targets.begin(),instruction->targets.end(), [this, &pending](address_t target) {
                     if(!this->isFunctionStart(target))
                         pending.push(target);
                 });
-
-                if(!instruction->is(InstructionTypes::Conditional)) // Unconditional jumps doesn't continue execution
-                    break;
             }
+
+            if(this->_assembler->done(instruction))
+                break;
 
             it++;
 
@@ -386,6 +385,8 @@ void Listing::walk(address_t address, Listing::FunctionPath &path)
                 break;
         }
     }
+
+    this->_assembler->popState();
 
 }
 

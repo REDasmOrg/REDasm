@@ -24,6 +24,9 @@ namespace AssemblerFlags {
 
 class AssemblerPlugin: public Plugin
 {
+    private:
+        typedef std::pair<u32, u32> StateItem;
+
     public:
         AssemblerPlugin();
         virtual u32 flags() const;
@@ -48,7 +51,7 @@ class AssemblerPlugin: public Plugin
         virtual void analyzeRegisterBranch(address_t target, DisassemblerFunctions* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
 
     private:
-        std::stack<u32> _statestack;
+        std::stack<StateItem> _statestack;
         endianness_t _endianness;
 };
 

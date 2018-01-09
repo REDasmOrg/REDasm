@@ -157,14 +157,11 @@ void MIPSEmulator::translateLUI(const InstructionPtr &instruction, VMIL::VMILIns
     vminstruction->op(instruction->op(1));
     vminstructions.push_back(vminstruction);
 
-    if(instruction->size == 4)
-    {
-        vminstruction = VMIL::emitLsh(instruction, VMIL_INSTRUCTION_I(vminstructions));
-        vminstruction->op(instruction->op(0));
-        vminstruction->op(instruction->op(0));
-        vminstruction->imm(16);
-        vminstructions.push_back(vminstruction);
-    }
+    vminstruction = VMIL::emitLsh(instruction, VMIL_INSTRUCTION_I(vminstructions));
+    vminstruction->op(instruction->op(0));
+    vminstruction->op(instruction->op(0));
+    vminstruction->imm(16);
+    vminstructions.push_back(vminstruction);
 }
 
 void MIPSEmulator::translateNOP(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const

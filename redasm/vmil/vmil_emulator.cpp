@@ -180,7 +180,12 @@ bool Emulator::canExecute(const VMILInstructionPtr &instruction)
 {
     for(auto it = instruction->operands.begin(); it != instruction->operands.end(); it++)
     {
-        if((*it).is(OperandTypes::Register) && !this->isRegisterValid((*it).reg))
+        const Operand& op = *it;
+
+        if(!op.is(OperandTypes::Register) || this->isWriteDestination(instruction, op))
+            continue;
+
+        if(!this->isRegisterValid(op.reg))
             return false;
     }
 
@@ -193,6 +198,29 @@ bool Emulator::isRegisterValid(const RegisterOperand &regop)
         return this->_tempregisters.find(regop.r) != this->_tempregisters.end();
 
     return this->_registers.find(regop.r) != this->_registers.end();
+}
+
+bool Emulator::isWriteDestination(const VMILInstructionPtr& instruction, const Operand &operand) const
+{
+    if(operand.index > 0)
+        return false;
+
+    switch(instruction->id)
+    {
+        case VMIL::Opcodes::Ldm:
+        case VMIL::Opcodes::Stm:
+        case VMIL::Opcodes::Bisz:
+        case VMIL::Opcodes::Jcc:
+        case VMIL::Opcodes::Nop:
+        case VMIL::Opcodes::Undef:
+        case VMIL::Opcodes::Unkn:
+            return false;
+
+        default:
+            break;
+    }
+
+    return true;
 }
 
 void Emulator::invalidateRegister(const RegisterOperand &regop)

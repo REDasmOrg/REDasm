@@ -51,6 +51,7 @@ class Emulator
     private:
         bool canExecute(const VMILInstructionPtr& instruction);
         bool isRegisterValid(const RegisterOperand &regop);
+        bool isWriteDestination(const VMILInstructionPtr &instruction, const Operand& operand) const;
         void invalidateRegister(const RegisterOperand& regop);
         void invalidateRegisters(const VMILInstructionPtr &instruction);
         void write(const Operand& operand, u64 value);

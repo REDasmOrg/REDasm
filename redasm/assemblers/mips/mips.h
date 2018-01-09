@@ -61,7 +61,20 @@ template<size_t mode> void MIPSAssembler<mode>::analyzeInstruction(const Instruc
 {
     switch(instruction->id)
     {
+        case MIPS_INS_ADD:
+        case MIPS_INS_ADDI:
+        case MIPS_INS_ADDU:
         case MIPS_INS_ADDIU:
+        case MIPS_INS_AND:
+        case MIPS_INS_ANDI:
+        case MIPS_INS_MUL:
+        //case MIPS_INS_NOR:
+        case MIPS_INS_OR:
+        case MIPS_INS_ORI:
+        case MIPS_INS_SUB:
+        case MIPS_INS_SUBU:
+        case MIPS_INS_XOR:
+        case MIPS_INS_XORI:
             instruction->op(0).w();
             break;
 

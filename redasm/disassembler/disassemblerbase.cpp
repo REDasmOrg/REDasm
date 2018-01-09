@@ -80,25 +80,26 @@ void DisassemblerBase::pushReference(const SymbolPtr &symbol, address_t address)
 void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_t address)
 {
     u64 target = address;
-    u64 count = 0;
+    u64 stringscount = 0;
 
     while(this->dereferencePointer(target, target))
     {
         if(!this->checkString(instruction, target))
             break;
 
-        target = address + (count * this->_format->addressWidth());
-        count++;
+        stringscount++;
+        target = address + (stringscount * this->_format->addressWidth());
     }
 
-    if(count)
+    if(!stringscount)
     {
-        this->_symboltable->createLocation(address, SymbolTypes::Data | SymbolTypes::Pointer);
-        instruction->cmt(std::to_string(count) + " item(s) string table");
-        this->updateInstruction(instruction);
+        if(!this->checkString(instruction, address))
+            this->_symboltable->createLocation(address, SymbolTypes::Data);
+
+        return;
     }
-    else
-        this->_symboltable->createLocation(address, SymbolTypes::Data);
+
+    this->_symboltable->createLocation(address, SymbolTypes::Data | SymbolTypes::Pointer);
 }
 
 bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t address)

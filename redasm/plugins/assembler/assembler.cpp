@@ -169,7 +169,7 @@ void AssemblerPlugin::popState()
 
 void AssemblerPlugin::analyzeRegister(DisassemblerFunctions *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
-    if(!disassembler->emulator() || !instruction->is(InstructionTypes::Branch) || !operand.is(OperandTypes::Register) || (operand.index != instruction->target_idx))
+    if(!disassembler->emulator() || !operand.is(OperandTypes::Register))
         return;
 
     address_t target = 0;
@@ -179,7 +179,26 @@ void AssemblerPlugin::analyzeRegister(DisassemblerFunctions *disassembler, const
 
     Segment* segment = disassembler->format()->segment(target);
 
-    if(!segment || !segment->is(SegmentTypes::Code))
+    if(!segment || segment->is(SegmentTypes::Bss))
+        return;
+
+    if(segment->is(SegmentTypes::Data) && operand.isWrite())
+    {
+        instruction->cmt("VMIL WRITE @ " + REDasm::hex(target));
+        disassembler->updateInstruction(instruction);
+        disassembler->checkLocation(instruction, target);
+        return;
+    }
+
+    if(!segment->is(SegmentTypes::Code))
+        return;
+
+    this->analyzeRegisterBranch(target, disassembler, instruction, operand);
+}
+
+void AssemblerPlugin::analyzeRegisterBranch(address_t target, DisassemblerFunctions *disassembler, const InstructionPtr &instruction, const Operand &operand) const
+{
+    if(!instruction->is(InstructionTypes::Branch) || (operand.index != instruction->target_idx))
         return;
 
     REDasm::log("VMIL @ " + REDasm::hex(instruction->address) + " jumps to " + REDasm::hex(target));
@@ -199,7 +218,7 @@ void AssemblerPlugin::analyzeRegister(DisassemblerFunctions *disassembler, const
     SymbolPtr symbol = disassembler->symbolTable()->symbol(target);
 
     instruction->target(target);
-    instruction->cmt("=" + symbol->name);
+    instruction->cmt("VMIL =" + symbol->name);
     disassembler->updateInstruction(instruction);
     disassembler->pushReference(symbol, instruction->address);
 }

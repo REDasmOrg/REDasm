@@ -45,6 +45,7 @@ class AssemblerPlugin: public Plugin
 
     protected:
         virtual void analyzeRegister(DisassemblerFunctions* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
+        virtual void analyzeRegisterBranch(address_t target, DisassemblerFunctions* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
 
     private:
         std::stack<u32> _statestack;

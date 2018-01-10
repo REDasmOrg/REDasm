@@ -48,14 +48,14 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
         std::string opstr;
         const Operand& operand = *it;
 
-        if(it->is(OperandTypes::Local) || it->is(OperandTypes::Argument))
+        if(operand.is(OperandTypes::Local) || operand.is(OperandTypes::Argument))
             opstr = this->loc(operand);
 
         if(opstr.empty()) // Try with default algorithm...
         {
-           if(it->is(OperandTypes::Immediate) || it->is(OperandTypes::Memory))
+           if(operand.is(OperandTypes::Immediate) || operand.is(OperandTypes::Memory))
            {
-                SymbolPtr symbol = this->_symboltable->symbol(it->is(OperandTypes::Immediate) ? operand.s_value : operand.u_value);
+                SymbolPtr symbol = this->_symboltable->symbol(operand.is(OperandTypes::Immediate) ? operand.s_value : operand.u_value);
 
                 if(symbol)
                 {
@@ -73,9 +73,9 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
                 else
                     opstr = this->imm(operand);
             }
-            else if(it->is(OperandTypes::Displacement))
+            else if(operand.is(OperandTypes::Displacement))
                 opstr = this->mem(operand.mem);
-            else if(it->is(OperandTypes::Register))
+            else if(operand.is(OperandTypes::Register))
                 opstr = this->reg(operand.reg);
             else
                 continue;
@@ -84,7 +84,7 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
         std::string opsize = OperandSizes::size(operand.size);
 
         if(opfunc)
-            opfunc(*it, opsize, opstr);
+            opfunc(operand, opsize, opstr);
 
         if(!opsize.empty())
             s += opsize + " ";
@@ -142,7 +142,6 @@ std::string Printer::mem(const MemoryOperand &memop) const
 std::string Printer::loc(const Operand &op) const
 {
     RE_UNUSED(op);
-
     return std::string();
 }
 
@@ -150,6 +149,8 @@ std::string Printer::imm(const Operand &op) const
 {
     if(op.is(OperandTypes::Immediate))
         return REDasm::hex(op.s_value);
+    else if(op.is(OperandTypes::Memory))
+        return "[" + REDasm::hex(op.u_value) + "]";
 
     return REDasm::hex(op.u_value);
 }

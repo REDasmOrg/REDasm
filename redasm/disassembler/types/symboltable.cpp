@@ -183,7 +183,7 @@ bool SymbolTable::createWString(address_t address)
 
 bool SymbolTable::createLocation(address_t address, u32 type)
 {
-    return this->create(address, REDasm::symbol("loc", address), type);
+    return this->create(address, REDasm::symbol((type & SymbolTypes::Pointer) ? "ptr" : "loc", address), type);
 }
 
 void SymbolTable::promoteSymbol(SymbolPtr symbol, const std::string &name, u32 type)

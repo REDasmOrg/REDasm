@@ -109,7 +109,8 @@ SOURCES += main.cpp\
     redasm/assemblers/dalvik/dalvik.cpp \
     redasm/assemblers/dalvik/dalvik_printer.cpp \
     redasm/formats/dex/dex_statemachine.cpp \
-    redasm/formats/dex/dex_utils.cpp
+    redasm/formats/dex/dex_utils.cpp \
+    themeprovider.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -204,7 +205,8 @@ HEADERS  += mainwindow.h \
     redasm/formats/dex/dex_statemachine.h \
     redasm/formats/dex/dex_utils.h \
     redasm/formats/pe/pe_debug.h \
-    redasm/formats/pe/pe_common.h
+    redasm/formats/pe/pe_common.h \
+    themeprovider.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

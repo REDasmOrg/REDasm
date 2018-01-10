@@ -1,5 +1,6 @@
 #include "disassemblertextview.h"
 #include "../../dialogs/referencesdialog.h"
+#include "../../themeprovider.h"
 #include <QFontDatabase>
 #include <QJsonDocument>
 #include <QInputDialog>
@@ -73,9 +74,9 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
 
     this->_disassembler = disassembler;
     this->_disdocument = new DisassemblerTextDocument(disassembler, "light", this->document(), this);
-    this->_highlighter->setHighlightColor(this->_disdocument->highlightColor());
-    this->_highlighter->setSeekColor(this->_disdocument->seekColor());
-    this->_highlighter->setDottedColor(this->_disdocument->dottedColor());
+    this->_highlighter->setHighlightColor(ThemeProvider::highlightColor());
+    this->_highlighter->setSeekColor(ThemeProvider::seekColor());
+    this->_highlighter->setDottedColor(ThemeProvider::dottedColor());
 
     REDasm::SymbolPtr symbol = disassembler->symbolTable()->entryPoint();
 

@@ -1,20 +1,17 @@
 #ifndef REFERENCESMODEL_H
 #define REFERENCESMODEL_H
 
-#include <vector>
+#include <QJsonObject>
 #include "disassemblermodel.h"
-#include "../redasm/disassembler/types/referencetable.h"
 
 class ReferencesModel : public DisassemblerModel
 {
     Q_OBJECT
 
-    private:
-        typedef std::vector<REDasm::InstructionPtr> ReferenceVector;
-
     public:
         explicit ReferencesModel(QObject *parent = 0);
         virtual void setDisassembler(REDasm::Disassembler* disassembler);
+        void xref(const REDasm::InstructionPtr &instruction);
         void xref(address_t currentaddress, const REDasm::SymbolPtr &symbol);
 
     public:
@@ -28,12 +25,15 @@ class ReferencesModel : public DisassemblerModel
         void clear();
 
     private:
-        QString direction(const REDasm::InstructionPtr& instruction) const;
+        virtual QVariant dataInstructionRefs(const QModelIndex &index, int role) const;
+        virtual QVariant dataSymbolRefs(const QModelIndex &index, int role) const;
+        QString direction(address_t address) const;
 
     private:
-        REDasm::ReferenceVector _referencevector;
+        std::vector<address_t> _references;
         REDasm::PrinterPtr _printer;
         address_t _currentaddress;
+        bool _instructionrefs;
 };
 
 #endif // REFERENCESMODEL_H

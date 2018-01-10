@@ -4,7 +4,6 @@
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QTextBlock>
-#include <QJsonObject>
 #include <QColor>
 #include <QUrl>
 #include "../../redasm/disassembler/disassembler.h"
@@ -29,10 +28,6 @@ class DisassemblerDocument: public QObject
 
     public:
         explicit DisassemblerDocument(REDasm::Disassembler* disassembler, const QString& theme, QTextDocument *document, QObject* parent = 0);
-        QColor highlightColor() const;
-        QColor seekColor() const;
-        QColor dottedColor() const;
-        void setTheme(const QString& theme);
         virtual bool generate(address_t address, const QTextCursor &cursor);
         void update(address_t address);
 
@@ -82,7 +77,6 @@ class DisassemblerDocument: public QObject
         PendingAddresses _pendingsymbols, _pendinginstructions;
         QTextDocument* _document;
         QTextCursor _textcursor;
-        QJsonObject _theme;
 };
 
 #endif // DISASSEMBLERDOCUMENT_H

@@ -69,6 +69,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     connect(ui->disassemblerTextView, &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
     connect(ui->disassemblerTextView, &DisassemblerTextView::symbolRenamed, this, &DisassemblerView::updateModel);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
+    connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayInstructionReferences);
     connect(ui->disassemblerTextView, &DisassemblerTextView::symbolAddressChanged, this, &DisassemblerView::displayReferences);
     connect(ui->disassemblerTextView, &DisassemblerTextView::symbolDeselected, this->_referencesmodel, &ReferencesModel::clear);
     connect(ui->disassemblerTextView, &DisassemblerTextView::invalidateSymbols, [this]() { this->updateModel(NULL);});
@@ -240,6 +241,20 @@ void DisassemblerView::displayAddress(address_t address)
                                                                                    soffset);
 
     this->_lblstatus->setText(s);
+}
+
+void DisassemblerView::displayInstructionReferences()
+{
+    REDasm::Listing& listing = this->_disassembler->listing();
+    auto it = listing.find(ui->disassemblerTextView->currentAddress());
+
+    if(it == listing.end())
+    {
+        this->_referencesmodel->clear();
+        return;
+    }
+
+    this->_referencesmodel->xref(*it);
 }
 
 void DisassemblerView::displayReferences()

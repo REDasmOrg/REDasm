@@ -1,9 +1,7 @@
 #include "disassemblerdocument.h"
+#include "../../themeprovider.h"
 #include <QJsonDocument>
-#include <QVariant>
-#include <QFile>
 
-#define THEME_VALUE(name)        (this->_theme.contains(name) ? QColor(this->_theme[name].toString()) : QColor())
 #define ADDRESS_VARIANT(address) QJsonValue::fromVariant(QVariant::fromValue(address))
 #define INDENT_COMMENT 10
 #define INDENT_WIDTH 2
@@ -17,41 +15,7 @@ DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler, c
     this->_printer = REDasm::PrinterPtr(disassembler->assembler()->createPrinter(disassembler, disassembler->symbolTable()));
 
     this->setCurrentPrinter(this->_printer);
-    this->setTheme(theme);
     textdocument->setUndoRedoEnabled(false);
-}
-
-QColor DisassemblerDocument::highlightColor() const
-{
-    return QColor(THEME_VALUE("highlight"));
-}
-
-QColor DisassemblerDocument::seekColor() const
-{
-    return QColor(THEME_VALUE("seek"));
-}
-
-QColor DisassemblerDocument::dottedColor() const
-{
-    return QColor(THEME_VALUE("dotted_fg"));
-}
-
-void DisassemblerDocument::setTheme(const QString &theme)
-{
-    QFile f(QString(":/themes/disassembler/%1.json").arg(theme));
-
-    if(!f.open(QFile::ReadOnly))
-    {
-        qWarning("Cannot load '%s' theme", qUtf8Printable(theme));
-        return;
-    }
-
-    QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
-
-    if(doc.isObject())
-        this->_theme = doc.object();
-
-    f.close();
 }
 
 bool DisassemblerDocument::generate(address_t address, const QTextCursor& cursor)

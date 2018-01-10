@@ -20,14 +20,15 @@ class Printer
     public:
         Printer(DisassemblerFunctions* disassembler, SymbolTable* symboltable);
         void symbols(const InstructionPtr& instruction, SymbolCallback symbolfunc);
+        std::string symbol(const SymbolPtr& symbol) const;
+        std::string out(const InstructionPtr& instruction) const;
 
     public:
         virtual void header(const SymbolPtr& symbol, HeaderCallback headerfunc);
         virtual void prologue(const SymbolPtr& symbol, LineCallback prologuefunc);
-        virtual void symbol(const SymbolPtr& symbol, SymbolCallback symbolfunc);
+        virtual void symbol(const SymbolPtr& symbol, SymbolCallback symbolfunc) const;
         virtual void info(const InstructionPtr& instruction, LineCallback infofunc);
         virtual std::string out(const InstructionPtr& instruction, OpCallback opfunc) const;
-        virtual std::string out(const InstructionPtr& instruction) const;
 
     public: // Operand privitives
         virtual std::string reg(const RegisterOperand& regop) const;

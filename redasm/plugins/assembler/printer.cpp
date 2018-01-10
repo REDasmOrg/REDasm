@@ -18,6 +18,25 @@ void Printer::symbols(const InstructionPtr &instruction, Printer::SymbolCallback
     });
 }
 
+std::string Printer::symbol(const SymbolPtr &symbol) const
+{
+    if(symbol->is(SymbolTypes::Pointer))
+        return symbol->name;
+
+    std::string s;
+
+    this->symbol(symbol, [&s](const SymbolPtr&, std::string line) {
+        s = line;
+    });
+
+    return s;
+}
+
+std::string Printer::out(const InstructionPtr &instruction) const
+{
+    return this->out(instruction, [](const Operand&, const std::string&, const std::string&) { });
+}
+
 void Printer::header(const SymbolPtr &symbol, Printer::HeaderCallback headerfunc)
 {
     std::string s(20, '=');
@@ -30,7 +49,7 @@ void Printer::prologue(const SymbolPtr &symbol, Printer::LineCallback prologuefu
     RE_UNUSED(prologuefunc);
 }
 
-void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc)
+void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc) const
 {
     if(symbol->isFunction() || symbol->is(SymbolTypes::Code))
         return;
@@ -146,11 +165,6 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
     }
 
     return s;
-}
-
-std::string Printer::out(const InstructionPtr &instruction) const
-{
-    return this->out(instruction, [](const Operand&, const std::string&, const std::string&) { });
 }
 
 std::string Printer::reg(const RegisterOperand &regop) const

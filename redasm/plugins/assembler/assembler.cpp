@@ -77,6 +77,11 @@ void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const 
         disassembler->checkLocation(instruction, opvalue); // Create Symbol + XRefs
         return;
     }
+    else if(segment->is(SegmentTypes::Code))
+    {
+        disassembler->checkString(instruction, opvalue); // Create Symbol + XRefs
+        return;
+    }
 
     disassembler->pushReference(opvalue, instruction);
 }

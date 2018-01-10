@@ -14,9 +14,6 @@ class DisassemblerTextDocument : public DisassemblerDocument
         bool generateVMIL(address_t address, const QTextCursor& cursor);
 
     private:
-        void moveToBlock(address_t address);
-
-    private:
         bool _isvmil;
         REDasm::VMIL::VMILPrinterPtr _vmilprinter;
 };

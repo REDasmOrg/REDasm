@@ -1,10 +1,7 @@
 #ifndef REFERENCETABLE_H
 #define REFERENCETABLE_H
 
-#include <unordered_map>
-#include <vector>
-#include <set>
-#include "symboltable.h"
+#include "../../redasm.h"
 
 namespace REDasm {
 
@@ -18,7 +15,7 @@ class ReferenceTable
 
     public:
         ReferenceTable();
-        void push(const SymbolPtr &symbol, address_t address);
+        void push(address_t address, address_t refbyaddress);
         bool hasReferences(address_t address) const;
         ReferenceMap::const_iterator begin() const;
         ReferenceMap::const_iterator end() const;

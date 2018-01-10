@@ -1,4 +1,5 @@
 #include "printer.h"
+#include "../../plugins/format.h"
 
 namespace REDasm {
 
@@ -17,6 +18,36 @@ void Printer::prologue(const SymbolPtr &symbol, Printer::LineCallback prologuefu
 {
     RE_UNUSED(symbol);
     RE_UNUSED(prologuefunc);
+}
+
+void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc)
+{
+    if(symbol->isFunction() || symbol->is(SymbolTypes::Code))
+        return;
+
+    FormatPlugin* formatplugin = this->_disassembler->format();
+    Segment* segment = formatplugin->segment(symbol->address);
+
+    if(!segment)
+        return;
+
+    if(symbol->is(SymbolTypes::Data))
+    {
+        if(segment->is(SegmentTypes::Bss))
+        {
+            symbolfunc(symbol, "??");
+            return;
+        }
+
+        u64 value = 0;
+
+        if(!this->_disassembler->readAddress(symbol->address, formatplugin->addressWidth(), value))
+            return;
+
+        symbolfunc(symbol, REDasm::hex(value));
+    }
+    else if(symbol->is(SymbolTypes::String))
+        symbolfunc(symbol, " \"" + this->_disassembler->readString(symbol->address) + "\"");
 }
 
 void Printer::info(const InstructionPtr &instruction, LineCallback infofunc)

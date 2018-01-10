@@ -60,6 +60,7 @@ class DisassemblerTextView : public QPlainTextEdit
         void addressChanged(address_t address);
 
     private:
+        bool _issymboladdressvalid;
         u32 _emitmode;
         QStack<address_t> _backstack, _forwardstack;
         DisassemblerTextDocument* _disdocument;

@@ -8,19 +8,19 @@ ReferenceTable::ReferenceTable()
 
 }
 
-void ReferenceTable::push(const SymbolPtr& symbol, address_t address)
+void ReferenceTable::push(address_t address, address_t refbyaddress)
 {
-    auto it = this->_references.find(symbol->address);
+    auto it = this->_references.find(address);
 
     if(it == this->_references.end())
     {
         ReferenceSet rs;
-        rs.insert(address);
-        this->_references[symbol->address] = rs;
+        rs.insert(refbyaddress);
+        this->_references[address] = rs;
         return;
     }
 
-    it->second.insert(address);
+    it->second.insert(refbyaddress);
 }
 
 bool ReferenceTable::hasReferences(address_t address) const

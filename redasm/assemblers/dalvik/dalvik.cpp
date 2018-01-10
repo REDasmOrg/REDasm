@@ -49,17 +49,14 @@ void DalvikAssembler::analyzeOperand(DisassemblerFunctions *disassembler, const 
             return;
 
         symboltable->createString(offset);
-        disassembler->pushReference(symboltable->symbol(offset), instruction->address);
+        disassembler->pushReference(offset, instruction->address);
     }
     else if(operand.extra_type == DalvikOperands::MethodIndex)
     {
         if(!dexformat->getMethodOffset(operand.u_value, offset))
             return;
 
-        SymbolPtr symbol = symboltable->symbol(offset);
-
-        if(symbol)
-            disassembler->pushReference(symbol, instruction->address);
+        disassembler->pushReference(offset, instruction->address);
     }
 }
 

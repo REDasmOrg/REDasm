@@ -33,6 +33,12 @@ void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const 
         return;
     }
 
+    if(instruction->address == 0x0040100E)
+    {
+        int zzz = 0;
+        zzz++;
+    }
+
     SymbolTable* symboltable = disassembler->symbolTable();
     u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value, opvalue = value;
     SymbolPtr symbol = symboltable->symbol(value);
@@ -78,10 +84,7 @@ void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const 
         return;
     }
 
-    symbol = symboltable->symbol(opvalue);
-
-    if(symbol)
-        disassembler->pushReference(symbol, instruction->address);
+    disassembler->pushReference(opvalue, instruction->address);
 }
 
 bool AssemblerPlugin::decode(Buffer buffer, const InstructionPtr &instruction)

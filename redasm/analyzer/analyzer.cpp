@@ -79,7 +79,6 @@ void Analyzer::findTrampolines(Listing &listing, SymbolPtr symbol)
         return;
 
     const AssemblerPlugin* assembler = listing.assembler();
-    ReferenceTable* references = listing.referenceTable();
     SymbolPtr symimport;
 
     if(ASSEMBLER_IS(assembler, "x86"))
@@ -92,7 +91,7 @@ void Analyzer::findTrampolines(Listing &listing, SymbolPtr symbol)
 
     symbol->type |= SymbolTypes::Locked;
     symboltable->update(symbol, "_" + REDasm::normalize(symimport->name));
-    references->push(symimport, it.key);
+    this->_disassembler->pushReference(symimport, it.key);
 }
 
 SymbolPtr Analyzer::findTrampolines_x86(Listing::iterator& it, SymbolTable* symboltable)

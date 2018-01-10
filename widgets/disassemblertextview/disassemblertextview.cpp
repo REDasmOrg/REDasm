@@ -14,7 +14,7 @@
 
 #define THEME_VALUE(name) (this->_theme.contains(name) ? QColor(this->_theme[name].toString()) : QColor())
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(parent), _emitmode(DisassemblerTextView::Normal), _disdocument(NULL), _disassembler(NULL), _currentaddress(INT64_MAX), _symboladdress(0)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(parent), _issymboladdressvalid(false), _emitmode(DisassemblerTextView::Normal), _disdocument(NULL), _disassembler(NULL), _currentaddress(INT64_MAX), _symboladdress(0)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setPointSize(12);
@@ -124,7 +124,7 @@ void DisassemblerTextView::display(address_t address)
     {
         QTextBlockFormat blockformat = b.blockFormat();
 
-        if(!blockformat.hasProperty(DisassemblerTextDocument::IsInstructionBlock))
+        if(!blockformat.hasProperty(DisassemblerTextDocument::IsInstructionBlock) && !blockformat.hasProperty(DisassemblerTextDocument::IsSymbolBlock))
             continue;
 
         bool ok = false;
@@ -208,10 +208,13 @@ void DisassemblerTextView::mouseReleaseEvent(QMouseEvent *e)
 
     address_t address = 0;
 
-    if(this->getCursorAnchor(address))
-        this->updateSymbolAddress(address);
-    else
+    if(!this->getCursorAnchor(address))
+    {
+        this->_issymboladdressvalid = false;
         emit symbolDeselected();
+    }
+    else
+        this->updateSymbolAddress(address);
 
     QPlainTextEdit::mouseReleaseEvent(e);
 }
@@ -228,9 +231,7 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
 
     if(action == DisassemblerTextDocument::LabelAction)
         this->checkLabel(address);
-    else if(action == DisassemblerTextDocument::XRefAction)
-        this->showReferences(address);
-    else if(action == DisassemblerTextDocument::GotoAction)
+    else
         this->goTo(address);
 }
 
@@ -248,6 +249,8 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 
         this->showReferences(address);
     }
+    else if(e->key() == Qt::Key_N)
+        this->rename(this->_symboladdress);
 }
 
 void DisassemblerTextView::createContextMenu()
@@ -281,21 +284,18 @@ void DisassemblerTextView::createContextMenu()
 
 void DisassemblerTextView::adjustContextMenu()
 {
+    this->_actback->setVisible(this->canGoBack());
+    this->_actforward->setVisible(this->canGoForward());
+
     QTextCursor cursor = this->textCursor();
     QTextCharFormat charformat = cursor.charFormat();
+    QString encdata = charformat.isAnchor() ? charformat.anchorHref() : QString();
 
-    if(!charformat.isAnchor())
-        return;
-
-    QString encdata = charformat.anchorHref();
-
-    if(encdata.isEmpty())
+    if(!this->_issymboladdressvalid || encdata.isEmpty())
     {
         this->_actrename->setVisible(false);
         this->_actcreatestring->setVisible(false);
         this->_actxrefs->setVisible(false);
-        this->_actback->setVisible(this->canGoBack());
-        this->_actforward->setVisible(this->canGoForward());
         this->_actfollow->setVisible(false);
         this->_acthexdump->setVisible(false);
         return;
@@ -366,6 +366,7 @@ void DisassemblerTextView::updateAddress()
 
 void DisassemblerTextView::updateSymbolAddress(address_t address)
 {
+    this->_issymboladdressvalid = true;
     this->_symboladdress = address;
     emit symbolAddressChanged();
 }
@@ -401,6 +402,9 @@ int DisassemblerTextView::getCursorAnchor(address_t& address)
 
 void DisassemblerTextView::rename(address_t address)
 {
+    if(!this->_issymboladdressvalid)
+        return;
+
     REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(address);
 
     if(!symbol)

@@ -248,10 +248,14 @@ void PeFormat::loadSections()
         if(section.Characteristics & IMAGE_SCN_MEM_WRITE)
             flags |= SegmentTypes::Write;
 
-        if(!section.SizeOfRawData)
-            flags |= SegmentTypes::Bss;
-
         u64 size = section.SizeOfRawData;
+
+        if(!section.SizeOfRawData)
+        {
+            flags |= SegmentTypes::Bss;
+            size = section.Misc.VirtualSize;
+        }
+
         u64 diff = size & this->_sectionalignment;
 
         if(diff)

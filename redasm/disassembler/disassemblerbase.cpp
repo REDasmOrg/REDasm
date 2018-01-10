@@ -72,9 +72,14 @@ bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
     return this->_referencetable.hasReferences(symbol->address);
 }
 
-void DisassemblerBase::pushReference(const SymbolPtr &symbol, address_t address)
+void DisassemblerBase::pushReference(const SymbolPtr &symbol, address_t refbyaddress)
 {
-    this->_referencetable.push(symbol, address);
+    this->_referencetable.push(symbol->address, refbyaddress);
+}
+
+void DisassemblerBase::pushReference(address_t address, address_t refbyaddress)
+{
+    this->_referencetable.push(address, refbyaddress);
 }
 
 void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_t address)
@@ -95,11 +100,11 @@ void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_
     {
         if(!this->checkString(instruction, address))
             this->_symboltable->createLocation(address, SymbolTypes::Data);
-
-        return;
     }
+    else
+        this->_symboltable->createLocation(address, SymbolTypes::Data | SymbolTypes::Pointer);
 
-    this->_symboltable->createLocation(address, SymbolTypes::Data | SymbolTypes::Pointer);
+    this->_referencetable.push(address, instruction->address);
 }
 
 bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t address)
@@ -120,11 +125,7 @@ bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t 
         instruction->cmt("STRING: " + REDasm::quoted(this->readString(address)));
     }
 
-    SymbolPtr symbol = this->_symboltable->symbol(address);
-
-    if(symbol)
-        this->_referencetable.push(symbol, instruction->address);
-
+    this->_referencetable.push(address, instruction->address);
     this->updateInstruction(instruction);
     return true;
 }

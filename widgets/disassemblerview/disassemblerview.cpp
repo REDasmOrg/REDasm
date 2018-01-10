@@ -82,8 +82,8 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     connect(ui->tvReferences, &QTableView::doubleClicked, this, &DisassemblerView::seekToXRef);
     connect(ui->tvFunctions, &QTableView::doubleClicked, this, &DisassemblerView::seekToSymbol);
     connect(ui->tvExports, &QTableView::doubleClicked, this, &DisassemblerView::seekToSymbol);
-    connect(ui->tvImports, &QTableView::doubleClicked, this, &DisassemblerView::xrefSymbol);
-    connect(ui->tvStrings, &QTableView::doubleClicked, this, &DisassemblerView::xrefSymbol);
+    connect(ui->tvImports, &QTableView::doubleClicked, this, &DisassemblerView::seekToSymbol);
+    connect(ui->tvStrings, &QTableView::doubleClicked, this, &DisassemblerView::seekToSymbol);
 
     connect(ui->leFilter, &QLineEdit::textChanged, [this](const QString&) { this->filterSymbols(); });
     connect(ui->leFunctionFilter, &QLineEdit::textChanged, [this](const QString&) { this->filterFunctions(); });
@@ -195,10 +195,8 @@ void DisassemblerView::seekToSymbol(const QModelIndex &index)
 
     if(!segment)
         return;
-    else if(segment->is(REDasm::SegmentTypes::Code))
-        ui->disassemblerTextView->goTo(symbol);
-    else
-        this->xrefSymbol(index);
+
+    ui->disassemblerTextView->goTo(symbol);
 }
 
 void DisassemblerView::xrefSymbol(const QModelIndex &index)

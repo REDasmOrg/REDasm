@@ -396,13 +396,16 @@ void DisassemblerDocument::appendInfo(address_t address, const QString &info)
 
 void DisassemblerDocument::appendSymbol(const REDasm::SymbolPtr &symbol, const std::string& value, bool replace)
 {
-    this->_generatedblocks.insert(symbol->address);
-
     if(!replace)
     {
+        if(this->isBlockGenerated(symbol->address))
+            return;
+
         this->moveToBlock(symbol->address);
         this->_textcursor.insertBlock();
     }
+
+    this->_generatedblocks.insert(symbol->address);
 
     QTextBlockFormat blockformat;
     blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(symbol->address));

@@ -16,10 +16,7 @@ bool DisassemblerTextDocument::generate(address_t address, const QTextCursor &cu
 
     REDasm::SymbolPtr symbol = symboltable->symbol(address);
 
-    if(!symbol)
-        return false;
-
-    if(symbol->isFunction())
+    if(!symbol || symbol->isFunction())
     {
         REDasm::Listing& listing = this->_disassembler->listing();
 

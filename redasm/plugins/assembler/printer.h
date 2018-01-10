@@ -19,6 +19,9 @@ class Printer
 
     public:
         Printer(DisassemblerFunctions* disassembler, SymbolTable* symboltable);
+        void symbols(const InstructionPtr& instruction, SymbolCallback symbolfunc);
+
+    public:
         virtual void header(const SymbolPtr& symbol, HeaderCallback headerfunc);
         virtual void prologue(const SymbolPtr& symbol, LineCallback prologuefunc);
         virtual void symbol(const SymbolPtr& symbol, SymbolCallback symbolfunc);

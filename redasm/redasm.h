@@ -238,6 +238,7 @@ struct Instruction
 
     std::string mnemonic, bytes;
     std::list<address_t> targets;   // Jump/JumpTable/Call destination(s)
+    std::set<address_t> references;
     std::vector<Operand> operands;
     std::list<std::string> comments;
     address_t address;
@@ -250,9 +251,11 @@ struct Instruction
     bool blockIs(u32 t) const { return blocktype & t; }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
     bool hasTargets() const { return !targets.empty(); }
+    bool hasReferences() const { return !references.empty(); }
     void reset() { target_idx = -1, type = blocktype = 0; targets.clear(); operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
     void target_op(s32 index) { target_idx = index; targets.push_back(operands[index].u_value); }
     void target(address_t target) { targets.push_back(target); }
+    void reference(address_t ref) { references.insert(ref); }
     void op_size(s32 index, u32 size) { operands[index].size = size; }
     u32 op_size(s32 index) const { return operands[index].size; }
     address_t target() const { return targets.front(); }

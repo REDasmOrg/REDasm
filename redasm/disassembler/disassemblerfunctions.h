@@ -30,8 +30,8 @@ class DisassemblerFunctions
         virtual u64 getReferencesCount(address_t address) = 0;
         virtual u64 getReferencesCount(const SymbolPtr &symbol) = 0;
         virtual bool hasReferences(const SymbolPtr &symbol) = 0;
-        virtual void pushReference(const SymbolPtr& symbol, address_t refbyaddress) = 0;
-        virtual void pushReference(address_t address, address_t refbyaddress) = 0;
+        virtual void pushReference(const SymbolPtr& symbol, const InstructionPtr& refby) = 0;
+        virtual void pushReference(address_t address, const InstructionPtr& refby) = 0;
         virtual void updateInstruction(const InstructionPtr& instruction) = 0;
         virtual void checkJumpTable(const InstructionPtr& instruction, const Operand &operand) = 0;
         virtual void checkLocation(const InstructionPtr& instruction, address_t address) = 0;

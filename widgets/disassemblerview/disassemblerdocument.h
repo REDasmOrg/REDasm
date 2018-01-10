@@ -18,7 +18,7 @@ class DisassemblerDocument: public QObject
 
     private:
         typedef std::set<address_t> GeneratedBlocks;
-        typedef std::set<address_t> PendingSymbols;
+        typedef std::set<address_t> PendingAddresses;
 
     public:
         enum { UnknownBlock = 0,
@@ -65,7 +65,7 @@ class DisassemblerDocument: public QObject
         void setMetaData(QTextCharFormat &charformat, const REDasm::SymbolPtr &symbol);
         bool selectBlock(address_t address);
         void moveToBlock(address_t address);
-        bool isInstructionGenerated(address_t address);
+        bool isBlockGenerated(address_t address);
 
     public:
         static QJsonObject decode(const QString &data);
@@ -79,7 +79,7 @@ class DisassemblerDocument: public QObject
         REDasm::SymbolTable* _symbols;
         REDasm::PrinterPtr _currentprinter, _printer;
         GeneratedBlocks _generatedblocks;
-        PendingSymbols _pendingsymbols;
+        PendingAddresses _pendingsymbols, _pendinginstructions;
         QTextDocument* _document;
         QTextCursor _textcursor;
         QJsonObject _theme;

@@ -91,7 +91,7 @@ void Analyzer::findTrampolines(Listing &listing, SymbolPtr symbol)
 
     symbol->type |= SymbolTypes::Locked;
     symboltable->update(symbol, "_" + REDasm::normalize(symimport->name));
-    this->_disassembler->pushReference(symimport, it.key);
+    this->_disassembler->pushReference(symimport, *it);
 }
 
 SymbolPtr Analyzer::findTrampolines_x86(Listing::iterator& it, SymbolTable* symboltable)

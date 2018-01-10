@@ -15,6 +15,11 @@ template<template<typename, typename> class V, typename T> void serializeArray(s
     std::for_each(v.begin(), v.end(), cb);
 }
 
+template<template<typename, typename, typename> class V, typename T> void serializeArray(std::fstream& fs, const V< T, std::less<T>, std::allocator<T> >& v, std::function<void(const T&)> cb) {
+    Serializer::serializeScalar(fs, v.size(), sizeof(u32));
+    std::for_each(v.begin(), v.end(), cb);
+}
+
 template<template<typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::allocator<T> >& v, std::function<void(T&)> cb) {
 
     u32 size = 0;
@@ -24,6 +29,18 @@ template<template<typename, typename> class V, typename T> void deserializeArray
         T t;
         cb(t);
         v.push_back(t);
+    }
+}
+
+template<template<typename, typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::less<T>, std::allocator<T> >& v, std::function<void(T&)> cb) {
+
+    u32 size = 0;
+    Serializer::deserializeScalar(fs, &size, sizeof(u32));
+
+    for(u32 i = 0; i < size; i++) {
+        T t;
+        cb(t);
+        v.insert(t);
     }
 }
 

@@ -56,7 +56,7 @@ void DisassemblerDocument::setTheme(const QString &theme)
 
 bool DisassemblerDocument::generate(address_t address, const QTextCursor& cursor)
 {
-    if(this->isInstructionGenerated(address))
+    if(this->isBlockGenerated(address))
         return false;
 
     this->_textcursor = cursor;
@@ -91,7 +91,7 @@ void DisassemblerDocument::updateInstructions(const REDasm::SymbolPtr& symbol)
 
     for(auto it = refs.begin(); it != refs.end(); it++)
     {
-        if(!this->isInstructionGenerated(*it))
+        if(!this->isBlockGenerated(*it))
             continue;
 
         REDasm::InstructionPtr instruction = listing[*it];
@@ -106,7 +106,7 @@ void DisassemblerDocument::updateInstructions(const REDasm::SymbolPtr& symbol)
 
 void DisassemblerDocument::updateFunction(const REDasm::SymbolPtr &symbol)
 {
-    if(!this->isInstructionGenerated(symbol->address) || !this->selectBlock(symbol->address))
+    if(!this->isBlockGenerated(symbol->address) || !this->selectBlock(symbol->address))
         return;
 
     QTextBlock b = this->_textcursor.block();
@@ -126,7 +126,7 @@ void DisassemblerDocument::updateFunction(const REDasm::SymbolPtr &symbol)
 
 void DisassemblerDocument::updateLabels(const REDasm::SymbolPtr &symbol)
 {
-    if(!this->isInstructionGenerated(symbol->address))
+    if(!this->isBlockGenerated(symbol->address))
         return;
 
     REDasm::Listing& listing = this->_disassembler->listing();
@@ -138,7 +138,7 @@ void DisassemblerDocument::updateLabels(const REDasm::SymbolPtr &symbol)
 
         for(auto it = instruction->targets.begin(); it != instruction->targets.end(); it++)
         {
-            if(!this->isInstructionGenerated(*it) || !this->selectBlock(*it))
+            if(!this->isBlockGenerated(*it) || !this->selectBlock(*it))
                 continue;
 
             QTextBlock b = this->_textcursor.block();
@@ -250,6 +250,7 @@ void DisassemblerDocument::appendInstruction(const REDasm::InstructionPtr &instr
     }
 
     this->_generatedblocks.insert(instruction->address);
+    this->_pendinginstructions.insert(instruction->address);
 
     QTextBlockFormat blockformat;
     blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(instruction->address));
@@ -425,15 +426,6 @@ void DisassemblerDocument::appendSymbol(const REDasm::SymbolPtr &symbol, const s
 
     charformat.setAnchor(false);
     this->_textcursor.insertText(S_TO_QS(value), charformat);
-
-    u64 c = this->_disassembler->getReferencesCount(symbol->address);
-
-    if(c)
-    {
-        charformat.setForeground(THEME_VALUE("comment_fg"));
-        this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address) + INDENT_COMMENT), QTextCharFormat());
-        this->_textcursor.insertText(QString("# %1 reference(s)").arg(c), charformat);
-    }
 }
 
 void DisassemblerDocument::appendSymbols(bool replace)
@@ -442,11 +434,24 @@ void DisassemblerDocument::appendSymbols(bool replace)
     {
         REDasm::SymbolPtr symbol = this->_symbols->symbol(*it);
 
+        if(!symbol)
+            continue;
+
         this->_currentprinter->symbol(symbol, [this, replace](const REDasm::SymbolPtr& symbol, const std::string& line) {
             this->appendSymbol(symbol, line, replace);
         });
     }
 
+    for(auto it = this->_pendinginstructions.begin(); it != this->_pendinginstructions.end(); it++)
+    {
+        REDasm::InstructionPtr instruction = this->_disassembler->listing()[*it];
+
+        this->_currentprinter->symbols(instruction, [this, replace](const REDasm::SymbolPtr& symbol, const std::string& line) {
+            this->appendSymbol(symbol, line, replace);
+        });
+    }
+
+    this->_pendinginstructions.clear();
     this->_pendingsymbols.clear();
 }
 
@@ -554,7 +559,7 @@ void DisassemblerDocument::moveToBlock(address_t address)
         this->_textcursor.movePosition(QTextCursor::End);
 }
 
-bool DisassemblerDocument::isInstructionGenerated(address_t address)
+bool DisassemblerDocument::isBlockGenerated(address_t address)
 {
     return this->_generatedblocks.find(address) != this->_generatedblocks.end();
 }

@@ -68,10 +68,10 @@ size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t 
             InstructionPtr tgtinstruction = *it;
             tgtinstruction->cmt("JUMP_TABLE @ " + REDasm::hex(instruction->address) + " case " + std::to_string(cases));
             this->_listing.update(tgtinstruction);
-            this->pushReference(jmpsymbol, tgtinstruction->address);
+            this->pushReference(jmpsymbol, tgtinstruction);
         }
 
-        this->pushReference(target, instruction->address);
+        this->pushReference(target, instruction);
         address += sz;
         cases++;
     }

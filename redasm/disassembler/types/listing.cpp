@@ -284,6 +284,10 @@ void Listing::serialize(const InstructionPtr &value, std::fstream &fs)
         Serializer::serializeScalar(fs, target);
     });
 
+    Serializer::serializeArray<std::set, address_t>(fs, value->references, [this, &fs](address_t ref) {
+        Serializer::serializeScalar(fs, ref);
+    });
+
     Serializer::serializeArray<std::vector, Operand>(fs, value->operands, [this, &fs](const Operand& op) {
         Serializer::serializeScalar(fs, op.loc_index);
         Serializer::serializeScalar(fs, op.type);
@@ -323,6 +327,10 @@ void Listing::deserialize(InstructionPtr &value, std::fstream &fs)
 
     Serializer::deserializeArray<std::list, address_t>(fs, value->targets, [this, &fs](address_t& target) {
         Serializer::deserializeScalar(fs, &target);
+    });
+
+    Serializer::deserializeArray<std::set, address_t>(fs, value->references, [this, &fs](address_t& ref) {
+        Serializer::deserializeScalar(fs, &ref);
     });
 
     Serializer::deserializeArray<std::vector, Operand>(fs, value->operands, [this, &fs](Operand& op) {

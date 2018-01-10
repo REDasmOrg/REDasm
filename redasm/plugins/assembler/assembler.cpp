@@ -33,12 +33,6 @@ void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const 
         return;
     }
 
-    if(instruction->address == 0x0040100E)
-    {
-        int zzz = 0;
-        zzz++;
-    }
-
     SymbolTable* symboltable = disassembler->symbolTable();
     u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value, opvalue = value;
     SymbolPtr symbol = symboltable->symbol(value);
@@ -84,7 +78,7 @@ void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const 
         return;
     }
 
-    disassembler->pushReference(opvalue, instruction->address);
+    disassembler->pushReference(opvalue, instruction);
 }
 
 bool AssemblerPlugin::decode(Buffer buffer, const InstructionPtr &instruction)
@@ -184,11 +178,7 @@ void AssemblerPlugin::analyzeRegister(DisassemblerFunctions *disassembler, const
     if(segment->is(SegmentTypes::Data) && operand.isWrite())
     {
         instruction->cmt("VMIL WRITE @ " + segment->name + ":" + REDasm::hex(target));
-        disassembler->updateInstruction(instruction);
-
-        if(!segment->is(SegmentTypes::Bss))
-            disassembler->checkLocation(instruction, target);
-
+        disassembler->checkLocation(instruction, target); // Updates instruction
         return;
     }
 
@@ -221,8 +211,7 @@ void AssemblerPlugin::analyzeRegisterBranch(address_t target, DisassemblerFuncti
 
     instruction->target(target);
     instruction->cmt("VMIL = " + symbol->name);
-    disassembler->updateInstruction(instruction);
-    disassembler->pushReference(symbol, instruction->address);
+    disassembler->pushReference(symbol, instruction); // Updates instruction
 }
 
 }

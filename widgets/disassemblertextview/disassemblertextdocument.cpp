@@ -9,15 +9,28 @@ bool DisassemblerTextDocument::generate(address_t address, const QTextCursor &cu
     if(!DisassemblerDocument::generate(address, cursor))
         return false;
 
+    REDasm::SymbolTable* symboltable = this->_disassembler->symbolTable();
+
     this->moveToBlock(address);
     this->_textcursor.beginEditBlock();
 
-    REDasm::Listing& listing = this->_disassembler->listing();
+    REDasm::SymbolPtr symbol = symboltable->symbol(address);
 
-    listing.iterateFunction(address, [this](const REDasm::InstructionPtr& i) { this->appendInstruction(i); },
-                                     [this](const REDasm::SymbolPtr& s) { this->appendFunctionStart(s); },
-                                     [this](const REDasm::InstructionPtr& i) { this->appendEmpty(i->address); },
-                                     [this](const REDasm::SymbolPtr& s) { this->appendLabel(s); });
+    if(!symbol)
+        return false;
+
+    if(symbol->isFunction())
+    {
+        REDasm::Listing& listing = this->_disassembler->listing();
+
+        listing.iterateFunction(address, [this](const REDasm::InstructionPtr& i) { this->appendInstruction(i); },
+                                         [this](const REDasm::SymbolPtr& s) { this->appendFunctionStart(s); },
+                                         [this](const REDasm::InstructionPtr& i) { this->appendEmpty(i->address); },
+                                         [this](const REDasm::SymbolPtr& s) { this->appendLabel(s); });
+
+    }
+    else
+        this->_pendingsymbols.insert(address);
 
     this->appendSymbols();
     this->_textcursor.endEditBlock();

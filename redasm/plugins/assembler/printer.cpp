@@ -8,6 +8,16 @@ Printer::Printer(DisassemblerFunctions *disassembler, SymbolTable *symboltable):
 
 }
 
+void Printer::symbols(const InstructionPtr &instruction, Printer::SymbolCallback symbolfunc)
+{
+    std::for_each(instruction->references.begin(), instruction->references.end(), [this, symbolfunc](address_t ref) {
+        SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(ref);
+
+        if(symbol)
+            this->symbol(symbol, symbolfunc);
+    });
+}
+
 void Printer::header(const SymbolPtr &symbol, Printer::HeaderCallback headerfunc)
 {
     std::string s(20, '=');
@@ -44,7 +54,7 @@ void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc)
         if(!this->_disassembler->readAddress(symbol->address, formatplugin->addressWidth(), value))
             return;
 
-        symbolfunc(symbol, REDasm::hex(value));
+        symbolfunc(symbol, REDasm::hex(value, formatplugin->addressWidth()));
     }
     else if(symbol->is(SymbolTypes::String))
         symbolfunc(symbol, " \"" + this->_disassembler->readString(symbol->address) + "\"");

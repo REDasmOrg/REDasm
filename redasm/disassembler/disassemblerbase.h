@@ -23,8 +23,8 @@ class DisassemblerBase: public DisassemblerFunctions
         virtual u64 getReferencesCount(address_t address);
         virtual u64 getReferencesCount(const SymbolPtr &symbol);
         virtual bool hasReferences(const SymbolPtr &symbol);
-        virtual void pushReference(const SymbolPtr& symbol, address_t refbyaddress);
-        virtual void pushReference(address_t address, address_t refbyaddress);
+        virtual void pushReference(const SymbolPtr& symbol, const InstructionPtr &refbyinstruction);
+        virtual void pushReference(address_t address, const InstructionPtr &refbyinstruction);
         virtual void checkLocation(const InstructionPtr& instruction, address_t address);
         virtual bool checkString(const InstructionPtr& instruction, address_t address);
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;

@@ -72,15 +72,10 @@ void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const 
         else
             disassembler->checkJumpTable(instruction, operand);
     }
-    else if(!segment->is(SegmentTypes::Bss))
+    else if(segment->is(SegmentTypes::Data))
     {
-        disassembler->checkString(instruction, opvalue);
-        return; // checkString() creates xrefs
-    }
-    else
-    {
-        disassembler->checkLocation(instruction, opvalue);
-        return; // checkLocation() creates xrefs
+        disassembler->checkLocation(instruction, opvalue); // Create Symbol + XRefs
+        return;
     }
 
     symbol = symboltable->symbol(opvalue);

@@ -87,7 +87,7 @@ void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc) const
 
         symbolfunc(symbol, REDasm::hex(value, formatplugin->addressWidth()));
     }
-    else if(symbol->is(SymbolTypes::WideString))
+    else if(symbol->is(SymbolTypes::WideStringMask))
         symbolfunc(symbol, " \"" + this->_disassembler->readWString(symbol->address) + "\"");
     else if(symbol->is(SymbolTypes::String))
         symbolfunc(symbol, " \"" + this->_disassembler->readString(symbol->address) + "\"");

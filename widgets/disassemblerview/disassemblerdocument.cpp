@@ -424,10 +424,24 @@ void DisassemblerDocument::appendSymbol(const REDasm::SymbolPtr &symbol, const s
 
     if(symbol->is(REDasm::SymbolTypes::String))
         charformat.setForeground(THEME_VALUE("string_fg"));
-    else
+    else if(!symbol->is(REDasm::SymbolTypes::Pointer))
         charformat.setForeground(THEME_VALUE("data_fg"));
 
-    charformat.setAnchor(false);
+    if(symbol->is(REDasm::SymbolTypes::Pointer))
+    {
+        REDasm::SymbolPtr ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
+
+        if(ptrsymbol)
+        {
+            data["address"] = ADDRESS_VARIANT(ptrsymbol->address);
+            charformat.setAnchorHref(DisassemblerDocument::encode(data));
+        }
+        else
+            charformat.setAnchor(false);
+    }
+    else
+        charformat.setAnchor(false);
+
     this->_textcursor.insertText(S_TO_QS(value), charformat);
 }
 

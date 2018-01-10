@@ -41,6 +41,18 @@ void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc)
     if(!segment)
         return;
 
+    if(symbol->is(SymbolTypes::Pointer))
+    {
+        SymbolPtr ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
+
+        if(ptrsymbol)
+        {
+            symbolfunc(symbol, ptrsymbol->name);
+            this->symbol(ptrsymbol, symbolfunc); // Emit pointed symbol too
+            return;
+        }
+    }
+
     if(symbol->is(SymbolTypes::Data))
     {
         if(segment->is(SegmentTypes::Bss))

@@ -137,6 +137,11 @@ FormatPlugin *DisassemblerBase::format()
 
 u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
 {
+    Segment* segment = this->_format->segment(address);
+
+    if(!segment || segment->is(SegmentTypes::Bss))
+        return 0;
+
     if(wide)
         *wide = false;
 

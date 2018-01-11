@@ -26,7 +26,7 @@
 | PE     | VB6 can be decompiled, Delphi support is WIP |
 | ELF    |                                              |
 | PSX    | PsyQ 4.7 signatures available                |
-| Dex    | WIP                                          |
+| Dex    |                                              |
 
 ### Supported Architectures
 | Format | Backend   | Notes          |
@@ -34,7 +34,7 @@
 | x86    | Capstone  |                |
 | MIPS   | Capstone  |                |
 | ARM    | Capstone  |32 bit only     |
-| Dalvik | REDasm    | WIP            |
+| Dalvik | REDasm    |                |
 | CHIP-8 | REDasm    | Just for fun :)|
 
 ## How to compile

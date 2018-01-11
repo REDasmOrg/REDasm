@@ -1,6 +1,6 @@
 #include "arm.h"
 
-#define ARM_REGISTER(reg)   ((reg == ARM_REG_INVALID) ? REGISTER_INVALID : reg)
+#define ARM_REGISTER(reg) ((reg == ARM_REG_INVALID) ? REGISTER_INVALID : reg)
 
 namespace REDasm {
 

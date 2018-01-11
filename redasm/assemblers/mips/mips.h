@@ -136,7 +136,7 @@ template<size_t mode> void MIPSAssembler<mode>::analyzeInstruction(const Instruc
 }
 
 typedef MIPSAssembler<CS_MODE_MIPS64> MIPS32Assembler;
-typedef MIPSAssembler<CS_MODE_MIPS64 | CS_MODE_MIPSGP64> MIPS64Assembler;
+typedef MIPSAssembler<CS_MODE_MIPS64> MIPS64Assembler;
 
 DECLARE_ASSEMBLER_PLUGIN(MIPS32Assembler, mips32)
 DECLARE_ASSEMBLER_PLUGIN(MIPS64Assembler, mips64)

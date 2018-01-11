@@ -24,7 +24,7 @@ lib_capstone.commands = @echo "Compiling Capstone..." && \
                         cmake $$CMAKE_GENERATOR $$CAPSTONE_SRC -DCAPSTONE_BUILD_SHARED=OFF -DCAPSTONE_BUILD_STATIC=ON -DCAPSTONE_BUILD_TESTS=OFF && \
                         $(MAKE)
 
-INCLUDEPATH += $$shell_path($$CAPSTONE_SRC/include)
+INCLUDEPATH += $$shell_path($$CAPSTONE_SRC/include/capstone)
 LIBS += -L$$CAPSTONE_BUILD -lcapstone
 PRE_TARGETDEPS += lib_capstone
 QMAKE_EXTRA_TARGETS += lib_capstone

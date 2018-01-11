@@ -1,6 +1,7 @@
-[submodule "depends/capstone"]
-	path = depends/capstone
-	url = https://github.com/aquynh/capstone
 [submodule "widgets/QHexEdit"]
 	path = widgets/QHexEdit
 	url = https://github.com/Dax89/QHexEdit.git
+[submodule "depends/capstone"]
+	path = depends/capstone
+	url = https://github.com/aquynh/capstone.git
+	branch = next

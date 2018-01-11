@@ -13,8 +13,6 @@
 #include <QtMath>
 #include <QMenu>
 
-#define THEME_VALUE(name) (this->_theme.contains(name) ? QColor(this->_theme[name].toString()) : QColor())
-
 DisassemblerTextView::DisassemblerTextView(QWidget *parent): QPlainTextEdit(parent), _issymboladdressvalid(false), _emitmode(DisassemblerTextView::Normal), _disdocument(NULL), _disassembler(NULL), _currentaddress(INT64_MAX), _symboladdress(0)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);

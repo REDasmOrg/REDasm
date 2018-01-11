@@ -15,7 +15,7 @@
 
 <p align="center">
   <i>A crossplatform, multiarchitecture disassembler.</i>
-  <img height="450" src="https://github.com/Dax89/REDasm/blob/master/artwork/Screenshot.png?raw=true">
+  <img height="450" src="https://github.com/REDasmOrg/REDasm/blob/master/artwork/Preview.gif">
 </p>
 
 ***

@@ -16,6 +16,8 @@ PEAnalyzer::PEAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles& 
     ADD_WNDPROC_API(4, "DialogBoxParamW");
     ADD_WNDPROC_API(4, "CreateDialogParamA");
     ADD_WNDPROC_API(4, "CreateDialogParamW");
+    ADD_WNDPROC_API(4, "CreateDialogIndirectParamA");
+    ADD_WNDPROC_API(4, "CreateDialogIndirectParamW");
 }
 
 void PEAnalyzer::analyze(Listing &listing)

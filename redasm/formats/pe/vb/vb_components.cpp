@@ -26,7 +26,7 @@ const VBComponents::Component *VBComponents::get(GUID *guid)
     if(it != _components.end())
         return &(it->second);
 
-    printf("Cannot find component %s\n", guidstring.c_str());
+    REDasm::log("Cannot find component " + guidstring);
     return NULL;
 }
 

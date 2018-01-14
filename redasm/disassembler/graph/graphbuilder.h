@@ -1,57 +1,42 @@
 #ifndef GRAPHBUILDER_H
 #define GRAPHBUILDER_H
 
-//#include <ogdf/layered/SugiyamaLayout.h>
 #include <functional>
 #include "../types/listing.h"
+#include "graphnode.h"
 
 namespace REDasm {
-
-/*
 
 class GraphBuilder // Keep graph interface separated from Listing class
 {
     public:
-        typedef ogdf::NodeElement Node;
-        typedef ogdf::EdgeElement Edge;
-        typedef std::set<address_t> Block;
-        typedef std::map<address_t, ogdf::NodeElement*> Nodes;
-        typedef std::list<ogdf::EdgeElement*> Edges;
-        typedef std::map<ogdf::NodeElement*, Block> Blocks;
+        typedef std::set<address_t> NodeList;
+
+    private:
+        typedef std::unordered_map<address_t, GraphNodePtr> Nodes;
+        typedef std::unordered_map<address_t, NodeList> Edges;
 
     public:
         GraphBuilder(Listing& listing);
-        ogdf::GraphAttributes& graphAttributes();
-        const Nodes &nodes();
-        const Edges &edges();
-        void position(Node *node, double& x, double& y) const;
-        void iterateBlocks(std::function<void(Node*, const Block&, double&, double&)> cb);
+        const GraphNodePtr& rootNode();
+        const GraphNodePtr& getNode(address_t address);
+        NodeList getEdges(const GraphNodePtr& node) const;
         void build(address_t address);
-        void layout();
 
     private:
-        void checkReferences(const SymbolPtr& symbol, const Listing::FunctionPath &path);
-        void checkFirst(ogdf::NodeElement *node);
-        void checkLast(ogdf::NodeElement *node);
-        void buildBlocks();
-        void buildEdges();
-        void buildNodes(const Listing::FunctionPath& path);
-        void addEdge(ogdf::NodeElement* from, ogdf::NodeElement* to, ogdf::Color::Name colorname);
-        address_t firstAddress(ogdf::NodeElement *node);
-        address_t lastAddress(ogdf::NodeElement* node);
-        ogdf::NodeElement* addNode(address_t address);
-        ogdf::NodeElement* findNode(address_t address);
+        void buildNodes();
+        void fillNode(const GraphNodePtr& node);
+        void addEdges(const GraphNodePtr& node);
+        void addEdge(const GraphNodePtr &node, address_t target);
+        void addNode(address_t address);
 
     private:
-        address_t _currentaddress;
+        address_t _startaddress, _endaddress;
         Listing& _listing;
-        ogdf::Graph _graph;
-        ogdf::GraphAttributes _ga;
         Nodes _nodes;
-        Blocks _blocks;
         Edges _edges;
+
 };
-*/
 
 } // namespace REDasm
 

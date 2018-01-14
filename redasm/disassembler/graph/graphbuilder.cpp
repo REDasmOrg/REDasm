@@ -1,258 +1,128 @@
 #include "graphbuilder.h"
-//#include <ogdf/layered/OptimalHierarchyLayout.h>
-//#include <ogdf/layered/OptimalRanking.h>
-//#include <ogdf/layered/MedianHeuristic.h>
-//#include <ogdf/fileformats/GraphIO.h>
-
-#define BOTTOM_OF(node) (node->y + node->height + GRAPH_PADDING)
-#define CENTER_X(node)  (node->x + node->width / 2)
-#define MIDDLE_W(node)  (node->width / 2)
-#define QUARTER_W(node) (node->width / 4)
 
 namespace REDasm {
 
-/*
-using namespace ogdf;
-
-GraphBuilder::GraphBuilder(Listing &listing): _currentaddress(0), _listing(listing)
+GraphBuilder::GraphBuilder(Listing &listing): _startaddress(0), _endaddress(0), _listing(listing)
 {
-    this->_ga.init(this->_graph, GraphAttributes::nodeGraphics |
-                                 GraphAttributes::edgeGraphics |
-                                 GraphAttributes::edgeArrow    |
-                                 GraphAttributes::edgeStyle);
 }
 
-GraphAttributes &GraphBuilder::graphAttributes()
+const GraphNodePtr &GraphBuilder::rootNode()
 {
-    return this->_ga;
+    return this->_nodes[this->_startaddress];
 }
 
-const GraphBuilder::Nodes &GraphBuilder::nodes()
+const GraphNodePtr &GraphBuilder::getNode(address_t address)
 {
-    return this->_nodes;
+    return this->_nodes[address];
 }
 
-const GraphBuilder::Edges &GraphBuilder::edges()
+GraphBuilder::NodeList GraphBuilder::getEdges(const GraphNodePtr &node) const
 {
-    return this->_edges;
-}
+    auto it = this->_edges.find(node->address);
 
-void GraphBuilder::position(GraphBuilder::Node* node, double &x, double &y) const
-{
-    x = this->_ga.x(node);
-    y = this->_ga.y(node);
-}
+    if(it != this->_edges.end())
+        return it->second;
 
-void GraphBuilder::iterateBlocks(std::function<void(GraphBuilder::Node*, const GraphBuilder::Block&, double&, double&)> cb)
-{
-    double w = 0, h = 0;
-
-    for(auto it = this->_blocks.begin(); it != this->_blocks.end(); it++)
-    {
-        NodeElement* node = it->first;
-        cb(node, it->second, w, h);
-
-        this->_ga.width(node) = w;
-        this->_ga.height(node) = h;
-    }
+    return NodeList();
 }
 
 void GraphBuilder::build(address_t address)
 {
-    auto fnit = this->_listing.findFunction(address);
-
-    if(fnit == this->_listing._paths.end())
+    if(!this->_listing.getFunctionBounds(address, &this->_startaddress, &this->_endaddress))
         return;
 
-    const Listing::FunctionPath& path = fnit->second;
+    this->buildNodes();
 
-    if(path.empty() || (*path.begin() == this->_currentaddress))
-        return;
+    std::for_each(this->_nodes.begin(), this->_nodes.end(), [this](const std::pair<address_t, const GraphNodePtr&>& item) {
+        this->fillNode(item.second);
+    });
 
-    this->_currentaddress = *path.begin();
-    this->buildNodes(path);
-}
-
-void GraphBuilder::layout()
-{
-    OptimalHierarchyLayout* ohl = new OptimalHierarchyLayout();
-    ohl->nodeDistance(10.0);
-    ohl->layerDistance(20.0);
-
-    SugiyamaLayout sl;
-    sl.alignSiblings(true);
-    sl.setLayout(ohl);
-    sl.call(this->_ga);
-
-    //GraphIO::drawSVG(this->_ga, "/home/davide/graph.svg");
-}
-
-void GraphBuilder::checkReferences(const SymbolPtr &symbol, const Listing::FunctionPath& path)
-{
-    ReferenceTable* referencetable = this->_listing.referenceTable();
-    ReferenceVector refs = referencetable->referencesToVector(symbol);
-
-    for(auto it = refs.begin(); it != refs.end(); it++)
-    {
-        if(path.find(*it) == path.end())
-            continue;
-
-        InstructionPtr instruction = this->_listing[*it];
-
-        if(!instruction->is(InstructionTypes::Conditional | InstructionTypes::Jump))
-            continue;
-
-        if(path.find(instruction->endAddress()) == path.end())
-            continue;
-
-        instruction = this->_listing[instruction->endAddress()];
-        this->addNode(instruction->address);
-    }
-}
-
-void GraphBuilder::checkFirst(NodeElement* node)
-{
-    ReferenceTable* referencetable = this->_listing.referenceTable();
-    InstructionPtr instruction = this->_listing[this->firstAddress(node)];
-    ReferenceVector refs = referencetable->referencesToVector(instruction->address);
-
-    std::for_each(refs.begin(), refs.end(), [this, node](address_t address) {
-        NodeElement* refnode = this->findNode(address);
-
-        if(refnode)
-            this->addEdge(refnode, node, Color::Name::Blue);
+    std::for_each(this->_nodes.begin(), this->_nodes.end(), [this](const std::pair<address_t, const GraphNodePtr&>& item) {
+        this->addEdges(item.second);
     });
 }
 
-void GraphBuilder::checkLast(NodeElement* node)
+void GraphBuilder::buildNodes()
 {
-    InstructionPtr instruction = this->_listing[this->lastAddress(node)];
+    auto it = this->_listing.find(this->_startaddress);
 
-    if(!instruction->is(InstructionTypes::Jump))
+    while(it != this->_listing.end())
     {
-        if(instruction->is(InstructionTypes::Stop))
-            return;
+        InstructionPtr instruction = *it;
 
-        NodeElement* nextnode = this->findNode(instruction->endAddress());
+        if(instruction->address >= this->_endaddress)
+            break;
 
-        if(nextnode)
-            this->addEdge(node, nextnode, Color::Name::Blue);
+        if(instruction->is(InstructionTypes::Jump) && (instruction->endAddress() < this->_endaddress))
+            this->addNode(instruction->endAddress());
+        else if(instruction->blockIs(BlockTypes::BlockStart))
+            this->addNode(instruction->address);
 
-        return;
-    }
-
-    std::for_each(instruction->targets.begin(), instruction->targets.end(), [this, node](address_t target) {
-        auto nit = this->_nodes.find(target);
-
-        if(nit != this->_nodes.end())
-            this->addEdge(node, nit->second, Color::Name::Green);
-    });
-
-    if(instruction->is(InstructionTypes::Conditional))
-    {
-        auto nit = this->_nodes.find(instruction->endAddress());
-
-        if(nit != this->_nodes.end())
-            this->addEdge(node, nit->second, Color::Name::Red);
+        it++;
     }
 }
 
-void GraphBuilder::buildBlocks()
+void GraphBuilder::fillNode(const GraphNodePtr& node)
 {
-    std::for_each(this->_nodes.begin(), this->_nodes.end(), [this](const std::pair<address_t, NodeElement*>& item) {
-        auto it = this->_listing.find(item.first);
-        Block& block = this->_blocks[item.second];
-        InstructionPtr instruction;
+    auto it = this->_listing.find(node->address);
 
-        do {
-            if(it == this->_listing.end())
-                break;
+    while(it != this->_listing.end())
+    {
+        if((it.key != node->address) && (this->_nodes.find(it.key) != this->_nodes.end()))
+            break;
 
-            instruction = *it;
+        node->items.insert(it.key);
+        it++;
+    }
+}
 
-            if(!block.empty() && (this->_nodes.find(instruction->address) != this->_nodes.end()))
-                break;
+void GraphBuilder::addEdges(const GraphNodePtr &node)
+{
+    auto it = this->_listing.find(node->address);
 
-            block.insert(instruction->address);
+    while(it != this->_listing.end())
+    {
+        InstructionPtr instruction = *it;
+
+        if(!instruction->is(InstructionTypes::Jump) || !instruction->hasTargets())
+        {
             it++;
-        }
-        while(!instruction || !instruction->is(InstructionTypes::Stop));
-    });
-}
-
-void GraphBuilder::buildEdges()
-{
-    for(auto it = this->_nodes.begin(); it != this->_nodes.end(); it++)
-    {
-        this->checkFirst(it->second);
-        this->checkLast(it->second);
-    }
-}
-
-void GraphBuilder::buildNodes(const Listing::FunctionPath &path)
-{
-    SymbolTable* symboltable = this->_listing.symbolTable();
-    this->addNode(*path.begin());
-
-    for(auto it = path.begin(); it != path.end(); it++)
-    {
-        SymbolPtr symbol = symboltable->symbol(*it);
-
-        if(!IS_LABEL(symbol) || (path.find(*it) == path.end()))
             continue;
+        }
 
-        this->addNode(*it);
-        this->checkReferences(symbol, path);
+        std::for_each(instruction->targets.begin(), instruction->targets.end(), [this, &node](address_t target) {
+            this->addEdge(node, target);
+        });
+
+        this->addEdge(node, instruction->endAddress());
+        it++;
     }
-
-    this->buildBlocks();
-    this->buildEdges();
 }
 
-void GraphBuilder::addEdge(NodeElement *from, NodeElement *to, Color::Name colorname)
+void GraphBuilder::addEdge(const GraphNodePtr& node, address_t target)
 {
-    EdgeElement* edge = this->_graph.newEdge(from, to);
-    this->_ga.strokeColor(edge) = colorname;
-    this->_edges.push_back(edge);
-}
+    if((target < this->_startaddress) || (target >= this->_endaddress))
+        return;
 
-address_t GraphBuilder::firstAddress(NodeElement *node)
-{
-    const Block& block = this->_blocks[node];
-    return *block.begin();
-}
+    auto it = this->_edges.find(node->address);
 
-address_t GraphBuilder::lastAddress(NodeElement *node)
-{
-    const Block& block = this->_blocks[node];
-    return *block.rbegin();
-}
-
-NodeElement* GraphBuilder::findNode(address_t address)
-{
-    for(auto it = this->_nodes.begin(); it != this->_nodes.end(); it++)
+    if(it != this->_edges.end())
     {
-        const Block& block = this->_blocks[it->second];
-
-        if(block.find(address) != block.end())
-            return it->second;
+        it->second.insert(target);
+        return;
     }
 
-    return NULL;
+    NodeList nodes;
+    nodes.insert(target);
+    this->_edges[node->address] = nodes;
 }
 
-NodeElement *GraphBuilder::addNode(address_t address)
+void GraphBuilder::addNode(address_t address)
 {
-    auto it = this->_nodes.find(address);
+    if(this->_nodes.find(address) != this->_nodes.end())
+        return;
 
-    if(it != this->_nodes.end())
-        return it->second;
-
-    NodeElement* n = this->_graph.newNode();
-    this->_nodes[address] = n;
-    this->_blocks[n] = Block();
-    return n;
+    this->_nodes[address] = std::make_unique<GraphNode>(address);
 }
-*/
 
 } // namespace REDasm

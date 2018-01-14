@@ -110,7 +110,11 @@ SOURCES += main.cpp\
     redasm/assemblers/dalvik/dalvik_printer.cpp \
     redasm/formats/dex/dex_statemachine.cpp \
     redasm/formats/dex/dex_utils.cpp \
-    themeprovider.cpp
+    themeprovider.cpp \
+    widgets/graphview/graphitems/graphitem.cpp \
+    widgets/graphview/graphitems/graphtextitem.cpp \
+    widgets/graphview/graphview.cpp \
+    widgets/graphview/graphviewprivate.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -206,7 +210,11 @@ HEADERS  += mainwindow.h \
     redasm/formats/dex/dex_utils.h \
     redasm/formats/pe/pe_debug.h \
     redasm/formats/pe/pe_common.h \
-    themeprovider.h
+    themeprovider.h \
+    widgets/graphview/graphitems/graphitem.h \
+    widgets/graphview/graphitems/graphtextitem.h \
+    widgets/graphview/graphview.h \
+    widgets/graphview/graphviewprivate.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

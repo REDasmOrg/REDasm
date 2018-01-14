@@ -4,14 +4,12 @@
 #include <QFontMetrics>
 #include <QPainter>
 
-FunctionBlockItem::FunctionBlockItem(REDasm::Disassembler *disassembler, const QString &theme) : QGraphicsTextItem()
+FunctionBlockItem::FunctionBlockItem(REDasm::Disassembler *disassembler, const QString &theme, QObject *parent) : GraphTextItem(parent)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setPointSize(12);
     font.setStyleHint(QFont::TypeWriter);
-
     this->setFont(font);
-
     this->_graphdocument = new DisassemblerGraphDocument(disassembler, theme, this->document());
 }
 
@@ -29,12 +27,4 @@ void FunctionBlockItem::append(const REDasm::InstructionPtr &instruction)
 void FunctionBlockItem::append(const REDasm::SymbolPtr &symbol)
 {
     this->_graphdocument->generate(symbol, this->textCursor());
-}
-
-void FunctionBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    QGraphicsTextItem::paint(painter, option, widget);
-
-    painter->setPen(QColor(Qt::black));
-    painter->drawRect(option->rect);
 }

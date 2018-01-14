@@ -1,14 +1,15 @@
 <p align="center">
   <img width=256 height=256 src="https://github.com/Dax89/REDasm/blob/master/artwork/logo.png?raw=true"/><br>
   <a href="https://travis-ci.org/REDasmOrg/REDasm">
-    <img src="https://travis-ci.org/REDasmOrg/REDasm.svg?branch=master">
+    <img src="https://img.shields.io/travis/REDasmOrg/REDasm.svg?style=flat-square&logo=travis">
   </a>
   <a href="https://ci.appveyor.com/project/Dax89/redasm">
-    <img src="https://ci.appveyor.com/api/projects/status/github/redasmorg/redasm?svg=true">
+    <img src="https://img.shields.io/appveyor/ci/Dax89/redasm.svg?style=flat-square&logo=appveyor">
   </a>
   <a href="https://t.me/REDasm_Disassembler">
-    <img src="https://github.com/Patrolavia/telegram-badge/blob/master/chat.svg">
+    <img src="https://img.shields.io/badge/chat-on%20Telegram-2fade6.svg?style=flat-square">
   </a>
+  <img src="https://img.shields.io/badge/license-GPL2-8e725e.svg?style=flat-square">
 </p>
 
 ***

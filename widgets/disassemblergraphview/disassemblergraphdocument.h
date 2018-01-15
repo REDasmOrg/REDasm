@@ -14,8 +14,7 @@ class DisassemblerGraphDocument : public DisassemblerDocument
 
     protected:
         virtual int indentWidth() const;
-        virtual void appendAddress(const REDasm::InstructionPtr &instruction);
-        virtual void appendComment(const REDasm::InstructionPtr &instruction);
+        virtual void appendAddress(address_t address);
         virtual void appendPathInfo(const REDasm::InstructionPtr &instruction);
 };
 

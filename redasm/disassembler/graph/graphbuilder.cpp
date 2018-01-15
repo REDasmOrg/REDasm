@@ -38,7 +38,7 @@ void GraphBuilder::build(address_t address)
     });
 
     std::for_each(this->_nodes.begin(), this->_nodes.end(), [this](const std::pair<address_t, const GraphNodePtr&>& item) {
-        this->addEdges(item.second);
+        this->buildEdges(item.second);
     });
 }
 
@@ -76,17 +76,26 @@ void GraphBuilder::fillNode(const GraphNodePtr& node)
     }
 }
 
-void GraphBuilder::addEdges(const GraphNodePtr &node)
+void GraphBuilder::buildEdges(const GraphNodePtr &node)
 {
-    auto it = this->_listing.find(node->address);
+    auto it = node->items.begin();
 
-    while(it != this->_listing.end())
+    for(; it != node->items.end(); it++)
     {
-        InstructionPtr instruction = *it;
+        InstructionPtr instruction = this->_listing[*it];
 
         if(!instruction->is(InstructionTypes::Jump) || !instruction->hasTargets())
+            continue;
+
+        int direction = TARGET_DIRECTION(instruction);
+
+        if(direction < 0) // Add Edges for loops
         {
-            it++;
+            auto it = this->_nodes.find(instruction->target());
+
+            if(it != this->_nodes.end())
+                this->addEdge((--it)->second, instruction->target());
+
             continue;
         }
 
@@ -94,8 +103,8 @@ void GraphBuilder::addEdges(const GraphNodePtr &node)
             this->addEdge(node, target);
         });
 
-        this->addEdge(node, instruction->endAddress());
-        it++;
+        if(direction > 0)
+            this->addEdge(node, instruction->endAddress());
     }
 }
 

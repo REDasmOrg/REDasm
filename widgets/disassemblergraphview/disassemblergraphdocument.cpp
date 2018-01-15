@@ -21,14 +21,9 @@ int DisassemblerGraphDocument::indentWidth() const
     return 0;
 }
 
-void DisassemblerGraphDocument::appendAddress(const REDasm::InstructionPtr &instruction)
+void DisassemblerGraphDocument::appendAddress(address_t address)
 {
-    RE_UNUSED(instruction);
-}
-
-void DisassemblerGraphDocument::appendComment(const REDasm::InstructionPtr &instruction)
-{
-    RE_UNUSED(instruction);
+    RE_UNUSED(address);
 }
 
 void DisassemblerGraphDocument::appendPathInfo(const REDasm::InstructionPtr &instruction)

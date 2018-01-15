@@ -13,7 +13,7 @@ class GraphBuilder // Keep graph interface separated from Listing class
         typedef std::set<address_t> NodeList;
 
     private:
-        typedef std::unordered_map<address_t, GraphNodePtr> Nodes;
+        typedef std::map<address_t, GraphNodePtr> Nodes;
         typedef std::unordered_map<address_t, NodeList> Edges;
 
     public:
@@ -26,7 +26,7 @@ class GraphBuilder // Keep graph interface separated from Listing class
     private:
         void buildNodes();
         void fillNode(const GraphNodePtr& node);
-        void addEdges(const GraphNodePtr& node);
+        void buildEdges(const GraphNodePtr& node);
         void addEdge(const GraphNodePtr &node, address_t target);
         void addNode(address_t address);
 

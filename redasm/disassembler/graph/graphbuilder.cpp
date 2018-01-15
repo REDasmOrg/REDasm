@@ -68,7 +68,7 @@ void GraphBuilder::fillNode(const GraphNodePtr& node)
 
     while(it != this->_listing.end())
     {
-        if((it.key == this->_endaddress) || ((it.key != node->address) && (this->_nodes.find(it.key) != this->_nodes.end())))
+        if((it.key >= this->_endaddress) || ((it.key != node->address) && (this->_nodes.find(it.key) != this->_nodes.end())))
             break;
 
         node->items.insert(it.key);

@@ -16,7 +16,6 @@ void DisassemblerGraphView::display(address_t address)
 
     REDasm::Listing& listing = this->_disassembler->listing();
     REDasm::GraphBuilder gb(listing);
-
     gb.build(address);
 
     this->beginInsertion();

@@ -7,8 +7,13 @@
 #define ITEM_PADDING 15
 #define ARROW_SIZE   8
 
-GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false), _rootitem(NULL)
+GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false), _locklayout(false), _rootitem(NULL)
 {
+    QPalette p = this->palette();
+    p.setColor(QPalette::Background, Qt::white);
+    this->setAutoFillBackground(true);
+    this->setPalette(p);
+
     this->_graphsize = QSize(0, 0);
 }
 
@@ -17,8 +22,10 @@ const QSize &GraphViewPrivate::graphSize() const
     return this->_graphsize;
 }
 
-GraphItem* GraphViewPrivate::addItem(GraphItem *item)
+GraphItem* GraphViewPrivate::addRoot(GraphItem *item)
 {
+    this->_rootitem = item;
+
     this->addItem(item, true);
     return item;
 }
@@ -28,7 +35,37 @@ void GraphViewPrivate::addEdge(GraphItem *fromitem, GraphItem *toitem)
     this->addItem(fromitem, false);
     this->addItem(toitem, false);
 
-    this->_items[fromitem] << toitem;
+    this->_graph[fromitem] << toitem;
+    this->layoutRoot();
+}
+
+void GraphViewPrivate::removeAll()
+{
+    this->_rootitem = NULL;
+    this->_graphsize = QSize(0, 0);
+    this->_processed.clear();
+    this->_graph.clear();
+
+    if(!this->_items.isEmpty())
+    {
+        qDeleteAll(this->_items);
+        this->_items.clear();
+    }
+
+    this->update();
+}
+
+void GraphViewPrivate::beginInsertion()
+{
+    this->_locklayout = true;
+}
+
+void GraphViewPrivate::endInsertion()
+{
+    if(!this->_locklayout)
+        return;
+
+    this->_locklayout = false;
     this->layoutRoot();
 }
 
@@ -71,7 +108,7 @@ void GraphViewPrivate::drawArrow(QPainter *painter, GraphItem *fromitem, GraphIt
 
 void GraphViewPrivate::drawEdges(QPainter *painter, GraphItem *item)
 {
-    const GraphItemList& itemlist = this->_items[item];
+    const GraphItemList& itemlist = this->_graph[item];
 
     foreach(GraphItem* childitem, itemlist)
         this->drawArrow(painter, item, childitem);
@@ -99,7 +136,7 @@ void GraphViewPrivate::layoutRoot()
 
 QSize GraphViewPrivate::layoutEdges(GraphItem *parentitem)
 {
-    const GraphItemList& itemlist = this->_items[parentitem];
+    const GraphItemList& itemlist = this->_graph[parentitem];
     QRect parentrect = parentitem->rect();
     QPoint center = parentrect.center();
     QSize edgessize = this->edgesSize(parentitem);
@@ -134,23 +171,21 @@ void GraphViewPrivate::addItem(GraphItem *item, bool dolayout)
 {
     item->setParent(this); // Take ownership
 
-    if(!this->_rootitem)
-        this->_rootitem = item;
-
-    if(!this->_items.contains(item))
+    if(!this->_graph.contains(item))
     {
         this->_graphsize += item->size();
-        this->_items[item] = GraphItemList();
+        this->_items << item;
+        this->_graph[item] = GraphItemList();
     }
 
-    if(dolayout)
+    if(!this->_locklayout && dolayout)
         this->layoutRoot();
 }
 
 QSize GraphViewPrivate::edgesSize(GraphItem *item) const
 {
     int w = 0, h = 0;
-    const GraphItemList& edgelist = this->_items[item];
+    const GraphItemList& edgelist = this->_graph[item];
 
     foreach(GraphItem* edgeitem, edgelist)
     {
@@ -169,8 +204,12 @@ void GraphViewPrivate::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
+    painter.eraseRect(this->rect());
 
-    GraphItemMapIterator it(this->_items);
+    if(this->_graph.isEmpty() || this->_locklayout)
+        return;
+
+    GraphItemMapIterator it(this->_graph);
 
     while(it.hasNext())
     {

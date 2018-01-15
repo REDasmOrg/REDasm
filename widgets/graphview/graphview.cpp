@@ -3,11 +3,6 @@
 
 GraphView::GraphView(QWidget *parent): QScrollArea(parent)
 {
-    QPalette p = this->palette();
-    p.setColor(QPalette::Background, Qt::white);
-    this->setAutoFillBackground(true);
-    this->setPalette(p);
-
     this->_graphview_p = new GraphViewPrivate(this);
     this->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     this->setFocusPolicy(Qt::NoFocus);
@@ -17,14 +12,29 @@ GraphView::GraphView(QWidget *parent): QScrollArea(parent)
     connect(this->_graphview_p, &GraphViewPrivate::graphDrawed, this, &GraphView::resizeGraphView);
 }
 
-GraphItem *GraphView::addItem(GraphItem *item)
+GraphItem *GraphView::addRoot(GraphItem *item)
 {
-    return this->_graphview_p->addItem(item);
+    return this->_graphview_p->addRoot(item);
 }
 
 void GraphView::addEdge(GraphItem *fromitem, GraphItem *toitem)
 {
     this->_graphview_p->addEdge(fromitem, toitem);
+}
+
+void GraphView::removeAll()
+{
+    return this->_graphview_p->removeAll();
+}
+
+void GraphView::beginInsertion()
+{
+    return this->_graphview_p->beginInsertion();
+}
+
+void GraphView::endInsertion()
+{
+    return this->_graphview_p->endInsertion();
 }
 
 bool GraphView::overviewMode() const

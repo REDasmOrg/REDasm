@@ -19,8 +19,11 @@ class GraphViewPrivate : public QWidget
     public:
         explicit GraphViewPrivate(QWidget *parent = NULL);
         const QSize& graphSize() const;
-        GraphItem *addItem(GraphItem* item);
+        GraphItem *addRoot(GraphItem* item);
         void addEdge(GraphItem* fromitem, GraphItem* toitem);
+        void removeAll();
+        void beginInsertion();
+        void endInsertion();
 
     public:
         bool overviewMode() const;
@@ -41,9 +44,10 @@ class GraphViewPrivate : public QWidget
         void graphDrawed();
 
     private:
-        bool _overviewmode;
+        bool _overviewmode, _locklayout;
         GraphItem* _rootitem;
-        GraphItemMap _items;
+        GraphItemMap _graph;
+        QList<GraphItem*> _items;
         QSet<GraphItem*> _processed;
         QSize _graphsize;
 };

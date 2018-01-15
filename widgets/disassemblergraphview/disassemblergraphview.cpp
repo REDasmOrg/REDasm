@@ -14,12 +14,16 @@ void DisassemblerGraphView::display(address_t address)
     if(!this->_disassembler)
         return;
 
-    //REDasm::Listing& listing = this->_disassembler->listing();
-    //REDasm::GraphBuilder gb(listing);
+    REDasm::Listing& listing = this->_disassembler->listing();
+    REDasm::GraphBuilder gb(listing);
 
-    //gb.build(address);
-    //this->_addedblocks.clear();
-    //this->addBlock(gb.rootNode(), NULL, gb, listing);
+    gb.build(address);
+
+    this->beginInsertion();
+        this->_addedblocks.clear();
+        this->removeAll();
+        this->addBlock(gb.rootNode(), NULL, gb, listing);
+    this->endInsertion();
 }
 
 void DisassemblerGraphView::addBlock(const REDasm::GraphNodePtr &node, FunctionBlockItem* parentitem, REDasm::GraphBuilder& gb, REDasm::Listing& listing)
@@ -37,7 +41,7 @@ void DisassemblerGraphView::addBlock(const REDasm::GraphNodePtr &node, FunctionB
     if(parentitem)
         this->addEdge(parentitem, fbi);
     else
-        this->addItem(fbi);
+        this->addRoot(fbi);
 
     REDasm::GraphBuilder::NodeList edges = gb.getEdges(node);
 

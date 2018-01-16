@@ -20,11 +20,17 @@ class GraphView : public QScrollArea
         bool overviewMode() const;
         void setOverviewMode(bool b);
 
+    protected:
+        virtual void mousePressEvent(QMouseEvent* e);
+        virtual void mouseReleaseEvent(QMouseEvent* e);
+        virtual void mouseMoveEvent(QMouseEvent* e);
+
     private slots:
         void resizeGraphView();
 
     private:
         GraphViewPrivate* _graphview_p;
+        QPoint _lastpos;
 };
 
 #endif // GRAPHVIEW_H

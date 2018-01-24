@@ -1,4 +1,5 @@
 #include "disassemblergraphview.h"
+#include "../../redasm/disassembler/graph/graphlayout.h"
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent) : GraphView(parent)
 {
@@ -17,6 +18,9 @@ void DisassemblerGraphView::display(address_t address)
     REDasm::Listing& listing = this->_disassembler->listing();
     REDasm::GraphBuilder gb(listing);
     gb.build(address);
+
+    //REDasm::GraphLayout gl;
+    //gl.layout(gb);
 
     this->beginInsertion();
         this->_addedblocks.clear();

@@ -7,6 +7,7 @@
 #include <QColor>
 #include <QUrl>
 #include "../../redasm/disassembler/disassembler.h"
+#include "../../themeprovider.h"
 
 #define S_TO_QS(s)           QString::fromStdString(s)
 #define HEX_ADDRESS(address) S_TO_QS(REDasm::hex(address, this->_disassembler->format()->bits(), false))

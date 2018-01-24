@@ -1,5 +1,4 @@
 #include "disassemblerdocument.h"
-#include "../../themeprovider.h"
 #include <QJsonDocument>
 
 #define ADDRESS_VARIANT(address) QJsonValue::fromVariant(QVariant::fromValue(address))

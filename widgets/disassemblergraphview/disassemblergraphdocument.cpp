@@ -23,7 +23,11 @@ int DisassemblerGraphDocument::indentWidth() const
 
 void DisassemblerGraphDocument::appendAddress(address_t address)
 {
-    RE_UNUSED(address);
+    QTextCharFormat charformat;
+    charformat.setForeground(THEME_VALUE("address_fg"));
+
+    this->_textcursor.setCharFormat(charformat);
+    this->_textcursor.insertText(HEX_ADDRESS(address) + " ");
 }
 
 void DisassemblerGraphDocument::appendPathInfo(const REDasm::InstructionPtr &instruction)

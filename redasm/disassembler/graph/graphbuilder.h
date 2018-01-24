@@ -7,8 +7,10 @@
 
 namespace REDasm {
 
-class GraphBuilder // Keep graph interface separated from Listing class
+class GraphBuilder
 {
+    friend class GraphLayout;
+
     public:
         typedef std::set<address_t> NodeList;
 
@@ -35,7 +37,6 @@ class GraphBuilder // Keep graph interface separated from Listing class
         Listing& _listing;
         Nodes _nodes;
         Edges _edges;
-
 };
 
 } // namespace REDasm

@@ -1,6 +1,6 @@
 #include "graphview.h"
+#include <QMouseEvent>
 #include <QScrollBar>
-#include <QDebug>
 
 GraphView::GraphView(QWidget *parent): QScrollArea(parent)
 {

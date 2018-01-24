@@ -143,6 +143,9 @@ void Disassembler::searchCode(const Segment &segment)
         if(this->skipExploredData(address))
             continue;
 
+        if(this->skipPadding(address))
+            continue;
+
         if(!this->maybeValidCode(address))
             continue;
 
@@ -226,6 +229,17 @@ bool Disassembler::skipExploredData(address_t &address)
     }
 
     return false;
+}
+
+bool Disassembler::skipPadding(address_t &address)
+{
+    address_t startaddress = address;
+    u64 value = 0;
+
+    while(this->readAddress(address, this->_format->addressWidth(), value) && !value)
+        address += this->_format->addressWidth();
+
+    return address != startaddress;
 }
 
 bool Disassembler::maybeValidCode(address_t& address)

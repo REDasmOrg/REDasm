@@ -36,6 +36,7 @@ class Disassembler: public DisassemblerBase
         void searchCode(const Segment &segment);
         void searchStrings(const Segment& segment);
         bool skipExploredData(address_t& address);
+        bool skipPadding(address_t& address);
         bool maybeValidCode(address_t& address);
         InstructionPtr disassembleInstruction(address_t address, Buffer &b);
         void analyzeInstruction(const InstructionPtr& instruction);

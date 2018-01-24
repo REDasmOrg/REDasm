@@ -444,8 +444,8 @@ bool Disassembler::disassemble(address_t address)
 
         Buffer b = this->_buffer + this->_format->offset(address);
         instruction = this->disassembleInstruction(address, b); // Disassemble single instruction
+        this->_listing.commit(address, instruction);            // Mark address as decoded
         this->analyzeInstruction(instruction);                  // Analyze instruction operands
-        this->_listing.commit(address, instruction);
 
         if(this->_assembler->done(instruction))
             break;

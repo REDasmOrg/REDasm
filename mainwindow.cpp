@@ -184,6 +184,6 @@ void MainWindow::on_tbDatabase_clicked()
 
 void MainWindow::on_tbAbout_clicked()
 {
-    AboutDialog dlgabout;
+    AboutDialog dlgabout(this);
     dlgabout.exec();
 }

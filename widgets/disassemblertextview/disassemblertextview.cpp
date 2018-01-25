@@ -377,6 +377,12 @@ void DisassemblerTextView::showReferences(address_t address)
     if(!symbol)
         return;
 
+    if(!this->_disassembler->getReferencesCount(address))
+    {
+        QMessageBox::information(this, "No References", "There are no references to " + S_TO_QS(symbol->name));
+        return;
+    }
+
     ReferencesDialog dlgreferences(this->_disassembler, this->_currentaddress, symbol, this);
     connect(&dlgreferences, &ReferencesDialog::jumpTo, [this](address_t address) { this->goTo(address); });
     dlgreferences.exec();

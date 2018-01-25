@@ -2,7 +2,7 @@
 #define FORMAT_H
 
 #include <unordered_map>
-#include "../disassembler/disassemblerfunctions.h"
+#include "../disassembler/disassemblerapi.h"
 #include "../disassembler/types/symboltable.h"
 #include "../support/endianness.h"
 #include "../analyzer/analyzer.h"
@@ -44,7 +44,7 @@ class FormatPlugin: public Plugin
 
     public:
         virtual offset_t offset(address_t address) const;
-        virtual Analyzer *createAnalyzer(DisassemblerFunctions* dfunctions, const SignatureFiles &signatures) const;
+        virtual Analyzer *createAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures) const;
         virtual const char* assembler() const = 0;
         virtual u32 bits() const = 0;
         virtual u32 flags() const;

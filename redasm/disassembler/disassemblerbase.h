@@ -4,11 +4,11 @@
 #include <functional>
 #include "../plugins/format.h"
 #include "types/referencetable.h"
-#include "disassemblerfunctions.h"
+#include "disassemblerapi.h"
 
 namespace REDasm {
 
-class DisassemblerBase: public DisassemblerFunctions
+class DisassemblerBase: public DisassemblerAPI
 {
     public:
         DisassemblerBase(Buffer buffer, FormatPlugin* format);

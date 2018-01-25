@@ -6,7 +6,7 @@
 #include "../plugins/assembler/assembler.h"
 #include "../disassembler/types/listing.h"
 #include "../disassembler/types/symboltable.h"
-#include "../disassembler/disassemblerfunctions.h"
+#include "../disassembler/disassemblerapi.h"
 #include "../signatures/signaturedb.h"
 
 namespace REDasm {
@@ -14,7 +14,7 @@ namespace REDasm {
 class Analyzer
 {
     public:
-        Analyzer(DisassemblerFunctions* dfunctions, const SignatureFiles& signaturefiles);
+        Analyzer(DisassemblerAPI* disassembler, const SignatureFiles& signaturefiles);
         virtual ~Analyzer();
         virtual void analyze(Listing& listing);
 
@@ -27,7 +27,7 @@ class Analyzer
         SymbolPtr findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable);
 
     protected:
-        DisassemblerFunctions* _disassembler;
+        DisassemblerAPI* _disassembler;
         const SignatureFiles& _signaturefiles;
 };
 

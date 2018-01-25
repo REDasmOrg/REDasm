@@ -8,7 +8,7 @@ namespace REDasm {
 class CHIP8Emulator : public VMIL::Emulator
 {
     public:
-        CHIP8Emulator(DisassemblerFunctions* disassembler);
+        CHIP8Emulator(DisassemblerAPI* disassembler);
 
     protected:
         virtual instruction_id_t getInstructionId(const InstructionPtr &instruction) const;

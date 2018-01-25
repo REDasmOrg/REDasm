@@ -8,7 +8,7 @@ namespace REDasm {
 class MIPSEmulator : public VMIL::Emulator
 {
     public:
-        MIPSEmulator(DisassemblerFunctions* disassembler);
+        MIPSEmulator(DisassemblerAPI* disassembler);
         virtual bool emulate(const InstructionPtr &instruction);
 
     private:

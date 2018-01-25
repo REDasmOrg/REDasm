@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-Analyzer::Analyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signaturefiles): _disassembler(dfunctions), _signaturefiles(signaturefiles)
+Analyzer::Analyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): _disassembler(disassembler), _signaturefiles(signaturefiles)
 {
 
 }

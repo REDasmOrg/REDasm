@@ -8,7 +8,7 @@ namespace REDasm {
 class ARMPrinter: public CapstonePrinter
 {
     public:
-        ARMPrinter(csh cshandle, DisassemblerFunctions* disassembler, SymbolTable* symboltable);
+        ARMPrinter(csh cshandle, DisassemblerAPI* disassembler, SymbolTable* symboltable);
         virtual std::string ptr(const std::string &expr) const;
 };
 

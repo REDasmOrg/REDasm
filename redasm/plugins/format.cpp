@@ -69,9 +69,9 @@ offset_t FormatPlugin::offset(address_t address) const
     return address;
 }
 
-Analyzer* FormatPlugin::createAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles& signatures) const
+Analyzer* FormatPlugin::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& signatures) const
 {
-    return new Analyzer(dfunctions, signatures);
+    return new Analyzer(disassembler, signatures);
 }
 
 u32 FormatPlugin::flags() const

@@ -1,5 +1,5 @@
-#ifndef DISASSEMBLERFUNCTIONS_H
-#define DISASSEMBLERFUNCTIONS_H
+#ifndef DISASSEMBLERAPI_H
+#define DISASSEMBLERAPI_H
 
 #define MIN_STRING       4
 //#define MAX_STRING       200
@@ -17,10 +17,10 @@ namespace VMIL {
 class Emulator;
 }
 
-class DisassemblerFunctions
+class DisassemblerAPI
 {
     public:
-        DisassemblerFunctions();
+        DisassemblerAPI();
         virtual FormatPlugin* format() = 0;
         virtual AssemblerPlugin* assembler() = 0;
         virtual SymbolTable* symbolTable() = 0;
@@ -55,4 +55,4 @@ class DisassemblerFunctions
 
 } // namespace REDasm
 
-#endif // DISASSEMBLERFUNCTIONS_H
+#endif // DISASSEMBLERAPI_H

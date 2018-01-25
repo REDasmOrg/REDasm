@@ -14,7 +14,7 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
         X86Assembler(): CapstoneAssemblerPlugin<CS_ARCH_X86, mode>(), _stacksize(0) { }
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
-        virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const { return new X86Printer(this->_cshandle, disassembler, symboltable); }
+        virtual Printer* createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const { return new X86Printer(this->_cshandle, disassembler, symboltable); }
 
     private:
         void analyzeInstruction(const InstructionPtr& instruction);

@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-X86Printer::X86Printer(csh cshandle, DisassemblerFunctions *disassembler, SymbolTable *symboltable): CapstonePrinter(cshandle, disassembler, symboltable)
+X86Printer::X86Printer(csh cshandle, DisassemblerAPI *disassembler, SymbolTable *symboltable): CapstonePrinter(cshandle, disassembler, symboltable)
 {
 
 }

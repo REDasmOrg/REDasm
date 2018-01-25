@@ -12,7 +12,7 @@ class ARMAssembler: public CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_ARM>
         ARMAssembler();
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
-        virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const { return new ARMPrinter(this->_cshandle, disassembler, symboltable); }
+        virtual Printer* createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const { return new ARMPrinter(this->_cshandle, disassembler, symboltable); }
 
     private:
         bool isPC(register_t reg) const;

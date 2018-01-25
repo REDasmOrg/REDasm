@@ -5,7 +5,7 @@
 #include <capstone.h>
 #include "../../redasm.h"
 #include "../../disassembler/types/symboltable.h"
-#include "../../disassembler/disassemblerfunctions.h"
+#include "../../disassembler/disassemblerapi.h"
 
 namespace REDasm {
 
@@ -18,7 +18,7 @@ class Printer
         typedef std::function<void(const std::string&)> LineCallback;
 
     public:
-        Printer(DisassemblerFunctions* disassembler, SymbolTable* symboltable);
+        Printer(DisassemblerAPI* disassembler, SymbolTable* symboltable);
         void symbols(const InstructionPtr& instruction, SymbolCallback symbolfunc);
         std::string symbol(const SymbolPtr& symbol) const;
         std::string out(const InstructionPtr& instruction) const;
@@ -38,14 +38,14 @@ class Printer
         virtual std::string ptr(const std::string& expr) const;
 
     protected:
-        DisassemblerFunctions* _disassembler;
+        DisassemblerAPI* _disassembler;
         SymbolTable* _symboltable;
 };
 
 class CapstonePrinter: public Printer
 {
     public:
-        CapstonePrinter(csh cshandle, DisassemblerFunctions* disassembler, SymbolTable* symboltable);
+        CapstonePrinter(csh cshandle, DisassemblerAPI* disassembler, SymbolTable* symboltable);
 
     protected:
         virtual std::string reg(const RegisterOperand &regop) const;

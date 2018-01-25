@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-PEAnalyzer::PEAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles& signatures): Analyzer(dfunctions, signatures)
+PEAnalyzer::PEAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& signatures): Analyzer(disassembler, signatures)
 {
     ADD_WNDPROC_API(4, "DialogBoxA");
     ADD_WNDPROC_API(4, "DialogBoxW");

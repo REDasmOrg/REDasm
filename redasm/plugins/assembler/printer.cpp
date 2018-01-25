@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-Printer::Printer(DisassemblerFunctions *disassembler, SymbolTable *symboltable): _disassembler(disassembler), _symboltable(symboltable)
+Printer::Printer(DisassemblerAPI *disassembler, SymbolTable *symboltable): _disassembler(disassembler), _symboltable(symboltable)
 {
 
 }
@@ -229,7 +229,7 @@ std::string Printer::ptr(const std::string &expr) const
     return expr;
 }
 
-CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerFunctions *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable), _cshandle(cshandle)
+CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerAPI *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable), _cshandle(cshandle)
 {
 
 }

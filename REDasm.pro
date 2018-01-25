@@ -67,7 +67,6 @@ SOURCES += main.cpp\
     redasm/formats/pe/vb/vb_components.cpp \
     redasm/formats/pe/pe_imports.cpp \
     redasm/assemblers/arm/arm.cpp \
-    redasm/disassembler/disassemblerfunctions.cpp \
     redasm/disassembler/disassemblerbase.cpp \
     redasm/disassembler/types/listing.cpp \
     redasm/disassembler/types/referencetable.cpp \
@@ -116,7 +115,8 @@ SOURCES += main.cpp\
     widgets/graphview/graphview.cpp \
     widgets/graphview/graphviewprivate.cpp \
     redasm/disassembler/graph/graphlayout.cpp \
-    redasm/formats/elf/elf_analyzer.cpp
+    redasm/formats/elf/elf_analyzer.cpp \
+    redasm/disassembler/disassemblerapi.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -157,7 +157,6 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/vb/vb_components.h \
     redasm/formats/pe/pe_imports.h \
     redasm/assemblers/arm/arm.h \
-    redasm/disassembler/disassemblerfunctions.h \
     redasm/disassembler/disassemblerbase.h \
     redasm/disassembler/types/listing.h \
     redasm/disassembler/types/referencetable.h \
@@ -218,7 +217,8 @@ HEADERS  += mainwindow.h \
     widgets/graphview/graphview.h \
     widgets/graphview/graphviewprivate.h \
     redasm/disassembler/graph/graphlayout.h \
-    redasm/formats/elf/elf_analyzer.h
+    redasm/formats/elf/elf_analyzer.h \
+    redasm/disassembler/disassemblerapi.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

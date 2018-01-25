@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-MIPSEmulator::MIPSEmulator(DisassemblerFunctions *disassembler): VMIL::Emulator(disassembler)
+MIPSEmulator::MIPSEmulator(DisassemblerAPI *disassembler): VMIL::Emulator(disassembler)
 {
     VMIL_TRANSLATE_OPCODE(MIPS_INS_LB,  Lxx);
     VMIL_TRANSLATE_OPCODE(MIPS_INS_LH,  Lxx);

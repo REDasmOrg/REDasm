@@ -8,7 +8,7 @@ namespace REDasm {
 class X86Printer: public CapstonePrinter
 {
     public:
-        X86Printer(csh cshandle, DisassemblerFunctions *disassembler, SymbolTable *symboltable);
+        X86Printer(csh cshandle, DisassemblerAPI *disassembler, SymbolTable *symboltable);
         virtual std::string loc(const Operand &op) const;
 };
 

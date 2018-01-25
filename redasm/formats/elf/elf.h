@@ -25,7 +25,7 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
         virtual u32 bits() const;
         virtual const char* assembler() const;
         virtual bool load(u8* format);
-        virtual Analyzer* createAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signatures) const;
+        virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
 
     protected:
         virtual bool validate() const;
@@ -94,9 +94,9 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load(u8* format)
     return true;
 }
 
-template<ELF_PARAMS_T> Analyzer* ElfFormat<ELF_PARAMS_D>::createAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signatures) const
+template<ELF_PARAMS_T> Analyzer* ElfFormat<ELF_PARAMS_D>::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
 {
-    return new ElfAnalyzer(dfunctions, signatures);
+    return new ElfAnalyzer(disassembler, signatures);
 }
 
 template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* value) const

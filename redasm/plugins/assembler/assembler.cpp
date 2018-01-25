@@ -14,18 +14,18 @@ u32 AssemblerPlugin::flags() const
     return AssemblerFlags::None;
 }
 
-VMIL::Emulator *AssemblerPlugin::createEmulator(DisassemblerFunctions *disassembler) const
+VMIL::Emulator *AssemblerPlugin::createEmulator(DisassemblerAPI *disassembler) const
 {
     RE_UNUSED(disassembler);
     return NULL;
 }
 
-Printer *AssemblerPlugin::createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const
+Printer *AssemblerPlugin::createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const
 {
     return new Printer(disassembler, symboltable);
 }
 
-void AssemblerPlugin::analyzeOperand(DisassemblerFunctions *disassembler, const InstructionPtr &instruction, const Operand &operand) const
+void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
     if(operand.is(OperandTypes::Register))
     {
@@ -165,7 +165,7 @@ void AssemblerPlugin::popState()
     this->_statestack.pop();
 }
 
-void AssemblerPlugin::analyzeRegister(DisassemblerFunctions *disassembler, const InstructionPtr &instruction, const Operand &operand) const
+void AssemblerPlugin::analyzeRegister(DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
     if(!disassembler->emulator() || !operand.is(OperandTypes::Register))
         return;
@@ -193,7 +193,7 @@ void AssemblerPlugin::analyzeRegister(DisassemblerFunctions *disassembler, const
     this->analyzeRegisterBranch(target, disassembler, instruction, operand);
 }
 
-void AssemblerPlugin::analyzeRegisterBranch(address_t target, DisassemblerFunctions *disassembler, const InstructionPtr &instruction, const Operand &operand) const
+void AssemblerPlugin::analyzeRegisterBranch(address_t target, DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
     if(!instruction->is(InstructionTypes::Branch) || (operand.index != instruction->target_idx))
         return;

@@ -8,7 +8,7 @@ namespace REDasm {
 class ElfAnalyzer: public Analyzer
 {
     public:
-        ElfAnalyzer(DisassemblerFunctions* dfunctions, const SignatureFiles &signatures);
+        ElfAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures);
         virtual void analyze(Listing& listing);
 };
 

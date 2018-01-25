@@ -23,7 +23,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         virtual u32 bits() const;
         virtual const char* assembler() const;
         virtual offset_t offset(address_t address) const;
-        virtual Analyzer* createAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signatures) const;
+        virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual bool load(u8 *rawformat);
 
     private:

@@ -14,7 +14,7 @@
 namespace REDasm {
 namespace VMIL {
 
-Emulator::Emulator(DisassemblerFunctions *disassembler): _defregister(VMIL_REGISTER_ID(0)), _disassembler(disassembler)
+Emulator::Emulator(DisassemblerAPI *disassembler): _defregister(VMIL_REGISTER_ID(0)), _disassembler(disassembler)
 {
     SET_EXECUTE_OPCODE(Add);
     SET_EXECUTE_OPCODE(Sub);

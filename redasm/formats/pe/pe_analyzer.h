@@ -11,7 +11,7 @@ class PEAnalyzer: public Analyzer
         typedef std::pair<size_t, std::string> APIInfo;
 
     public:
-        PEAnalyzer(DisassemblerFunctions* dfunctions, const SignatureFiles &signatures);
+        PEAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures);
         virtual void analyze(Listing& listing);
 
     private:

@@ -22,8 +22,8 @@ class CHIP8Assembler : public AssemblerPlugin
         CHIP8Assembler();
         virtual const char* name() const;
         virtual u32 flags() const;
-        virtual VMIL::Emulator* createEmulator(DisassemblerFunctions* disassembler) const;
-        virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable* symboltable) const;
+        virtual VMIL::Emulator* createEmulator(DisassemblerAPI* disassembler) const;
+        virtual Printer* createPrinter(DisassemblerAPI *disassembler, SymbolTable* symboltable) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
 
     private:

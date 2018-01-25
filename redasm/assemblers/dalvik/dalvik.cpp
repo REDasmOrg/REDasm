@@ -26,12 +26,12 @@ const char *DalvikAssembler::name() const
     return "Dalvik VM";
 }
 
-Printer *DalvikAssembler::createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const
+Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const
 {
     return new DalvikPrinter(disassembler, symboltable);
 }
 
-void DalvikAssembler::analyzeOperand(DisassemblerFunctions *disassembler, const InstructionPtr &instruction, const Operand &operand) const
+void DalvikAssembler::analyzeOperand(DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
     AssemblerPlugin::analyzeOperand(disassembler, instruction, operand);
 

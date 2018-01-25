@@ -10,7 +10,7 @@ namespace VMIL {
 class VMILPrinter: public Printer
 {
     public:
-        VMILPrinter(const PrinterPtr& srcprinter, DisassemblerFunctions* disassembler, SymbolTable* symboltable);
+        VMILPrinter(const PrinterPtr& srcprinter, DisassemblerAPI* disassembler, SymbolTable* symboltable);
         virtual std::string reg(const RegisterOperand& regop) const;
 
     private:

@@ -39,12 +39,12 @@ u32 CHIP8Assembler::flags() const
     return AssemblerFlags::HasVMIL;
 }
 
-VMIL::Emulator *CHIP8Assembler::createEmulator(DisassemblerFunctions *disassembler) const
+VMIL::Emulator *CHIP8Assembler::createEmulator(DisassemblerAPI *disassembler) const
 {
     return new CHIP8Emulator(disassembler);
 }
 
-Printer *CHIP8Assembler::createPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable) const
+Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const
 {
     return new CHIP8Printer(disassembler, symboltable);
 }

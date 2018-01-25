@@ -5,7 +5,7 @@
 #include <capstone.h>
 #include <stack>
 #include <cstring>
-#include "../../disassembler/disassemblerfunctions.h"
+#include "../../disassembler/disassemblerapi.h"
 #include "../../support/endianness.h"
 #include "../../support/utils.h"
 #include "../../vmil/vmil_emulator.h"
@@ -30,9 +30,9 @@ class AssemblerPlugin: public Plugin
     public:
         AssemblerPlugin();
         virtual u32 flags() const;
-        virtual VMIL::Emulator* createEmulator(DisassemblerFunctions* disassembler) const;
-        virtual Printer* createPrinter(DisassemblerFunctions* disassembler, SymbolTable* symboltable) const;
-        virtual void analyzeOperand(DisassemblerFunctions* disassembler, const InstructionPtr& instruction, const Operand& operand) const;
+        virtual VMIL::Emulator* createEmulator(DisassemblerAPI* disassembler) const;
+        virtual Printer* createPrinter(DisassemblerAPI* disassembler, SymbolTable* symboltable) const;
+        virtual void analyzeOperand(DisassemblerAPI* disassembler, const InstructionPtr& instruction, const Operand& operand) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual bool done(const InstructionPtr& instruction);
 
@@ -47,8 +47,8 @@ class AssemblerPlugin: public Plugin
         void popState();
 
     protected:
-        virtual void analyzeRegister(DisassemblerFunctions* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
-        virtual void analyzeRegisterBranch(address_t target, DisassemblerFunctions* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
+        virtual void analyzeRegister(DisassemblerAPI* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
+        virtual void analyzeRegisterBranch(address_t target, DisassemblerAPI* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
 
     private:
         std::stack<StateItem> _statestack;
@@ -73,7 +73,7 @@ template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public Assemb
         CapstoneAssemblerPlugin();
         ~CapstoneAssemblerPlugin();
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
-        virtual Printer* createPrinter(DisassemblerFunctions *disassembler, SymbolTable* symboltable) const { return new CapstonePrinter(this->_cshandle, disassembler, symboltable); }
+        virtual Printer* createPrinter(DisassemblerAPI *disassembler, SymbolTable* symboltable) const { return new CapstonePrinter(this->_cshandle, disassembler, symboltable); }
 
     protected:
         csh _cshandle;

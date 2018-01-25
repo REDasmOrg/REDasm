@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-CHIP8Emulator::CHIP8Emulator(DisassemblerFunctions *disassembler): VMIL::Emulator(disassembler)
+CHIP8Emulator::CHIP8Emulator(DisassemblerAPI *disassembler): VMIL::Emulator(disassembler)
 {
     VMIL_TRANSLATE_OPCODE(0x1000, 1xxx);
     VMIL_TRANSLATE_OPCODE(0x3000, 3xxx);

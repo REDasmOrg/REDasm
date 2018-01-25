@@ -2,7 +2,7 @@
 #define VMIL_EMULATOR_H
 
 #include <unordered_map>
-#include "../disassembler/disassemblerfunctions.h"
+#include "../disassembler/disassemblerapi.h"
 #include "../redasm.h"
 #include "vmil_instructions.h"
 
@@ -29,7 +29,7 @@ class Emulator
         typedef std::unordered_map<instruction_id_t, TranslateCallback> TranslateMap;
 
     public:
-        Emulator(DisassemblerFunctions* disassembler);
+        Emulator(DisassemblerAPI* disassembler);
         virtual ~Emulator();
         void setDefaultRegister(vmilregister_t reg);
         vmilregister_t defaultRegister() const;
@@ -87,7 +87,7 @@ class Emulator
 
     private:
         vmilregister_t _defregister;
-        DisassemblerFunctions* _disassembler;
+        DisassemblerAPI* _disassembler;
         OpMap _opmap;
         Registers _tempregisters;
         Registers _registers;

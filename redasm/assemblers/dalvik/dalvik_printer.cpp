@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-DalvikPrinter::DalvikPrinter(DisassemblerFunctions *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable)
+DalvikPrinter::DalvikPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable)
 {
 
 }

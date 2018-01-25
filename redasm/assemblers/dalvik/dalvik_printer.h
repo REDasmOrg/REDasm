@@ -11,7 +11,7 @@ class DEXFormat;
 class DalvikPrinter : public Printer
 {
     public:
-        DalvikPrinter(DisassemblerFunctions* disassembler, SymbolTable* symboltable);
+        DalvikPrinter(DisassemblerAPI* disassembler, SymbolTable* symboltable);
         virtual void header(const SymbolPtr &symbol, HeaderCallback plgfunc);
         virtual void prologue(const SymbolPtr &symbol, LineCallback prologuefunc);
         virtual void info(const InstructionPtr &instruction, LineCallback infofunc);

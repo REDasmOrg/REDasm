@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-DisassemblerBase::DisassemblerBase(Buffer buffer, FormatPlugin *format): DisassemblerFunctions(), _format(format), _buffer(buffer)
+DisassemblerBase::DisassemblerBase(Buffer buffer, FormatPlugin *format): DisassemblerAPI(), _format(format), _buffer(buffer)
 {
     this->_symboltable = format->symbols();
 }

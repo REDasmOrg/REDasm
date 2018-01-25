@@ -8,7 +8,7 @@ namespace REDasm {
 class CHIP8Printer : public Printer
 {
     public:
-        CHIP8Printer(DisassemblerFunctions* disassembler, SymbolTable* symboltable);
+        CHIP8Printer(DisassemblerAPI* disassembler, SymbolTable* symboltable);
         virtual std::string reg(const RegisterOperand& regop) const;
 };
 

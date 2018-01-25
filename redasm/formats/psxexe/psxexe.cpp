@@ -29,9 +29,9 @@ const char *PsxExeFormat::assembler() const
     return "mips32";
 }
 
-Analyzer *PsxExeFormat::createAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signatures) const
+Analyzer *PsxExeFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
 {
-    return new PsxExeAnalyzer(dfunctions, signatures);
+    return new PsxExeAnalyzer(disassembler, signatures);
 }
 
 bool PsxExeFormat::load(u8* rawformat)

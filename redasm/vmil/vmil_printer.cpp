@@ -3,7 +3,7 @@
 namespace REDasm {
 namespace VMIL {
 
-VMILPrinter::VMILPrinter(const PrinterPtr &srcprinter, DisassemblerFunctions *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable), _srcprinter(srcprinter)
+VMILPrinter::VMILPrinter(const PrinterPtr &srcprinter, DisassemblerAPI *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable), _srcprinter(srcprinter)
 {
 
 }

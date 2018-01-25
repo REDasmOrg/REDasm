@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-PsxExeAnalyzer::PsxExeAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signaturefiles): Analyzer(dfunctions, signaturefiles)
+PsxExeAnalyzer::PsxExeAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): Analyzer(disassembler, signaturefiles)
 {
 }
 

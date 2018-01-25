@@ -370,6 +370,9 @@
          </property>
          <item>
           <widget class="QTableView" name="tvImports">
+           <property name="contextMenuPolicy">
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -417,6 +420,9 @@
          </property>
          <item>
           <widget class="QTableView" name="tvExports">
+           <property name="contextMenuPolicy">
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -464,6 +470,9 @@
          </property>
          <item>
           <widget class="QTableView" name="tvStrings">
+           <property name="contextMenuPolicy">
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>

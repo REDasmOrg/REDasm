@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QMenu>
 #include <qhexedit.h>
 #include "../../models/symboltablefiltermodel.h"
 #include "../../models/referencesmodel.h"
@@ -28,8 +29,8 @@ class DisassemblerView : public QWidget
     private slots:
         void on_topTabs_currentChanged(int index);
         void on_bottomTabs_currentChanged(int index);
-        void seekToXRef(const QModelIndex &index);
-        void seekToSymbol(const QModelIndex &index);
+        void gotoXRef(const QModelIndex &index);
+        void gotoSymbol(const QModelIndex &index);
         void xrefSymbol(const QModelIndex &index);
         void displayAddress(address_t address);
         void displayInstructionReferences();
@@ -40,14 +41,20 @@ class DisassemblerView : public QWidget
         void filterSymbols();
         void showListing();
         void showHexDump(address_t address);
+        void showMenu(const QPoint&);
         void showGoto();
+
+    private:
+        void createMenu();
 
     signals:
         void done();
 
     private:
         Ui::DisassemblerView *ui;
+        QModelIndex _currentindex;
         QHexDocument* _hexdocument;
+        QMenu* _contextmenu;
         QLabel* _lblstatus;
         REDasm::Disassembler* _disassembler;
         DisassemblerThread* _disassemblerthread;

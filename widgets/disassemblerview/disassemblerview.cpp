@@ -80,11 +80,15 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     connect(ui->tbForward, &QToolButton::clicked, ui->disassemblerTextView, &DisassemblerTextView::goForward);
     connect(ui->tbGoto, &QToolButton::clicked, this, &DisassemblerView::showGoto);
 
-    connect(ui->tvReferences, &QTableView::doubleClicked, this, &DisassemblerView::seekToXRef);
-    connect(ui->tvFunctions, &QTableView::doubleClicked, this, &DisassemblerView::seekToSymbol);
-    connect(ui->tvExports, &QTableView::doubleClicked, this, &DisassemblerView::seekToSymbol);
-    connect(ui->tvImports, &QTableView::doubleClicked, this, &DisassemblerView::seekToSymbol);
-    connect(ui->tvStrings, &QTableView::doubleClicked, this, &DisassemblerView::seekToSymbol);
+    connect(ui->tvReferences, &QTreeView::doubleClicked, this, &DisassemblerView::gotoXRef);
+    connect(ui->tvFunctions, &QTreeView::doubleClicked, this, &DisassemblerView::gotoSymbol);
+    connect(ui->tvFunctions, &QTreeView::customContextMenuRequested, this, &DisassemblerView::showMenu);
+    connect(ui->tvExports, &QTableView::doubleClicked, this, &DisassemblerView::gotoSymbol);
+    connect(ui->tvExports, &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
+    connect(ui->tvImports, &QTableView::doubleClicked, this, &DisassemblerView::gotoSymbol);
+    connect(ui->tvImports, &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
+    connect(ui->tvStrings, &QTableView::doubleClicked, this, &DisassemblerView::gotoSymbol);
+    connect(ui->tvStrings, &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
 
     connect(ui->leFilter, &QLineEdit::textChanged, [this](const QString&) { this->filterSymbols(); });
     connect(ui->leFunctionFilter, &QLineEdit::textChanged, [this](const QString&) { this->filterFunctions(); });
@@ -92,6 +96,8 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     REDasm::setLoggerCallback([this](const std::string& s) {
         QMetaObject::invokeMethod(this, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
+
+    this->createMenu();
 }
 
 DisassemblerView::~DisassemblerView()
@@ -170,7 +176,7 @@ void DisassemblerView::on_bottomTabs_currentChanged(int index)
     ui->leFilter->setEnabled(true);
 }
 
-void DisassemblerView::seekToXRef(const QModelIndex &index)
+void DisassemblerView::gotoXRef(const QModelIndex &index)
 {
     if(!index.isValid() || !index.internalPointer())
         return;
@@ -184,7 +190,7 @@ void DisassemblerView::seekToXRef(const QModelIndex &index)
     ui->disassemblerTextView->goTo(address);
 }
 
-void DisassemblerView::seekToSymbol(const QModelIndex &index)
+void DisassemblerView::gotoSymbol(const QModelIndex &index)
 {
     if(!index.isValid() || !index.internalPointer())
         return;
@@ -349,11 +355,38 @@ void DisassemblerView::showHexDump(address_t address)
     cursor->setSelectionRange(offset, 1);
 }
 
+void DisassemblerView::showMenu(const QPoint&)
+{
+    QAbstractItemView* view = dynamic_cast<QAbstractItemView*>(this->sender());
+
+    if(!view)
+        return;
+
+    QItemSelectionModel* selectionmodel = view->selectionModel();
+
+    if(!selectionmodel->hasSelection())
+        return;
+
+    this->_currentindex = selectionmodel->currentIndex();
+
+    if(!this->_currentindex.isValid())
+        return;
+
+    this->_contextmenu->exec(QCursor::pos());
+}
+
 void DisassemblerView::showGoto()
 {
     GotoDialog dlggoto(this->_disassembler, this);
-    connect(&dlggoto, &GotoDialog::symbolSelected, this, &DisassemblerView::seekToSymbol);
+    connect(&dlggoto, &GotoDialog::symbolSelected, this, &DisassemblerView::gotoSymbol);
 
     if(dlggoto.exec() == GotoDialog::Accepted)
         ui->disassemblerTextView->goTo(dlggoto.address());
+}
+
+void DisassemblerView::createMenu()
+{
+    this->_contextmenu = new QMenu(this);
+    this->_contextmenu->addAction("Cross References", [this]() { this->xrefSymbol(this->_currentindex); });
+    this->_contextmenu->addAction("Goto", [this]() { this->gotoSymbol(this->_currentindex); });
 }

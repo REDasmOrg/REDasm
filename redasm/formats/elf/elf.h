@@ -4,6 +4,7 @@
 #include "../../plugins/plugins.h"
 #include "elf32_header.h"
 #include "elf64_header.h"
+#include "elf_analyzer.h"
 
 #define ELF_T(bits, t) Elf ## bits ## _ ## t
 #define ELF_PARAMS_T typename EHDR, typename PHDR, typename SHDR, typename SYM, typename REL, typename RELA
@@ -16,14 +17,15 @@
 
 namespace REDasm {
 
-template<ELF_PARAMS_T> class ELFFormat: public FormatPluginT<EHDR>
+template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 {
     public:
-        ELFFormat(): FormatPluginT<EHDR>(), _phdr(NULL), _shdr(NULL) { }
+        ElfFormat(): FormatPluginT<EHDR>(), _phdr(NULL), _shdr(NULL) { }
         virtual const char* name() const { return "ELF Format"; }
         virtual u32 bits() const;
         virtual const char* assembler() const;
         virtual bool load(u8* format);
+        virtual Analyzer* createAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signatures) const;
 
     protected:
         virtual bool validate() const;
@@ -41,7 +43,7 @@ template<ELF_PARAMS_T> class ELFFormat: public FormatPluginT<EHDR>
         SHDR* _shdr;
 };
 
-template<ELF_PARAMS_T> u32 ELFFormat<ELF_PARAMS_D>::bits() const
+template<ELF_PARAMS_T> u32 ElfFormat<ELF_PARAMS_D>::bits() const
 {
     if(this->_format->e_ident[EI_CLASS] == ELFCLASS32)
         return 32;
@@ -52,7 +54,7 @@ template<ELF_PARAMS_T> u32 ELFFormat<ELF_PARAMS_D>::bits() const
     return 0;
 }
 
-template<ELF_PARAMS_T> const char* ELFFormat<ELF_PARAMS_D>::assembler() const
+template<ELF_PARAMS_T> const char* ElfFormat<ELF_PARAMS_D>::assembler() const
 {
     switch(this->_format->e_machine)
     {
@@ -75,7 +77,7 @@ template<ELF_PARAMS_T> const char* ELFFormat<ELF_PARAMS_D>::assembler() const
     return NULL;
 }
 
-template<ELF_PARAMS_T> bool ELFFormat<ELF_PARAMS_D>::load(u8* format)
+template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load(u8* format)
 {
     EHDR* ehdr = this->convert(format);
 
@@ -92,7 +94,12 @@ template<ELF_PARAMS_T> bool ELFFormat<ELF_PARAMS_D>::load(u8* format)
     return true;
 }
 
-template<ELF_PARAMS_T> bool ELFFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* value) const
+template<ELF_PARAMS_T> Analyzer* ElfFormat<ELF_PARAMS_D>::createAnalyzer(DisassemblerFunctions *dfunctions, const SignatureFiles &signatures) const
+{
+    return new ElfAnalyzer(dfunctions, signatures);
+}
+
+template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* value) const
 {
     for(u64 i = 0; i < this->_format->e_shnum; i++)
     {
@@ -121,7 +128,7 @@ template<ELF_PARAMS_T> bool ELFFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* v
     return false;
 }
 
-template<ELF_PARAMS_T> void ELFFormat<ELF_PARAMS_D>::loadSegment(const SHDR& shdr)
+template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegment(const SHDR& shdr)
 {
     const SHDR& shstr = STRING_TABLE;
     u32 type = SegmentTypes::Read | ((shdr.sh_flags & SHF_EXECINSTR) ? SegmentTypes::Code :
@@ -133,7 +140,7 @@ template<ELF_PARAMS_T> void ELFFormat<ELF_PARAMS_D>::loadSegment(const SHDR& shd
     this->defineSegment(STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
 }
 
-template<ELF_PARAMS_T> void ELFFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shdr) // TODO: Improve symbol handling
+template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shdr) // TODO: Improve symbol handling
 {
     u64 idx = 0;
     offset_t offset = shdr.sh_offset, endoffset = offset + shdr.sh_size;
@@ -187,7 +194,7 @@ template<ELF_PARAMS_T> void ELFFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
     }
 }
 
-template<ELF_PARAMS_T> void ELFFormat<ELF_PARAMS_D>::parseProgramHeader()
+template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseProgramHeader()
 {
     u32 loadidx = 0;
 
@@ -221,7 +228,7 @@ template<ELF_PARAMS_T> void ELFFormat<ELF_PARAMS_D>::parseProgramHeader()
     }
 }
 
-template<ELF_PARAMS_T> bool ELFFormat<ELF_PARAMS_D>::validate() const
+template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::validate() const
 {
     if(this->_format->e_ident[EI_MAG0] != ELFMAG0)
         return false;
@@ -241,7 +248,7 @@ template<ELF_PARAMS_T> bool ELFFormat<ELF_PARAMS_D>::validate() const
     return true;
 }
 
-template<ELF_PARAMS_T> void ELFFormat<ELF_PARAMS_D>::parseSections()
+template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSections()
 {
     for(u64 i = 0; i < this->_format->e_shnum; i++)
     {
@@ -254,7 +261,7 @@ template<ELF_PARAMS_T> void ELFFormat<ELF_PARAMS_D>::parseSections()
     }
 }
 
-class Elf32Format: public ELFFormat<ELF_PARAMS(32)>
+class Elf32Format: public ElfFormat<ELF_PARAMS(32)>
 {
     public:
         Elf32Format();
@@ -264,7 +271,7 @@ class Elf32Format: public ELFFormat<ELF_PARAMS(32)>
         virtual u64 relocationSymbol(const Elf32_Rel* rel) const;
 };
 
-class Elf64Format: public ELFFormat<ELF_PARAMS(64)>
+class Elf64Format: public ElfFormat<ELF_PARAMS(64)>
 {
     public:
         Elf64Format();

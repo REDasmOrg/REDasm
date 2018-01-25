@@ -115,7 +115,8 @@ SOURCES += main.cpp\
     widgets/graphview/graphitems/graphtextitem.cpp \
     widgets/graphview/graphview.cpp \
     widgets/graphview/graphviewprivate.cpp \
-    redasm/disassembler/graph/graphlayout.cpp
+    redasm/disassembler/graph/graphlayout.cpp \
+    redasm/formats/elf/elf_analyzer.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -216,7 +217,8 @@ HEADERS  += mainwindow.h \
     widgets/graphview/graphitems/graphtextitem.h \
     widgets/graphview/graphview.h \
     widgets/graphview/graphviewprivate.h \
-    redasm/disassembler/graph/graphlayout.h
+    redasm/disassembler/graph/graphlayout.h \
+    redasm/formats/elf/elf_analyzer.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

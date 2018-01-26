@@ -16,6 +16,7 @@
 #include ASSEMBLER_PLUGIN(mips)
 #include ASSEMBLER_PLUGIN(arm)
 #include ASSEMBLER_PLUGIN(dalvik)
+#include ASSEMBLER_PLUGIN(cil)
 //#include ASSEMBLER_PLUGIN(arm64)
 #include ASSEMBLER_PLUGIN(chip8)
 
@@ -46,6 +47,7 @@ void init(const std::string& searchpath)
     REGISTER_ASSEMBLER_PLUGIN(arm);
     //REGISTER_ASSEMBLER_PLUGIN(arm64);
     REGISTER_ASSEMBLER_PLUGIN(dalvik);
+    REGISTER_ASSEMBLER_PLUGIN(cil);
     REGISTER_ASSEMBLER_PLUGIN(chip8);
 }
 

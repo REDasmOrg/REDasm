@@ -13,6 +13,12 @@ std::string normalize(std::string s);
 std::string quoted(const std::string& s);
 std::string wtoa(const std::wstring& wide);
 
+template<typename T, typename U> T aligned(T t, U a)
+{
+    T r = t % a;
+    return r ? (t + (a - r)) : t;
+}
+
 template<typename T> std::string wtoa(T* ws, size_t len)
 {
     std::string s;

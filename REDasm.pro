@@ -116,7 +116,9 @@ SOURCES += main.cpp\
     widgets/graphview/graphviewprivate.cpp \
     redasm/disassembler/graph/graphlayout.cpp \
     redasm/formats/elf/elf_analyzer.cpp \
-    redasm/disassembler/disassemblerapi.cpp
+    redasm/disassembler/disassemblerapi.cpp \
+    redasm/assemblers/cil/cil.cpp \
+    redasm/formats/pe/dotnet/dotnet.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -218,7 +220,10 @@ HEADERS  += mainwindow.h \
     widgets/graphview/graphviewprivate.h \
     redasm/disassembler/graph/graphlayout.h \
     redasm/formats/elf/elf_analyzer.h \
-    redasm/disassembler/disassemblerapi.h
+    redasm/disassembler/disassemblerapi.h \
+    redasm/formats/pe/dotnet/dotnet_header.h \
+    redasm/assemblers/cil/cil.h \
+    redasm/formats/pe/dotnet/dotnet.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

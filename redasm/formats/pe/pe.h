@@ -6,6 +6,7 @@
 #include "pe_resources.h"
 #include "pe_imports.h"
 #include "pe_utils.h"
+#include "dotnet/dotnet_header.h"
 
 #define RVA_POINTER(type, rva)        (pointer<type>(rvaToOffset(rva)))
 #define RVA_POINTER_OK(type, rva, ok) (pointer<type>(rvaToOffset(rva, ok)))
@@ -15,7 +16,7 @@ namespace REDasm {
 class PeFormat: public FormatPluginT<ImageDosHeader>
 {
     private:
-        enum PeType { None, VisualBasic, Delphi, TurboCpp };
+        enum PeType { None, DotNet, VisualBasic, Delphi, TurboCpp };
 
     public:
         PeFormat();
@@ -31,6 +32,9 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         void checkDelphi(const REDasm::PEResources &peresources);
         void checkResources();
         void checkDebugInfo();
+        ImageCorHeader *checkDotNet();
+        void loadDotNet(ImageCor20Header* corheader);
+        void loadDefault();
         void loadSections();
         void loadExports();
         void loadImports();

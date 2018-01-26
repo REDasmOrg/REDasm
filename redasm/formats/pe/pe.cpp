@@ -2,6 +2,7 @@
 #include "pe_constants.h"
 #include "pe_analyzer.h"
 #include "pe_debug.h"
+#include "dotnet/dotnet.h"
 #include "vb/vb_analyzer.h"
 #include "borland/borland_version.h"
 #include "../../support/coff/coff_symboltable.h"
@@ -31,6 +32,9 @@ u32 PeFormat::bits() const
 
 const char *PeFormat::assembler() const
 {
+    if(this->_petype == PeType::DotNet)
+        return "cil";
+
     if(this->_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
         return "x86_32";
 
@@ -95,15 +99,17 @@ bool PeFormat::load(u8 *rawformat)
         this->_datadirectory = reinterpret_cast<ImageDataDirectory*>(&this->_ntheaders->OptionalHeader32.DataDirectory);
     }
 
-    this->defineEntryPoint(this->_entrypoint);
-    this->defineSymbol(this->_imagebase, "PE_ImageBase", SymbolTypes::Data);
+    ImageCorHeader* corheader = this->checkDotNet();
 
-    this->loadSections();
-    this->loadExports();
-    this->loadImports();
-    this->loadSymbolTable();
-    this->checkDebugInfo();
-    this->checkResources();
+    if(corheader && (corheader->MajorRuntimeVersion == 1))
+    {
+        REDasm::log(".NET 1.x is not supported");
+        return 0;
+    }
+    else if(!corheader)
+        this->loadDefault();
+    else
+        this->loadDotNet(reinterpret_cast<ImageCor20Header*>(corheader));
 
     FormatPluginT<ImageDosHeader>::load(rawformat);
     return true;
@@ -227,6 +233,55 @@ void PeFormat::checkDebugInfo()
     else
         REDasm::log("Debug info type: " + REDasm::hex(debugdir->Type));
 
+}
+
+ImageCorHeader* PeFormat::checkDotNet()
+{
+    const ImageDataDirectory& dotnetdir = this->_datadirectory[IMAGE_DIRECTORY_ENTRY_DOTNET];
+
+    if(!dotnetdir.VirtualAddress)
+        return NULL;
+
+    ImageCorHeader* corheader = RVA_POINTER(ImageCorHeader, dotnetdir.VirtualAddress);
+
+    if(corheader->cb < sizeof(ImageCorHeader))
+        return NULL;
+
+    return corheader;
+}
+
+void PeFormat::loadDotNet(ImageCor20Header* corheader)
+{
+    this->_petype = PeType::DotNet;
+
+    if(!corheader->MetaData.VirtualAddress)
+    {
+        REDasm::log("Invalid .NET MetaData");
+        return;
+    }
+
+    ImageCor20MetaData* cormetadata = RVA_POINTER(ImageCor20MetaData, corheader->MetaData.VirtualAddress);
+    REDasm::log(".NET Version: " + PeDotNet::getVersion(cormetadata));
+
+    ImageStreamHeader* streamheader = PeDotNet::getStream(cormetadata, "#~");
+
+    if(!streamheader || !streamheader->Offset)
+        return;
+
+    ImageCor20TablesHeader* tablesheader = this->relpointer<ImageCor20TablesHeader>(cormetadata, streamheader->Offset);
+}
+
+void PeFormat::loadDefault()
+{
+    this->defineEntryPoint(this->_entrypoint);
+    this->defineSymbol(this->_imagebase, "PE_ImageBase", SymbolTypes::Data);
+
+    this->loadSections();
+    this->loadExports();
+    this->loadImports();
+    this->loadSymbolTable();
+    this->checkDebugInfo();
+    this->checkResources();
 }
 
 void PeFormat::loadSections()
@@ -358,6 +413,7 @@ void PeFormat::loadSymbolTable()
                       else
                           this->defineSymbol(address, name, SymbolTypes::Data);
     },
+
     this->pointer<u8>(this->_ntheaders->FileHeader.PointerToSymbolTable),
     this->_ntheaders->FileHeader.NumberOfSymbols);
 }

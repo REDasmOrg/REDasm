@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <iomanip>
+#include <climits>
 #include "demangler.h"
 
 namespace REDasm
@@ -12,6 +13,18 @@ namespace REDasm
 std::string normalize(std::string s);
 std::string quoted(const std::string& s);
 std::string wtoa(const std::wstring& wide);
+
+template<typename T> struct bitwidth { static const size_t value = sizeof(T) * CHAR_BIT; };
+
+template<typename T> inline std::string quoted(T t) { return REDasm::quoted(std::to_string(t)); }
+template<typename T, typename U> inline T* relpointer(U* base, size_t offset) { return reinterpret_cast<T*>(reinterpret_cast<size_t>(base) + offset); }
+
+template<typename T, typename U> inline T readpointer(U** p)
+{
+    T v = *reinterpret_cast<T*>(*p);
+    *p = REDasm::relpointer<U>(*p, sizeof(T));
+    return v;
+}
 
 template<typename T, typename U> T aligned(T t, U a)
 {

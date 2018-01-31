@@ -223,7 +223,8 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/disassemblerapi.h \
     redasm/formats/pe/dotnet/dotnet_header.h \
     redasm/assemblers/cil/cil.h \
-    redasm/formats/pe/dotnet/dotnet.h
+    redasm/formats/pe/dotnet/dotnet.h \
+    redasm/formats/pe/dotnet/dotnet_tables.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

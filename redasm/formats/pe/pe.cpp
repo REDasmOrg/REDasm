@@ -268,7 +268,10 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
     if(!streamheader || !streamheader->Offset)
         return;
 
-    ImageCor20TablesHeader* tablesheader = this->relpointer<ImageCor20TablesHeader>(cormetadata, streamheader->Offset);
+    ImageCor20TablesHeader* cortablesheader = this->relpointer<ImageCor20TablesHeader>(cormetadata, streamheader->Offset);
+
+    CorTables tables;
+    PeDotNet::getTables(cortablesheader, tables);
 }
 
 void PeFormat::loadDefault()

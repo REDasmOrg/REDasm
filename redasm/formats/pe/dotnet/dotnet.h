@@ -24,9 +24,11 @@ class PeDotNet
     private:
         static u32 getSizeOfHeap(ImageCor20TablesHeader *cortablesheader, u32 bitno);
         static u32 getValueIdx(u32** data, u32 offsize);
+        static u32 getTableIdx(u32** data, const CorTables& tables, u32 table);
         static u32 getStringIdx(u32** data, const CorTables& tables);
         static u32 getGuidIdx(u32** data, const CorTables& tables);
         static u32 getBlobIdx(u32** data, const CorTables& tables);
+        static u32 getTableIdx(u32** data, const CorTables& tables);
         static void getModule(u32** data, const CorTables& tables, CorTable& table);
         static void getTypeRef(u32** data, const CorTables& tables, CorTable& table);
         static void getTypeDef(u32** data, const CorTables& tables, CorTable& table);
@@ -66,24 +68,13 @@ class PeDotNet
         static void initTables();
 
     private:
-        template<typename T, typename U, typename V> static void getTaggedField(u32** data, U& value, V& tag, T tagbits);
+        static void getTaggedField(u32** data, u32& value, u8& tag, u8 tagbits, const CorTables& tables, const std::list<u32>& tablerefs);
+        static u32 maxRows( const CorTables& tables, const std::list<u32>& tablerefs);
 
     private:
         static std::list<u32> _tables;
         static TableDispatcher _dispatcher;
 };
-
-template<typename T, typename U, typename V> void PeDotNet::getTaggedField(u32** data, U& value, V& tag, T tagbits)
-{
-    T mask = 0;
-
-    for(T i = 0 ; i < tagbits; i++)
-        mask |= (1u << i);
-
-    T val = REDasm::readpointer<T>(data);
-    value = val >> tagbits;
-    tag = val & mask;
-}
 
 } // namespace REDasm
 

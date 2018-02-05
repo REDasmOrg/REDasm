@@ -126,6 +126,14 @@ u32 PeDotNet::getValueIdx(u32 **data, u32 offsize)
     return REDasm::readpointer<u16>(data);
 }
 
+u32 PeDotNet::getTableIdx(u32 **data, const CorTables &tables, u32 table)
+{
+    if(tables.rows.at(table) > 0xFFFF)
+        return REDasm::readpointer<u32>(data);
+
+    return REDasm::readpointer<u16>(data);
+}
+
 u32 PeDotNet::getStringIdx(u32 **data, const CorTables &tables) { return PeDotNet::getValueIdx(data, tables.stringoffsize); }
 u32 PeDotNet::getGuidIdx(u32 **data, const CorTables &tables) { return PeDotNet::getValueIdx(data, tables.guidoffsize); }
 u32 PeDotNet::getBlobIdx(u32 **data, const CorTables &tables) { return PeDotNet::getValueIdx(data, tables.bloboffsize); }
@@ -184,44 +192,75 @@ void PeDotNet::getModule(u32 **data, const CorTables &tables, CorTable &table)
 
 void PeDotNet::getTypeRef(u32 **data, const CorTables &tables, CorTable &table)
 {
-    PeDotNet::getTaggedField<u16>(data, table.typeRef.resolutionScope, table.typeRef.resolutionScope_tag, 2);
+    PeDotNet::getTaggedField(data, table.typeRef.resolutionScope,  table.typeRef.resolutionScope_tag, 2, tables,
+                            {CorMetaDataTables::Module, CorMetaDataTables::ModuleRef, CorMetaDataTables::Assembly, CorMetaDataTables::AssemblyRef});
+
     table.typeRef.typeName = PeDotNet::getStringIdx(data, tables);
     table.typeRef.typeNamespace = PeDotNet::getStringIdx(data, tables);
 }
 
 void PeDotNet::getTypeDef(u32 **data, const CorTables &tables, CorTable &table)
 {
+    table.typeDef.flags = REDasm::readpointer<u32>(data);
+    table.typeDef.typeName = PeDotNet::getStringIdx(data, tables);
+    table.typeDef.typeNamespace = PeDotNet::getStringIdx(data, tables);
 
+    PeDotNet::getTaggedField(data, table.typeDef.extends,  table.typeDef.extends_tag, 2, tables,
+                            {CorMetaDataTables::TypeDef, CorMetaDataTables::TypeRef, CorMetaDataTables::TypeSpec });
+
+    table.typeDef.fieldList = PeDotNet::getTableIdx(data, tables, CorMetaDataTables::Field);
+    table.typeDef.methodList = PeDotNet::getTableIdx(data, tables, CorMetaDataTables::MethodDef);
 }
 
 void PeDotNet::getField(u32 **data, const CorTables &tables, CorTable &table)
 {
-
+    table.field.flags = REDasm::readpointer<u16>(data);
+    table.field.name = PeDotNet::getStringIdx(data, tables);
+    table.field.signature = PeDotNet::getBlobIdx(data, tables);
 }
 
 void PeDotNet::getMethodDef(u32 **data, const CorTables &tables, CorTable &table)
 {
-
+    table.methodDef.rva = REDasm::readpointer<u32>(data);
+    table.methodDef.implFlags = REDasm::readpointer<u16>(data);
+    table.methodDef.flags = REDasm::readpointer<u16>(data);
+    table.methodDef.name = PeDotNet::getStringIdx(data, tables);
+    table.methodDef.signature = PeDotNet::getBlobIdx(data, tables);
 }
 
 void PeDotNet::getParam(u32 **data, const CorTables &tables, CorTable &table)
 {
-
+    table.param.flags = REDasm::readpointer<u16>(data);
+    table.param.sequence = REDasm::readpointer<u16>(data);
+    table.param.name = PeDotNet::getStringIdx(data, tables);
 }
 
 void PeDotNet::getInterfaceImpl(u32 **data, const CorTables &tables, CorTable &table)
 {
+    table.interfaceImpl.classIdx = PeDotNet::getTableIdx(data, tables, CorMetaDataTables::TypeDef);
 
+    PeDotNet::getTaggedField(data, table.interfaceImpl.interfaceIdx,  table.interfaceImpl.interfaceIdx_tag, 2, tables,
+                            {CorMetaDataTables::TypeDef, CorMetaDataTables::TypeRef, CorMetaDataTables::TypeSpec });
 }
 
 void PeDotNet::getMemberRef(u32 **data, const CorTables &tables, CorTable &table)
 {
+    PeDotNet::getTaggedField(data, table.memberRef.classIdx,  table.memberRef.classIdx_tag, 3, tables,
+                            {CorMetaDataTables::TypeDef, CorMetaDataTables::TypeRef, CorMetaDataTables::ModuleRef,
+                             CorMetaDataTables::MethodDef, CorMetaDataTables::TypeSpec });
 
+    table.memberRef.name = PeDotNet::getStringIdx(data, tables);
+    table.memberRef.signature = PeDotNet::getStringIdx(data, tables);
 }
 
 void PeDotNet::getConstant(u32 **data, const CorTables &tables, CorTable &table)
 {
+    table.constant.type = REDasm::readpointer<u16>(data);
 
+    PeDotNet::getTaggedField(data, table.constant.parent,  table.constant.parent_tag, 2, tables,
+                            {CorMetaDataTables::Field, CorMetaDataTables::Param, CorMetaDataTables::Property });
+
+    table.constant.value = PeDotNet::getBlobIdx(data, tables);
 }
 
 void PeDotNet::getCustomAttribute(u32 **data, const CorTables &tables, CorTable &table)
@@ -357,6 +396,36 @@ void PeDotNet::getGenericParam(u32 **data, const CorTables &tables, CorTable &ta
 void PeDotNet::getGenericParamConstraint(u32 **data, const CorTables &tables, CorTable &table)
 {
 
+}
+
+void PeDotNet::getTaggedField(u32** data, u32 &value, u8 &tag, u8 tagbits, const CorTables &tables, const std::list<u32> &tablerefs)
+{
+    u32 mask = 0;
+
+    for(u32 i = 0 ; i < tagbits; i++)
+        mask |= (1u << i);
+
+    u16 maxvalue = (0xFFFF & static_cast<u16>(mask)) >> tagbits;
+    u32 tagvalue = 0, maxrows = PeDotNet::maxRows(tables, tablerefs);
+
+    if(maxrows > maxvalue) // 32-bit is needed
+        tagvalue = REDasm::readpointer<u32>(data);
+    else
+        tagvalue = REDasm::readpointer<u16>(data);
+
+    value = tagvalue >> tagbits;
+    tag = tagvalue & mask;
+}
+
+u32 PeDotNet::maxRows(const CorTables &tables, const std::list<u32> &tablerefs)
+{
+    u32 res = 0;
+
+    std::for_each(tablerefs.begin(), tablerefs.begin(), [tables, &res](u32 table) {
+        res = std::max(res, tables.rows.at(table));
+    });
+
+    return res;
 }
 
 } // namespace REDasm

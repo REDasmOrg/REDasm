@@ -66,9 +66,24 @@ class PeDotNet
         static void initTables();
 
     private:
+        template<typename T, typename U, typename V> static void getTaggedField(u32** data, U& value, V& tag, T tagbits);
+
+    private:
         static std::list<u32> _tables;
         static TableDispatcher _dispatcher;
 };
+
+template<typename T, typename U, typename V> void PeDotNet::getTaggedField(u32** data, U& value, V& tag, T tagbits)
+{
+    T mask = 0;
+
+    for(T i = 0 ; i < tagbits; i++)
+        mask |= (1u << i);
+
+    T val = REDasm::readpointer<T>(data);
+    value = val >> tagbits;
+    tag = val & mask;
+}
 
 } // namespace REDasm
 

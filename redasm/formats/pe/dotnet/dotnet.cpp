@@ -10,8 +10,6 @@
 #define HAS_TAG(v, m, t) ((v & m) == t)
 #define TAG_INDEX(v, b)  ((v & TAG_MASK##b) >> b)
 
-//#define READ_INDEX(t) (tables.rows[CorMetaDataTables::t] > 0xFFFF)
-
 #define PUSH_TABLE(t) _tables.push_back(CorMetaDataTables::t); \
                       _dispatcher[CorMetaDataTables::t] = &PeDotNet::get##t
 
@@ -177,18 +175,18 @@ void PeDotNet::initTables()
 
 void PeDotNet::getModule(u32 **data, const CorTables &tables, CorTable &table)
 {
-    table.generation = REDasm::readpointer<u16>(data);
-    table.name = PeDotNet::getStringIdx(data, tables);
-    table.mvId = PeDotNet::getGuidIdx(data, tables);
-    table.encId = PeDotNet::getGuidIdx(data, tables);
-    table.encBaseId = PeDotNet::getGuidIdx(data, tables);
+    table.module.generation = REDasm::readpointer<u16>(data);
+    table.module.name = PeDotNet::getStringIdx(data, tables);
+    table.module.mvId = PeDotNet::getGuidIdx(data, tables);
+    table.module.encId = PeDotNet::getGuidIdx(data, tables);
+    table.module.encBaseId = PeDotNet::getGuidIdx(data, tables);
 }
 
 void PeDotNet::getTypeRef(u32 **data, const CorTables &tables, CorTable &table)
 {
-    //table.resolutionScope = ???;
-    table.typeName = PeDotNet::getStringIdx(data, tables);
-    table.typeNamespace = PeDotNet::getStringIdx(data, tables);
+    PeDotNet::getTaggedField<u16>(data, table.typeRef.resolutionScope, table.typeRef.resolutionScope_tag, 2);
+    table.typeRef.typeName = PeDotNet::getStringIdx(data, tables);
+    table.typeRef.typeNamespace = PeDotNet::getStringIdx(data, tables);
 }
 
 void PeDotNet::getTypeDef(u32 **data, const CorTables &tables, CorTable &table)

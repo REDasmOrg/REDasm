@@ -2,14 +2,6 @@
 #include <cstring>
 #include <iostream>
 
-#define TAG_MASK1 0x00000001
-#define TAG_MASK2 0x00000003
-#define TAG_MASK3 0x00000007
-#define TAG_MASK5 0x0000001F
-
-#define HAS_TAG(v, m, t) ((v & m) == t)
-#define TAG_INDEX(v, b)  ((v & TAG_MASK##b) >> b)
-
 #define PUSH_TABLE(t) _tables.push_back(CorMetadataTables::t); \
                       _dispatcher[CorMetadataTables::t] = &PeDotNet::get##t
 

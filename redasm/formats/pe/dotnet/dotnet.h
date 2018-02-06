@@ -28,13 +28,12 @@ class PeDotNet
         static u32 getStringIdx(u32** data, const CorTables& tables);
         static u32 getGuidIdx(u32** data, const CorTables& tables);
         static u32 getBlobIdx(u32** data, const CorTables& tables);
-        static u32 getTableIdx(u32** data, const CorTables& tables);
         static void getModule(u32** data, const CorTables& tables, CorTable& table);
         static void getTypeRef(u32** data, const CorTables& tables, CorTable& table);
         static void getTypeDef(u32** data, const CorTables& tables, CorTable& table);
-        static void getField(u32** data, const CorTables& tables, CorTable& table);
+        static void getFieldDef(u32** data, const CorTables& tables, CorTable& table);
         static void getMethodDef(u32** data, const CorTables& tables, CorTable& table);
-        static void getParam(u32** data, const CorTables& tables, CorTable& table);
+        static void getParamDef(u32** data, const CorTables& tables, CorTable& table);
         static void getInterfaceImpl(u32** data, const CorTables& tables, CorTable& table);
         static void getMemberRef(u32** data, const CorTables& tables, CorTable& table);
         static void getConstant(u32** data, const CorTables& tables, CorTable& table);
@@ -44,6 +43,7 @@ class PeDotNet
         static void getClassLayout(u32** data, const CorTables& tables, CorTable& table);
         static void getFieldLayout(u32** data, const CorTables& tables, CorTable& table);
         static void getStandaloneSig(u32** data, const CorTables& tables, CorTable& table);
+        static void getEventMap(u32** data, const CorTables& tables, CorTable& table);
         static void getEvent(u32** data, const CorTables& tables, CorTable& table);
         static void getPropertyMap(u32** data, const CorTables& tables, CorTable& table);
         static void getProperty(u32** data, const CorTables& tables, CorTable& table);

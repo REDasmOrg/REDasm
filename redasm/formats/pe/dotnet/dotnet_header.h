@@ -25,10 +25,10 @@ enum: u32 {
 
 }
 
-namespace CorMetaDataTables {
+namespace CorMetadataTables {
 
 enum: u32 {
-    Module                 = 0,  TypeRef         = 1,  TypeDef                = 2,  Field            = 4,  MethodDef    = 6,  Param                = 8,
+    Module                 = 0,  TypeRef         = 1,  TypeDef                = 2,  FieldDef         = 4,  MethodDef    = 6,  ParamDef             = 8,
     InterfaceImpl          = 9,  MemberRef       = 10, Constant               = 11, CustomAttribute  = 12, FieldMarshal = 13, DeclSecurity         = 14,
     ClassLayout            = 15, FieldLayout     = 16, StandaloneSig          = 17, EventMap         = 18, Event        = 20, PropertyMap          = 21,
     Property               = 23, MethodSemantics = 24, MethodImpl             = 25, ModuleRef        = 26, TypeSpec     = 27, ImplMap              = 28,

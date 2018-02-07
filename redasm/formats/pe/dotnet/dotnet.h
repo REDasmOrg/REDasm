@@ -1,6 +1,8 @@
 #ifndef PEDOTNET_H
 #define PEDOTNET_H
 
+#define DOTNET_INDEX(i) (i - 1)
+
 #include "dotnet_header.h"
 #include "dotnet_tables.h"
 

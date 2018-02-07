@@ -7,6 +7,7 @@
 #include "pe_imports.h"
 #include "pe_utils.h"
 #include "dotnet/dotnet_header.h"
+#include "dotnet/dotnet_reader.h"
 
 #define RVA_POINTER(type, rva)        (pointer<type>(rvaToOffset(rva)))
 #define RVA_POINTER_OK(type, rva, ok) (pointer<type>(rvaToOffset(rva, ok)))
@@ -20,12 +21,14 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
 
     public:
         PeFormat();
+        virtual ~PeFormat();
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;
         virtual offset_t offset(address_t address) const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual bool load(u8 *rawformat);
+        const DotNetReader *dotNetReader() const;
 
     private:
         u64 rvaToOffset(u64 rva, bool* ok = NULL) const;
@@ -44,6 +47,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         template<typename THUNK, u64 ordinalflag> void readDescriptor(const ImageImportDescriptor& importdescriptor);
 
     private:
+        DotNetReader* _dotnetreader;
         ImageDosHeader* _dosheader;
         ImageNtHeaders* _ntheaders;
         ImageSectionHeader* _sectiontable;

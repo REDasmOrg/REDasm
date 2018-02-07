@@ -93,7 +93,7 @@ bool PeDotNet::getTables(ImageCor20TablesHeader *cortablesheader, CorTables &tab
                 continue;
             }
 
-            CorTableList tl;
+            CorTableRows tl;
             tl.push_back(table);
             tables.items[rit->first] = tl;
         }
@@ -219,6 +219,7 @@ void PeDotNet::getMethodDef(u32 **data, const CorTables &tables, CorTable &table
     table.methodDef.flags = REDasm::readpointer<u16>(data);
     table.methodDef.name = PeDotNet::getStringIdx(data, tables);
     table.methodDef.signature = PeDotNet::getBlobIdx(data, tables);
+    table.methodDef.paramList = PeDotNet::getTableIdx(data, tables, CorMetadataTables::ParamDef);
 }
 
 void PeDotNet::getParamDef(u32 **data, const CorTables &tables, CorTable &table)

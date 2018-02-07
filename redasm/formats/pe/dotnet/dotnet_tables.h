@@ -9,8 +9,6 @@ namespace REDasm {
 
 struct CorTable
 {
-    u32 tableType;
-
     struct { u16 generation; u32 name, mvId, encId, encBaseId; } module;
     struct { DOTNET_TAG_F(resolutionScope); u32 typeName, typeNamespace; } typeRef;
     struct { u32 flags, typeName, typeNamespace; DOTNET_TAG_F(extends); u32 fieldList, methodList; } typeDef;
@@ -50,13 +48,13 @@ struct CorTable
     struct { u32 owner; DOTNET_TAG_F(constraint); } genericParamConstraint;
 };
 
-typedef std::list<CorTable> CorTableList;
+typedef std::list<CorTable> CorTableRows;
 
 struct CorTables
 {
     u8 stringoffsize, guidoffsize, bloboffsize;
 
-    std::map<u32, CorTableList> items;
+    std::map<u32, CorTableRows> items;
     std::map<u32, u32> rows;
 };
 

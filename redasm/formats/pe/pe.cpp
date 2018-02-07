@@ -9,9 +9,18 @@
 
 namespace REDasm {
 
-PeFormat::PeFormat(): FormatPluginT<ImageDosHeader>(), _dosheader(NULL), _ntheaders(NULL), _sectiontable(NULL), _datadirectory(NULL), _petype(PeType::None), _imagebase(0), _sectionalignment(0), _entrypoint(0)
+PeFormat::PeFormat(): FormatPluginT<ImageDosHeader>(), _dotnetreader(NULL), _dosheader(NULL), _ntheaders(NULL), _sectiontable(NULL), _datadirectory(NULL), _petype(PeType::None), _imagebase(0), _sectionalignment(0), _entrypoint(0)
 {
 
+}
+
+PeFormat::~PeFormat()
+{
+    if(this->_dotnetreader)
+    {
+        delete this->_dotnetreader;
+        this->_dotnetreader = NULL;
+    }
 }
 
 const char *PeFormat::name() const
@@ -113,6 +122,11 @@ bool PeFormat::load(u8 *rawformat)
 
     FormatPluginT<ImageDosHeader>::load(rawformat);
     return true;
+}
+
+const DotNetReader *PeFormat::dotNetReader() const
+{
+    return this->_dotnetreader;
 }
 
 u64 PeFormat::rvaToOffset(u64 rva, bool *ok) const
@@ -261,17 +275,14 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
     }
 
     ImageCor20MetaData* cormetadata = RVA_POINTER(ImageCor20MetaData, corheader->MetaData.VirtualAddress);
-    REDasm::log(".NET Version: " + PeDotNet::getVersion(cormetadata));
+    this->_dotnetreader = new DotNetReader(cormetadata);
 
-    ImageStreamHeader* streamheader = PeDotNet::getStream(cormetadata, "#~");
-
-    if(!streamheader || !streamheader->Offset)
+    if(!this->_dotnetreader->isValid())
         return;
 
-    ImageCor20TablesHeader* cortablesheader = this->relpointer<ImageCor20TablesHeader>(cormetadata, streamheader->Offset);
-
-    CorTables tables;
-    PeDotNet::getTables(cortablesheader, tables);
+    this->_dotnetreader->iterateTypes([this](u32 rva, const std::string& name) {
+        this->defineFunction(this->_imagebase + rva, name);
+    });
 }
 
 void PeFormat::loadDefault()

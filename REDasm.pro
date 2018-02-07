@@ -118,7 +118,8 @@ SOURCES += main.cpp\
     redasm/formats/elf/elf_analyzer.cpp \
     redasm/disassembler/disassemblerapi.cpp \
     redasm/assemblers/cil/cil.cpp \
-    redasm/formats/pe/dotnet/dotnet.cpp
+    redasm/formats/pe/dotnet/dotnet.cpp \
+    redasm/formats/pe/dotnet/dotnet_reader.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -224,7 +225,8 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/dotnet/dotnet_header.h \
     redasm/assemblers/cil/cil.h \
     redasm/formats/pe/dotnet/dotnet.h \
-    redasm/formats/pe/dotnet/dotnet_tables.h
+    redasm/formats/pe/dotnet/dotnet_tables.h \
+    redasm/formats/pe/dotnet/dotnet_reader.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

@@ -80,7 +80,7 @@ bool PeDotNet::getTables(ImageCor20TablesHeader *cortablesheader, CorTables &tab
             return false;
         }
 
-        for(u32 i = 0 ; i < rit->second; i++)
+        for(u32 i = 0; i < rit->second; i++)
         {
             CorTable table;
             it->second(&tabledata, tables, table);
@@ -503,7 +503,7 @@ void PeDotNet::getTaggedField(u32** data, u32 &value, u8 &tag, u8 tagbits, const
     for(u32 i = 0 ; i < tagbits; i++)
         mask |= (1u << i);
 
-    u16 maxvalue = (0xFFFF & static_cast<u16>(mask)) >> tagbits;
+    u16 maxvalue = (static_cast<u16>(0xFFFF) & ~static_cast<u16>(mask)) >> tagbits;
     u32 tagvalue = 0, maxrows = PeDotNet::maxRows(tables, tablerefs);
 
     if(maxrows > maxvalue) // 32-bit is needed
@@ -519,8 +519,11 @@ u32 PeDotNet::maxRows(const CorTables &tables, const std::list<u32> &tablerefs)
 {
     u32 res = 0;
 
-    std::for_each(tablerefs.begin(), tablerefs.begin(), [tables, &res](u32 table) {
-        res = std::max(res, tables.rows.at(table));
+    std::for_each(tablerefs.begin(), tablerefs.end(), [tables, &res](u32 table) {
+        auto it = tables.rows.find(table);
+
+        if(it != tables.rows.end())
+            res = std::max(res, it->second);
     });
 
     return res;

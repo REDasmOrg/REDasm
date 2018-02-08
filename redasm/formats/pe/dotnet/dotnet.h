@@ -70,13 +70,46 @@ class PeDotNet
         static void initTables();
 
     private:
-        static void getTaggedField(u32** data, u32& value, u8& tag, u8 tagbits, const CorTables& tables, const std::list<u32>& tablerefs);
-        static u32 maxRows( const CorTables& tables, const std::list<u32>& tablerefs);
+        template<u32 S> static void getTaggedField(u32** data, u32& value, u8& tag, u8 tagbits, const CorTables& tables, const std::array<u32, S>& tablerefs);
+        template<u32 S> static u32 maxRows(const CorTables& tables, const std::array<u32, S>& tablerefs);
 
     private:
         static std::list<u32> _tables;
         static TableDispatcher _dispatcher;
 };
+
+template<u32 S> void PeDotNet::getTaggedField(u32** data, u32& value, u8& tag, u8 tagbits, const CorTables& tables, const std::array<u32, S>& tablerefs)
+{
+    u32 mask = 0;
+
+    for(u32 i = 0 ; i < tagbits; i++)
+        mask |= (1u << i);
+
+    u16 maxvalue = (static_cast<u16>(0xFFFF) & ~static_cast<u16>(mask)) >> tagbits;
+    u32 tagvalue = 0, maxrows = PeDotNet::maxRows<S>(tables, tablerefs);
+
+    if(maxrows > maxvalue) // 32-bit is needed
+        tagvalue = REDasm::readpointer<u32>(data);
+    else
+        tagvalue = REDasm::readpointer<u16>(data);
+
+    value = tagvalue >> tagbits;
+    tag = tagvalue & mask;
+}
+
+template<u32 S> u32 PeDotNet::maxRows(const CorTables& tables, const std::array<u32, S>& tablerefs)
+{
+    u32 res = 0;
+
+    std::for_each(tablerefs.begin(), tablerefs.end(), [tables, &res](u32 table) {
+        auto it = tables.rows.find(table);
+
+        if(it != tables.rows.end())
+            res = std::max(res, it->second);
+    });
+
+    return res;
+}
 
 } // namespace REDasm
 

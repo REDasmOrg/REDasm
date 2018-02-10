@@ -88,12 +88,9 @@ u32 DotNetReader::getListCount(CorTableRows::const_iterator rowsit, const CorTab
     rowsit++;
 
     if(rowsit != cortablerows.end())
-        lastindex = std::min(maxrows - 1, cbindex(*rowsit));
+        lastindex = std::min(maxrows, cbindex(*rowsit));
     else
-        lastindex = maxrows - 1;
-
-    if(lastindex == index)
-        return 1;
+        lastindex = maxrows;
 
     return lastindex - index;
 }

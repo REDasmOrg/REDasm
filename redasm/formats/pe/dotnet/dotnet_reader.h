@@ -10,7 +10,7 @@ class DotNetReader
 {
     private:
         typedef std::function<void(u32, const std::string&)> MethodCallback;
-        typedef std::function<u32(const CorTable&)> IndexCallback;
+        typedef std::function<u32(const CorTablePtr&)> IndexCallback;
 
     public:
         DotNetReader(ImageCor20MetaData *cormetadata);
@@ -20,8 +20,8 @@ class DotNetReader
     private:
         const CorTableRows& getTableRows(u32 cortable) const;
         void buildType(std::string& s, u32 stringidx) const;
-        void iterateMethods(const CorTable &cortypedef, u32 methodcount, MethodCallback cbmethods) const;
-        u32 getListCount(CorTableRows::const_iterator it, u32 cortable, IndexCallback cbindex) const;
+        void iterateMethods(const CorTablePtr &cortypedef, u32 methodcount, MethodCallback cbmethods) const;
+        u32 getListCount(CorTableRows::const_iterator rowsit, const CorTableRows &cortablerows, u32 maxrows, IndexCallback cbindex) const;
         std::string getString(u32 index) const;
 
     private:

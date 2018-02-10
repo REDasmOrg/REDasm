@@ -48,7 +48,8 @@ struct CorTable
     struct { u32 owner; DOTNET_TAG_F(constraint); } genericParamConstraint;
 };
 
-typedef std::list<CorTable> CorTableRows;
+typedef std::unique_ptr<CorTable> CorTablePtr;
+typedef std::vector<CorTablePtr> CorTableRows;
 
 struct CorTables
 {

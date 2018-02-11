@@ -19,8 +19,8 @@ void DisassemblerGraphView::display(address_t address)
     REDasm::GraphBuilder gb(listing);
     gb.build(address);
 
-    //REDasm::GraphLayout gl;
-    //gl.layout(gb);
+    REDasm::GraphLayout gl;
+    gl.layout(gb);
 
     this->beginInsertion();
         this->_addedblocks.clear();
@@ -31,6 +31,7 @@ void DisassemblerGraphView::display(address_t address)
 
 void DisassemblerGraphView::addBlock(const REDasm::GraphNodePtr &node, FunctionBlockItem* parentitem, REDasm::GraphBuilder& gb, REDasm::Listing& listing)
 {
+    /*
     if(this->_addedblocks.find(node->address) != this->_addedblocks.end())
         return;
 
@@ -51,4 +52,5 @@ void DisassemblerGraphView::addBlock(const REDasm::GraphNodePtr &node, FunctionB
     std::for_each(edges.begin(), edges.end(), [this, fbi, &gb, &listing](address_t edge) {
         this->addBlock(gb.getNode(edge), fbi, gb, listing);
     });
+    */
 }

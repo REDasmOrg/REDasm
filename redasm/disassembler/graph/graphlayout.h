@@ -8,15 +8,14 @@ namespace REDasm {
 class GraphLayout
 {
     private:
-        typedef std::list<address_t> Columns;
-        typedef std::list<Columns> Rows;
+        typedef std::vector<address_t> Columns;
+        typedef std::vector<Columns> Rows;
 
     public:
         GraphLayout();
         void layout(const GraphBuilder& gb);
 
     private:
-        void initialize(const GraphBuilder& gb);
         void addRow();
 
     private:

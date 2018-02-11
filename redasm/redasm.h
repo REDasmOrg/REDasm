@@ -254,6 +254,7 @@ struct Instruction
     bool hasTargets() const { return !targets.empty(); }
     bool hasReferences() const { return !references.empty(); }
     void reset() { target_idx = -1, type = blocktype = 0; targets.clear(); operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
+    void foreachTarget(std::function<void(address_t)> cb) { std::for_each(targets.begin(), targets.end(), cb); }
     void target_op(s32 index) { target_idx = index; targets.push_back(operands[index].u_value); }
     void target(address_t target) { targets.push_back(target); }
     void reference(address_t ref) { references.insert(ref); }

@@ -7,18 +7,19 @@ namespace REDasm {
 
 struct GraphNode
 {
-    GraphNode(address_t address): address(address), color("black") { }
-
     // Data
-    address_t address;
-    std::set<address_t> items;
+    std::set<address_t> incomingNodes;
+    std::set<address_t> trueBranches;
+    std::set<address_t> falseBranches;
+    address_t start, end;
 
     // Appeareance
     std::string color;
 
-    bool isEmpty() const { return items.empty(); }
-    address_t firstAddress() const { return *items.begin(); }
-    address_t lastAddress() const { return *items.rbegin(); }
+    GraphNode(address_t start): start(start), end(start), color("black") { }
+    void incoming(address_t address) { incomingNodes.insert(address); }
+    void bTrue(address_t address) { trueBranches.insert(address); }
+    void bFalse(address_t address) { falseBranches.insert(address); }
 };
 
 typedef std::unique_ptr<GraphNode> GraphNodePtr;

@@ -11,32 +11,27 @@ class GraphBuilder
 {
     friend class GraphLayout;
 
-    public:
-        typedef std::set<address_t> NodeList;
-
     private:
         typedef std::map<address_t, GraphNodePtr> Nodes;
-        typedef std::unordered_map<address_t, NodeList> Edges;
 
     public:
         GraphBuilder(Listing& listing);
-        const GraphNodePtr& rootNode();
+        u32 height() const;
+        const GraphNodePtr& rootNode() const;
         const GraphNodePtr& getNode(address_t address);
-        NodeList getEdges(const GraphNodePtr& node) const;
         void build(address_t address);
 
     private:
-        void buildNodes();
-        void fillNode(const GraphNodePtr& node);
-        void buildEdges(const GraphNodePtr& node);
-        void addEdge(const GraphNodePtr &node, address_t target);
-        void addNode(address_t address);
+        static u32 height(const GraphNodePtr& node) const;
+        void buildNodesPass1();
+        void buildNodesPass2();
+        void buildNodesPass3();
+        void buildNodesPass4();
 
     private:
         address_t _startaddress, _endaddress;
         Listing& _listing;
         Nodes _nodes;
-        Edges _edges;
 };
 
 } // namespace REDasm

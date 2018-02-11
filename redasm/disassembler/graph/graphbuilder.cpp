@@ -1,4 +1,5 @@
 #include "graphbuilder.h"
+#include <queue>
 
 namespace REDasm {
 
@@ -6,9 +7,14 @@ GraphBuilder::GraphBuilder(Listing &listing): _startaddress(0), _endaddress(0), 
 {
 }
 
-const GraphNodePtr &GraphBuilder::rootNode()
+u32 GraphBuilder::height() const
 {
-    return this->_nodes[this->_startaddress];
+    return GraphBuilder::height(this->rootNode());
+}
+
+const GraphNodePtr &GraphBuilder::rootNode() const
+{
+    return this->_nodes.at(this->_startaddress);
 }
 
 const GraphNodePtr &GraphBuilder::getNode(address_t address)
@@ -16,122 +22,147 @@ const GraphNodePtr &GraphBuilder::getNode(address_t address)
     return this->_nodes[address];
 }
 
-GraphBuilder::NodeList GraphBuilder::getEdges(const GraphNodePtr &node) const
-{
-    auto it = this->_edges.find(node->address);
-
-    if(it != this->_edges.end())
-        return it->second;
-
-    return NodeList();
-}
-
 void GraphBuilder::build(address_t address)
 {
     if(!this->_listing.getFunctionBounds(address, &this->_startaddress, &this->_endaddress))
         return;
 
-    this->buildNodes();
-
-    std::for_each(this->_nodes.begin(), this->_nodes.end(), [this](const std::pair<address_t, const GraphNodePtr&>& item) {
-        this->fillNode(item.second);
-    });
-
-    std::for_each(this->_nodes.begin(), this->_nodes.end(), [this](const std::pair<address_t, const GraphNodePtr&>& item) {
-        this->buildEdges(item.second);
-    });
+    this->buildNodesPass1(); // Build nodes
+    this->buildNodesPass2(); // Check overlapping nodes
+    this->buildNodesPass3(); // Elaborate node's edges
+    this->buildNodesPass4(); // Elaborate node's incoming edges
 }
 
-void GraphBuilder::buildNodes()
+u32 GraphBuilder::height(const GraphNodePtr &node) const
 {
-    auto it = this->_listing.find(this->_startaddress);
-
-    while(it != this->_listing.end())
-    {
-        InstructionPtr instruction = *it;
-
-        if(instruction->address >= this->_endaddress)
-            break;
-
-        if(instruction->is(InstructionTypes::Jump) && (instruction->endAddress() < this->_endaddress))
-            this->addNode(instruction->endAddress());
-        else if(instruction->blockIs(BlockTypes::BlockStart))
-            this->addNode(instruction->address);
-
-        it++;
-    }
+    /* STUB */
 }
 
-void GraphBuilder::fillNode(const GraphNodePtr& node)
+void GraphBuilder::buildNodesPass1()
 {
-    auto it = this->_listing.find(node->address);
+    std::queue<address_t> queue;
+    std::set<address_t> visited;
 
-    while(it != this->_listing.end())
+    queue.push(this->_startaddress);
+
+    while(!queue.empty())
     {
-        if((it.key >= this->_endaddress) || ((it.key != node->address) && (this->_nodes.find(it.key) != this->_nodes.end())))
-            break;
+        address_t start = queue.front();
+        queue.pop();
 
-        node->items.insert(it.key);
-        it++;
-    }
-}
-
-void GraphBuilder::buildEdges(const GraphNodePtr &node)
-{
-    auto it = node->items.begin();
-
-    for(; it != node->items.end(); it++)
-    {
-        InstructionPtr instruction = this->_listing[*it];
-
-        if(!instruction->is(InstructionTypes::Jump) || !instruction->hasTargets())
+        if(visited.find(start) != visited.end())
             continue;
 
-        int direction = TARGET_DIRECTION(instruction);
+        visited.insert(start);
+        GraphNodePtr node = std::make_unique<GraphNode>(start);
+        auto it = this->_listing.find(start);
 
-        if(direction < 0) // Add Edges for loops
+        while(it != this->_listing.end())
         {
-            auto it = this->_nodes.find(instruction->target());
+            InstructionPtr instruction = *it;
 
-            if(it != this->_nodes.end())
-                this->addEdge((--it)->second, instruction->target());
+            if(instruction->address >= this->_endaddress)
+                break;
 
-            continue;
+            if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
+            {
+                instruction->foreachTarget([&queue, &node](address_t address) {
+                    queue.push(address);
+                });
+
+                if(instruction->is(InstructionTypes::Conditional) && (instruction->endAddress() < this->_endaddress))
+                    queue.push(instruction->endAddress());
+
+                node->end = instruction->address;
+                this->_nodes[start] = std::move(node);
+                break;
+            }
+
+            if(instruction->is(InstructionTypes::Stop))
+            {
+                node->end = instruction->address;
+                this->_nodes[start] = std::move(node);
+                break;
+            }
+
+            it++;
         }
+    }
+}
 
-        std::for_each(instruction->targets.begin(), instruction->targets.end(), [this, &node](address_t target) {
-            this->addEdge(node, target);
+void GraphBuilder::buildNodesPass2()
+{
+    for(auto nit = this->_nodes.begin(); nit != this->_nodes.end(); nit++)
+    {
+        const GraphNodePtr& node = nit->second;
+        auto it = this->_listing.find(node->start);
+
+        while(it.key < node->end)
+        {
+            InstructionPtr instruction = *it;
+
+            if(this->_nodes.find(instruction->endAddress()) != this->_nodes.end())
+            {
+                node->end = instruction->address;
+                node->bTrue(instruction->endAddress());
+                break;
+            }
+
+            it++;
+        }
+    }
+}
+
+void GraphBuilder::buildNodesPass3()
+{
+    for(auto nit = this->_nodes.begin(); nit != this->_nodes.end(); nit++)
+    {
+        const GraphNodePtr& node = nit->second;
+        auto it = this->_listing.find(node->start);
+
+        while(it.key <= node->end)
+        {
+            InstructionPtr instruction = *it;
+
+            if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
+            {
+                instruction->foreachTarget([&node](address_t address) {
+                    node->bTrue(address);
+                });
+
+                if(instruction->is(InstructionTypes::Conditional) && (instruction->endAddress() < this->_endaddress))
+                    node->bFalse(instruction->endAddress());
+            }
+
+            it++;
+        }
+    }
+}
+
+void GraphBuilder::buildNodesPass4()
+{
+    for(auto nit = this->_nodes.begin(); nit != this->_nodes.end(); nit++)
+    {
+        const GraphNodePtr& node = nit->second;
+
+        std::for_each(node->trueBranches.begin(), node->trueBranches.end(), [this, &node](address_t start) {
+            auto it = this->_nodes.find(start);
+
+            if((it == this->_nodes.end()) || (it->second == node))
+                return;
+
+            it->second->incoming(node->start);
         });
 
-        if(direction > 0)
-            this->addEdge(node, instruction->endAddress());
+        std::for_each(node->falseBranches.begin(), node->falseBranches.end(), [this, &node](address_t start) {
+            auto it = this->_nodes.find(start);
+
+            if((it == this->_nodes.end()) || (it->second == node))
+                return;
+
+            it->second->incoming(node->start);
+        });
     }
-}
-
-void GraphBuilder::addEdge(const GraphNodePtr& node, address_t target)
-{
-    if((target < this->_startaddress) || (target >= this->_endaddress))
-        return;
-
-    auto it = this->_edges.find(node->address);
-
-    if(it != this->_edges.end())
-    {
-        it->second.insert(target);
-        return;
-    }
-
-    NodeList nodes;
-    nodes.insert(target);
-    this->_edges[node->address] = nodes;
-}
-
-void GraphBuilder::addNode(address_t address)
-{
-    if(this->_nodes.find(address) != this->_nodes.end())
-        return;
-
-    this->_nodes[address] = std::make_unique<GraphNode>(address);
 }
 
 } // namespace REDasm

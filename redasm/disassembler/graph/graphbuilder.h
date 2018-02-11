@@ -22,7 +22,7 @@ class GraphBuilder
         void build(address_t address);
 
     private:
-        static u32 height(const GraphNodePtr& node) const;
+        static u32 height(const GraphNodePtr& node);
         void buildNodesPass1();
         void buildNodesPass2();
         void buildNodesPass3();

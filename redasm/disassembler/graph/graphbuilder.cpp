@@ -33,7 +33,7 @@ void GraphBuilder::build(address_t address)
     this->buildNodesPass4(); // Elaborate node's incoming edges
 }
 
-u32 GraphBuilder::height(const GraphNodePtr &node) const
+u32 GraphBuilder::height(const GraphNodePtr &node)
 {
     /* STUB */
 }

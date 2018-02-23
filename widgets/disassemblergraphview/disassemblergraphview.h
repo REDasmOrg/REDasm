@@ -2,7 +2,7 @@
 #define DISASSEMBLERGRAPHVIEW_H
 
 #include "../graphview/graphview.h"
-#include "../../redasm/disassembler/graph/graphbuilder.h"
+#include "../../redasm/disassembler/graph/functiongraph.h"
 #include "functionblockitem.h"
 
 class DisassemblerGraphView : public GraphView
@@ -17,7 +17,7 @@ class DisassemblerGraphView : public GraphView
         void display(address_t address);
 
     private:
-        void addBlock(const REDasm::GraphNodePtr& node, FunctionBlockItem *parentitem, REDasm::GraphBuilder &gb, REDasm::Listing &listing);
+        //void addBlock(const REDasm::GraphNodePtr& node, FunctionBlockItem *parentitem, REDasm::FunctionGraph &gb, REDasm::Listing &listing);
 
     private:
         REDasm::Disassembler* _disassembler;

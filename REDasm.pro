@@ -85,7 +85,6 @@ SOURCES += main.cpp\
     widgets/disassemblertextview/disassemblertextdocument.cpp \
     widgets/disassemblergraphview/disassemblergraphdocument.cpp \
     widgets/disassemblergraphview/functionblockitem.cpp \
-    redasm/disassembler/graph/graphbuilder.cpp \
     redasm/redasm.cpp \
     redasm/formats/pe/pe_ordinals.cpp \
     redasm/formats/pe/pe_resources.cpp \
@@ -119,7 +118,10 @@ SOURCES += main.cpp\
     redasm/disassembler/disassemblerapi.cpp \
     redasm/assemblers/cil/cil.cpp \
     redasm/formats/pe/dotnet/dotnet.cpp \
-    redasm/formats/pe/dotnet/dotnet_reader.cpp
+    redasm/formats/pe/dotnet/dotnet_reader.cpp \
+    redasm/graph/graph.cpp \
+    redasm/graph/graph_layout.cpp \
+    redasm/disassembler/graph/functiongraph.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -181,7 +183,6 @@ HEADERS  += mainwindow.h \
     widgets/disassemblertextview/disassemblertextdocument.h \
     widgets/disassemblergraphview/disassemblergraphdocument.h \
     widgets/disassemblergraphview/functionblockitem.h \
-    redasm/disassembler/graph/graphbuilder.h \
     redasm/disassembler/graph/graphnode.h \
     redasm/formats/pe/pe_ordinals.h \
     redasm/formats/pe/pe_resources.h \
@@ -226,7 +227,10 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/cil/cil.h \
     redasm/formats/pe/dotnet/dotnet.h \
     redasm/formats/pe/dotnet/dotnet_tables.h \
-    redasm/formats/pe/dotnet/dotnet_reader.h
+    redasm/formats/pe/dotnet/dotnet_reader.h \
+    redasm/graph/graph.h \
+    redasm/graph/graph_layout.h \
+    redasm/disassembler/graph/functiongraph.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

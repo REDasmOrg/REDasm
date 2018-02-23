@@ -1,5 +1,6 @@
 #include "disassemblergraphview.h"
-#include "../../redasm/disassembler/graph/graphlayout.h"
+#include "../../redasm/graph/graph_layout.h"
+
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent) : GraphView(parent)
 {
@@ -16,21 +17,18 @@ void DisassemblerGraphView::display(address_t address)
         return;
 
     REDasm::Listing& listing = this->_disassembler->listing();
-    REDasm::GraphBuilder gb(listing);
+    REDasm::FunctionGraph gb(listing);
     gb.build(address);
-
-    REDasm::GraphLayout gl;
-    gl.layout(gb);
 
     this->beginInsertion();
         this->_addedblocks.clear();
         this->removeAll();
-        this->addBlock(gb.rootNode(), NULL, gb, listing);
+        //this->addBlock(gb.headNode(), NULL, gb, listing);
     this->endInsertion();
 }
 
-void DisassemblerGraphView::addBlock(const REDasm::GraphNodePtr &node, FunctionBlockItem* parentitem, REDasm::GraphBuilder& gb, REDasm::Listing& listing)
-{
+//void DisassemblerGraphView::addBlock(const REDasm::GraphNodePtr &node, FunctionBlockItem* parentitem, REDasm::FunctionGraph& gb, REDasm::Listing& listing)
+//{
     /*
     if(this->_addedblocks.find(node->address) != this->_addedblocks.end())
         return;
@@ -53,4 +51,4 @@ void DisassemblerGraphView::addBlock(const REDasm::GraphNodePtr &node, FunctionB
         this->addBlock(gb.getNode(edge), fbi, gb, listing);
     });
     */
-}
+//}

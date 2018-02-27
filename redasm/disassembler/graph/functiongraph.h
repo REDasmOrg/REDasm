@@ -6,20 +6,18 @@
 
 namespace REDasm {
 
-struct FunctionGraphData
+struct FunctionGraphVertex: public Graphing::Vertex
 {
     address_t start, end;
-    Graphing::EdgeList trueBranches;
-    Graphing::EdgeList falseBranches;
+    Graphing::EdgeList trueBranches, falseBranches;
 
-    FunctionGraphData(address_t start): start(start), end(start) { }
+    FunctionGraphVertex(address_t start): Vertex(), start(start), end(start) { }
+    virtual s64 compare(Vertex* v) const { return start - static_cast<FunctionGraphVertex*>(v)->start; }
     void bTrue(address_t address) { trueBranches.insert(address); }
     void bFalse(address_t address) { falseBranches.insert(address); }
 };
 
-typedef Graphing::GraphT<FunctionGraphData, address_t> FunctionGraphType;
-
-class FunctionGraph: public FunctionGraphType
+class FunctionGraph: public Graphing::Graph
 {
     public:
         FunctionGraph(Listing& listing);
@@ -28,6 +26,7 @@ class FunctionGraph: public FunctionGraphType
         void build(address_t address);
 
     private:
+        FunctionGraphVertex* vertexFromAddress(address_t address);
         void buildBlocksPass1();
         void buildBlocksPass2();
         void buildBlocksPass3();

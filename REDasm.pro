@@ -230,7 +230,8 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/dotnet/dotnet_reader.h \
     redasm/graph/graph.h \
     redasm/graph/graph_layout.h \
-    redasm/disassembler/graph/functiongraph.h
+    redasm/disassembler/graph/functiongraph.h \
+    redasm/graph/vertex.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

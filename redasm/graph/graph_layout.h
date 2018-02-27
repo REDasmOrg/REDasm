@@ -18,10 +18,10 @@ class GraphLayout
 
     public:
         GraphLayout(Graph* graph);
-        void layout(RemoveCallback removecb);
+        void layout();
 
     private:
-        void removeLoops(RemoveCallback removecb);
+        void removeLoops();
         void assignLayers();
         void insertFakeVertices();
 

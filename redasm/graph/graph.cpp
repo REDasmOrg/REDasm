@@ -3,11 +3,6 @@
 namespace REDasm {
 namespace Graphing {
 
-Vertex::Vertex(vertex_id_t id): id(id), layer(0), color("black")
-{
-
-}
-
 Graph::Graph(): _currentid(0), _rootid(0)
 {
 
@@ -23,7 +18,7 @@ bool Graph::edge(vertex_id_t from, vertex_id_t to)
     if(from >= this->_vertexmap.size())
         return false;
 
-    this->_vertexmap.at(from).edges.insert(to);
+    this->_vertexmap.at(from)->edges.insert(to);
     return true;
 }
 
@@ -37,12 +32,12 @@ Vertex *Graph::rootVertex()
     if(it == this->_vertexmap.end())
         return NULL;
 
-    return &it->second;
+    return it->second.get();
 }
 
 Vertex *Graph::getVertex(vertex_id_t id)
 {
-    return &this->_vertexmap.at(id);
+    return this->_vertexmap.at(id).get();
 }
 
 VertexSet Graph::getParents(Vertex *v)
@@ -51,12 +46,12 @@ VertexSet Graph::getParents(Vertex *v)
 
     for(auto& item : this->_vertexmap)
     {
-        const Vertex& vi = item.second;
+        VertexPtr& vi = item.second;
 
-        if(vi.id == v->id)
+        if(vi->id == v->id)
             continue;
 
-        for(vertex_id_t edge : vi.edges)
+        for(vertex_id_t edge : vi->edges)
         {
             if(edge != v->id)
                 continue;
@@ -77,6 +72,12 @@ void Graph::setRootVertex(Vertex *v)
 void Graph::setRootVertex(vertex_id_t id)
 {
     this->_rootid = id;
+}
+
+void Graph::pushVertex(Vertex *v)
+{
+    v->id = ++this->_currentid;
+    this->_vertexmap.emplace(v->id, v);
 }
 
 } // namespace Graph

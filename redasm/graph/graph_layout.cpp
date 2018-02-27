@@ -9,24 +9,26 @@ GraphLayout::GraphLayout(Graph *graph): _graph(graph)
 
 }
 
-void GraphLayout::layout(GraphLayout::RemoveCallback removecb)
+void GraphLayout::layout()
 {
     if(!this->_graph->rootVertex())
         return;
 
-    this->removeLoops(removecb);
+    this->removeLoops();
     this->assignLayers();
     this->insertFakeVertices();
 }
 
-void GraphLayout::removeLoops(RemoveCallback removecb)
+void GraphLayout::removeLoops()
 {
-    for(Vertex* v : *this->_graph)
+    for(Vertex* v1 : *this->_graph)
     {
-        for(auto it = v->edges.begin(); it != v->edges.end(); )
+        for(auto it = v1->edges.begin(); it != v1->edges.end(); )
         {
-            if(removecb(this->_graph, v, this->_graph->getVertex(*it)))
-                it = v->edges.erase(it);
+            Vertex* v2 = this->_graph->getVertex(*it);
+
+            if(v2->lessThan(v1))
+                it = v1->edges.erase(it);
             else
                 it++;
         }

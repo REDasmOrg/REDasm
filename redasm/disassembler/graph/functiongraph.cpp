@@ -4,7 +4,7 @@
 
 namespace REDasm {
 
-FunctionGraph::FunctionGraph(Listing &listing): GraphT<FunctionGraphData, address_t>(), _startaddress(0), _endaddress(0), _listing(listing)
+FunctionGraph::FunctionGraph(Listing &listing): Graph(), _startaddress(0), _endaddress(0), _listing(listing)
 {
 }
 
@@ -27,15 +27,23 @@ void FunctionGraph::build(address_t address)
     this->buildBlocksPass2(); // Check overlapping nodes
     this->buildBlocksPass3(); // Elaborate node's edges
 
-    this->setRootVertexKey(this->_startaddress);
+    //this->setRootVertexKey(this->_startaddress);
 
     Graphing::GraphLayout gl(this);
+    gl.layout();
+}
 
-    gl.layout([](Graph* g, Graphing::Vertex* v, Graphing::Vertex* e) -> bool {
-        FunctionGraphType* fgt = static_cast<FunctionGraphType*>(g);
-        FunctionGraphData *fgdv = fgt->getData(v), *fgde = fgt->getData(e);
-        return fgde->start <= fgdv->start;
-    });
+FunctionGraphVertex *FunctionGraph::vertexFromAddress(address_t address)
+{
+    for(auto& item : this->_vertexmap)
+    {
+       FunctionGraphVertex* v = static_cast<FunctionGraphVertex*>(this->getVertex(item.first));
+
+        if(v->start == address)
+            return v;
+    }
+
+    return NULL;
 }
 
 void FunctionGraph::buildBlocksPass1()
@@ -54,7 +62,7 @@ void FunctionGraph::buildBlocksPass1()
             continue;
 
         visited.insert(start);
-        FunctionGraphData fgd(start);
+        FunctionGraphVertex* v = new FunctionGraphVertex(start);
         auto it = this->_listing.find(start);
 
         while(it != this->_listing.end())
@@ -73,15 +81,15 @@ void FunctionGraph::buildBlocksPass1()
                 if(instruction->is(InstructionTypes::Conditional) && (instruction->endAddress() < this->_endaddress))
                     queue.push(instruction->endAddress());
 
-                fgd.end = instruction->address;
-                this->pushVertex(fgd, fgd.start);
+                v->end = instruction->address;
+                this->pushVertex(v);
                 break;
             }
 
             if(instruction->is(InstructionTypes::Stop))
             {
-                fgd.end = instruction->address;
-                this->pushVertex(fgd, fgd.start);
+                v->end = instruction->address;
+                this->pushVertex(v);
                 break;
             }
 
@@ -92,25 +100,25 @@ void FunctionGraph::buildBlocksPass1()
 
 void FunctionGraph::buildBlocksPass2()
 {
-    for(auto vit = this->dbegin(); vit != this->dend(); vit++)
+    for(auto vit = this->begin(); vit != this->end(); vit++)
     {
-        FunctionGraphData* fgd = vit.getData();
-        auto it = this->_listing.find(fgd->start);
+        FunctionGraphVertex* v1 = static_cast<FunctionGraphVertex*>(*vit);
+        auto it = this->_listing.find(v1->start);
 
-        while(it.key < fgd->end)
+        while(it.key < v1->end)
         {
             InstructionPtr instruction = *it;
-            Graphing::Vertex* v = this->findKey(instruction->endAddress());
+            FunctionGraphVertex* v2 = this->vertexFromAddress(instruction->endAddress());
 
-            if(!v)
+            if(!v2)
             {
                 it++;
                 continue;
             }
 
-            fgd->end = instruction->address;
-            fgd->bTrue(instruction->endAddress());
-            this->edge(*vit, v);
+            v1->end = instruction->address;
+            v1->bTrue(instruction->endAddress());
+            this->edge(v1, v2);
             break;
         }
     }
@@ -118,28 +126,28 @@ void FunctionGraph::buildBlocksPass2()
 
 void FunctionGraph::buildBlocksPass3()
 {
-    for(auto vit = this->dbegin(); vit != this->dend(); vit++)
+    for(auto vit = this->begin(); vit != this->end(); vit++)
     {
-        FunctionGraphData* fgd = vit.getData();
-        auto it = this->_listing.find(fgd->start);
+        FunctionGraphVertex* v1 = static_cast<FunctionGraphVertex*>(*vit);
+        auto it = this->_listing.find(v1->start);
 
-        while(it.key <= fgd->end)
+        while(it.key <= v1->end)
         {
             InstructionPtr instruction = *it;
 
             if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
             {
-                Graphing::Vertex* v = *vit;
+                Graphing::Vertex* v2 = *vit;
 
-                instruction->foreachTarget([this, &v, &fgd](address_t address) {
-                    this->edge(v, this->findKey(address));
-                    fgd->bTrue(address);
+                instruction->foreachTarget([this, &v2, &v1](address_t address) {
+                    this->edge(v2, this->vertexFromAddress(address));
+                    v1->bTrue(address);
                 });
 
                 if(instruction->is(InstructionTypes::Conditional) && (instruction->endAddress() < this->_endaddress))
                 {
-                    this->edge(v, this->findKey(instruction->endAddress()));
-                    fgd->bFalse(instruction->endAddress());
+                    this->edge(v2, this->vertexFromAddress(instruction->endAddress()));
+                    v1->bFalse(instruction->endAddress());
                 }
             }
 

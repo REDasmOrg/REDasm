@@ -46,7 +46,7 @@ void GraphLayout::assignLayers()
         pending.pop();
 
         VertexSet parents = this->_graph->getParents(v);
-        v->layer = parents.empty() ? 0 : GraphLayout::maxLayer(parents) + 1;
+        v->layout.layer = parents.empty() ? 0 : GraphLayout::maxLayer(parents) + 1;
 
         for(vertex_id_t edge : v->edges)
             pending.push(this->_graph->getVertex(edge));
@@ -63,7 +63,7 @@ u64 GraphLayout::maxLayer(const VertexSet& vs)
     u64 layer = 0;
 
     for(Vertex* v : vs)
-        layer = std::max(layer, v->layer);
+        layer = std::max(layer, v->layout.layer);
 
     return layer;
 }

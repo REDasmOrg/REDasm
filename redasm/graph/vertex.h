@@ -12,12 +12,17 @@ typedef std::set<vertex_id_t> EdgeList;
 struct Vertex
 {
     vertex_id_t id;
-    u64 layer;
     EdgeList edges;
     std::string color;
 
-    Vertex(): id(0), layer(0), color("black") { }
+    struct {
+        u64 layer;
+        bool isfake;
+    } layout;
+
+    Vertex(): id(0), color("black") { layout.layer = 0; layout.isfake = false; }
     virtual s64 compare(Vertex* v) const { return id - v->id; }
+    bool isFake() const { return layout.isfake; }
     bool equalsTo(Vertex* v) const { return compare(v) == 0; }
     bool lessThan(Vertex* v) const { return compare(v) < 0; }
     bool greaterThan(Vertex* v) const { return compare(v) > 0; }

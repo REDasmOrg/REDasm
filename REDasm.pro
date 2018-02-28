@@ -113,7 +113,6 @@ SOURCES += main.cpp\
     widgets/graphview/graphitems/graphtextitem.cpp \
     widgets/graphview/graphview.cpp \
     widgets/graphview/graphviewprivate.cpp \
-    redasm/disassembler/graph/graphlayout.cpp \
     redasm/formats/elf/elf_analyzer.cpp \
     redasm/disassembler/disassemblerapi.cpp \
     redasm/assemblers/cil/cil.cpp \
@@ -183,7 +182,6 @@ HEADERS  += mainwindow.h \
     widgets/disassemblertextview/disassemblertextdocument.h \
     widgets/disassemblergraphview/disassemblergraphdocument.h \
     widgets/disassemblergraphview/functionblockitem.h \
-    redasm/disassembler/graph/graphnode.h \
     redasm/formats/pe/pe_ordinals.h \
     redasm/formats/pe/pe_resources.h \
     redasm/formats/pe/borland/borland_types.h \
@@ -220,7 +218,6 @@ HEADERS  += mainwindow.h \
     widgets/graphview/graphitems/graphtextitem.h \
     widgets/graphview/graphview.h \
     widgets/graphview/graphviewprivate.h \
-    redasm/disassembler/graph/graphlayout.h \
     redasm/formats/elf/elf_analyzer.h \
     redasm/disassembler/disassemblerapi.h \
     redasm/formats/pe/dotnet/dotnet_header.h \

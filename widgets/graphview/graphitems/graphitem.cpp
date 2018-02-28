@@ -1,8 +1,13 @@
 #include "graphitem.h"
 
-GraphItem::GraphItem(QObject *parent) : QObject(parent)
+GraphItem::GraphItem(REDasm::Graphing::Vertex *v, QObject *parent): QObject(parent), _vertex(v)
 {
 
+}
+
+const REDasm::Graphing::Vertex *GraphItem::vertex() const
+{
+    return this->_vertex;
 }
 
 QColor GraphItem::borderColor() const

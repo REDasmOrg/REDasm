@@ -7,6 +7,7 @@ namespace REDasm {
 namespace Graphing {
 
 typedef u64 vertex_id_t;
+typedef u64 vertex_layer_t;
 typedef std::set<vertex_id_t> EdgeList;
 
 struct Vertex
@@ -16,7 +17,7 @@ struct Vertex
     std::string color;
 
     struct {
-        u64 layer;
+        vertex_layer_t layer;
         bool isfake;
     } layout;
 

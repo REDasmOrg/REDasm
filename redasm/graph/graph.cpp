@@ -66,6 +66,9 @@ VertexSet Graph::getParents(Vertex *v)
 
 void Graph::setRootVertex(Vertex *v)
 {
+    if(!v)
+        this->_rootid = 0;
+
     this->setRootVertex(v->id);
 }
 
@@ -78,6 +81,28 @@ void Graph::pushVertex(Vertex *v)
 {
     v->id = ++this->_currentid;
     this->_vertexmap.emplace(v->id, v);
+}
+
+VertexByLayer Graph::sortByLayer() const
+{
+    VertexByLayer bylayer;
+
+    for(auto& item : this->_vertexmap)
+    {
+        Vertex* v = item.second.get();
+        auto it = bylayer.find(v->layout.layer);
+
+        if(it == bylayer.end())
+        {
+            VertexList vl;
+            vl.push_back(v);
+            bylayer[v->layout.layer] = vl;
+        }
+        else
+            it->second.push_back(v);
+    }
+
+    return bylayer;
 }
 
 } // namespace Graph

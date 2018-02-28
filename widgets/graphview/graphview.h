@@ -10,11 +10,9 @@ class GraphView : public QScrollArea
 
     public:
         explicit GraphView(QWidget *parent = NULL);
-        GraphItem *addRoot(GraphItem* item);
-        void addEdge(GraphItem* fromitem, GraphItem* toitem);
+        u64 itemPadding() const;
+        void addItem(GraphItem* item);
         void removeAll();
-        void beginInsertion();
-        void endInsertion();
 
     public:
         bool overviewMode() const;

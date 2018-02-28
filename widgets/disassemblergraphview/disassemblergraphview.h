@@ -17,11 +17,10 @@ class DisassemblerGraphView : public GraphView
         void display(address_t address);
 
     private:
-        //void addBlock(const REDasm::GraphNodePtr& node, FunctionBlockItem *parentitem, REDasm::FunctionGraph &gb, REDasm::Listing &listing);
+        void addBlocks(const REDasm::FunctionGraph &gb, REDasm::Listing &listing);
 
     private:
         REDasm::Disassembler* _disassembler;
-        std::set<address_t> _addedblocks;
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

@@ -9,32 +9,22 @@ GraphView::GraphView(QWidget *parent): QScrollArea(parent)
     this->setFocusProxy(this->_graphview_p);
     this->setWidget(this->_graphview_p);
 
-    connect(this->_graphview_p, &GraphViewPrivate::graphDrawed, this, &GraphView::resizeGraphView);
+    connect(this->_graphview_p, &GraphViewPrivate::graphChanged, this, &GraphView::resizeGraphView);
 }
 
-GraphItem *GraphView::addRoot(GraphItem *item)
+u64 GraphView::itemPadding() const
 {
-    return this->_graphview_p->addRoot(item);
+    return this->_graphview_p->itemPadding();
 }
 
-void GraphView::addEdge(GraphItem *fromitem, GraphItem *toitem)
+void GraphView::addItem(GraphItem *item)
 {
-    this->_graphview_p->addEdge(fromitem, toitem);
+    this->_graphview_p->addItem(item);
 }
 
 void GraphView::removeAll()
 {
     return this->_graphview_p->removeAll();
-}
-
-void GraphView::beginInsertion()
-{
-    return this->_graphview_p->beginInsertion();
-}
-
-void GraphView::endInsertion()
-{
-    return this->_graphview_p->endInsertion();
 }
 
 bool GraphView::overviewMode() const

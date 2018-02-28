@@ -8,6 +8,8 @@ namespace REDasm {
 namespace Graphing {
 
 typedef std::set<Vertex*> VertexSet;
+typedef std::list<Vertex*> VertexList;
+typedef std::map<vertex_layer_t, VertexList> VertexByLayer;
 
 class Graph
 {
@@ -50,6 +52,7 @@ class Graph
         void setRootVertex(Vertex* v);
         void setRootVertex(vertex_id_t id);
         void pushVertex(Vertex* v);
+        VertexByLayer sortByLayer() const;
 
     protected:
         VertexMap _vertexmap;

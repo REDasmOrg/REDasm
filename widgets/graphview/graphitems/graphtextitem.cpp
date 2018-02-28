@@ -1,11 +1,11 @@
 #include "graphtextitem.h"
 
-GraphTextItem::GraphTextItem(QObject *parent) : GraphItem(parent)
+GraphTextItem::GraphTextItem(REDasm::Graphing::Vertex *v, QObject *parent) : GraphItem(v, parent)
 {
     this->_textcursor = QTextCursor(&this->_document);
 }
 
-GraphTextItem::GraphTextItem(const QString &text, QObject *parent) : GraphItem(parent)
+GraphTextItem::GraphTextItem(REDasm::Graphing::Vertex *v, const QString &text, QObject *parent) : GraphItem(v, parent)
 {
     this->_textcursor = QTextCursor(&this->_document);
     this->setText(text);

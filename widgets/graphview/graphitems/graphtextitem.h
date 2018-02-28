@@ -10,8 +10,8 @@ class GraphTextItem : public GraphItem
     Q_OBJECT
 
     public:
-        explicit GraphTextItem(QObject *parent = NULL);
-        GraphTextItem(const QString& text, QObject *parent = NULL);
+        explicit GraphTextItem(REDasm::Graphing::Vertex* v, QObject *parent = NULL);
+        GraphTextItem(REDasm::Graphing::Vertex* v, const QString& text, QObject *parent = NULL);
         QTextDocument* document();
         QTextCursor textCursor();
         QFont font();

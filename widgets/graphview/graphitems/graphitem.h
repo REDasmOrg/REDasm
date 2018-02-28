@@ -4,13 +4,15 @@
 #include <QObject>
 #include <QPainter>
 #include <QPoint>
+#include "../../redasm/graph/vertex.h"
 
 class GraphItem : public QObject
 {
     Q_OBJECT
 
     public:
-        explicit GraphItem(QObject *parent = nullptr);
+        explicit GraphItem(REDasm::Graphing::Vertex* v, QObject *parent = nullptr);
+        const REDasm::Graphing::Vertex* vertex() const;
         QColor borderColor() const;
         QRect rect() const;
         const QPoint& position() const;
@@ -22,6 +24,7 @@ class GraphItem : public QObject
 
     private:
         QPoint _pos;
+        REDasm::Graphing::Vertex* _vertex;
 
 };
 

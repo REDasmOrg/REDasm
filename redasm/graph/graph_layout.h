@@ -26,7 +26,7 @@ class GraphLayout
         void insertFakeVertices();
 
     private:
-        static u64 maxLayer(const VertexSet &vs);
+        static vertex_layer_t maxLayer(const VertexSet &vs);
 
     private:
         Graph* _graph;

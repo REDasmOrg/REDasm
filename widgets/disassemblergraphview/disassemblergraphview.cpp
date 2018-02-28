@@ -1,6 +1,6 @@
 #include "disassemblergraphview.h"
 #include "../../redasm/graph/graph_layout.h"
-
+#include "../../redasm/disassembler/graph/functiongraph.h"
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent) : GraphView(parent)
 {
@@ -20,35 +20,47 @@ void DisassemblerGraphView::display(address_t address)
     REDasm::FunctionGraph gb(listing);
     gb.build(address);
 
-    this->beginInsertion();
-        this->_addedblocks.clear();
-        this->removeAll();
-        //this->addBlock(gb.headNode(), NULL, gb, listing);
-    this->endInsertion();
+    this->removeAll();
+    this->addBlocks(gb, listing);
 }
 
-//void DisassemblerGraphView::addBlock(const REDasm::GraphNodePtr &node, FunctionBlockItem* parentitem, REDasm::FunctionGraph& gb, REDasm::Listing& listing)
-//{
-    /*
-    if(this->_addedblocks.find(node->address) != this->_addedblocks.end())
-        return;
+void DisassemblerGraphView::addBlocks(const REDasm::FunctionGraph &gb, REDasm::Listing &listing)
+{
+    REDasm::Graphing::VertexByLayer bylayer = gb.sortByLayer();
+    s64 y = 0;
 
-    this->_addedblocks.insert(node->address);
-    FunctionBlockItem* fbi = new FunctionBlockItem(this->_disassembler, "light", this);
+    for(auto& item : bylayer)
+    {
+        s64 x = 0;
 
-    std::for_each(node->items.begin(), node->items.end(), [this, &listing, fbi](address_t address) {
-        fbi->append(listing[address]);
-    });
+        for(REDasm::Graphing::Vertex* v : item.second)
+        {
+            REDasm::FunctionGraphVertex* fgv = static_cast<REDasm::FunctionGraphVertex*>(v);
+            FunctionBlockItem* fbi = new FunctionBlockItem(this->_disassembler, "light", v, this);
+            fbi->move(x, y);
 
-    if(parentitem)
-        this->addEdge(parentitem, fbi);
-    else
-        this->addRoot(fbi);
+            auto it = listing.find(fgv->start);
 
-    REDasm::GraphBuilder::NodeList edges = gb.getEdges(node);
+            while(it != listing.end())
+            {
+                REDasm::InstructionPtr instruction = *it;
+                fbi->append(instruction);
 
-    std::for_each(edges.begin(), edges.end(), [this, fbi, &gb, &listing](address_t edge) {
-        this->addBlock(gb.getNode(edge), fbi, gb, listing);
-    });
-    */
-//}
+                if(instruction->address == fgv->end)
+                    break;
+
+                it++;
+            }
+
+            QSize sz = fbi->size();
+            x += sz.width() + this->itemPadding();
+
+            if(sz.height() > y)
+                y = sz.height();
+
+            this->addItem(fbi);
+        }
+
+        y += this->itemPadding();
+    }
+}

@@ -55,12 +55,25 @@ void GraphLayout::assignLayers()
 
 void GraphLayout::insertFakeVertices()
 {
+    for(Vertex* v1 : *this->_graph)
+    {
+        for(vertex_id_t edge : v1->edges)
+        {
+            Vertex* v2 = this->_graph->getVertex(edge);
+            u64 diff = std::max(v1->layout.layer, v2->layout.layer) -
+                       std::min(v1->layout.layer, v2->layout.layer);
 
+            if(diff <= 1)
+                continue;
+
+            //TODO: Insert fake vertices
+        }
+    }
 }
 
-u64 GraphLayout::maxLayer(const VertexSet& vs)
+vertex_layer_t GraphLayout::maxLayer(const VertexSet& vs)
 {
-    u64 layer = 0;
+    vertex_layer_t layer = 0;
 
     for(Vertex* v : vs)
         layer = std::max(layer, v->layout.layer);

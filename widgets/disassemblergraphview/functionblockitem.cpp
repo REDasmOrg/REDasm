@@ -4,7 +4,7 @@
 #include <QFontMetrics>
 #include <QPainter>
 
-FunctionBlockItem::FunctionBlockItem(REDasm::Disassembler *disassembler, const QString &theme, QObject *parent) : GraphTextItem(parent)
+FunctionBlockItem::FunctionBlockItem(REDasm::Disassembler *disassembler, const QString &theme, REDasm::Graphing::Vertex* v, QObject *parent) : GraphTextItem(v, parent)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setPointSize(12);

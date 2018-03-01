@@ -44,8 +44,8 @@ class Graph
         Graph();
         Graph::iterator begin() { return iterator(this, this->_vertexmap.begin()); }
         Graph::iterator end() { return iterator(this, this->_vertexmap.end()); }
-        bool edge(Vertex* from, Vertex* to);
-        bool edge(vertex_id_t from, vertex_id_t to);
+        void edge(Vertex* from, Vertex* to);
+        void edge(vertex_id_t from, vertex_id_t to);
         Vertex* rootVertex();
         Vertex* getVertex(vertex_id_t id);
         VertexSet getParents(Vertex* v);

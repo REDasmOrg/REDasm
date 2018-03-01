@@ -8,18 +8,14 @@ Graph::Graph(): _currentid(0), _rootid(0)
 
 }
 
-bool Graph::edge(Vertex *from, Vertex *to)
+void Graph::edge(Vertex *from, Vertex *to)
 {
-    return this->edge(from->id, to->id);
+    this->edge(from->id, to->id);
 }
 
-bool Graph::edge(vertex_id_t from, vertex_id_t to)
+void Graph::edge(vertex_id_t from, vertex_id_t to)
 {
-    if(from >= this->_vertexmap.size())
-        return false;
-
     this->_vertexmap.at(from)->edges.insert(to);
-    return true;
 }
 
 Vertex *Graph::rootVertex()

@@ -1,5 +1,5 @@
 #include "graph_layout.h"
-#include <stack>
+#include <queue>
 
 namespace REDasm {
 namespace Graphing {
@@ -37,12 +37,12 @@ void GraphLayout::removeLoops()
 
 void GraphLayout::assignLayers()
 {
-    std::stack<Vertex*> pending;
+    std::queue<Vertex*> pending;
     pending.push(this->_graph->rootVertex());
 
     while(!pending.empty())
     {
-        Vertex* v = pending.top();
+        Vertex* v = pending.front();
         pending.pop();
 
         VertexSet parents = this->_graph->getParents(v);

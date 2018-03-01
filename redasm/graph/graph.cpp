@@ -52,7 +52,7 @@ VertexSet Graph::getParents(Vertex *v)
             if(edge != v->id)
                 continue;
 
-            parents.insert(this->getVertex(edge));
+            parents.insert(vi.get());
             break;
         }
     }

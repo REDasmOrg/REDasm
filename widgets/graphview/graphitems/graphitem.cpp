@@ -5,7 +5,7 @@ GraphItem::GraphItem(REDasm::Graphing::Vertex *v, QObject *parent): QObject(pare
 
 }
 
-const REDasm::Graphing::Vertex *GraphItem::vertex() const
+const REDasm::Graphing::Vertex* GraphItem::vertex() const
 {
     return this->_vertex;
 }

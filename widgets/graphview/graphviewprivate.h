@@ -35,6 +35,7 @@ class GraphViewPrivate : public QWidget
     private:
         bool _overviewmode;
         GraphItem* _rootitem;
+        QMap<REDasm::Graphing::vertex_id_t, GraphItem*> _itembyid;
         QList<GraphItem*> _items;
         QSize _graphsize;
 };

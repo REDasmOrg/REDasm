@@ -11,16 +11,18 @@ class DisassemblerGraphView : public GraphView
 
     public:
         explicit DisassemblerGraphView(QWidget *parent = NULL);
+        ~DisassemblerGraphView();
         void setDisassembler(REDasm::Disassembler* disassembler);
 
     public slots:
         void display(address_t address);
 
     private:
-        void addBlocks(const REDasm::FunctionGraph &gb, REDasm::Listing &listing);
+        void addBlocks(REDasm::Listing &listing);
 
     private:
         REDasm::Disassembler* _disassembler;
+        REDasm::FunctionGraph* _functiongraph;
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

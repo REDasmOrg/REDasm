@@ -12,7 +12,7 @@ class GraphItem : public QObject
 
     public:
         explicit GraphItem(REDasm::Graphing::Vertex* v, QObject *parent = nullptr);
-        const REDasm::Graphing::Vertex* vertex() const;
+        const REDasm::Graphing::Vertex *vertex() const;
         QColor borderColor() const;
         QRect rect() const;
         const QPoint& position() const;

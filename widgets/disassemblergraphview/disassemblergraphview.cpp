@@ -2,8 +2,17 @@
 #include "../../redasm/graph/graph_layout.h"
 #include "../../redasm/disassembler/graph/functiongraph.h"
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent) : GraphView(parent)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent) : GraphView(parent), _functiongraph(NULL)
 {
+}
+
+DisassemblerGraphView::~DisassemblerGraphView()
+{
+    if(this->_functiongraph)
+    {
+        delete this->_functiongraph;
+        this->_functiongraph = NULL;
+    }
 }
 
 void DisassemblerGraphView::setDisassembler(REDasm::Disassembler *disassembler)
@@ -16,17 +25,20 @@ void DisassemblerGraphView::display(address_t address)
     if(!this->_disassembler)
         return;
 
+    if(this->_functiongraph)
+        delete this->_functiongraph;
+
     REDasm::Listing& listing = this->_disassembler->listing();
-    REDasm::FunctionGraph gb(listing);
-    gb.build(address);
+    this->_functiongraph = new REDasm::FunctionGraph(listing);
+    this->_functiongraph->build(address);
 
     this->removeAll();
-    this->addBlocks(gb, listing);
+    this->addBlocks(listing);
 }
 
-void DisassemblerGraphView::addBlocks(const REDasm::FunctionGraph &gb, REDasm::Listing &listing)
+void DisassemblerGraphView::addBlocks(REDasm::Listing &listing)
 {
-    REDasm::Graphing::VertexByLayer bylayer = gb.sortByLayer();
+    REDasm::Graphing::VertexByLayer bylayer = this->_functiongraph->sortByLayer();
     s64 y = this->itemPadding();
 
     for(auto& item : bylayer)

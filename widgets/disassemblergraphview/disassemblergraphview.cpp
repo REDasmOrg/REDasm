@@ -27,11 +27,11 @@ void DisassemblerGraphView::display(address_t address)
 void DisassemblerGraphView::addBlocks(const REDasm::FunctionGraph &gb, REDasm::Listing &listing)
 {
     REDasm::Graphing::VertexByLayer bylayer = gb.sortByLayer();
-    s64 y = 0;
+    s64 y = this->itemPadding();
 
     for(auto& item : bylayer)
     {
-        s64 x = 0;
+        s64 x = this->itemPadding(), maxheight = 0;
 
         for(REDasm::Graphing::Vertex* v : item.second)
         {
@@ -55,12 +55,12 @@ void DisassemblerGraphView::addBlocks(const REDasm::FunctionGraph &gb, REDasm::L
             QSize sz = fbi->size();
             x += sz.width() + this->itemPadding();
 
-            if(sz.height() > y)
-                y = sz.height();
+            if(sz.height() > maxheight)
+                maxheight = sz.height();
 
             this->addItem(fbi);
         }
 
-        y += this->itemPadding();
+        y += maxheight + this->itemPadding();
     }
 }

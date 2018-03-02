@@ -17,6 +17,7 @@ void GraphLayout::layout()
     this->removeLoops();
     this->assignLayers();
     this->insertFakeVertices();
+    this->restoreLoops();
 }
 
 void GraphLayout::removeLoops()
@@ -57,18 +58,46 @@ void GraphLayout::insertFakeVertices()
 {
     for(Vertex* v1 : *this->_graph)
     {
-        for(vertex_id_t edge : v1->edges)
+        if(v1->edges.empty())
+            continue;
+
+        vertex_id_t lastedge = *v1->edges.rbegin();
+
+        for(auto it = v1->edges.begin(); it != v1->edges.end(); )
         {
+            vertex_id_t edge = *it;
+
+            if(edge > lastedge) // Don't check fake edges
+                break;
+
             Vertex* v2 = this->_graph->getVertex(edge);
-            u64 diff = std::max(v1->layout.layer, v2->layout.layer) -
-                       std::min(v1->layout.layer, v2->layout.layer);
 
-            if(diff <= 1)
+            if((v2->layer() <= v1->layer()) || ((v2->layer() - v1->layer()) <= 1))
+            {
+                it++;
                 continue;
+            }
 
-            //TODO: Insert fake vertices
+            vertex_layer_t layer = v1->layer() + 1;
+            Vertex *pv = v1, *v = NULL;
+
+            while(layer < v2->layer())
+            {
+                v = this->_graph->pushFakeVertex(layer);
+                this->_graph->edge(pv, v);
+                pv = v;
+                layer++;
+            }
+
+            this->_graph->edge(pv, v2);
+            it = v1->edges.erase(it);
         }
     }
+}
+
+void GraphLayout::restoreLoops()
+{
+
 }
 
 vertex_layer_t GraphLayout::maxLayer(const VertexSet& vs)

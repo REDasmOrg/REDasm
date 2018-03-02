@@ -79,6 +79,14 @@ void Graph::pushVertex(Vertex *v)
     this->_vertexmap.emplace(v->id, v);
 }
 
+Vertex* Graph::pushFakeVertex(vertex_layer_t layer)
+{
+    Vertex* v = new Vertex();
+    v->layout = { layer, true };
+    this->pushVertex(v);
+    return v;
+}
+
 VertexByLayer Graph::sortByLayer() const
 {
     VertexByLayer bylayer;

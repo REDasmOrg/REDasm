@@ -2,6 +2,9 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 
+#define ITEM_PADDING 25
+#define MINIMUM_SIZE 50
+
 GraphView::GraphView(QWidget *parent): QScrollArea(parent)
 {
     this->_graphview_p = new GraphViewPrivate(this);
@@ -14,7 +17,12 @@ GraphView::GraphView(QWidget *parent): QScrollArea(parent)
 
 u64 GraphView::itemPadding() const
 {
-    return this->_graphview_p->itemPadding();
+    return ITEM_PADDING;
+}
+
+u64 GraphView::minimumSize() const
+{
+    return MINIMUM_SIZE;
 }
 
 void GraphView::addItem(GraphItem *item)

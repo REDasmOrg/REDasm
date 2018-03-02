@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QPainter>
 #include <QPoint>
+#include <QSize>
 #include "../../redasm/graph/vertex.h"
 
 class GraphItem : public QObject
@@ -17,13 +18,15 @@ class GraphItem : public QObject
         QRect rect() const;
         const QPoint& position() const;
         void move(int x, int y);
+        void resize(int width, int height);
 
     public:
-        virtual QSize size() const = 0;
-        virtual void paint(QPainter* painter) = 0;
+        virtual QSize size() const;
+        virtual void paint(QPainter* painter);
 
     private:
         QPoint _pos;
+        QSize _defaultsize;
         REDasm::Graphing::Vertex* _vertex;
 
 };

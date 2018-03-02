@@ -24,6 +24,7 @@ class GraphLayout
         void removeLoops();
         void assignLayers();
         void insertFakeVertices();
+        void restoreLoops();
 
     private:
         static vertex_layer_t maxLayer(const VertexSet &vs);

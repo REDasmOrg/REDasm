@@ -1,11 +1,11 @@
 #include "graphviewprivate.h"
-#include <QDebug>
+#include <QGraphicsDropShadowEffect>
 #include <QStack>
 #include <cmath>
 
-#define PI           3.14
-#define ITEM_PADDING 25
-#define ARROW_SIZE   8
+#define PI               3.14
+#define DROP_SHADOW_SIZE 8, 8, 8, 8
+#define ARROW_SIZE       8
 
 GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false)
 {
@@ -15,11 +15,6 @@ GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overview
     this->setPalette(p);
 
     this->_graphsize = QSize(0, 0);
-}
-
-u64 GraphViewPrivate::itemPadding() const
-{
-    return ITEM_PADDING;
 }
 
 const QSize &GraphViewPrivate::graphSize() const
@@ -78,14 +73,20 @@ void GraphViewPrivate::drawArrow(QPainter *painter, GraphItem *fromitem, GraphIt
     QPointF p2 = line.p1() + QPointF(::sin(angle + PI - PI / 3) * ARROW_SIZE,
                                      ::cos(angle + PI - PI / 3) * ARROW_SIZE);
 
-    QPolygonF arrowhead;
-    arrowhead << line.p1() << p1 << p2;
 
     painter->save();
-        painter->setPen(toitem->borderColor());
+
+        painter->setPen(QPen(toitem->borderColor(), 2));
         painter->setBrush(toitem->borderColor());
         painter->drawLine(line);
-        painter->drawPolygon(arrowhead);
+
+        if(!toitem->vertex()->isFake())
+        {
+            QPolygonF arrowhead;
+            arrowhead << line.p1() << p1 << p2;
+            painter->drawPolygon(arrowhead);
+        }
+
     painter->restore();
 }
 
@@ -110,13 +111,19 @@ void GraphViewPrivate::paintEvent(QPaintEvent*)
 
     foreach(GraphItem* item, this->_items)
     {
-        painter.save();
-        painter.setClipRect(item->rect().adjusted(-1, -1, 1, 1));
-        item->paint(&painter);
+        if(!item->vertex()->isFake())
+        {
+            painter.fillRect(item->rect().adjusted(DROP_SHADOW_SIZE), Qt::lightGray);
+            painter.fillRect(item->rect(), painter.background());
 
-        painter.setPen(item->borderColor());
-        painter.drawRect(item->rect());
-        painter.restore();
+            painter.save();
+            painter.setClipRect(item->rect().adjusted(-1, -1, 1, 1));
+            item->paint(&painter);
+
+            painter.setPen(QPen(item->borderColor(), 2));
+            painter.drawRect(item->rect());
+            painter.restore();
+        }
 
         this->drawEdges(&painter, item);
     }

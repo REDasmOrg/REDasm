@@ -47,32 +47,43 @@ void DisassemblerGraphView::addBlocks(REDasm::Listing &listing)
 
         for(REDasm::Graphing::Vertex* v : item.second)
         {
-            REDasm::FunctionGraphVertex* fgv = static_cast<REDasm::FunctionGraphVertex*>(v);
-            FunctionBlockItem* fbi = new FunctionBlockItem(this->_disassembler, "light", v, this);
-            fbi->move(x, y);
+            GraphItem* gi = NULL;
 
-            auto it = listing.find(fgv->start);
-
-            while(it != listing.end())
+            if(!v->isFake())
             {
-                REDasm::InstructionPtr instruction = *it;
-                fbi->append(instruction);
+                gi = new FunctionBlockItem(this->_disassembler, "light", v, this);
 
-                if(instruction->address == fgv->end)
-                    break;
+                REDasm::FunctionGraphVertex* fgv = static_cast<REDasm::FunctionGraphVertex*>(v);
+                auto it = listing.find(fgv->start);
 
-                it++;
+                while(it != listing.end())
+                {
+                    REDasm::InstructionPtr instruction = *it;
+                    static_cast<FunctionBlockItem*>(gi)->append(instruction);
+
+                    if(instruction->address == fgv->end)
+                        break;
+
+                    it++;
+                }
+            }
+            else
+            {
+                gi = new GraphItem(v, this);
+                gi->resize(this->minimumSize(), 0);
             }
 
-            QSize sz = fbi->size();
+            gi->move(x, y);
+
+            QSize sz = gi->size();
             x += sz.width() + this->itemPadding();
 
             if(sz.height() > maxheight)
                 maxheight = sz.height();
 
-            this->addItem(fbi);
+            this->addItem(gi);
         }
 
-        y += maxheight + this->itemPadding();
+        y += maxheight + this->minimumSize();
     }
 }

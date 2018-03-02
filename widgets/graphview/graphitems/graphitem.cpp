@@ -2,7 +2,7 @@
 
 GraphItem::GraphItem(REDasm::Graphing::Vertex *v, QObject *parent): QObject(parent), _vertex(v)
 {
-
+    this->_defaultsize = QSize(0, 0);
 }
 
 const REDasm::Graphing::Vertex* GraphItem::vertex() const
@@ -29,4 +29,19 @@ void GraphItem::move(int x, int y)
 {
     this->_pos.setX(x);
     this->_pos.setY(y);
+}
+
+void GraphItem::resize(int width, int height)
+{
+    this->_defaultsize = QSize(width, height);
+}
+
+QSize GraphItem::size() const
+{
+    return this->_defaultsize;
+}
+
+void GraphItem::paint(QPainter *painter)
+{
+    Q_UNUSED(painter);
 }

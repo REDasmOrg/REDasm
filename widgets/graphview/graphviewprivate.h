@@ -13,7 +13,6 @@ class GraphViewPrivate : public QWidget
 
     public:
         explicit GraphViewPrivate(QWidget *parent = NULL);
-        u64 itemPadding() const;
         const QSize& graphSize() const;
         void addItem(GraphItem* item);
         void removeAll();

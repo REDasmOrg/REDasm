@@ -11,6 +11,7 @@ class GraphView : public QScrollArea
     public:
         explicit GraphView(QWidget *parent = NULL);
         u64 itemPadding() const;
+        u64 minimumSize() const;
         void addItem(GraphItem* item);
         void removeAll();
 

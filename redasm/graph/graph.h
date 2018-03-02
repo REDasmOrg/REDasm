@@ -52,6 +52,7 @@ class Graph
         void setRootVertex(Vertex* v);
         void setRootVertex(vertex_id_t id);
         void pushVertex(Vertex* v);
+        Vertex *pushFakeVertex(vertex_layer_t layer);
         VertexByLayer sortByLayer() const;
 
     protected:

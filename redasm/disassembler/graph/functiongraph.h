@@ -23,6 +23,7 @@ class FunctionGraph: public Graphing::Graph
         FunctionGraph(Listing& listing);
         address_t startAddress() const;
         address_t endAddress() const;
+        Listing& listing();
         void build(address_t address);
 
     private:

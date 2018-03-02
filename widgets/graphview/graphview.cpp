@@ -15,6 +15,49 @@ GraphView::GraphView(QWidget *parent): QScrollArea(parent)
     connect(this->_graphview_p, &GraphViewPrivate::graphChanged, this, &GraphView::resizeGraphView);
 }
 
+void GraphView::render(const REDasm::Graphing::Graph* graph)
+{
+    this->removeAll();
+
+    REDasm::Graphing::VertexByLayer bylayer = graph->sortByLayer();
+    s64 y = this->itemPadding(), maxx = 0;
+
+    for(auto& item : bylayer)
+    {
+        s64 x = this->itemPadding(), maxheight = 0;
+
+        for(REDasm::Graphing::Vertex* v : item.second)
+        {
+            GraphItem* gi = NULL;
+
+            if(v->isFake())
+            {
+                gi = new GraphItem(v, this);
+                gi->resize(this->minimumSize(), 0);
+            }
+            else
+                gi = this->createItem(v);
+
+            gi->move(x, y);
+
+            QSize sz = gi->size();
+            x += sz.width() + this->itemPadding();
+
+            if(sz.height() > maxheight)
+                maxheight = sz.height();
+
+            this->addItem(gi);
+        }
+
+        if(x > maxx)
+            maxx = x;
+
+        y += maxheight + this->minimumSize();
+    }
+
+    this->setGraphSize(QSize(maxx + this->minimumSize(), y + this->minimumSize()));
+}
+
 u64 GraphView::itemPadding() const
 {
     return ITEM_PADDING;
@@ -23,16 +66,6 @@ u64 GraphView::itemPadding() const
 u64 GraphView::minimumSize() const
 {
     return MINIMUM_SIZE;
-}
-
-void GraphView::addItem(GraphItem *item)
-{
-    this->_graphview_p->addItem(item);
-}
-
-void GraphView::removeAll()
-{
-    return this->_graphview_p->removeAll();
 }
 
 bool GraphView::overviewMode() const
@@ -90,6 +123,16 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
 
         this->_lastpos = e->pos();
     }
+}
+
+void GraphView::addItem(GraphItem *item)
+{
+    this->_graphview_p->addItem(item);
+}
+
+void GraphView::removeAll()
+{
+    return this->_graphview_p->removeAll();
 }
 
 void GraphView::resizeGraphView()

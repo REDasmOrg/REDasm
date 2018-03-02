@@ -17,8 +17,8 @@ class DisassemblerGraphView : public GraphView
     public slots:
         void display(address_t address);
 
-    private:
-        void addBlocks(REDasm::Listing &listing);
+    protected:
+        virtual GraphItem* createItem(REDasm::Graphing::Vertex* v);
 
     private:
         REDasm::Disassembler* _disassembler;

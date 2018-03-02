@@ -18,6 +18,11 @@ address_t FunctionGraph::endAddress() const
     return this->_endaddress;
 }
 
+Listing &FunctionGraph::listing()
+{
+    return this->_listing;
+}
+
 void FunctionGraph::build(address_t address)
 {
     if(!this->_listing.getFunctionBounds(address, &this->_startaddress, &this->_endaddress))

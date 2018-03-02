@@ -2,7 +2,7 @@
 #include "../../redasm/graph/graph_layout.h"
 #include "../../redasm/disassembler/graph/functiongraph.h"
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent) : GraphView(parent), _functiongraph(NULL)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent) : GraphView(parent), _disassembler(NULL), _functiongraph(NULL)
 {
 }
 
@@ -28,67 +28,29 @@ void DisassemblerGraphView::display(address_t address)
     if(this->_functiongraph)
         delete this->_functiongraph;
 
-    REDasm::Listing& listing = this->_disassembler->listing();
-    this->_functiongraph = new REDasm::FunctionGraph(listing);
+    this->_functiongraph = new REDasm::FunctionGraph(this->_disassembler->listing());
     this->_functiongraph->build(address);
 
-    this->removeAll();
-    this->addBlocks(listing);
+    this->render(this->_functiongraph);
 }
 
-void DisassemblerGraphView::addBlocks(REDasm::Listing &listing)
+GraphItem *DisassemblerGraphView::createItem(REDasm::Graphing::Vertex *v)
 {
-    REDasm::Graphing::VertexByLayer bylayer = this->_functiongraph->sortByLayer();
-    s64 y = this->itemPadding(), maxx = 0;
+    FunctionBlockItem* fbi = new FunctionBlockItem(this->_disassembler, "light", v, this);
+    REDasm::FunctionGraphVertex* fgv = static_cast<REDasm::FunctionGraphVertex*>(v);
+    REDasm::Listing& listing = this->_functiongraph->listing();
+    auto it = listing.find(fgv->start);
 
-    for(auto& item : bylayer)
+    while(it != listing.end())
     {
-        s64 x = this->itemPadding(), maxheight = 0;
+        REDasm::InstructionPtr instruction = *it;
+        fbi->append(instruction);
 
-        for(REDasm::Graphing::Vertex* v : item.second)
-        {
-            GraphItem* gi = NULL;
+        if(instruction->address == fgv->end)
+            break;
 
-            if(!v->isFake())
-            {
-                gi = new FunctionBlockItem(this->_disassembler, "light", v, this);
-
-                REDasm::FunctionGraphVertex* fgv = static_cast<REDasm::FunctionGraphVertex*>(v);
-                auto it = listing.find(fgv->start);
-
-                while(it != listing.end())
-                {
-                    REDasm::InstructionPtr instruction = *it;
-                    static_cast<FunctionBlockItem*>(gi)->append(instruction);
-
-                    if(instruction->address == fgv->end)
-                        break;
-
-                    it++;
-                }
-            }
-            else
-            {
-                gi = new GraphItem(v, this);
-                gi->resize(this->minimumSize(), 0);
-            }
-
-            gi->move(x, y);
-
-            QSize sz = gi->size();
-            x += sz.width() + this->itemPadding();
-
-            if(sz.height() > maxheight)
-                maxheight = sz.height();
-
-            this->addItem(gi);
-        }
-
-        if(x > maxx)
-            maxx = x;
-
-        y += maxheight + this->minimumSize();
+        it++;
     }
 
-    this->setGraphSize(QSize(maxx + this->minimumSize(), y + this->minimumSize()));
+    return fbi;
 }

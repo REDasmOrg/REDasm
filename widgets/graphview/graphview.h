@@ -2,6 +2,7 @@
 #define GRAPHVIEW_H
 
 #include <QScrollArea>
+#include "../../redasm/graph/graph.h"
 #include "graphviewprivate.h"
 
 class GraphView : public QScrollArea
@@ -10,10 +11,9 @@ class GraphView : public QScrollArea
 
     public:
         explicit GraphView(QWidget *parent = NULL);
+        void render(const REDasm::Graphing::Graph *graph);
         u64 itemPadding() const;
         u64 minimumSize() const;
-        void addItem(GraphItem* item);
-        void removeAll();
 
     public:
         bool overviewMode() const;
@@ -21,10 +21,15 @@ class GraphView : public QScrollArea
         void setGraphSize(const QSize& size);
 
     protected:
+        virtual GraphItem* createItem(REDasm::Graphing::Vertex* v) = 0;
         virtual void resizeEvent(QResizeEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);
         virtual void mouseReleaseEvent(QMouseEvent* e);
         virtual void mouseMoveEvent(QMouseEvent* e);
+
+    private:
+        void addItem(GraphItem* item);
+        void removeAll();
 
     private slots:
         void resizeGraphView();

@@ -3,9 +3,11 @@
 #include <QStack>
 #include <cmath>
 
-#define PI               3.14
-#define DROP_SHADOW_SIZE 8, 8, 8, 8
-#define ARROW_SIZE       8
+#define DROP_SHADOW_SIZE(x) x, x, x, x
+#define DROP_SHADOW_VALUE 8
+#define DROP_SHADOW_ARG   DROP_SHADOW_SIZE(DROP_SHADOW_VALUE)
+#define PI                3.14
+#define ARROW_SIZE        8
 
 GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false)
 {
@@ -113,7 +115,7 @@ void GraphViewPrivate::paintEvent(QPaintEvent*)
     {
         if(!item->vertex()->isFake())
         {
-            painter.fillRect(item->rect().adjusted(DROP_SHADOW_SIZE), Qt::lightGray);
+            painter.fillRect(item->rect().adjusted(DROP_SHADOW_ARG), Qt::lightGray);
             painter.fillRect(item->rect(), painter.background());
 
             painter.save();

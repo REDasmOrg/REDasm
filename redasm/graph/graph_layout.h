@@ -24,6 +24,7 @@ class GraphLayout
         void removeLoops();
         void assignLayers();
         void insertFakeVertices();
+        void minimizeCrossings();
         void restoreLoops();
 
     private:

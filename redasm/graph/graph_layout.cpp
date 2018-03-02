@@ -17,6 +17,7 @@ void GraphLayout::layout()
     this->removeLoops();
     this->assignLayers();
     this->insertFakeVertices();
+    this->minimizeCrossings();
     this->restoreLoops();
 }
 
@@ -93,6 +94,11 @@ void GraphLayout::insertFakeVertices()
             it = v1->edges.erase(it);
         }
     }
+}
+
+void GraphLayout::minimizeCrossings()
+{
+
 }
 
 void GraphLayout::restoreLoops()

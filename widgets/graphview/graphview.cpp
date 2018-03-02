@@ -50,6 +50,13 @@ void GraphView::setGraphSize(const QSize &size)
     this->_graphview_p->setGraphSize(size);
 }
 
+void GraphView::resizeEvent(QResizeEvent *e)
+{
+    QScrollArea::resizeEvent(e);
+
+    this->resizeGraphView();
+}
+
 void GraphView::mousePressEvent(QMouseEvent *e)
 {
     QScrollArea::mousePressEvent(e);
@@ -87,6 +94,13 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
 
 void GraphView::resizeGraphView()
 {
+    if(!this->_graphview_p)
+        return;
+
     QSize sz = this->_graphview_p->graphSize();
+
+    if(sz.width() < this->width())
+        sz.setWidth(this->width());
+
     this->_graphview_p->resize(sz);
 }

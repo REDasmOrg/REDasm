@@ -21,6 +21,7 @@ class GraphView : public QScrollArea
         void setGraphSize(const QSize& size);
 
     protected:
+        virtual void resizeEvent(QResizeEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);
         virtual void mouseReleaseEvent(QMouseEvent* e);
         virtual void mouseMoveEvent(QMouseEvent* e);

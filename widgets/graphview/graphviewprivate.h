@@ -20,6 +20,7 @@ class GraphViewPrivate : public QWidget
     public:
         bool overviewMode() const;
         void setOverviewMode(bool b);
+        void setGraphSize(const QSize& size);
 
     private:
         void drawArrow(QPainter* painter, GraphItem* fromitem, GraphItem* toitem);

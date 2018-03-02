@@ -39,7 +39,7 @@ void DisassemblerGraphView::display(address_t address)
 void DisassemblerGraphView::addBlocks(REDasm::Listing &listing)
 {
     REDasm::Graphing::VertexByLayer bylayer = this->_functiongraph->sortByLayer();
-    s64 y = this->itemPadding();
+    s64 y = this->itemPadding(), maxx = 0;
 
     for(auto& item : bylayer)
     {
@@ -84,6 +84,11 @@ void DisassemblerGraphView::addBlocks(REDasm::Listing &listing)
             this->addItem(gi);
         }
 
+        if(x > maxx)
+            maxx = x;
+
         y += maxheight + this->minimumSize();
     }
+
+    this->setGraphSize(QSize(maxx + this->minimumSize(), y + this->minimumSize()));
 }

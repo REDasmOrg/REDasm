@@ -45,6 +45,11 @@ void GraphView::setOverviewMode(bool b)
     this->_graphview_p->setOverviewMode(b);
 }
 
+void GraphView::setGraphSize(const QSize &size)
+{
+    this->_graphview_p->setGraphSize(size);
+}
+
 void GraphView::mousePressEvent(QMouseEvent *e)
 {
     QScrollArea::mousePressEvent(e);

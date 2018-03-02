@@ -28,12 +28,8 @@ void GraphViewPrivate::addItem(GraphItem *item)
 {
     item->setParent(this); // Take ownership
 
-    this->_graphsize += item->size();
     this->_items << item;
     this->_itembyid[item->vertex()->id] = item;
-
-    this->update();
-    emit graphChanged();
 }
 
 void GraphViewPrivate::removeAll()
@@ -103,6 +99,14 @@ void GraphViewPrivate::drawEdges(QPainter *painter, GraphItem* item)
 
         this->drawArrow(painter, item, this->_itembyid[edge]);
     }
+}
+
+void GraphViewPrivate::setGraphSize(const QSize &size)
+{
+    this->_graphsize = size;
+
+    emit graphChanged();
+    this->update();
 }
 
 void GraphViewPrivate::paintEvent(QPaintEvent*)

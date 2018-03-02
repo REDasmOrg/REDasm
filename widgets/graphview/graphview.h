@@ -18,6 +18,7 @@ class GraphView : public QScrollArea
     public:
         bool overviewMode() const;
         void setOverviewMode(bool b);
+        void setGraphSize(const QSize& size);
 
     protected:
         virtual void mousePressEvent(QMouseEvent* e);

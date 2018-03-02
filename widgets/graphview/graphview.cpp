@@ -78,6 +78,11 @@ void GraphView::setOverviewMode(bool b)
     this->_graphview_p->setOverviewMode(b);
 }
 
+void GraphView::setGraph(REDasm::Graphing::Graph *graph)
+{
+    this->_graphview_p->setGraph(graph);
+}
+
 void GraphView::setGraphSize(const QSize &size)
 {
     this->_graphview_p->setGraphSize(size);

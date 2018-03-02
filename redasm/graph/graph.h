@@ -48,6 +48,8 @@ class Graph
         void edge(vertex_id_t from, vertex_id_t to);
         Vertex* rootVertex();
         Vertex* getVertex(vertex_id_t id);
+        Vertex* getRealParentVertex(vertex_id_t id);
+        Vertex* getRealVertex(vertex_id_t id);
         VertexSet getParents(Vertex* v);
         void setRootVertex(Vertex* v);
         void setRootVertex(vertex_id_t id);

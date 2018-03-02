@@ -9,7 +9,7 @@
 #define PI                3.14
 #define ARROW_SIZE        8
 
-GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false)
+GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false), _graph(NULL)
 {
     QPalette p = this->palette();
     p.setColor(QPalette::Background, QColor("azure"));
@@ -55,6 +55,11 @@ void GraphViewPrivate::setOverviewMode(bool b)
     this->_overviewmode = b;
 }
 
+void GraphViewPrivate::setGraph(REDasm::Graphing::Graph *graph)
+{
+    this->_graph = graph;
+}
+
 void GraphViewPrivate::drawArrow(QPainter *painter, GraphItem *fromitem, GraphItem *toitem)
 {
     QRect fromrect = fromitem->rect(), torect = toitem->rect();
@@ -72,33 +77,35 @@ void GraphViewPrivate::drawArrow(QPainter *painter, GraphItem *fromitem, GraphIt
                                      ::cos(angle + PI - PI / 3) * ARROW_SIZE);
 
 
-    painter->save();
+    painter->drawLine(line);
 
-        painter->setPen(QPen(toitem->borderColor(), 2));
-        painter->setBrush(toitem->borderColor());
-        painter->drawLine(line);
-
-        if(!toitem->vertex()->isFake())
-        {
-            QPolygonF arrowhead;
-            arrowhead << line.p1() << p1 << p2;
-            painter->drawPolygon(arrowhead);
-        }
-
-    painter->restore();
+    if(!toitem->vertex()->isFake())
+    {
+        QPolygonF arrowhead;
+        arrowhead << line.p1() << p1 << p2;
+        painter->drawPolygon(arrowhead);
+    }
 }
 
 void GraphViewPrivate::drawEdges(QPainter *painter, GraphItem* item)
 {
-    const REDasm::Graphing::Vertex* v = item->vertex();
+    const REDasm::Graphing::Vertex* v1 = item->vertex();
+    painter->save();
 
-    for(REDasm::Graphing::vertex_id_t edge : v->edges)
+    for(REDasm::Graphing::vertex_id_t edge : v1->edges)
     {
         if(!this->_itembyid.contains(edge))
             continue;
 
+        REDasm::Graphing::Vertex *rv1 = this->_graph->getRealParentVertex(v1->id), *rv2 = this->_graph->getRealVertex(edge);
+        QColor c(QString::fromStdString(rv1->edgeColor(rv2)));
+
+        painter->setPen(QPen(c, 2));
+        painter->setBrush(c);
         this->drawArrow(painter, item, this->_itembyid[edge]);
     }
+
+    painter->restore();
 }
 
 void GraphViewPrivate::setGraphSize(const QSize &size)
@@ -111,6 +118,9 @@ void GraphViewPrivate::setGraphSize(const QSize &size)
 
 void GraphViewPrivate::paintEvent(QPaintEvent*)
 {
+    if(!this->_graph)
+        return;
+
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.eraseRect(this->rect());

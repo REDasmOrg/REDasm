@@ -9,11 +9,13 @@ namespace Graphing {
 typedef u64 vertex_id_t;
 typedef u64 vertex_layer_t;
 typedef std::set<vertex_id_t> EdgeList;
+typedef std::unordered_map<Graphing::vertex_id_t, std::string> EdgeColors;
 
 struct Vertex
 {
     vertex_id_t id;
     EdgeList edges;
+    EdgeColors edgeColors;
     std::string color;
 
     struct {
@@ -28,6 +30,16 @@ struct Vertex
     bool equalsTo(Vertex* v) const { return compare(v) == 0; }
     bool lessThan(Vertex* v) const { return compare(v) < 0; }
     bool greaterThan(Vertex* v) const { return compare(v) > 0; }
+    void edgeColor(Vertex* v, const std::string& color) { edgeColors[v->id] = color; }
+
+    std::string edgeColor(Vertex* tov) const {
+        auto it = edgeColors.find(tov->id);
+
+        if(it != edgeColors.end())
+            return it->second;
+
+        return "black";
+    }
 };
 
 } // namespace Graphing

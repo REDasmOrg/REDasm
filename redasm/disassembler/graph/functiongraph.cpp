@@ -121,7 +121,7 @@ void FunctionGraph::buildBlocksPass2()
             }
 
             v1->end = instruction->address;
-            v1->bTrue(instruction->endAddress());
+            v1->bTrue(v2);
             this->edge(v1, v2);
             break;
         }
@@ -144,14 +144,16 @@ void FunctionGraph::buildBlocksPass3()
                 Graphing::Vertex* v2 = *vit;
 
                 instruction->foreachTarget([this, &v2, &v1](address_t address) {
-                    this->edge(v2, this->vertexFromAddress(address));
-                    v1->bTrue(address);
+                    Graphing::Vertex* v = this->vertexFromAddress(address);
+                    this->edge(v2, v);
+                    v1->bTrue(v);
                 });
 
                 if(instruction->is(InstructionTypes::Conditional) && (instruction->endAddress() < this->_endaddress))
                 {
-                    this->edge(v2, this->vertexFromAddress(instruction->endAddress()));
-                    v1->bFalse(instruction->endAddress());
+                    Graphing::Vertex* v = this->vertexFromAddress(instruction->endAddress());
+                    this->edge(v2, v);
+                    v1->bFalse(v);
                 }
             }
 

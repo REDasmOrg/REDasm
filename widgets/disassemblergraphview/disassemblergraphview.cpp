@@ -31,6 +31,7 @@ void DisassemblerGraphView::display(address_t address)
     this->_functiongraph = new REDasm::FunctionGraph(this->_disassembler->listing());
     this->_functiongraph->build(address);
 
+    this->setGraph(this->_functiongraph);
     this->render(this->_functiongraph);
 }
 

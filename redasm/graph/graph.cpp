@@ -36,6 +36,29 @@ Vertex *Graph::getVertex(vertex_id_t id)
     return this->_vertexmap.at(id).get();
 }
 
+Vertex *Graph::getRealParentVertex(vertex_id_t id)
+{
+    Vertex* v = this->getVertex(id);
+
+    while(v->isFake())
+    {
+        VertexSet vs = this->getParents(v);
+        v = *vs.begin();
+    }
+
+    return v;
+}
+
+Vertex *Graph::getRealVertex(vertex_id_t id)
+{
+    Vertex* v = this->getVertex(id);
+
+    while(v->isFake())
+        v = this->getVertex(*v->edges.begin());
+
+    return v;
+}
+
 VertexSet Graph::getParents(Vertex *v)
 {
     VertexSet parents;

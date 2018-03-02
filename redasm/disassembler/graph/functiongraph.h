@@ -9,12 +9,11 @@ namespace REDasm {
 struct FunctionGraphVertex: public Graphing::Vertex
 {
     address_t start, end;
-    Graphing::EdgeList trueBranches, falseBranches;
 
     FunctionGraphVertex(address_t start): Vertex(), start(start), end(start) { }
     virtual s64 compare(Vertex* v) const { return start - static_cast<FunctionGraphVertex*>(v)->start; }
-    void bTrue(address_t address) { trueBranches.insert(address); }
-    void bFalse(address_t address) { falseBranches.insert(address); }
+    void bTrue(Graphing::Vertex* v) { edgeColor(v, "green"); }
+    void bFalse(Graphing::Vertex* v) { edgeColor(v, "red"); }
 };
 
 class FunctionGraph: public Graphing::Graph

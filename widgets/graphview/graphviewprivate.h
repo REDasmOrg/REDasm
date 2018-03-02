@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QList>
 #include <QMap>
-#include <QSet>
+#include "../../redasm/graph/graph.h"
 #include "graphitems/graphitem.h"
 
 class GraphViewPrivate : public QWidget
@@ -20,6 +20,7 @@ class GraphViewPrivate : public QWidget
     public:
         bool overviewMode() const;
         void setOverviewMode(bool b);
+        void setGraph(REDasm::Graphing::Graph* graph);
         void setGraphSize(const QSize& size);
 
     private:
@@ -34,7 +35,7 @@ class GraphViewPrivate : public QWidget
 
     private:
         bool _overviewmode;
-        GraphItem* _rootitem;
+        REDasm::Graphing::Graph* _graph;
         QMap<REDasm::Graphing::vertex_id_t, GraphItem*> _itembyid;
         QList<GraphItem*> _items;
         QSize _graphsize;

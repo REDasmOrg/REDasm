@@ -12,7 +12,7 @@
 GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false)
 {
     QPalette p = this->palette();
-    p.setColor(QPalette::Background, Qt::white);
+    p.setColor(QPalette::Background, QColor("azure"));
     this->setAutoFillBackground(true);
     this->setPalette(p);
 
@@ -120,7 +120,7 @@ void GraphViewPrivate::paintEvent(QPaintEvent*)
         if(!item->vertex()->isFake())
         {
             painter.fillRect(item->rect().adjusted(DROP_SHADOW_ARG), Qt::lightGray);
-            painter.fillRect(item->rect(), painter.background());
+            painter.fillRect(item->rect(), QColor("white"));
 
             painter.save();
             painter.setClipRect(item->rect().adjusted(-1, -1, 1, 1));

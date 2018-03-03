@@ -29,12 +29,14 @@ class GraphViewPrivate : public QWidget
 
     protected:
         virtual void paintEvent(QPaintEvent *event);
+        virtual void wheelEvent(QWheelEvent *event);
 
     signals:
         void graphChanged();
 
     private:
         bool _overviewmode;
+        double _zoomfactor;
         REDasm::Graphing::Graph* _graph;
         QMap<REDasm::Graphing::vertex_id_t, GraphItem*> _itembyid;
         QList<GraphItem*> _items;

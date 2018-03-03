@@ -88,6 +88,14 @@ void GraphView::setGraphSize(const QSize &size)
     this->_graphview_p->setGraphSize(size);
 }
 
+void GraphView::wheelEvent(QWheelEvent *e)
+{
+    if(e->modifiers() & Qt::ControlModifier)
+        return;
+
+    QScrollArea::wheelEvent(e);
+}
+
 void GraphView::resizeEvent(QResizeEvent *e)
 {
     QScrollArea::resizeEvent(e);

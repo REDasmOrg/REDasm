@@ -23,6 +23,7 @@ class GraphView : public QScrollArea
 
     protected:
         virtual GraphItem* createItem(REDasm::Graphing::Vertex* v) = 0;
+        virtual void wheelEvent(QWheelEvent* e);
         virtual void resizeEvent(QResizeEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);
         virtual void mouseReleaseEvent(QMouseEvent* e);

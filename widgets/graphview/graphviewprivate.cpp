@@ -6,10 +6,11 @@
 #define DROP_SHADOW_SIZE(x) x, x, x, x
 #define DROP_SHADOW_VALUE 8
 #define DROP_SHADOW_ARG   DROP_SHADOW_SIZE(DROP_SHADOW_VALUE)
+#define ZOOM_FACTOR_STEP  0.050
 #define PI                3.14
 #define ARROW_SIZE        8
 
-GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false), _graph(NULL)
+GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false), _zoomfactor(1.0), _graph(NULL)
 {
     QPalette p = this->palette();
     p.setColor(QPalette::Background, QColor("azure"));
@@ -124,6 +125,7 @@ void GraphViewPrivate::paintEvent(QPaintEvent*)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.eraseRect(this->rect());
+    painter.scale(this->_zoomfactor, this->_zoomfactor);
 
     foreach(GraphItem* item, this->_items)
     {
@@ -142,5 +144,27 @@ void GraphViewPrivate::paintEvent(QPaintEvent*)
         }
 
         this->drawEdges(&painter, item);
+    }
+}
+
+void GraphViewPrivate::wheelEvent(QWheelEvent *event)
+{
+    QWidget::wheelEvent(event);
+
+    if(event->modifiers() & Qt::ControlModifier)
+    {
+        if(event->delta() > 0)
+            this->_zoomfactor += ZOOM_FACTOR_STEP;
+        else if(event->delta() < 0)
+            this->_zoomfactor -= ZOOM_FACTOR_STEP;
+        else
+            return;
+
+        if(this->_zoomfactor < 0.005)
+            this->_zoomfactor = 0.005;
+        else if(this->_zoomfactor > 2.005)
+            this->_zoomfactor = 2.005;
+
+        this->update();
     }
 }

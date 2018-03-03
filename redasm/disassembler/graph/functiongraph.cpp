@@ -121,7 +121,6 @@ void FunctionGraph::buildBlocksPass2()
             }
 
             v1->end = instruction->address;
-            v1->bTrue(v2);
             this->edge(v1, v2);
             break;
         }

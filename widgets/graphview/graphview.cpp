@@ -15,14 +15,14 @@ GraphView::GraphView(QWidget *parent): QScrollArea(parent)
     connect(this->_graphview_p, &GraphViewPrivate::graphChanged, this, &GraphView::resizeGraphView);
 }
 
-void GraphView::render(const REDasm::Graphing::Graph* graph)
+void GraphView::render(REDasm::Graphing::Graph* graph)
 {
     this->removeAll();
 
-    REDasm::Graphing::VertexByLayer bylayer = graph->sortByLayer();
+    REDasm::Graphing::LayeredGraph lgraph(graph);
     s64 y = this->itemPadding(), maxx = 0;
 
-    for(auto& item : bylayer)
+    for(auto& item : lgraph)
     {
         s64 x = this->itemPadding(), maxheight = 0;
 

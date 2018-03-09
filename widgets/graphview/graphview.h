@@ -11,7 +11,7 @@ class GraphView : public QScrollArea
 
     public:
         explicit GraphView(QWidget *parent = NULL);
-        void render(const REDasm::Graphing::Graph *graph);
+        void render(REDasm::Graphing::Graph *graph);
         u64 itemPadding() const;
         u64 minimumSize() const;
 

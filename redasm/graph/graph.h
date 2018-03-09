@@ -1,6 +1,7 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include <deque>
 #include "../redasm.h"
 #include "vertex.h"
 
@@ -8,11 +9,12 @@ namespace REDasm {
 namespace Graphing {
 
 typedef std::set<Vertex*> VertexSet;
-typedef std::list<Vertex*> VertexList;
-typedef std::map<vertex_layer_t, VertexList> VertexByLayer;
+typedef std::deque<Vertex*> VertexList;
 
 class Graph
 {
+    friend class LayeredGraph;
+
     protected:
         typedef std::unique_ptr<Vertex> VertexPtr;
         typedef std::unordered_map<vertex_id_t, VertexPtr> VertexMap;
@@ -55,11 +57,26 @@ class Graph
         void setRootVertex(vertex_id_t id);
         void pushVertex(Vertex* v);
         Vertex *pushFakeVertex(vertex_layer_t layer);
-        VertexByLayer sortByLayer() const;
 
     protected:
         VertexMap _vertexmap;
         vertex_id_t _currentid, _rootid;
+};
+
+class LayeredGraph: public std::map<vertex_layer_t, VertexList>
+{
+    public:
+        LayeredGraph();
+        LayeredGraph(Graph* graph);
+        vertex_layer_t lastLayer() const;
+
+    private:
+        void layerize();
+        void indicize();
+
+    private:
+        Graph* _graph;
+        vertex_layer_t _lastlayer;
 };
 
 } // namespace Graphing

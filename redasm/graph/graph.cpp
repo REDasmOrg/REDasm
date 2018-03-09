@@ -15,7 +15,7 @@ void Graph::edge(Vertex *from, Vertex *to)
 
 void Graph::edge(vertex_id_t from, vertex_id_t to)
 {
-    this->_vertexmap.at(from)->edges.insert(to);
+    this->_vertexmap.at(from)->edge(to);
 }
 
 Vertex *Graph::rootVertex()
@@ -105,31 +105,62 @@ void Graph::pushVertex(Vertex *v)
 Vertex* Graph::pushFakeVertex(vertex_layer_t layer)
 {
     Vertex* v = new Vertex();
-    v->layout = { layer, true };
+    v->layout.layer = layer;
+    v->layout.isfake = true;
     this->pushVertex(v);
     return v;
 }
 
-VertexByLayer Graph::sortByLayer() const
+LayeredGraph::LayeredGraph(): std::map<vertex_layer_t, VertexList>(), _graph(NULL)
 {
-    VertexByLayer bylayer;
 
-    for(auto& item : this->_vertexmap)
+}
+
+LayeredGraph::LayeredGraph(Graph *graph): std::map<vertex_layer_t, VertexList>(), _graph(graph)
+{
+    this->layerize();
+    this->indicize();
+}
+
+vertex_layer_t LayeredGraph::lastLayer() const
+{
+    return this->rbegin()->first;
+}
+
+void LayeredGraph::layerize()
+{
+    for(auto& item : this->_graph->_vertexmap)
     {
+        vertex_index_t index = -1;
         Vertex* v = item.second.get();
-        auto it = bylayer.find(v->layout.layer);
+        auto it = this->find(v->layer());
 
-        if(it == bylayer.end())
+        if(it == this->end())
         {
             VertexList vl;
             vl.push_back(v);
-            bylayer[v->layout.layer] = vl;
+            this->insert(std::make_pair(v->layer(), vl));
+            index = 0;
         }
         else
+        {
+            index = it->second.size();
             it->second.push_back(v);
-    }
+        }
 
-    return bylayer;
+        if(v->index() == -1)
+            v->layout.index = index;
+    }
+}
+
+void LayeredGraph::indicize()
+{
+    for(auto it = this->begin(); it != this->end(); it++)
+    {
+        std::sort(it->second.begin(), it->second.end(), [](Vertex* v1, Vertex* v2) -> bool {
+            return v1->index() < v2->index();
+        });
+    };
 }
 
 } // namespace Graph

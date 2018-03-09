@@ -8,7 +8,8 @@ namespace Graphing {
 
 typedef u64 vertex_id_t;
 typedef u64 vertex_layer_t;
-typedef std::set<vertex_id_t> EdgeList;
+typedef ssize_t vertex_index_t;
+typedef std::list<vertex_id_t> EdgeList;
 typedef std::unordered_map<Graphing::vertex_id_t, std::string> EdgeColors;
 
 struct Vertex
@@ -20,12 +21,14 @@ struct Vertex
 
     struct {
         vertex_layer_t layer;
+        vertex_index_t index;
         bool isfake;
     } layout;
 
-    Vertex(): id(0), color("black") { layout.layer = 0; layout.isfake = false; }
+    Vertex(): id(0), color("black") { layout = { 0, -1, false }; }
     virtual s64 compare(Vertex* v) const { return id - v->id; }
     vertex_id_t layer() const { return layout.layer; }
+    vertex_index_t index() const { return layout.index; }
     bool isFake() const { return layout.isfake; }
     bool equalsTo(Vertex* v) const { return compare(v) == 0; }
     bool lessThan(Vertex* v) const { return compare(v) < 0; }
@@ -39,6 +42,13 @@ struct Vertex
             return it->second;
 
         return "black";
+    }
+
+    void edge(vertex_id_t e) {
+        if(std::find(edges.begin(), edges.end(), e) != edges.end())
+            return;
+
+        edges.push_back(e);
     }
 };
 

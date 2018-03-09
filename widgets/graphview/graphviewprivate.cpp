@@ -80,12 +80,12 @@ void GraphViewPrivate::drawArrow(QPainter *painter, GraphItem *fromitem, GraphIt
 
     painter->drawLine(line);
 
-    if(!toitem->vertex()->isFake())
-    {
-        QPolygonF arrowhead;
-        arrowhead << line.p1() << p1 << p2;
-        painter->drawPolygon(arrowhead);
-    }
+    if(toitem->vertex()->isFake())
+        return;
+
+    QPolygonF arrowhead;
+    arrowhead << line.p1() << p1 << p2;
+    painter->drawPolygon(arrowhead);
 }
 
 void GraphViewPrivate::drawEdges(QPainter *painter, GraphItem* item)

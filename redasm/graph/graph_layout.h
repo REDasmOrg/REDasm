@@ -13,9 +13,6 @@ namespace Graphing {
 
 class GraphLayout
 {
-    private:
-        typedef std::function<bool(Graph*, Vertex*, Vertex*)> RemoveCallback;
-
     public:
         GraphLayout(Graph* graph);
         void layout();
@@ -28,6 +25,9 @@ class GraphLayout
         void restoreLoops();
 
     private:
+        u64 crossingCount() const;
+        u64 crossingCount(const VertexList& layer1) const;
+        static bool linesCrossing(Vertex *a1, Vertex *a2, Vertex *b1, Vertex *b2);
         static vertex_layer_t maxLayer(const VertexSet &vs);
 
     private:

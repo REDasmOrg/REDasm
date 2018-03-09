@@ -120,7 +120,8 @@ SOURCES += main.cpp\
     redasm/formats/pe/dotnet/dotnet_reader.cpp \
     redasm/graph/graph.cpp \
     redasm/graph/graph_layout.cpp \
-    redasm/disassembler/graph/functiongraph.cpp
+    redasm/disassembler/graph/functiongraph.cpp \
+    redasm/graph/graph_genetic.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -228,7 +229,9 @@ HEADERS  += mainwindow.h \
     redasm/graph/graph.h \
     redasm/graph/graph_layout.h \
     redasm/disassembler/graph/functiongraph.h \
-    redasm/graph/vertex.h
+    redasm/graph/vertex.h \
+    redasm/support/genetic.h \
+    redasm/graph/graph_genetic.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

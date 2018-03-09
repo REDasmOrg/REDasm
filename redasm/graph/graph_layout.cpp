@@ -1,5 +1,5 @@
 #include "graph_layout.h"
-#include <iostream>
+#include "graph_genetic.h"
 #include <queue>
 
 namespace REDasm {
@@ -96,57 +96,24 @@ void GraphLayout::insertFakeVertices()
 
 void GraphLayout::minimizeCrossings()
 {
-    u64 c = this->crossingCount();
+    GraphGenetic gc(this->_graph);
+    GraphGenetic::individual_fitness_t res = gc.grow(NULL);
 
-    if(!c)
+    if(gc.generation() <= 1)
         return;
+
+    LayeredGraphPtr& lgraph = res.first;
+
+    for(VertexList& vl : *lgraph)
+    {
+        for(size_t i = 0; i < vl.size(); i++)
+            vl[i]->index(i);
+    }
 }
 
 void GraphLayout::restoreLoops()
 {
 
-}
-
-u64 GraphLayout::crossingCount() const
-{
-    u64 crossings = 0;
-    LayeredGraph lgraph(this->_graph);
-
-    for(vertex_layer_t layer = 0; layer < lgraph.lastLayer(); layer++)
-        crossings += this->crossingCount(lgraph.at(layer));
-
-    return crossings;
-}
-
-u64 GraphLayout::crossingCount(const VertexList &layer1) const
-{
-    u64 count = 0;
-
-    for(size_t i = 0; i < (layer1.size() - 1); i++)
-    {
-        Vertex *v1 = layer1[i], *v2 = layer1[i + 1];
-
-        for(vertex_id_t edge1 : v1->edges)
-        {
-            Vertex* ve1 = this->_graph->getVertex(edge1);
-
-            for(vertex_id_t edge2 : v2->edges)
-            {
-                if(!linesCrossing(v1, ve1, v2, this->_graph->getVertex(edge2)))
-                    continue;
-
-                count++;
-            }
-        }
-    }
-
-    return count;
-}
-
-bool GraphLayout::linesCrossing(Vertex* a1, Vertex* a2, Vertex* b1, Vertex* b2)
-{
-    return (a1->index() < b1->index() && a2->index() > b2->index()) ||
-           (a1->index() > b1->index() && a2->index() < b2->index());
 }
 
 vertex_layer_t GraphLayout::maxLayer(const VertexSet& vs)

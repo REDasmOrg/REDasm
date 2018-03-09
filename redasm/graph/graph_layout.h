@@ -25,9 +25,6 @@ class GraphLayout
         void restoreLoops();
 
     private:
-        u64 crossingCount() const;
-        u64 crossingCount(const VertexList& layer1) const;
-        static bool linesCrossing(Vertex *a1, Vertex *a2, Vertex *b1, Vertex *b2);
         static vertex_layer_t maxLayer(const VertexSet &vs);
 
     private:

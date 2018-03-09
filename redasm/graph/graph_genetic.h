@@ -7,8 +7,10 @@
 namespace REDasm {
 namespace Graphing {
 
-class GraphGenetic : public genetic<LayeredGraph, VertexList>
+class GraphGenetic : public genetic<LayeredGraphPtr, VertexList>
 {
+    private:
+
     public:
         GraphGenetic(Graph* graph);
 
@@ -17,10 +19,19 @@ class GraphGenetic : public genetic<LayeredGraph, VertexList>
         virtual fitness_t fitness(individual_t &individual, individual_t &) const;
         virtual size_t allele_size(const individual_t& individual) const;
         virtual allele_t& get_allele(individual_t& individual, size_t index) const;
-        virtual void set_allele(individual_t& individual, size_t index, const allele_t& allele) const;
-        virtual void append_allele(individual_t& dest, individual_t& src, allele_t allele) const;
+        virtual void append_allele(individual_t& dest, individual_t& src, size_t index) const;
         virtual void mutate(allele_t& allele) const;
         virtual size_t get_child_count(const population_t& candidates) const;
+        virtual void generation_completed(const individual_fitness_t & individualfitness) const;
+
+    private:
+        u64 crossingCount(const LayeredGraphPtr &lgraph) const;
+        u64 crossingCount(const VertexList& layer1, const VertexList &layer2) const;
+        static size_t indexOfEdge(vertex_id_t edge, const VertexList& vl);
+        static bool linesCrossing(size_t a1, size_t a2, size_t b1, size_t b2);
+
+    private:
+        Graph* _graph;
 };
 
 } // namespace Graphing

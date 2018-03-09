@@ -63,12 +63,13 @@ class Graph
         vertex_id_t _currentid, _rootid;
 };
 
-class LayeredGraph: public std::map<vertex_layer_t, VertexList>
+class LayeredGraph: public std::vector<VertexList>
 {
     public:
         LayeredGraph();
         LayeredGraph(Graph* graph);
         vertex_layer_t lastLayer() const;
+        void shuffle();
 
     private:
         void layerize();
@@ -78,6 +79,8 @@ class LayeredGraph: public std::map<vertex_layer_t, VertexList>
         Graph* _graph;
         vertex_layer_t _lastlayer;
 };
+
+typedef std::shared_ptr<LayeredGraph> LayeredGraphPtr;
 
 } // namespace Graphing
 } // namespace REDasm

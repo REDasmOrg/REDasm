@@ -22,11 +22,11 @@ void GraphView::render(REDasm::Graphing::Graph* graph)
     REDasm::Graphing::LayeredGraph lgraph(graph);
     s64 y = this->itemPadding(), maxx = 0;
 
-    for(auto& item : lgraph)
+    for(REDasm::Graphing::VertexList& vl : lgraph)
     {
         s64 x = this->itemPadding(), maxheight = 0;
 
-        for(REDasm::Graphing::Vertex* v : item.second)
+        for(REDasm::Graphing::Vertex* v : vl)
         {
             GraphItem* gi = NULL;
 

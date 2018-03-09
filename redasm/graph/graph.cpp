@@ -111,12 +111,12 @@ Vertex* Graph::pushFakeVertex(vertex_layer_t layer)
     return v;
 }
 
-LayeredGraph::LayeredGraph(): std::map<vertex_layer_t, VertexList>(), _graph(NULL)
+LayeredGraph::LayeredGraph(): std::vector<VertexList>(), _graph(NULL)
 {
 
 }
 
-LayeredGraph::LayeredGraph(Graph *graph): std::map<vertex_layer_t, VertexList>(), _graph(graph)
+LayeredGraph::LayeredGraph(Graph *graph): std::vector<VertexList>(), _graph(graph)
 {
     this->layerize();
     this->indicize();
@@ -124,43 +124,46 @@ LayeredGraph::LayeredGraph(Graph *graph): std::map<vertex_layer_t, VertexList>()
 
 vertex_layer_t LayeredGraph::lastLayer() const
 {
-    return this->rbegin()->first;
+    return this->size() - 1;
+}
+
+void LayeredGraph::shuffle()
+{
+    for(VertexList& vl : *this)
+        std::random_shuffle(vl.begin(), vl.end());
 }
 
 void LayeredGraph::layerize()
 {
+    std::map<vertex_layer_t, VertexList> bylayer;
+
     for(auto& item : this->_graph->_vertexmap)
     {
-        vertex_index_t index = -1;
         Vertex* v = item.second.get();
-        auto it = this->find(v->layer());
+        auto it = bylayer.find(v->layer());
 
-        if(it == this->end())
+        if(it == bylayer.end())
         {
             VertexList vl;
             vl.push_back(v);
-            this->insert(std::make_pair(v->layer(), vl));
-            index = 0;
+            bylayer.insert(std::make_pair(v->layer(), vl));
         }
         else
-        {
-            index = it->second.size();
             it->second.push_back(v);
-        }
-
-        if(v->index() == -1)
-            v->layout.index = index;
     }
+
+    for(auto& item : bylayer)
+        this->push_back(item.second);
 }
 
 void LayeredGraph::indicize()
 {
-    for(auto it = this->begin(); it != this->end(); it++)
+    for(VertexList& vl : *this)
     {
-        std::sort(it->second.begin(), it->second.end(), [](Vertex* v1, Vertex* v2) -> bool {
+        std::sort(vl.begin(), vl.end(), [](Vertex* v1, Vertex* v2) {
             return v1->index() < v2->index();
         });
-    };
+    }
 }
 
 } // namespace Graph

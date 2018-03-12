@@ -42,7 +42,7 @@ struct Vertex
         if(it != edgeColors.end())
             return it->second;
 
-        return "black";
+        return "blue";
     }
 
     void edge(vertex_id_t e) {

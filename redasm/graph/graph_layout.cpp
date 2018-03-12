@@ -58,11 +58,10 @@ void GraphLayout::assignLayers()
 
 void GraphLayout::insertFakeVertices()
 {
-    for(Vertex* v1 : *this->_graph)
-    {
-        if(v1->edges.empty())
-            continue;
+    VertexList vl = this->_graph->getVertexList();
 
+    for(Vertex* v1 : vl)
+    {
         for(auto it = v1->edges.begin(); it != v1->edges.end(); )
         {
             vertex_id_t edge = *it;

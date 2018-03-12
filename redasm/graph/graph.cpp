@@ -83,6 +83,16 @@ VertexSet Graph::getParents(Vertex *v)
     return parents;
 }
 
+VertexList Graph::getVertexList() const
+{
+    VertexList vl;
+
+    for(auto& item : this->_vertexmap)
+        vl.push_back(item.second.get());
+
+    return vl;
+}
+
 void Graph::setRootVertex(Vertex *v)
 {
     if(!v)

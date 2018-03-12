@@ -61,9 +61,10 @@ u64 GraphGenetic::crossingCount(const VertexList &layer1, const VertexList& laye
 
         for(vertex_id_t edge1 : v1->edges)
         {
+            size_t j = GraphGenetic::indexOfEdge(edge1, layer2);
+
             for(vertex_id_t edge2 : v2->edges)
             {
-                size_t j = GraphGenetic::indexOfEdge(edge1, layer2);
                 size_t k = GraphGenetic::indexOfEdge(edge2, layer2);
 
                 if(!GraphGenetic::linesCrossing(i, j, i + 1, k))

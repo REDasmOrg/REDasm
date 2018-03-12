@@ -15,6 +15,7 @@ class GraphItem : public QObject
         explicit GraphItem(REDasm::Graphing::Vertex* v, QObject *parent = nullptr);
         const REDasm::Graphing::Vertex *vertex() const;
         REDasm::Graphing::vertex_layer_t layer() const;
+        REDasm::Graphing::vertex_id_t id() const;
         bool isFake() const;
         QColor borderColor() const;
         QRect rect() const;

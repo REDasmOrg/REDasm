@@ -10,7 +10,8 @@
 #define ITEM_PADDING      25
 #define BORDER_PADDING    3
 #define ANGLE_SIZE        (ITEM_PADDING / 2)
-#define ARROW_SIZE        6.0
+#define EDGE_OFFSET_BASE  6.0
+#define ARROW_SIZE        EDGE_OFFSET_BASE
 
 GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false), _zoomfactor(1.0), _graph(NULL), _lgraph(NULL)
 {
@@ -69,23 +70,23 @@ void GraphViewPrivate::setGraph(REDasm::Graphing::Graph *graph)
     this->_lgraph.setGraph(graph);
 }
 
-void GraphViewPrivate::drawEdge(QPainter *painter, GraphItem *fromitem, GraphItem *toitem)
+void GraphViewPrivate::drawEdge(QPainter *painter, GraphItem *fromitem, GraphItem *toitem, double offset)
 {
     QRect fromrect = fromitem->rect(), torect = toitem->rect();
     QPoint fromcenter = fromrect.center(), tocenter = torect.center();
     double layerheight = this->getLayerHeight(fromitem);
 
     QPoint points[5];
-    points[0] = QPoint(fromcenter.x(), fromrect.bottom() + BORDER_PADDING);
-    points[1] = QPoint(fromcenter.x(), fromrect.top() + layerheight);
-    points[2] = QPoint(fromcenter.x(), fromrect.top() + layerheight + ANGLE_SIZE);
-    points[3] = QPoint(tocenter.x(), fromrect.top() + layerheight + ANGLE_SIZE);
-    points[4] = QPoint(tocenter.x(), tocenter.y() - BORDER_PADDING);
+    points[0] = QPoint(fromcenter.x() + offset, fromrect.bottom() + BORDER_PADDING);
+    points[1] = QPoint(fromcenter.x() + offset, fromrect.top() + layerheight);
+    points[2] = QPoint(fromcenter.x() + offset, fromrect.top() + layerheight + std::abs(offset) + ANGLE_SIZE);
+    points[3] = QPoint(tocenter.x() + offset, fromrect.top() + layerheight + std::abs(offset) + ANGLE_SIZE);
+    points[4] = QPoint(tocenter.x() + offset, tocenter.y() - BORDER_PADDING);
     painter->drawPolyline(points, 5);
 
     if(toitem->vertex()->isFake())
     {
-        painter->drawLine(points[4], QPoint(tocenter.x(), tocenter.y() + BORDER_PADDING));
+        painter->drawLine(points[4], QPoint(tocenter.x() + offset, tocenter.y() + BORDER_PADDING));
         return;
     }
 
@@ -107,12 +108,13 @@ void GraphViewPrivate::drawEdges(QPainter *painter, GraphItem* item)
         if(!this->_itembyid.contains(edge))
             continue;
 
+        GraphItem* toitem = this->_itembyid[edge];
         REDasm::Graphing::Vertex *rv1 = this->_graph->getRealParentVertex(v1->id), *rv2 = this->_graph->getRealVertex(edge);
         QColor c(QString::fromStdString(rv1->edgeColor(rv2)));
 
         painter->setPen(QPen(c, 2));
         painter->setBrush(c);
-        this->drawEdge(painter, item, this->_itembyid[edge]);
+        this->drawEdge(painter, item, toitem, this->getEdgeOffset(this->_itembyid[rv1->id], toitem));
     }
 
     painter->restore();
@@ -142,6 +144,38 @@ double GraphViewPrivate::getLayerHeight(GraphItem *item)
     }
 
     return this->_layerheight[item->layer()];
+}
+
+double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) const
+{
+    const REDasm::Graphing::Vertex* fromvertex = fromitem->vertex();
+    const REDasm::Graphing::EdgeList& edges = fromvertex->edges;
+
+    if(edges.size() == 1)
+        return 0;
+
+    if(edges.size() == 2)
+    {
+        if(edges[0] == toitem->id())
+            return EDGE_OFFSET_BASE;
+
+        return -EDGE_OFFSET_BASE;
+    }
+
+    size_t mid = edges.size() / 2;
+    double offset = 0;
+
+    for(size_t i = 0; i < edges.size(); i++)
+    {
+        if(edges[i] != toitem->id())
+            continue;
+
+        ssize_t offsetidx = i - static_cast<ssize_t>(mid);
+        offset = EDGE_OFFSET_BASE * offsetidx;
+        break;
+    }
+
+    return -offset;
 }
 
 void GraphViewPrivate::paintEvent(QPaintEvent*)

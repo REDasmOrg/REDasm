@@ -2,6 +2,7 @@
 #define VERTEX_H
 
 #include "../redasm.h"
+#include <deque>
 
 namespace REDasm {
 namespace Graphing {
@@ -9,7 +10,7 @@ namespace Graphing {
 typedef u64 vertex_id_t;
 typedef u64 vertex_layer_t;
 typedef ssize_t vertex_index_t;
-typedef std::list<vertex_id_t> EdgeList;
+typedef std::deque<vertex_id_t> EdgeList;
 typedef std::unordered_map<Graphing::vertex_id_t, std::string> EdgeColors;
 
 struct Vertex

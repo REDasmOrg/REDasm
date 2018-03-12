@@ -15,6 +15,11 @@ REDasm::Graphing::vertex_layer_t GraphItem::layer() const
     return this->_vertex->layer();
 }
 
+REDasm::Graphing::vertex_id_t GraphItem::id() const
+{
+    return this->_vertex->id;
+}
+
 bool GraphItem::isFake() const
 {
     return this->_vertex->isFake();

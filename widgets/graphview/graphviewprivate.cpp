@@ -69,7 +69,7 @@ void GraphViewPrivate::setGraph(REDasm::Graphing::Graph *graph)
     this->_lgraph.setGraph(graph);
 }
 
-void GraphViewPrivate::drawArrow(QPainter *painter, GraphItem *fromitem, GraphItem *toitem)
+void GraphViewPrivate::drawEdge(QPainter *painter, GraphItem *fromitem, GraphItem *toitem)
 {
     QRect fromrect = fromitem->rect(), torect = toitem->rect();
     QPoint fromcenter = fromrect.center(), tocenter = torect.center();
@@ -112,7 +112,7 @@ void GraphViewPrivate::drawEdges(QPainter *painter, GraphItem* item)
 
         painter->setPen(QPen(c, 2));
         painter->setBrush(c);
-        this->drawArrow(painter, item, this->_itembyid[edge]);
+        this->drawEdge(painter, item, this->_itembyid[edge]);
     }
 
     painter->restore();

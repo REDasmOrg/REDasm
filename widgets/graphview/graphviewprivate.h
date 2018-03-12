@@ -26,7 +26,7 @@ class GraphViewPrivate : public QWidget
 
     private:
         double getLayerHeight(GraphItem* item);
-        void drawArrow(QPainter* painter, GraphItem* fromitem, GraphItem* toitem);
+        void drawEdge(QPainter* painter, GraphItem* fromitem, GraphItem* toitem);
         void drawEdges(QPainter* painter, GraphItem* item);
 
     protected:

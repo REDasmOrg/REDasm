@@ -8,6 +8,8 @@ namespace Graphing {
 
 GraphGenetic::GraphGenetic(Graph *graph): genetic<LayeredGraphPtr, VertexList>(), _graph(graph)
 {
+    this->set_mutation_rate(55);
+
     for(size_t i = 0; i < MAX_GRAPHS; i++)
     {
         LayeredGraphPtr lgraph = std::make_shared<LayeredGraph>(graph);
@@ -28,6 +30,15 @@ void GraphGenetic::append_allele(GraphGenetic::individual_t &dest, GraphGenetic:
 
 void GraphGenetic::mutate(GraphGenetic::allele_t &allele) const
 {
+    if(allele.size() == 1)
+        return;
+
+    if(allele.size() == 2)
+    {
+        std::iter_swap(allele.begin(), allele.rbegin());
+        return;
+    }
+
     size_t idx1 = std::rand() % allele.size(), idx2 = std::rand() % allele.size();
     std::iter_swap(allele.begin() + idx1, allele.begin() + idx2);
 }

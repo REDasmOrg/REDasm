@@ -1,9 +1,9 @@
 #ifndef GENETIC_H
 #define GENETIC_H
 
-#define GENETIC_MUTATION_RATE 45 // Set mutation rate to 45%
-#define GENETIC_BEST_RATE     20 // Set best rate to 20%
-#define GENETIC_LUCKY_RATE    10 // Set lucky rate to 10%
+#define GENETIC_MUTATION_RATE 10 // Set mutation rate to 10%
+#define GENETIC_BEST_RATE     40 // Set best rate to 40%
+#define GENETIC_LUCKY_RATE    20 // Set lucky rate to 20%
 
 #include <vector>
 #include <utility>
@@ -138,7 +138,9 @@ template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>:
     for(size_t i = 0; i < populationfitness.size() * this->_bestrate / 100.0; i++)
         candidates.push_back(populationfitness[i].first);
 
-    for(size_t i = 0; i < populationfitness.size() * this->_luckyrate / 100.0; i++)
+    size_t luckycount = populationfitness.size() * this->_luckyrate / 100.0;
+
+    for(size_t i = 0; i < luckycount; )
     {
         size_t idx = std::rand() % populationfitness.size();
 
@@ -146,6 +148,7 @@ template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>:
             continue;
 
         candidates.push_back(populationfitness[idx].first);
+        i++;
     }
 
     std::random_shuffle(candidates.begin(), candidates.end());

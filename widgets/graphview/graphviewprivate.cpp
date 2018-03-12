@@ -7,10 +7,12 @@
 #define DROP_SHADOW_VALUE 8
 #define DROP_SHADOW_ARG   DROP_SHADOW_SIZE(DROP_SHADOW_VALUE)
 #define ZOOM_FACTOR_STEP  0.050
-#define PI                3.14
-#define ARROW_SIZE        8
+#define ITEM_PADDING      25
+#define BORDER_PADDING    3
+#define ANGLE_SIZE        (ITEM_PADDING / 2)
+#define ARROW_SIZE        6.0
 
-GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false), _zoomfactor(1.0), _graph(NULL)
+GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false), _zoomfactor(1.0), _graph(NULL), _lgraph(NULL)
 {
     QPalette p = this->palette();
     p.setColor(QPalette::Background, QColor("azure"));
@@ -46,6 +48,11 @@ void GraphViewPrivate::removeAll()
     this->update();
 }
 
+u64 GraphViewPrivate::itemPadding() const
+{
+    return ITEM_PADDING;
+}
+
 bool GraphViewPrivate::overviewMode() const
 {
     return this->_overviewmode;
@@ -59,32 +66,34 @@ void GraphViewPrivate::setOverviewMode(bool b)
 void GraphViewPrivate::setGraph(REDasm::Graphing::Graph *graph)
 {
     this->_graph = graph;
+    this->_lgraph.setGraph(graph);
 }
 
 void GraphViewPrivate::drawArrow(QPainter *painter, GraphItem *fromitem, GraphItem *toitem)
 {
     QRect fromrect = fromitem->rect(), torect = toitem->rect();
     QPoint fromcenter = fromrect.center(), tocenter = torect.center();
-    QLineF line(tocenter.x(), torect.top() - 1, fromcenter.x(), fromrect.bottom() + 1);
-    double angle = ::atan2(-line.dy(), line.dx());
+    double layerheight = this->getLayerHeight(fromitem);
 
-    if(line.dy() > 0)
-        angle = (PI / 2) - angle;
-
-    QPointF p1 = line.p1() + QPointF(::sin(angle + PI / 3) * ARROW_SIZE,
-                                     ::cos(angle + PI / 3) * ARROW_SIZE);
-
-    QPointF p2 = line.p1() + QPointF(::sin(angle + PI - PI / 3) * ARROW_SIZE,
-                                     ::cos(angle + PI - PI / 3) * ARROW_SIZE);
-
-
-    painter->drawLine(line);
+    QPoint points[5];
+    points[0] = QPoint(fromcenter.x(), fromrect.bottom() + BORDER_PADDING);
+    points[1] = QPoint(fromcenter.x(), fromrect.top() + layerheight);
+    points[2] = QPoint(fromcenter.x(), fromrect.top() + layerheight + ANGLE_SIZE);
+    points[3] = QPoint(tocenter.x(), fromrect.top() + layerheight + ANGLE_SIZE);
+    points[4] = QPoint(tocenter.x(), tocenter.y() - BORDER_PADDING);
+    painter->drawPolyline(points, 5);
 
     if(toitem->vertex()->isFake())
+    {
+        painter->drawLine(points[4], QPoint(tocenter.x(), tocenter.y() + BORDER_PADDING));
         return;
+    }
 
     QPolygonF arrowhead;
-    arrowhead << line.p1() << p1 << p2;
+    arrowhead << QPoint(points[4].x() - ARROW_SIZE, torect.top() - ARROW_SIZE)
+              << QPoint(points[4].x() + ARROW_SIZE, torect.top() - ARROW_SIZE)
+              << QPoint(points[4].x(), torect.top());
+
     painter->drawPolygon(arrowhead);
 }
 
@@ -117,10 +126,30 @@ void GraphViewPrivate::setGraphSize(const QSize &size)
     this->update();
 }
 
+double GraphViewPrivate::getLayerHeight(GraphItem *item)
+{
+    if(!this->_layerheight.contains(item->layer()))
+    {
+        double maxheight = 0;
+
+        for(REDasm::Graphing::Vertex* v : this->_lgraph[item->layer()])
+        {
+            GraphItem* litem = this->_itembyid[v->id];
+            maxheight = std::max(maxheight, static_cast<double>(litem->size().height()));
+        }
+
+        this->_layerheight[item->layer()] = maxheight;
+    }
+
+    return this->_layerheight[item->layer()];
+}
+
 void GraphViewPrivate::paintEvent(QPaintEvent*)
 {
     if(!this->_graph)
         return;
+
+    this->_layerheight.clear();
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);

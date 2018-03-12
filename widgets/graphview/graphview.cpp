@@ -2,7 +2,6 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 
-#define ITEM_PADDING 25
 #define MINIMUM_SIZE 50
 
 GraphView::GraphView(QWidget *parent): QScrollArea(parent)
@@ -60,7 +59,7 @@ void GraphView::render(REDasm::Graphing::Graph* graph)
 
 u64 GraphView::itemPadding() const
 {
-    return ITEM_PADDING;
+    return this->_graphview_p->itemPadding();
 }
 
 u64 GraphView::minimumSize() const

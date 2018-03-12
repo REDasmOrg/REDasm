@@ -10,6 +10,16 @@ const REDasm::Graphing::Vertex* GraphItem::vertex() const
     return this->_vertex;
 }
 
+REDasm::Graphing::vertex_layer_t GraphItem::layer() const
+{
+    return this->_vertex->layer();
+}
+
+bool GraphItem::isFake() const
+{
+    return this->_vertex->isFake();
+}
+
 QColor GraphItem::borderColor() const
 {
     return Qt::black;

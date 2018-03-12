@@ -126,15 +126,26 @@ LayeredGraph::LayeredGraph(): std::vector<VertexList>(), _graph(NULL)
 
 }
 
-LayeredGraph::LayeredGraph(Graph *graph): std::vector<VertexList>(), _graph(graph)
+LayeredGraph::LayeredGraph(Graph *graph): std::vector<VertexList>()
 {
-    this->layerize();
-    this->indicize();
+    this->setGraph(graph);
 }
 
 vertex_layer_t LayeredGraph::lastLayer() const
 {
     return this->size() - 1;
+}
+
+void LayeredGraph::setGraph(Graph *graph)
+{
+    this->_graph = graph;
+
+    if(!this->_graph)
+        return;
+
+    this->clear();
+    this->layerize();
+    this->indicize();
 }
 
 void LayeredGraph::shuffle()

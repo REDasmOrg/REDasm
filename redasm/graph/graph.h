@@ -70,6 +70,7 @@ class LayeredGraph: public std::vector<VertexList>
         LayeredGraph();
         LayeredGraph(Graph* graph);
         vertex_layer_t lastLayer() const;
+        void setGraph(Graph* graph);
         void shuffle();
 
     private:

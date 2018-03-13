@@ -18,6 +18,11 @@ void Graph::edge(vertex_id_t from, vertex_id_t to)
     this->_vertexmap.at(from)->edge(to);
 }
 
+size_t Graph::vertexCount() const
+{
+    return this->_vertexmap.size();
+}
+
 Vertex *Graph::rootVertex()
 {
     if(!this->_rootid)

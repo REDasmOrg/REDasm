@@ -21,7 +21,6 @@ class GraphGenetic : public genetic<LayeredGraphPtr, VertexList>
         virtual allele_t& get_allele(individual_t& individual, size_t index) const;
         virtual void append_allele(individual_t& dest, individual_t& src, size_t index) const;
         virtual void mutate(allele_t& allele) const;
-        virtual size_t get_child_count(const population_t& candidates) const;
         virtual void generation_completed(const individual_fitness_t & individualfitness) const;
 
     private:

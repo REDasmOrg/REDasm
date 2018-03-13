@@ -1,9 +1,10 @@
 #ifndef GENETIC_H
 #define GENETIC_H
 
-#define GENETIC_MUTATION_RATE 10 // Set mutation rate to 10%
-#define GENETIC_BEST_RATE     40 // Set best rate to 40%
-#define GENETIC_LUCKY_RATE    20 // Set lucky rate to 20%
+#define GENETIC_MAX_GENERATION 100 // Stop at 100th generation
+#define GENETIC_MUTATION_RATE   10 // Set mutation rate to 10%
+#define GENETIC_BEST_RATE       30 // Set best rate to 30%
+#define GENETIC_LUCKY_RATE      10 // Set lucky rate to 10%
 
 #include <vector>
 #include <utility>
@@ -27,10 +28,11 @@ template<typename INDIVIDUAL, typename ALLELE> class genetic
         typedef std::vector<individual_t> population_t;
 
     public:
-        genetic(): _generation(0), _mutationrate(GENETIC_MUTATION_RATE), _bestrate(GENETIC_BEST_RATE), _luckyrate(GENETIC_LUCKY_RATE) { }
+        genetic(): _generation(0), _maxpopulation(0), _maxgeneration(GENETIC_MAX_GENERATION), _mutationrate(GENETIC_MUTATION_RATE), _bestrate(GENETIC_BEST_RATE), _luckyrate(GENETIC_LUCKY_RATE) { }
         bool empty() const { return _population.empty(); }
         size_t size() const { return _population.size(); }
         generation_t generation() const { return _generation; }
+        void set_max_generation(size_t maxgen) { _maxgeneration = maxgen; }
         void set_mutation_rate(size_t rate) { _mutationrate = rate; }
         void set_best_rate(size_t rate) { _bestrate = rate; }
         void set_lucky_rate(size_t rate) { _luckyrate = rate; }
@@ -48,21 +50,21 @@ template<typename INDIVIDUAL, typename ALLELE> class genetic
         virtual allele_t& get_allele(individual_t& individual, size_t index) const = 0;
         virtual void append_allele(individual_t& dest, individual_t& src, size_t index) const = 0;
         virtual void mutate(allele_t& allele) const = 0;
-        virtual size_t get_child_count(const population_t& candidates) const = 0;
 
     private:
         void mutate_individual(individual_t& individual) const { this->mutate(this->get_allele(individual, std::rand() % this->allele_size(individual))); }
         void compute_fitness(population_fitness_t& populationfitness, individual_t &expected);
         void select_candidates(const population_fitness_t& populationfitness, population_t& candidates);
         void mutate_population();
-        void create_children(population_t& candidates, size_t childcount);
+        void create_children(population_t& candidates);
+        size_t get_child_count(const population_t &candidates ) const;
         individual_t create_child(individual_t& individual1, individual_t& individual2);
 
     protected:
         population_t _population;
 
     private:
-        size_t _generation;
+        size_t _generation, _maxpopulation, _maxgeneration;
         double _mutationrate, _bestrate, _luckyrate;
 };
 
@@ -72,6 +74,7 @@ template<typename INDIVIDUAL, typename ALLELE> typename genetic<INDIVIDUAL, ALLE
     fitness_t maxfitness = 0;
 
     this->_generation = 1;
+    this->_maxpopulation = this->_population.size();
 
     while(!this->_population.empty())
     {
@@ -82,18 +85,18 @@ template<typename INDIVIDUAL, typename ALLELE> typename genetic<INDIVIDUAL, ALLE
         this->select_candidates(populationfitness, candidates);
 
         individual_fitness_t currbestfitness = populationfitness.front();
-        this->generation_completed(currbestfitness);
 
         if(currbestfitness.second > maxfitness)
         {
             bestfitness = currbestfitness;
             maxfitness = currbestfitness.second;
+            this->generation_completed(bestfitness);
         }
 
-        if(currbestfitness.second == this->expected_fitness())
+        if((this->_generation >= this->_maxgeneration) || (currbestfitness.second == this->expected_fitness()))
             break;
 
-        this->create_children(candidates, this->get_child_count(candidates));
+        this->create_children(candidates);
         this->mutate_population();
         this->_generation++;
     }
@@ -135,16 +138,17 @@ template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>:
 
 template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>::select_candidates(const genetic::population_fitness_t &populationfitness, genetic::population_t &candidates)
 {
-    for(size_t i = 0; i < populationfitness.size() * this->_bestrate / 100.0; i++)
+    ssize_t bestcount = populationfitness.size() * (this->_bestrate / 100.0);
+    ssize_t luckycount = (populationfitness.size() - bestcount) * (this->_luckyrate / 100.0);
+
+    for(ssize_t i = 0; i < bestcount; i++)
         candidates.push_back(populationfitness[i].first);
 
-    size_t luckycount = populationfitness.size() * this->_luckyrate / 100.0;
-
-    for(size_t i = 0; i < luckycount; )
+    for(ssize_t i = 0; i < luckycount; )
     {
-        size_t idx = std::rand() % populationfitness.size();
+        ssize_t idx = bestcount + (std::rand() % luckycount);
 
-        if(std::find(candidates.begin(), candidates.end(), populationfitness[idx].first) != candidates.end())
+        if(std::find(candidates.rbegin(), candidates.rend(), populationfitness[idx].first) != candidates.rend())
             continue;
 
         candidates.push_back(populationfitness[idx].first);
@@ -163,8 +167,10 @@ template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>:
     }
 }
 
-template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>::create_children(genetic::population_t &candidates, size_t childcount)
+template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>::create_children(genetic::population_t &candidates)
 {
+    size_t childcount = this->get_child_count(candidates);
+
     if(!childcount)
         childcount = 1;
 
@@ -175,6 +181,11 @@ template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>:
         for(size_t j = 0; j < childcount; j++)
             this->_population.push_back(this->create_child(candidates[i], candidates[candidates.size() - 1 - i]));
     }
+}
+
+template<typename INDIVIDUAL, typename ALLELE> size_t genetic<INDIVIDUAL, ALLELE>::get_child_count(const population_t& candidates) const
+{
+    return this->_maxpopulation / (candidates.size() / 2);
 }
 
 template<typename INDIVIDUAL, typename ALLELE> typename genetic<INDIVIDUAL, ALLELE>::individual_t genetic<INDIVIDUAL, ALLELE>::create_child(individual_t &individual1, individual_t &individual2)

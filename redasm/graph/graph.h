@@ -48,6 +48,7 @@ class Graph
         Graph::iterator end() { return iterator(this, this->_vertexmap.end()); }
         void edge(Vertex* from, Vertex* to);
         void edge(vertex_id_t from, vertex_id_t to);
+        size_t vertexCount() const;
         Vertex* rootVertex();
         Vertex* getVertex(vertex_id_t id);
         Vertex* getRealParentVertex(vertex_id_t id);
@@ -79,7 +80,6 @@ class LayeredGraph: public std::vector<VertexList>
 
     private:
         Graph* _graph;
-        vertex_layer_t _lastlayer;
 };
 
 typedef std::shared_ptr<LayeredGraph> LayeredGraphPtr;

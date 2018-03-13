@@ -8,8 +8,6 @@ namespace Graphing {
 
 GraphGenetic::GraphGenetic(Graph *graph): genetic<LayeredGraphPtr, VertexList>(), _graph(graph)
 {
-    this->set_mutation_rate(55);
-
     for(size_t i = 0; i < MAX_GRAPHS; i++)
     {
         LayeredGraphPtr lgraph = std::make_shared<LayeredGraph>(graph);
@@ -43,13 +41,14 @@ void GraphGenetic::mutate(GraphGenetic::allele_t &allele) const
     std::iter_swap(allele.begin() + idx1, allele.begin() + idx2);
 }
 
-size_t GraphGenetic::get_child_count(const GraphGenetic::population_t &candidates) const { return MAX_GRAPHS / candidates.size(); }
-
 void GraphGenetic::generation_completed(const genetic::individual_fitness_t &individualfitness) const
 {
-    std::cout << "Generation "  << this->generation() << " with "
-              << this->crossingCount(individualfitness.first) << " crossings & fitness "
-              << individualfitness.second << "%" << std::endl;
+    std::string s = "Graph generation ";
+    s += std::to_string(this->generation()) + " with ";
+    s += std::to_string(this->crossingCount(individualfitness.first)) + " crossing(s) & fitness ";
+    s += std::to_string(individualfitness.second) + "%";
+
+    REDasm::log(s);
 }
 
 u64 GraphGenetic::crossingCount(const LayeredGraphPtr& lgraph) const

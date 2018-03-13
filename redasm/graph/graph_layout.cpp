@@ -97,11 +97,12 @@ void GraphLayout::minimizeCrossings()
 {
     GraphGenetic gc(this->_graph);
     GraphGenetic::individual_fitness_t res = gc.grow(NULL);
+    LayeredGraphPtr lgraph;
 
-    if(gc.generation() <= 1)
-        return;
-
-    LayeredGraphPtr& lgraph = res.first;
+    if(gc.generation() > 1)
+        lgraph = res.first;
+    else
+        lgraph = std::make_shared<LayeredGraph>(this->_graph);
 
     for(VertexList& vl : *lgraph)
     {

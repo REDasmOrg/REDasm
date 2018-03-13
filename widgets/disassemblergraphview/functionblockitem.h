@@ -17,7 +17,14 @@ class FunctionBlockItem : public GraphTextItem
         void append(const REDasm::InstructionPtr &instruction);
         void append(const REDasm::SymbolPtr& symbol);
 
+   protected:
+        virtual int titleHeight() const;
+        virtual QPoint origin() const;
+        virtual QSize size() const;
+        virtual void paint(QPainter *painter);
+
    private:
+        REDasm::Disassembler* _disassembler;
         DisassemblerGraphDocument* _graphdocument;
 };
 

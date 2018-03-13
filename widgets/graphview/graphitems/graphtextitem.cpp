@@ -21,7 +21,7 @@ QTextCursor GraphTextItem::textCursor()
     return this->_textcursor;
 }
 
-QFont GraphTextItem::font()
+QFont GraphTextItem::font() const
 {
     return this->_document.defaultFont();
 }
@@ -45,7 +45,9 @@ QSize GraphTextItem::size() const
 void GraphTextItem::paint(QPainter *painter)
 {
     painter->save();
-        painter->translate(this->position());
+        painter->translate(this->origin());
         this->_document.drawContents(painter);
     painter->restore();
 }
+
+QPoint GraphTextItem::origin() const { return this->position(); }

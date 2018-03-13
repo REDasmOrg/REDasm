@@ -14,13 +14,16 @@ class GraphTextItem : public GraphItem
         GraphTextItem(REDasm::Graphing::Vertex* v, const QString& text, QObject *parent = NULL);
         QTextDocument* document();
         QTextCursor textCursor();
-        QFont font();
+        QFont font() const;
         void setText(const QString& s);
         void setFont(const QFont& font);
 
     public:
         virtual QSize size() const;
         virtual void paint(QPainter *painter);
+
+    protected:
+        virtual QPoint origin() const;
 
     private:
         QTextDocument _document;

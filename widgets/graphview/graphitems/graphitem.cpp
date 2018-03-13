@@ -10,6 +10,11 @@ const REDasm::Graphing::Vertex* GraphItem::vertex() const
     return this->_vertex;
 }
 
+REDasm::Graphing::vertex_index_t GraphItem::index() const
+{
+    return this->_vertex->index();
+}
+
 REDasm::Graphing::vertex_layer_t GraphItem::layer() const
 {
     return this->_vertex->layer();
@@ -18,6 +23,16 @@ REDasm::Graphing::vertex_layer_t GraphItem::layer() const
 REDasm::Graphing::vertex_id_t GraphItem::id() const
 {
     return this->_vertex->id;
+}
+
+int GraphItem::width() const
+{
+    return this->size().width();
+}
+
+int GraphItem::height() const
+{
+    return this->size().height();
 }
 
 bool GraphItem::isFake() const

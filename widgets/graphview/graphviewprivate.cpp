@@ -150,20 +150,20 @@ double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) c
 {
     const REDasm::Graphing::Vertex* fromvertex = fromitem->vertex();
     const REDasm::Graphing::EdgeList& edges = fromvertex->edges;
+    double offset = fromitem->index() * EDGE_OFFSET_BASE;
 
     if(edges.size() == 1)
-        return 0;
+        return offset;
 
     if(edges.size() == 2)
     {
         if(edges[0] == toitem->id())
-            return EDGE_OFFSET_BASE;
+            return offset + EDGE_OFFSET_BASE;
 
-        return -EDGE_OFFSET_BASE;
+        return offset + (EDGE_OFFSET_BASE * 2);
     }
 
     size_t mid = edges.size() / 2;
-    double offset = 0;
 
     for(size_t i = 0; i < edges.size(); i++)
     {
@@ -171,7 +171,7 @@ double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) c
             continue;
 
         ssize_t offsetidx = i - static_cast<ssize_t>(mid);
-        offset = EDGE_OFFSET_BASE * offsetidx;
+        offset += EDGE_OFFSET_BASE * offsetidx;
         break;
     }
 

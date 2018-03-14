@@ -35,7 +35,7 @@ struct Vertex
     bool equalsTo(Vertex* v) const { return compare(v) == 0; }
     bool lessThan(Vertex* v) const { return compare(v) < 0; }
     bool greaterThan(Vertex* v) const { return compare(v) > 0; }
-    void edgeColor(Vertex* v, const std::string& color) { edgeColors[v->id] = color; }
+    void edgeColor(Vertex* v, const std::string& color) { if(!v) return; edgeColors[v->id] = color; }
 
     std::string edgeColor(Vertex* tov) const {
         auto it = edgeColors.find(tov->id);

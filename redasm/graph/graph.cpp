@@ -10,6 +10,9 @@ Graph::Graph(): _currentid(0), _rootid(0)
 
 void Graph::edge(Vertex *from, Vertex *to)
 {
+    if(!from || !to)
+        return;
+
     this->edge(from->id, to->id);
 }
 

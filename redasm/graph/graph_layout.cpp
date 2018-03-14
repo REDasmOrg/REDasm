@@ -30,7 +30,7 @@ void GraphLayout::removeLoops()
         {
             Vertex* v2 = this->_graph->getVertex(*it);
 
-            if(v2->lessThan(v1))
+            if(v2->lessThan(v1) || v2->equalsTo(v1))
                 it = v1->edges.erase(it);
             else
                 it++;

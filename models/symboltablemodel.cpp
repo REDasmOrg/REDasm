@@ -81,13 +81,15 @@ QVariant SymbolTableModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() == 0)
+        if((index.column() == 0) || (index.column() == 2))
             return QColor(Qt::darkBlue);
 
         if(symbol->is(REDasm::SymbolTypes::String) && (index.column() == 1))
             return QColor(Qt::darkGreen);
     }
-    else if(role == Qt::FontRole && index.column() == 0)
+    else if((role == Qt::TextAlignmentRole) && (index.column() > 1))
+        return Qt::AlignCenter;
+    else if((role == Qt::FontRole) && (index.column() == 0))
         return QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
     return QVariant();
@@ -95,17 +97,22 @@ QVariant SymbolTableModel::data(const QModelIndex &index, int role) const
 
 QVariant SymbolTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if(orientation == Qt::Vertical || role != Qt::DisplayRole)
+    if(orientation == Qt::Vertical)
         return QVariant();
 
-    if(section == 0)
-        return "Address";
-    else if(section == 1)
-        return "Symbol";
-    else if(section == 2)
-        return "References";
-    else if(section == 3)
-        return "Segment";
+    if(role == Qt::DisplayRole)
+    {
+        if(section == 0)
+            return "Address";
+        else if(section == 1)
+            return "Symbol";
+        else if(section == 2)
+            return "R";
+        else if(section == 3)
+            return "Segment";
+    }
+    else if(role == Qt::TextAlignmentRole)
+        return Qt::AlignCenter;
 
     return QVariant();
 }

@@ -48,22 +48,27 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     this->_referencesmodel = new ReferencesModel(ui->tvReferences);
     ui->tvReferences->setModel(this->_referencesmodel);
 
-    ui->tvFunctions->setColumnHidden(2, true);
+    ui->tvFunctions->setColumnHidden(3, true);
+    ui->tvFunctions->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvFunctions->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    ui->tvFunctions->header()->moveSection(0, 1);
+    ui->tvFunctions->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    ui->tvFunctions->header()->moveSection(0, 2);
 
     ui->tvReferences->setColumnHidden(0, true);
     ui->tvReferences->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->tvReferences->header()->setSectionResizeMode(2, QHeaderView::Stretch);
 
-    ui->tvImports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    ui->tvExports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    ui->tvStrings->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    ui->tvImports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvImports->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tvImports->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    ui->tvExports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvExports->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tvExports->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    ui->tvStrings->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tvStrings->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     connect(ui->disassemblerTextView, &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
     connect(ui->disassemblerTextView, &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);

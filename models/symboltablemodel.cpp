@@ -64,6 +64,9 @@ QVariant SymbolTableModel::data(const QModelIndex &index, int role) const
         }
 
         if(index.column() == 2)
+            return QString::number(this->_disassembler->getReferencesCount(symbol->address));
+
+        if(index.column() == 3)
         {
             const REDasm::Segment* segment = this->_disassembler->format()->segment(symbol->address);
 
@@ -100,6 +103,8 @@ QVariant SymbolTableModel::headerData(int section, Qt::Orientation orientation, 
     else if(section == 1)
         return "Symbol";
     else if(section == 2)
+        return "References";
+    else if(section == 3)
         return "Segment";
 
     return QVariant();
@@ -112,5 +117,5 @@ int SymbolTableModel::rowCount(const QModelIndex&) const
 
 int SymbolTableModel::columnCount(const QModelIndex&) const
 {
-    return 3;
+    return 4;
 }

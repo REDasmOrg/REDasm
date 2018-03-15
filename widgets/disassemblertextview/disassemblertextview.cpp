@@ -1,5 +1,6 @@
 #include "disassemblertextview.h"
 #include "../../dialogs/referencesdialog.h"
+#include "../../dialogs/callgraphdialog.h"
 #include "../../themeprovider.h"
 #include <QFontDatabase>
 #include <QJsonDocument>
@@ -270,6 +271,7 @@ void DisassemblerTextView::createContextMenu()
     this->_actxrefs = this->_contextmenu->addAction("Cross References", [this]() { this->showReferences(this->_symboladdress); });
     this->_actfollow = this->_contextmenu->addAction("Follow", [this]() { this->goTo(this->_symboladdress); });
     this->_actgoto = this->_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
+    this->_actcallgraph = this->_contextmenu->addAction("Call Graph", [this]() { this->showCallGraph(this->_symboladdress); });
     this->_acthexdump = this->_contextmenu->addAction("Hex Dump", [this]() { emit hexDumpRequested(this->_symboladdress); });
     this->_contextmenu->addSeparator();
     this->_actback = this->_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
@@ -296,6 +298,7 @@ void DisassemblerTextView::adjustContextMenu()
         this->_actcreatestring->setVisible(false);
         this->_actxrefs->setVisible(false);
         this->_actfollow->setVisible(false);
+        this->_actcallgraph->setVisible(false);
         this->_acthexdump->setVisible(false);
         return;
     }
@@ -312,6 +315,7 @@ void DisassemblerTextView::adjustContextMenu()
     REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(this->_symboladdress);
 
     this->_actrename->setVisible(symbol != NULL);
+    this->_actcallgraph->setVisible(symbol && symbol->isFunction());
 
     if((segment && segment->is(REDasm::SegmentTypes::Data)) && (symbol && !symbol->isFunction() && symbol->is(REDasm::SymbolTypes::Data)))
     {
@@ -386,6 +390,12 @@ void DisassemblerTextView::showReferences(address_t address)
     ReferencesDialog dlgreferences(this->_disassembler, this->_currentaddress, symbol, this);
     connect(&dlgreferences, &ReferencesDialog::jumpTo, [this](address_t address) { this->goTo(address); });
     dlgreferences.exec();
+}
+
+void DisassemblerTextView::showCallGraph(address_t address)
+{
+    CallGraphDialog dlgcallgraph(address, this->_disassembler, this);
+    dlgcallgraph.exec();
 }
 
 int DisassemblerTextView::getCursorAnchor(address_t& address)

@@ -28,13 +28,13 @@ struct Vertex
 
     Vertex(): id(0), color("black") { layout = { 0, -1, false }; }
     virtual s64 compare(Vertex* v) const { return id - v->id; }
+    virtual bool equalsTo(Vertex* v) const { return compare(v) == 0; }
+    virtual bool lessThan(Vertex* v) const { return compare(v) < 0; }
+    virtual bool greaterThan(Vertex* v) const { return compare(v) > 0; }
     vertex_id_t layer() const { return layout.layer; }
     vertex_id_t index() const { return layout.index; }
     void index(vertex_index_t index) { layout.index = index; }
     bool isFake() const { return layout.isfake; }
-    bool equalsTo(Vertex* v) const { return compare(v) == 0; }
-    bool lessThan(Vertex* v) const { return compare(v) < 0; }
-    bool greaterThan(Vertex* v) const { return compare(v) > 0; }
     void edgeColor(Vertex* v, const std::string& color) { if(!v) return; edgeColors[v->id] = color; }
 
     std::string edgeColor(Vertex* tov) const {

@@ -32,9 +32,7 @@ void FunctionGraph::build(address_t address)
     this->buildBlocksPass2(); // Check overlapping nodes
     this->buildBlocksPass3(); // Elaborate node's edges
     this->setRootVertex(this->vertexFromAddress(this->_startaddress));
-
-    Graphing::GraphLayout gl(this);
-    gl.layout();
+    this->layout();
 }
 
 FunctionGraphVertex *FunctionGraph::vertexFromAddress(address_t address)

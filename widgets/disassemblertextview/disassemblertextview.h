@@ -46,6 +46,7 @@ class DisassemblerTextView : public QPlainTextEdit
         void display(address_t address);
         void checkLabel(address_t address);
         void showReferences(address_t address);
+        void showCallGraph(address_t address);
         int getCursorAnchor(address_t &address);
 
     signals:
@@ -66,7 +67,8 @@ class DisassemblerTextView : public QPlainTextEdit
         DisassemblerTextDocument* _disdocument;
         DisassemblerHighlighter* _highlighter;
         REDasm::Disassembler* _disassembler;
-        QAction *_actrename, *_actcreatestring, *_actxrefs, *_actfollow, *_actgoto, *_acthexdump, *_actback, *_actforward, *_actcopy, *_actselectall;
+        QAction *_actrename, *_actcreatestring, *_actxrefs, *_actfollow, *_actcallgraph;
+        QAction *_actgoto, *_acthexdump, *_actback, *_actforward, *_actcopy, *_actselectall;
         QMenu* _contextmenu;
         address_t _currentaddress, _symboladdress;
 };

@@ -1,4 +1,5 @@
 #include "graph.h"
+#include "graph_layout.h"
 
 namespace REDasm {
 namespace Graphing {
@@ -18,6 +19,9 @@ void Graph::edge(Vertex *from, Vertex *to)
 
 void Graph::edge(vertex_id_t from, vertex_id_t to)
 {
+    if(!from || !to)
+        return;
+
     this->_vertexmap.at(from)->edge(to);
 }
 
@@ -130,6 +134,12 @@ Vertex* Graph::pushFakeVertex(vertex_layer_t layer)
     v->layout.isfake = true;
     this->pushVertex(v);
     return v;
+}
+
+void Graph::layout()
+{
+    Graphing::GraphLayout gl(this);
+    gl.layout();
 }
 
 LayeredGraph::LayeredGraph(): std::vector<VertexList>(), _graph(NULL)

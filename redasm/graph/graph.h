@@ -61,6 +61,9 @@ class Graph
         Vertex *pushFakeVertex(vertex_layer_t layer);
 
     protected:
+        void layout();
+
+    protected:
         VertexMap _vertexmap;
         vertex_id_t _currentid, _rootid;
 };

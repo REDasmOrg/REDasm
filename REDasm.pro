@@ -121,7 +121,11 @@ SOURCES += main.cpp\
     redasm/graph/graph.cpp \
     redasm/graph/graph_layout.cpp \
     redasm/disassembler/graph/functiongraph.cpp \
-    redasm/graph/graph_genetic.cpp
+    redasm/graph/graph_genetic.cpp \
+    redasm/disassembler/graph/callgraph.cpp \
+    dialogs/callgraphdialog.cpp \
+    widgets/callgraphview/callgraphview.cpp \
+    widgets/callgraphview/callgraphitem.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -231,7 +235,11 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/graph/functiongraph.h \
     redasm/graph/vertex.h \
     redasm/support/genetic.h \
-    redasm/graph/graph_genetic.h
+    redasm/graph/graph_genetic.h \
+    redasm/disassembler/graph/callgraph.h \
+    dialogs/callgraphdialog.h \
+    widgets/callgraphview/callgraphview.h \
+    widgets/callgraphview/callgraphitem.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \
@@ -239,7 +247,8 @@ FORMS    += mainwindow.ui \
     dialogs/gotodialog.ui \
     dialogs/databasedialog.ui \
     dialogs/aboutdialog.ui \
-    dialogs/manualloaddialog.ui
+    dialogs/manualloaddialog.ui \
+    dialogs/callgraphdialog.ui
 
 RESOURCES += \
     resources.qrc \

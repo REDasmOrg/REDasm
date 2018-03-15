@@ -104,7 +104,10 @@ VertexList Graph::getVertexList() const
 void Graph::setRootVertex(Vertex *v)
 {
     if(!v)
+    {
         this->_rootid = 0;
+        return;
+    }
 
     this->setRootVertex(v->id);
 }

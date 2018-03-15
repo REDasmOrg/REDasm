@@ -1,5 +1,6 @@
 #include "listing.h"
 #include "../../support/serializer.h"
+#include "../../plugins/format.h"
 
 namespace REDasm {
 
@@ -356,17 +357,24 @@ void Listing::deserialize(InstructionPtr &value, std::fstream &fs)
     });
 }
 
-void Listing::walk(address_t address, Listing::FunctionPath &path)
+void Listing::walk(address_t startaddress, Listing::FunctionPath &path)
 {
     std::stack<address_t> pending;
-    pending.push(address);
+    pending.push(startaddress);
 
     this->_assembler->pushState();
 
     while(!pending.empty())
     {
-        Listing::iterator it = this->find(pending.top());
+        address_t address = pending.top();
         pending.pop();
+
+        Segment* segment = this->_format->segment(address);
+
+        if(!segment || !segment->is(SegmentTypes::Code))
+            continue;
+
+        Listing::iterator it = this->find(address);
 
         while(it != this->end())
         {
@@ -376,7 +384,7 @@ void Listing::walk(address_t address, Listing::FunctionPath &path)
             InstructionPtr instruction = *it;
             path.insert(it.key);
 
-            if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
+            if(instruction->is(InstructionTypes::Jump))
             {
                 std::for_each(instruction->targets.begin(),instruction->targets.end(), [this, &pending](address_t target) {
                     if(!this->isFunctionStart(target))
@@ -395,7 +403,6 @@ void Listing::walk(address_t address, Listing::FunctionPath &path)
     }
 
     this->_assembler->popState();
-
 }
 
 bool Listing::isFunctionStart(address_t address)

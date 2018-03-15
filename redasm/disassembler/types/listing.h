@@ -49,7 +49,7 @@ class Listing: public cache_map<address_t, InstructionPtr>
         virtual void deserialize(InstructionPtr &value, std::fstream &fs);
 
     private:
-        void walk(address_t address, FunctionPath &path);
+        void walk(address_t startaddress, FunctionPath &path);
         void updateBlockInfo(FunctionPath& path);
         bool isFunctionStart(address_t address);
         FunctionPaths::iterator findFunction(address_t address);

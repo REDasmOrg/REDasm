@@ -269,7 +269,7 @@ bool Disassembler::maybeValidCode(address_t& address)
 
         for(u32 i = 0; i < INSTRUCTION_THRESHOLD; i++) // Try to disassemble some instructions
         {
-            if(this->skipExploredData(caddress))
+            if(this->skipExploredData(caddress) || !this->_format->segment(caddress))
             {
                 address = caddress;
                 return false;

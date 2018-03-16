@@ -143,13 +143,12 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegment(const SHDR& shd
     this->defineSegment(STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
 }
 
-template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shdr) // TODO: Improve symbol handling
+template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shdr)
 {
-    u64 idx = 0;
     offset_t offset = shdr.sh_offset, endoffset = offset + shdr.sh_size;
     const SHDR& shstr = shdr.sh_link ? this->_shdr[shdr.sh_link] : STRING_TABLE;
 
-    while(offset < endoffset)
+    for(u64 idx = 0; offset < endoffset; idx++)
     {
         bool isrelocated = false;
         SYM* sym = POINTER(SYM, offset);
@@ -162,7 +161,6 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
         if(!sym->st_name || !symvalue)
         {
             offset += sizeof(SYM);
-            idx++;
             continue;
         }
 
@@ -180,10 +178,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
                 isexport = true;
 
             if(isexport)
-            {
-                this->defineSymbol(symvalue, symname, (info == STT_FUNC) ? SymbolTypes::ExportFunction :
-                                                                           SymbolTypes::ExportData);
-            }
+                this->defineSymbol(symvalue, symname, (info == STT_FUNC) ? SymbolTypes::ExportFunction : SymbolTypes::ExportData);
             else if(info == STT_FUNC)
                 this->defineFunction(symvalue, symname);
             else if(info == STT_OBJECT)
@@ -193,7 +188,6 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
             this->defineSymbol(symvalue, symname, SymbolTypes::Import);
 
         offset += sizeof(SYM);
-        idx++;
     }
 }
 
@@ -223,12 +217,10 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSections()
     {
         const SHDR& shdr = this->_shdr[i];
 
-        if(!shdr.sh_addr)
-            continue;
-
-        if((shdr.sh_type == SHT_SYMTAB) || (shdr.sh_type == SHT_DYNSYM))
+        if(shdr.sh_offset && ((shdr.sh_type == SHT_SYMTAB) || (shdr.sh_type == SHT_DYNSYM)))
             this->loadSymbols(shdr);
-        else
+
+        if(shdr.sh_addr)
             this->loadSegment(shdr);
     }
 }

@@ -13,6 +13,7 @@ namespace REDasm
 std::string normalize(std::string s);
 std::string quoted(const std::string& s);
 std::string wtoa(const std::wstring& wide);
+std::string quoted(const char* s);
 
 template<typename T> struct bitwidth { static const size_t value = sizeof(T) * CHAR_BIT; };
 

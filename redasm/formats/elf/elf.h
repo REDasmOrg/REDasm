@@ -12,8 +12,8 @@
 #define ELF_PARAMS(bits) ELF_T(bits, Ehdr), ELF_T(bits, Shdr), ELF_T(bits, Sym), ELF_T(bits, Rel), ELF_T(bits, Rela)
 
 #define POINTER(T, offset) FormatPluginT<EHDR>::template pointer<T>(offset)
-#define STRING_TABLE this->_shdr[this->_format->e_shstrndx];
-#define STRING(shdr, offset) POINTER(const char, (shdr)->sh_offset + offset)
+#define ELF_STRING_TABLE this->_shdr[this->_format->e_shstrndx];
+#define ELF_STRING(shdr, offset) POINTER(const char, (shdr)->sh_offset + offset)
 
 namespace REDasm {
 
@@ -126,7 +126,7 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* v
 
 template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegment(const SHDR& shdr)
 {
-    const SHDR& shstr = STRING_TABLE;
+    const SHDR& shstr = ELF_STRING_TABLE;
     u32 type = SegmentTypes::Read;
 
     if((shdr.sh_type & SHT_PROGBITS) && (shdr.sh_flags & SHF_EXECINSTR))
@@ -140,13 +140,13 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegment(const SHDR& shd
     if(shdr.sh_flags & SHF_WRITE)
         type |= SegmentTypes::Write;
 
-    this->defineSegment(STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
+    this->defineSegment(ELF_STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
 }
 
 template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shdr)
 {
     offset_t offset = shdr.sh_offset, endoffset = offset + shdr.sh_size;
-    const SHDR& shstr = shdr.sh_link ? this->_shdr[shdr.sh_link] : STRING_TABLE;
+    const SHDR& shstr = shdr.sh_link ? this->_shdr[shdr.sh_link] : ELF_STRING_TABLE;
 
     for(u64 idx = 0; offset < endoffset; idx++)
     {
@@ -164,7 +164,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
             continue;
         }
 
-        std::string symname = REDasm::demangle(STRING(&shstr, sym->st_name));
+        std::string symname = REDasm::demangle(ELF_STRING(&shstr, sym->st_name));
 
         if(!isrelocated)
         {
@@ -218,7 +218,13 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSections()
         const SHDR& shdr = this->_shdr[i];
 
         if(shdr.sh_offset && ((shdr.sh_type == SHT_SYMTAB) || (shdr.sh_type == SHT_DYNSYM)))
+        {
+            const SHDR& shstr = ELF_STRING_TABLE;
+            REDasm::log("Section" + REDasm::quoted(ELF_STRING(&shstr, shdr.sh_name)) + " contains a "
+                        "symbol table @ offset " + REDasm::hex(shdr.sh_offset, this->bits()));
+
             this->loadSymbols(shdr);
+        }
 
         if(shdr.sh_addr)
             this->loadSegment(shdr);

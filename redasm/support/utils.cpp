@@ -21,5 +21,6 @@ std::string wtoa(const std::wstring& ws)
 }
 
 std::string quoted(const std::string &s) { return "\"" + s + "\""; }
+std::string quoted(const char* s) { return REDasm::quoted(std::string(s)); }
 
 }

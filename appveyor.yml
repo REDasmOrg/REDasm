@@ -17,7 +17,7 @@ max_jobs: 4
 
 install:
   - git submodule update --init --recursive
-  - set QTDIR=C:\Qt\5.9.3\mingw53_32
+  - set QTDIR=C:\Qt\5.10.1\mingw53_32
   - set PATH=%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin;%PATH%
 
 build_script:

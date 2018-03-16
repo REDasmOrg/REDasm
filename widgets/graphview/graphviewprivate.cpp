@@ -1,5 +1,5 @@
 #include "graphviewprivate.h"
-#include <QGraphicsDropShadowEffect>
+#include <QWheelEvent>
 #include <QStack>
 #include <cmath>
 

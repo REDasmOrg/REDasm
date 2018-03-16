@@ -7,9 +7,9 @@
 #include "elf_analyzer.h"
 
 #define ELF_T(bits, t) Elf ## bits ## _ ## t
-#define ELF_PARAMS_T typename EHDR, typename PHDR, typename SHDR, typename SYM, typename REL, typename RELA
-#define ELF_PARAMS_D EHDR, PHDR, SHDR, SYM, REL, RELA
-#define ELF_PARAMS(bits) ELF_T(bits, Ehdr), ELF_T(bits, Phdr), ELF_T(bits, Shdr), ELF_T(bits, Sym), ELF_T(bits, Rel), ELF_T(bits, Rela)
+#define ELF_PARAMS_T typename EHDR, typename SHDR, typename SYM, typename REL, typename RELA
+#define ELF_PARAMS_D EHDR, SHDR, SYM, REL, RELA
+#define ELF_PARAMS(bits) ELF_T(bits, Ehdr), ELF_T(bits, Shdr), ELF_T(bits, Sym), ELF_T(bits, Rel), ELF_T(bits, Rela)
 
 #define POINTER(T, offset) FormatPluginT<EHDR>::template pointer<T>(offset)
 #define STRING_TABLE this->_shdr[this->_format->e_shstrndx];
@@ -20,7 +20,7 @@ namespace REDasm {
 template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 {
     public:
-        ElfFormat(): FormatPluginT<EHDR>(), _phdr(NULL), _shdr(NULL) { }
+        ElfFormat(): FormatPluginT<EHDR>(), _shdr(NULL) { }
         virtual const char* name() const { return "ELF Format"; }
         virtual u32 bits() const;
         virtual const char* assembler() const;
@@ -35,11 +35,9 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
         bool relocate(u64 symidx, u64* value) const;
         void loadSegment(const SHDR& shdr);
         void loadSymbols(const SHDR& shdr);
-        void parseProgramHeader();
         void parseSections();
 
     private:
-        PHDR* _phdr;
         SHDR* _shdr;
 };
 
@@ -84,11 +82,9 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load(u8* format)
     if(!this->validate() || !this->bits())
         return false;
 
-    this->_phdr = POINTER(PHDR, ehdr->e_phoff);
     this->_shdr = POINTER(SHDR, ehdr->e_shoff);
     this->defineEntryPoint(this->_format->e_entry);
     this->parseSections();
-    this->parseProgramHeader();
 
     FormatPluginT<EHDR>::load(format);
     return true;
@@ -131,8 +127,15 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* v
 template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegment(const SHDR& shdr)
 {
     const SHDR& shstr = STRING_TABLE;
-    u32 type = SegmentTypes::Read | ((shdr.sh_flags & SHF_EXECINSTR) ? SegmentTypes::Code :
-                                                                       SegmentTypes::Data);
+    u32 type = SegmentTypes::Read;
+
+    if((shdr.sh_type & SHT_PROGBITS) && (shdr.sh_flags & SHF_EXECINSTR))
+        type |= SegmentTypes::Code;
+    else
+        type |= SegmentTypes::Data;
+
+    if(shdr.sh_type & SHT_NOBITS)
+        type |= SegmentTypes::Bss;
 
     if(shdr.sh_flags & SHF_WRITE)
         type |= SegmentTypes::Write;
@@ -194,40 +197,6 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
     }
 }
 
-template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseProgramHeader()
-{
-    u32 loadidx = 0;
-
-    for(u64 i = 0; i < this->_format->e_phnum; i++)
-    {
-        const PHDR& phdr = this->_phdr[i];
-
-        if(phdr.p_type != PT_LOAD)
-            continue;
-
-        const Segment* segment = this->segment(phdr.p_vaddr);
-
-        if(segment)
-            continue;
-
-        u32 flags = SegmentTypes::None;
-
-        if(phdr.p_type & PF_X)
-            flags |= SegmentTypes::Code;
-
-        if(phdr.p_type & PF_R)
-            flags |= SegmentTypes::Read;
-
-        if(phdr.p_type & PF_W)
-            flags |= SegmentTypes::Write;
-
-        std::stringstream ss;
-        ss << "LOAD" << loadidx++;
-
-        this->defineSegment(ss.str(), phdr.p_offset, phdr.p_vaddr, phdr.p_memsz, flags);
-    }
-}
-
 template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::validate() const
 {
     if(this->_format->e_ident[EI_MAG0] != ELFMAG0)
@@ -254,10 +223,13 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSections()
     {
         const SHDR& shdr = this->_shdr[i];
 
-        if(shdr.sh_addr && (shdr.sh_type == SHT_PROGBITS))
-            this->loadSegment(shdr);
-        else if((shdr.sh_type == SHT_SYMTAB) || (shdr.sh_type == SHT_DYNSYM))
+        if(!shdr.sh_addr)
+            continue;
+
+        if((shdr.sh_type == SHT_SYMTAB) || (shdr.sh_type == SHT_DYNSYM))
             this->loadSymbols(shdr);
+        else
+            this->loadSegment(shdr);
     }
 }
 

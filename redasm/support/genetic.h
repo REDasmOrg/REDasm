@@ -41,7 +41,9 @@ template<typename INDIVIDUAL, typename ALLELE> class genetic
 
     protected:
         void add_individual(const individual_t& individual) { _population.push_back(individual); }
+        virtual void mutate_individual(individual_t& individual) const { this->mutate(this->get_allele(individual, std::rand() % this->allele_size(individual))); }
         virtual void generation_completed(const individual_fitness_t&) const { }
+        virtual void generation_best_completed(const individual_fitness_t&) const { }
         virtual bool child_randomized() const { return std::rand() < 50; }
         virtual individual_t make_child() const { return individual_t(); }
         virtual fitness_t expected_fitness() const { return 100; }
@@ -49,10 +51,9 @@ template<typename INDIVIDUAL, typename ALLELE> class genetic
         virtual size_t allele_size(const individual_t& individual) const = 0;
         virtual allele_t& get_allele(individual_t& individual, size_t index) const = 0;
         virtual void append_allele(individual_t& dest, individual_t& src, size_t index) const = 0;
-        virtual void mutate(allele_t& allele) const = 0;
+        virtual void mutate(allele_t&) const { }
 
     private:
-        void mutate_individual(individual_t& individual) const { this->mutate(this->get_allele(individual, std::rand() % this->allele_size(individual))); }
         void compute_fitness(population_fitness_t& populationfitness, individual_t &expected);
         void select_candidates(const population_fitness_t& populationfitness, population_t& candidates);
         void mutate_population();
@@ -90,8 +91,10 @@ template<typename INDIVIDUAL, typename ALLELE> typename genetic<INDIVIDUAL, ALLE
         {
             bestfitness = currbestfitness;
             maxfitness = currbestfitness.second;
-            this->generation_completed(bestfitness);
+            this->generation_best_completed(bestfitness);
         }
+        else
+            this->generation_completed(currbestfitness);
 
         if((this->_generation >= this->_maxgeneration) || (currbestfitness.second == this->expected_fitness()))
             break;

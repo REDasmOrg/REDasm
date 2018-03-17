@@ -41,7 +41,7 @@ void GraphGenetic::mutate(GraphGenetic::allele_t &allele) const
     std::iter_swap(allele.begin() + idx1, allele.begin() + idx2);
 }
 
-void GraphGenetic::generation_completed(const genetic::individual_fitness_t &individualfitness) const
+void GraphGenetic::generation_best_completed(const genetic::individual_fitness_t &individualfitness) const
 {
     std::string s = "Graph generation ";
     s += std::to_string(this->generation()) + " with ";

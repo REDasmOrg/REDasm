@@ -124,7 +124,7 @@ void Graph::setRootVertex(vertex_id_t id)
 void Graph::pushVertex(Vertex *v)
 {
     v->id = ++this->_currentid;
-    this->_vertexmap.emplace(v->id, v);
+    this->_vertexmap.emplace(v->id, VertexPtr(v));
 }
 
 Vertex* Graph::pushFakeVertex(vertex_layer_t layer)

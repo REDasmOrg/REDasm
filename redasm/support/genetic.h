@@ -9,7 +9,9 @@
 #include <vector>
 #include <utility>
 #include <random>
+#include <ctime>
 #include <algorithm>
+#include <cassert>
 
 namespace REDasm {
 
@@ -28,7 +30,7 @@ template<typename INDIVIDUAL, typename ALLELE> class genetic
         typedef std::vector<individual_t> population_t;
 
     public:
-        genetic(): _generation(0), _maxpopulation(0), _maxgeneration(GENETIC_MAX_GENERATION), _mutationrate(GENETIC_MUTATION_RATE), _bestrate(GENETIC_BEST_RATE), _luckyrate(GENETIC_LUCKY_RATE) { }
+        genetic();
         bool empty() const { return _population.empty(); }
         size_t size() const { return _population.size(); }
         generation_t generation() const { return _generation; }
@@ -44,7 +46,8 @@ template<typename INDIVIDUAL, typename ALLELE> class genetic
         virtual void mutate_individual(individual_t& individual) const { this->mutate(this->get_allele(individual, std::rand() % this->allele_size(individual))); }
         virtual void generation_completed(const individual_fitness_t&) const { }
         virtual void generation_best_completed(const individual_fitness_t&) const { }
-        virtual bool child_randomized() const { return std::rand() < 50; }
+        virtual bool child_randomized() const { return (std::rand() % 100) < 50; }
+        virtual individual_t create_child(individual_t& individual1, individual_t& individual2);
         virtual individual_t make_child() const { return individual_t(); }
         virtual fitness_t expected_fitness() const { return 100; }
         virtual fitness_t fitness(individual_t &individual, individual_t &expected) const;
@@ -59,7 +62,6 @@ template<typename INDIVIDUAL, typename ALLELE> class genetic
         void mutate_population();
         void create_children(population_t& candidates);
         size_t get_child_count(const population_t &candidates ) const;
-        individual_t create_child(individual_t& individual1, individual_t& individual2);
 
     protected:
         population_t _population;
@@ -67,7 +69,27 @@ template<typename INDIVIDUAL, typename ALLELE> class genetic
     private:
         size_t _generation, _maxpopulation, _maxgeneration;
         double _mutationrate, _bestrate, _luckyrate;
+
+    private:
+        static unsigned int _seed;
 };
+
+template<typename INDIVIDUAL, typename ALLELE> unsigned int genetic<INDIVIDUAL, ALLELE>::_seed = 0;
+
+template<typename INDIVIDUAL, typename ALLELE> genetic<INDIVIDUAL, ALLELE>::genetic()
+{
+    this->_generation = this->_maxpopulation = 0;
+    this->_maxgeneration = GENETIC_MAX_GENERATION;
+    this->_mutationrate = GENETIC_MUTATION_RATE;
+    this->_bestrate = GENETIC_BEST_RATE;
+    this->_luckyrate = GENETIC_LUCKY_RATE;
+
+    if(_seed)
+        return;
+
+    _seed = std::time(NULL);
+    std::srand(_seed);
+}
 
 template<typename INDIVIDUAL, typename ALLELE> typename genetic<INDIVIDUAL, ALLELE>::individual_fitness_t genetic<INDIVIDUAL, ALLELE>::grow(individual_t expected)
 {
@@ -147,7 +169,7 @@ template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>:
     for(ssize_t i = 0; i < bestcount; i++)
         candidates.push_back(populationfitness[i].first);
 
-    for(ssize_t i = 0; i < luckycount; )
+    for(ssize_t i = 0; i < luckycount; i++)
     {
         ssize_t idx = bestcount + (std::rand() % luckycount);
 
@@ -155,7 +177,6 @@ template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>:
             continue;
 
         candidates.push_back(populationfitness[idx].first);
-        i++;
     }
 
     std::random_shuffle(candidates.begin(), candidates.end());
@@ -182,7 +203,12 @@ template<typename INDIVIDUAL, typename ALLELE> void genetic<INDIVIDUAL, ALLELE>:
     for(size_t i = 0; i < (candidates.size() / 2); i++)
     {
         for(size_t j = 0; j < childcount; j++)
-            this->_population.push_back(this->create_child(candidates[i], candidates[candidates.size() - 1 - i]));
+        {
+            size_t idx1 = i, idx2 = candidates.size() - 1 - i;
+            assert(idx1 != idx2);
+            assert(this->allele_size(candidates[idx1]) == this->allele_size(candidates[idx2]));
+            this->_population.push_back(this->create_child(candidates[idx1], candidates[idx2]));
+        }
     }
 }
 

@@ -53,7 +53,7 @@ class Graph
         Vertex* getVertex(vertex_id_t id);
         Vertex* getRealParentVertex(vertex_id_t id);
         Vertex* getRealVertex(vertex_id_t id);
-        VertexSet getParents(Vertex* v);
+        VertexSet getParents(const Vertex *v) const;
         VertexList getVertexList() const;
         void setRootVertex(Vertex* v);
         void setRootVertex(vertex_id_t id);

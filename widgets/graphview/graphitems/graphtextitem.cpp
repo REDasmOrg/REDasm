@@ -1,4 +1,6 @@
 #include "graphtextitem.h"
+#include "../graphviewmetrics.h"
+#include <cmath>
 
 GraphTextItem::GraphTextItem(REDasm::Graphing::Vertex *v, QObject *parent) : GraphItem(v, parent)
 {
@@ -39,7 +41,13 @@ void GraphTextItem::setFont(const QFont &font)
 
 QSize GraphTextItem::size() const
 {
-    return this->_document.size().toSize();
+    QSize sz = this->_document.size().toSize();
+    int mw = std::ceil(GraphViewMetrics::minimumWidth(this->vertex()));
+
+    if(mw > sz.width())
+        sz.setWidth(mw);
+
+    return sz;
 }
 
 void GraphTextItem::paint(QPainter *painter)

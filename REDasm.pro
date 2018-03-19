@@ -125,7 +125,8 @@ SOURCES += main.cpp\
     redasm/disassembler/graph/callgraph.cpp \
     dialogs/callgraphdialog.cpp \
     widgets/callgraphview/callgraphview.cpp \
-    widgets/callgraphview/callgraphitem.cpp
+    widgets/callgraphview/callgraphitem.cpp \
+    widgets/graphview/graphviewmetrics.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -239,7 +240,8 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/graph/callgraph.h \
     dialogs/callgraphdialog.h \
     widgets/callgraphview/callgraphview.h \
-    widgets/callgraphview/callgraphitem.h
+    widgets/callgraphview/callgraphitem.h \
+    widgets/graphview/graphviewmetrics.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

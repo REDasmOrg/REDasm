@@ -1,4 +1,5 @@
 #include "graphview.h"
+#include "graphviewmetrics.h"
 #include <QMouseEvent>
 #include <QScrollBar>
 
@@ -19,11 +20,11 @@ void GraphView::render(REDasm::Graphing::Graph* graph)
     this->removeAll();
 
     REDasm::Graphing::LayeredGraph lgraph(graph);
-    s64 y = this->itemPadding(), maxx = 0;
+    s64 y = GraphViewMetrics::itemPadding(), maxx = 0;
 
     for(REDasm::Graphing::VertexList& vl : lgraph)
     {
-        s64 x = this->itemPadding(), maxheight = 0;
+        s64 x = GraphViewMetrics::itemPadding(), maxheight = 0;
 
         for(REDasm::Graphing::Vertex* v : vl)
         {
@@ -40,7 +41,7 @@ void GraphView::render(REDasm::Graphing::Graph* graph)
             gi->move(x, y);
 
             QSize sz = gi->size();
-            x += sz.width() + this->itemPadding();
+            x += sz.width() + GraphViewMetrics::itemPadding();
 
             if(sz.height() > maxheight)
                 maxheight = sz.height();
@@ -55,11 +56,6 @@ void GraphView::render(REDasm::Graphing::Graph* graph)
     }
 
     this->setGraphSize(QSize(maxx + this->minimumSize(), y + this->minimumSize()));
-}
-
-u64 GraphView::itemPadding() const
-{
-    return this->_graphview_p->itemPadding();
 }
 
 u64 GraphView::minimumSize() const

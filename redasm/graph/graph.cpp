@@ -71,13 +71,13 @@ Vertex *Graph::getRealVertex(vertex_id_t id)
     return v;
 }
 
-VertexSet Graph::getParents(Vertex *v)
+VertexSet Graph::getParents(const Vertex *v) const
 {
     VertexSet parents;
 
     for(auto& item : this->_vertexmap)
     {
-        VertexPtr& vi = item.second;
+        const VertexPtr& vi = item.second;
 
         if(vi->id == v->id)
             continue;
@@ -124,6 +124,7 @@ void Graph::setRootVertex(vertex_id_t id)
 void Graph::pushVertex(Vertex *v)
 {
     v->id = ++this->_currentid;
+    v->graph = this;
     this->_vertexmap.emplace(v->id, VertexPtr(v));
 }
 

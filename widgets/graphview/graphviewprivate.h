@@ -18,7 +18,6 @@ class GraphViewPrivate : public QWidget
         void removeAll();
 
     public:
-        u64 itemPadding() const;
         bool overviewMode() const;
         void setOverviewMode(bool b);
         void setGraph(REDasm::Graphing::Graph* graph);

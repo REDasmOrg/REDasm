@@ -13,12 +13,15 @@ typedef ssize_t vertex_index_t;
 typedef std::deque<vertex_id_t> EdgeList;
 typedef std::unordered_map<Graphing::vertex_id_t, std::string> EdgeColors;
 
+class Graph;
+
 struct Vertex
 {
     vertex_id_t id;
     EdgeList edges;
     EdgeColors edgeColors;
     std::string color;
+    Graph* graph;
 
     struct {
         vertex_layer_t layer;
@@ -26,7 +29,7 @@ struct Vertex
         bool isfake;
     } layout;
 
-    Vertex(): id(0), color("black") { layout = { 0, -1, false }; }
+    Vertex(): id(0), color("black"), graph(NULL) { layout = { 0, -1, false }; }
     virtual s64 compare(Vertex* v) const { return id - v->id; }
     virtual bool equalsTo(Vertex* v) const { return compare(v) == 0; }
     virtual bool lessThan(Vertex* v) const { return compare(v) < 0; }

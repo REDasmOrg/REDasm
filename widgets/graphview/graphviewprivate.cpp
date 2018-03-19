@@ -1,4 +1,5 @@
 #include "graphviewprivate.h"
+#include "graphviewmetrics.h"
 #include <QWheelEvent>
 #include <QStack>
 #include <cmath>
@@ -8,10 +9,6 @@
 #define DROP_SHADOW_ARG   DROP_SHADOW_SIZE(DROP_SHADOW_VALUE)
 #define ZOOM_FACTOR_STEP  0.050
 #define ITEM_PADDING      25
-#define BORDER_PADDING    3
-#define ANGLE_SIZE        (ITEM_PADDING / 2)
-#define EDGE_OFFSET_BASE  6.0
-#define ARROW_SIZE        EDGE_OFFSET_BASE
 
 GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false), _zoomfactor(1.0), _graph(NULL), _lgraph(NULL)
 {
@@ -49,11 +46,6 @@ void GraphViewPrivate::removeAll()
     this->update();
 }
 
-u64 GraphViewPrivate::itemPadding() const
-{
-    return ITEM_PADDING;
-}
-
 bool GraphViewPrivate::overviewMode() const
 {
     return this->_overviewmode;
@@ -76,23 +68,23 @@ void GraphViewPrivate::drawEdge(QPainter *painter, GraphItem *fromitem, GraphIte
     QPoint fromcenter = fromrect.center(), tocenter = torect.center();
     double layerheight = this->getLayerHeight(fromitem);
 
-    QPoint points[5];
-    points[0] = QPoint(fromcenter.x() + offset, fromrect.bottom() + BORDER_PADDING);
+    std::array<QPoint, 5> points;
+    points[0] = QPoint(fromcenter.x() + offset, fromrect.bottom() + GraphViewMetrics::borderPadding());
     points[1] = QPoint(fromcenter.x() + offset, fromrect.top() + layerheight);
-    points[2] = QPoint(fromcenter.x() + offset, fromrect.top() + layerheight + std::abs(offset) + ANGLE_SIZE);
-    points[3] = QPoint(tocenter.x() + offset, fromrect.top() + layerheight + std::abs(offset) + ANGLE_SIZE);
-    points[4] = QPoint(tocenter.x() + offset, tocenter.y() - BORDER_PADDING);
-    painter->drawPolyline(points, 5);
+    points[2] = QPoint(fromcenter.x() + offset, fromrect.top() + layerheight + std::abs(offset) + GraphViewMetrics::angleSize());
+    points[3] = QPoint(tocenter.x() + offset, fromrect.top() + layerheight + std::abs(offset) + GraphViewMetrics::angleSize());
+    points[4] = QPoint(tocenter.x() + offset, tocenter.y() - GraphViewMetrics::borderPadding());
+    painter->drawPolyline(points.data(), points.size());
 
     if(toitem->vertex()->isFake())
     {
-        painter->drawLine(points[4], QPoint(tocenter.x() + offset, tocenter.y() + BORDER_PADDING));
+        painter->drawLine(points[4], QPoint(tocenter.x() + offset, tocenter.y() + GraphViewMetrics::borderPadding()));
         return;
     }
 
     QPolygonF arrowhead;
-    arrowhead << QPoint(points[4].x() - ARROW_SIZE, torect.top() - ARROW_SIZE)
-              << QPoint(points[4].x() + ARROW_SIZE, torect.top() - ARROW_SIZE)
+    arrowhead << QPoint(points[4].x() - GraphViewMetrics::arrowSize(), torect.top() - (GraphViewMetrics::arrowSize() * 2))
+              << QPoint(points[4].x() + GraphViewMetrics::arrowSize(), torect.top() - (GraphViewMetrics::arrowSize() * 2))
               << QPoint(points[4].x(), torect.top());
 
     painter->drawPolygon(arrowhead);
@@ -150,7 +142,7 @@ double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) c
 {
     const REDasm::Graphing::Vertex* fromvertex = fromitem->vertex();
     const REDasm::Graphing::EdgeList& edges = fromvertex->edges;
-    double offset = fromitem->index() * EDGE_OFFSET_BASE;
+    double offset = fromitem->index() * GraphViewMetrics::edgeOffsetBase();
 
     if(edges.size() == 1)
         return offset;
@@ -158,9 +150,9 @@ double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) c
     if(edges.size() == 2)
     {
         if(edges[0] == toitem->id())
-            return offset + EDGE_OFFSET_BASE;
+            return offset + GraphViewMetrics::edgeOffsetBase();
 
-        return offset + (EDGE_OFFSET_BASE * 2);
+        return offset + (GraphViewMetrics::edgeOffsetBase() * 2);
     }
 
     size_t mid = edges.size() / 2;
@@ -171,7 +163,7 @@ double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) c
             continue;
 
         ssize_t offsetidx = i - static_cast<ssize_t>(mid);
-        offset += EDGE_OFFSET_BASE * offsetidx;
+        offset += GraphViewMetrics::edgeOffsetBase() * offsetidx;
         break;
     }
 

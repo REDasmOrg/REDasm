@@ -1,0 +1,34 @@
+#ifndef XBE_H
+#define XBE_H
+
+// Documentation: www.caustik.com/cxbx/download/xbe.htm
+
+#include "../../plugins/plugins.h"
+#include "xbe_header.h"
+
+namespace REDasm {
+
+class XbeFormat : public FormatPluginT<XbeImageHeader>
+{
+    public:
+        XbeFormat();
+        virtual const char* name() const;
+        virtual u32 bits() const;
+        virtual const char* assembler() const;
+        virtual bool load(u8 *rawformat);
+
+    private:
+        bool decodeEP(u32 encodedep, address_t &ep);
+        void loadSections(XbeSectionHeader* sectionhdr);
+
+    private:
+        template<typename T> T* memoryoffset(u32 memaddress) const;
+};
+
+template<typename T> T* XbeFormat::memoryoffset(u32 memaddress) const { return this->pointer<T>(memaddress - this->_format->BaseAddress); }
+
+DECLARE_FORMAT_PLUGIN(XbeFormat, xbe)
+
+} // namespace REDasm
+
+#endif // XBE_H

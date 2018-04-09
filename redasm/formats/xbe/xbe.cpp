@@ -1,4 +1,7 @@
 #include "xbe.h"
+#include "../../support/ordinals.h"
+
+#define XBE_XBOXKRNL_BASEADDRESS 0x80000000
 
 namespace REDasm {
 
@@ -37,12 +40,17 @@ bool XbeFormat::load(u8 *rawformat)
     }
 
     this->loadSections(this->memoryoffset<XbeSectionHeader>(format->SectionHeader));
-
     address_t entrypoint = 0;
 
     if(!this->decodeEP(format->EntryPoint, entrypoint))
     {
         REDasm::log("Cannot decode Entry Point");
+        return false;
+    }
+
+    if(!this->loadXBoxKrnl())
+    {
+        REDasm::log("Cannot load XBoxKrnl Imports");
         return false;
     }
 
@@ -70,6 +78,20 @@ bool XbeFormat::decodeEP(u32 encodedep, address_t& ep)
     return segment != NULL;
 }
 
+bool XbeFormat::decodeKernel(u32 encodedthunk, u32 &thunk)
+{
+    thunk = encodedthunk ^ XBE_KERNEL_XOR_RETAIL;
+    Segment* segment = this->segment(thunk);
+
+    if(!segment)
+    {
+        thunk = encodedthunk ^ XBE_KERNEL_XOR_DEBUG;
+        segment = this->segment(thunk);
+    }
+
+    return segment != NULL;
+}
+
 void XbeFormat::loadSections(XbeSectionHeader *sectionhdr)
 {
     for(u32 i = 0; i < this->_format->NumberOfSections; i++)
@@ -92,6 +114,30 @@ void XbeFormat::loadSections(XbeSectionHeader *sectionhdr)
 
         this->defineSegment(sectname, sectionhdr[i].RawAddress, sectionhdr[i].VirtualAddress, sectionhdr[i].RawSize, secttype);
     }
+
+    this->defineSegment("XBOXKRNL", 0, XBE_XBOXKRNL_BASEADDRESS, 0x10000, SegmentTypes::Bss);
+}
+
+bool XbeFormat::loadXBoxKrnl()
+{
+    OrdinalsMap ordinals;
+    REDasm::loadordinals(REDasm::makeFormatPath("xbe", "xboxkrnl.json"), ordinals);
+    u32 kernelimagethunk;
+
+    if(!this->decodeKernel(this->_format->KernelImageThunk, kernelimagethunk))
+        return false;
+
+    offset_t thunkoffset = this->offset(kernelimagethunk);
+    u32* pthunk = this->pointer<u32>(thunkoffset);
+
+    while(*pthunk)
+    {
+        std::string ordinalname = REDasm::ordinal(ordinals, *pthunk ^ XBE_ORDINAL_FLAG, "XBoxKrnl!");
+        this->defineSymbol(*pthunk, ordinalname, SymbolTypes::Import);
+        pthunk++;
+    }
+
+    return true;
 }
 
 } // namespace REDasm

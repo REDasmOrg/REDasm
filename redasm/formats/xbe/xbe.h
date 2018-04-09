@@ -19,7 +19,9 @@ class XbeFormat : public FormatPluginT<XbeImageHeader>
 
     private:
         bool decodeEP(u32 encodedep, address_t &ep);
+        bool decodeKernel(u32 encodedthunk, u32 &thunk);
         void loadSections(XbeSectionHeader* sectionhdr);
+        bool loadXBoxKrnl();
 
     private:
         template<typename T> T* memoryoffset(u32 memaddress) const;

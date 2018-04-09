@@ -40,6 +40,7 @@ Currently, these are the supported Formats/Assemblers, I will plan to add it mor
 | ELF    |                                              |
 | PSX    | PsyQ 4.7 signatures available                |
 | Dex    |                                              |
+| XBE    |                                              |
 
 ### Supported Assemblers
 | Assembler | Backend   | Notes           |

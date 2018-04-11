@@ -3,7 +3,7 @@
 
 #define CACHE_DEFAULT  "cachemap"
 #define CACHE_FILE_EXT ".db"
-#define CACHE_FILE     (_name + CACHE_FILE_EXT)
+#define CACHE_FILE     (_name + "_" + std::to_string(time(NULL)) + CACHE_FILE_EXT)
 
 #include <functional>
 #include <iostream>

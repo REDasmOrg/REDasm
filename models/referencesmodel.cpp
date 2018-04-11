@@ -47,7 +47,21 @@ QVariant ReferencesModel::dataInstructionRefs(const QModelIndex &index, int role
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
+        {
+            REDasm::SymbolPtr symbol = listing.getFunction(instruction->address);
+
+            if(symbol)
+            {
+                address_t diff = instruction->address - symbol->address;
+
+                if(diff)
+                    return S_TO_QS(symbol->name + "+" + REDasm::hex(diff));
+                else
+                    return S_TO_QS(symbol->name);
+            }
+
             return S_TO_QS(REDasm::hex(instruction->address, this->_disassembler->format()->bits()));
+        }
         else if(index.column() == 1)
             return this->direction(instruction->address);
         else if(index.column() == 2)

@@ -46,6 +46,16 @@ Segment *FormatPlugin::segmentByName(const std::string &name)
     return NULL;
 }
 
+Segment *FormatPlugin::entryPointSegment()
+{
+    SymbolPtr symbol = this->_symbol.entryPoint();
+
+    if(symbol)
+        return this->segment(symbol->address);
+
+    return NULL;
+}
+
 const SignatureFiles &FormatPlugin::signatures() const
 {
     return this->_signatures;

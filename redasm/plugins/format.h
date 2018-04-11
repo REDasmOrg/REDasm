@@ -39,6 +39,7 @@ class FormatPlugin: public Plugin
         Segment *segment(address_t address);
         Segment *segmentAt(u64 index);
         Segment *segmentByName(const std::string& name);
+        Segment* entryPointSegment();
         const SignatureFiles& signatures() const;
         u64 addressWidth() const;
 

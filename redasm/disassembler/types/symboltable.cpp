@@ -161,9 +161,10 @@ void SymbolTable::sort()
     std::sort(this->_addresses.begin(), this->_addresses.end(), std::less<address_t>());
 }
 
-bool SymbolTable::createFunction(address_t address)
+bool SymbolTable::createFunction(address_t address, Segment *segment)
 {
-    return this->createFunction(address, REDasm::symbol("sub", address));
+    return this->createFunction(address, REDasm::symbol("sub", address, segment ? segment->name :
+                                                                                  std::string()));
 }
 
 bool SymbolTable::createFunction(address_t address, const std::string &name)

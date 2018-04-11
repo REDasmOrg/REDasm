@@ -83,7 +83,7 @@ class SymbolTable
         void sort();
 
     public:
-        bool createFunction(address_t address);
+        bool createFunction(address_t address, Segment* segment = NULL);
         bool createFunction(address_t address, const std::string& name);
         bool createString(address_t address);
         bool createWString(address_t address);

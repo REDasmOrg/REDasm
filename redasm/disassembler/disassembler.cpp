@@ -310,7 +310,14 @@ void Disassembler::disassembleFunction(address_t address, const std::string &nam
     this->_symboltable->erase(address);
 
     if(name.empty())
-        this->_symboltable->createFunction(address);
+    {
+        Segment* segment = this->_format->segment(address);
+
+        if(segment != this->_format->entryPointSegment())
+            this->_symboltable->createFunction(address, segment);
+        else
+            this->_symboltable->createFunction(address);
+    }
     else
         this->_symboltable->createFunction(address, name);
 

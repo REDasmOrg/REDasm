@@ -3,7 +3,7 @@
 
 #define CACHE_DEFAULT  "cachemap"
 #define CACHE_FILE_EXT ".db"
-#define CACHE_FILE     (_name + "_" + std::to_string(time(NULL)) + CACHE_FILE_EXT)
+#define CACHE_FILE     (_name + "_" + std::to_string(_timestamp) + CACHE_FILE_EXT)
 
 #include <functional>
 #include <iostream>
@@ -46,8 +46,8 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
         };
 
     public:
-        cache_map(): _name(CACHE_DEFAULT) { }
-        cache_map(const std::string& name): _name(name) { }
+        cache_map(): _name(CACHE_DEFAULT), _timestamp(time(NULL)) { }
+        cache_map(const std::string& name): _name(name), _timestamp(time(NULL)) { }
         ~cache_map();
         iterator begin() { return iterator(*this, this->_offsets.begin()); }
         iterator end() { return iterator(*this, this->_offsets.end()); }
@@ -64,6 +64,7 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
         std::string _name;
         offset_map _offsets;
         std::fstream _file;
+        time_t _timestamp;
 };
 
 template<typename T1, typename T2> cache_map<T1, T2>::~cache_map()

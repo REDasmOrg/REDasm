@@ -447,7 +447,7 @@ bool Disassembler::disassemble(address_t address)
         if(this->_listing.find(address) != this->_listing.end())
             break;
 
-        REDasm::status("Disassembling @ " + REDasm::hex(address));
+        REDasm::status("Disassembling @ " + REDasm::hex(address, this->_format->bits(), false));
 
         Buffer b = this->_buffer + this->_format->offset(address);
         instruction = this->disassembleInstruction(address, b); // Disassemble single instruction

@@ -6,9 +6,6 @@
   <a href="https://ci.appveyor.com/project/Dax89/redasm">
     <img src="https://img.shields.io/appveyor/ci/Dax89/redasm.svg?style=flat-square&logo=appveyor">
   </a>
-  <a href="https://t.me/REDasm_Disassembler">
-    <img src="https://img.shields.io/badge/chat-on%20Telegram-2fade6.svg?style=flat-square">
-  </a>
   <img src="https://img.shields.io/badge/license-GPL2-8e725e.svg?style=flat-square">
 </p>
 

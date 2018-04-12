@@ -51,7 +51,7 @@ QVariant SymbolTableModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(symbol->address, this->_disassembler->format()->bits()));
+            return S_TO_QS(REDasm::hex(symbol->address, this->_disassembler->format()->bits(), false));
 
         if(index.column() == 1)
         {

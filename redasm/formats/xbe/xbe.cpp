@@ -70,17 +70,19 @@ void XbeFormat::displayXbeInfo()
 
     std::string s;
 
-    if(certificate->GameRegion & XBE_GAME_REGION_JAPAN)
-        s += "Japan";
-
     if(certificate->GameRegion & XBE_GAME_REGION_RESTOFWORLD)
-        s += s.empty() ? "World" : ", World";
+        s += "ALL";
+    else
+    {
+        if(certificate->GameRegion & XBE_GAME_REGION_JAPAN)
+            s += s.empty() ? "JAPAN" : ", JAPAN";
 
-    if(certificate->GameRegion & XBE_GAME_REGION_NA)
-        s += s.empty() ? "North America" : ", North America";
+        if(certificate->GameRegion & XBE_GAME_REGION_NA)
+            s += s.empty() ? "NORTH AMERICA" : ", NORTH AMERICA";
+    }
 
     if(certificate->GameRegion & XBE_GAME_REGION_MANUFACTURING)
-        s += s.empty() ? "Manufacturing" : ", Manufacturing";
+        s += s.empty() ? "DEBUG" : ", DEBUG";
 
     if(!s.empty())
         REDasm::log("Allowed Regions: " + s);

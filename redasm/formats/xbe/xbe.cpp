@@ -55,8 +55,35 @@ bool XbeFormat::load(u8 *rawformat)
     }
 
     this->defineEntryPoint(entrypoint);
+    this->displayXbeInfo();
     FormatPluginT<XbeImageHeader>::load(rawformat);
     return true;
+}
+
+void XbeFormat::displayXbeInfo()
+{
+    XbeCertificate* certificate = this->memoryoffset<XbeCertificate>(this->_format->CertificateAddress);
+    std::string title = REDasm::wtoa(&certificate->TitleName, XBE_TITLENAME_SIZE);
+
+    if(!title.empty())
+        REDasm::log("Game Title: " + REDasm::quoted(title));
+
+    std::string s;
+
+    if(certificate->GameRegion & XBE_GAME_REGION_JAPAN)
+        s += "Japan";
+
+    if(certificate->GameRegion & XBE_GAME_REGION_RESTOFWORLD)
+        s += s.empty() ? "World" : ", World";
+
+    if(certificate->GameRegion & XBE_GAME_REGION_NA)
+        s += s.empty() ? "North America" : ", North America";
+
+    if(certificate->GameRegion & XBE_GAME_REGION_MANUFACTURING)
+        s += s.empty() ? "Manufacturing" : ", Manufacturing";
+
+    if(!s.empty())
+        REDasm::log("Allowed Regions: " + s);
 }
 
 bool XbeFormat::decodeEP(u32 encodedep, address_t& ep)
@@ -70,10 +97,10 @@ bool XbeFormat::decodeEP(u32 encodedep, address_t& ep)
         segment = this->segment(ep);
 
         if(segment)
-            REDasm::log("DEBUG Executable");
+            REDasm::log("Executable Type: DEBUG");
     }
     else
-        REDasm::log("RETAIL Executable");
+        REDasm::log("Executable Type: RETAIL");
 
     return segment != NULL;
 }

@@ -3,12 +3,19 @@
 
 #include "../../redasm.h"
 
-#define XBE_MAGIC_NUMBER          0x48454258 // 'XBEH'
-#define XBE_ORDINAL_FLAG          0x80000000
-#define XBE_ENTRYPOINT_XOR_DEBUG  0x94859D4B
-#define XBE_ENTRYPOINT_XOR_RETAIL 0xA8FC57AB
-#define XBE_KERNEL_XOR_DEBUG      0xEFB1F152
-#define XBE_KERNEL_XOR_RETAIL     0x5B6D40B6
+#define XBE_MAGIC_NUMBER               0x48454258 // 'XBEH'
+#define XBE_ORDINAL_FLAG               0x80000000
+#define XBE_ENTRYPOINT_XOR_DEBUG       0x94859D4B
+#define XBE_ENTRYPOINT_XOR_RETAIL      0xA8FC57AB
+#define XBE_KERNEL_XOR_DEBUG           0xEFB1F152
+#define XBE_KERNEL_XOR_RETAIL          0x5B6D40B6
+
+#define XBE_GAME_REGION_NA             0x00000001
+#define XBE_GAME_REGION_JAPAN          0x00000002
+#define XBE_GAME_REGION_RESTOFWORLD    0x00000004
+#define XBE_GAME_REGION_MANUFACTURING  0x80000000
+
+#define XBE_TITLENAME_SIZE        40
 
 namespace REDasm {
 
@@ -38,6 +45,16 @@ struct XbeImageHeader
     u32 KernelImageThunk, NonKernelImportDirectory;
     u32 NumberOfLibraryVersions, LibraryVersions, XApiVersionAddress;
     u32 LogoBitmap, LogoBitmapSize;
+};
+
+struct XbeCertificate
+{
+    u32 Size, TimeDateStamp, TitleId;
+    u16 TitleName[XBE_TITLENAME_SIZE];
+    u32 AlternateTitleId[0x10];
+    u32 AllowedMedia, GameRegion, GameRatings;
+    u32 DiskNumber, Version;
+    u8 LanKey[16], SignatureKey[16], AltSignatureKey[16][16];
 };
 
 struct XbeSectionHeader

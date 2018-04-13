@@ -18,6 +18,7 @@ class XbeFormat : public FormatPluginT<XbeImageHeader>
         virtual bool load(u8 *rawformat);
 
     private:
+        void displayXbeInfo();
         bool decodeEP(u32 encodedep, address_t &ep);
         bool decodeKernel(u32 encodedthunk, u32 &thunk);
         void loadSections(XbeSectionHeader* sectionhdr);

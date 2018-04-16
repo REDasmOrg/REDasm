@@ -46,28 +46,22 @@ bool GbaRomFormat::load(u8* rawformat)
     this->defineSegment("IWRAM", GBAIWRAM_OFFSET, GBAIWRAM_START_ADDR, GBAIW_SIZE, SegmentTypes::Bss);
     this->defineSegment("ROM", GBAROM_OFFSET, GBAROM_START_ADDR, GBAROM_SIZE, SegmentTypes::Code | SegmentTypes::Data);
 
-    this->defineEntryPoint(get_rom_ep(format->entry_point));
+    this->defineEntryPoint(this->getRomEP(format->entry_point));
     FormatPluginT<GbaRomHeader>::load(rawformat);
     return true;
 }
 
-u32 GbaRomFormat::flags() const
+address_t GbaRomFormat::getRomEP(u32 epbranch)
 {
-    return FormatFlags::IgnoreUnexploredCode; // FIXME
-}
+    if((epbranch & 0x0A000000) != 0x0A000000)
+        return 0;
 
-u32 GbaRomFormat::get_rom_ep(u32 ep_branch)
-{
-  if ((ep_branch & 0x0A000000) != 0x0A000000) {
-    return 0;
-  }
+    u32 epval = (epbranch & 0xFFFFFF);
 
-  u32 ep_val = (ep_branch & 0xFFFFFF);
-  if ((ep_val & 0x800000) != 0) {
-    ep_val |= ~0xFFFFFF;
-  }
+    if((epval & 0x800000) != 0)
+        epval |= ~0xFFFFFF;
 
-  return GBAROM_START_ADDR + 8 + (ep_val * 4); // Due to the pipeline nature of the ARM7TDMI processor, the PC value would be N+8 in ARM-STATE (N = address of the istruction)
+    return GBAROM_START_ADDR + 8 + (epval * 4); // Due to the pipeline nature of the ARM7TDMI processor, the PC value would be N+8 in ARM-STATE (N = address of the istruction)
 }
 
 }

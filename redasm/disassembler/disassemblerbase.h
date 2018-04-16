@@ -70,7 +70,7 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
     Buffer b = this->_buffer;
     b += this->_format->offset(address);
 
-    while(isp(*reinterpret_cast<T*>(b.data)) && !b.eob())
+    while(!b.eob() && isp(*reinterpret_cast<T*>(b.data)))
     {
         count++;
 

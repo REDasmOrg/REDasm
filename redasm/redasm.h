@@ -140,8 +140,8 @@ namespace BlockTypes {
 struct Buffer
 {
     Buffer(): data(NULL), length(0) { }
-    Buffer(u8* data, u64 length): data(data), length(length) { }
-    Buffer(char* data, u64 length): data(reinterpret_cast<u8*>(data)), length(length) { }
+    Buffer(u8* data, s64 length): data(data), length(length) { }
+    Buffer(char* data, s64 length): data(reinterpret_cast<u8*>(data)), length(length) { }
     Buffer operator +(u64 v) const { Buffer b(data, length); b.data += v; b.length -= v; return b; }
     Buffer operator -(u64 v) const { Buffer b(data, length); b.data -= v; b.length += v; return b; }
     Buffer& operator +=(u64 v) { data += v; length -= v; return *this; }
@@ -152,10 +152,10 @@ struct Buffer
     Buffer& operator--() { *this -= 1; return *this; }
     u8 operator[](int index) const { return data[index]; }
     u8 operator*() const { return *data; }
-    bool eob() const { return !length; }
+    bool eob() const { return length <= 0; }
 
     u8* data;
-    u64 length;
+    s64 length;
 };
 
 struct Signature

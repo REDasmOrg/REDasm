@@ -470,7 +470,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b
     InstructionPtr instruction = std::make_shared<Instruction>();
     instruction->address = address;
 
-    if(!this->_assembler->decode(b, instruction))
+    if(!b.eob() || !this->_assembler->decode(b, instruction))
         this->makeInvalidInstruction(instruction, b);
 
     return instruction;

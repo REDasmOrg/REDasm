@@ -190,7 +190,7 @@ std::string DisassemblerBase::readHex(address_t address, u32 count) const
     if(!this->getBuffer(address, data))
         return std::string();
 
-    count = std::min(static_cast<u64>(count), this->_buffer.length);
+    count = std::min(static_cast<s64>(count), this->_buffer.length);
 
     std::stringstream ss;
     ss << std::hex << std::setfill('0');

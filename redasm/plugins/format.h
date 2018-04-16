@@ -8,15 +8,15 @@
 #include "../analyzer/analyzer.h"
 #include "base.h"
 
-#define DECLARE_FORMAT_PLUGIN(T, id) inline FormatPlugin* id##_formatPlugin(u8* data) { return REDasm::declareFormatPlugin<T>(data); }
+#define DECLARE_FORMAT_PLUGIN(T, id) inline FormatPlugin* id##_formatPlugin(u8* data, u64 length) { return REDasm::declareFormatPlugin<T>(data, length); }
 
 namespace REDasm {
 
-template<typename T> T* declareFormatPlugin(u8* data)
+template<typename T> T* declareFormatPlugin(u8* data, u64 length)
 {
     T* t = new T();
 
-    if(t->load(data))
+    if(t->load(data, length))
         return t;
 
     delete t;
@@ -87,7 +87,7 @@ class FormatPluginB: public FormatPluginT<u8>
         virtual bool load(u8* format) { this->_format = format; return FormatPluginT<u8>::load(format); }
 };
 
-typedef std::function<FormatPlugin*(u8*)> FormatPlugin_Entry;
+typedef std::function<FormatPlugin*(u8*, u64)> FormatPlugin_Entry;
 
 }
 

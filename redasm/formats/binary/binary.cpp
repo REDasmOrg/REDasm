@@ -27,7 +27,7 @@ u32 BinaryFormat::flags() const
     return FormatFlags::Binary;
 }
 
-bool BinaryFormat::load(u8 *rawformat)
+bool BinaryFormat::load(u8 *rawformat, u64)
 {
     FormatPluginB::load(rawformat);
     return true;

@@ -27,7 +27,7 @@ class PsxExeFormat: public FormatPluginT<PsxExeHeader>
         virtual u32 bits() const;
         virtual const char* assembler() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
-        virtual bool load(u8 *rawformat);
+        virtual bool load(u8 *rawformat, u64);
 };
 
 DECLARE_FORMAT_PLUGIN(PsxExeFormat, psxexe)

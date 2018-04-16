@@ -39,7 +39,7 @@ class GbaRomFormat: public FormatPluginT<GbaRomHeader>
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;
-        virtual bool load(u8 *rawformat);
+        virtual bool load(u8 *rawformat, u64 length);
 
     private:
         virtual address_t getRomEP(u32 epbranch);

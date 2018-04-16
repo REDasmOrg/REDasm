@@ -15,7 +15,7 @@ class XbeFormat : public FormatPluginT<XbeImageHeader>
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;
-        virtual bool load(u8 *rawformat);
+        virtual bool load(u8 *rawformat, u64);
 
     private:
         void displayXbeInfo();

@@ -25,7 +25,7 @@ const char *XbeFormat::assembler() const
     return "x86_32";
 }
 
-bool XbeFormat::load(u8 *rawformat)
+bool XbeFormat::load(u8 *rawformat, u64)
 {
     XbeImageHeader* format = convert(rawformat);
 

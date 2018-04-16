@@ -121,7 +121,7 @@ void MainWindow::load(const QString& s)
 
 bool MainWindow::checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
 {
-    *format = REDasm::getFormat(reinterpret_cast<u8*>(this->_loadeddata.data()));
+    *format = REDasm::getFormat(reinterpret_cast<u8*>(this->_loadeddata.data()), this->_loadeddata.length());
 
     if((*format)->isBinary()) // Use manual loader
     {

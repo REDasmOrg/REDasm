@@ -55,14 +55,14 @@ void init(const std::string& searchpath)
     REGISTER_ASSEMBLER_PLUGIN(chip8);
 }
 
-FormatPlugin *getFormat(u8 *data)
+FormatPlugin *getFormat(u8 *data, u64 length)
 {
     if(!data)
         return NULL;
 
     for(auto it = formats.begin(); it != formats.end(); it++)
     {
-        FormatPlugin* fp = (*it)(data);
+        FormatPlugin* fp = (*it)(data, length);
 
         if(fp)
             return fp;

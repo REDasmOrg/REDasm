@@ -38,7 +38,7 @@ endianness_t DEXFormat::endianness() const
     return Endianness::BigEndian;
 }
 
-bool DEXFormat::load(u8 *rawformat)
+bool DEXFormat::load(u8 *rawformat, u64)
 {
     DEXHeader* format = convert(rawformat);
 

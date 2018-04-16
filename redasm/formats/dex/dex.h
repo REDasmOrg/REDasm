@@ -18,7 +18,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         virtual u32 bits() const;
         virtual u32 flags() const;
         virtual endianness_t endianness() const;
-        virtual bool load(u8 *rawformat);
+        virtual bool load(u8 *rawformat, u64);
 
     public:
         bool getMethodOffset(u32 idx, offset_t &offset) const;

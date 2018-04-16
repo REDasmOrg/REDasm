@@ -35,7 +35,7 @@ const char *GbaRomFormat::assembler() const
     return "arm"; //"arm7tdmi";
 }
 
-bool GbaRomFormat::load(u8* rawformat)
+bool GbaRomFormat::load(u8* rawformat, u64 length)
 {
     GbaRomHeader* format = convert(rawformat);
 
@@ -44,7 +44,7 @@ bool GbaRomFormat::load(u8* rawformat)
 
     this->defineSegment("EWRAM", GBAEWRAM_OFFSET, GBAEWRAM_START_ADDR, GBAEW_SIZE, SegmentTypes::Bss);
     this->defineSegment("IWRAM", GBAIWRAM_OFFSET, GBAIWRAM_START_ADDR, GBAIW_SIZE, SegmentTypes::Bss);
-    this->defineSegment("ROM", GBAROM_OFFSET, GBAROM_START_ADDR, GBAROM_SIZE, SegmentTypes::Code | SegmentTypes::Data);
+    this->defineSegment("ROM", sizeof(GbaRomHeader), GBAROM_START_ADDR, length - sizeof(GbaRomHeader), SegmentTypes::Code | SegmentTypes::Data);
 
     this->defineEntryPoint(this->getRomEP(format->entry_point));
     FormatPluginT<GbaRomHeader>::load(rawformat);

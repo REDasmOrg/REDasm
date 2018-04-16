@@ -34,7 +34,7 @@ Analyzer *PsxExeFormat::createAnalyzer(DisassemblerAPI *disassembler, const Sign
     return new PsxExeAnalyzer(disassembler, signatures);
 }
 
-bool PsxExeFormat::load(u8* rawformat)
+bool PsxExeFormat::load(u8* rawformat, u64)
 {
     PsxExeHeader* format = convert(rawformat);
 

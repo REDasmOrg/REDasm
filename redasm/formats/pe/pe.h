@@ -27,7 +27,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         virtual const char* assembler() const;
         virtual offset_t offset(address_t address) const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
-        virtual bool load(u8 *rawformat);
+        virtual bool load(u8 *rawformat, u64);
         const DotNetReader *dotNetReader() const;
 
     private:

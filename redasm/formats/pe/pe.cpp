@@ -78,7 +78,7 @@ Analyzer *PeFormat::createAnalyzer(DisassemblerAPI *disassembler, const Signatur
     return new PEAnalyzer(disassembler, signatures);
 }
 
-bool PeFormat::load(u8 *rawformat)
+bool PeFormat::load(u8 *rawformat, u64)
 {
     this->_dosheader = convert(rawformat);
 

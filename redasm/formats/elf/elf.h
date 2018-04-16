@@ -24,7 +24,7 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
         virtual const char* name() const { return "ELF Format"; }
         virtual u32 bits() const;
         virtual const char* assembler() const;
-        virtual bool load(u8* format);
+        virtual bool load(u8* format, u64);
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
 
     protected:
@@ -75,7 +75,7 @@ template<ELF_PARAMS_T> const char* ElfFormat<ELF_PARAMS_D>::assembler() const
     return NULL;
 }
 
-template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load(u8* format)
+template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load(u8* format, u64)
 {
     EHDR* ehdr = this->convert(format);
 

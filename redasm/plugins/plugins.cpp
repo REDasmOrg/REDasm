@@ -11,6 +11,7 @@
 #include FORMAT_PLUGIN(psxexe)
 #include FORMAT_PLUGIN(dex)
 #include FORMAT_PLUGIN(xbe)
+#include FORMAT_PLUGIN(gba)
 
 /* *** Assemblers *** */
 #include ASSEMBLER_PLUGIN(x86)
@@ -39,6 +40,7 @@ void init(const std::string& searchpath)
     REGISTER_FORMAT_PLUGIN(psxexe);
     REGISTER_FORMAT_PLUGIN(dex);
     REGISTER_FORMAT_PLUGIN(xbe);
+    REGISTER_FORMAT_PLUGIN(gbarom);
     REGISTER_FORMAT_PLUGIN(binary); // Always last choice
 
     REGISTER_ASSEMBLER_PLUGIN(x86_16);

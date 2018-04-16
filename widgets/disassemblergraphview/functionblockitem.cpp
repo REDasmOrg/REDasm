@@ -5,13 +5,13 @@
 #include <QPainter>
 #include "../../redasm/disassembler/graph/functiongraph.h"
 
-FunctionBlockItem::FunctionBlockItem(REDasm::Disassembler *disassembler, const QString &theme, REDasm::Graphing::Vertex* v, QObject *parent) : GraphTextItem(v, parent), _disassembler(disassembler)
+FunctionBlockItem::FunctionBlockItem(REDasm::Disassembler *disassembler, REDasm::Graphing::Vertex* v, QObject *parent) : GraphTextItem(v, parent), _disassembler(disassembler)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setPointSize(12);
     font.setStyleHint(QFont::TypeWriter);
     this->setFont(font);
-    this->_graphdocument = new DisassemblerGraphDocument(disassembler, theme, this->document());
+    this->_graphdocument = new DisassemblerGraphDocument(disassembler, this->document());
 }
 
 FunctionBlockItem::~FunctionBlockItem()

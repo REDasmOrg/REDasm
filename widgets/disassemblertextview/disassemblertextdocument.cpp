@@ -1,6 +1,6 @@
 #include "disassemblertextdocument.h"
 
-DisassemblerTextDocument::DisassemblerTextDocument(REDasm::Disassembler *disassembler, const QString &theme, QTextDocument *document, QObject *parent): DisassemblerDocument(disassembler, theme, document, parent), _isvmil(false)
+DisassemblerTextDocument::DisassemblerTextDocument(REDasm::Disassembler *disassembler, QTextDocument *document, QObject *parent): DisassemblerDocument(disassembler, document, parent), _isvmil(false)
 {
 }
 

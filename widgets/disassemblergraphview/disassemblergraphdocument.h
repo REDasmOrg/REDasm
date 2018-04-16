@@ -8,7 +8,7 @@ class DisassemblerGraphDocument : public DisassemblerDocument
     Q_OBJECT
 
     public:
-        explicit DisassemblerGraphDocument(REDasm::Disassembler* disassembler, const QString& theme, QTextDocument *document, QObject* parent = 0);
+        explicit DisassemblerGraphDocument(REDasm::Disassembler* disassembler, QTextDocument *document, QObject* parent = 0);
         virtual void generate(const REDasm::InstructionPtr& instruction, const QTextCursor &cursor);
         virtual void generate(const REDasm::SymbolPtr& symbol, const QTextCursor cursor);
 

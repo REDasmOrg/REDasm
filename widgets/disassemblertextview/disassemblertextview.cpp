@@ -72,7 +72,7 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
         delete this->_disdocument;
 
     this->_disassembler = disassembler;
-    this->_disdocument = new DisassemblerTextDocument(disassembler, "light", this->document(), this);
+    this->_disdocument = new DisassemblerTextDocument(disassembler, this->document(), this);
     this->_highlighter->setHighlightColor(ThemeProvider::highlightColor());
     this->_highlighter->setSeekColor(ThemeProvider::seekColor());
     this->_highlighter->setDottedColor(ThemeProvider::dottedColor());

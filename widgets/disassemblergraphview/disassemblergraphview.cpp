@@ -37,7 +37,7 @@ void DisassemblerGraphView::display(address_t address)
 
 GraphItem *DisassemblerGraphView::createItem(REDasm::Graphing::Vertex *v)
 {
-    FunctionBlockItem* fbi = new FunctionBlockItem(this->_disassembler, "light", v, this);
+    FunctionBlockItem* fbi = new FunctionBlockItem(this->_disassembler, v, this);
     REDasm::FunctionGraphVertex* fgv = static_cast<REDasm::FunctionGraphVertex*>(v);
     REDasm::Listing& listing = this->_functiongraph->listing();
     auto it = listing.find(fgv->start);

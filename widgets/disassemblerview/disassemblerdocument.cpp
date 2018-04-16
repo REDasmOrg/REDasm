@@ -5,7 +5,7 @@
 #define INDENT_COMMENT 10
 #define INDENT_WIDTH 2
 
-DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler, const QString& theme, QTextDocument* textdocument, QObject *parent): QObject(parent)
+DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler, QTextDocument* textdocument, QObject *parent): QObject(parent)
 {
     this->_disassembler = disassembler;
     this->_symbols = disassembler->symbolTable();

@@ -10,7 +10,7 @@ class FunctionBlockItem : public GraphTextItem
     Q_OBJECT
 
     public:
-        FunctionBlockItem(REDasm::Disassembler* disassembler, const QString& theme, REDasm::Graphing::Vertex *v, QObject* parent = NULL);
+        FunctionBlockItem(REDasm::Disassembler* disassembler, REDasm::Graphing::Vertex *v, QObject* parent = NULL);
         ~FunctionBlockItem();
 
    public:

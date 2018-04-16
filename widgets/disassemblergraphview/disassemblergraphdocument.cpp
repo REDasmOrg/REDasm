@@ -1,6 +1,6 @@
 #include "disassemblergraphdocument.h"
 
-DisassemblerGraphDocument::DisassemblerGraphDocument(REDasm::Disassembler *disassembler, const QString &theme, QTextDocument *document, QObject *parent): DisassemblerDocument(disassembler, theme, document, parent)
+DisassemblerGraphDocument::DisassemblerGraphDocument(REDasm::Disassembler *disassembler, QTextDocument *document, QObject *parent): DisassemblerDocument(disassembler, document, parent)
 {
 }
 

@@ -28,7 +28,7 @@ class DisassemblerDocument: public QObject
         enum { NoAction = 0, GotoAction, LabelAction };
 
     public:
-        explicit DisassemblerDocument(REDasm::Disassembler* disassembler, const QString& theme, QTextDocument *document, QObject* parent = 0);
+        explicit DisassemblerDocument(REDasm::Disassembler* disassembler, QTextDocument *document, QObject* parent = 0);
         virtual bool generate(address_t address, const QTextCursor &cursor);
         void update(address_t address);
 

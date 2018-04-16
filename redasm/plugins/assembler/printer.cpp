@@ -127,9 +127,9 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
 
         if(opstr.empty()) // Try with default algorithm...
         {
-           if(operand.is(OperandTypes::Immediate) || operand.is(OperandTypes::Memory))
+           if(operand.is(OperandTypes::Memory) || (instruction->is(InstructionTypes::Branch) && operand.is(OperandTypes::Immediate)))
            {
-                SymbolPtr symbol = this->_symboltable->symbol(operand.is(OperandTypes::Immediate) ? operand.s_value : operand.u_value);
+                SymbolPtr symbol = this->_symboltable->symbol(operand.u_value);
 
                 if(symbol)
                 {
@@ -147,10 +147,12 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
                 else
                     opstr = this->imm(operand);
             }
+            else if(operand.is(OperandTypes::Immediate))
+               opstr = this->imm(operand);
             else if(operand.is(OperandTypes::Displacement))
-                opstr = this->mem(operand.mem);
+               opstr = this->mem(operand.mem);
             else if(operand.is(OperandTypes::Register))
-                opstr = this->reg(operand.reg);
+               opstr = this->reg(operand.reg);
             else
                 continue;
         }

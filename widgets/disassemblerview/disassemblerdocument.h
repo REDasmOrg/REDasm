@@ -44,7 +44,7 @@ class DisassemblerDocument: public QObject
         virtual void appendFunctionStart(const REDasm::SymbolPtr& symbol, bool replace = false);
         virtual void appendInstruction(const REDasm::InstructionPtr& instruction, bool replace = false);
         virtual void appendOperands(const REDasm::InstructionPtr& instruction);
-        virtual REDasm::SymbolPtr appendOperand(const REDasm::Operand& operand, const QString &opsize, const QString& opstr);
+        virtual REDasm::SymbolPtr appendOperand(const REDasm::InstructionPtr &instruction, const REDasm::Operand& operand, const QString &opsize, const QString& opstr);
         virtual void appendAddress(address_t address);
         virtual void appendPathInfo(const REDasm::InstructionPtr &instruction);
         virtual void appendMnemonic(const REDasm::InstructionPtr& instruction);

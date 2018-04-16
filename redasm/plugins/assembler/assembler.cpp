@@ -39,14 +39,16 @@ void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const Instru
 
     if(!symbol || (symbol && !symbol->is(SymbolTypes::Import))) // Don't try to dereference imports
     {
-        if(operand.is(OperandTypes::Memory) && (operand.isRead() || instruction->is(InstructionTypes::Branch)))
+        if(operand.is(OperandTypes::Memory))
         {
-            if(disassembler->dereferencePointer(value, opvalue)) // Try to read pointed memory
+            if((operand.isRead() || instruction->is(InstructionTypes::Branch)) && disassembler->dereferencePointer(value, opvalue)) // Try to read pointed memory
                 symboltable->createLocation(value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
+            else
+                symboltable->createLocation(value, SymbolTypes::Data);
         }
     }
     else if(symbol->is(SymbolTypes::Pointer))
-        disassembler->dereferencePointer(value, opvalue); // read pointed memory
+        disassembler->dereferencePointer(value, opvalue); // Read pointed memory
 
     const Segment* segment = disassembler->format()->segment(opvalue);
 

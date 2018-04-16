@@ -128,7 +128,8 @@ SOURCES += main.cpp\
     widgets/callgraphview/callgraphitem.cpp \
     widgets/graphview/graphviewmetrics.cpp \
     redasm/formats/xbe/xbe.cpp \
-    redasm/support/ordinals.cpp
+    redasm/support/ordinals.cpp \
+    redasm/formats/gba/gba.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -246,7 +247,8 @@ HEADERS  += mainwindow.h \
     widgets/graphview/graphviewmetrics.h \
     redasm/formats/xbe/xbe.h \
     redasm/formats/xbe/xbe_header.h \
-    redasm/support/ordinals.h
+    redasm/support/ordinals.h \
+    redasm/formats/gba/gba.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

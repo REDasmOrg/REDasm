@@ -129,7 +129,8 @@ SOURCES += main.cpp\
     widgets/graphview/graphviewmetrics.cpp \
     redasm/formats/xbe/xbe.cpp \
     redasm/support/ordinals.cpp \
-    redasm/formats/gba/gba.cpp
+    redasm/formats/gba/gba.cpp \
+    redasm/formats/gba/gba_analyzer.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -248,7 +249,8 @@ HEADERS  += mainwindow.h \
     redasm/formats/xbe/xbe.h \
     redasm/formats/xbe/xbe_header.h \
     redasm/support/ordinals.h \
-    redasm/formats/gba/gba.h
+    redasm/formats/gba/gba.h \
+    redasm/formats/gba/gba_analyzer.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

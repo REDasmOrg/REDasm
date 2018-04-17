@@ -1,4 +1,5 @@
 #include "gba.h"
+#include "gba_analyzer.h"
 #include <cstring>
 
 #define GBAEWRAM_START_ADDR  0x02000000
@@ -35,6 +36,11 @@ u32 GbaRomFormat::flags() const
 const char *GbaRomFormat::assembler() const
 {
     return "arm"; //"arm7tdmi";
+}
+
+Analyzer *GbaRomFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
+{
+    return new GbaAnalyzer(disassembler, signatures);
 }
 
 bool GbaRomFormat::load(u8* rawformat, u64 length)

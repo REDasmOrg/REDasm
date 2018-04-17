@@ -40,6 +40,7 @@ class GbaRomFormat: public FormatPluginT<GbaRomHeader>
         virtual u32 bits() const;
         virtual u32 flags() const;
         virtual const char* assembler() const;
+        virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual bool load(u8 *rawformat, u64 length);
 };
 

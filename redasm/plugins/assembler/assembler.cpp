@@ -47,7 +47,7 @@ void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const Instru
                 symboltable->createLocation(value, SymbolTypes::Data);
         }
     }
-    else if(symbol->is(SymbolTypes::Pointer))
+    else if(symbol->is(SymbolTypes::Pointer) && !operand.is(OperandTypes::NoDereference))
         disassembler->dereferencePointer(value, opvalue); // Read pointed memory
 
     const Segment* segment = disassembler->format()->segment(opvalue);

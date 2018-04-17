@@ -135,7 +135,7 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
                 {
                     SymbolPtr ptrsymbol = NULL;
 
-                    if(symbol->is(SymbolTypes::Pointer))
+                    if(symbol->is(SymbolTypes::Pointer) && !operand.is(OperandTypes::NoDereference))
                     {
                         u64 ptrvalue;
                         ptrsymbol = this->_disassembler->dereferenceSymbol(symbol, &ptrvalue);

@@ -22,8 +22,9 @@ VMILInstructionDef instructions[] = { VMIL_INSTRUCTION(ADD, Add),
                                       VMIL_INSTRUCTION_T(STM, Stm, Store),
                                       VMIL_INSTRUCTION_T(BISZ, Bisz, Compare),
                                       VMIL_INSTRUCTION_TB(JCC, Jcc, Jump, Conditional),
-                                      VMIL_INSTRUCTION(NOP, Nop),
+                                      VMIL_INSTRUCTION_T(DEF, Def, None),
                                       VMIL_INSTRUCTION_T(UNDEF, Undef, None),
+                                      VMIL_INSTRUCTION(NOP, Nop),
                                       VMIL_INSTRUCTION_T(UNKN, Unkn, None) };
 
 VMILInstructionPtr emitInstruction(const REDasm::InstructionPtr& instruction, vmilopcode_t opcode, u64 index) {

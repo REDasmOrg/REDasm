@@ -80,6 +80,7 @@ class Emulator
         void emulateStm(const VMILInstructionPtr& instruction);
         void emulateBisz(const VMILInstructionPtr& instruction);
         void emulateJcc(const VMILInstructionPtr& instruction);
+        void emulateDef(const VMILInstructionPtr& instruction);
         void emulateUndef(const VMILInstructionPtr& instruction);
 
     protected:

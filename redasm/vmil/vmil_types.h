@@ -18,8 +18,9 @@
 #define VMIL_INS_STM   "stm"
 #define VMIL_INS_BISZ  "bisz"
 #define VMIL_INS_JCC   "jcc"
-#define VMIL_INS_NOP   "nop"
+#define VMIL_INS_DEF   "def"
 #define VMIL_INS_UNDEF "undef"
+#define VMIL_INS_NOP   "nop"
 #define VMIL_INS_UNKN  "unkn"
 
 #define VMIL_REG_OPERAND                             0x8000000000000000
@@ -43,7 +44,8 @@ enum Opcodes: u32
     And, Or, Xor,                      // Bitwise Opcodes
     Str, Ldm, Stm,                     // Data Transfer Opcodes
     Bisz, Jcc,                         // Logical Opcodes
-    Nop, Undef, Unkn,                  // Other Opcodes
+    Def, Undef,                        // Register Opcodes
+    Nop, Unkn,                         // Other Opcodes
 };
 
 struct VMILInstructionDef { std::string mnemonic; u32 id, type; };

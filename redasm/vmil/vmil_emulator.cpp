@@ -31,6 +31,7 @@ Emulator::Emulator(DisassemblerAPI *disassembler): _defregister(VMIL_REGISTER_ID
     SET_EXECUTE_OPCODE(Stm);
     SET_EXECUTE_OPCODE(Bisz);
     SET_EXECUTE_OPCODE(Jcc);
+    SET_EXECUTE_OPCODE(Def);
     SET_EXECUTE_OPCODE(Undef);
 
     SET_NULL_OPCODE(Nop);
@@ -94,7 +95,7 @@ bool Emulator::emulate(const InstructionPtr &instruction)
         auto it = this->_opmap.find(vminstruction->id);
 
         if(it == this->_opmap.end()) {
-            REDasm::log("Cannot emulate '" + vminstruction->mnemonic + "' instruction");
+            REDasm::log("VMIL: Cannot emulate '" + vminstruction->mnemonic + "' instruction");
             return;
         }
 
@@ -302,7 +303,7 @@ u64 Emulator::readMemory(address_t address, u64 size, bool* ok)
 {
     if(!size)
     {
-        REDasm::log("Invalid read size @ " + REDasm::hex(address));
+        REDasm::log("VMIL: Invalid read size @ " + REDasm::hex(address));
         *ok = false;
         return 0;
     }
@@ -391,7 +392,19 @@ void Emulator::emulateStm(const VMILInstructionPtr &instruction)
 void Emulator::emulateJcc(const VMILInstructionPtr &instruction)
 {
     u64 cond = this->read(instruction->operands[0]);
-    instruction->cmt("Jumps condition to " + REDasm::hex(this->read(instruction->operands[1])) + " = " + (cond ? "TRUE" : "FALSE"));
+    REDasm::log("VMIL: Jump @ " + REDasm::hex(instruction->address) + " condition to " +
+                                  REDasm::hex(this->read(instruction->operands[1])) + " = " + (cond ? "TRUE" : "FALSE"));
+}
+
+void Emulator::emulateDef(const VMILInstructionPtr &instruction)
+{
+    register_t r = instruction->op(0).reg.r;
+    auto it = this->_registers.find(r);
+
+    if(it != this->_registers.end())
+        it->second = 0;
+    else
+        this->_registers[r] = 0;
 }
 
 void Emulator::emulateUndef(const VMILInstructionPtr &instruction)

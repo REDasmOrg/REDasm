@@ -41,9 +41,6 @@ class GbaRomFormat: public FormatPluginT<GbaRomHeader>
         virtual u32 flags() const;
         virtual const char* assembler() const;
         virtual bool load(u8 *rawformat, u64 length);
-
-    private:
-        virtual address_t getRomEP(u32 epbranch);
 };
 
 DECLARE_FORMAT_PLUGIN(GbaRomFormat, gbarom)

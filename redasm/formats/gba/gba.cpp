@@ -1,17 +1,14 @@
 #include "gba.h"
 #include <cstring>
 
-#define GBAROM_OFFSET 0
-#define GBAROM_START_ADDR 0x8000000
-#define GBAROM_SIZE 0x2000000
+#define GBAEWRAM_START_ADDR  0x02000000
+#define GBA_EWROM_SIZE       0x00030000
 
-#define GBAEWRAM_OFFSET 0
-#define GBAEWRAM_START_ADDR 0x2000000
-#define GBAEW_SIZE 0x40000
+#define GBA_IWRAM_START_ADDR 0x03000000
+#define GBA_IWRAM_SIZE       0x00007FFF
 
-#define GBAIWRAM_OFFSET 0
-#define GBAIWRAM_START_ADDR 0x3000000
-#define GBAIW_SIZE 0x80000
+#define GBA_ROM_START_ADDR   0x08000000
+#define GBA_ROM_SIZE         0x02000000
 
 namespace REDasm {
 
@@ -47,26 +44,13 @@ bool GbaRomFormat::load(u8* rawformat, u64 length)
     if(!(format->fixed_val == 0x96)) // no signature/magic number is present in GBA ROMS
         return false;
 
-    this->defineSegment("EWRAM", GBAEWRAM_OFFSET, GBAEWRAM_START_ADDR, GBAEW_SIZE, SegmentTypes::Bss);
-    this->defineSegment("IWRAM", GBAIWRAM_OFFSET, GBAIWRAM_START_ADDR, GBAIW_SIZE, SegmentTypes::Bss);
-    this->defineSegment("ROM", sizeof(GbaRomHeader), GBAROM_START_ADDR, length - sizeof(GbaRomHeader), SegmentTypes::Code | SegmentTypes::Data);
+    this->defineSegment("EWRAM", 0, GBAEWRAM_START_ADDR, GBA_EWROM_SIZE, SegmentTypes::Bss);
+    this->defineSegment("IWRAM", 0, GBA_IWRAM_START_ADDR, GBA_IWRAM_SIZE, SegmentTypes::Bss);
+    this->defineSegment("ROM", 0, GBA_ROM_START_ADDR, length, SegmentTypes::Code | SegmentTypes::Data);
 
-    this->defineEntryPoint(this->getRomEP(format->entry_point));
+    this->defineEntryPoint(GBA_ROM_START_ADDR); // Let REDasm decode and follow the "EP Field"
     FormatPluginT<GbaRomHeader>::load(rawformat);
     return true;
-}
-
-address_t GbaRomFormat::getRomEP(u32 epbranch)
-{
-    if((epbranch & 0x0A000000) != 0x0A000000)
-        return 0;
-
-    u32 epval = (epbranch & 0xFFFFFF);
-
-    if((epval & 0x800000) != 0)
-        epval |= ~0xFFFFFF;
-
-    return GBAROM_START_ADDR + 8 + (epval * 4); // Due to the pipeline nature of the ARM7TDMI processor, the PC value would be N+8 in ARM-STATE (N = address of the istruction)
 }
 
 }

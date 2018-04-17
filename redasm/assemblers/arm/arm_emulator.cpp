@@ -12,14 +12,34 @@ ARMEmulator::ARMEmulator(DisassemblerAPI *disassembler): VMIL::Emulator(disassem
 
 void ARMEmulator::translateLdr(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
-    vminstruction = VMIL::emitStr(instruction, VMIL_INSTRUCTION_I(vminstructions));
+    vminstruction = VMIL::emitDef(instruction, VMIL_INSTRUCTION_I(vminstructions));
+    vminstruction->op(instruction->op(0));
+    vminstructions.push_back(vminstruction);
+
+    vminstruction = VMIL::emitLdm(instruction, VMIL_INSTRUCTION_I(vminstructions));
     vminstruction->op(instruction->op(0));
     vminstruction->op(instruction->op(1));
+    vminstruction->op(1).type |= OperandTypes::NoDereference;
+    vminstruction->op_size(1, OperandSizes::Dword);
     vminstructions.push_back(vminstruction);
 }
 
 void ARMEmulator::translateBranch(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
+    if(instruction->id == ARM_INS_BX)
+    {
+        /*
+         * From ARM Documentation:
+         *  Bits 0 and 1 of the address of any ARM instruction are ignored because these bits refer to the halfword and byte part of the address.
+         */
+
+        vminstruction = VMIL::emitAnd(instruction, VMIL_INSTRUCTION_I(vminstructions));
+        vminstruction->op(instruction->op(0));
+        vminstruction->op(instruction->op(0));
+        vminstruction->imm(-1 ^ 3);
+        vminstructions.push_back(vminstruction);
+    }
+
     vminstruction = VMIL::emitJcc(instruction, VMIL_INSTRUCTION_I(vminstructions));
     vminstruction->imm(VMIL_TRUE);
     vminstruction->op(instruction->op(0));

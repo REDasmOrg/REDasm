@@ -17,7 +17,7 @@ const char *ARMAssembler::name() const
 
 u32 ARMAssembler::flags() const
 {
-    return AssemblerFlags::HasVMIL;
+    return AssemblerFlags::HasVMIL | AssemblerFlags::EmulateVMIL;
 }
 
 bool ARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
@@ -77,6 +77,7 @@ void ARMAssembler::analyzeInstruction(const InstructionPtr &instruction, cs_insn
         }
 
         case ARM_INS_BL:
+        case ARM_INS_BX:
         {
             instruction->type = InstructionTypes::Call;
             instruction->target_op(0);

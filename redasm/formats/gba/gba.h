@@ -38,6 +38,7 @@ class GbaRomFormat: public FormatPluginT<GbaRomHeader>
         GbaRomFormat();
         virtual const char* name() const;
         virtual u32 bits() const;
+        virtual u32 flags() const;
         virtual const char* assembler() const;
         virtual bool load(u8 *rawformat, u64 length);
 

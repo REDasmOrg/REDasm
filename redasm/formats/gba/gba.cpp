@@ -30,6 +30,11 @@ u32 GbaRomFormat::bits() const
     return 32;
 }
 
+u32 GbaRomFormat::flags() const
+{
+    return FormatFlags::IgnoreUnexploredCode;
+}
+
 const char *GbaRomFormat::assembler() const
 {
     return "arm"; //"arm7tdmi";

@@ -100,16 +100,17 @@ namespace InstructionTypes {
 
 namespace OperandTypes {
     enum: u32 {
-        None         = 0x00000000,
-        Register     = 0x00000001,  // Register
-        Immediate    = 0x00000002,  // Immediate Value
-        Memory       = 0x00000004,  // Direct Memory Pointer
-        Displacement = 0x00000008,  // Indirect Memory Pointer
+        None          = 0x00000000,
+        Register      = 0x00000001,  // Register
+        Immediate     = 0x00000002,  // Immediate Value
+        Memory        = 0x00000004,  // Direct Memory Pointer
+        Displacement  = 0x00000008,  // Indirect Memory Pointer
 
-        Local        = 0x00010000,  // Local Variable
-        Argument     = 0x00020000,  // Function Argument
-        Read         = 0x00100000,  // Read from...
-        Write        = 0x00200000,  // Write to...
+        Local         = 0x00010000,  // Local Variable
+        Argument      = 0x00020000,  // Function Argument
+        Read          = 0x00100000,  // Read from...
+        Write         = 0x00200000,  // Write to...
+        NoDereference = 0x00400000,  // Don't dereference pointer
     };
 }
 
@@ -225,6 +226,8 @@ struct Operand
 
     void r() { type |= OperandTypes::Read;  }
     void w() { type |= OperandTypes::Write; }
+    void nr() { type &= ~OperandTypes::Read;  }
+    void nw() { type &= ~OperandTypes::Write; }
     bool is(u32 t) const { return type & t; }
     bool isRead() const  { return this->is(OperandTypes::Read);  }
     bool isWrite() const { return this->is(OperandTypes::Write); }

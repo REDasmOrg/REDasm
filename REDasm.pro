@@ -130,7 +130,8 @@ SOURCES += main.cpp\
     redasm/formats/xbe/xbe.cpp \
     redasm/support/ordinals.cpp \
     redasm/formats/gba/gba.cpp \
-    redasm/formats/gba/gba_analyzer.cpp
+    redasm/formats/gba/gba_analyzer.cpp \
+    redasm/assemblers/arm/arm_emulator.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -250,7 +251,8 @@ HEADERS  += mainwindow.h \
     redasm/formats/xbe/xbe_header.h \
     redasm/support/ordinals.h \
     redasm/formats/gba/gba.h \
-    redasm/formats/gba/gba_analyzer.h
+    redasm/formats/gba/gba_analyzer.h \
+    redasm/assemblers/arm/arm_emulator.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

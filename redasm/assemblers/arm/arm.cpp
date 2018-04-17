@@ -1,4 +1,5 @@
 #include "arm.h"
+#include "arm_emulator.h"
 
 #define ARM_REGISTER(reg) ((reg == ARM_REG_INVALID) ? REGISTER_INVALID : reg)
 
@@ -12,6 +13,11 @@ ARMAssembler::ARMAssembler(): CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_ARM>(
 const char *ARMAssembler::name() const
 {
     return "ARM";
+}
+
+u32 ARMAssembler::flags() const
+{
+    return AssemblerFlags::HasVMIL;
 }
 
 bool ARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
@@ -43,6 +49,11 @@ bool ARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
 
     this->analyzeInstruction(instruction, insn);
     return true;
+}
+
+VMIL::Emulator *ARMAssembler::createEmulator(DisassemblerAPI *disassembler) const
+{
+    return new ARMEmulator(disassembler);
 }
 
 bool ARMAssembler::isPC(register_t reg) const

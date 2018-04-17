@@ -1,7 +1,6 @@
 #ifndef PSXEXE_ANALYZER_H
 #define PSXEXE_ANALYZER_H
 
-#include <unordered_map>
 #include "../../analyzer/analyzer.h"
 
 namespace REDasm {

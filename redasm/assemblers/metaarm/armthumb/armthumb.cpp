@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-ARMThumbAssembler::ARMThumbAssembler()
+ARMThumbAssembler::ARMThumbAssembler(): CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_THUMB>()
 {
 
 }

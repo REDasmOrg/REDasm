@@ -10,6 +10,21 @@ ARMEmulator::ARMEmulator(DisassemblerAPI *disassembler): VMIL::Emulator(disassem
     VMIL_TRANSLATE_OPCODE(ARM_INS_BX, Branch);
 }
 
+bool ARMEmulator::emulate(const InstructionPtr &instruction)
+{
+    if(VMIL::Emulator::emulate(instruction))
+    {
+        if(instruction->id == ARM_INS_BX)
+        {
+
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 void ARMEmulator::translateLdr(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
     vminstruction = VMIL::emitDef(instruction, VMIL_INSTRUCTION_I(vminstructions));

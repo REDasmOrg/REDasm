@@ -66,7 +66,6 @@ SOURCES += main.cpp\
     redasm/formats/pe/vb/vb_analyzer.cpp \
     redasm/formats/pe/vb/vb_components.cpp \
     redasm/formats/pe/pe_imports.cpp \
-    redasm/assemblers/arm/arm.cpp \
     redasm/disassembler/disassemblerbase.cpp \
     redasm/disassembler/types/listing.cpp \
     redasm/disassembler/types/referencetable.cpp \
@@ -99,7 +98,6 @@ SOURCES += main.cpp\
     redasm/assemblers/mips/mips_quirks.cpp \
     redasm/assemblers/mips/mips_printer.cpp \
     redasm/assemblers/x86/x86_printer.cpp \
-    redasm/assemblers/arm/arm_printer.cpp \
     redasm/assemblers/chip8/chip8_printer.cpp \
     redasm/assemblers/chip8/chip8_emulator.cpp \
     redasm/assemblers/mips/mips_emulator.cpp \
@@ -131,8 +129,11 @@ SOURCES += main.cpp\
     redasm/support/ordinals.cpp \
     redasm/formats/gba/gba.cpp \
     redasm/formats/gba/gba_analyzer.cpp \
-    redasm/assemblers/arm/arm_emulator.cpp \
-    redasm/assemblers/armthumb/armthumb.cpp
+    redasm/assemblers/metaarm/metaarm.cpp \
+    redasm/assemblers/metaarm/arm/arm.cpp \
+    redasm/assemblers/metaarm/arm/arm_emulator.cpp \
+    redasm/assemblers/metaarm/arm/arm_printer.cpp \
+    redasm/assemblers/metaarm/armthumb/armthumb.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -172,7 +173,6 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/vb/vb_header.h \
     redasm/formats/pe/vb/vb_components.h \
     redasm/formats/pe/pe_imports.h \
-    redasm/assemblers/arm/arm.h \
     redasm/disassembler/disassemblerbase.h \
     redasm/disassembler/types/listing.h \
     redasm/disassembler/types/referencetable.h \
@@ -209,7 +209,6 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/mips/mips_printer.h \
     redasm/assemblers/mips/mips_quirks.h \
     redasm/assemblers/x86/x86_printer.h \
-    redasm/assemblers/arm/arm_printer.h \
     redasm/assemblers/chip8/chip8_emulator.h \
     redasm/assemblers/chip8/chip8_printer.h \
     redasm/assemblers/chip8/chip8_registers.h \
@@ -253,8 +252,11 @@ HEADERS  += mainwindow.h \
     redasm/support/ordinals.h \
     redasm/formats/gba/gba.h \
     redasm/formats/gba/gba_analyzer.h \
-    redasm/assemblers/arm/arm_emulator.h \
-    redasm/assemblers/armthumb/armthumb.h
+    redasm/assemblers/metaarm/metaarm.h \
+    redasm/assemblers/metaarm/arm/arm.h \
+    redasm/assemblers/metaarm/arm/arm_emulator.h \
+    redasm/assemblers/metaarm/arm/arm_printer.h \
+    redasm/assemblers/metaarm/armthumb/armthumb.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

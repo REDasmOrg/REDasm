@@ -1,7 +1,7 @@
 #ifndef ARM_PRINTER_H
 #define ARM_PRINTER_H
 
-#include "../../plugins/assembler/printer.h"
+#include "../../../plugins/assembler/printer.h"
 
 namespace REDasm {
 

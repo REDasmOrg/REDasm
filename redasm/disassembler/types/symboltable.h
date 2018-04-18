@@ -43,7 +43,7 @@ struct Symbol
 
     u32 type, extra_type;
     address_t address;
-    std::string name;
+    std::string name, cpu;
 
     bool is(u32 t) const { return type & t; }
     bool isFunction() const { return type & SymbolTypes::FunctionMask; }

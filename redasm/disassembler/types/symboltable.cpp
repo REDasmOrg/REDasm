@@ -10,6 +10,7 @@ void SymbolCache::serialize(const SymbolPtr &value, std::fstream &fs)
     Serializer::serializeScalar(fs, value->extra_type);
     Serializer::serializeScalar(fs, value->address);
     Serializer::serializeString(fs, value->name);
+    Serializer::serializeString(fs, value->cpu);
 }
 
 void SymbolCache::deserialize(SymbolPtr &value, std::fstream &fs)
@@ -19,6 +20,7 @@ void SymbolCache::deserialize(SymbolPtr &value, std::fstream &fs)
     Serializer::deserializeScalar(fs, &value->extra_type);
     Serializer::deserializeScalar(fs, &value->address);
     Serializer::deserializeString(fs, value->name);
+    Serializer::deserializeString(fs, value->cpu);
 }
 
 // SymbolTable

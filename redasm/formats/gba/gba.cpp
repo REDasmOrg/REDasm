@@ -35,7 +35,7 @@ u32 GbaRomFormat::flags() const
 
 const char *GbaRomFormat::assembler() const
 {
-    return "arm"; //"arm7tdmi";
+    return "metaarm";
 }
 
 Analyzer *GbaRomFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const

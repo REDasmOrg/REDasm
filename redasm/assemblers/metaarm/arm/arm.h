@@ -1,7 +1,7 @@
 #ifndef ARM_H
 #define ARM_H
 
-#include "../../plugins/plugins.h"
+#include "../../../plugins/plugins.h"
 #include "arm_printer.h"
 
 namespace REDasm {

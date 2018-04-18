@@ -125,7 +125,7 @@ SymbolPtr Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symb
 
     SymbolPtr symbol = symboltable->symbol(target), impsymbol = symboltable->symbol(importaddress);
 
-    if(symbol)
+    if(symbol && impsymbol)
         symboltable->update(symbol, "imp." + impsymbol->name);
 
     return impsymbol;

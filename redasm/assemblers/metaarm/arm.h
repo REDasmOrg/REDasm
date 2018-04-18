@@ -1,8 +1,8 @@
 #ifndef ARM_H
 #define ARM_H
 
-#include "../../../plugins/plugins.h"
-#include "arm_printer.h"
+#include "../../plugins/plugins.h"
+#include "metaarm_printer.h"
 
 namespace REDasm {
 
@@ -14,7 +14,7 @@ class ARMAssembler: public CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_ARM>
         virtual u32 flags() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual VMIL::Emulator* createEmulator(DisassemblerAPI *disassembler) const;
-        virtual Printer* createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const { return new ARMPrinter(this->_cshandle, disassembler, symboltable); }
+        virtual Printer* createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const;
 
     private:
         bool isPC(register_t reg) const;

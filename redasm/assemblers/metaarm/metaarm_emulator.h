@@ -1,14 +1,14 @@
-#ifndef ARM_EMULATOR_H
-#define ARM_EMULATOR_H
+#ifndef METAARM_EMULATOR_H
+#define METAARM_EMULATOR_H
 
-#include "../../../vmil/vmil_emulator.h"
+#include "../../vmil/vmil_emulator.h"
 
 namespace REDasm {
 
-class ARMEmulator : public VMIL::Emulator
+class MetaARMEmulator : public VMIL::Emulator
 {
     public:
-        ARMEmulator(DisassemblerAPI* disassembler);
+        MetaARMEmulator(DisassemblerAPI* disassembler);
         virtual bool emulate(const InstructionPtr &instruction);
 
     private:
@@ -18,4 +18,4 @@ class ARMEmulator : public VMIL::Emulator
 
 } // namespace REDasm
 
-#endif // ARM_EMULATOR_H
+#endif // METAARM_EMULATOR_H

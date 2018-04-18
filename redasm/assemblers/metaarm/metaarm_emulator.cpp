@@ -1,31 +1,21 @@
-#include "arm_emulator.h"
+#include "metaarm_emulator.h"
 #include <capstone.h>
 
 namespace REDasm {
 
-ARMEmulator::ARMEmulator(DisassemblerAPI *disassembler): VMIL::Emulator(disassembler)
+MetaARMEmulator::MetaARMEmulator(DisassemblerAPI *disassembler): VMIL::Emulator(disassembler)
 {
     VMIL_TRANSLATE_OPCODE(ARM_INS_LDR, Ldr);
     VMIL_TRANSLATE_OPCODE(ARM_INS_B, Branch);
     VMIL_TRANSLATE_OPCODE(ARM_INS_BX, Branch);
 }
 
-bool ARMEmulator::emulate(const InstructionPtr &instruction)
+bool MetaARMEmulator::emulate(const InstructionPtr &instruction)
 {
-    if(VMIL::Emulator::emulate(instruction))
-    {
-        if(instruction->id == ARM_INS_BX)
-        {
-
-        }
-
-        return true;
-    }
-
-    return false;
+    return VMIL::Emulator::emulate(instruction);
 }
 
-void ARMEmulator::translateLdr(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
+void MetaARMEmulator::translateLdr(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
     vminstruction = VMIL::emitDef(instruction, VMIL_INSTRUCTION_I(vminstructions));
     vminstruction->op(instruction->op(0));
@@ -39,21 +29,18 @@ void ARMEmulator::translateLdr(const InstructionPtr &instruction, VMIL::VMILInst
     vminstructions.push_back(vminstruction);
 }
 
-void ARMEmulator::translateBranch(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
+void MetaARMEmulator::translateBranch(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
+    /*
     if(instruction->id == ARM_INS_BX)
     {
-        /*
-         * From ARM Documentation:
-         *  Bits 0 and 1 of the address of any ARM instruction are ignored because these bits refer to the halfword and byte part of the address.
-         */
-
         vminstruction = VMIL::emitAnd(instruction, VMIL_INSTRUCTION_I(vminstructions));
         vminstruction->op(instruction->op(0));
         vminstruction->op(instruction->op(0));
         vminstruction->imm(-1 ^ 3);
         vminstructions.push_back(vminstruction);
     }
+    */
 
     vminstruction = VMIL::emitJcc(instruction, VMIL_INSTRUCTION_I(vminstructions));
     vminstruction->imm(VMIL_TRUE);

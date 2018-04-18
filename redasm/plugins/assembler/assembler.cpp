@@ -88,6 +88,11 @@ void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const Instru
     disassembler->pushReference(opvalue, instruction);
 }
 
+void AssemblerPlugin::prepare(const InstructionPtr &instruction)
+{
+    RE_UNUSED(instruction);
+}
+
 bool AssemblerPlugin::decode(Buffer buffer, const InstructionPtr &instruction)
 {
     std::stringstream ss;

@@ -1,7 +1,7 @@
 #ifndef ARMTHUMB_H
 #define ARMTHUMB_H
 
-#include "../../../plugins/plugins.h"
+#include "../../plugins/plugins.h"
 
 namespace REDasm {
 
@@ -16,4 +16,4 @@ DECLARE_ASSEMBLER_PLUGIN(ARMThumbAssembler, armthumb)
 
 } // namespace REDasm
 
-#endif // ARMTHUMB_ASSEMBLER_H
+#endif // ARMTHUMB_H

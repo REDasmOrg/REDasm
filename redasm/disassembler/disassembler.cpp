@@ -415,12 +415,6 @@ bool Disassembler::dataToString(address_t address)
     return this->_symboltable->update(symbol, "str_" + REDasm::hex(address, 0, false));
 }
 
-InstructionPtr Disassembler::disassembleInstruction(address_t address)
-{
-    Buffer b = this->_buffer + this->_format->offset(address);
-    return this->disassembleInstruction(address, b);
-}
-
 void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Operand& operand)
 {
     address_t address = operand.mem.displacement;
@@ -449,8 +443,7 @@ bool Disassembler::disassemble(address_t address)
 
         REDasm::status("Disassembling @ " + REDasm::hex(address, this->_format->bits(), false));
 
-        Buffer b = this->_buffer + this->_format->offset(address);
-        instruction = this->disassembleInstruction(address, b); // Disassemble single instruction
+        instruction = this->disassembleInstruction(address);    // Disassemble single instruction
         this->_listing.commit(address, instruction);            // Mark address as decoded
         this->analyzeInstruction(instruction);                  // Analyze instruction operands
 
@@ -465,10 +458,13 @@ bool Disassembler::disassemble(address_t address)
     return true;
 }
 
-InstructionPtr Disassembler::disassembleInstruction(address_t address, Buffer& b)
+InstructionPtr Disassembler::disassembleInstruction(address_t address)
 {
     InstructionPtr instruction = std::make_shared<Instruction>();
     instruction->address = address;
+    this->_assembler->prepare(instruction);
+
+    Buffer b = this->_buffer + this->_format->offset(instruction->address);
 
     if(b.eob() || !this->_assembler->decode(b, instruction))
         this->makeInvalidInstruction(instruction, b);

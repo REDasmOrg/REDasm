@@ -130,10 +130,10 @@ SOURCES += main.cpp\
     redasm/formats/gba/gba.cpp \
     redasm/formats/gba/gba_analyzer.cpp \
     redasm/assemblers/metaarm/metaarm.cpp \
-    redasm/assemblers/metaarm/arm/arm.cpp \
-    redasm/assemblers/metaarm/arm/arm_emulator.cpp \
-    redasm/assemblers/metaarm/arm/arm_printer.cpp \
-    redasm/assemblers/metaarm/armthumb/armthumb.cpp
+    redasm/assemblers/metaarm/metaarm_printer.cpp \
+    redasm/assemblers/metaarm/metaarm_emulator.cpp \
+    redasm/assemblers/metaarm/arm.cpp \
+    redasm/assemblers/metaarm/armthumb.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -253,10 +253,10 @@ HEADERS  += mainwindow.h \
     redasm/formats/gba/gba.h \
     redasm/formats/gba/gba_analyzer.h \
     redasm/assemblers/metaarm/metaarm.h \
-    redasm/assemblers/metaarm/arm/arm.h \
-    redasm/assemblers/metaarm/arm/arm_emulator.h \
-    redasm/assemblers/metaarm/arm/arm_printer.h \
-    redasm/assemblers/metaarm/armthumb/armthumb.h
+    redasm/assemblers/metaarm/metaarm_printer.h \
+    redasm/assemblers/metaarm/metaarm_emulator.h \
+    redasm/assemblers/metaarm/arm.h \
+    redasm/assemblers/metaarm/armthumb.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

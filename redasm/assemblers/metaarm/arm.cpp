@@ -1,5 +1,5 @@
 #include "arm.h"
-#include "arm_emulator.h"
+#include "metaarm_emulator.h"
 
 #define ARM_REGISTER(reg) ((reg == ARM_REG_INVALID) ? REGISTER_INVALID : reg)
 
@@ -53,7 +53,12 @@ bool ARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
 
 VMIL::Emulator *ARMAssembler::createEmulator(DisassemblerAPI *disassembler) const
 {
-    return new ARMEmulator(disassembler);
+    return new MetaARMEmulator(disassembler);
+}
+
+Printer *ARMAssembler::createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const
+{
+     return new MetaARMPrinter(this->_cshandle, disassembler, symboltable);
 }
 
 bool ARMAssembler::isPC(register_t reg) const

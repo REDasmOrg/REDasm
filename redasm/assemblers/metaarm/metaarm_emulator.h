@@ -9,7 +9,6 @@ class MetaARMEmulator : public VMIL::Emulator
 {
     public:
         MetaARMEmulator(DisassemblerAPI* disassembler);
-        virtual bool emulate(const InstructionPtr &instruction);
 
     private:
         void translateLdr(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMIL::VMILInstructionList& vminstructions) const;

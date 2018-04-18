@@ -133,7 +133,8 @@ SOURCES += main.cpp\
     redasm/assemblers/metaarm/metaarm_printer.cpp \
     redasm/assemblers/metaarm/metaarm_emulator.cpp \
     redasm/assemblers/metaarm/arm.cpp \
-    redasm/assemblers/metaarm/armthumb.cpp
+    redasm/assemblers/metaarm/armthumb.cpp \
+    redasm/assemblers/metaarm/arm_common.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -256,7 +257,8 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/metaarm/metaarm_printer.h \
     redasm/assemblers/metaarm/metaarm_emulator.h \
     redasm/assemblers/metaarm/arm.h \
-    redasm/assemblers/metaarm/armthumb.h
+    redasm/assemblers/metaarm/armthumb.h \
+    redasm/assemblers/metaarm/arm_common.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

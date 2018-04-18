@@ -10,6 +10,7 @@ class ARMThumbAssembler : public CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_TH
     public:
         ARMThumbAssembler();
         virtual const char* name() const;
+        virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
 };
 
 DECLARE_ASSEMBLER_PLUGIN(ARMThumbAssembler, armthumb)

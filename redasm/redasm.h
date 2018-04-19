@@ -228,6 +228,7 @@ struct Operand
     void w() { type |= OperandTypes::Write; }
     void nr() { type &= ~OperandTypes::Read;  }
     void nw() { type &= ~OperandTypes::Write; }
+    void changeTo(u32 from, u32 to) { type &= ~from; type |= to; }
     bool is(u32 t) const { return type & t; }
     bool isRead() const  { return this->is(OperandTypes::Read);  }
     bool isWrite() const { return this->is(OperandTypes::Write); }

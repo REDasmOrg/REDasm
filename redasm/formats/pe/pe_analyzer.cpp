@@ -92,14 +92,14 @@ void PEAnalyzer::findWndProc(Listing &listing, address_t address, size_t argidx)
             if(arg == argidx)
             {
                 FormatPlugin* format = listing.format();
-                address_t address = instruction->operands[0].u_value;
-                Segment* segment = format->segment(address);
+                Operand& op = instruction->op(0);
+                Segment* segment = format->segment(op.u_value);
 
                 if(segment && segment->is(SegmentTypes::Code))
                 {
                     SymbolTable* symboltable = listing.symbolTable();
-                    SymbolPtr symbol = symboltable->symbol(address);
-                    std::string name = "DlgProc_" + REDasm::hex(address, 0, false);
+                    SymbolPtr symbol = symboltable->symbol(op.u_value);
+                    std::string name = "DlgProc_" + REDasm::hex(op.u_value, 0, false);
 
                     if(symbol)
                     {
@@ -107,7 +107,10 @@ void PEAnalyzer::findWndProc(Listing &listing, address_t address, size_t argidx)
                         symboltable->update(symbol, name);
                     }
                     else
-                        symboltable->createFunction(address, name);
+                        symboltable->createFunction(op.u_value, name);
+
+                    op.changeTo(OperandTypes::Immediate, OperandTypes::Memory);
+                    listing.update(instruction);
                 }
             }
         }

@@ -85,6 +85,9 @@ QVariant ReferencesModel::dataSymbolRefs(const QModelIndex &index, int role) con
     REDasm::SymbolTable* symboltable = this->_disassembler->symbolTable();
     REDasm::SymbolPtr symbol = symboltable->symbol(this->_references[index.row()]);
 
+    if(!symbol)
+        return QVariant();
+
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)

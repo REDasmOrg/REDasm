@@ -74,7 +74,7 @@ void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const Instru
         else
             disassembler->checkJumpTable(instruction, operand);
     }
-    else if(segment->is(SegmentTypes::Data))
+    else if(segment->is(SegmentTypes::Data) || segment->is(SegmentTypes::Bss))
     {
         disassembler->checkLocation(instruction, opvalue); // Create Symbol + XRefs
         return;
@@ -214,13 +214,17 @@ void AssemblerPlugin::analyzeRegisterBranch(address_t target, DisassemblerAPI *d
         return;
     }
 
+    Segment* segment = disassembler->format()->segment(target);
+
+    if(!segment || !segment->is(SegmentTypes::Code))
+        return;
+
     if(instruction->is(InstructionTypes::Call))
         disassembler->symbolTable()->createFunction(target);
     else
         disassembler->symbolTable()->createLocation(target, SymbolTypes::Code);
 
     SymbolPtr symbol = disassembler->symbolTable()->symbol(target);
-
     instruction->target(target);
     instruction->cmt("VMIL = " + symbol->name);
     disassembler->pushReference(symbol, instruction); // Updates instruction

@@ -22,8 +22,8 @@
 #define GBA_VRAM_START_ADDR    0x06000000
 #define GBA_VRAM_SIZE          0x00017FFF
 
-#define GBA_OAMRAM_START_ADDR  0x07000000
-#define GBA_OAMRAM_SIZE        0x000003FF
+#define GBA_OAM_START_ADDR     0x07000000
+#define GBA_OAM_SIZE           0x000003FF
 
 #define GBA_ROM_START_ADDR     0x08000000
 #define GBA_ROM_SIZE           0x02000000
@@ -75,7 +75,7 @@ bool GbaRomFormat::load(u8* rawformat, u64 length)
     this->defineSegment("IOREG", 0, GBA_SEGMENT_AREA(IOREG), SegmentTypes::Bss);
     this->defineSegment("PALETTE", 0, GBA_SEGMENT_AREA(PALETTE), SegmentTypes::Bss);
     this->defineSegment("VRAM", 0, GBA_SEGMENT_AREA(VRAM), SegmentTypes::Bss);
-    this->defineSegment("OAMRAM", 0, GBA_SEGMENT_AREA(OAMRAM), SegmentTypes::Bss);
+    this->defineSegment("OAM", 0, GBA_SEGMENT_AREA(OAM), SegmentTypes::Bss);
     this->defineSegment("ROM", 0, GBA_ROM_START_ADDR, length, SegmentTypes::Code | SegmentTypes::Data);
 
     this->defineEntryPoint(GBA_ROM_START_ADDR); // Let REDasm decode and follow the "EP Field"

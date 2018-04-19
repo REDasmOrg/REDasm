@@ -4,12 +4,15 @@
 #include <unordered_map>
 #include <string>
 #include "../../redasm.h"
-#include "pe_ordinals.h"
+#include "../../support/ordinals.h"
 
 namespace REDasm {
 
 class PEImports
 {
+    private:
+        typedef std::map<std::string, OrdinalsMap> ResolveMap;
+
     private:
         PEImports();
         static void loadImport(std::string dllname);

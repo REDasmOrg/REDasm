@@ -85,7 +85,6 @@ SOURCES += main.cpp\
     widgets/disassemblergraphview/disassemblergraphdocument.cpp \
     widgets/disassemblergraphview/functionblockitem.cpp \
     redasm/redasm.cpp \
-    redasm/formats/pe/pe_ordinals.cpp \
     redasm/formats/pe/pe_resources.cpp \
     redasm/formats/pe/borland/borland_version.cpp \
     dialogs/manualloaddialog.cpp \
@@ -195,7 +194,6 @@ HEADERS  += mainwindow.h \
     widgets/disassemblertextview/disassemblertextdocument.h \
     widgets/disassemblergraphview/disassemblergraphdocument.h \
     widgets/disassemblergraphview/functionblockitem.h \
-    redasm/formats/pe/pe_ordinals.h \
     redasm/formats/pe/pe_resources.h \
     redasm/formats/pe/borland/borland_types.h \
     redasm/formats/pe/borland/borland_version.h \

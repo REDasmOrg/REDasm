@@ -1,8 +1,11 @@
 #include "pe_imports.h"
 
+#define LOAD_ORDINALS(dll, jsonfile) { _libraries[dll] = OrdinalsMap(); \
+                                     REDasm::loadordinals(REDasm::makeFormatPath("pe", #jsonfile".json"), _libraries[dll]); }
+
 namespace REDasm {
 
-ResolveMap PEImports::_libraries;
+PEImports::ResolveMap PEImports::_libraries;
 
 PEImports::PEImports()
 {
@@ -29,21 +32,14 @@ void PEImports::loadImport(std::string dllname)
 bool PEImports::importName(const std::string &dllname, u16 ordinal, std::string &name)
 {
     PEImports::loadImport(dllname);
-    auto lit = _libraries.find(dllname);
 
-    if(lit != _libraries.end())
-    {
-        OrdinalMap& ordinalmap = lit->second;
-        auto oit = ordinalmap.find(ordinal);
+    auto it = _libraries.find(dllname);
 
-        if(oit == ordinalmap.end())
-            return false;
+    if(it == _libraries.end())
+        return false;
 
-        name = oit->second;
-        return true;
-    }
-
-    return false;
+    name = REDasm::ordinal(it->second, ordinal);
+    return true;
 }
 
 } // namespace REDasm

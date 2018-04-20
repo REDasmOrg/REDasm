@@ -158,6 +158,18 @@ bool SymbolTable::update(SymbolPtr symbol, const std::string& name)
     return true;
 }
 
+void SymbolTable::lock(address_t address)
+{
+    auto it = this->_byaddress.find(address);
+
+    if(it == this->_byaddress.end())
+        return;
+
+    SymbolPtr symbol = *it;
+    symbol->lock();
+    this->_byaddress.commit(symbol->address, symbol);
+}
+
 void SymbolTable::sort()
 {
     std::sort(this->_addresses.begin(), this->_addresses.end(), std::less<address_t>());

@@ -70,8 +70,8 @@ void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const Instru
     }
     else if(instruction->is(InstructionTypes::Call) && instruction->hasTargets() && (operand.index == instruction->target_idx))
     {
-        disassembler->pushReference(value, instruction);
-        disassembler->disassembleFunction(value);
+        if(disassembler->disassembleFunction(value))
+            disassembler->pushReference(value, instruction);
     }
     else
     {

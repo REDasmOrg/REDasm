@@ -397,22 +397,33 @@ void Listing::walk(address_t startaddress, Listing::FunctionPath &path)
 
             it++;
 
-            if((it == this->end()) || this->isFunctionStart((*it)->address))
+            if(it == this->end())
                 break;
+
+            SymbolPtr symbol = this->isFunctionStart((*it)->address);
+
+            if(symbol)
+            {
+                // Override unreferenced/unlocked functions
+                if(symbol->isLocked() || this->_referencetable->hasReferences((*it)->address))
+                    break;
+
+                this->_symboltable->erase((*it)->address);
+            }
         }
     }
 
     this->_assembler->popState();
 }
 
-bool Listing::isFunctionStart(address_t address)
+SymbolPtr Listing::isFunctionStart(address_t address)
 {
     SymbolPtr symbol = this->_symboltable->symbol(address);
 
     if(!symbol)
-        return false;
+        return NULL;
 
-    return symbol->isFunction();
+    return symbol->isFunction() ? symbol : NULL;
 }
 
 Listing::FunctionPaths::iterator Listing::findFunction(address_t address)

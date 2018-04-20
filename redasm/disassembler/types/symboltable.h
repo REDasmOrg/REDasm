@@ -47,6 +47,7 @@ struct Symbol
 
     bool is(u32 t) const { return type & t; }
     bool isFunction() const { return type & SymbolTypes::FunctionMask; }
+    bool isLocked() const { return type & SymbolTypes::Locked; }
 };
 
 typedef std::shared_ptr<Symbol> SymbolPtr;
@@ -80,6 +81,7 @@ class SymbolTable
         void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
         bool erase(address_t address);
         bool update(SymbolPtr symbol, const std::string &name);
+        void lock(address_t address);
         void sort();
 
     public:

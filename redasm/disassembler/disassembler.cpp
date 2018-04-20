@@ -292,12 +292,22 @@ bool Disassembler::maybeValidCode(address_t& address)
     return false;
 }
 
-void Disassembler::disassembleFunction(address_t address, const std::string &name)
+bool Disassembler::disassembleFunction(address_t address, const std::string &name)
 {
+    Segment* segment = this->_format->segment(address);
+
+    if(!segment || !segment->is(SegmentTypes::Code))
+        return false;
+
     SymbolPtr symbol = this->_symboltable->symbol(address);
 
     if(symbol && symbol->isFunction())
-        return;
+    {
+        if(!symbol->isLocked())
+            this->_symboltable->update(symbol, name);
+
+        return true;
+    }
 
     auto it = this->_listing.find(address);
 
@@ -311,8 +321,6 @@ void Disassembler::disassembleFunction(address_t address, const std::string &nam
 
     if(name.empty())
     {
-        Segment* segment = this->_format->segment(address);
-
         if(segment != this->_format->entryPointSegment())
             this->_symboltable->createFunction(address, segment);
         else
@@ -323,6 +331,7 @@ void Disassembler::disassembleFunction(address_t address, const std::string &nam
 
     this->disassemble(address);
     this->_listing.checkBounds(address);
+    return true;
 }
 
 void Disassembler::disassemble()

@@ -51,7 +51,7 @@ class Listing: public cache_map<address_t, InstructionPtr>
     private:
         void walk(address_t startaddress, FunctionPath &path);
         void updateBlockInfo(FunctionPath& path);
-        bool isFunctionStart(address_t address);
+        SymbolPtr isFunctionStart(address_t address);
         FunctionPaths::iterator findFunction(address_t address);
 
     private:

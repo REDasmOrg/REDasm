@@ -109,7 +109,7 @@ u8 GbaRomFormat::calculateChecksum(GbaRomHeader *gbaheader)
 
 bool GbaRomFormat::validateRom(GbaRomHeader *gbaheader, u64 length)
 {
-    if((gbaheader->fixed_val != 0x96) && (length < GBA_ROM_HEADER_SIZE))
+    if((gbaheader->fixed_val != 0x96) || (length < GBA_ROM_HEADER_SIZE))
         return false;
 
     if(!GbaRomFormat::isUppercaseAscii(gbaheader->game_title, GBA_GAME_TITLE_SIZE))

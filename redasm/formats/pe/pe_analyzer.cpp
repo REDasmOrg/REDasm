@@ -97,17 +97,8 @@ void PEAnalyzer::findWndProc(Listing &listing, address_t address, size_t argidx)
 
                 if(segment && segment->is(SegmentTypes::Code))
                 {
-                    SymbolTable* symboltable = listing.symbolTable();
-                    SymbolPtr symbol = symboltable->symbol(op.u_value);
-                    std::string name = "DlgProc_" + REDasm::hex(op.u_value, 0, false);
-
-                    if(symbol)
-                    {
-                        symbol->type = SymbolTypes::Function;
-                        symboltable->update(symbol, name);
-                    }
-                    else
-                        symboltable->createFunction(op.u_value, name);
+                    this->_disassembler->disassembleFunction(op.u_value, "DlgProc_" + REDasm::hex(op.u_value, 0, false));
+                    listing.symbolTable()->lock(op.u_value);
                 }
             }
         }

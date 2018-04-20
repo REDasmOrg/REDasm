@@ -40,7 +40,7 @@ DisassemblerTest::DisassemblerTest()
     ADD_TEST_PATH("PE Test/CM01.exe", testCM01);
     ADD_TEST_PATH("PE Test/VB5CRKME.EXE", testVB5CrackMe);
     ADD_TEST_PATH("PE Test/OllyDump.dll", testOllyDump);
-    ADD_TEST_PATH("PE Test/tn_11.exe", testJumpTables);
+    ADD_TEST_PATH("PE Test/tn_11.exe", testTn11);
     ADD_TEST_PATH("IOLI-crackme/bin-pocketPC/crackme0x01.arm.exe", testIoliARM);
     ADD_TEST_PATH("PE Test/tn12/scrack.exe", testSCrack);
 
@@ -297,12 +297,22 @@ void DisassemblerTest::testIoliARM(Disassembler *disassembler)
     TEST("Checking dereferenced value", disassembler->dereferencePointer(symbol->address, &value) && (value == 0x149a));
 }
 
-void DisassemblerTest::testJumpTables(Disassembler *disassembler)
+void DisassemblerTest::testTn11(Disassembler *disassembler)
 {
     SymbolTable* symboltable = disassembler->symbolTable();
     Listing& listing = disassembler->listing();
 
-    auto it = listing.find(0x00401197);
+    auto it = listing.find(0x004010C0);
+    TEST("Checking DlgProc @ 0x00401197", it != listing.end());
+
+    if(it != listing.end())
+    {
+        address_t endaddress = 0;
+        TEST("Check DlgProc bounds @ 0x00401197", listing.getFunctionBounds(it.key, NULL, &endaddress) &&
+                                                  endaddress == 0x0040131F);
+    }
+
+    it = listing.find(0x00401197);
     TEST("Checking JUMP TABLE @ 0x00401197", it != listing.end());
 
     InstructionPtr instruction = *it;

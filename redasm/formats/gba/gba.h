@@ -3,21 +3,21 @@
 
 #include "../../plugins/plugins.h"
 
-#define GBAROM_HEADER_SIZE 192
-#define NINTENDO_LOGO_SIZE 156
-#define GAME_TITLE_SIZE 12
-#define GAME_CODE_SIZE 4
-#define MAKER_CODE_SIZE 2
+#define GBA_ROM_HEADER_SIZE    192
+#define GBA_NINTENDO_LOGO_SIZE 156
+#define GBA_GAME_TITLE_SIZE    12
+#define GBA_GAME_CODE_SIZE     4
+#define GBA_MAKER_CODE_SIZE    2
 
 namespace REDasm {
 
 struct GbaRomHeader // From: http://problemkaputt.de/gbatek.htm#gbacartridgeheader
 {
     u32 entry_point;
-    u8 nintendo_logo[NINTENDO_LOGO_SIZE];
-    u8 game_title[GAME_TITLE_SIZE];
-    u8 game_code[GAME_CODE_SIZE];
-    u8 maker_code[MAKER_CODE_SIZE];
+    u8 nintendo_logo[GBA_NINTENDO_LOGO_SIZE];
+    char game_title[GBA_GAME_TITLE_SIZE];
+    char game_code[GBA_GAME_CODE_SIZE];
+    char maker_code[GBA_MAKER_CODE_SIZE];
     u8 fixed_val;
     u8 main_unit_code;
     u8 device_type;
@@ -42,6 +42,11 @@ class GbaRomFormat: public FormatPluginT<GbaRomHeader>
         virtual const char* assembler() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual bool load(u8 *rawformat, u64 length);
+
+    private:
+        static bool isUppercaseAscii(const char* s, size_t c);
+        static u8 calculateChecksum(GbaRomHeader* gbaheader);
+        bool validateRom(GbaRomHeader* gbaheader, u64 length);
 };
 
 DECLARE_FORMAT_PLUGIN(GbaRomFormat, gbarom)

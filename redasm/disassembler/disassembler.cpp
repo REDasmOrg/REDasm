@@ -303,7 +303,7 @@ bool Disassembler::disassembleFunction(address_t address, const std::string &nam
 
     if(symbol && symbol->isFunction())
     {
-        if(!symbol->isLocked())
+        if(!name.empty() && !symbol->isLocked())
             this->_symboltable->update(symbol, name);
 
         return true;

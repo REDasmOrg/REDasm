@@ -1,6 +1,7 @@
 #include "gba.h"
 #include "gba_analyzer.h"
 #include <cstring>
+#include <cctype>
 
 // https://www.reinterpretcast.com/writing-a-game-boy-advance-game
 
@@ -63,7 +64,7 @@ bool GbaRomFormat::load(u8* rawformat, u64 length)
 {
     GbaRomHeader* format = convert(rawformat);
 
-    if(!(format->fixed_val == 0x96)) // no signature/magic number is present in GBA ROMS
+    if(!this->validateRom(format, length))
         return false;
 
     this->defineSegment("EWRAM", 0, GBA_SEGMENT_AREA(EWRAM), SegmentTypes::Bss);
@@ -77,6 +78,50 @@ bool GbaRomFormat::load(u8* rawformat, u64 length)
     this->defineEntryPoint(GBA_ROM_START_ADDR); // Let REDasm decode and follow the "EP Field"
     FormatPluginT<GbaRomHeader>::load(rawformat);
     return true;
+}
+
+bool GbaRomFormat::isUppercaseAscii(const char *s, size_t c)
+{
+    for(size_t i = 0; i < c; i++)
+    {
+        if(std::isupper(s[i]) || std::ispunct(s[i]) || std::isdigit(s[i]))
+            continue;
+
+        if(!s[i] && i) // Reached '\0'
+            break;
+
+        return false;
+    }
+
+    return true;
+}
+
+u8 GbaRomFormat::calculateChecksum(GbaRomHeader *gbaheader)
+{
+    u8* header = reinterpret_cast<u8*>(gbaheader);
+    u8 checksum = 0;
+
+    for(size_t i = 0xA0; i <= 0xBC; i++)
+        checksum -= header[i];
+
+    return checksum - 0x19;
+}
+
+bool GbaRomFormat::validateRom(GbaRomHeader *gbaheader, u64 length)
+{
+    if((gbaheader->fixed_val != 0x96) && (length < GBA_ROM_HEADER_SIZE))
+        return false;
+
+    if(!GbaRomFormat::isUppercaseAscii(gbaheader->game_title, GBA_GAME_TITLE_SIZE))
+        return false;
+
+    if(!GbaRomFormat::isUppercaseAscii(gbaheader->game_code, GBA_GAME_CODE_SIZE))
+        return false;
+
+    if(!GbaRomFormat::isUppercaseAscii(gbaheader->maker_code, GBA_MAKER_CODE_SIZE))
+        return false;
+
+    return gbaheader->header_checksum == GbaRomFormat::calculateChecksum(gbaheader);
 }
 
 }

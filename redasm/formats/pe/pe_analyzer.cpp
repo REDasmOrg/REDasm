@@ -108,9 +108,6 @@ void PEAnalyzer::findWndProc(Listing &listing, address_t address, size_t argidx)
                     }
                     else
                         symboltable->createFunction(op.u_value, name);
-
-                    op.changeTo(OperandTypes::Immediate, OperandTypes::Memory);
-                    listing.update(instruction);
                 }
             }
         }

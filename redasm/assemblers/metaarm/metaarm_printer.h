@@ -9,7 +9,6 @@ class MetaARMPrinter: public CapstonePrinter
 {
     public:
         MetaARMPrinter(csh cshandle, DisassemblerAPI* disassembler, SymbolTable* symboltable);
-        virtual std::string ptr(const std::string &expr) const;
 };
 
 } // namespace REDasm

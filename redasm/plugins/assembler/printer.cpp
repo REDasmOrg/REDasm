@@ -82,7 +82,7 @@ void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc) const
 
         u64 value = 0;
 
-        if(!this->_disassembler->readAddress(symbol->address, formatplugin->addressWidth(), value))
+        if(!this->_disassembler->readAddress(symbol->address, formatplugin->addressWidth(), &value))
             return;
 
         symbolfunc(symbol, REDasm::hex(value, formatplugin->addressWidth()));
@@ -127,30 +127,10 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
 
         if(opstr.empty()) // Try with default algorithm...
         {
-           if(operand.is(OperandTypes::Memory) || (instruction->is(InstructionTypes::Branch) && operand.is(OperandTypes::Immediate)))
-           {
-                SymbolPtr symbol = this->_symboltable->symbol(operand.u_value);
-
-                if(symbol)
-                {
-                    SymbolPtr ptrsymbol = NULL;
-
-                    if(symbol->is(SymbolTypes::Pointer) && !operand.is(OperandTypes::NoDereference))
-                    {
-                        u64 ptrvalue;
-                        ptrsymbol = this->_disassembler->dereferenceSymbol(symbol, &ptrvalue);
-                        opstr = this->ptr(ptrsymbol ? ptrsymbol->name : REDasm::hex(ptrvalue));
-                    }
-                    else
-                        opstr = symbol->name;
-                }
-                else
-                    opstr = this->imm(operand);
-            }
-            else if(operand.is(OperandTypes::Immediate))
+           if(operand.isNumeric())
                opstr = this->imm(operand);
             else if(operand.is(OperandTypes::Displacement))
-               opstr = this->mem(operand.mem);
+               opstr = this->disp(operand.disp);
             else if(operand.is(OperandTypes::Register))
                opstr = this->reg(operand.reg);
             else
@@ -176,32 +156,32 @@ std::string Printer::reg(const RegisterOperand &regop) const
     return "$" + std::to_string(regop.r);
 }
 
-std::string Printer::mem(const MemoryOperand &memop) const
+std::string Printer::disp(const DisplacementOperand &dispop) const
 {
     std::string s;
 
-    if(memop.base.isValid())
-        s += this->reg(memop.base);
+    if(dispop.base.isValid())
+        s += this->reg(dispop.base);
 
-    if(memop.index.isValid())
+    if(dispop.index.isValid())
     {
         if(!s.empty())
             s += " + ";
 
-        s += this->reg(memop.index);
+        s += this->reg(dispop.index);
 
-        if(memop.scale > 1)
-            s += " * " + REDasm::hex(memop.scale);
+        if(dispop.scale > 1)
+            s += " * " + REDasm::hex(dispop.scale);
     }
 
-    if(memop.displacement)
+    if(dispop.displacement)
     {
-        SymbolPtr symbol = this->_symboltable->symbol(memop.displacement);
+        SymbolPtr symbol = this->_symboltable->symbol(dispop.displacement);
 
-        if(!s.empty() && ((memop.displacement > 0) || symbol))
+        if(!s.empty() && ((dispop.displacement > 0) || symbol))
             s += " + ";
 
-        s += symbol ? symbol->name : REDasm::hex(memop.displacement);
+        s += symbol ? symbol->name : REDasm::hex(dispop.displacement);
     }
 
     if(!s.empty())
@@ -210,25 +190,20 @@ std::string Printer::mem(const MemoryOperand &memop) const
     return std::string();
 }
 
-std::string Printer::loc(const Operand &op) const
+std::string Printer::loc(const Operand &operand) const
 {
-    RE_UNUSED(op);
+    RE_UNUSED(operand);
     return std::string();
 }
 
-std::string Printer::imm(const Operand &op) const
+std::string Printer::imm(const Operand &operand) const
 {
-    if(op.is(OperandTypes::Immediate))
-        return REDasm::hex(op.s_value);
-    else if(op.is(OperandTypes::Memory))
-        return "[" + REDasm::hex(op.u_value) + "]";
+    SymbolPtr symbol = this->_symboltable->symbol(operand.u_value);
 
-    return REDasm::hex(op.u_value);
-}
+    if(operand.is(OperandTypes::Memory))
+        return "[" + (symbol ? symbol->name : REDasm::hex(operand.u_value)) + "]";
 
-std::string Printer::ptr(const std::string &expr) const
-{
-    return expr;
+    return symbol ? symbol->name : REDasm::hex(operand.s_value);
 }
 
 CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerAPI *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable), _cshandle(cshandle)

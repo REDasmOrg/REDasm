@@ -32,36 +32,28 @@ void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const Instru
         this->analyzeRegister(disassembler, instruction, operand);
         return;
     }
+    else if(!operand.isNumeric())
+        return;
 
-    SymbolTable* symboltable = disassembler->symbolTable();
-    u64 value = operand.is(OperandTypes::Displacement) ? operand.mem.displacement : operand.u_value, opvalue = value;
-    SymbolPtr symbol = symboltable->symbol(value);
-
-    if(!symbol || (symbol && !symbol->is(SymbolTypes::Import))) // Don't try to dereference imports
-    {
-        if(operand.is(OperandTypes::Memory))
-        {
-            if((operand.isRead() || instruction->is(InstructionTypes::Branch)) && disassembler->dereferencePointer(value, opvalue)) // Try to read pointed memory
-                symboltable->createLocation(value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
-            else
-                symboltable->createLocation(value, SymbolTypes::Data);
-        }
-    }
-    else if(symbol->is(SymbolTypes::Pointer) && !operand.is(OperandTypes::NoDereference))
-        disassembler->dereferencePointer(value, opvalue); // Read pointed memory
-
-    const Segment* segment = disassembler->format()->segment(opvalue);
+    u64 value = operand.u_value;
+    const Segment* segment = disassembler->format()->segment(value);
 
     if(!segment)
         return;
 
-    if(instruction->is(InstructionTypes::Call) && instruction->hasTargets() && (operand.index == instruction->target_idx))
-        disassembler->disassembleFunction(opvalue);
-    else if(instruction->is(InstructionTypes::Jump))
+    SymbolTable* symboltable = disassembler->symbolTable();
+
+    if(operand.isRead() && disassembler->dereferenceOperand(operand, &value))
     {
-        if(!operand.is(OperandTypes::Displacement) || operand.mem.displacementOnly())
+        symboltable->createLocation(operand.u_value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
+        disassembler->pushReference(operand.u_value, instruction);
+    }
+
+    if(instruction->is(InstructionTypes::Jump))
+    {
+        if(!operand.is(OperandTypes::Memory))
         {
-            int dir = BRANCH_DIRECTION(instruction, opvalue);
+            int dir = BRANCH_DIRECTION(instruction, value);
 
             if(dir < 0)
                 instruction->cmt("Possible loop");
@@ -69,23 +61,34 @@ void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const Instru
                 instruction->cmt("Infinite loop");
 
             disassembler->updateInstruction(instruction);
-            symboltable->createLocation(opvalue, SymbolTypes::Code);
+            symboltable->createLocation(value, SymbolTypes::Code);
         }
         else
             disassembler->checkJumpTable(instruction, operand);
-    }
-    else if(segment->is(SegmentTypes::Data) || segment->is(SegmentTypes::Bss))
-    {
-        disassembler->checkLocation(instruction, opvalue); // Create Symbol + XRefs
-        return;
-    }
-    else if(segment->is(SegmentTypes::Code))
-    {
-        disassembler->checkString(instruction, opvalue); // Create Symbol + XRefs
-        return;
-    }
 
-    disassembler->pushReference(opvalue, instruction);
+        disassembler->pushReference(value, instruction);
+    }
+    else if(instruction->is(InstructionTypes::Call) && instruction->hasTargets() && (operand.index == instruction->target_idx))
+    {
+        disassembler->pushReference(value, instruction);
+        disassembler->disassembleFunction(value);
+    }
+    else
+    {
+        Segment* segment = disassembler->format()->segment(value);
+
+        if(!segment)
+            return;
+
+        if(segment->is(SegmentTypes::Data) || segment->is(SegmentTypes::Bss))
+            disassembler->checkLocation(instruction, value); // Create Symbol + XRefs
+        else if(segment->is(SegmentTypes::Code))
+            disassembler->checkString(instruction, value);   // Create Symbol + XRefs
+        else
+            return;
+
+        disassembler->pushReference(value, instruction);
+    }
 }
 
 void AssemblerPlugin::prepare(const InstructionPtr &instruction)

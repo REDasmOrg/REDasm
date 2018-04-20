@@ -4,9 +4,6 @@
 
 // https://www.reinterpretcast.com/writing-a-game-boy-advance-game
 
-#define GBA_SYSROM_START_ADDR  0x00000000
-#define GBA_SYSROM_SIZE        0x00003FFF
-
 #define GBA_EWRAM_START_ADDR   0x02000000
 #define GBA_EWRAM_SIZE         0x00030000
 
@@ -69,7 +66,6 @@ bool GbaRomFormat::load(u8* rawformat, u64 length)
     if(!(format->fixed_val == 0x96)) // no signature/magic number is present in GBA ROMS
         return false;
 
-    this->defineSegment("SYSROM", 0, GBA_SEGMENT_AREA(SYSROM), SegmentTypes::Bss);
     this->defineSegment("EWRAM", 0, GBA_SEGMENT_AREA(EWRAM), SegmentTypes::Bss);
     this->defineSegment("IWRAM", 0, GBA_SEGMENT_AREA(IWRAM), SegmentTypes::Bss);
     this->defineSegment("IOREG", 0, GBA_SEGMENT_AREA(IOREG), SegmentTypes::Bss);

@@ -38,7 +38,7 @@ bool Disassembler::canBeJumpTable(address_t address) const
 {
     address_t cbaddress = 0;
 
-    if(!this->readAddress(address, this->_format->bits() / 8, cbaddress))
+    if(!this->readAddress(address, this->_format->bits() / 8, &cbaddress))
         return false;
 
     Segment* segment = this->_format->segment(cbaddress);
@@ -52,7 +52,7 @@ size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t 
     size_t sz = this->_format->bits() / 8;
     SymbolPtr jmpsymbol = this->_symboltable->symbol(address);
 
-    while(this->readAddress(address, sz, target))
+    while(this->readAddress(address, sz, &target))
     {
         Segment* segment = this->_format->segment(target);
 
@@ -179,7 +179,7 @@ void Disassembler::searchStrings(const Segment &segment)
                 address += this->readString(address).size();
             }
 
-            if(this->readAddress(address, wide ? sizeof(u16) : sizeof(char), value) && !value) // Check for null terminator
+            if(this->readAddress(address, wide ? sizeof(u16) : sizeof(char), &value) && !value) // Check for null terminator
                 address += (wide ? sizeof(u16) : sizeof(char));
 
             continue;
@@ -208,7 +208,7 @@ bool Disassembler::skipExploredData(address_t &address)
         else
             address += this->readString(symbol).size();
 
-        if(this->readAddress(address, wide ? sizeof(u16) : sizeof(char), value) && !value) // Check for null terminator
+        if(this->readAddress(address, wide ? sizeof(u16) : sizeof(char), &value) && !value) // Check for null terminator
             address += (wide ? sizeof(u16) : sizeof(char));
 
         return true;
@@ -236,7 +236,7 @@ bool Disassembler::skipPadding(address_t &address)
     address_t startaddress = address;
     u64 value = 0;
 
-    while(this->readAddress(address, this->_format->addressWidth(), value) && !value)
+    while(this->readAddress(address, this->_format->addressWidth(), &value) && !value)
         address += this->_format->addressWidth();
 
     return address != startaddress;
@@ -254,7 +254,7 @@ bool Disassembler::maybeValidCode(address_t& address)
 
     u64 value = 0;
 
-    if(!this->readAddress(address, this->_format->addressWidth(), value)) // Check for address
+    if(!this->readAddress(address, this->_format->addressWidth(), &value)) // Check for address
     {
         address++;
         return false;
@@ -417,13 +417,15 @@ bool Disassembler::dataToString(address_t address)
 
 void Disassembler::checkJumpTable(const InstructionPtr &instruction, const Operand& operand)
 {
-    address_t address = operand.mem.displacement;
-    this->_symboltable->createLocation(address, SymbolTypes::Data);
-
-    if(!this->canBeJumpTable(address))
+    if(!operand.is(OperandTypes::Memory))
         return;
 
-    this->walkJumpTable(instruction, address);
+    this->_symboltable->createLocation(operand.u_value, SymbolTypes::Data);
+
+    if(!this->canBeJumpTable(operand.u_value))
+        return;
+
+    this->walkJumpTable(instruction, operand.u_value);
 }
 
 bool Disassembler::disassemble(address_t address)

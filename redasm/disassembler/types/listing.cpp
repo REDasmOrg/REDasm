@@ -299,10 +299,10 @@ void Listing::serialize(const InstructionPtr &value, std::fstream &fs)
         Serializer::serializeScalar(fs, op.reg.extra_type);
         Serializer::serializeScalar(fs, op.reg.r);
 
-        Serializer::serializeScalar(fs, op.mem.base);
-        Serializer::serializeScalar(fs, op.mem.index);
-        Serializer::serializeScalar(fs, op.mem.scale);
-        Serializer::serializeScalar(fs, op.mem.displacement);
+        Serializer::serializeScalar(fs, op.disp.base);
+        Serializer::serializeScalar(fs, op.disp.index);
+        Serializer::serializeScalar(fs, op.disp.scale);
+        Serializer::serializeScalar(fs, op.disp.displacement);
 
         Serializer::serializeScalar(fs, op.u_value);
     });
@@ -344,10 +344,10 @@ void Listing::deserialize(InstructionPtr &value, std::fstream &fs)
         Serializer::deserializeScalar(fs, &op.reg.extra_type);
         Serializer::deserializeScalar(fs, &op.reg.r);
 
-        Serializer::deserializeScalar(fs, &op.mem.base);
-        Serializer::deserializeScalar(fs, &op.mem.index);
-        Serializer::deserializeScalar(fs, &op.mem.scale);
-        Serializer::deserializeScalar(fs, &op.mem.displacement);
+        Serializer::deserializeScalar(fs, &op.disp.base);
+        Serializer::deserializeScalar(fs, &op.disp.index);
+        Serializer::deserializeScalar(fs, &op.disp.scale);
+        Serializer::deserializeScalar(fs, &op.disp.displacement);
 
         Serializer::deserializeScalar(fs, &op.u_value);
     });

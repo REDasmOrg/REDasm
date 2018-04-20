@@ -124,17 +124,17 @@ void Emulator::emitDisplacement(const InstructionPtr &instruction, u32 opidx, VM
 
     VMILInstructionPtr vminstruction = VMIL::emitStr(instruction);
     vminstruction->reg(VMIL_DEFAULT_REGISTER);
-    vminstruction->reg(opmem.mem.base.r, opmem.type);
+    vminstruction->reg(opmem.disp.base.r, opmem.type);
     vminstructions.push_back(vminstruction);
 
-    if(opmem.mem.displacement)
+    if(opmem.disp.displacement)
     {
-        vminstruction = VMIL::emitInstruction(instruction, (opmem.mem.displacement > 0) ? VMIL::Opcodes::Add :
+        vminstruction = VMIL::emitInstruction(instruction, (opmem.disp.displacement > 0) ? VMIL::Opcodes::Add :
                                                                                           VMIL::Opcodes::Sub, VMIL_INSTRUCTION_I(vminstructions));
 
         vminstruction->reg(VMIL_DEFAULT_REGISTER);
         vminstruction->reg(VMIL_DEFAULT_REGISTER);
-        vminstruction->imm(opmem.mem.displacement);
+        vminstruction->imm(opmem.disp.displacement);
         vminstructions.push_back(vminstruction);
     }
 }
@@ -317,7 +317,7 @@ u64 Emulator::readMemory(address_t address, u64 size, bool* ok)
     }
 
     u64 value = 0;
-    *ok = this->_disassembler->readAddress(address, size, value);
+    *ok = this->_disassembler->readAddress(address, size, &value);
     return value;
 }
 

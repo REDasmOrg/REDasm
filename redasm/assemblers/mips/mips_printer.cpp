@@ -16,7 +16,7 @@ std::string MIPSPrinter::reg(const RegisterOperand &regop) const
     return "$" + CapstonePrinter::reg(regop);
 }
 
-std::string MIPSPrinter::mem(const MemoryOperand &memop) const
+std::string MIPSPrinter::disp(const DisplacementOperand &memop) const
 {
     return REDasm::hex(memop.displacement) + "(" + this->reg(memop.base) + ")";
 }

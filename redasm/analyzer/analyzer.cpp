@@ -123,7 +123,7 @@ SymbolPtr Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symb
 
     u64 target = instruction1->operands[1].u_value, importaddress = 0;
 
-    if(!this->_disassembler->readAddress(target, sizeof(u32), importaddress))
+    if(!this->_disassembler->readAddress(target, sizeof(u32), &importaddress))
         return NULL;
 
     SymbolPtr symbol = symboltable->symbol(target), impsymbol = symboltable->symbol(importaddress);

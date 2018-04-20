@@ -7,9 +7,4 @@ MetaARMPrinter::MetaARMPrinter(csh cshandle, DisassemblerAPI *disassembler, Symb
 
 }
 
-std::string MetaARMPrinter::ptr(const std::string &expr) const
-{
-    return "=" + expr;
-}
-
 } // namespace REDasm

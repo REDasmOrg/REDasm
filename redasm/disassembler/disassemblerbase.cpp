@@ -91,7 +91,7 @@ void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_
     u64 target = address;
     u64 stringscount = 0;
 
-    while(this->dereferencePointer(target, target))
+    while(this->dereferencePointer(target, &target))
     {
         if(!this->checkString(instruction, target))
             break;
@@ -167,7 +167,7 @@ std::string DisassemblerBase::readString(const SymbolPtr &symbol) const
 {
     address_t memaddress = 0;
 
-    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, memaddress))
+    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, &memaddress))
         return this->readString(memaddress);
 
     return this->readString(symbol->address);
@@ -177,7 +177,7 @@ std::string DisassemblerBase::readWString(const SymbolPtr &symbol) const
 {
     address_t memaddress = 0;
 
-    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, memaddress))
+    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, &memaddress))
         return this->readWString(memaddress);
 
     return this->readWString(symbol->address);
@@ -201,27 +201,41 @@ std::string DisassemblerBase::readHex(address_t address, u32 count) const
     return ss.str();
 }
 
+bool DisassemblerBase::dereferenceOperand(const Operand &operand, u64 *value) const
+{
+    if(!operand.is(OperandTypes::Memory))
+        return false;
+
+    return this->dereferencePointer(operand.u_value, value);
+}
+
 SymbolPtr DisassemblerBase::dereferenceSymbol(const SymbolPtr& symbol, u64* value)
 {
-    address_t a = 0;
+    address_t address = 0;
     SymbolPtr ptrsymbol;
 
-    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, a))
-        ptrsymbol = this->_symboltable->symbol(a);
+    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, &address))
+        ptrsymbol = this->_symboltable->symbol(address);
 
     if(value)
-        *value = a;
+        *value = address;
 
     return ptrsymbol;
 }
 
-bool DisassemblerBase::dereferencePointer(address_t address, u64 &value) const
+bool DisassemblerBase::dereferencePointer(address_t address, u64 *value) const
 {
+    if(!value)
+        return false;
+
     return this->readAddress(address, this->_format->bits() / 8, value);
 }
 
-bool DisassemblerBase::readAddress(address_t address, size_t size, u64 &value) const
+bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) const
 {
+    if(!value)
+        return false;
+
     Segment* segment = this->_format->segment(address);
 
     if(!segment || segment->is(SegmentTypes::Bss))
@@ -242,18 +256,21 @@ bool DisassemblerBase::getBuffer(address_t address, Buffer &data) const
     return true;
 }
 
-bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 &value) const
+bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 *value) const
 {
+    if(!value)
+        return false;
+
     Buffer pdest = this->_buffer + offset;
 
     if(size == 1)
-        value = *reinterpret_cast<u8*>(pdest.data);
+        *value = *reinterpret_cast<u8*>(pdest.data);
     else if(size == 2)
-        value = *reinterpret_cast<u16*>(pdest.data);
+        *value = *reinterpret_cast<u16*>(pdest.data);
     else if(size == 4)
-        value = *reinterpret_cast<u32*>(pdest.data);
+        *value = *reinterpret_cast<u32*>(pdest.data);
     else if(size == 8)
-        value = *reinterpret_cast<u64*>(pdest.data);
+        *value = *reinterpret_cast<u64*>(pdest.data);
     else
     {
         REDasm::log("Invalid size: " + std::to_string(size));

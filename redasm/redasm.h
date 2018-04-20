@@ -110,7 +110,6 @@ namespace OperandTypes {
         Argument      = 0x00020000,  // Function Argument
         Read          = 0x00100000,  // Read from...
         Write         = 0x00200000,  // Write to...
-        NoDereference = 0x00400000,  // Don't dereference pointer
     };
 }
 
@@ -196,16 +195,14 @@ struct RegisterOperand
     bool isValid() const { return r != REGISTER_INVALID; }
 };
 
-struct MemoryOperand
+struct DisplacementOperand
 {
-    MemoryOperand(): scale(1), displacement(0) { }
-    MemoryOperand(const RegisterOperand& base, const RegisterOperand& index, s32 scale, s64 displacement): base(base), index(index), scale(scale), displacement(displacement) { }
+    DisplacementOperand(): scale(1), displacement(0) { }
+    DisplacementOperand(const RegisterOperand& base, const RegisterOperand& index, s32 scale, s64 displacement): base(base), index(index), scale(scale), displacement(displacement) { }
 
     RegisterOperand base, index;
     s32 scale;
     s64 displacement;
-
-    bool displacementOnly() const { return !base.isValid() && !index.isValid(); }
 };
 
 struct Operand
@@ -220,7 +217,7 @@ struct Operand
     u32 type, extra_type, size;
     s32 index;
     RegisterOperand reg;
-    MemoryOperand mem;
+    DisplacementOperand disp;
 
     union { s64 s_value; u64 u_value; };
 
@@ -229,6 +226,7 @@ struct Operand
     void nr() { type &= ~OperandTypes::Read;  }
     void nw() { type &= ~OperandTypes::Write; }
     void changeTo(u32 from, u32 to) { type &= ~from; type |= to; }
+    bool isNumeric() const { return is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
     bool is(u32 t) const { return type & t; }
     bool isRead() const  { return this->is(OperandTypes::Read);  }
     bool isWrite() const { return this->is(OperandTypes::Write); }
@@ -294,8 +292,17 @@ template<typename T> Instruction& Instruction::disp(register_t base, register_t 
 {
     Operand op;
     op.index = operands.size();
-    op.type = OperandTypes::Displacement;
-    op.mem = MemoryOperand(RegisterOperand(base), RegisterOperand(index), scale, displacement);
+
+    if((base == REGISTER_INVALID) && (index == REGISTER_INVALID))
+    {
+        op.type = OperandTypes::Memory;
+        op.u_value = scale * displacement;
+    }
+    else
+    {
+        op.type = OperandTypes::Displacement;
+        op.disp = DisplacementOperand(RegisterOperand(base), RegisterOperand(index), scale, displacement);
+    }
 
     operands.push_back(op);
     return *this;
@@ -307,7 +314,7 @@ template<typename T> Instruction& Instruction::local(s32 index, register_t base,
     op.index = operands.size();
     op.loc_index = index;
     op.type = OperandTypes::Displacement | type;
-    op.mem = MemoryOperand(RegisterOperand(base), RegisterOperand(index), 1, displacement);
+    op.disp = DisplacementOperand(RegisterOperand(base), RegisterOperand(index), 1, displacement);
 
     operands.push_back(op);
     return *this;

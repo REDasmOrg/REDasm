@@ -19,7 +19,6 @@ void MetaARMEmulator::translateLdr(const InstructionPtr &instruction, VMIL::VMIL
     vminstruction = VMIL::emitLdm(instruction, VMIL_INSTRUCTION_I(vminstructions));
     vminstruction->op(instruction->op(0));
     vminstruction->op(instruction->op(1));
-    vminstruction->op(1).type |= OperandTypes::NoDereference;
     vminstruction->op_size(1, OperandSizes::Dword);
     vminstructions.push_back(vminstruction);
 }

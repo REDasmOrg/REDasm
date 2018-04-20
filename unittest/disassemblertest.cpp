@@ -294,7 +294,7 @@ void DisassemblerTest::testIoliARM(Disassembler *disassembler)
 
     symbol = symboltable->symbol(op.u_value);
     TEST_SYMBOL("Checking LDR's operand 2 symbol", symbol, symbol->is(SymbolTypes::Data) && symbol->is(SymbolTypes::Pointer));
-    TEST("Checking dereferenced value", disassembler->dereferencePointer(symbol->address, value) && (value == 0x149a));
+    TEST("Checking dereferenced value", disassembler->dereferencePointer(symbol->address, &value) && (value == 0x149a));
 }
 
 void DisassemblerTest::testJumpTables(Disassembler *disassembler)

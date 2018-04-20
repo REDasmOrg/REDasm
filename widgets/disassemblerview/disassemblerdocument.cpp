@@ -250,7 +250,7 @@ REDasm::SymbolPtr DisassemblerDocument::appendOperand(const REDasm::InstructionP
     QTextCharFormat charformat;
     REDasm::SymbolPtr symbol;
 
-    if(operand.is(REDasm::OperandTypes::Memory) || instruction->is(REDasm::InstructionTypes::Branch))
+    if(operand.isNumeric())
     {
         symbol = this->_symbols->symbol(operand.u_value);
 
@@ -266,21 +266,13 @@ REDasm::SymbolPtr DisassemblerDocument::appendOperand(const REDasm::InstructionP
 
             this->setMetaData(charformat, symbol);
         }
-        else
+        else if(operand.is(REDasm::OperandTypes::Memory))
             charformat.setForeground(THEME_VALUE("memory_fg"));
+        else
+            charformat.setForeground(THEME_VALUE("immediate_fg"));
     }
     else if(operand.is(REDasm::OperandTypes::Displacement))
-    {
-        if(operand.mem.displacement)
-            symbol = this->_symbols->symbol(operand.mem.displacement);
-
-        if(symbol)
-            this->setMetaData(charformat, symbol);
-        else
-            charformat.setForeground(THEME_VALUE("displacement_fg"));
-    }
-    else if(operand.is(REDasm::OperandTypes::Immediate))
-        charformat.setForeground(THEME_VALUE("immediate_fg"));
+        charformat.setForeground(THEME_VALUE("displacement_fg"));
     else if(operand.is(REDasm::OperandTypes::Register))
         charformat.setForeground(THEME_VALUE("register_fg"));
 

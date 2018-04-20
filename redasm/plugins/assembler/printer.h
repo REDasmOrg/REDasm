@@ -32,10 +32,9 @@ class Printer
 
     public: // Operand privitives
         virtual std::string reg(const RegisterOperand& regop) const;
-        virtual std::string mem(const MemoryOperand& memop) const;
-        virtual std::string loc(const Operand& op) const;
-        virtual std::string imm(const Operand& op) const;
-        virtual std::string ptr(const std::string& expr) const;
+        virtual std::string disp(const DisplacementOperand& dispop) const;
+        virtual std::string loc(const Operand& operand) const;
+        virtual std::string imm(const Operand& operand) const;
 
     protected:
         DisassemblerAPI* _disassembler;

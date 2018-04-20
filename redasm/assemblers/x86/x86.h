@@ -200,37 +200,21 @@ template<cs_mode mode> void X86Assembler<mode>::analyzeInstruction(const Instruc
         case X86_INS_LOOPNE:
         {
             instruction->type |= InstructionTypes::Conditional;
-
-            const Operand& op = instruction->operands[0];
-
-            if(op.is((OperandTypes::Register)))
-                break;
-
-            instruction->target_idx = 0;
-
-            if(op.is(OperandTypes::Displacement))
-                instruction->target(op.mem.displacement);
-            else //if(op.is(OperandTypes::Immediate) || op.is(OperandTypes::Memory))
-                instruction->target(op.u_value);
-
-            break;
+            //break;
         }
 
         case X86_INS_JMP:
         case X86_INS_CALL:
         {
-            const Operand& op = instruction->operands[0];
+            Operand& op = instruction->op(0);
 
-            if(op.is((OperandTypes::Register)))
+            if(!op.isNumeric())
                 break;
 
-            if(op.is(OperandTypes::Displacement) && op.mem.displacementOnly())
-                instruction->target(op.mem.displacement);
-            else if(op.is(OperandTypes::Immediate) || op.is(OperandTypes::Memory))
-                instruction->target(op.u_value);
-            else
-                break;
+            if(op.is(OperandTypes::Memory))
+                op.r();
 
+            instruction->target(op.u_value);
             instruction->target_idx = 0;
             break;
         }
@@ -265,8 +249,8 @@ template<cs_mode mode> void X86Assembler<mode>::analyzeInstruction(const Instruc
 
         case X86_INS_SUB:
         {
-            if(!this->_stacksize && this->isSP(instruction->operands[0].reg.r))
-                this->_stacksize = instruction->operands[1].u_value;
+            if(!this->_stacksize && this->isSP(instruction->op(0).reg.r))
+                this->_stacksize = instruction->op(1).u_value;
 
             break;
         }

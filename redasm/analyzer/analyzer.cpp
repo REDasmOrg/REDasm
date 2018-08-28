@@ -112,7 +112,7 @@ SymbolPtr Analyzer::findTrampolines_arm(Listing::iterator& it, SymbolTable *symb
     const InstructionPtr& instruction1 = *it;
     const InstructionPtr& instruction2 = *(++it);
 
-    if(instruction1->isInvalid() || instruction2->isInvalid())
+    if(!instruction1 || !instruction2 || instruction1->isInvalid() || instruction2->isInvalid())
         return NULL;
 
     if((instruction1->mnemonic != "ldr") && (instruction2->mnemonic != "ldr"))

@@ -26,7 +26,7 @@ class VBComponents
         static std::string guidString(GUID* guid);
 
     private:
-        static Components _components;
+        static Components m_components;
 };
 
 } // namespace REDasm

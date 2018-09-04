@@ -21,7 +21,7 @@ class PEImports
         static bool importName(const std::string& dllname, u16 ordinal, std::string& name);
 
     private:
-        static ResolveMap _libraries;
+        static ResolveMap m_libraries;
 };
 
 } // namespace REDasm

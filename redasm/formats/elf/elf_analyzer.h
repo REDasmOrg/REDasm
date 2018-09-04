@@ -9,7 +9,7 @@ class ElfAnalyzer: public Analyzer
 {
     public:
         ElfAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures);
-        virtual void analyze(InstructionsPool& listing);
+        virtual void analyze(ListingDocument* document);
 };
 
 } // namespace REDasm

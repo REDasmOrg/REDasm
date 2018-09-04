@@ -3,24 +3,24 @@
 
 namespace REDasm {
 
-BorlandVersion::BorlandVersion(PackageInfoHeader *packageinfo, const PEResources::ResourceItem &resourceitem, u64 size): _packageinfo(packageinfo), _resourceitem(resourceitem), _size(size)
+BorlandVersion::BorlandVersion(PackageInfoHeader *packageinfo, const PEResources::ResourceItem &resourceitem, u64 size): m_packageinfo(packageinfo), m_resourceitem(resourceitem), m_size(size)
 {
 
 }
 
 bool BorlandVersion::isDelphi() const
 {
-    return IS_PASCAL(this->_packageinfo) || IS_PRE_V4(this->_packageinfo);
+    return IS_PASCAL(m_packageinfo) || IS_PRE_V4(m_packageinfo);
 }
 
 bool BorlandVersion::isTurboCpp() const
 {
-    return IS_CPP(this->_packageinfo);
+    return IS_CPP(m_packageinfo);
 }
 
 std::string BorlandVersion::getSignature() const
 {
-    if(IS_PRE_V4(this->_packageinfo))
+    if(IS_PRE_V4(m_packageinfo))
         return "delphi3";
 
     if(this->contains("System.SysUtils"))
@@ -44,9 +44,9 @@ std::string BorlandVersion::getSignature() const
 bool BorlandVersion::contains(const std::string &s) const
 {
     const char* fs = s.data();
-    char* p = reinterpret_cast<char*>(this->_packageinfo);
+    char* p = reinterpret_cast<char*>(m_packageinfo);
 
-    return static_cast<size_t>(std::search(p, p + this->_size, fs, fs + s.size()) - p) < this->_size;
+    return static_cast<size_t>(std::search(p, p + m_size, fs, fs + s.size()) - p) < m_size;
 }
 
 } // namespace REDasm

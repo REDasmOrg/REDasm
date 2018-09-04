@@ -12,7 +12,7 @@
 #define ELF_PARAMS(bits) ELF_T(bits, Ehdr), ELF_T(bits, Shdr), ELF_T(bits, Sym), ELF_T(bits, Rel), ELF_T(bits, Rela)
 
 #define POINTER(T, offset) FormatPluginT<EHDR>::template pointer<T>(offset)
-#define ELF_STRING_TABLE this->_shdr[this->_format->e_shstrndx];
+#define ELF_STRING_TABLE this->m_shdr[this->m_format->e_shstrndx];
 #define ELF_STRING(shdr, offset) POINTER(const char, (shdr)->sh_offset + offset)
 
 namespace REDasm {
@@ -20,7 +20,7 @@ namespace REDasm {
 template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 {
     public:
-        ElfFormat(): FormatPluginT<EHDR>(), _shdr(NULL) { }
+        ElfFormat(): FormatPluginT<EHDR>(), m_shdr(NULL) { }
         virtual const char* name() const { return "ELF Format"; }
         virtual u32 bits() const;
         virtual const char* assembler() const;
@@ -38,7 +38,7 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
         void parseSections();
 
     private:
-        SHDR* _shdr;
+        SHDR* m_shdr;
 };
 
 template<ELF_PARAMS_T> u32 ElfFormat<ELF_PARAMS_D>::bits() const
@@ -82,9 +82,9 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load(u8* format, u64)
     if(!this->validate() || !this->bits())
         return false;
 
-    this->_shdr = POINTER(SHDR, ehdr->e_shoff);
+    this->m_shdr = POINTER(SHDR, ehdr->e_shoff);
     this->parseSections();
-    this->defineEntryPoint(this->m_format->e_entry);
+    this->m_document.entry(this->m_format->e_entry);
 
     FormatPluginT<EHDR>::load(format);
     return true;
@@ -99,7 +99,7 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* v
 {
     for(u64 i = 0; i < this->m_format->e_shnum; i++)
     {
-        const SHDR& shdr = this->_shdr[i];
+        const SHDR& shdr = this->m_shdr[i];
 
         if((shdr.sh_type != SHT_REL) && (shdr.sh_type != SHT_RELA))
             continue;
@@ -140,13 +140,13 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegment(const SHDR& shd
     if(shdr.sh_flags & SHF_WRITE)
         type |= SegmentTypes::Write;
 
-    this->defineSegment(ELF_STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
+    this->m_document.segment(ELF_STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
 }
 
 template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shdr)
 {
     offset_t offset = shdr.sh_offset, endoffset = offset + shdr.sh_size;
-    const SHDR& shstr = shdr.sh_link ? this->_shdr[shdr.sh_link] : ELF_STRING_TABLE;
+    const SHDR& shstr = shdr.sh_link ? this->m_shdr[shdr.sh_link] : ELF_STRING_TABLE;
 
     for(u64 idx = 0; offset < endoffset; idx++)
     {
@@ -178,14 +178,14 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
                 isexport = true;
 
             if(isexport)
-                this->defineSymbol(symvalue, symname, (info == STT_FUNC) ? SymbolTypes::ExportFunction : SymbolTypes::ExportData);
+                this->m_document.lock(symvalue, symname, (info == STT_FUNC) ? SymbolTypes::ExportFunction : SymbolTypes::ExportData);
             else if(info == STT_FUNC)
-                this->defineFunction(symvalue, symname);
+                this->m_document.function(symvalue, symname);
             else if(info == STT_OBJECT)
-                this->defineSymbol(symvalue, symname, SymbolTypes::Data);
+                this->m_document.lock(symvalue, symname, SymbolTypes::Data);
         }
         else
-            this->defineSymbol(symvalue, symname, SymbolTypes::Import);
+            this->m_document.lock(symvalue, symname, SymbolTypes::Import);
 
         offset += sizeof(SYM);
     }
@@ -215,7 +215,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSections()
 {
     for(u64 i = 0; i < this->m_format->e_shnum; i++)
     {
-        const SHDR& shdr = this->_shdr[i];
+        const SHDR& shdr = this->m_shdr[i];
 
         if(shdr.sh_offset && ((shdr.sh_type == SHT_SYMTAB) || (shdr.sh_type == SHT_DYNSYM)))
         {

@@ -45,13 +45,13 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         static std::string normalized(const std::string& type);
 
     private:
-        std::unordered_map<u16, DEXCodeItem*> _codeitems;
-        std::unordered_map<u16, DEXEncodedMethod> _encmethods;
-        DEXTypeIdItem* _types;
-        DEXStringIdItem* _strings;
-        DEXMethodIdItem* _methods;
-        DEXFieldIdItem* _fields;
-        DEXProtoIdItem* _protos;
+        std::unordered_map<u16, DEXCodeItem*> m_codeitems;
+        std::unordered_map<u16, DEXEncodedMethod> m_encmethods;
+        DEXTypeIdItem* m_types;
+        DEXStringIdItem* m_strings;
+        DEXMethodIdItem* m_methods;
+        DEXFieldIdItem* m_fields;
+        DEXProtoIdItem* m_protos;
 };
 
 DECLARE_FORMAT_PLUGIN(DEXFormat, dex)

@@ -42,13 +42,13 @@ bool PsxExeFormat::load(u8* rawformat, u64)
         return false;
 
     if(format->t_addr > PSX_USER_RAM_START)
-        m_document.add(Segment("RAM0", 0, PSX_USER_RAM_START, (format->t_addr - PSX_USER_RAM_START), SegmentTypes::Data | SegmentTypes::Bss));
+        m_document.segment("RAM0", 0, PSX_USER_RAM_START, (format->t_addr - PSX_USER_RAM_START), SegmentTypes::Data | SegmentTypes::Bss);
 
     m_signatures.push_back("psyq47");
-    m_document.add(Segment("TEXT", PSXEXE_TEXT_OFFSET, format->t_addr, format->t_size, SegmentTypes::Code | SegmentTypes::Data));
+    m_document.segment("TEXT", PSXEXE_TEXT_OFFSET, format->t_addr, format->t_size, SegmentTypes::Code | SegmentTypes::Data);
 
     if((format->t_addr + format->t_size) < PSX_USER_RAM_END)
-        m_document.add(Segment("RAM1", 0, format->t_addr + format->t_size, PSX_USER_RAM_END - (format->t_addr + format->t_size), SegmentTypes::Data | SegmentTypes::Bss));
+        m_document.segment("RAM1", 0, format->t_addr + format->t_size, PSX_USER_RAM_END - (format->t_addr + format->t_size), SegmentTypes::Data | SegmentTypes::Bss);
 
     m_document.entry(format->pc0);
     FormatPluginT<PsxExeHeader>::load(rawformat);

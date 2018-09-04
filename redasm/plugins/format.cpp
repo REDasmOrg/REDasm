@@ -3,11 +3,7 @@
 
 namespace REDasm {
 
-FormatPlugin::FormatPlugin(): Plugin()
-{
-
-}
-
+FormatPlugin::FormatPlugin(): Plugin() { m_document.m_format = this; }
 ListingDocument *FormatPlugin::document() { return &m_document; }
 const SignatureFiles &FormatPlugin::signatures() const { return m_signatures; }
 u64 FormatPlugin::addressWidth() const { return this->bits() / 8; }

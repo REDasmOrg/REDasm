@@ -30,30 +30,11 @@
 
 namespace REDasm {
 
-GbaRomFormat::GbaRomFormat(): FormatPluginT<GbaRomHeader>()
-{
-
-}
-
-const char *GbaRomFormat::name() const
-{
-    return "Game Boy Advance ROM";
-}
-
-u32 GbaRomFormat::bits() const
-{
-    return 32;
-}
-
-u32 GbaRomFormat::flags() const
-{
-    return FormatFlags::IgnoreUnexploredCode;
-}
-
-const char *GbaRomFormat::assembler() const
-{
-    return "metaarm";
-}
+GbaRomFormat::GbaRomFormat(): FormatPluginT<GbaRomHeader>() { }
+const char *GbaRomFormat::name() const { return "Game Boy Advance ROM"; }
+u32 GbaRomFormat::bits() const { return 32; }
+u32 GbaRomFormat::flags() const { return FormatFlags::IgnoreUnexploredCode; }
+const char *GbaRomFormat::assembler() const { return "metaarm"; }
 
 Analyzer *GbaRomFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
 {
@@ -67,15 +48,15 @@ bool GbaRomFormat::load(u8* rawformat, u64 length)
     if(!this->validateRom(format, length))
         return false;
 
-    this->defineSegment("EWRAM", 0, GBA_SEGMENT_AREA(EWRAM), SegmentTypes::Bss);
-    this->defineSegment("IWRAM", 0, GBA_SEGMENT_AREA(IWRAM), SegmentTypes::Bss);
-    this->defineSegment("IOREG", 0, GBA_SEGMENT_AREA(IOREG), SegmentTypes::Bss);
-    this->defineSegment("PALETTE", 0, GBA_SEGMENT_AREA(PALETTE), SegmentTypes::Bss);
-    this->defineSegment("VRAM", 0, GBA_SEGMENT_AREA(VRAM), SegmentTypes::Bss);
-    this->defineSegment("OAM", 0, GBA_SEGMENT_AREA(OAM), SegmentTypes::Bss);
-    this->defineSegment("ROM", 0, GBA_ROM_START_ADDR, length, SegmentTypes::Code | SegmentTypes::Data);
+    m_document.segment("EWRAM", 0, GBA_SEGMENT_AREA(EWRAM), SegmentTypes::Bss);
+    m_document.segment("IWRAM", 0, GBA_SEGMENT_AREA(IWRAM), SegmentTypes::Bss);
+    m_document.segment("IOREG", 0, GBA_SEGMENT_AREA(IOREG), SegmentTypes::Bss);
+    m_document.segment("PALETTE", 0, GBA_SEGMENT_AREA(PALETTE), SegmentTypes::Bss);
+    m_document.segment("VRAM", 0, GBA_SEGMENT_AREA(VRAM), SegmentTypes::Bss);
+    m_document.segment("OAM", 0, GBA_SEGMENT_AREA(OAM), SegmentTypes::Bss);
+    m_document.segment("ROM", 0, GBA_ROM_START_ADDR, length, SegmentTypes::Code | SegmentTypes::Data);
 
-    this->defineEntryPoint(GBA_ROM_START_ADDR); // Let REDasm decode and follow the "EP Field"
+    m_document.entry(GBA_ROM_START_ADDR); // Let REDasm decode and follow the "EP Field"
     FormatPluginT<GbaRomHeader>::load(rawformat);
     return true;
 }

@@ -5,25 +5,10 @@
 
 namespace REDasm {
 
-XbeFormat::XbeFormat(): FormatPluginT<XbeImageHeader>()
-{
-
-}
-
-const char *XbeFormat::name() const
-{
-    return "XBox Executable";
-}
-
-u32 XbeFormat::bits() const
-{
-    return 32;
-}
-
-const char *XbeFormat::assembler() const
-{
-    return "x86_32";
-}
+XbeFormat::XbeFormat(): FormatPluginT<XbeImageHeader>() { }
+const char *XbeFormat::name() const { return "XBox Executable"; }
+u32 XbeFormat::bits() const { return 32; }
+const char *XbeFormat::assembler() const { return "x86_32"; }
 
 bool XbeFormat::load(u8 *rawformat, u64)
 {
@@ -54,7 +39,7 @@ bool XbeFormat::load(u8 *rawformat, u64)
         return false;
     }
 
-    this->defineEntryPoint(entrypoint);
+    m_document.entry(entrypoint);
     this->displayXbeInfo();
     FormatPluginT<XbeImageHeader>::load(rawformat);
     return true;
@@ -62,7 +47,7 @@ bool XbeFormat::load(u8 *rawformat, u64)
 
 void XbeFormat::displayXbeInfo()
 {
-    XbeCertificate* certificate = this->memoryoffset<XbeCertificate>(this->m_format->CertificateAddress);
+    XbeCertificate* certificate = this->memoryoffset<XbeCertificate>(m_format->CertificateAddress);
     std::string title = REDasm::wtoa(&certificate->TitleName, XBE_TITLENAME_SIZE);
 
     if(!title.empty())
@@ -91,12 +76,12 @@ void XbeFormat::displayXbeInfo()
 bool XbeFormat::decodeEP(u32 encodedep, address_t& ep)
 {
     ep = encodedep ^ XBE_ENTRYPOINT_XOR_RETAIL;
-    Segment* segment = this->segment(ep);
+    Segment* segment = m_document.segment(ep);
 
     if(!segment)
     {
         ep = encodedep ^ XBE_ENTRYPOINT_XOR_DEBUG;
-        segment = this->segment(ep);
+        segment = m_document.segment(ep);
 
         if(segment)
             REDasm::log("Executable Type: DEBUG");
@@ -110,12 +95,12 @@ bool XbeFormat::decodeEP(u32 encodedep, address_t& ep)
 bool XbeFormat::decodeKernel(u32 encodedthunk, u32 &thunk)
 {
     thunk = encodedthunk ^ XBE_KERNEL_XOR_RETAIL;
-    Segment* segment = this->segment(thunk);
+    Segment* segment = m_document.segment(thunk);
 
     if(!segment)
     {
         thunk = encodedthunk ^ XBE_KERNEL_XOR_DEBUG;
-        segment = this->segment(thunk);
+        segment = m_document.segment(thunk);
     }
 
     return segment != NULL;
@@ -123,7 +108,7 @@ bool XbeFormat::decodeKernel(u32 encodedthunk, u32 &thunk)
 
 void XbeFormat::loadSections(XbeSectionHeader *sectionhdr)
 {
-    for(u32 i = 0; i < this->m_format->NumberOfSections; i++)
+    for(u32 i = 0; i < m_format->NumberOfSections; i++)
     {
         std::string sectname = this->memoryoffset<const char>(sectionhdr[i].SectionName);
         u32 secttype = SegmentTypes::None;
@@ -141,10 +126,10 @@ void XbeFormat::loadSections(XbeSectionHeader *sectionhdr)
         if(!sectionhdr[i].RawSize)
             secttype = SegmentTypes::Bss;
 
-        this->defineSegment(sectname, sectionhdr[i].RawAddress, sectionhdr[i].VirtualAddress, sectionhdr[i].RawSize, secttype);
+        m_document.segment(sectname, sectionhdr[i].RawAddress, sectionhdr[i].VirtualAddress, sectionhdr[i].RawSize, secttype);
     }
 
-    this->defineSegment("XBOXKRNL", 0, XBE_XBOXKRNL_BASEADDRESS, 0x10000, SegmentTypes::Bss);
+    m_document.segment("XBOXKRNL", 0, XBE_XBOXKRNL_BASEADDRESS, 0x10000, SegmentTypes::Bss);
 }
 
 bool XbeFormat::loadXBoxKrnl()
@@ -153,7 +138,7 @@ bool XbeFormat::loadXBoxKrnl()
     REDasm::loadordinals(REDasm::makeFormatPath("xbe", "xboxkrnl.json"), ordinals);
     u32 kernelimagethunk;
 
-    if(!this->decodeKernel(this->m_format->KernelImageThunk, kernelimagethunk))
+    if(!this->decodeKernel(m_format->KernelImageThunk, kernelimagethunk))
         return false;
 
     offset_t thunkoffset = this->offset(kernelimagethunk);
@@ -162,7 +147,7 @@ bool XbeFormat::loadXBoxKrnl()
     while(*pthunk)
     {
         std::string ordinalname = REDasm::ordinal(ordinals, *pthunk ^ XBE_ORDINAL_FLAG, "XBoxKrnl!");
-        this->defineSymbol(*pthunk, ordinalname, SymbolTypes::Import);
+        m_document.lock(*pthunk, ordinalname, SymbolTypes::Import);
         pthunk++;
     }
 

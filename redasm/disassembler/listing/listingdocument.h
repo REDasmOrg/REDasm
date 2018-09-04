@@ -9,6 +9,8 @@
 
 namespace REDasm {
 
+class FormatPlugin;
+
 struct ListingItem
 {
     enum: u32 {
@@ -29,27 +31,34 @@ class ListingDocument
 {
     public:
         ListingDocument();
-        void add(Segment segment);
-        void add(address_t address, const std::string& name, u32 type);
-        void add(const ListingItem& block);
-        void entry(address_t address);
+        void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
+        void lock(address_t address, const std::string& name, u32 type, u32 tag = 0);
+        void segment(const std::string& name, offset_t offset, address_t address, u64 size, u32 type);
+        void function(address_t address, const std::string& name, u32 tag = 0);
+        void function(address_t address, u32 tag = 0);
+        void entry(address_t address, u32 tag = 0);
         void sort();
 
     public:
         const SegmentList& segments() const;
         Segment *segment(address_t address);
+        Segment *segmentAt(size_t idx);
         Segment *segmentByName(const std::string& name);
 
     public:
         size_t count() const;
         ListingItem &at(size_t i);
         SymbolTable* symbols();
+        FormatPlugin* format();
 
     private:
         std::vector<ListingItem> m_items;
         SegmentList m_segments;
         InstructionPool m_instructions;
         SymbolTable m_symboltable;
+        FormatPlugin* m_format;
+
+     friend class FormatPlugin;
 };
 
 } // namespace REDasm

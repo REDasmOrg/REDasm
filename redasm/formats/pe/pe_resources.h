@@ -36,8 +36,8 @@ class PEResources
         std::string resourceid(u16 id) const;
 
     private:
-        std::map<u16, std::string> _resourcenames;
-        ImageResourceDirectory* _resourcedirectory;
+        std::map<u16, std::string> m_resourcenames;
+        ImageResourceDirectory* m_resourcedirectory;
 };
 
 template<typename T1, typename T2> T1* PEResources::data(const PEResources::ResourceItem &item, T2 formatbase, RvaToOffsetCallback rtocb, u64* size) const
@@ -47,7 +47,7 @@ template<typename T1, typename T2> T1* PEResources::data(const PEResources::Reso
         if(!item.second->OffsetToData)
             return NULL;
 
-        ImageResourceDataEntry* dataentry = RESOURCE_PTR(ImageResourceDataEntry, this->_resourcedirectory, item.second->OffsetToData);
+        ImageResourceDataEntry* dataentry = RESOURCE_PTR(ImageResourceDataEntry, m_resourcedirectory, item.second->OffsetToData);
 
         if(size)
             *size = dataentry->Size;
@@ -55,7 +55,7 @@ template<typename T1, typename T2> T1* PEResources::data(const PEResources::Reso
         return reinterpret_cast<T1*>(reinterpret_cast<size_t>(formatbase) + rtocb(dataentry->OffsetToData));
     }
 
-    ImageResourceDirectory* resourcedir = RESOURCE_PTR(ImageResourceDirectory, this->_resourcedirectory, item.second->OffsetToDirectory);
+    ImageResourceDirectory* resourcedir = RESOURCE_PTR(ImageResourceDirectory, m_resourcedirectory, item.second->OffsetToDirectory);
     size_t c = resourcedir->NumberOfIdEntries + resourcedir->NumberOfNamedEntries;
 
     if(c != 1)

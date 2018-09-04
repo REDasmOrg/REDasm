@@ -2,7 +2,7 @@
 #include "vb_components.h"
 #include "../pe.h"
 
-#define VB_POINTER(T, address) _peformat->pointer<T>(_peformat->offset(address))
+#define VB_POINTER(T, address) m_peformat->pointer<T>(m_peformat->offset(address))
 #define HAS_OPTIONAL_INFO(objdescr, objinfo) (objdescr.lpObjectInfo + sizeof(VBObjectInfo) != objinfo->base.lpConstants)
 #define VB_METHODNAME(pubobj, control, method) (pubobj + "_" + control + "_" + method)
 
@@ -10,17 +10,18 @@ namespace REDasm {
 
 VBAnalyzer::VBAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures): PEAnalyzer(disassembler, signatures)
 {
-    this->_peformat = NULL;
-    this->_vbheader = NULL;
-    this->_vbprojinfo = NULL;
-    this->_vbobjtable = NULL;
-    this->_vbobjtreeinfo = NULL;
-    this->_vbpubobjdescr = NULL;
+    m_peformat = NULL;
+    m_vbheader = NULL;
+    m_vbprojinfo = NULL;
+    m_vbobjtable = NULL;
+    m_vbobjtreeinfo = NULL;
+    m_vbpubobjdescr = NULL;
 }
 
-void VBAnalyzer::analyze(InstructionsPool &listing)
+void VBAnalyzer::analyze(ListingDocument *document)
 {
-    SymbolTable* symboltable = listing.symbolTable();
+    /*
+    SymbolTable* symboltable = document->symbols();
     SymbolPtr entrypoint = symboltable->entryPoint();
 
     if(!entrypoint)
@@ -52,6 +53,7 @@ void VBAnalyzer::analyze(InstructionsPool &listing)
 
     this->decompile(listing, thunrtdata);
     PEAnalyzer::analyze(listing);
+    */
 }
 
 void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, InstructionsPool& listing)
@@ -74,7 +76,7 @@ void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, Ins
     }
 }
 
-void VBAnalyzer::decompileObject(InstructionsPool& listing, const VBPublicObjectDescriptor &pubobjdescr)
+void VBAnalyzer::decompileObject(ListingDocument *document, const VBPublicObjectDescriptor &pubobjdescr)
 {
     if(!pubobjdescr.lpObjectInfo)
         return;
@@ -104,24 +106,24 @@ void VBAnalyzer::decompileObject(InstructionsPool& listing, const VBPublicObject
         for(size_t j = 0; j < component->events.size(); j++)
             this->disassembleTrampoline(events[j], VB_METHODNAME(pubobjname,
                                                                  componentname,
-                                                                 component->events[j]), listing);
+                                                                 component->events[j]), document);
     }
 }
 
-void VBAnalyzer::decompile(InstructionsPool& listing, SymbolPtr thunrtdata)
+void VBAnalyzer::decompile(ListingDocument *document, SymbolPtr thunrtdata)
 {
     if(!thunrtdata)
         return;
 
-    this->_peformat = reinterpret_cast<const PeFormat*>(listing.format());
-    this->_vbheader = VB_POINTER(VBHeader, thunrtdata->address);
-    this->_vbprojinfo = VB_POINTER(VBProjectInfo, this->_vbheader->lpProjectData);
-    this->_vbobjtable = VB_POINTER(VBObjectTable, this->_vbprojinfo->lpObjectTable);
-    this->_vbobjtreeinfo = VB_POINTER(VBObjectTreeInfo, this->_vbobjtable->lpObjectTreeInfo);
-    this->_vbpubobjdescr = VB_POINTER(VBPublicObjectDescriptor, this->_vbobjtable->lpPubObjArray);
+    this->m_peformat = reinterpret_cast<const PeFormat*>(document->format());
+    this->m_vbheader = VB_POINTER(VBHeader, thunrtdata->address);
+    this->m_vbprojinfo = VB_POINTER(VBProjectInfo, this->m_vbheader->lpProjectData);
+    this->m_vbobjtable = VB_POINTER(VBObjectTable, this->m_vbprojinfo->lpObjectTable);
+    this->m_vbobjtreeinfo = VB_POINTER(VBObjectTreeInfo, this->m_vbobjtable->lpObjectTreeInfo);
+    this->m_vbpubobjdescr = VB_POINTER(VBPublicObjectDescriptor, this->m_vbobjtable->lpPubObjArray);
 
-    for(size_t i = 0; i < this->_vbobjtable->wTotalObjects; i++)
-        this->decompileObject(listing, this->_vbpubobjdescr[i]);
+    for(size_t i = 0; i < this->m_vbobjtable->wTotalObjects; i++)
+        this->decompileObject(document, this->m_vbpubobjdescr[i]);
 }
 
 } // namespace REDasm

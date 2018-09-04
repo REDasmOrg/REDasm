@@ -37,11 +37,11 @@ namespace SymbolTypes {
 
 struct Symbol
 {
-    Symbol(): type(0), extra_type(0), address(0), size(0) { }
-    Symbol(u32 type, u32 extratype, address_t address, const std::string& name): type(type), extra_type(extratype), address(address), size(0), name(name) { }
+    Symbol(): type(0), tag(0), address(0), size(0) { }
+    Symbol(u32 type, u32 tag, address_t address, const std::string& name): type(type), tag(tag), address(address), size(0), name(name) { }
     void lock() { type |= SymbolTypes::Locked; }
 
-    u32 type, extra_type;
+    u32 type, tag;
     address_t address;
     u64 size;
     std::string name, cpu;
@@ -73,7 +73,7 @@ class SymbolTable
         SymbolTable();
         u64 size() const;
         bool contains(address_t address);
-        bool create(address_t address, const std::string& name, u32 type, u32 extratype = 0);
+        bool create(address_t address, const std::string& name, u32 type, u32 tag = 0);
         SymbolPtr entryPoint();
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);

@@ -47,12 +47,12 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         template<typename THUNK, u64 ordinalflag> void readDescriptor(const ImageImportDescriptor& importdescriptor);
 
     private:
-        DotNetReader* _dotnetreader;
-        ImageDosHeader* _dosheader;
-        ImageNtHeaders* _ntheaders;
-        ImageSectionHeader* _sectiontable;
-        ImageDataDirectory* _datadirectory;
-        u64 _petype, _imagebase, _sectionalignment, _entrypoint;
+        DotNetReader* m_dotnetreader;
+        ImageDosHeader* m_dosheader;
+        ImageNtHeaders* m_ntheaders;
+        ImageSectionHeader* m_sectiontable;
+        ImageDataDirectory* m_datadirectory;
+        u64 m_petype, m_imagebase, m_sectionalignment, m_entrypoint;
 };
 
 template<typename THUNK, u64 ordinalflag> void PeFormat::readDescriptor(const ImageImportDescriptor& importdescriptor)
@@ -65,12 +65,12 @@ template<typename THUNK, u64 ordinalflag> void PeFormat::readDescriptor(const Im
     std::transform(descriptorname.begin(), descriptorname.end(), descriptorname.begin(), ::tolower);
 
     if(descriptorname.find("msvbvm") != std::string::npos)
-        this->_petype = PeType::VisualBasic;
+        this->m_petype = PeType::VisualBasic;
 
     for(size_t i = 0; thunk[i]; i++)
     {
         std::string importname;
-        address_t address = this->_imagebase + (importdescriptor.FirstThunk + (i * sizeof(THUNK))); // Instructions refers to FT
+        address_t address = m_imagebase + (importdescriptor.FirstThunk + (i * sizeof(THUNK))); // Instructions refers to FT
 
         if(!(thunk[i] & ordinalflag))
         {
@@ -92,7 +92,7 @@ template<typename THUNK, u64 ordinalflag> void PeFormat::readDescriptor(const Im
                 importname = PEUtils::importName(descriptorname, importname);
         }
 
-        this->defineSymbol(address, importname, SymbolTypes::Import);
+        m_document.lock(address, importname, SymbolTypes::Import);
     }
 }
 

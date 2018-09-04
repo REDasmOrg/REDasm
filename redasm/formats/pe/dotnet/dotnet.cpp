@@ -9,8 +9,8 @@
 
 namespace REDasm {
 
-std::list<u32> PeDotNet::_tables;
-PeDotNet::TableDispatcher PeDotNet::_dispatcher;
+std::list<u32> PeDotNet::m_tables;
+PeDotNet::TableDispatcher PeDotNet::m_dispatcher;
 
 PeDotNet::PeDotNet()
 {
@@ -76,9 +76,9 @@ bool PeDotNet::getTables(ImageCor20TablesHeader *cortablesheader, CorTables &tab
     // Read columns
     for(auto rit = tables.rows.begin(); rit != tables.rows.end(); rit++)
     {
-        auto it = _dispatcher.find(rit->first);
+        auto it = m_dispatcher.find(rit->first);
 
-        if(it == _dispatcher.end())
+        if(it == m_dispatcher.end())
         {
             REDasm::log("Cannot find table " + REDasm::quoted(rit->first));
             return false;
@@ -127,7 +127,7 @@ u32 PeDotNet::getBlobIdx(u32 **data, const CorTables &tables) { return PeDotNet:
 
 void PeDotNet::initTables()
 {
-    if(!_tables.empty())
+    if(!m_tables.empty())
         return;
 
     PUSH_TABLE(Module);

@@ -5,30 +5,11 @@
 
 namespace REDasm {
 
-DEXFormat::DEXFormat(): _types(NULL), _strings(NULL), _methods(NULL), _fields(NULL), _protos(NULL)
-{
-
-}
-
-const char *DEXFormat::name() const
-{
-    return "DEX";
-}
-
-u32 DEXFormat::bits() const
-{
-    return 32;
-}
-
-u32 DEXFormat::flags() const
-{
-    return FormatFlags::IgnoreUnexploredCode;
-}
-
-const char *DEXFormat::assembler() const
-{
-    return "dalvik";
-}
+DEXFormat::DEXFormat(): m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL) {  }
+const char *DEXFormat::name() const { return "DEX"; }
+u32 DEXFormat::bits() const { return 32; }
+u32 DEXFormat::flags() const { return FormatFlags::IgnoreUnexploredCode; }
+const char *DEXFormat::assembler() const { return "dalvik"; }
 
 endianness_t DEXFormat::endianness() const
 {
@@ -53,15 +34,15 @@ bool DEXFormat::load(u8 *rawformat, u64)
 
     REDasm::log("Loading DEX Version " + std::string(format->version, 3));
 
-    this->_types = pointer<DEXTypeIdItem>(format->type_ids_off);
-    this->_strings = pointer<DEXStringIdItem>(format->string_ids_off);
-    this->_methods = pointer<DEXMethodIdItem>(format->method_ids_off);
-    this->_protos = pointer<DEXProtoIdItem>(format->proto_ids_off);
+    m_types = pointer<DEXTypeIdItem>(format->type_ids_off);
+    m_strings = pointer<DEXStringIdItem>(format->string_ids_off);
+    m_methods = pointer<DEXMethodIdItem>(format->method_ids_off);
+    m_protos = pointer<DEXProtoIdItem>(format->proto_ids_off);
 
     if(format->field_ids_off && format->field_ids_size)
-        this->_fields = pointer<DEXFieldIdItem>(format->field_ids_off);
+        m_fields = pointer<DEXFieldIdItem>(format->field_ids_off);
 
-    this->defineSegment("DATA", format->data_off, format->data_off, format->data_size, SegmentTypes::Code);
+    m_document.segment("DATA", format->data_off, format->data_off, format->data_size, SegmentTypes::Code);
     DEXClassIdItem* dexclasses = pointer<DEXClassIdItem>(format->class_defs_off);
 
     for(u32 i = 0; i < format->class_defs_size; i++)
@@ -73,9 +54,9 @@ bool DEXFormat::load(u8 *rawformat, u64)
 
 bool DEXFormat::getMethodOffset(u32 idx, offset_t &offset) const
 {
-    auto it = this->_codeitems.find(idx);
+    auto it = m_codeitems.find(idx);
 
-    if(it == this->_codeitems.end())
+    if(it == m_codeitems.end())
         return false;
 
     DEXCodeItem* dexcode = it->second;
@@ -85,10 +66,10 @@ bool DEXFormat::getMethodOffset(u32 idx, offset_t &offset) const
 
 bool DEXFormat::getStringOffset(u32 idx, offset_t& offset) const
 {
-    if(!this->_strings || (idx >= this->m_format->string_ids_size))
+    if(!m_strings || (idx >= m_format->string_ids_size))
         return false;
 
-    u8* pstringdata = pointer<u8>(this->_strings[idx].string_data_off);
+    u8* pstringdata = pointer<u8>(m_strings[idx].string_data_off);
     DEXUtils::getULeb128(&pstringdata);
     offset = fileoffset(pstringdata);
     return true;
@@ -96,10 +77,10 @@ bool DEXFormat::getStringOffset(u32 idx, offset_t& offset) const
 
 std::string DEXFormat::getString(u32 idx) const
 {
-    if(!this->_strings)
+    if(!m_strings)
         return std::string();
 
-    u8* pstringdata = pointer<u8>(this->_strings[idx].string_data_off);
+    u8* pstringdata = pointer<u8>(m_strings[idx].string_data_off);
     u32 len = DEXUtils::getULeb128(&pstringdata);
 
     return std::string(reinterpret_cast<const char*>(pstringdata), len);
@@ -107,22 +88,22 @@ std::string DEXFormat::getString(u32 idx) const
 
 std::string DEXFormat::getType(u32 idx) const
 {
-    if(idx >= this->m_format->type_ids_size)
+    if(idx >= m_format->type_ids_size)
         return "type_" + std::to_string(idx);
 
-    const DEXTypeIdItem& dextype = this->_types[idx];
+    const DEXTypeIdItem& dextype = m_types[idx];
     return this->getNormalizedString(dextype.descriptor_idx);
 }
 
 std::string DEXFormat::getMethod(u32 idx) const
 {
-    if(idx >= this->m_format->method_ids_size)
+    if(idx >= m_format->method_ids_size)
         return "method_" + std::to_string(idx);
 
-    const DEXMethodIdItem& dexmethod = this->_methods[idx];
+    const DEXMethodIdItem& dexmethod = m_methods[idx];
 
     return this->getType(dexmethod.class_idx) + "->" +
-            this->getNormalizedString(dexmethod.name_idx);
+           this->getNormalizedString(dexmethod.name_idx);
 }
 
 std::string DEXFormat::getMethodProto(u32 idx) const
@@ -132,10 +113,10 @@ std::string DEXFormat::getMethodProto(u32 idx) const
 
 std::string DEXFormat::getField(u32 idx) const
 {
-    if(!this->_fields || (idx >= this->m_format->field_ids_size))
+    if(!m_fields || (idx >= m_format->field_ids_size))
         return "field_" + std::to_string(idx);
 
-    const DEXFieldIdItem& dexfield = this->_fields[idx];
+    const DEXFieldIdItem& dexfield = m_fields[idx];
 
     return this->getType(dexfield.class_idx) + "->" +
            this->getNormalizedString(dexfield.name_idx) + ":" + this->getType(dexfield.type_idx);
@@ -143,22 +124,22 @@ std::string DEXFormat::getField(u32 idx) const
 
 std::string DEXFormat::getReturnType(u32 methodidx) const
 {
-    if(methodidx >= this->m_format->method_ids_size)
+    if(methodidx >= m_format->method_ids_size)
         return std::string();
 
-    const DEXMethodIdItem& dexmethod = this->_methods[methodidx];
-    const DEXProtoIdItem& dexproto = this->_protos[dexmethod.proto_idx];
+    const DEXMethodIdItem& dexmethod = m_methods[methodidx];
+    const DEXProtoIdItem& dexproto = m_protos[dexmethod.proto_idx];
 
-    return this->getNormalizedString(this->_types[dexproto.return_type_idx].descriptor_idx);
+    return this->getNormalizedString(m_types[dexproto.return_type_idx].descriptor_idx);
 }
 
 std::string DEXFormat::getParameters(u32 methodidx) const
 {
-    if(methodidx >= this->m_format->method_ids_size)
+    if(methodidx >= m_format->method_ids_size)
         return std::string();
 
-    const DEXMethodIdItem& dexmethod = this->_methods[methodidx];
-    const DEXProtoIdItem& dexproto = this->_protos[dexmethod.proto_idx];
+    const DEXMethodIdItem& dexmethod = m_methods[methodidx];
+    const DEXProtoIdItem& dexproto = m_protos[dexmethod.proto_idx];
 
     if(!dexproto.parameters_off)
         return "()";
@@ -168,9 +149,9 @@ std::string DEXFormat::getParameters(u32 methodidx) const
 
 bool DEXFormat::getMethodInfo(u32 methodidx, DEXEncodedMethod &dexmethod)
 {
-    auto it = this->_encmethods.find(methodidx);
+    auto it = m_encmethods.find(methodidx);
 
-    if(it == this->_encmethods.end())
+    if(it == m_encmethods.end())
         return false;
 
     dexmethod = it->second;
@@ -179,9 +160,9 @@ bool DEXFormat::getMethodInfo(u32 methodidx, DEXEncodedMethod &dexmethod)
 
 bool DEXFormat::getDebugInfo(u32 methodidx, DEXDebugInfo &debuginfo)
 {
-    auto it = this->_codeitems.find(methodidx);
+    auto it = m_codeitems.find(methodidx);
 
-    if(it == this->_codeitems.end())
+    if(it == m_codeitems.end())
         return false;
 
     DEXCodeItem* dexcode = it->second;
@@ -267,10 +248,10 @@ void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
 
     DEXCodeItem* dexcode = pointer<DEXCodeItem>(dexmethod.code_off);
 
-    this->_encmethods[idx] = dexmethod;
-    this->_codeitems[idx] = dexcode;
+    m_encmethods[idx] = dexmethod;
+    m_codeitems[idx] = dexcode;
 
-    this->defineFunction(fileoffset(&dexcode->insns), this->getMethod(idx), idx);
+    m_document.function(fileoffset(&dexcode->insns), this->getMethod(idx), idx);
 }
 
 void DEXFormat::loadClass(const DEXClassIdItem &dexclass)
@@ -293,10 +274,7 @@ void DEXFormat::loadClass(const DEXClassIdItem &dexclass)
     });
 }
 
-std::string DEXFormat::getNormalizedString(u32 idx) const
-{
-    return this->normalized(this->getString(idx));
-}
+std::string DEXFormat::getNormalizedString(u32 idx) const { return this->normalized(this->getString(idx)); }
 
 std::string DEXFormat::getTypeList(u32 typelistoff) const
 {

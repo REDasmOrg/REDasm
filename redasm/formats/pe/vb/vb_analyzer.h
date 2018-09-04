@@ -12,20 +12,20 @@ class VBAnalyzer : public PEAnalyzer
 {
     public:
         VBAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles& signatures);
-        virtual void analyze(InstructionsPool &listing);
+        virtual void analyze(ListingDocument* document);
 
     private:
         void disassembleTrampoline(u32 eventva, const std::string &name, InstructionsPool &listing);
-        void decompileObject(InstructionsPool &listing, const VBPublicObjectDescriptor& pubobjdescr);
-        void decompile(InstructionsPool &listing, SymbolPtr thunrtdata);
+        void decompileObject(ListingDocument* document, const VBPublicObjectDescriptor& pubobjdescr);
+        void decompile(ListingDocument* document, SymbolPtr thunrtdata);
 
     private:
-        const PeFormat* _peformat;
-        VBHeader* _vbheader;
-        VBProjectInfo* _vbprojinfo;
-        VBObjectTable* _vbobjtable;
-        VBObjectTreeInfo* _vbobjtreeinfo;
-        VBPublicObjectDescriptor* _vbpubobjdescr;
+        const PeFormat* m_peformat;
+        VBHeader* m_vbheader;
+        VBProjectInfo* m_vbprojinfo;
+        VBObjectTable* m_vbobjtable;
+        VBObjectTreeInfo* m_vbobjtreeinfo;
+        VBPublicObjectDescriptor* m_vbpubobjdescr;
 };
 
 } // namespace REDasm

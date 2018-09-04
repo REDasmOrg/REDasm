@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-PEResources::PEResources(ImageResourceDirectory *resourcedirectory): _resourcedirectory(resourcedirectory)
+PEResources::PEResources(ImageResourceDirectory *resourcedirectory): m_resourcedirectory(resourcedirectory)
 {
     ADD_RESOURCE_ID(CURSORS);
     ADD_RESOURCE_ID(BITMAPS);
@@ -25,20 +25,9 @@ PEResources::PEResources(ImageResourceDirectory *resourcedirectory): _resourcedi
     ADD_RESOURCE_ID(CONFIGURATION_FILES);
 }
 
-PEResources::ResourceItem PEResources::find(u16 id) const
-{
-    return this->find(id, this->_resourcedirectory);
-}
-
-PEResources::ResourceItem PEResources::find(const std::string &name) const
-{
-    return this->find(name, this->_resourcedirectory);
-}
-
-PEResources::ResourceItem PEResources::find(u16 id, const PEResources::ResourceItem &parentres) const
-{
-    return this->find(this->resourceid(id), parentres);
-}
+PEResources::ResourceItem PEResources::find(u16 id) const { return this->find(id, m_resourcedirectory); }
+PEResources::ResourceItem PEResources::find(const std::string &name) const { return this->find(name, m_resourcedirectory); }
+PEResources::ResourceItem PEResources::find(u16 id, const PEResources::ResourceItem &parentres) const { return this->find(this->resourceid(id), parentres); }
 
 PEResources::ResourceItem PEResources::find(const std::string &name, const PEResources::ResourceItem &parentres) const
 {
@@ -76,7 +65,7 @@ std::string PEResources::entryName(ImageResourceDirectoryEntry *entry) const
 {
     if(entry->NameIsString)
     {
-        ImageResourceDirStringU* name = RESOURCE_PTR(ImageResourceDirStringU, this->_resourcedirectory, entry->NameOffset);
+        ImageResourceDirStringU* name = RESOURCE_PTR(ImageResourceDirStringU, m_resourcedirectory, entry->NameOffset);
         return REDasm::wtoa(&name->NameString, name->Length);
     }
 
@@ -85,9 +74,9 @@ std::string PEResources::entryName(ImageResourceDirectoryEntry *entry) const
 
 std::string PEResources::resourceid(u16 id) const
 {
-    auto it = this->_resourcenames.find(id);
+    auto it = m_resourcenames.find(id);
 
-    if(it == this->_resourcenames.end())
+    if(it == m_resourcenames.end())
         return "#" + std::to_string(id);
 
     return it->second;

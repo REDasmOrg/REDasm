@@ -41,11 +41,11 @@ class DEXStateMachine
         void setDebugData(const DEXDebugData& debugdata);
 
     private:
-        StatesMap _statesmap;
-        DEXDebugInfo& _debuginfo;
-        u16 _address;
-        u32 _line;
-        bool _atend;
+        StatesMap m_statesmap;
+        DEXDebugInfo& m_debuginfo;
+        u16 m_address;
+        u32 m_line;
+        bool m_atend;
 };
 
 } // namespace REDasm

@@ -3,25 +3,31 @@
 
 namespace REDasm {
 
-ListingDocument::ListingDocument() { }
+ListingDocument::ListingDocument(): m_format(NULL) { }
 
-void ListingDocument::add(Segment segment)
+void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
-    m_segments.push_back(segment);
-    m_items.push_back(ListingItem(segment.address, ListingItem::SegmentItem));
-}
-
-void ListingDocument::add(address_t address, const std::string &name, u32 type)
-{
-    m_symboltable.create(address, name, type);
+    m_symboltable.create(address, name, type, tag);
 
     if(type & SymbolTypes::Function)
         m_items.push_back(ListingItem(address, ListingItem::FunctionItem));
 
 }
 
-void ListingDocument::add(const ListingItem &block) { m_items.push_back(block); }
-void ListingDocument::entry(address_t address) { this->add(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint); }
+void ListingDocument::lock(address_t address, const std::string &name, u32 type, u32 tag)
+{
+    this->symbol(address, name, type | SymbolTypes::Locked, tag);
+}
+
+void ListingDocument::segment(const std::string &name, offset_t offset, address_t address, u64 size, u32 type)
+{
+    m_segments.push_back(Segment(name, offset, address, size, type));
+    m_items.push_back(ListingItem(address, ListingItem::SegmentItem));
+}
+
+void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
+void ListingDocument::function(address_t address, u32 tag) { this->symbol(address, REDasm::symbol("sub", address), SymbolTypes::Function, tag); }
+void ListingDocument::entry(address_t address, u32 tag) { this->symbol(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag); }
 
 void ListingDocument::sort()
 {
@@ -50,6 +56,8 @@ Segment *ListingDocument::segment(address_t address)
     return NULL;
 }
 
+Segment *ListingDocument::segmentAt(size_t idx) { return &m_segments[idx]; }
+
 Segment *ListingDocument::segmentByName(const std::string &name)
 {
     for(auto it = m_segments.begin(); it != m_segments.end(); it++)
@@ -66,5 +74,6 @@ Segment *ListingDocument::segmentByName(const std::string &name)
 size_t ListingDocument::count() const { return m_items.size(); }
 ListingItem& ListingDocument::at(size_t i) { return m_items.at(i); }
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
+FormatPlugin *ListingDocument::format() { return m_format; }
 
 } // namespace REDasm

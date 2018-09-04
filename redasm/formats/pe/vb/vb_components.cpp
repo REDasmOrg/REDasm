@@ -6,11 +6,11 @@
 #define DECLARE_COMPONENT(g, n, e) Component COMPONENT_VAR(n); \
                                    COMPONENT_VAR(n).name = #n; \
                                    COMPONENT_VAR(n).events = e; \
-                                   _components[g] = COMPONENT_VAR(n);
+                                   m_components[g] = COMPONENT_VAR(n);
 
 namespace REDasm {
 
-VBComponents::Components VBComponents::_components;
+VBComponents::Components VBComponents::,_components;
 
 VBComponents::VBComponents()
 {
@@ -21,9 +21,9 @@ const VBComponents::Component *VBComponents::get(GUID *guid)
     VBComponents::initComponents();
 
     std::string guidstring = guidString(guid);
-    auto it = _components.find(guidstring);
+    auto it = m_components.find(guidstring);
 
-    if(it != _components.end())
+    if(it != m_components.end())
         return &(it->second);
 
     REDasm::log("Cannot find component " + guidstring);
@@ -32,7 +32,7 @@ const VBComponents::Component *VBComponents::get(GUID *guid)
 
 void VBComponents::initComponents()
 {
-    if(!_components.empty())
+    if(!m_components.empty())
         return;
 
     DECLARE_COMPONENT("{33AD5002-6699-11CF-B70C-00AA0060D393}", OLE,

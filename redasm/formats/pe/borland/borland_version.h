@@ -18,9 +18,9 @@ class BorlandVersion
         bool contains(const std::string& s) const;
 
     private:
-        PackageInfoHeader* _packageinfo;
-        PEResources::ResourceItem _resourceitem;
-        u64 _size;
+        PackageInfoHeader* m_packageinfo;
+        PEResources::ResourceItem m_resourceitem;
+        u64 m_size;
 };
 
 } // namespace REDasm

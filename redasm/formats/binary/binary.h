@@ -14,11 +14,11 @@ class BinaryFormat : public FormatPluginB
         virtual u32 bits() const;
         virtual u32 flags() const;
         virtual bool load(u8 *rawformat, u64);
-        void build(const std::string& assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entry, u64 size);
+        void build(const std::string& assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entrypoint, u64 size);
 
     private:
-        std::string _assembler;
-        u32 _bits;
+        std::string m_assembler;
+        u32 m_bits;
 
 };
 

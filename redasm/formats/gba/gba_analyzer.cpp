@@ -7,22 +7,23 @@ GbaAnalyzer::GbaAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles& si
 
 }
 
-void GbaAnalyzer::analyze(InstructionsPool &listing)
+void GbaAnalyzer::analyze(ListingDocument *document)
 {
-    Analyzer::analyze(listing);
+    Analyzer::analyze(document);
 
-    SymbolTable* symboltable = listing.symbolTable();
-    this->renameEPBranch(listing, symboltable);
+    SymbolTable* symboltable = document->symbols();
+    this->renameEPBranch(document, symboltable);
 }
 
-void GbaAnalyzer::renameEPBranch(InstructionsPool& listing, SymbolTable* symboltable)
+void GbaAnalyzer::renameEPBranch(ListingDocument *document, SymbolTable* symboltable)
 {
     SymbolPtr symbol = symboltable->entryPoint();
 
     if(!symbol)
         return;
 
-    InstructionPtr instruction = listing[symbol->address];
+    /*
+    InstructionPtr instruction = document[symbol->address];
 
     if(!instruction->hasTargets())
         return;
@@ -34,6 +35,7 @@ void GbaAnalyzer::renameEPBranch(InstructionsPool& listing, SymbolTable* symbolt
 
     symbol->lock();
     symboltable->update(symbol, "rom_ep");
+    */
 }
 
 } // namespace REDasm

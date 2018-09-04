@@ -9,17 +9,17 @@
 
 namespace REDasm {
 
-PeFormat::PeFormat(): FormatPluginT<ImageDosHeader>(), _dotnetreader(NULL), _dosheader(NULL), _ntheaders(NULL), _sectiontable(NULL), _datadirectory(NULL), _petype(PeType::None), _imagebase(0), _sectionalignment(0), _entrypoint(0)
+PeFormat::PeFormat(): FormatPluginT<ImageDosHeader>(), m_dotnetreader(NULL), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL), m_petype(PeType::None), m_imagebase(0), m_sectionalignment(0), m_entrypoint(0)
 {
 
 }
 
 PeFormat::~PeFormat()
 {
-    if(this->_dotnetreader)
+    if(m_dotnetreader)
     {
-        delete this->_dotnetreader;
-        this->_dotnetreader = NULL;
+        m_dotnetreader;
+        m_dotnetreader = NULL;
     }
 }
 
@@ -30,10 +30,10 @@ const char *PeFormat::name() const
 
 u32 PeFormat::bits() const
 {
-    if(this->_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR32_MAGIC)
+    if(m_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR32_MAGIC)
         return 32;
 
-    if(this->_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
+    if(m_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
         return 64;
 
     return 0;
@@ -41,18 +41,18 @@ u32 PeFormat::bits() const
 
 const char *PeFormat::assembler() const
 {
-    if(this->_petype == PeType::DotNet)
+    if(m_petype == PeType::DotNet)
         return "cil";
 
-    if(this->_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
+    if(m_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
         return "x86_32";
 
-    if(this->_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64)
+    if(m_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64)
         return "x86_64";
 
-    if(this->_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_ARM)
+    if(m_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_ARM)
     {
-        if(this->_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
+        if(m_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
             return "arm64";
 
         return "arm";
@@ -63,8 +63,8 @@ const char *PeFormat::assembler() const
 
 offset_t PeFormat::offset(address_t address) const
 {
-    u64 imagebase = (this->_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) ? this->_ntheaders->OptionalHeader64.ImageBase :
-                                                                                               this->_ntheaders->OptionalHeader32.ImageBase;
+    u64 imagebase = (m_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) ? m_ntheaders->OptionalHeader64.ImageBase :
+                                                                                          m_ntheaders->OptionalHeader32.ImageBase;
 
     address -= imagebase;
     return this->rvaToOffset(address);
@@ -72,7 +72,7 @@ offset_t PeFormat::offset(address_t address) const
 
 Analyzer *PeFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
 {
-    if(this->_petype == PeType::VisualBasic)
+    if(m_petype == PeType::VisualBasic)
         return new VBAnalyzer(disassembler, signatures);
 
     return new PEAnalyzer(disassembler, signatures);
@@ -80,32 +80,32 @@ Analyzer *PeFormat::createAnalyzer(DisassemblerAPI *disassembler, const Signatur
 
 bool PeFormat::load(u8 *rawformat, u64)
 {
-    this->_dosheader = convert(rawformat);
+    m_dosheader = convert(rawformat);
 
-    if(this->_dosheader->e_magic != IMAGE_DOS_SIGNATURE)
+    if(m_dosheader->e_magic != IMAGE_DOS_SIGNATURE)
         return false;
 
-    this->_ntheaders = reinterpret_cast<ImageNtHeaders*>(rawformat + this->_dosheader->e_lfanew);
+    m_ntheaders = reinterpret_cast<ImageNtHeaders*>(rawformat + m_dosheader->e_lfanew);
 
-    if((this->_ntheaders->Signature != IMAGE_NT_SIGNATURE) || ((this->_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) &&
-                                                               (this->_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)))
+    if((m_ntheaders->Signature != IMAGE_NT_SIGNATURE) || ((m_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) &&
+                                                          (m_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)))
         return false;
 
-    this->_sectiontable = IMAGE_FIRST_SECTION(this->_ntheaders);
+    this->m_sectiontable = IMAGE_FIRST_SECTION(m_ntheaders);
 
     if(this->bits() == 64)
     {
-        this->_imagebase = this->_ntheaders->OptionalHeader64.ImageBase;
-        this->_sectionalignment = this->_ntheaders->OptionalHeader64.SectionAlignment;
-        this->_entrypoint = this->_imagebase + this->_ntheaders->OptionalHeader64.AddressOfEntryPoint;
-        this->_datadirectory = reinterpret_cast<ImageDataDirectory*>(&this->_ntheaders->OptionalHeader64.DataDirectory);
+        m_imagebase = m_ntheaders->OptionalHeader64.ImageBase;
+        m_sectionalignment = m_ntheaders->OptionalHeader64.SectionAlignment;
+        m_entrypoint = m_imagebase + m_ntheaders->OptionalHeader64.AddressOfEntryPoint;
+        m_datadirectory = reinterpret_cast<ImageDataDirectory*>(&m_ntheaders->OptionalHeader64.DataDirectory);
     }
     else
     {
-        this->_imagebase = this->_ntheaders->OptionalHeader32.ImageBase;
-        this->_sectionalignment = this->_ntheaders->OptionalHeader32.SectionAlignment;
-        this->_entrypoint = this->_imagebase + this->_ntheaders->OptionalHeader32.AddressOfEntryPoint;
-        this->_datadirectory = reinterpret_cast<ImageDataDirectory*>(&this->_ntheaders->OptionalHeader32.DataDirectory);
+        m_ntheaders->OptionalHeader32.ImageBase;
+        m_sectionalignment = m_ntheaders->OptionalHeader32.SectionAlignment;
+        m_entrypoint = m_imagebase + m_ntheaders->OptionalHeader32.AddressOfEntryPoint;
+        m_datadirectory = reinterpret_cast<ImageDataDirectory*>(&m_ntheaders->OptionalHeader32.DataDirectory);
     }
 
     ImageCorHeader* corheader = this->checkDotNet();
@@ -124,16 +124,13 @@ bool PeFormat::load(u8 *rawformat, u64)
     return true;
 }
 
-const DotNetReader *PeFormat::dotNetReader() const
-{
-    return this->_dotnetreader;
-}
+const DotNetReader *PeFormat::dotNetReader() const { return m_dotnetreader; }
 
 u64 PeFormat::rvaToOffset(u64 rva, bool *ok) const
 {
-    for(size_t i = 0; i < this->_ntheaders->FileHeader.NumberOfSections; i++)
+    for(size_t i = 0; i < m_ntheaders->FileHeader.NumberOfSections; i++)
     {
-        const ImageSectionHeader& section = this->_sectiontable[i];
+        const ImageSectionHeader& section = m_sectiontable[i];
 
         if((rva >= section.VirtualAddress) && (rva < (section.VirtualAddress + section.Misc.VirtualSize)))
         {
@@ -167,9 +164,9 @@ void PeFormat::checkDelphi(const PEResources& peresources)
     BorlandVersion borlandver(packageinfo, ri, datasize);
 
     if(borlandver.isDelphi())
-        this->_petype = PeFormat::Delphi;
+        m_petype = PeFormat::Delphi;
     else if(borlandver.isTurboCpp())
-        this->_petype = PeFormat::TurboCpp;
+        m_petype = PeFormat::TurboCpp;
 
     std::string sig = borlandver.getSignature();
 
@@ -177,12 +174,12 @@ void PeFormat::checkDelphi(const PEResources& peresources)
         return;
 
     REDasm::log("Signature '" + sig + "' detected");
-    this->addSignature(sig);
+    m_signatures.push_back(sig);
 }
 
 void PeFormat::checkResources()
 {
-    const ImageDataDirectory& resourcedatadir = this->_datadirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE];
+    const ImageDataDirectory& resourcedatadir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE];
 
     if(!resourcedatadir.VirtualAddress)
         return;
@@ -194,7 +191,7 @@ void PeFormat::checkResources()
 
 void PeFormat::checkDebugInfo()
 {
-    const ImageDataDirectory& debuginfodir = this->_datadirectory[IMAGE_DIRECTORY_ENTRY_DEBUG];
+    const ImageDataDirectory& debuginfodir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_DEBUG];
 
     if(!debuginfodir.VirtualAddress)
         return;
@@ -251,7 +248,7 @@ void PeFormat::checkDebugInfo()
 
 ImageCorHeader* PeFormat::checkDotNet()
 {
-    const ImageDataDirectory& dotnetdir = this->_datadirectory[IMAGE_DIRECTORY_ENTRY_DOTNET];
+    const ImageDataDirectory& dotnetdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_DOTNET];
 
     if(!dotnetdir.VirtualAddress)
         return NULL;
@@ -266,7 +263,7 @@ ImageCorHeader* PeFormat::checkDotNet()
 
 void PeFormat::loadDotNet(ImageCor20Header* corheader)
 {
-    this->_petype = PeType::DotNet;
+    m_petype = PeType::DotNet;
 
     if(!corheader->MetaData.VirtualAddress)
     {
@@ -275,22 +272,22 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
     }
 
     ImageCor20MetaData* cormetadata = RVA_POINTER(ImageCor20MetaData, corheader->MetaData.VirtualAddress);
-    this->_dotnetreader = new DotNetReader(cormetadata);
+    m_dotnetreader = new DotNetReader(cormetadata);
 
-    if(!this->_dotnetreader->isValid())
+    if(!m_dotnetreader->isValid())
         return;
 
-    this->_dotnetreader->iterateTypes([this](u32 rva, const std::string& name) {
-        this->defineFunction(this->_imagebase + rva, name);
+    this->m_dotnetreader->iterateTypes([this](u32 rva, const std::string& name) {
+        m_document.function(m_imagebase + rva, name);
     });
 }
 
 void PeFormat::loadDefault()
 {
-    this->defineSymbol(this->_imagebase, "PE_ImageBase", SymbolTypes::Data);
+    m_document.lock(m_imagebase, "PE_ImageBase", SymbolTypes::Data);
+    m_document.entry(m_entrypoint);
 
     this->loadSections();
-    this->defineEntryPoint(this->_entrypoint);
     this->loadExports();
     this->loadImports();
     this->loadSymbolTable();
@@ -300,9 +297,9 @@ void PeFormat::loadDefault()
 
 void PeFormat::loadSections()
 {
-    for(size_t i = 0; i < this->_ntheaders->FileHeader.NumberOfSections; i++)
+    for(size_t i = 0; i < m_ntheaders->FileHeader.NumberOfSections; i++)
     {
-        const ImageSectionHeader& section = this->_sectiontable[i];
+        const ImageSectionHeader& section = m_sectiontable[i];
         u64 flags = SegmentTypes::None;
 
         if((section.Characteristics & IMAGE_SCN_CNT_CODE) || (section.Characteristics & IMAGE_SCN_MEM_EXECUTE))
@@ -325,20 +322,20 @@ void PeFormat::loadSections()
             size = section.Misc.VirtualSize;
         }
 
-        u64 diff = size & this->_sectionalignment;
+        u64 diff = size & m_sectionalignment;
 
         if(diff)
-            size += this->_sectionalignment - diff;
+            size += m_sectionalignment - diff;
 
         std::string name = reinterpret_cast<const char*>(section.Name);
 
         if(name.empty()) // Rename unnamed sections
             name = "sect" + std::to_string(i);
 
-        this->defineSegment(name, section.PointerToRawData, this->_imagebase + section.VirtualAddress, size, flags);
+        m_document.segment(name, section.PointerToRawData, m_imagebase + section.VirtualAddress, size, flags);
     }
 
-    Segment* segment = this->segment(this->_entrypoint);
+    Segment* segment = m_document.segment(m_entrypoint);
 
     if(segment) // Entry points always points to code segment
         segment->type |= SegmentTypes::Code;
@@ -346,7 +343,7 @@ void PeFormat::loadSections()
 
 void PeFormat::loadExports()
 {
-    const ImageDataDirectory& exportdir = this->_datadirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+    const ImageDataDirectory& exportdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
 
     if(!exportdir.VirtualAddress)
         return;
@@ -362,8 +359,8 @@ void PeFormat::loadExports()
             continue;
 
         bool namedfunction = false;
-        u32 funcep = this->_imagebase + functions[i];
-        const Segment* segment = this->segment(funcep);
+        u32 funcep = this->m_imagebase + functions[i];
+        const Segment* segment = m_document.segment(funcep);
 
         if(!segment)
             continue;
@@ -377,7 +374,7 @@ void PeFormat::loadExports()
                 continue;
 
             namedfunction = true;
-            this->defineSymbol(funcep, RVA_POINTER(const char, names[j]), symboltype);
+            m_document.lock(funcep, RVA_POINTER(const char, names[j]), symboltype);
             break;
         }
 
@@ -386,13 +383,13 @@ void PeFormat::loadExports()
 
         std::stringstream ss;
         ss << "Ordinal__" << std::uppercase << std::setw(4) << std::setfill('0') << std::setbase(16) << (exporttable->Base + i);
-        this->defineSymbol(funcep, ss.str(), symboltype);
+        m_document.lock(funcep, ss.str(), symboltype);
     }
 }
 
 void PeFormat::loadImports()
 {
-    const ImageDataDirectory& importdir = this->_datadirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
+    const ImageDataDirectory& importdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
 
     if(!importdir.VirtualAddress)
         return;
@@ -410,26 +407,26 @@ void PeFormat::loadImports()
 
 void PeFormat::loadSymbolTable()
 {
-    if(!this->_ntheaders->FileHeader.PointerToSymbolTable || !this->_ntheaders->FileHeader.NumberOfSymbols)
+    if(!m_ntheaders->FileHeader.PointerToSymbolTable || !m_ntheaders->FileHeader.NumberOfSymbols)
         return;
 
-    REDasm::log("Loading symbol table from " + REDasm::hex(this->_ntheaders->FileHeader.PointerToSymbolTable));
+    REDasm::log("Loading symbol table from " + REDasm::hex(m_ntheaders->FileHeader.PointerToSymbolTable));
 
     COFF::loadSymbols([this](const std::string& name, COFF::COFF_Entry* entry) {
-                      if(this->segmentByName(name)) // Ignore segment informations
+                      if(m_document.segmentByName(name)) // Ignore segment informations
                           return;
 
-                      const Segment* segment = this->segmentAt(entry->e_scnum - 1);
+                      const Segment* segment = m_document.segmentAt(entry->e_scnum - 1);
                       address_t address = segment->address + entry->e_value;
 
                       if(segment->is(SegmentTypes::Code))// && (entry->e_sclass == C_EXT))
-                          this->defineFunction(address, name);
+                          m_document.function(address, name);
                       else
-                          this->defineSymbol(address, name, SymbolTypes::Data);
+                          m_document.lock(address, name, SymbolTypes::Data);
     },
 
-    this->pointer<u8>(this->_ntheaders->FileHeader.PointerToSymbolTable),
-    this->_ntheaders->FileHeader.NumberOfSymbols);
+    pointer<u8>(m_ntheaders->FileHeader.PointerToSymbolTable),
+    m_ntheaders->FileHeader.NumberOfSymbols);
 }
 
 }

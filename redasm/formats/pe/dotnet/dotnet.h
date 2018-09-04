@@ -74,8 +74,8 @@ class PeDotNet
         template<u32 S> static u32 maxRows(const CorTables& tables, const std::array<u32, S>& tablerefs);
 
     private:
-        static std::list<u32> _tables;
-        static TableDispatcher _dispatcher;
+        static std::list<u32> m_tables;
+        static TableDispatcher m_dispatcher;
 };
 
 template<u32 S> void PeDotNet::getTaggedField(u32** data, u32& value, u8& tag, u8 tagbits, const CorTables& tables, const std::array<u32, S>& tablerefs)

@@ -6,11 +6,11 @@
 #define DBG_LINE_RANGE    15   // The number of line increments represented
 
 #define BIND_STATE(opcode)   _statesmap[opcode] = [this](u8** data) { this->execute##opcode(data); }
-#define VALIDATE_LINE()      if(this->_line == 0) REDasm::log("WARNING: line register == 0")
+#define VALIDATE_LINE()      if(m_line == 0) REDasm::log("WARNING: line register == 0")
 
 namespace REDasm {
 
-DEXStateMachine::DEXStateMachine(u16 address, DEXDebugInfo &debuginfo): _debuginfo(debuginfo), _address(address), _line(debuginfo.line_start), _atend(false)
+DEXStateMachine::DEXStateMachine(u16 address, DEXDebugInfo &debuginfo): m_debuginfo(debuginfo), m_address(address), m_line(debuginfo.line_start), m_atend(false)
 {
     BIND_STATE(0x00);
     BIND_STATE(0x01);
@@ -26,7 +26,7 @@ DEXStateMachine::DEXStateMachine(u16 address, DEXDebugInfo &debuginfo): _debugin
 
 void DEXStateMachine::execute(u8 *data)
 {
-    while(!this->_atend)
+    while(!m_atend)
     {
         u8 opcode = *data;
         data++;
@@ -37,9 +37,9 @@ void DEXStateMachine::execute(u8 *data)
             continue;
         }
 
-        auto it = this->_statesmap.find(opcode);
+        auto it = m_statesmap.find(opcode);
 
-        if(it == this->_statesmap.end())
+        if(it == m_statesmap.end())
         {
             REDasm::log("Unknown opcode '" + REDasm::hex(opcode) + "'");
             return;
@@ -53,17 +53,17 @@ void DEXStateMachine::execute0x00(u8 **data) // DBG_END_SEQUENCE
 {
     RE_UNUSED(data);
 
-    this->_atend = true;
+    m_atend = true;
 }
 
 void DEXStateMachine::execute0x01(u8 **data) // DBG_ADVANCE_PC
 {
-    this->_address += DEXUtils::getULeb128(data);
+    m_address += DEXUtils::getULeb128(data);
 }
 
 void DEXStateMachine::execute0x02(u8 **data) // DBG_ADVANCE_LINE
 {
-    this->_line += DEXUtils::getSLeb128(data);
+    m_line += DEXUtils::getSLeb128(data);
     VALIDATE_LINE();
 }
 
@@ -115,23 +115,22 @@ void DEXStateMachine::execute0x09(u8 **data) // DBG_SET_FILE
 void DEXStateMachine::executeSpecial(u8 opcode) // Special opcodes
 {
     u16 adjopcode = opcode - DBG_FIRST_SPECIAL;
-    this->_line += DBG_LINE_BASE + (adjopcode % DBG_LINE_RANGE);
-    this->_address += (adjopcode / DBG_LINE_RANGE) * sizeof(u16);
+    m_line += DBG_LINE_BASE + (adjopcode % DBG_LINE_RANGE);
+    m_address += (adjopcode / DBG_LINE_RANGE) * sizeof(u16);
 
     VALIDATE_LINE();
-    this->setDebugData(DEXDebugData::line(this->_line));
+    this->setDebugData(DEXDebugData::line(m_line));
 }
 
 void DEXStateMachine::setDebugData(const DEXDebugData &debugdata)
 {
-    auto it = this->_debuginfo.debug_data.find(this->_address);
+    auto it = m_debuginfo.debug_data.find(m_address);
 
-    if(it == this->_debuginfo.debug_data.end())
+    if(it == m_debuginfo.debug_data.end())
     {
         std::list<DEXDebugData> dbgdatalist;
         dbgdatalist.push_back(debugdata);
-
-        this->_debuginfo.debug_data[this->_address] = dbgdatalist;
+        m_debuginfo.debug_data[m_address] = dbgdatalist;
     }
     else
         it->second.push_back(debugdata);

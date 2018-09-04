@@ -9,6 +9,7 @@ void SymbolCache::serialize(const SymbolPtr &value, std::fstream &fs)
     Serializer::serializeScalar(fs, value->type);
     Serializer::serializeScalar(fs, value->extra_type);
     Serializer::serializeScalar(fs, value->address);
+    Serializer::serializeScalar(fs, value->size);
     Serializer::serializeString(fs, value->name);
     Serializer::serializeString(fs, value->cpu);
 }
@@ -19,6 +20,7 @@ void SymbolCache::deserialize(SymbolPtr &value, std::fstream &fs)
     Serializer::deserializeScalar(fs, &value->type);
     Serializer::deserializeScalar(fs, &value->extra_type);
     Serializer::deserializeScalar(fs, &value->address);
+    Serializer::deserializeScalar(fs, &value->size);
     Serializer::deserializeString(fs, value->name);
     Serializer::deserializeString(fs, value->cpu);
 }
@@ -175,7 +177,7 @@ void SymbolTable::sort()
     std::sort(this->_addresses.begin(), this->_addresses.end(), std::less<address_t>());
 }
 
-bool SymbolTable::createFunction(address_t address, Segment *segment)
+bool SymbolTable::createFunction(address_t address, const Segment *segment)
 {
     return this->createFunction(address, REDasm::symbol("sub", address, segment ? segment->name :
                                                                                   std::string()));

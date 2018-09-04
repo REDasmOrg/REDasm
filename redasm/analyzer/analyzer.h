@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 #include "../plugins/assembler/assembler.h"
-#include "../disassembler/types/listing.h"
+#include "../disassembler/listing/listingdocument.h"
 #include "../disassembler/types/symboltable.h"
 #include "../disassembler/disassemblerapi.h"
 #include "../signatures/signaturedb.h"
@@ -16,19 +16,19 @@ class Analyzer
     public:
         Analyzer(DisassemblerAPI* disassembler, const SignatureFiles& signaturefiles);
         virtual ~Analyzer();
-        virtual void analyze(Listing& listing);
+        virtual void analyze(ListingDocument* document);
 
     private:
         bool checkCrc16(const SymbolPtr &symbol, const Signature &signature, const SignatureDB &signaturedb);
-        void loadSignatures(Listing &listing);
-        void findSignatures(SignatureDB &signaturedb, Listing& listing);
-        void findTrampolines(Listing& listing, SymbolPtr symbol);
-        SymbolPtr findTrampolines_x86(Listing::iterator& it, SymbolTable *symboltable);
-        SymbolPtr findTrampolines_arm(Listing::iterator& it, SymbolTable *symboltable);
+        void loadSignatures(ListingDocument* document);
+        void findSignatures(SignatureDB &signaturedb, ListingDocument* document);
+        void findTrampolines(ListingDocument* document, SymbolPtr symbol);
+        //SymbolPtr findTrampolines_x86(InstructionsPool::iterator& it, SymbolTable *symboltable);
+        //SymbolPtr findTrampolines_arm(InstructionsPool::iterator& it, SymbolTable *symboltable);
 
     protected:
-        DisassemblerAPI* _disassembler;
-        const SignatureFiles& _signaturefiles;
+        DisassemblerAPI* m_disassembler;
+        const SignatureFiles& m_signaturefiles;
 };
 
 }

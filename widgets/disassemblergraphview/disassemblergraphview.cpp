@@ -28,7 +28,7 @@ void DisassemblerGraphView::display(address_t address)
     if(this->_functiongraph)
         delete this->_functiongraph;
 
-    this->_functiongraph = new REDasm::FunctionGraph(this->_disassembler->listing());
+    this->_functiongraph = new REDasm::FunctionGraph(this->_disassembler->instructions());
     this->_functiongraph->build(address);
 
     this->setGraph(this->_functiongraph);
@@ -39,7 +39,7 @@ GraphItem *DisassemblerGraphView::createItem(REDasm::Graphing::Vertex *v)
 {
     FunctionBlockItem* fbi = new FunctionBlockItem(this->_disassembler, v, this);
     REDasm::FunctionGraphVertex* fgv = static_cast<REDasm::FunctionGraphVertex*>(v);
-    REDasm::Listing& listing = this->_functiongraph->listing();
+    REDasm::InstructionsPool& listing = this->_functiongraph->listing();
     auto it = listing.find(fgv->start);
 
     while(it != listing.end())

@@ -7,7 +7,7 @@ GbaAnalyzer::GbaAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles& si
 
 }
 
-void GbaAnalyzer::analyze(Listing &listing)
+void GbaAnalyzer::analyze(InstructionsPool &listing)
 {
     Analyzer::analyze(listing);
 
@@ -15,7 +15,7 @@ void GbaAnalyzer::analyze(Listing &listing)
     this->renameEPBranch(listing, symboltable);
 }
 
-void GbaAnalyzer::renameEPBranch(Listing& listing, SymbolTable* symboltable)
+void GbaAnalyzer::renameEPBranch(InstructionsPool& listing, SymbolTable* symboltable)
 {
     SymbolPtr symbol = symboltable->entryPoint();
 

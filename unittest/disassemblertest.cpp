@@ -35,7 +35,7 @@ using namespace REDasm;
 
 DisassemblerTest::DisassemblerTest()
 {
-    ADD_TEST("/home/davide/Reversing/Cavia.exe", testCavia);
+    ADD_TEST("/home/davide/Programmazione/Cavia.exe", testCavia);
 
     ADD_TEST_PATH("PE Test/CM01.exe", testCM01);
     ADD_TEST_PATH("PE Test/VB5CRKME.EXE", testVB5CrackMe);
@@ -179,7 +179,7 @@ void DisassemblerTest::testCM01(Disassembler *disassembler)
 void DisassemblerTest::testOllyDump(Disassembler *disassembler)
 {
     SymbolTable* symboltable = disassembler->symbolTable();
-    Listing& listing = disassembler->listing();
+    InstructionsPool& listing = disassembler->instructions();
 
     SymbolPtr symbol = symboltable->symbol(0x00403bdc);
     TEST_SYMBOL("Checking Function @ 00403bdc", symbol, symbol->isFunction());
@@ -259,7 +259,7 @@ void DisassemblerTest::testVB5CrackMe(Disassembler *disassembler)
 void DisassemblerTest::testIoliARM(Disassembler *disassembler)
 {
     SymbolTable* symboltable = disassembler->symbolTable();
-    Listing& listing = disassembler->listing();
+    InstructionsPool& listing = disassembler->instructions();
 
     auto it = listing.find(0x00011064);
     TEST("Checking LDR @ 0x00011064", it != listing.end());
@@ -300,7 +300,7 @@ void DisassemblerTest::testIoliARM(Disassembler *disassembler)
 void DisassemblerTest::testTn11(Disassembler *disassembler)
 {
     SymbolTable* symboltable = disassembler->symbolTable();
-    Listing& listing = disassembler->listing();
+    InstructionsPool& listing = disassembler->instructions();
 
     auto it = listing.find(0x004010C0);
     TEST("Checking DlgProc @ 0x00401197", it != listing.end());

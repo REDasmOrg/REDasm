@@ -2,7 +2,6 @@
 #define DISASSEMBLERTEXTDOCUMENT_H
 
 #include "../disassemblerview/disassemblerdocument.h"
-#include "../../redasm/vmil/vmil_printer.h"
 
 class DisassemblerTextDocument : public DisassemblerDocument
 {
@@ -10,12 +9,13 @@ class DisassemblerTextDocument : public DisassemblerDocument
 
     public:
         explicit DisassemblerTextDocument(REDasm::Disassembler* disassembler, QTextDocument *document, QObject* parent = 0);
-        virtual bool generate(address_t address, const QTextCursor &cursor);
-        bool generateVMIL(address_t address, const QTextCursor& cursor);
+        void displayRange(size_t start, size_t count);
 
     private:
-        bool _isvmil;
-        REDasm::VMIL::VMILPrinterPtr _vmilprinter;
+        bool isBlockRendered(size_t line, REDasm::ListingItem* block);
+        void insertBlock(QTextCursor &textcursor, REDasm::ListingItem* block);
+        void insertSegment(QTextCursor &textcursor, REDasm::ListingItem* block);
+        void insertFunction(QTextCursor &textcursor, REDasm::ListingItem* block);
 };
 
 #endif // DISASSEMBLERTEXTDOCUMENT_H

@@ -7,15 +7,15 @@ PsxExeAnalyzer::PsxExeAnalyzer(DisassemblerAPI *disassembler, const SignatureFil
 {
 }
 
-void PsxExeAnalyzer::analyze(Listing& listing)
+void PsxExeAnalyzer::analyze(ListingDocument *document)
 {
-    Analyzer::analyze(listing);
-    this->detectMain(listing);
+    Analyzer::analyze(document);
+    this->detectMain(document);
 }
 
-void PsxExeAnalyzer::detectMain(Listing &listing)
+void PsxExeAnalyzer::detectMain(ListingDocument *document)
 {
-    SymbolTable* symboltable = listing.symbolTable();
+    SymbolTable* symboltable = document->symbols();
     SymbolPtr symentry = symboltable->entryPoint();
 
     if(!symentry)
@@ -23,7 +23,8 @@ void PsxExeAnalyzer::detectMain(Listing &listing)
 
     bool initheap = false;
 
-    listing.iterateFunction(symentry->address, [symboltable, &initheap](const InstructionPtr& instruction)-> bool {
+    /*
+    document.iterateFunction(symentry->address, [symboltable, &initheap](const InstructionPtr& instruction)-> bool {
         if(instruction->mnemonic != "jal")
             return true;
 
@@ -44,6 +45,7 @@ void PsxExeAnalyzer::detectMain(Listing &listing)
 
         return true;
     });
+    */
 }
 
 }

@@ -3,7 +3,7 @@
 
 #define CACHE_DEFAULT  "cachemap"
 #define CACHE_FILE_EXT ".db"
-#define CACHE_FILE     (_name + "_" + std::to_string(_timestamp) + CACHE_FILE_EXT)
+#define CACHE_FILE     (m_name + "_" + std::to_string(m_timestamp) + CACHE_FILE_EXT)
 
 #include <functional>
 #include <iostream>
@@ -46,12 +46,12 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
         };
 
     public:
-        cache_map(): _name(CACHE_DEFAULT), _timestamp(time(NULL)) { }
-        cache_map(const std::string& name): _name(name), _timestamp(time(NULL)) { }
+        cache_map(): m_name(CACHE_DEFAULT), m_timestamp(time(NULL)) { }
+        cache_map(const std::string& name): m_name(name), m_timestamp(time(NULL)) { }
         ~cache_map();
-        iterator begin() { return iterator(*this, this->_offsets.begin()); }
-        iterator end() { return iterator(*this, this->_offsets.end()); }
-        iterator find(const T1& key) { auto it = this->_offsets.find(key); return iterator(*this, it); }
+        iterator begin() { return iterator(*this, this->m_offsets.begin()); }
+        iterator end() { return iterator(*this, this->m_offsets.end()); }
+        iterator find(const T1& key) { auto it = this->m_offsets.find(key); return iterator(*this, it); }
         void commit(const T1& key, const T2& value);
         void erase(const iterator& it);
         T2 operator[](const T1& key);
@@ -61,59 +61,59 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
         virtual void deserialize(T2& value, std::fstream& fs) = 0;
 
     private:
-        std::string _name;
-        offset_map _offsets;
-        std::fstream _file;
-        time_t _timestamp;
+        std::string m_name;
+        offset_map m_offsets;
+        std::fstream m_file;
+        time_t m_timestamp;
 };
 
 template<typename T1, typename T2> cache_map<T1, T2>::~cache_map()
 {
-    if(!this->_file.is_open())
+    if(!this->m_file.is_open())
         return;
 
-    this->_file.close();
+    this->m_file.close();
     std::remove(CACHE_FILE.c_str());
 }
 
 template<typename T1, typename T2> void cache_map<T1, T2>::commit(const T1& key, const T2 &value)
 {
-    if(!this->_file.is_open())
+    if(!this->m_file.is_open())
     {
-        this->_file.open(CACHE_FILE, std::ios::in | std::ios::out |
+        this->m_file.open(CACHE_FILE, std::ios::in | std::ios::out |
                                      std::ios::trunc | std::ios::binary);
 
     }
 
-    this->_file.seekp(0, std::ios::end); // Ignore old key -> value reference, if any
-    this->_offsets[key] = this->_file.tellp();
+    this->m_file.seekp(0, std::ios::end); // Ignore old key -> value reference, if any
+    this->m_offsets[key] = this->m_file.tellp();
 
-    this->serialize(value, this->_file);
-    this->_file.clear(); // Reset error state
+    this->serialize(value, this->m_file);
+    this->m_file.clear(); // Reset error state
 }
 
 template<typename T1, typename T2> void cache_map<T1, T2>::erase(const cache_map<T1, T2>::iterator &it)
 {
-    auto oit = this->_offsets.find(it.key);
+    auto oit = this->m_offsets.find(it.key);
 
-    if(oit == this->_offsets.end())
+    if(oit == this->m_offsets.end())
         return;
 
-    this->_offsets.erase(oit);
+    this->m_offsets.erase(oit);
 }
 
 template<typename T1, typename T2> T2 cache_map<T1, T2>::operator[](const T1& key)
 {
-    auto it = this->_offsets.find(key);
+    auto it = this->m_offsets.find(key);
 
-    if(it == this->_offsets.end())
+    if(it == this->m_offsets.end())
         return T2();
 
     T2 value;
 
-    this->_file.seekg(it->second, std::ios::beg);
-    this->deserialize(value, this->_file);
-    this->_file.clear(); // Reset error state
+    this->m_file.seekg(it->second, std::ios::beg);
+    this->deserialize(value, this->m_file);
+    this->m_file.clear(); // Reset error state
     return value;
 }
 

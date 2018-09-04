@@ -18,7 +18,7 @@ VBAnalyzer::VBAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &sign
     this->_vbpubobjdescr = NULL;
 }
 
-void VBAnalyzer::analyze(Listing &listing)
+void VBAnalyzer::analyze(InstructionsPool &listing)
 {
     SymbolTable* symboltable = listing.symbolTable();
     SymbolPtr entrypoint = symboltable->entryPoint();
@@ -54,12 +54,12 @@ void VBAnalyzer::analyze(Listing &listing)
     PEAnalyzer::analyze(listing);
 }
 
-void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, Listing& listing)
+void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, InstructionsPool& listing)
 {
     if(!eventva)
         return;
 
-    InstructionPtr instruction = this->_disassembler->disassembleInstruction(eventva); // Disassemble trampoline
+    InstructionPtr instruction = this->m_disassembler->disassembleInstruction(eventva); // Disassemble trampoline
 
     if(instruction->mnemonic == "sub")
     {
@@ -68,10 +68,13 @@ void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, Lis
     }
 
     if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
-        this->_disassembler->disassembleFunction(instruction->target(), name);
+    {
+        this->m_disassembler->disassemble(instruction->target());
+        this->m_disassembler->symbolTable()->createFunction(instruction->target(), name);
+    }
 }
 
-void VBAnalyzer::decompileObject(Listing& listing, const VBPublicObjectDescriptor &pubobjdescr)
+void VBAnalyzer::decompileObject(InstructionsPool& listing, const VBPublicObjectDescriptor &pubobjdescr)
 {
     if(!pubobjdescr.lpObjectInfo)
         return;
@@ -105,7 +108,7 @@ void VBAnalyzer::decompileObject(Listing& listing, const VBPublicObjectDescripto
     }
 }
 
-void VBAnalyzer::decompile(Listing& listing, SymbolPtr thunrtdata)
+void VBAnalyzer::decompile(InstructionsPool& listing, SymbolPtr thunrtdata)
 {
     if(!thunrtdata)
         return;

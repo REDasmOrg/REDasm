@@ -4,7 +4,7 @@
 
 namespace REDasm {
 
-FunctionGraph::FunctionGraph(Listing &listing): Graph(), _startaddress(0), _endaddress(0), _listing(listing)
+FunctionGraph::FunctionGraph(InstructionsPool &listing): Graph(), _startaddress(0), _endaddress(0), _listing(listing)
 {
 }
 
@@ -18,7 +18,7 @@ address_t FunctionGraph::endAddress() const
     return this->_endaddress;
 }
 
-Listing &FunctionGraph::listing()
+InstructionsPool &FunctionGraph::listing()
 {
     return this->_listing;
 }

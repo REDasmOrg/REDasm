@@ -13,7 +13,7 @@ CallGraphView::~CallGraphView()
 
 void CallGraphView::display(address_t address, REDasm::Disassembler* disassembler)
 {
-    this->_callgraph = std::make_unique<REDasm::CallGraph>(disassembler->listing());
+    this->_callgraph = std::make_unique<REDasm::CallGraph>(disassembler->instructions());
     this->_callgraph->walk(address);
 
     this->setGraph(this->_callgraph.get());

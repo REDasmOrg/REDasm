@@ -1,58 +1,91 @@
 #include "disassemblertextdocument.h"
+#include <algorithm>
+#include <QDebug>
 
-DisassemblerTextDocument::DisassemblerTextDocument(REDasm::Disassembler *disassembler, QTextDocument *document, QObject *parent): DisassemblerDocument(disassembler, document, parent), _isvmil(false)
+DisassemblerTextDocument::DisassemblerTextDocument(REDasm::Disassembler *disassembler, QTextDocument *document, QObject *parent): DisassemblerDocument(disassembler, document, parent)
 {
+    REDasm::ListingDocument* doc = disassembler->format()->m_document();
+    doc->sort();
 }
 
-bool DisassemblerTextDocument::generate(address_t address, const QTextCursor &cursor)
+void DisassemblerTextDocument::displayRange(size_t start, size_t count)
 {
-    if(!DisassemblerDocument::generate(address, cursor))
-        return false;
+    REDasm::ListingDocument* doc = this->_disassembler->format()->m_document();
+    QTextCursor textcursor;
 
-    REDasm::SymbolTable* symboltable = this->_disassembler->symbolTable();
-
-    this->moveToBlock(address);
-    this->_textcursor.beginEditBlock();
-
-    REDasm::SymbolPtr symbol = symboltable->symbol(address);
-
-    if(!symbol || symbol->isFunction())
+    for(size_t i = start; i < std::min(doc->count(), start + count); i++)
     {
-        REDasm::Listing& listing = this->_disassembler->listing();
+        REDasm::ListingItem* block = doc->at(i);
 
-        listing.iterateFunction(address, [this](const REDasm::InstructionPtr& i) { this->appendInstruction(i); },
-                                         [this](const REDasm::SymbolPtr& s) { this->appendFunctionStart(s); },
-                                         [this](const REDasm::InstructionPtr& i) { this->appendEmpty(i->address); },
-                                         [this](const REDasm::SymbolPtr& s) { this->appendLabel(s); });
+        if(this->isBlockRendered(i, block))
+            continue;
 
+        QTextBlock textblock = this->_document->findBlockByLineNumber(i);
+
+        if(!textblock.isValid())
+        {
+            textcursor = QTextCursor(this->_document);
+            textcursor.movePosition(QTextCursor::End);
+        }
+        else
+            textcursor = QTextCursor(textblock);
+
+        this->insertBlock(textcursor, block);
     }
+}
+
+bool DisassemblerTextDocument::isBlockRendered(size_t line, REDasm::ListingItem *block)
+{
+    QTextBlock textblock = this->_document->findBlockByLineNumber(line);
+    QTextBlockFormat blockformat = textblock.blockFormat();
+    REDasm::ListingItem* lineblock = reinterpret_cast<REDasm::ListingItem*>(blockformat.property(DisassemblerDocument::Block).value<void*>());
+    return lineblock == block;
+}
+
+void DisassemblerTextDocument::insertBlock(QTextCursor& textcursor, REDasm::ListingItem *block)
+{
+    if(textcursor.block().blockFormat().hasProperty(DisassemblerDocument::Block))
+        textcursor.insertBlock();
+
+    QTextBlockFormat blockformat;
+    blockformat.setProperty(DisassemblerDocument::Address, QVariant::fromValue(block->address));
+    blockformat.setProperty(DisassemblerDocument::Block, QVariant::fromValue(reinterpret_cast<void*>(block)));
+    textcursor.setBlockFormat(blockformat);
+
+    if(block->typeIs(REDasm::ListingItemTypes::Segment))
+        this->insertSegment(textcursor, block);
+    else if(block->typeIs(REDasm::ListingItemTypes::Function))
+        this->insertFunction(textcursor, block);
     else
-        this->_pendingsymbols.insert(address);
-
-    this->appendSymbols();
-    this->_textcursor.endEditBlock();
-    return true;
+        Q_ASSERT(false);
 }
 
-bool DisassemblerTextDocument::generateVMIL(address_t address, const QTextCursor &cursor)
+void DisassemblerTextDocument::insertSegment(QTextCursor& textcursor, REDasm::ListingItem *block)
 {
-    this->_isvmil = true;
-    this->_textcursor = cursor;
+    REDasm::SegmentBlock* segmentblock = static_cast<REDasm::SegmentBlock*>(block);
 
-    if(!this->_vmilprinter)
-    {
-        this->_vmilprinter = std::make_shared<REDasm::VMIL::VMILPrinter>(this->_printer, this->_disassembler, this->_disassembler->symbolTable());
-        this->setCurrentPrinter(this->_vmilprinter);
-    }
+    QTextCharFormat charformat;
+    charformat.setForeground(THEME_VALUE("segment_fg"));
 
-    this->_textcursor.beginEditBlock();
+    textcursor.setBlockCharFormat(charformat);
+    textcursor.insertText(QString("segment '%1' start: %2 end %3").arg(S_TO_QS(segmentblock->name))
+                                                                  .arg(HEX_ADDRESS(segmentblock->address))
+                                                                  .arg(HEX_ADDRESS(segmentblock->endaddress)));
+}
 
-    this->_disassembler->iterateVMIL(address, [this](const REDasm::InstructionPtr& i) { this->appendInstruction(i); },
-                                              [this](const REDasm::SymbolPtr& s) { this->appendFunctionStart(s); },
-                                              [this](const REDasm::InstructionPtr& i) { this->appendEmpty(i->address); },
-                                              [this](const REDasm::SymbolPtr& s) { this->appendLabel(s); });
+void DisassemblerTextDocument::insertFunction(QTextCursor& textcursor, REDasm::ListingItem *block)
+{
+    QTextCharFormat charformat;
+    charformat.setForeground(THEME_VALUE("function_fg"));
+    textcursor.setBlockCharFormat(charformat);
 
-    this->_textcursor.endEditBlock();
-    this->_isvmil = false;
-    return true;
+    this->_printer->function(this->_symbols->symbol(block->address), [this, &textcursor](const std::string& pre, const std::string& sym, const std::string& post) {
+        if(!pre.empty())
+            textcursor.insertText(S_TO_QS(pre));
+
+        textcursor.insertText(S_TO_QS(sym));
+
+        if(!post.empty())
+            textcursor.insertText(S_TO_QS(post));
+    });
 }

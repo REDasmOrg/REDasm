@@ -18,7 +18,7 @@ struct CallGraphVertex: public Graphing::Vertex
 class CallGraph: public Graphing::Graph
 {
     public:
-        CallGraph(Listing& listing);
+        CallGraph(InstructionsPool& listing);
         void walk(address_t address);
 
     private:
@@ -29,7 +29,7 @@ class CallGraph: public Graphing::Graph
         Graphing::vertex_id_t vertexIdByAddress(address_t address) const;
 
     private:
-        Listing& _listing;
+        InstructionsPool& _listing;
         std::unordered_map<address_t, Graphing::vertex_id_t> _byaddress;
 };
 

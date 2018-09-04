@@ -23,7 +23,8 @@ class DisassemblerDocument: public QObject
     public:
         enum { UnknownBlock = 0,
                Address,
-               IsEmptyBlock, IsFunctionBlock, IsInstructionBlock, IsLabelBlock, IsSymbolBlock };
+               Block,
+               IsEmptyBlock, IsSegmentBlock, IsFunctionBlock, IsInstructionBlock, IsLabelBlock, IsSymbolBlock };
 
         enum { NoAction = 0, GotoAction, LabelAction };
 

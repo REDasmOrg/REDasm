@@ -28,7 +28,7 @@ class XbeFormat : public FormatPluginT<XbeImageHeader>
         template<typename T> T* memoryoffset(u32 memaddress) const;
 };
 
-template<typename T> T* XbeFormat::memoryoffset(u32 memaddress) const { return this->pointer<T>(memaddress - this->_format->BaseAddress); }
+template<typename T> T* XbeFormat::memoryoffset(u32 memaddress) const { return this->pointer<T>(memaddress - this->m_format->BaseAddress); }
 
 DECLARE_FORMAT_PLUGIN(XbeFormat, xbe)
 

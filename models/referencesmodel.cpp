@@ -41,7 +41,8 @@ void ReferencesModel::clear()
 
 QVariant ReferencesModel::dataInstructionRefs(const QModelIndex &index, int role) const
 {
-    REDasm::Listing& listing = this->_disassembler->listing();
+    /*
+    REDasm::InstructionsPool& listing = this->_disassembler->instructions();
     REDasm::InstructionPtr instruction = listing[this->_references[index.row()]];
 
     if(role == Qt::DisplayRole)
@@ -76,6 +77,7 @@ QVariant ReferencesModel::dataInstructionRefs(const QModelIndex &index, int role
         else if(instruction->is(REDasm::InstructionTypes::Call))
             return THEME_VALUE("instruction_call");
     }
+    */
 
     return QVariant();
 }

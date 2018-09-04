@@ -7,7 +7,7 @@ ElfAnalyzer::ElfAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &si
 
 }
 
-void ElfAnalyzer::analyze(Listing &listing)
+void ElfAnalyzer::analyze(InstructionsPool &listing)
 {
     Analyzer::analyze(listing);
     SymbolTable* symbolable = listing.symbolTable();

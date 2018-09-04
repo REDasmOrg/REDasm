@@ -9,10 +9,10 @@ class PsxExeAnalyzer: public Analyzer
 {
     public:
         PsxExeAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles& signaturefiles);
-        virtual void analyze(Listing &listing);
+        virtual void analyze(ListingDocument* document);
 
     private:
-        void detectMain(Listing& listing);
+        void detectMain(ListingDocument* document);
 };
 
 }

@@ -62,7 +62,7 @@ bool XbeFormat::load(u8 *rawformat, u64)
 
 void XbeFormat::displayXbeInfo()
 {
-    XbeCertificate* certificate = this->memoryoffset<XbeCertificate>(this->_format->CertificateAddress);
+    XbeCertificate* certificate = this->memoryoffset<XbeCertificate>(this->m_format->CertificateAddress);
     std::string title = REDasm::wtoa(&certificate->TitleName, XBE_TITLENAME_SIZE);
 
     if(!title.empty())
@@ -123,7 +123,7 @@ bool XbeFormat::decodeKernel(u32 encodedthunk, u32 &thunk)
 
 void XbeFormat::loadSections(XbeSectionHeader *sectionhdr)
 {
-    for(u32 i = 0; i < this->_format->NumberOfSections; i++)
+    for(u32 i = 0; i < this->m_format->NumberOfSections; i++)
     {
         std::string sectname = this->memoryoffset<const char>(sectionhdr[i].SectionName);
         u32 secttype = SegmentTypes::None;
@@ -153,7 +153,7 @@ bool XbeFormat::loadXBoxKrnl()
     REDasm::loadordinals(REDasm::makeFormatPath("xbe", "xboxkrnl.json"), ordinals);
     u32 kernelimagethunk;
 
-    if(!this->decodeKernel(this->_format->KernelImageThunk, kernelimagethunk))
+    if(!this->decodeKernel(this->m_format->KernelImageThunk, kernelimagethunk))
         return false;
 
     offset_t thunkoffset = this->offset(kernelimagethunk);

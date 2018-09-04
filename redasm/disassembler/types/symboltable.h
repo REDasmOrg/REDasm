@@ -37,12 +37,13 @@ namespace SymbolTypes {
 
 struct Symbol
 {
-    Symbol(): type(0), extra_type(0), address(0) { }
-    Symbol(u32 type, u32 extratype, address_t address, const std::string& name): type(type), extra_type(extratype), address(address), name(name) { }
+    Symbol(): type(0), extra_type(0), address(0), size(0) { }
+    Symbol(u32 type, u32 extratype, address_t address, const std::string& name): type(type), extra_type(extratype), address(address), size(0), name(name) { }
     void lock() { type |= SymbolTypes::Locked; }
 
     u32 type, extra_type;
     address_t address;
+    u64 size;
     std::string name, cpu;
 
     bool is(u32 t) const { return type & t; }
@@ -85,7 +86,7 @@ class SymbolTable
         void sort();
 
     public:
-        bool createFunction(address_t address, Segment* segment = NULL);
+        bool createFunction(address_t address, const Segment *segment = NULL);
         bool createFunction(address_t address, const std::string& name);
         bool createString(address_t address);
         bool createWString(address_t address);

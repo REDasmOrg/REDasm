@@ -12,7 +12,7 @@ class DalvikPrinter : public Printer
 {
     public:
         DalvikPrinter(DisassemblerAPI* disassembler, SymbolTable* symboltable);
-        virtual void header(const SymbolPtr &symbol, HeaderCallback plgfunc);
+        virtual void function(const SymbolPtr &symbol, FunctionCallback plgfunc);
         virtual void prologue(const SymbolPtr &symbol, LineCallback prologuefunc);
         virtual void info(const InstructionPtr &instruction, LineCallback infofunc);
         virtual std::string reg(const RegisterOperand &regop) const;

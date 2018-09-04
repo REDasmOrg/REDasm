@@ -1,12 +1,14 @@
 #ifndef DISASSEMBLERTEXTVIEW_H
 #define DISASSEMBLERTEXTVIEW_H
 
-#include <QPlainTextEdit>
+#include <QAbstractScrollArea>
+#include <QTextDocument>
 #include <QStack>
+#include <QMenu>
 #include "disassemblertextdocument.h"
 #include "disassemblerhighlighter.h"
 
-class DisassemblerTextView : public QPlainTextEdit
+class DisassemblerTextView : public QAbstractScrollArea
 {
     Q_OBJECT
 
@@ -31,13 +33,12 @@ class DisassemblerTextView : public QPlainTextEdit
         void goForward();
 
     protected:
-        virtual void resizeEvent(QResizeEvent *e);
-        virtual void wheelEvent(QWheelEvent *e);
-        virtual void mouseReleaseEvent(QMouseEvent *e);
-        virtual void mouseDoubleClickEvent(QMouseEvent *e);
+        virtual void paintEvent(QPaintEvent* e);
         virtual void keyPressEvent(QKeyEvent *e);
 
     private:
+        void syncDocument();
+        int visibleLines() const;
         void createContextMenu();
         void adjustContextMenu();
         void highlightWords();
@@ -59,6 +60,9 @@ class DisassemblerTextView : public QPlainTextEdit
         void symbolAddressChanged();
         void symbolDeselected();
         void addressChanged(address_t address);
+
+    private:
+        QTextDocument* _textdocument;
 
     private:
         bool _issymboladdressvalid;

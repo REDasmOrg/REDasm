@@ -46,7 +46,7 @@ void ListingMap::render(REDasm::Disassembler* disassembler)
         if(!segmentitem)
             return true;
 
-        std::string sig = disassembler->listing().getSignature(symbol);
+        std::string sig = disassembler->instructions().getSignature(symbol);
 
         if(sig.empty())
             return true;

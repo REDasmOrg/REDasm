@@ -7,7 +7,7 @@ MetaARMEmulator::MetaARMEmulator(DisassemblerAPI *disassembler): VMIL::Emulator(
 {
     VMIL_TRANSLATE_OPCODE(ARM_INS_LDR, Ldr);
     VMIL_TRANSLATE_OPCODE(ARM_INS_B, Branch);
-    VMIL_TRANSLATE_OPCODE(ARM_INS_BX, Branch);
+    VMIL_TRANSLATE_OPCODE(ARM_INS_BX, Bx);
 }
 
 void MetaARMEmulator::translateLdr(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
@@ -23,12 +23,19 @@ void MetaARMEmulator::translateLdr(const InstructionPtr &instruction, VMIL::VMIL
     vminstructions.push_back(vminstruction);
 }
 
+void MetaARMEmulator::translateBx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
+{
+    vminstruction = VMIL::emitJcc(instruction, VMIL_INSTRUCTION_I(vminstructions));
+    vminstruction->imm(VMIL_TRUE);
+    vminstruction->op(instruction->op(0));
+    vminstructions.push_back(vminstruction);
+}
+
 void MetaARMEmulator::translateBranch(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
     vminstruction = VMIL::emitJcc(instruction, VMIL_INSTRUCTION_I(vminstructions));
     vminstruction->imm(VMIL_TRUE);
     vminstruction->op(instruction->op(0));
-    vminstruction->target_idx = 0;
     vminstructions.push_back(vminstruction);
 }
 

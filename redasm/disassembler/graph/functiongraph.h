@@ -19,10 +19,10 @@ struct FunctionGraphVertex: public Graphing::Vertex
 class FunctionGraph: public Graphing::Graph
 {
     public:
-        FunctionGraph(Listing& listing);
+        FunctionGraph(InstructionsPool& listing);
         address_t startAddress() const;
         address_t endAddress() const;
-        Listing& listing();
+        InstructionsPool& listing();
         void build(address_t address);
 
     private:
@@ -33,7 +33,7 @@ class FunctionGraph: public Graphing::Graph
 
     private:
         address_t _startaddress, _endaddress;
-        Listing& _listing;
+        InstructionsPool& _listing;
 };
 
 } // namespace REDasm

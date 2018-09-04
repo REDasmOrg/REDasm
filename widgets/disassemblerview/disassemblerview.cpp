@@ -8,6 +8,7 @@
 DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), _hexdocument(NULL), _lblstatus(lblstatus), _disassembler(NULL), _disassemblerthread(NULL)
 {
     ui->setupUi(this);
+
     ui->vSplitter->setSizes((QList<int>() << this->width() * 0.70
                                           << this->width() * 0.30));
 
@@ -125,7 +126,8 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 
     ui->hexEdit->setDocument(this->_hexdocument);
     ui->bottomTabs->setCurrentWidget(ui->tabOutput);
-    ui->disassemblerGraphView->setDisassembler(disassembler);
+    ui->disassemblerTextView->setDisassembler(disassembler);
+    //FIXME: ui->disassemblerGraphView->setDisassembler(disassembler);
 
     this->_disassemblerthread = new DisassemblerThread(disassembler, this);
 
@@ -154,10 +156,10 @@ void DisassemblerView::on_topTabs_currentChanged(int index)
     if(!w)
         return;
 
-    if(w == ui->tabVMIL)
-        ui->vmilTextView->goTo(ui->disassemblerTextView->currentAddress());
-    else if(w == ui->disassemblerGraphView)
-        ui->disassemblerGraphView->display(ui->disassemblerTextView->currentAddress());
+    //if(w == ui->tabVMIL)
+        //ui->vmilTextView->goTo(ui->disassemblerTextView->currentAddress());
+    //else if(w == ui->disassemblerGraphView)
+        //ui->disassemblerGraphView->display(ui->disassemblerTextView->currentAddress());
 }
 
 void DisassemblerView::on_bottomTabs_currentChanged(int index)
@@ -233,7 +235,7 @@ void DisassemblerView::xrefSymbol(const QModelIndex &index)
 
 void DisassemblerView::displayAddress(address_t address)
 {
-    REDasm::SymbolPtr symbol = this->_disassembler->listing().getFunction(address);
+    REDasm::SymbolPtr symbol = this->_disassembler->instructions().getFunction(address);
     const REDasm::Segment* segment = this->_disassembler->format()->segment(address);
     offset_t offset = this->_disassembler->format()->offset(address);
     s64 foffset = symbol ? address - symbol->address : 0;
@@ -256,7 +258,7 @@ void DisassemblerView::displayAddress(address_t address)
 
 void DisassemblerView::displayInstructionReferences()
 {
-    REDasm::Listing& listing = this->_disassembler->listing();
+    REDasm::InstructionsPool& listing = this->_disassembler->instructions();
     auto it = listing.find(ui->disassemblerTextView->currentAddress());
 
     if(it == listing.end())
@@ -335,14 +337,15 @@ void DisassemblerView::showListing()
     this->_segmentsmodel->setDisassembler(this->_disassembler);
     this->_referencesmodel->setDisassembler(this->_disassembler);
 
+    /*
     if(this->_disassembler->assembler()->hasVMIL())
     {
         ui->vmilTextView->setEmitMode(DisassemblerTextView::VMIL);
         ui->vmilTextView->setDisassembler(this->_disassembler);
         ui->topTabs->insertTab(VMIL_TAB_INDEX, ui->tabVMIL, "VMIL");
     }
+    */
 
-    ui->disassemblerTextView->setDisassembler(this->_disassembler);
     ui->disassemblerMap->render(this->_disassembler);
     ui->bottomTabs->setCurrentWidget(ui->tabStrings);
     ui->tbGoto->setEnabled(true);

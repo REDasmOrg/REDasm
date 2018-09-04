@@ -10,13 +10,13 @@ DalvikPrinter::DalvikPrinter(DisassemblerAPI *disassembler, SymbolTable *symbolt
 
 }
 
-void DalvikPrinter::header(const SymbolPtr &symbol, Printer::HeaderCallback headerfunc)
+void DalvikPrinter::function(const SymbolPtr &symbol, Printer::FunctionCallback headerfunc)
 {
     DEXFormat* dexformat = dynamic_cast<DEXFormat*>(this->_disassembler->format());
 
     if(!dexformat)
     {
-        Printer::header(symbol, headerfunc);
+        Printer::function(symbol, headerfunc);
         return;
     }
 

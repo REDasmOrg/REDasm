@@ -222,7 +222,7 @@
         <attribute name="title">
          <string>Disassembly</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_9">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
          <property name="spacing">
           <number>0</number>
          </property>
@@ -239,14 +239,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="DisassemblerTextView" name="disassemblerTextView">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="undoRedoEnabled">
-            <bool>false</bool>
-           </property>
-          </widget>
+          <widget class="DisassemblerTextView" name="disassemblerTextView" native="true"/>
          </item>
         </layout>
        </widget>
@@ -271,12 +264,9 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="DisassemblerTextView" name="vmilTextView">
+          <widget class="QPlainTextEdit" name="vmilTextView">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="undoRedoEnabled">
-            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -560,11 +550,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DisassemblerTextView</class>
-   <extends>QTextEdit</extends>
-   <header>widgets/disassemblertextview/disassemblertextview.h</header>
-  </customwidget>
-  <customwidget>
    <class>ListingMap</class>
    <extends>QWidget</extends>
    <header>widgets/listingmap.h</header>
@@ -580,6 +565,12 @@
    <class>DisassemblerGraphView</class>
    <extends>QWidget</extends>
    <header>widgets/disassemblergraphview/disassemblergraphview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DisassemblerTextView</class>
+   <extends>QWidget</extends>
+   <header>widgets/disassemblertextview/disassemblertextview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -43,10 +43,10 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 
 template<ELF_PARAMS_T> u32 ElfFormat<ELF_PARAMS_D>::bits() const
 {
-    if(this->_format->e_ident[EI_CLASS] == ELFCLASS32)
+    if(this->m_format->e_ident[EI_CLASS] == ELFCLASS32)
         return 32;
 
-    if(this->_format->e_ident[EI_CLASS] == ELFCLASS64)
+    if(this->m_format->e_ident[EI_CLASS] == ELFCLASS64)
         return 64;
 
     return 0;
@@ -54,7 +54,7 @@ template<ELF_PARAMS_T> u32 ElfFormat<ELF_PARAMS_D>::bits() const
 
 template<ELF_PARAMS_T> const char* ElfFormat<ELF_PARAMS_D>::assembler() const
 {
-    switch(this->_format->e_machine)
+    switch(this->m_format->e_machine)
     {
         case EM_386:
             return "x86_32";
@@ -83,8 +83,8 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load(u8* format, u64)
         return false;
 
     this->_shdr = POINTER(SHDR, ehdr->e_shoff);
-    this->defineEntryPoint(this->_format->e_entry);
     this->parseSections();
+    this->defineEntryPoint(this->m_format->e_entry);
 
     FormatPluginT<EHDR>::load(format);
     return true;
@@ -97,7 +97,7 @@ template<ELF_PARAMS_T> Analyzer* ElfFormat<ELF_PARAMS_D>::createAnalyzer(Disasse
 
 template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* value) const
 {
-    for(u64 i = 0; i < this->_format->e_shnum; i++)
+    for(u64 i = 0; i < this->m_format->e_shnum; i++)
     {
         const SHDR& shdr = this->_shdr[i];
 
@@ -193,19 +193,19 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
 
 template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::validate() const
 {
-    if(this->_format->e_ident[EI_MAG0] != ELFMAG0)
+    if(this->m_format->e_ident[EI_MAG0] != ELFMAG0)
         return false;
 
-    if(this->_format->e_ident[EI_MAG1] != ELFMAG1)
+    if(this->m_format->e_ident[EI_MAG1] != ELFMAG1)
         return false;
 
-    if(this->_format->e_ident[EI_MAG2] != ELFMAG2)
+    if(this->m_format->e_ident[EI_MAG2] != ELFMAG2)
         return false;
 
-    if(this->_format->e_ident[EI_MAG3] != ELFMAG3)
+    if(this->m_format->e_ident[EI_MAG3] != ELFMAG3)
         return false;
 
-    if(this->_format->e_ident[EI_VERSION] != EV_CURRENT)
+    if(this->m_format->e_ident[EI_VERSION] != EV_CURRENT)
         return false;
 
     return true;
@@ -213,7 +213,7 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::validate() const
 
 template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSections()
 {
-    for(u64 i = 0; i < this->_format->e_shnum; i++)
+    for(u64 i = 0; i < this->m_format->e_shnum; i++)
     {
         const SHDR& shdr = this->_shdr[i];
 

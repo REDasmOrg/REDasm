@@ -160,7 +160,7 @@ void PeFormat::checkDelphi(const PEResources& peresources)
         return;
 
     u64 datasize = 0;
-    PackageInfoHeader* packageinfo = peresources.data<PackageInfoHeader>(ri, this->_format,
+    PackageInfoHeader* packageinfo = peresources.data<PackageInfoHeader>(ri, this->m_format,
                                                                          [this](address_t a) -> offset_t { return this->rvaToOffset(a); },
                                                                          &datasize);
 
@@ -287,10 +287,10 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
 
 void PeFormat::loadDefault()
 {
-    this->defineEntryPoint(this->_entrypoint);
     this->defineSymbol(this->_imagebase, "PE_ImageBase", SymbolTypes::Data);
 
     this->loadSections();
+    this->defineEntryPoint(this->_entrypoint);
     this->loadExports();
     this->loadImports();
     this->loadSymbolTable();

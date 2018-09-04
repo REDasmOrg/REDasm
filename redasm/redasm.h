@@ -16,6 +16,7 @@
 #if __cplusplus <= 201103L
 namespace std {
 template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... args) { return std::unique_ptr<T>(new T(std::forward<Args>(args)...)); }
+template<typename T> std::unique_ptr<T> make_unique(T* t) { return std::unique_ptr<T>(t); }
 }
 #endif
 
@@ -125,7 +126,7 @@ namespace OperandSizes {
     std::string size(u32 opsize);
 }
 
-namespace BlockTypes {
+namespace ListingItemTypes {
     enum: u32 {
         None        = 0x00000000,
         BlockStart  = 0x00000001,
@@ -171,8 +172,7 @@ struct Signature
 struct Segment
 {
     Segment(): offset(0), address(0), endaddress(0), type(0) { }
-    Segment(const std::string& name, offset_t offset, address_t address, u64 size, u64 flags): name(name), offset(offset), address(address), endaddress(address + size), type(flags) { }
-
+    Segment(const std::string& name, offset_t offset, address_t address, u64 size, u32 type): name(name), offset(offset), address(address), endaddress(address + size), type(type) { }
     u64 size() const { return endaddress - address; }
     bool contains(address_t address) const { return (address >= this->address) && (address < endaddress); }
     bool is(u32 t) const { return type & t; }
@@ -240,7 +240,7 @@ struct Instruction
     std::function<void(void*)> free;
 
     std::string mnemonic, bytes;
-    std::list<address_t> targets;   // Jump/JumpTable/Call destination(s)
+    std::set<address_t> targets;   // Jump/JumpTable/Call destination(s)
     std::set<address_t> references;
     std::vector<Operand> operands;
     std::list<std::string> comments;
@@ -251,19 +251,20 @@ struct Instruction
     void* userdata;                 // It doesn't survive after Assembler::decode() by design
 
     bool is(u32 t) const { return type & t; }
+    bool isTargetOperand(const Operand& op) const { return (target_idx == -1) ? false : (target_idx == op.index); }
     bool blockIs(u32 t) const { return blocktype & t; }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
     bool hasTargets() const { return !targets.empty(); }
     bool hasReferences() const { return !references.empty(); }
     void reset() { target_idx = -1, type = blocktype = 0; targets.clear(); operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
     void foreachTarget(std::function<void(address_t)> cb) { std::for_each(targets.begin(), targets.end(), cb); }
-    void target_op(s32 index) { target_idx = index; targets.push_back(operands[index].u_value); }
-    void target(address_t target) { targets.push_back(target); }
+    void target_op(s32 index) { target_idx = index; targets.insert(operands[index].u_value); }
+    void target(address_t target) { targets.insert(target); }
     void reference(address_t ref) { references.insert(ref); }
     void op_size(s32 index, u32 size) { operands[index].size = size; }
     u32 op_size(s32 index) const { return operands[index].size; }
-    address_t target() const { return targets.front(); }
-    address_t endAddress() const { return address + size; }
+    address_t target() const { return *targets.begin(); }
+    address_t endAddress() const { return (address + size) - 1; }
 
     Operand& op(size_t idx) { return operands[idx]; }
     Instruction& cmt(const std::string& s) { comments.push_back(s); return *this; }

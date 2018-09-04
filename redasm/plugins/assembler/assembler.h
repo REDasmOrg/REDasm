@@ -33,7 +33,6 @@ class AssemblerPlugin: public Plugin
         virtual VMIL::Emulator* createEmulator(DisassemblerAPI* disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI* disassembler, SymbolTable* symboltable) const;
         virtual void analyzeOperand(DisassemblerAPI* disassembler, const InstructionPtr& instruction, const Operand& operand) const;
-        virtual void prepare(const InstructionPtr& instruction);
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual bool done(const InstructionPtr& instruction);
 

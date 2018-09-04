@@ -14,7 +14,7 @@ class Printer
     public:
         typedef std::function<void(const Operand&, const std::string&, const std::string&)> OpCallback;
         typedef std::function<void(const SymbolPtr&, const std::string&)> SymbolCallback;
-        typedef std::function<void(const std::string&, const std::string&, const std::string&)> HeaderCallback;
+        typedef std::function<void(const std::string&, const std::string&, const std::string&)> FunctionCallback;
         typedef std::function<void(const std::string&)> LineCallback;
 
     public:
@@ -24,7 +24,7 @@ class Printer
         std::string out(const InstructionPtr& instruction) const;
 
     public:
-        virtual void header(const SymbolPtr& symbol, HeaderCallback headerfunc);
+        virtual void function(const SymbolPtr& symbol, FunctionCallback functionfunc);
         virtual void prologue(const SymbolPtr& symbol, LineCallback prologuefunc);
         virtual void symbol(const SymbolPtr& symbol, SymbolCallback symbolfunc) const;
         virtual void info(const InstructionPtr& instruction, LineCallback infofunc);

@@ -62,12 +62,10 @@ SOURCES += main.cpp\
     redasm/support/demangler.cpp \
     redasm/assemblers/mips/mips.cpp \
     redasm/assemblers/x86/x86.cpp \
-    redasm/plugins/assembler/assembler.cpp \
     redasm/formats/pe/vb/vb_analyzer.cpp \
     redasm/formats/pe/vb/vb_components.cpp \
     redasm/formats/pe/pe_imports.cpp \
     redasm/disassembler/disassemblerbase.cpp \
-    redasm/disassembler/types/listing.cpp \
     redasm/disassembler/types/referencetable.cpp \
     redasm/disassembler/types/symboltable.cpp \
     redasm/support/coff/coff_symboltable.cpp \
@@ -133,7 +131,13 @@ SOURCES += main.cpp\
     redasm/assemblers/metaarm/metaarm_emulator.cpp \
     redasm/assemblers/metaarm/arm.cpp \
     redasm/assemblers/metaarm/armthumb.cpp \
-    redasm/assemblers/metaarm/arm_common.cpp
+    redasm/assemblers/metaarm/arm_common.cpp \
+    redasm/disassembler/algorithm/controlflow.cpp \
+    redasm/plugins/assembler/assembler.cpp \
+    redasm/plugins/disassembler/algorithm.cpp \
+    redasm/disassembler/algorithm/linearsweep.cpp \
+    redasm/disassembler/listing/listingdocument.cpp \
+    redasm/disassembler/listing/instructionpool.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -174,7 +178,6 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/vb/vb_components.h \
     redasm/formats/pe/pe_imports.h \
     redasm/disassembler/disassemblerbase.h \
-    redasm/disassembler/types/listing.h \
     redasm/disassembler/types/referencetable.h \
     redasm/disassembler/types/symboltable.h \
     redasm/support/coff/coff_symboltable.h \
@@ -256,7 +259,13 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/metaarm/metaarm_emulator.h \
     redasm/assemblers/metaarm/arm.h \
     redasm/assemblers/metaarm/armthumb.h \
-    redasm/assemblers/metaarm/arm_common.h
+    redasm/assemblers/metaarm/arm_common.h \
+    redasm/disassembler/algorithm/controlflow.h \
+    redasm/plugins/assembler/assembler.h \
+    redasm/plugins/disassembler/algorithm.h \
+    redasm/disassembler/algorithm/linearsweep.h \
+    redasm/disassembler/listing/listingdocument.h \
+    redasm/disassembler/listing/instructionpool.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

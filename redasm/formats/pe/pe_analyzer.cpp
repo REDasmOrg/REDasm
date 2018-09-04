@@ -20,7 +20,7 @@ PEAnalyzer::PEAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& sign
     ADD_WNDPROC_API(4, "CreateDialogIndirectParamW");
 }
 
-void PEAnalyzer::analyze(Listing &listing)
+void PEAnalyzer::analyze(InstructionsPool &listing)
 {
     Analyzer::analyze(listing);
     this->findStopAPI(listing, "kernel32.dll", "ExitProcess");
@@ -28,7 +28,7 @@ void PEAnalyzer::analyze(Listing &listing)
     this->findAllWndProc(listing);
 }
 
-SymbolPtr PEAnalyzer::getImport(Listing &listing, const std::string &library, const std::string &api)
+SymbolPtr PEAnalyzer::getImport(InstructionsPool &listing, const std::string &library, const std::string &api)
 {
     SymbolTable* symboltable = listing.symbolTable();
     SymbolPtr symbol = symboltable->symbol(IMPORT_TRAMPOLINE(library, api));
@@ -39,17 +39,17 @@ SymbolPtr PEAnalyzer::getImport(Listing &listing, const std::string &library, co
     return symbol;
 }
 
-ReferenceVector PEAnalyzer::getAPIReferences(Listing& listing, const std::string &library, const std::string &api)
+ReferenceVector PEAnalyzer::getAPIReferences(InstructionsPool& listing, const std::string &library, const std::string &api)
 {
     SymbolPtr symbol = this->getImport(listing, library, api);
 
     if(!symbol)
         return ReferenceVector();
 
-    return this->_disassembler->getReferences(symbol);
+    return this->m_disassembler->getReferences(symbol);
 }
 
-void PEAnalyzer::findStopAPI(Listing &listing, const std::string& library, const std::string& api)
+void PEAnalyzer::findStopAPI(InstructionsPool &listing, const std::string& library, const std::string& api)
 {
     ReferenceVector refs = this->getAPIReferences(listing, library, api);
 
@@ -59,7 +59,7 @@ void PEAnalyzer::findStopAPI(Listing &listing, const std::string& library, const
     });
 }
 
-void PEAnalyzer::findAllWndProc(Listing &listing)
+void PEAnalyzer::findAllWndProc(InstructionsPool &listing)
 {
     for(auto it = this->_wndprocapi.begin(); it != this->_wndprocapi.end(); it++)
     {
@@ -71,7 +71,7 @@ void PEAnalyzer::findAllWndProc(Listing &listing)
     }
 }
 
-void PEAnalyzer::findWndProc(Listing &listing, address_t address, size_t argidx)
+void PEAnalyzer::findWndProc(InstructionsPool &listing, address_t address, size_t argidx)
 {
     auto it = listing.find(address);
 
@@ -97,8 +97,9 @@ void PEAnalyzer::findWndProc(Listing &listing, address_t address, size_t argidx)
 
                 if(segment && segment->is(SegmentTypes::Code))
                 {
-                    this->_disassembler->disassembleFunction(op.u_value, "DlgProc_" + REDasm::hex(op.u_value, 0, false));
-                    listing.symbolTable()->lock(op.u_value);
+                    SymbolTable* symboltable = listing.symbolTable();
+                    symboltable->createFunction(op.u_value, "DlgProc_" + REDasm::hex(op.u_value, 0, false));
+                    symboltable->lock(op.u_value);
                 }
             }
         }

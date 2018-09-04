@@ -32,7 +32,7 @@ const char *DEXFormat::assembler() const
 
 endianness_t DEXFormat::endianness() const
 {
-    if(this->_format->endian_tag == DEX_ENDIAN_CONSTANT)
+    if(this->m_format->endian_tag == DEX_ENDIAN_CONSTANT)
         return Endianness::LittleEndian;
 
     return Endianness::BigEndian;
@@ -85,7 +85,7 @@ bool DEXFormat::getMethodOffset(u32 idx, offset_t &offset) const
 
 bool DEXFormat::getStringOffset(u32 idx, offset_t& offset) const
 {
-    if(!this->_strings || (idx >= this->_format->string_ids_size))
+    if(!this->_strings || (idx >= this->m_format->string_ids_size))
         return false;
 
     u8* pstringdata = pointer<u8>(this->_strings[idx].string_data_off);
@@ -107,7 +107,7 @@ std::string DEXFormat::getString(u32 idx) const
 
 std::string DEXFormat::getType(u32 idx) const
 {
-    if(idx >= this->_format->type_ids_size)
+    if(idx >= this->m_format->type_ids_size)
         return "type_" + std::to_string(idx);
 
     const DEXTypeIdItem& dextype = this->_types[idx];
@@ -116,7 +116,7 @@ std::string DEXFormat::getType(u32 idx) const
 
 std::string DEXFormat::getMethod(u32 idx) const
 {
-    if(idx >= this->_format->method_ids_size)
+    if(idx >= this->m_format->method_ids_size)
         return "method_" + std::to_string(idx);
 
     const DEXMethodIdItem& dexmethod = this->_methods[idx];
@@ -132,7 +132,7 @@ std::string DEXFormat::getMethodProto(u32 idx) const
 
 std::string DEXFormat::getField(u32 idx) const
 {
-    if(!this->_fields || (idx >= this->_format->field_ids_size))
+    if(!this->_fields || (idx >= this->m_format->field_ids_size))
         return "field_" + std::to_string(idx);
 
     const DEXFieldIdItem& dexfield = this->_fields[idx];
@@ -143,7 +143,7 @@ std::string DEXFormat::getField(u32 idx) const
 
 std::string DEXFormat::getReturnType(u32 methodidx) const
 {
-    if(methodidx >= this->_format->method_ids_size)
+    if(methodidx >= this->m_format->method_ids_size)
         return std::string();
 
     const DEXMethodIdItem& dexmethod = this->_methods[methodidx];
@@ -154,7 +154,7 @@ std::string DEXFormat::getReturnType(u32 methodidx) const
 
 std::string DEXFormat::getParameters(u32 methodidx) const
 {
-    if(methodidx >= this->_format->method_ids_size)
+    if(methodidx >= this->m_format->method_ids_size)
         return std::string();
 
     const DEXMethodIdItem& dexmethod = this->_methods[methodidx];

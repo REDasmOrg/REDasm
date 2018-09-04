@@ -37,10 +37,10 @@ std::string Printer::out(const InstructionPtr &instruction) const
     return this->out(instruction, [](const Operand&, const std::string&, const std::string&) { });
 }
 
-void Printer::header(const SymbolPtr &symbol, Printer::HeaderCallback headerfunc)
+void Printer::function(const SymbolPtr &symbol, Printer::FunctionCallback functionfunc)
 {
     std::string s(20, '=');
-    headerfunc(s + " FUNCTION ", symbol->name, " " + s);
+    functionfunc(s + " FUNCTION ", symbol->name, " " + s);
 }
 
 void Printer::prologue(const SymbolPtr &symbol, Printer::LineCallback prologuefunc)

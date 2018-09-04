@@ -27,12 +27,8 @@ Printer *AssemblerPlugin::createPrinter(DisassemblerAPI *disassembler, SymbolTab
 
 void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
-    if(operand.is(OperandTypes::Register))
-    {
-        this->analyzeRegister(disassembler, instruction, operand);
-        return;
-    }
-    else if(!operand.isNumeric())
+    /*
+    if(!operand.isNumeric())
         return;
 
     u64 value = operand.u_value;
@@ -60,7 +56,6 @@ void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const Instru
             else if(!dir)
                 instruction->cmt("Infinite loop");
 
-            disassembler->updateInstruction(instruction);
             symboltable->createLocation(value, SymbolTypes::Code);
         }
         else
@@ -89,11 +84,7 @@ void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const Instru
 
         disassembler->pushReference(value, instruction);
     }
-}
-
-void AssemblerPlugin::prepare(const InstructionPtr &instruction)
-{
-    RE_UNUSED(instruction);
+    */
 }
 
 bool AssemblerPlugin::decode(Buffer buffer, const InstructionPtr &instruction)
@@ -208,26 +199,27 @@ void AssemblerPlugin::analyzeRegisterBranch(address_t target, DisassemblerAPI *d
     if(!instruction->is(InstructionTypes::Branch) || (operand.index != instruction->target_idx))
         return;
 
-    REDasm::log("VMIL @ " + REDasm::hex(instruction->address) + " jumps to " + REDasm::hex(target));
+    address_t fetchtarget = target;
+    REDasm::log("VMIL @ " + REDasm::hex(instruction->address) + " jumps to " + REDasm::hex(fetchtarget));
 
     if(!this->canEmulateVMIL())
     {
-        instruction->cmt("VMIL = " + REDasm::hex(target));
+        instruction->cmt("VMIL = " + REDasm::hex(fetchtarget));
         disassembler->updateInstruction(instruction);
         return;
     }
 
-    Segment* segment = disassembler->format()->segment(target);
+    Segment* segment = disassembler->format()->segment(fetchtarget);
 
     if(!segment || !segment->is(SegmentTypes::Code))
         return;
 
     if(instruction->is(InstructionTypes::Call))
-        disassembler->symbolTable()->createFunction(target);
+        disassembler->symbolTable()->createFunction(fetchtarget);
     else
-        disassembler->symbolTable()->createLocation(target, SymbolTypes::Code);
+        disassembler->symbolTable()->createLocation(fetchtarget, SymbolTypes::Code);
 
-    SymbolPtr symbol = disassembler->symbolTable()->symbol(target);
+    SymbolPtr symbol = disassembler->symbolTable()->symbol(fetchtarget);
     instruction->target(target);
     instruction->cmt("VMIL = " + symbol->name);
     disassembler->pushReference(symbol, instruction); // Updates instruction

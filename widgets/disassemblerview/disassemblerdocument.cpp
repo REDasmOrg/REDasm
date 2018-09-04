@@ -50,7 +50,7 @@ void DisassemblerDocument::update(address_t address)
 void DisassemblerDocument::updateInstructions(const REDasm::SymbolPtr& symbol)
 {
     REDasm::ReferenceVector refs = this->_disassembler->getReferences(symbol);
-    REDasm::Listing& listing = this->_disassembler->listing();
+    REDasm::InstructionsPool& listing = this->_disassembler->instructions();
 
     for(auto it = refs.begin(); it != refs.end(); it++)
     {
@@ -92,7 +92,7 @@ void DisassemblerDocument::updateLabels(const REDasm::SymbolPtr &symbol)
     if(!this->isBlockGenerated(symbol->address))
         return;
 
-    REDasm::Listing& listing = this->_disassembler->listing();
+    REDasm::InstructionsPool& listing = this->_disassembler->instructions();
     REDasm::ReferenceVector refs = this->_disassembler->getReferences(symbol);
 
     for(auto rit = refs.begin(); rit != refs.end(); rit++)
@@ -177,7 +177,7 @@ void DisassemblerDocument::appendFunctionStart(const REDasm::SymbolPtr &symbol, 
     this->_textcursor.setCharFormat(charformat);
     this->_textcursor.insertText(QString(" ").repeated(this->getIndent(symbol->address)));
 
-    this->_currentprinter->header(symbol, [this, &charformat, symbol](const std::string& pre, const std::string& sym, const std::string& post) {
+    this->_currentprinter->function(symbol, [this, &charformat, symbol](const std::string& pre, const std::string& sym, const std::string& post) {
         if(!pre.empty())
             this->_textcursor.insertText(S_TO_QS(pre));
 
@@ -295,15 +295,15 @@ void DisassemblerDocument::appendAddress(address_t address)
 
 void DisassemblerDocument::appendPathInfo(const REDasm::InstructionPtr& instruction)
 {
-    if(instruction->blockIs(REDasm::BlockTypes::Ignore))
+    if(instruction->blockIs(REDasm::ListingItemTypes::Ignore))
     {
         this->_textcursor.insertText("  ");
         return;
     }
 
-    if(instruction->blockIs(REDasm::BlockTypes::BlockStart))
+    if(instruction->blockIs(REDasm::ListingItemTypes::BlockStart))
         this->_textcursor.insertText("/ ");
-    else if(instruction->blockIs(REDasm::BlockTypes::BlockEnd))
+    else if(instruction->blockIs(REDasm::ListingItemTypes::BlockEnd))
         this->_textcursor.insertText("\\ ");
     else
         this->_textcursor.insertText("| ");
@@ -418,7 +418,7 @@ void DisassemblerDocument::appendSymbols(bool replace)
 
     for(auto it = this->_pendinginstructions.begin(); it != this->_pendinginstructions.end(); it++)
     {
-        REDasm::InstructionPtr instruction = this->_disassembler->listing()[*it];
+        REDasm::InstructionPtr instruction = this->_disassembler->instructions()[*it];
 
         this->_currentprinter->symbols(instruction, [this, replace](const REDasm::SymbolPtr& symbol, const std::string& line) {
             this->appendSymbol(symbol, line, replace);

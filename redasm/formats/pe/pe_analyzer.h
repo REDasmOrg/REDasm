@@ -12,14 +12,14 @@ class PEAnalyzer: public Analyzer
 
     public:
         PEAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures);
-        virtual void analyze(Listing& listing);
+        virtual void analyze(InstructionsPool& listing);
 
     private:
-        SymbolPtr getImport(Listing& listing, const std::string& library, const std::string& api);
-        ReferenceVector getAPIReferences(Listing &listing, const std::string& library, const std::string& api);
-        void findStopAPI(Listing& listing, const std::string &library, const std::string &api);
-        void findAllWndProc(Listing& listing);
-        void findWndProc(Listing& listing, address_t address, size_t argidx);
+        SymbolPtr getImport(InstructionsPool& listing, const std::string& library, const std::string& api);
+        ReferenceVector getAPIReferences(InstructionsPool &listing, const std::string& library, const std::string& api);
+        void findStopAPI(InstructionsPool& listing, const std::string &library, const std::string &api);
+        void findAllWndProc(InstructionsPool& listing);
+        void findWndProc(InstructionsPool& listing, address_t address, size_t argidx);
 
     private:
         std::list<APIInfo> _wndprocapi;

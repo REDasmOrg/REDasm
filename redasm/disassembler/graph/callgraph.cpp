@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-CallGraph::CallGraph(Listing &listing): Graphing::Graph(), _listing(listing)
+CallGraph::CallGraph(InstructionsPool &listing): Graphing::Graph(), _listing(listing)
 {
 
 }

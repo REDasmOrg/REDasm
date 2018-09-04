@@ -33,8 +33,8 @@ class DisassemblerAPI
         virtual void pushReference(const SymbolPtr& symbol, const InstructionPtr& refby) = 0;
         virtual void pushReference(address_t address, const InstructionPtr& refby) = 0;
         virtual void updateInstruction(const InstructionPtr& instruction) = 0;
-        virtual void checkJumpTable(const InstructionPtr& instruction, const Operand &operand) = 0;
         virtual void checkLocation(const InstructionPtr& instruction, address_t address) = 0;
+        virtual bool checkJumpTable(const InstructionPtr& instruction, address_t address) = 0;
         virtual bool checkString(const InstructionPtr& instruction, address_t address) = 0;
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const = 0;
         virtual std::string readString(const SymbolPtr& symbol) const = 0;
@@ -50,8 +50,7 @@ class DisassemblerAPI
         virtual bool dereferenceOperand(const Operand& operand, u64* value) const = 0;
         virtual SymbolPtr dereferenceSymbol(const SymbolPtr& symbol, u64* value = NULL) = 0;
         virtual InstructionPtr disassembleInstruction(address_t address) = 0;
-        virtual bool disassembleFunction(address_t address, const std::string& name = std::string()) = 0;
-        virtual bool disassemble(address_t address) = 0;
+        virtual void disassemble(address_t address) = 0;
 };
 
 } // namespace REDasm

@@ -1,5 +1,7 @@
 {
     "address_fg": "#6a89b4",
+    "segment_fg": "#345f41",
+    "function_fg": "#3f669e",
     "header_fg": "#3f669e",
     "info_fg": "#7f8c8d",
     "comment_fg": "#16a085",

@@ -13,15 +13,8 @@ Disassembler::Disassembler(Buffer buffer, AssemblerPlugin *assembler, FormatPlug
         assembler->setEndianness(format->endianness());
 }
 
-Disassembler::~Disassembler()
-{
-    delete this->m_assembler;
-}
-
-ListingDocument *Disassembler::document()
-{
-
-}
+Disassembler::~Disassembler() { delete this->m_assembler; }
+ListingDocument *Disassembler::document() { return m_document; }
 
 size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t address)
 {
@@ -31,7 +24,7 @@ size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t 
 
     while(this->readAddress(address, sz, &target))
     {
-        Segment* segment = m_document->segment(target);
+        const Segment* segment = m_document->segment(target);
 
         if(!segment || !segment->is(SegmentTypes::Code))
             break;
@@ -82,7 +75,7 @@ std::string Disassembler::comment(const InstructionPtr &instruction) const
 
 void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
 {
-    Segment* segment = NULL;
+    const Segment* segment = NULL;
 
     while(algorithm->hasNext())
     {
@@ -108,7 +101,7 @@ void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
         if(status == DisassemblerAlgorithm::FAIL)
             this->createInvalid(instruction, buffer);
 
-        //this->_listing.commit(instruction->address, instruction);
+        m_document->instruction(instruction);
     }
 
     std::unique_ptr<Analyzer> a(m_format->createAnalyzer(this, m_format->signatures()));
@@ -122,6 +115,7 @@ void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
 
 void Disassembler::disassembleUnexploredCode()
 {
+    /*
     for(auto it = m_document->segments().begin(); it != m_document->segments().end(); it++)
     {
         const Segment& segment = *it;
@@ -132,6 +126,7 @@ void Disassembler::disassembleUnexploredCode()
         this->searchStrings(segment);
         this->searchCode(segment);
     }
+    */
 }
 
 void Disassembler::searchCode(const Segment &segment)

@@ -56,6 +56,8 @@ void DisassemblerTextDocument::insertBlock(QTextCursor& textcursor, REDasm::List
         this->insertSegment(textcursor, block);
     else if(block->is(REDasm::ListingItem::FunctionItem))
         this->insertFunction(textcursor, block);
+    else if(block->is(REDasm::ListingItem::InstructionItem))
+        this->insertInstruction(textcursor, block);
     else
         Q_ASSERT(false);
 }
@@ -88,4 +90,9 @@ void DisassemblerTextDocument::insertFunction(QTextCursor& textcursor, REDasm::L
         if(!post.empty())
             textcursor.insertText(S_TO_QS(post));
     });
+}
+
+void DisassemblerTextDocument::insertInstruction(QTextCursor &textcursor, REDasm::ListingItem *block)
+{
+
 }

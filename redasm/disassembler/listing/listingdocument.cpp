@@ -11,7 +11,6 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
 
     if(type & SymbolTypes::Function)
         m_items.push_back(ListingItem(address, ListingItem::FunctionItem));
-
 }
 
 void ListingDocument::symbol(address_t address, u32 type, u32 tag)
@@ -26,7 +25,7 @@ void ListingDocument::symbol(address_t address, u32 type, u32 tag)
         this->symbol(address, this->symbolName("sub", address), type, tag);
     else
     {
-        Segment* segment = this->segment(address);
+        const Segment* segment = this->segment(address);
 
         if(segment && segment->is(SegmentTypes::Code))
             this->symbol(address, this->symbolName("loc", address), type, tag);
@@ -64,7 +63,7 @@ void ListingDocument::sort()
     });
 }
 
-const SegmentList &ListingDocument::segments() const { return m_segments; }
+size_t ListingDocument::segmentsCount() const { return m_segments.size(); }
 
 Segment *ListingDocument::segment(address_t address)
 {
@@ -77,19 +76,26 @@ Segment *ListingDocument::segment(address_t address)
     return NULL;
 }
 
-Segment *ListingDocument::segmentAt(size_t idx) { return &m_segments[idx]; }
+const Segment *ListingDocument::segment(address_t address) const { return const_cast<ListingDocument*>(this)->segment(address); }
+const Segment *ListingDocument::segmentAt(size_t idx) const { return &m_segments[idx]; }
 
-Segment *ListingDocument::segmentByName(const std::string &name)
+const Segment *ListingDocument::segmentByName(const std::string &name) const
 {
     for(auto it = m_segments.begin(); it != m_segments.end(); it++)
     {
-        Segment& segment = *it;
+        const Segment& segment = *it;
 
         if(segment.name == name)
             return &segment;
     }
 
     return NULL;
+}
+
+void ListingDocument::instruction(const InstructionPtr &instruction)
+{
+    m_instructions.commit(instruction->address, instruction);
+    m_items.push_back(ListingItem(instruction->address, ListingItem::InstructionItem));
 }
 
 InstructionPtr ListingDocument::instruction(address_t address)

@@ -15,8 +15,8 @@ struct ListingItem
 {
     enum: u32 {
         Undefined = 0,
-        DataItem      = 1,
-        SegmentItem   = 2, FunctionItem = 3, InstructionItem = 4,
+        DataItem,
+        SegmentItem, FunctionItem, PrologueItem, InstructionItem,
     };
 
     ListingItem(): address(0), type(ListingItem::Undefined) { }
@@ -41,13 +41,17 @@ class ListingDocument
         void sort();
 
     public:
-        const SegmentList& segments() const;
+        size_t segmentsCount() const;
         Segment *segment(address_t address);
-        Segment *segmentAt(size_t idx);
-        Segment *segmentByName(const std::string& name);
+        const Segment *segment(address_t address) const;
+        const Segment *segmentAt(size_t idx) const;
+        const Segment *segmentByName(const std::string& name) const;
 
     public:
+        void instruction(const InstructionPtr& instruction);
         InstructionPtr instruction(address_t address);
+
+    public:
         size_t count() const;
         ListingItem* at(size_t i);
         SymbolPtr symbol(address_t address);

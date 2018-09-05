@@ -10,14 +10,12 @@ u64 FormatPlugin::addressWidth() const { return this->bits() / 8; }
 
 offset_t FormatPlugin::offset(address_t address) const
 {
-    const SegmentList& segments = m_document.segments();
-
-    for(auto it = segments.begin(); it != segments.end(); it++)
+    for(size_t i = 0; i < m_document.segmentsCount(); i++)
     {
-        const Segment& segment = *it;
+        const Segment* segment = m_document.segmentAt(i);
 
-        if(segment.contains(address))
-            return (address - segment.address) + segment.offset;
+        if(segment->contains(address))
+            return (address - segment->address) + segment->offset;
     }
 
     return address;

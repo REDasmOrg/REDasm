@@ -16,6 +16,7 @@ class DisassemblerTextDocument : public DisassemblerDocument
         void insertBlock(QTextCursor &textcursor, REDasm::ListingItem* block);
         void insertSegment(QTextCursor &textcursor, REDasm::ListingItem* block);
         void insertFunction(QTextCursor &textcursor, REDasm::ListingItem* block);
+        void insertInstruction(QTextCursor &textcursor, REDasm::ListingItem* block);
 };
 
 #endif // DISASSEMBLERTEXTDOCUMENT_H

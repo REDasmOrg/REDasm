@@ -192,8 +192,9 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
     {
         if(i >= vscrollbar->maximum())
         {
-            painter.fillRect(this->viewport()->x(), y, this->viewport()->width(), fm.height(), Qt::red);
-            continue;
+            break;
+            //painter.fillRect(this->viewport()->x(), y, this->viewport()->width(), fm.height(), Qt::red);
+            //continue;
         }
 
         charformat = textblock.charFormat();

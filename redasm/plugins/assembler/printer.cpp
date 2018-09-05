@@ -1,6 +1,8 @@
 #include "printer.h"
 #include "../../plugins/format.h"
 
+#define HEADER_SYMBOL_COUNT 20
+
 namespace REDasm {
 
 Printer::Printer(DisassemblerAPI *disassembler): m_disassembler(disassembler)
@@ -37,9 +39,19 @@ std::string Printer::out(const InstructionPtr &instruction) const
     return this->out(instruction, [](const Operand&, const std::string&, const std::string&) { });
 }
 
+void Printer::segment(const Segment *segment, Printer::LineCallback segmentfunc)
+{
+    std::string s(HEADER_SYMBOL_COUNT, '=');
+    int bits = m_disassembler->format()->bits();
+
+    segmentfunc(s + " SEGMENT " + (segment ? segment->name : "???") +
+                " START: " + REDasm::hex(segment->address, bits) +
+                " END: " + REDasm::hex(segment->endaddress, bits) + " " + s);
+}
+
 void Printer::function(const SymbolPtr &symbol, Printer::FunctionCallback functionfunc)
 {
-    std::string s(20, '=');
+    std::string s(HEADER_SYMBOL_COUNT, '=');
     functionfunc(s + " FUNCTION ", symbol->name, " " + s);
 }
 

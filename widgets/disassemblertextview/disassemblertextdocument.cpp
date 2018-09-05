@@ -70,15 +70,13 @@ void DisassemblerTextDocument::insertItem(QTextCursor& textcursor, REDasm::Listi
 
 void DisassemblerTextDocument::insertSegmentItem(QTextCursor& textcursor, REDasm::ListingItem *item)
 {
-    REDasm::Segment* segment = m_disassembler->document()->segment(item->address);
+    m_printer->segment(m_disassembler->document()->segment(item->address), [&textcursor](const std::string& line) {
+        QTextCharFormat charformat;
+        charformat.setForeground(THEME_VALUE("segment_fg"));
 
-    QTextCharFormat charformat;
-    charformat.setForeground(THEME_VALUE("segment_fg"));
-
-    textcursor.setBlockCharFormat(charformat);
-    textcursor.insertText(QString("segment '%1' start: %2 end %3").arg(segment ? S_TO_QS(segment->name) : "???")
-                                                                  .arg(HEX_ADDRESS(segment->address))
-                                                                  .arg(HEX_ADDRESS(segment->endaddress)));
+        textcursor.setBlockCharFormat(charformat);
+        textcursor.insertText(S_TO_QS(line));
+    });
 }
 
 void DisassemblerTextDocument::insertFunctionItem(QTextCursor& textcursor, REDasm::ListingItem *item)

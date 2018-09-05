@@ -24,6 +24,7 @@ class Printer
         std::string out(const InstructionPtr& instruction) const;
 
     public:
+        virtual void segment(const Segment* segment, LineCallback segmentfunc);
         virtual void function(const SymbolPtr& symbol, FunctionCallback functionfunc);
         virtual void prologue(const SymbolPtr& symbol, LineCallback prologuefunc);
         virtual void symbol(const SymbolPtr& symbol, SymbolCallback symbolfunc) const;

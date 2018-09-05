@@ -56,11 +56,15 @@ void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
         if(!segment)
             continue;
 
-        if(op.isRead() && this->m_disassembler->dereferenceOperand(op, &value))
+        if(op.isRead() && m_disassembler->dereferenceOperand(op, &value))
         {
             segment = document->segment(value);
+
+            if(!segment)
+                continue;
+
             document->symbol(op.u_value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
-            this->m_disassembler->pushReference(op.u_value, instruction);
+            m_disassembler->pushReference(op.u_value, instruction);
         }
 
         if(instruction->is(InstructionTypes::Jump) && instruction->isTargetOperand(op))
@@ -79,7 +83,7 @@ void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
             }
             else
             {
-                this->m_disassembler->checkJumpTable(instruction, op.u_value);
+                m_disassembler->checkJumpTable(instruction, op.u_value);
                 continue;
             }
         }

@@ -1,7 +1,7 @@
 #include "pe_imports.h"
 
-#define LOAD_ORDINALS(dll, jsonfile) { sm_libraries[dll] = OrdinalsMap(); \
-                                     REDasm::loadordinals(REDasm::makeFormatPath("pe", #jsonfile".json"), sm_libraries[dll]); }
+#define LOAD_ORDINALS(dll, jsonfile) { m_libraries[dll] = OrdinalsMap(); \
+                                     REDasm::loadordinals(REDasm::makeFormatPath("pe", #jsonfile".json"), m_libraries[dll]); }
 
 namespace REDasm {
 

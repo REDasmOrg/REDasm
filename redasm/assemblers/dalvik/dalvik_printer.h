@@ -11,7 +11,7 @@ class DEXFormat;
 class DalvikPrinter : public Printer
 {
     public:
-        DalvikPrinter(DisassemblerAPI* disassembler, SymbolTable* symboltable);
+        DalvikPrinter(DisassemblerAPI* disassembler);
         virtual void function(const SymbolPtr &symbol, FunctionCallback plgfunc);
         virtual void prologue(const SymbolPtr &symbol, LineCallback prologuefunc);
         virtual void info(const InstructionPtr &instruction, LineCallback infofunc);
@@ -25,9 +25,9 @@ class DalvikPrinter : public Printer
         void endLocal(register_t r);
 
     private:
-        DEXDebugInfo _currentdbginfo;
-        std::unordered_map<u16, DEXDebugData> _regoverrides;
-        std::unordered_map<u16, std::string> _regnames;
+        DEXDebugInfo m_currentdbginfo;
+        std::unordered_map<u16, DEXDebugData> m_regoverrides;
+        std::unordered_map<u16, std::string> m_regnames;
 };
 
 } // namespace REDasm

@@ -14,6 +14,27 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
 
 }
 
+void ListingDocument::symbol(address_t address, u32 type, u32 tag)
+{
+    if(type & SymbolTypes::Pointer)
+        this->symbol(address, this->symbolName("ptr", address), type, tag);
+    else if(type & SymbolTypes::WideString)
+        this->symbol(address, this->symbolName("wstr", address), type, tag);
+    else if(type & SymbolTypes::String)
+        this->symbol(address, this->symbolName("str", address), type, tag);
+    else if(type & SymbolTypes::Function)
+        this->symbol(address, this->symbolName("sub", address), type, tag);
+    else
+    {
+        Segment* segment = this->segment(address);
+
+        if(segment && segment->is(SegmentTypes::Code))
+            this->symbol(address, this->symbolName("loc", address), type, tag);
+        else
+            this->symbol(address, this->symbolName("data", address), type, tag);
+    }
+}
+
 void ListingDocument::lock(address_t address, const std::string &name, u32 type, u32 tag)
 {
     this->symbol(address, name, type | SymbolTypes::Locked, tag);
@@ -71,9 +92,32 @@ Segment *ListingDocument::segmentByName(const std::string &name)
     return NULL;
 }
 
+InstructionPtr ListingDocument::instruction(address_t address)
+{
+    auto it = m_instructions.find(address);
+
+    if(it != m_instructions.end())
+        return *it;
+
+    return InstructionPtr();
+}
+
 size_t ListingDocument::count() const { return m_items.size(); }
-ListingItem& ListingDocument::at(size_t i) { return m_items.at(i); }
+ListingItem* ListingDocument::at(size_t i) { return &m_items[i]; }
+SymbolPtr ListingDocument::symbol(address_t address) { return m_symboltable.symbol(address); }
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
 FormatPlugin *ListingDocument::format() { return m_format; }
+
+std::string ListingDocument::symbolName(const std::string &prefix, address_t address, const Segment *segment)
+{
+    std::stringstream ss;
+    ss << prefix;
+
+    if(segment)
+        ss << "_" << REDasm::normalize(segment->name);
+
+    ss << "_" << std::hex << address;
+    return ss.str();
+}
 
 } // namespace REDasm

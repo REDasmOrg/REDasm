@@ -5,7 +5,7 @@
 #define DBG_LINE_BASE     -4   // The smallest line number increment
 #define DBG_LINE_RANGE    15   // The number of line increments represented
 
-#define BIND_STATE(opcode)   _statesmap[opcode] = [this](u8** data) { this->execute##opcode(data); }
+#define BIND_STATE(opcode)   m_statesmap[opcode] = [this](u8** data) { this->execute##opcode(data); }
 #define VALIDATE_LINE()      if(m_line == 0) REDasm::log("WARNING: line register == 0")
 
 namespace REDasm {

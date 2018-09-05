@@ -21,15 +21,8 @@ DalvikAssembler::DalvikAssembler(): AssemblerPlugin()
     SET_DECODE_TO(C); SET_DECODE_TO(D); SET_DECODE_TO(E); SET_DECODE_TO(F);
 }
 
-const char *DalvikAssembler::name() const
-{
-    return "Dalvik VM";
-}
-
-Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const
-{
-    return new DalvikPrinter(disassembler, symboltable);
-}
+const char *DalvikAssembler::name() const { return "Dalvik VM"; }
+Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new DalvikPrinter(disassembler); }
 
 void DalvikAssembler::analyzeOperand(DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
@@ -40,7 +33,6 @@ void DalvikAssembler::analyzeOperand(DisassemblerAPI *disassembler, const Instru
     if(!dexformat || !operand.extra_type)
         return;
 
-    SymbolTable* symboltable = disassembler->symbolTable();
     offset_t offset = 0;
 
     if(operand.extra_type == DalvikOperands::StringIndex)
@@ -48,7 +40,7 @@ void DalvikAssembler::analyzeOperand(DisassemblerAPI *disassembler, const Instru
         if(!dexformat->getStringOffset(operand.u_value, offset))
             return;
 
-        symboltable->createString(offset);
+        disassembler->document()->symbol(offset, SymbolTypes::String);
         disassembler->pushReference(offset, instruction);
     }
     else if(operand.extra_type == DalvikOperands::MethodIndex)

@@ -17,11 +17,11 @@ class MetaARMAssembler: public AssemblerPlugin
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual VMIL::Emulator* createEmulator(DisassemblerAPI *disassembler) const;
-        virtual Printer* createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const;
+        virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
 
     private:
-        ARMAssembler* _armassembler;
-        ARMThumbAssembler* _thumbassembler;
+        ARMAssembler* m_armassembler;
+        ARMThumbAssembler* m_thumbassembler;
 };
 
 DECLARE_ASSEMBLER_PLUGIN(MetaARMAssembler, metaarm)

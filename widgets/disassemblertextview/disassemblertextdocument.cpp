@@ -4,13 +4,13 @@
 
 DisassemblerTextDocument::DisassemblerTextDocument(REDasm::Disassembler *disassembler, QTextDocument *document, QObject *parent): DisassemblerDocument(disassembler, document, parent)
 {
-    REDasm::ListingDocument* doc = disassembler->format()->m_document();
+    REDasm::ListingDocument* doc = disassembler->format()->document();
     doc->sort();
 }
 
 void DisassemblerTextDocument::displayRange(size_t start, size_t count)
 {
-    REDasm::ListingDocument* doc = this->_disassembler->format()->m_document();
+    REDasm::ListingDocument* doc = m_disassembler->format()->document();
     QTextCursor textcursor;
 
     for(size_t i = start; i < std::min(doc->count(), start + count); i++)
@@ -20,11 +20,11 @@ void DisassemblerTextDocument::displayRange(size_t start, size_t count)
         if(this->isBlockRendered(i, block))
             continue;
 
-        QTextBlock textblock = this->_document->findBlockByLineNumber(i);
+        QTextBlock textblock = m_textdocument->findBlockByLineNumber(i);
 
         if(!textblock.isValid())
         {
-            textcursor = QTextCursor(this->_document);
+            textcursor = QTextCursor(m_textdocument);
             textcursor.movePosition(QTextCursor::End);
         }
         else
@@ -36,7 +36,7 @@ void DisassemblerTextDocument::displayRange(size_t start, size_t count)
 
 bool DisassemblerTextDocument::isBlockRendered(size_t line, REDasm::ListingItem *block)
 {
-    QTextBlock textblock = this->_document->findBlockByLineNumber(line);
+    QTextBlock textblock = m_textdocument->findBlockByLineNumber(line);
     QTextBlockFormat blockformat = textblock.blockFormat();
     REDasm::ListingItem* lineblock = reinterpret_cast<REDasm::ListingItem*>(blockformat.property(DisassemblerDocument::Block).value<void*>());
     return lineblock == block;
@@ -52,9 +52,9 @@ void DisassemblerTextDocument::insertBlock(QTextCursor& textcursor, REDasm::List
     blockformat.setProperty(DisassemblerDocument::Block, QVariant::fromValue(reinterpret_cast<void*>(block)));
     textcursor.setBlockFormat(blockformat);
 
-    if(block->typeIs(REDasm::ListingItemTypes::Segment))
+    if(block->is(REDasm::ListingItem::SegmentItem))
         this->insertSegment(textcursor, block);
-    else if(block->typeIs(REDasm::ListingItemTypes::Function))
+    else if(block->is(REDasm::ListingItem::FunctionItem))
         this->insertFunction(textcursor, block);
     else
         Q_ASSERT(false);
@@ -62,15 +62,15 @@ void DisassemblerTextDocument::insertBlock(QTextCursor& textcursor, REDasm::List
 
 void DisassemblerTextDocument::insertSegment(QTextCursor& textcursor, REDasm::ListingItem *block)
 {
-    REDasm::SegmentBlock* segmentblock = static_cast<REDasm::SegmentBlock*>(block);
+    REDasm::Segment* segment = m_disassembler->document()->segment(block->address);
 
     QTextCharFormat charformat;
     charformat.setForeground(THEME_VALUE("segment_fg"));
 
     textcursor.setBlockCharFormat(charformat);
-    textcursor.insertText(QString("segment '%1' start: %2 end %3").arg(S_TO_QS(segmentblock->name))
-                                                                  .arg(HEX_ADDRESS(segmentblock->address))
-                                                                  .arg(HEX_ADDRESS(segmentblock->endaddress)));
+    textcursor.insertText(QString("segment '%1' start: %2 end %3").arg(segment ? S_TO_QS(segment->name) : "???")
+                                                                  .arg(HEX_ADDRESS(segment->address))
+                                                                  .arg(HEX_ADDRESS(segment->endaddress)));
 }
 
 void DisassemblerTextDocument::insertFunction(QTextCursor& textcursor, REDasm::ListingItem *block)
@@ -79,7 +79,7 @@ void DisassemblerTextDocument::insertFunction(QTextCursor& textcursor, REDasm::L
     charformat.setForeground(THEME_VALUE("function_fg"));
     textcursor.setBlockCharFormat(charformat);
 
-    this->_printer->function(this->_symbols->symbol(block->address), [this, &textcursor](const std::string& pre, const std::string& sym, const std::string& post) {
+    m_printer->function(m_disassembler->document()->symbol(block->address), [this, &textcursor](const std::string& pre, const std::string& sym, const std::string& post) {
         if(!pre.empty())
             textcursor.insertText(S_TO_QS(pre));
 

@@ -7,48 +7,39 @@
 
 namespace REDasm {
 
-Disassembler::Disassembler(Buffer buffer, AssemblerPlugin *assembler, FormatPlugin *format): DisassemblerBase(buffer, format), _assembler(assembler)
+Disassembler::Disassembler(Buffer buffer, AssemblerPlugin *assembler, FormatPlugin *format): DisassemblerBase(buffer, format), m_assembler(assembler)
 {
     if(!format->isBinary())
         assembler->setEndianness(format->endianness());
-
-    this->_printer = PrinterPtr(this->_assembler->createPrinter(this, this->_symboltable));
-    this->_emulator = assembler->hasVMIL() ? assembler->createEmulator(this) : NULL;
-
-    this->_listing.setFormat(this->_format);
-    this->_listing.setAssembler(this->_assembler);
-    this->_listing.setSymbolTable(this->_symboltable);
-    this->_listing.setReferenceTable(&this->_referencetable);
 }
 
 Disassembler::~Disassembler()
 {
-    if(this->_emulator)
-        delete this->_emulator;
-
-    delete this->_assembler;
+    delete this->m_assembler;
 }
 
-InstructionsPool& Disassembler::instructions()
+ListingDocument *Disassembler::document()
 {
-    return this->_listing;
+
 }
 
 size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t address)
 {
     address_t target = 0;
-    size_t cases = 0, sz = this->_format->bits() / 8;
-    SymbolPtr jmpsymbol = this->_symboltable->symbol(address);
+    size_t cases = 0, sz = m_format->addressWidth();
+    SymbolPtr jmpsymbol = m_document->symbol(address);
 
     while(this->readAddress(address, sz, &target))
     {
-        Segment* segment = this->_format->segment(target);
+        Segment* segment = m_document->segment(target);
 
         if(!segment || !segment->is(SegmentTypes::Code))
             break;
 
         instruction->target(target);
-        this->_symboltable->createLocation(target, SymbolTypes::Code);
+        m_document->symbol(target, SymbolTypes::Code);
+
+        /*
         auto it = this->_listing.find(target);
 
         if(it != this->_listing.end())
@@ -62,13 +53,14 @@ size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t 
         this->pushReference(target, instruction);
         address += sz;
         cases++;
+        */
     }
 
     if(cases)
     {
         instruction->type |= InstructionTypes::JumpTable;
         instruction->cmt("#" + std::to_string(cases) + " case(s) jump table");
-        this->_listing.update(instruction);
+        //this->_listing.update(instruction);
     }
 
     return cases;
@@ -88,24 +80,6 @@ std::string Disassembler::comment(const InstructionPtr &instruction) const
      return "# " + res;
 }
 
-bool Disassembler::iterateVMIL(address_t address, InstructionsPool::InstructionCallback cbinstruction, InstructionsPool::SymbolCallback cbstart, InstructionsPool::InstructionCallback cbend, InstructionsPool::SymbolCallback cblabel)
-{
-    std::unique_ptr<VMIL::Emulator> emulator(this->_assembler->createEmulator(this));
-
-    if(!emulator)
-        return false;
-
-    return this->_listing.iterateFunction(address, [this, &emulator, &cbinstruction](const InstructionPtr& instruction) {
-        VMIL::VMILInstructionList vminstructions;
-        emulator->translate(instruction, vminstructions);
-
-        std::for_each(vminstructions.begin(), vminstructions.end(), [cbinstruction](const VMIL::VMILInstructionPtr& vminstruction) {
-           cbinstruction(vminstruction);
-        });
-
-    }, cbstart, cbend, cblabel);
-}
-
 void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
 {
     Segment* segment = NULL;
@@ -115,12 +89,12 @@ void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
         address_t address = algorithm->next();
 
         if(!segment || !segment->contains(address))
-            segment = this->_format->segment(address);
+            segment = m_document->segment(address);
 
         if(!segment || !segment->is(SegmentTypes::Code))
             continue;
 
-        Buffer buffer = this->_buffer + this->_format->offset(address);
+        Buffer buffer = m_buffer + m_format->offset(address);
 
         if(buffer.eob())
             continue;
@@ -128,33 +102,27 @@ void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
         InstructionPtr instruction = std::make_shared<Instruction>();
         instruction->address = address;
 
-        REDasm::status("Disassembling @ " + REDasm::hex(address, this->_format->bits(), false));
+        REDasm::status("Disassembling @ " + REDasm::hex(address, m_format->bits(), false));
         u32 status = algorithm->disassemble(buffer, instruction);
 
         if(status == DisassemblerAlgorithm::FAIL)
             this->createInvalid(instruction, buffer);
 
-        this->_listing.commit(instruction->address, instruction);
+        //this->_listing.commit(instruction->address, instruction);
     }
 
-    std::unique_ptr<Analyzer> a(this->_format->createAnalyzer(this, this->_format->signatures()));
+    std::unique_ptr<Analyzer> a(m_format->createAnalyzer(this, m_format->signatures()));
 
     if(a)
     {
         REDasm::status("Analyzing...");
-        a->analyze(this->_listing);
+        a->analyze(m_document);
     }
-
-    REDasm::status("Sorting symbols...");
-    this->_symboltable->sort();
-
-    REDasm::status("Calculating bounds...");
-    this->calculateBounds();
 }
 
 void Disassembler::disassembleUnexploredCode()
 {
-    for(auto it = this->_format->segments().begin(); it != this->_format->segments().end(); it++)
+    for(auto it = m_document->segments().begin(); it != m_document->segments().end(); it++)
     {
         const Segment& segment = *it;
 
@@ -204,12 +172,12 @@ void Disassembler::searchStrings(const Segment &segment)
         {
             if(wide)
             {
-                this->_symboltable->createWString(address);
+                m_document->symbol(address, SymbolTypes::WideString);
                 address += this->readWString(address).size() * sizeof(u16);
             }
             else
             {
-                this->_symboltable->createString(address);
+                m_document->symbol(address, SymbolTypes::String);
                 address += this->readString(address).size();
             }
 
@@ -225,7 +193,7 @@ void Disassembler::searchStrings(const Segment &segment)
 
 bool Disassembler::skipExploredData(address_t &address)
 {
-    SymbolPtr symbol = this->_symboltable->symbol(address);
+    SymbolPtr symbol = m_document->symbol(address);
 
     if(!symbol)
         return false;
@@ -248,6 +216,7 @@ bool Disassembler::skipExploredData(address_t &address)
         return true;
     }
 
+    /*
     if(symbol->isFunction())
     {
         if(!this->_listing.getFunctionBounds(address, NULL, &address))
@@ -255,10 +224,11 @@ bool Disassembler::skipExploredData(address_t &address)
 
         return true;
     }
+    */
 
     if(symbol->is(SymbolTypes::Pointer))
     {
-        address += this->_format->addressWidth();
+        address += this->m_format->addressWidth();
         return true;
     }
 
@@ -270,14 +240,15 @@ bool Disassembler::skipPadding(address_t &address)
     address_t startaddress = address;
     u64 value = 0;
 
-    while(this->readAddress(address, this->_format->addressWidth(), &value) && !value)
-        address += this->_format->addressWidth();
+    while(this->readAddress(address, this->m_format->addressWidth(), &value) && !value)
+        address += this->m_format->addressWidth();
 
     return address != startaddress;
 }
 
 bool Disassembler::maybeValidCode(address_t& address)
 {
+    /*
     auto it = this->_listing.find(address);
 
     if(it != this->_listing.end())
@@ -288,13 +259,13 @@ bool Disassembler::maybeValidCode(address_t& address)
 
     u64 value = 0;
 
-    if(!this->readAddress(address, this->_format->addressWidth(), &value)) // Check for address
+    if(!this->readAddress(address, this->m_format->addressWidth(), &value)) // Check for address
     {
         address++;
         return false;
     }
 
-    Segment* segment = this->_format->segment(value); // Check if this value points somewhere
+    Segment* segment = this->m_format->segment(value); // Check if this value points somewhere
 
     if(!segment)
     {
@@ -303,7 +274,7 @@ bool Disassembler::maybeValidCode(address_t& address)
 
         for(u32 i = 0; i < INSTRUCTION_THRESHOLD; i++) // Try to disassemble some instructions
         {
-            if(this->skipExploredData(caddress) || !this->_format->segment(caddress))
+            if(this->skipExploredData(caddress) || !this->m_format->segment(caddress))
             {
                 address = caddress;
                 return false;
@@ -322,13 +293,16 @@ bool Disassembler::maybeValidCode(address_t& address)
         return true;
     }
 
-    address += this->_format->addressWidth();
+    address += this->m_format->addressWidth();
+    */
+
     return false;
 }
 
 bool Disassembler::disassembleFunction(address_t address, const std::string &name)
 {
-    Segment* segment = this->_format->segment(address);
+    /*
+    Segment* segment = this->m_format->segment(address);
 
     if(!segment || !segment->is(SegmentTypes::Code))
         return false;
@@ -357,7 +331,7 @@ bool Disassembler::disassembleFunction(address_t address, const std::string &nam
 
     if(name.empty())
     {
-        if(segment != this->_format->entryPointSegment())
+        if(segment != this->m_format->entryPointSegment())
             this->_symboltable->createFunction(address, segment);
         else
             this->_symboltable->createFunction(address);
@@ -367,20 +341,21 @@ bool Disassembler::disassembleFunction(address_t address, const std::string &nam
 
     this->disassemble(address);
     this->_listing.checkBounds(address);
+    */
     return true;
 }
 
 void Disassembler::disassemble()
 {
-    return; //FIXME: !!!
-    std::unique_ptr<DisassemblerAlgorithm> algorithm(this->_format->createAlgorithm(this, this->_assembler));
-    SymbolPtr entrypoint = this->_symboltable->entryPoint();
+    std::unique_ptr<DisassemblerAlgorithm> algorithm(this->m_format->createAlgorithm(this, this->m_assembler));
+    SymbolTable* symboltable = m_document->symbols();
+    SymbolPtr entrypoint = symboltable->entryPoint();
 
     if(entrypoint)
         algorithm->push(entrypoint->address); // Push entry point
 
     // Preload format functions for analysis
-    this->_symboltable->iterate(SymbolTypes::FunctionMask, [&algorithm](SymbolPtr symbol) -> bool {
+    symboltable->iterate(SymbolTypes::FunctionMask, [&algorithm](SymbolPtr symbol) -> bool {
         algorithm->push(symbol->address);
         return true;
     });
@@ -395,30 +370,19 @@ void Disassembler::disassemble()
         this->disassembleUnexploredCode();
     }
     */
-
-    REDasm::status("Marking Entry Point...");
-    this->_listing.markEntryPoint();
 }
 
-
-AssemblerPlugin *Disassembler::assembler()
-{
-    return this->_assembler;
-}
-
-VMIL::Emulator *Disassembler::emulator()
-{
-    return this->_emulator;
-}
+AssemblerPlugin *Disassembler::assembler() { return this->m_assembler; }
 
 void Disassembler::updateInstruction(const InstructionPtr &instruction)
 {
-    this->_listing.update(instruction);
+    //this->_listing.update(instruction);
 }
 
 bool Disassembler::dataToString(address_t address)
 {
-    SymbolPtr symbol = this->_symboltable->symbol(address);
+    /*
+    SymbolPtr symbol = m_document->symbol(address);
 
     if(!symbol)
         return false;
@@ -427,7 +391,7 @@ bool Disassembler::dataToString(address_t address)
     this->locationIsString(address, &wide);
 
     std::string s;
-    ReferenceVector refs = this->_referencetable.referencesToVector(symbol->address);
+    ReferenceVector refs = m_referencetable.referencesToVector(symbol->address);
 
     symbol->type &= (~SymbolTypes::Data);
     symbol->type |= wide ? SymbolTypes::WideString : SymbolTypes::String;
@@ -450,17 +414,19 @@ bool Disassembler::dataToString(address_t address)
     });
 
     return this->_symboltable->update(symbol, "str_" + REDasm::hex(address, 0, false));
+    */
 }
 
 bool Disassembler::checkJumpTable(const InstructionPtr &instruction, address_t address)
 {
+    /*
     address_t target = 0;
-    size_t cases = 0, sz = this->_format->bits() / 8;
+    size_t cases = 0, sz = this->m_format->bits() / 8;
     SymbolPtr jmpsymbol = this->_symboltable->symbol(address);
 
     while(this->readAddress(address, sz, &target))
     {
-        Segment* segment = this->_format->segment(target);
+        Segment* segment = this->m_format->segment(target);
 
         if(!segment || !segment->is(SegmentTypes::Code))
             break;
@@ -469,7 +435,7 @@ bool Disassembler::checkJumpTable(const InstructionPtr &instruction, address_t a
 
         if(instruction->is(InstructionTypes::Call))
         {
-            if(segment != this->_format->entryPointSegment())
+            if(segment != this->m_format->entryPointSegment())
                 this->_symboltable->createFunction(target, segment);
             else
                 this->_symboltable->createFunction(target);
@@ -489,28 +455,29 @@ bool Disassembler::checkJumpTable(const InstructionPtr &instruction, address_t a
     }
 
     return cases > 0;
+    */
 }
 
 void Disassembler::disassemble(address_t address)
 {
-    std::unique_ptr<DisassemblerAlgorithm> algorithm(this->_format->createAlgorithm(this, this->_assembler));
+    std::unique_ptr<DisassemblerAlgorithm> algorithm(m_format->createAlgorithm(this, this->m_assembler));
     algorithm->push(address);
     this->disassemble(algorithm.get());
 }
 
 InstructionPtr Disassembler::disassembleInstruction(address_t address)
 {
-    auto it = this->_listing.find(address);
+    InstructionPtr instruction = m_document->instruction(address);
 
-    if(it != this->_listing.end())
-        return *it;
+    if(instruction)
+        return instruction;
 
-    InstructionPtr instruction = std::make_shared<Instruction>();
+    instruction = std::make_shared<Instruction>();
     instruction->address = address;
 
-    Buffer b = this->_buffer + this->_format->offset(instruction->address);
+    Buffer b = m_buffer + m_format->offset(instruction->address);
 
-    if(b.eob() || !this->_assembler->decode(b, instruction))
+    if(b.eob() || !m_assembler->decode(b, instruction))
         this->createInvalid(instruction, b);
 
     return instruction;
@@ -530,12 +497,6 @@ void Disassembler::createInvalid(const InstructionPtr &instruction, Buffer& b)
     std::stringstream ss;
     ss << std::hex << *b;
     instruction->bytes = ss.str();
-}
-
-void Disassembler::calculateBounds()
-{
-    //TODO: !!!
-
 }
 
 }

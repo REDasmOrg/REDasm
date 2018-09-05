@@ -22,12 +22,12 @@ void Graph::edge(vertex_id_t from, vertex_id_t to)
     if(!from || !to)
         return;
 
-    this->_vertexmap.at(from)->edge(to);
+    this->m_vertexmap.at(from)->edge(to);
 }
 
 size_t Graph::vertexCount() const
 {
-    return this->_vertexmap.size();
+    return this->m_vertexmap.size();
 }
 
 Vertex *Graph::rootVertex()
@@ -35,9 +35,9 @@ Vertex *Graph::rootVertex()
     if(!this->_rootid)
         return NULL;
 
-    auto it = this->_vertexmap.find(this->_rootid);
+    auto it = this->m_vertexmap.find(this->_rootid);
 
-    if(it == this->_vertexmap.end())
+    if(it == this->m_vertexmap.end())
         return NULL;
 
     return it->second.get();
@@ -45,7 +45,7 @@ Vertex *Graph::rootVertex()
 
 Vertex *Graph::getVertex(vertex_id_t id)
 {
-    return this->_vertexmap.at(id).get();
+    return this->m_vertexmap.at(id).get();
 }
 
 Vertex *Graph::getRealParentVertex(vertex_id_t id)
@@ -75,7 +75,7 @@ VertexSet Graph::getParents(const Vertex *v) const
 {
     VertexSet parents;
 
-    for(auto& item : this->_vertexmap)
+    for(auto& item : this->m_vertexmap)
     {
         const VertexPtr& vi = item.second;
 
@@ -99,7 +99,7 @@ VertexList Graph::getVertexList() const
 {
     VertexList vl;
 
-    for(auto& item : this->_vertexmap)
+    for(auto& item : this->m_vertexmap)
         vl.push_back(item.second.get());
 
     return vl;
@@ -125,7 +125,7 @@ void Graph::pushVertex(Vertex *v)
 {
     v->id = ++this->_currentid;
     v->graph = this;
-    this->_vertexmap.emplace(v->id, VertexPtr(v));
+    this->m_vertexmap.emplace(v->id, VertexPtr(v));
 }
 
 Vertex* Graph::pushFakeVertex(vertex_layer_t layer)
@@ -180,7 +180,7 @@ void LayeredGraph::layerize()
 {
     std::map<vertex_layer_t, VertexList> bylayer;
 
-    for(auto& item : this->_graph->_vertexmap)
+    for(auto& item : this->_graph->m_vertexmap)
     {
         Vertex* v = item.second.get();
         auto it = bylayer.find(v->layer());

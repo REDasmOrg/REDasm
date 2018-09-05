@@ -10,7 +10,7 @@
 #include "../../themeprovider.h"
 
 #define S_TO_QS(s)           QString::fromStdString(s)
-#define HEX_ADDRESS(address) S_TO_QS(REDasm::hex(address, this->_disassembler->format()->bits(), false))
+#define HEX_ADDRESS(address) S_TO_QS(REDasm::hex(address, m_disassembler->format()->bits(), false))
 
 class DisassemblerDocument: public QObject
 {
@@ -71,13 +71,13 @@ class DisassemblerDocument: public QObject
         static QString encode(const QJsonObject &json);
 
     protected:
-        REDasm::Segment* _segment;
-        REDasm::Disassembler* _disassembler;
+        REDasm::Segment* m_segment;
+        REDasm::Disassembler* m_disassembler;
         REDasm::SymbolTable* _symbols;
-        REDasm::PrinterPtr _currentprinter, _printer;
+        REDasm::PrinterPtr _currentprinter, m_printer;
         GeneratedBlocks _generatedblocks;
         PendingAddresses _pendingsymbols, _pendinginstructions;
-        QTextDocument* _document;
+        QTextDocument* m_textdocument;
         QTextCursor _textcursor;
 };
 

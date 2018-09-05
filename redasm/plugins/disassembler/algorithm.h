@@ -30,12 +30,12 @@ class DisassemblerAlgorithm
         bool isDisassembled(address_t address) const;
 
     protected:
-        DisassemblerAPI* _disassembler;
-        AssemblerPlugin* _assembler;
+        DisassemblerAPI* m_disassembler;
+        AssemblerPlugin* m_assembler;
 
     private:
-        std::set<address_t> _disassembled;
-        std::stack<address_t> _pending;
+        std::set<address_t> m_disassembled;
+        std::stack<address_t> m_pending;
 };
 
 } // namespace REDasm

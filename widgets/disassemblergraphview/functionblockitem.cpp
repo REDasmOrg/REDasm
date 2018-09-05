@@ -34,6 +34,7 @@ QSize FunctionBlockItem::size() const
 
 void FunctionBlockItem::paint(QPainter *painter)
 {
+    /*
     int th = this->titleHeight();
     QPoint pos = this->position(), px = QPoint(pos.x(), pos.y() + th), pwx = QPoint(pos.x() + this->width(), pos.y() + th);
     QRect tr(pos, pwx);
@@ -57,5 +58,6 @@ void FunctionBlockItem::paint(QPainter *painter)
         painter->drawLine(px, pwx);
     painter->restore();
 
+    */
     GraphTextItem::paint(painter);
 }

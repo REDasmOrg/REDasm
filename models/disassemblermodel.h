@@ -15,7 +15,7 @@ class DisassemblerModel : public QAbstractListModel
         virtual void setDisassembler(REDasm::Disassembler* disassembler);
 
     protected:
-        REDasm::Disassembler* _disassembler;
+        REDasm::Disassembler* m_disassembler;
 };
 
 #endif // DISASSEMBLERMODEL_H

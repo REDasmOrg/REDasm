@@ -29,25 +29,10 @@ CHIP8Assembler::CHIP8Assembler(): AssemblerPlugin()
     SET_DECODE_TO(0xF000, decodeFxxx);
 }
 
-const char *CHIP8Assembler::name() const
-{
-    return "CHIP-8";
-}
-
-u32 CHIP8Assembler::flags() const
-{
-    return AssemblerFlags::HasVMIL;
-}
-
-VMIL::Emulator *CHIP8Assembler::createEmulator(DisassemblerAPI *disassembler) const
-{
-    return new CHIP8Emulator(disassembler);
-}
-
-Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const
-{
-    return new CHIP8Printer(disassembler, symboltable);
-}
+const char *CHIP8Assembler::name() const { return "CHIP-8"; }
+u32 CHIP8Assembler::flags() const { return AssemblerFlags::HasVMIL; }
+VMIL::Emulator *CHIP8Assembler::createEmulator(DisassemblerAPI *disassembler) const { return new CHIP8Emulator(disassembler); }
+Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler) const { return new CHIP8Printer(disassembler); }
 
 bool CHIP8Assembler::decode(Buffer buffer, const InstructionPtr &instruction)
 {

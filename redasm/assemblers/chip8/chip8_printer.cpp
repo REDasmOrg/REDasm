@@ -4,7 +4,7 @@
 
 namespace REDasm {
 
-CHIP8Printer::CHIP8Printer(DisassemblerAPI *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable)
+CHIP8Printer::CHIP8Printer(DisassemblerAPI *disassembler): Printer(disassembler)
 {
 
 }

@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-MIPSPrinter::MIPSPrinter(csh cshandle, DisassemblerAPI *disassembler, SymbolTable *symboltable): CapstonePrinter(cshandle, disassembler, symboltable)
+MIPSPrinter::MIPSPrinter(csh cshandle, DisassemblerAPI *disassembler): CapstonePrinter(cshandle, disassembler)
 {
 
 }

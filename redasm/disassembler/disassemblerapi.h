@@ -12,6 +12,7 @@ namespace REDasm {
 
 class FormatPlugin;
 class AssemblerPlugin;
+class ListingDocument;
 
 namespace VMIL {
 class Emulator;
@@ -23,8 +24,7 @@ class DisassemblerAPI
         DisassemblerAPI();
         virtual FormatPlugin* format() = 0;
         virtual AssemblerPlugin* assembler() = 0;
-        virtual SymbolTable* symbolTable() = 0;
-        virtual VMIL::Emulator* emulator() = 0;
+        virtual ListingDocument* document() = 0;
         virtual ReferenceVector getReferences(address_t address) = 0;
         virtual ReferenceVector getReferences(const SymbolPtr &symbol) = 0;
         virtual u64 getReferencesCount(address_t address) = 0;

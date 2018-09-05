@@ -62,19 +62,19 @@ class DisassemblerTextView : public QAbstractScrollArea
         void addressChanged(address_t address);
 
     private:
-        QTextDocument* _textdocument;
+        QTextDocument* m_textdocument;
 
     private:
-        bool _issymboladdressvalid;
-        u32 _emitmode;
-        QStack<address_t> _backstack, _forwardstack;
-        DisassemblerTextDocument* _disdocument;
-        DisassemblerHighlighter* _highlighter;
-        REDasm::Disassembler* _disassembler;
-        QAction *_actrename, *_actcreatestring, *_actxrefs, *_actfollow, *_actcallgraph;
-        QAction *_actgoto, *_acthexdump, *_actback, *_actforward, *_actcopy, *_actselectall;
-        QMenu* _contextmenu;
-        address_t _currentaddress, _symboladdress;
+        bool m_issymboladdressvalid;
+        u32 m_emitmode;
+        QStack<address_t> m_backstack, m_forwardstack;
+        DisassemblerTextDocument* m_disdocument;
+        DisassemblerHighlighter* m_highlighter;
+        REDasm::Disassembler* m_disassembler;
+        QAction *m_actrename, *m_actcreatestring, *m_actxrefs, *m_actfollow, *m_actcallgraph;
+        QAction *m_actgoto, *m_acthexdump, *m_actback, *m_actforward, *m_actcopy, *m_actselectall;
+        QMenu* m_contextmenu;
+        address_t m_currentaddress, m_symboladdress;
 };
 
 #endif // DISASSEMBLERTEXTVIEW_H

@@ -56,8 +56,9 @@ void VBAnalyzer::analyze(ListingDocument *document)
     */
 }
 
-void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, InstructionsPool& listing)
+void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, ListingDocument *document)
 {
+    /*
     if(!eventva)
         return;
 
@@ -65,7 +66,7 @@ void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, Ins
 
     if(instruction->mnemonic == "sub")
     {
-        this->disassembleTrampoline(instruction->endAddress(), name, listing); // Jump follows...
+        this->disassembleTrampoline(instruction->endAddress(), name, document); // Jump follows...
         return;
     }
 
@@ -74,6 +75,7 @@ void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name, Ins
         this->m_disassembler->disassemble(instruction->target());
         this->m_disassembler->symbolTable()->createFunction(instruction->target(), name);
     }
+    */
 }
 
 void VBAnalyzer::decompileObject(ListingDocument *document, const VBPublicObjectDescriptor &pubobjdescr)

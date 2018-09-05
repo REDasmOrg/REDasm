@@ -18,7 +18,7 @@
 #include <QAction>
 #include <QMenu>
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), _issymboladdressvalid(false), _emitmode(DisassemblerTextView::Normal), _disdocument(NULL), _disassembler(NULL), _currentaddress(INT64_MAX), _symboladdress(0)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_issymboladdressvalid(false), m_emitmode(DisassemblerTextView::Normal), m_disdocument(NULL), m_disassembler(NULL), m_currentaddress(INT64_MAX), m_symboladdress(0)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
@@ -28,57 +28,35 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->verticalScrollBar()->setSingleStep(1);
     this->verticalScrollBar()->setPageStep(1);
 
-    this->_textdocument = new QTextDocument(this);
-    this->_textdocument->setDefaultFont(font);
+    m_textdocument = new QTextDocument(this);
+    m_textdocument->setDefaultFont(font);
 
     this->setCursor(Qt::ArrowCursor);
 
     connect(this, &DisassemblerTextView::customContextMenuRequested, [this](const QPoint&) {
-        this->_contextmenu->exec(QCursor::pos());
+        m_contextmenu->exec(QCursor::pos());
     });
 }
 
-DisassemblerTextView::~DisassemblerTextView()
-{
-}
-
-bool DisassemblerTextView::canGoBack() const
-{
-    return !this->_backstack.isEmpty();
-}
-
-bool DisassemblerTextView::canGoForward() const
-{
-    return !this->_forwardstack.isEmpty();
-}
-
-address_t DisassemblerTextView::currentAddress() const
-{
-    return this->_currentaddress;
-}
-
-address_t DisassemblerTextView::symbolAddress() const
-{
-    return this->_symboladdress;
-}
-
-void DisassemblerTextView::setEmitMode(u32 emitmode)
-{
-    this->_emitmode = emitmode;
-}
+DisassemblerTextView::~DisassemblerTextView() { }
+bool DisassemblerTextView::canGoBack() const { return !m_backstack.isEmpty(); }
+bool DisassemblerTextView::canGoForward() const { return !m_forwardstack.isEmpty(); }
+address_t DisassemblerTextView::currentAddress() const { return m_currentaddress; }
+address_t DisassemblerTextView::symbolAddress() const { return m_symboladdress; }
+void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
 
 void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
 {
-    if(this->_disdocument)
-        delete this->_disdocument;
+    if(m_disdocument)
+        delete m_disdocument;
 
-    REDasm::ListingDocument* doc = disassembler->format()->m_document();
+    REDasm::ListingDocument* doc = disassembler->document();
     this->verticalScrollBar()->setRange(0, doc->count());
 
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->syncDocument(); });
 
-    this->_disassembler = disassembler;
-    this->_disdocument = new DisassemblerTextDocument(disassembler, this->_textdocument, this);
+    m_disassembler = disassembler;
+    m_disdocument = new DisassemblerTextDocument(disassembler, m_textdocument, this);
     this->syncDocument();
     //this->_highlighter->setHighlightColor(ThemeProvider::highlightColor());
     //this->_highlighter->setSeekColor(ThemeProvider::seekColor());
@@ -102,9 +80,9 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
 
 void DisassemblerTextView::goTo(address_t address)
 {
-    if(this->_currentaddress != address)
+    if(m_currentaddress != address)
     {
-        this->_backstack.push(this->_currentaddress);
+        m_backstack.push(m_currentaddress);
         emit canGoBackChanged();
     }
 
@@ -122,7 +100,7 @@ void DisassemblerTextView::display(address_t address)
     }
     */
 
-    if(!this->_disdocument || (this->_currentaddress == address))
+    if(!m_disdocument || (m_currentaddress == address))
         return;
 
     //this->_disdocument->generate(address, this->textCursor());
@@ -156,14 +134,14 @@ void DisassemblerTextView::display(address_t address)
 
 void DisassemblerTextView::checkLabel(address_t address)
 {
-    u64 c = this->_disassembler->getReferencesCount(address);
+    u64 c = m_disassembler->getReferencesCount(address);
 
     if(!c)
         return;
 
     if(c == 1)
     {
-        REDasm::ReferenceVector refs = this->_disassembler->getReferences(address);
+        REDasm::ReferenceVector refs = m_disassembler->getReferences(address);
         this->goTo(refs.front());
         return;
     }
@@ -171,18 +149,15 @@ void DisassemblerTextView::checkLabel(address_t address)
     this->showReferences(address);
 }
 
-void DisassemblerTextView::goTo(const REDasm::SymbolPtr &symbol)
-{
-    this->goTo(symbol->address);
-}
+void DisassemblerTextView::goTo(const REDasm::SymbolPtr &symbol) { this->goTo(symbol->address); }
 
 void DisassemblerTextView::goBack()
 {
-    if(this->_backstack.isEmpty())
+    if(m_backstack.isEmpty())
         return;
 
-    address_t address = this->_backstack.pop();
-    this->_forwardstack.push(this->_currentaddress);
+    address_t address = m_backstack.pop();
+    this->m_forwardstack.push(m_currentaddress);
 
     emit canGoBackChanged();
     emit canGoForwardChanged();
@@ -191,11 +166,11 @@ void DisassemblerTextView::goBack()
 
 void DisassemblerTextView::goForward()
 {
-    if(this->_forwardstack.isEmpty())
+    if(m_forwardstack.isEmpty())
         return;
 
-    address_t address = this->_forwardstack.pop();
-    this->_backstack.push(this->_currentaddress);
+    address_t address = m_forwardstack.pop();
+    this->m_backstack.push(m_currentaddress);
 
     emit canGoBackChanged();
     emit canGoForwardChanged();
@@ -208,10 +183,10 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
 
     QScrollBar* vscrollbar = this->verticalScrollBar();
     QTextCharFormat charformat;
-    QTextBlock textblock = this->_textdocument->findBlockByLineNumber(vscrollbar->value());
-    QFontMetrics fm(this->_textdocument->defaultFont());
+    QTextBlock textblock = m_textdocument->findBlockByLineNumber(vscrollbar->value());
+    QFontMetrics fm(m_textdocument->defaultFont());
     QPainter painter(this->viewport());
-    painter.setFont(this->_textdocument->defaultFont());
+    painter.setFont(m_textdocument->defaultFont());
 
     for(int i = 0, y = this->viewport()->y(); i < this->visibleLines(); i++, y += fm.height())
     {
@@ -223,7 +198,7 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
 
         charformat = textblock.charFormat();
 
-        QRectF blockrect = this->_textdocument->documentLayout()->blockBoundingRect(textblock);
+        QRectF blockrect = m_textdocument->documentLayout()->blockBoundingRect(textblock);
         blockrect.moveTo(this->viewport()->x(), y);
 
         painter.setPen(charformat.foreground().color());
@@ -246,17 +221,17 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         this->showReferences(address);
     }
     else if(e->key() == Qt::Key_N)
-        this->rename(this->_symboladdress);
+        this->rename(m_symboladdress);
 }
 
 void DisassemblerTextView::syncDocument()
 {
-    this->_disdocument->displayRange(this->verticalScrollBar()->value(), this->visibleLines());
+    this->m_disdocument->displayRange(this->verticalScrollBar()->value(), this->visibleLines());
 }
 
 int DisassemblerTextView::visibleLines() const
 {
-    QFontMetrics fm(this->_textdocument->defaultFont());
+    QFontMetrics fm(m_textdocument->defaultFont());
     return std::ceil(this->height() / fm.height());
 }
 
@@ -348,7 +323,7 @@ void DisassemblerTextView::adjustContextMenu()
 
 void DisassemblerTextView::highlightWords()
 {
-    if(!this->_disdocument || !this->_currentaddress)
+    if(!m_disdocument || !m_currentaddress)
         return;
 
     //QTextCursor cursor = this->textCursor();
@@ -380,32 +355,32 @@ void DisassemblerTextView::updateAddress()
 
 void DisassemblerTextView::updateSymbolAddress(address_t address)
 {
-    this->_issymboladdressvalid = true;
-    this->_symboladdress = address;
+    this->m_issymboladdressvalid = true;
+    this->m_symboladdress = address;
     emit symbolAddressChanged();
 }
 
 void DisassemblerTextView::showReferences(address_t address)
 {
-    REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(address);
+    REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(address);
 
     if(!symbol)
         return;
 
-    if(!this->_disassembler->getReferencesCount(address))
+    if(!m_disassembler->getReferencesCount(address))
     {
         QMessageBox::information(this, "No References", "There are no references to " + S_TO_QS(symbol->name));
         return;
     }
 
-    ReferencesDialog dlgreferences(this->_disassembler, this->_currentaddress, symbol, this);
+    ReferencesDialog dlgreferences(m_disassembler, m_currentaddress, symbol, this);
     connect(&dlgreferences, &ReferencesDialog::jumpTo, [this](address_t address) { this->goTo(address); });
     dlgreferences.exec();
 }
 
 void DisassemblerTextView::showCallGraph(address_t address)
 {
-    CallGraphDialog dlgcallgraph(address, this->_disassembler, this);
+    CallGraphDialog dlgcallgraph(address, m_disassembler, this);
     dlgcallgraph.exec();
 }
 
@@ -432,15 +407,15 @@ int DisassemblerTextView::getCursorAnchor(address_t& address)
 
 void DisassemblerTextView::rename(address_t address)
 {
-    if(!this->_issymboladdressvalid)
+    if(!m_issymboladdressvalid)
         return;
 
-    REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(address);
+    REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(address);
 
     if(!symbol)
         return;
 
-    REDasm::SymbolTable* symboltable = this->_disassembler->symbolTable();
+    REDasm::SymbolTable* symboltable = m_disassembler->document()->symbols(); // FIXME: !!!
     QString sym = S_TO_QS(symbol->name), s = QInputDialog::getText(this, QString("Rename %1").arg(sym), "Symbol name:", QLineEdit::Normal, sym);
 
     if(s.isEmpty())
@@ -460,6 +435,6 @@ void DisassemblerTextView::rename(address_t address)
     if(s.simplified().isEmpty() || !symboltable->update(symbol, newsym))
         return;
 
-    this->_disdocument->update(address);
+    m_disdocument->update(address);
     emit symbolRenamed(symbol);
 }

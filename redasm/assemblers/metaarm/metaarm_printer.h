@@ -8,7 +8,7 @@ namespace REDasm {
 class MetaARMPrinter: public CapstonePrinter
 {
     public:
-        MetaARMPrinter(csh cshandle, DisassemblerAPI* disassembler, SymbolTable* symboltable);
+        MetaARMPrinter(csh cshandle, DisassemblerAPI* disassembler);
 };
 
 } // namespace REDasm

@@ -1,7 +1,7 @@
 #ifndef FUNCTIONGRAPH_H
 #define FUNCTIONGRAPH_H
 
-#include "../types/listing.h"
+#include "../listing/listingdocument.h"
 #include "../../graph/graph.h"
 
 namespace REDasm {
@@ -19,10 +19,10 @@ struct FunctionGraphVertex: public Graphing::Vertex
 class FunctionGraph: public Graphing::Graph
 {
     public:
-        FunctionGraph(InstructionsPool& listing);
+        FunctionGraph(ListingDocument* document);
         address_t startAddress() const;
         address_t endAddress() const;
-        InstructionsPool& listing();
+        ListingDocument* document();
         void build(address_t address);
 
     private:
@@ -32,8 +32,8 @@ class FunctionGraph: public Graphing::Graph
         void buildBlocksPass3();
 
     private:
-        address_t _startaddress, _endaddress;
-        InstructionsPool& _listing;
+        address_t m_startaddress, m_endaddress;
+        ListingDocument* m_listing;
 };
 
 } // namespace REDasm

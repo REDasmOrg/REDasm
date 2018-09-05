@@ -8,7 +8,7 @@ SymbolTableFilterModel::SymbolTableFilterModel(QObject *parent) : QSortFilterPro
 REDasm::SymbolPtr SymbolTableFilterModel::symbol(const QModelIndex index) const
 {
     SymbolTableModel* symboltablemodel = static_cast<SymbolTableModel*>(this->sourceModel());
-    return symboltablemodel->_symbols[index.row()];
+    return symboltablemodel->m_symbols[index.row()];
 }
 
 const QString &SymbolTableFilterModel::filterName() const

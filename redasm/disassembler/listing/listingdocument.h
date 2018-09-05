@@ -32,6 +32,7 @@ class ListingDocument
     public:
         ListingDocument();
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
+        void symbol(address_t address, u32 type, u32 tag = 0);
         void lock(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void segment(const std::string& name, offset_t offset, address_t address, u64 size, u32 type);
         void function(address_t address, const std::string& name, u32 tag = 0);
@@ -46,10 +47,15 @@ class ListingDocument
         Segment *segmentByName(const std::string& name);
 
     public:
+        InstructionPtr instruction(address_t address);
         size_t count() const;
-        ListingItem &at(size_t i);
+        ListingItem* at(size_t i);
+        SymbolPtr symbol(address_t address);
         SymbolTable* symbols();
         FormatPlugin* format();
+
+    private:
+        static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
 
     private:
         std::vector<ListingItem> m_items;

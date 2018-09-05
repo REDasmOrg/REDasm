@@ -5,14 +5,8 @@
 
 namespace REDasm {
 
-AssemblerPlugin::AssemblerPlugin(): Plugin(), _endianness(Endianness::LittleEndian)
-{
-}
-
-u32 AssemblerPlugin::flags() const
-{
-    return AssemblerFlags::None;
-}
+AssemblerPlugin::AssemblerPlugin(): Plugin(), _endianness(Endianness::LittleEndian) { }
+u32 AssemblerPlugin::flags() const { return AssemblerFlags::None; }
 
 VMIL::Emulator *AssemblerPlugin::createEmulator(DisassemblerAPI *disassembler) const
 {
@@ -20,10 +14,7 @@ VMIL::Emulator *AssemblerPlugin::createEmulator(DisassemblerAPI *disassembler) c
     return NULL;
 }
 
-Printer *AssemblerPlugin::createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const
-{
-    return new Printer(disassembler, symboltable);
-}
+Printer *AssemblerPlugin::createPrinter(DisassemblerAPI *disassembler) const { return new Printer(disassembler); }
 
 void AssemblerPlugin::analyzeOperand(DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
@@ -168,6 +159,7 @@ void AssemblerPlugin::popState()
 
 void AssemblerPlugin::analyzeRegister(DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
+    /*
     if(!disassembler->emulator() || !operand.is(OperandTypes::Register))
         return;
 
@@ -192,10 +184,12 @@ void AssemblerPlugin::analyzeRegister(DisassemblerAPI *disassembler, const Instr
         return;
 
     this->analyzeRegisterBranch(target, disassembler, instruction, operand);
+    */
 }
 
 void AssemblerPlugin::analyzeRegisterBranch(address_t target, DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
+    /*
     if(!instruction->is(InstructionTypes::Branch) || (operand.index != instruction->target_idx))
         return;
 
@@ -223,6 +217,7 @@ void AssemblerPlugin::analyzeRegisterBranch(address_t target, DisassemblerAPI *d
     instruction->target(target);
     instruction->cmt("VMIL = " + symbol->name);
     disassembler->pushReference(symbol, instruction); // Updates instruction
+    */
 }
 
 }

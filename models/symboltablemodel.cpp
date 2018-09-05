@@ -2,7 +2,7 @@
 #include <QFontDatabase>
 #include <QColor>
 
-SymbolTableModel::SymbolTableModel(QObject *parent) : DisassemblerModel(parent), _symboltable(NULL), _symbolflags(REDasm::SymbolTypes::None)
+SymbolTableModel::SymbolTableModel(QObject *parent) : DisassemblerModel(parent), m_symboltable(NULL), m_symbolflags(REDasm::SymbolTypes::None)
 {
 
 }
@@ -10,26 +10,26 @@ SymbolTableModel::SymbolTableModel(QObject *parent) : DisassemblerModel(parent),
 void SymbolTableModel::setDisassembler(REDasm::Disassembler *disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
-    this->_symboltable = disassembler->symbolTable();
+    this->m_symboltable = disassembler->document()->symbols();
     this->loadSymbols();
 }
 
 void SymbolTableModel::setSymbolFlags(u32 symbolflags)
 {
-    this->_symbolflags = symbolflags;
+    this->m_symbolflags = symbolflags;
     this->loadSymbols();
 }
 
 void SymbolTableModel::loadSymbols()
 {
-    if(!this->_symboltable || (this->_symbolflags == REDasm::SymbolTypes::None))
+    if(!this->m_symboltable || (this->m_symbolflags == REDasm::SymbolTypes::None))
         return;
 
     this->beginResetModel();
-    this->_symbols.clear();
+    this->m_symbols.clear();
 
-    this->_symboltable->iterate(this->_symbolflags, [this](const REDasm::SymbolPtr& symbol) -> bool {
-        this->_symbols << symbol;
+    this->m_symboltable->iterate(this->m_symbolflags, [this](const REDasm::SymbolPtr& symbol) -> bool {
+        this->m_symbols << symbol;
         return true;
     });
 
@@ -38,37 +38,37 @@ void SymbolTableModel::loadSymbols()
 
 QModelIndex SymbolTableModel::index(int row, int column, const QModelIndex &) const
 {
-    return this->createIndex(row, column, this->_symbols.at(row).get());
+    return this->createIndex(row, column, this->m_symbols.at(row).get());
 }
 
 QVariant SymbolTableModel::data(const QModelIndex &index, int role) const
 {
-    if(!this->_disassembler || !this->_symboltable || !index.isValid())
+    if(!this->m_disassembler || !m_symboltable || !index.isValid())
         return QVariant();
 
-    const REDasm::SymbolPtr& symbol = this->_symbols.at(index.row());
+    const REDasm::SymbolPtr& symbol = m_symbols.at(index.row());
 
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(symbol->address, this->_disassembler->format()->bits(), false));
+            return S_TO_QS(REDasm::hex(symbol->address, m_disassembler->format()->bits(), false));
 
         if(index.column() == 1)
         {
             if(symbol->is(REDasm::SymbolTypes::WideStringMask))
-                return QString::fromStdString(REDasm::quoted(this->_disassembler->readWString(symbol)));
+                return QString::fromStdString(REDasm::quoted(m_disassembler->readWString(symbol)));
             else if(symbol->is(REDasm::SymbolTypes::StringMask))
-                return QString::fromStdString(REDasm::quoted(this->_disassembler->readString(symbol)));
+                return QString::fromStdString(REDasm::quoted(m_disassembler->readString(symbol)));
 
             return QString::fromStdString(symbol->name);
         }
 
         if(index.column() == 2)
-            return QString::number(this->_disassembler->getReferencesCount(symbol->address));
+            return QString::number(m_disassembler->getReferencesCount(symbol->address));
 
         if(index.column() == 3)
         {
-            const REDasm::Segment* segment = this->_disassembler->format()->segment(symbol->address);
+            const REDasm::Segment* segment = m_disassembler->document()->segment(symbol->address);
 
             if(segment)
                 return S_TO_QS(segment->name);
@@ -117,12 +117,5 @@ QVariant SymbolTableModel::headerData(int section, Qt::Orientation orientation, 
     return QVariant();
 }
 
-int SymbolTableModel::rowCount(const QModelIndex&) const
-{
-    return this->_symbols.length();
-}
-
-int SymbolTableModel::columnCount(const QModelIndex&) const
-{
-    return 4;
-}
+int SymbolTableModel::rowCount(const QModelIndex&) const { return m_symbols.length(); }
+int SymbolTableModel::columnCount(const QModelIndex&) const { return 4; }

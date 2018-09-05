@@ -11,10 +11,10 @@ namespace REDasm {
 template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARCH_X86, mode>
 {
     public:
-        X86Assembler(): CapstoneAssemblerPlugin<CS_ARCH_X86, mode>(), _stacksize(0) { }
+        X86Assembler(): CapstoneAssemblerPlugin<CS_ARCH_X86, mode>(), m_stacksize(0) { }
         virtual const char* name() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
-        virtual Printer* createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const { return new X86Printer(this->_cshandle, disassembler, symboltable); }
+        virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new X86Printer(this->m_cshandle, disassembler); }
 
     private:
         void analyzeInstruction(const InstructionPtr& instruction);
@@ -25,7 +25,7 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
         bool isIP(register_t reg) const;
 
     private:
-        s64 _stacksize;
+        s64 m_stacksize;
 };
 
 template<cs_mode mode> const char *X86Assembler<mode>::name() const
@@ -61,7 +61,7 @@ template<cs_mode mode> bool X86Assembler<mode>::decode(Buffer buffer, const Inst
                 locindex = this->localIndex(mem.disp, type);
                 instruction->local(locindex, mem.base, mem.disp, type);
             }
-            else if(this->_stacksize && this->isSP(mem.base)) // Check locals
+            else if(m_stacksize && this->isSP(mem.base)) // Check locals
             {
                 locindex = this->stackLocalIndex(mem.disp);
 
@@ -125,10 +125,10 @@ template<cs_mode mode> s32 X86Assembler<mode>::stackLocalIndex(s64 disp) const
     else if(mode == CS_MODE_64)
         size = 8;
 
-    if(disp > this->_stacksize)
+    if(disp > this->m_stacksize)
         return -1;
 
-    return (this->_stacksize / size) - (disp / size);
+    return (this->m_stacksize / size) - (disp / size);
 }
 
 template<cs_mode mode> bool X86Assembler<mode>::isSP(register_t reg) const
@@ -222,7 +222,7 @@ template<cs_mode mode> void X86Assembler<mode>::analyzeInstruction(const Instruc
         case X86_INS_RET:
         case X86_INS_HLT:
             instruction->type |= InstructionTypes::Stop;
-            this->_stacksize = 0;
+            this->m_stacksize = 0;
             break;
 
         case X86_INS_NOP:
@@ -249,8 +249,8 @@ template<cs_mode mode> void X86Assembler<mode>::analyzeInstruction(const Instruc
 
         case X86_INS_SUB:
         {
-            if(!this->_stacksize && this->isSP(instruction->op(0).reg.r))
-                this->_stacksize = instruction->op(1).u_value;
+            if(!this->m_stacksize && this->isSP(instruction->op(0).reg.r))
+                this->m_stacksize = instruction->op(1).u_value;
 
             break;
         }

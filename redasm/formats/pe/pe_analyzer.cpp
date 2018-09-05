@@ -4,7 +4,7 @@
 
 #define IMPORT_NAME(library, name) PEUtils::importName(library, name)
 #define IMPORT_TRAMPOLINE(library, name) ("_" + REDasm::normalize(IMPORT_NAME(library, name)))
-#define ADD_WNDPROC_API(argidx, name) _wndprocapi.push_back(std::make_pair(argidx, name))
+#define ADD_WNDPROC_API(argidx, name) m_wndprocapi.push_back(std::make_pair(argidx, name))
 
 namespace REDasm {
 

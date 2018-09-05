@@ -7,13 +7,12 @@
 
 DisassemblerDocument::DisassemblerDocument(REDasm::Disassembler *disassembler, QTextDocument* textdocument, QObject *parent): QObject(parent)
 {
-    this->_disassembler = disassembler;
-    this->_symbols = disassembler->symbolTable();
-    this->_document = textdocument;
-    this->_segment = NULL;
-    this->_printer = REDasm::PrinterPtr(disassembler->assembler()->createPrinter(disassembler, disassembler->symbolTable()));
+    m_disassembler = disassembler;
+    m_textdocument = textdocument;
+    m_segment = NULL;
+    m_printer = REDasm::PrinterPtr(disassembler->assembler()->createPrinter(disassembler));
 
-    this->setCurrentPrinter(this->_printer);
+    this->setCurrentPrinter(m_printer);
     textdocument->setUndoRedoEnabled(false);
 }
 
@@ -23,7 +22,7 @@ bool DisassemblerDocument::generate(address_t address, const QTextCursor& cursor
         return false;
 
     this->_textcursor = cursor;
-    this->setCurrentPrinter(this->_printer);
+    this->setCurrentPrinter(this->m_printer);
 
     if(!this->_currentprinter)
         return false;
@@ -49,8 +48,9 @@ void DisassemblerDocument::update(address_t address)
 
 void DisassemblerDocument::updateInstructions(const REDasm::SymbolPtr& symbol)
 {
-    REDasm::ReferenceVector refs = this->_disassembler->getReferences(symbol);
-    REDasm::InstructionsPool& listing = this->_disassembler->instructions();
+    /*
+    REDasm::ReferenceVector refs = this->m_disassembler->getReferences(symbol);
+    REDasm::InstructionsPool& listing = this->m_disassembler->instructions();
 
     for(auto it = refs.begin(); it != refs.end(); it++)
     {
@@ -65,6 +65,7 @@ void DisassemblerDocument::updateInstructions(const REDasm::SymbolPtr& symbol)
         this->_textcursor.select(QTextCursor::LineUnderCursor);
         this->appendInstruction(instruction, true);
     }
+    */
 }
 
 void DisassemblerDocument::updateFunction(const REDasm::SymbolPtr &symbol)
@@ -89,11 +90,12 @@ void DisassemblerDocument::updateFunction(const REDasm::SymbolPtr &symbol)
 
 void DisassemblerDocument::updateLabels(const REDasm::SymbolPtr &symbol)
 {
+    /*
     if(!this->isBlockGenerated(symbol->address))
         return;
 
-    REDasm::InstructionsPool& listing = this->_disassembler->instructions();
-    REDasm::ReferenceVector refs = this->_disassembler->getReferences(symbol);
+    REDasm::InstructionsPool& listing = this->m_disassembler->instructions();
+    REDasm::ReferenceVector refs = this->m_disassembler->getReferences(symbol);
 
     for(auto rit = refs.begin(); rit != refs.end(); rit++)
     {
@@ -116,6 +118,7 @@ void DisassemblerDocument::updateLabels(const REDasm::SymbolPtr &symbol)
             this->appendLabel(symbol, true);
         }
     }
+    */
 }
 
 void DisassemblerDocument::updateSymbol(const REDasm::SymbolPtr &symbol)
@@ -205,7 +208,7 @@ void DisassemblerDocument::appendInstruction(const REDasm::InstructionPtr &instr
 {
     if(!replace)
     {
-        this->_printer->info(instruction, [this, instruction](const std::string& info) {
+        this->m_printer->info(instruction, [this, instruction](const std::string& info) {
             this->appendInfo(instruction->address, S_TO_QS(info));
         });
 
@@ -258,7 +261,7 @@ REDasm::SymbolPtr DisassemblerDocument::appendOperand(const REDasm::InstructionP
         {
             if(symbol->is(REDasm::SymbolTypes::Pointer))
             {
-                REDasm::SymbolPtr ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
+                REDasm::SymbolPtr ptrsymbol = this->m_disassembler->dereferenceSymbol(symbol);
 
                 if(ptrsymbol)
                     symbol = ptrsymbol;
@@ -341,7 +344,7 @@ void DisassemblerDocument::appendComment(const REDasm::InstructionPtr &instructi
     charformat.setForeground(THEME_VALUE("comment_fg"));
 
     this->_textcursor.insertText(QString(" ").repeated(this->getIndent(instruction->address) + INDENT_COMMENT), QTextCharFormat());
-    this->_textcursor.insertText(S_TO_QS(this->_disassembler->comment(instruction)), charformat);
+    this->_textcursor.insertText(S_TO_QS(this->m_disassembler->comment(instruction)), charformat);
 }
 
 void DisassemblerDocument::appendInfo(address_t address, const QString &info)
@@ -386,7 +389,7 @@ void DisassemblerDocument::appendSymbol(const REDasm::SymbolPtr &symbol, const s
 
     if(symbol->is(REDasm::SymbolTypes::Pointer))
     {
-        REDasm::SymbolPtr ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
+        REDasm::SymbolPtr ptrsymbol = this->m_disassembler->dereferenceSymbol(symbol);
 
         if(ptrsymbol)
         {
@@ -416,9 +419,10 @@ void DisassemblerDocument::appendSymbols(bool replace)
         });
     }
 
+    /*
     for(auto it = this->_pendinginstructions.begin(); it != this->_pendinginstructions.end(); it++)
     {
-        REDasm::InstructionPtr instruction = this->_disassembler->instructions()[*it];
+        REDasm::InstructionPtr instruction = this->m_disassembler->instructions()[*it];
 
         this->_currentprinter->symbols(instruction, [this, replace](const REDasm::SymbolPtr& symbol, const std::string& line) {
             this->appendSymbol(symbol, line, replace);
@@ -427,6 +431,7 @@ void DisassemblerDocument::appendSymbols(bool replace)
 
     this->_pendinginstructions.clear();
     this->_pendingsymbols.clear();
+    */
 }
 
 int DisassemblerDocument::indentWidth() const
@@ -436,7 +441,7 @@ int DisassemblerDocument::indentWidth() const
 
 int DisassemblerDocument::getIndent(address_t address)
 {
-    const REDasm::FormatPlugin* format = this->_disassembler->format();
+    const REDasm::FormatPlugin* format = this->m_disassembler->format();
     const REDasm::Segment* segment = this->getSegment(address);
 
     int width = format->bits() / 4;
@@ -449,12 +454,13 @@ int DisassemblerDocument::getIndent(address_t address)
 
 const REDasm::Segment *DisassemblerDocument::getSegment(address_t address)
 {
-    if(this->_segment && this->_segment->contains(address))
-        return this->_segment;
+    if(this->m_segment && this->m_segment->contains(address))
+        return this->m_segment;
 
-    REDasm::FormatPlugin* format = this->_disassembler->format();
-    this->_segment = format->segment(address);
-    return this->_segment;
+    //REDasm::FormatPlugin* format = this->m_disassembler->format();
+    //this->m_segment = format->segment(address);
+    //return this->m_segment;
+    return NULL;
 }
 
 void DisassemblerDocument::setCurrentPrinter(const REDasm::PrinterPtr &printer)
@@ -487,7 +493,7 @@ bool DisassemblerDocument::selectBlock(address_t address)
     QTextBlock b = this->_textcursor.block();
 
     if(!b.blockFormat().hasProperty(DisassemblerDocument::Address))
-        b = this->_document->begin();
+        b = this->m_textdocument->begin();
 
     address_t currentaddress = b.blockFormat().property(DisassemblerDocument::Address).toULongLong();
     bool searchforward = address > currentaddress;
@@ -510,7 +516,7 @@ bool DisassemblerDocument::selectBlock(address_t address)
 
 void DisassemblerDocument::moveToBlock(address_t address)
 {
-    QTextBlock b = this->_document->firstBlock(), lastb;
+    QTextBlock b = this->m_textdocument->firstBlock(), lastb;
 
     while(b.isValid())
     {

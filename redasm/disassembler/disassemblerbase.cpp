@@ -3,30 +3,10 @@
 
 namespace REDasm {
 
-DisassemblerBase::DisassemblerBase(Buffer buffer, FormatPlugin *format): DisassemblerAPI(), _format(format), _buffer(buffer)
-{
-    this->_symboltable = format->symbols();
-}
-
-DisassemblerBase::~DisassemblerBase()
-{
-    delete this->_format;
-}
-
-Buffer &DisassemblerBase::buffer()
-{
-    return this->_buffer;
-}
-
-SymbolTable *DisassemblerBase::symbolTable()
-{
-    return this->_symboltable;
-}
-
-ReferenceVector DisassemblerBase::getReferences(address_t address)
-{
-    return this->_referencetable.referencesToVector(address);
-}
+DisassemblerBase::DisassemblerBase(Buffer buffer, FormatPlugin *format): DisassemblerAPI(), m_format(format), m_buffer(buffer) { m_document = format->document(); }
+DisassemblerBase::~DisassemblerBase() { delete m_format; }
+Buffer &DisassemblerBase::buffer() { return m_buffer; }
+ReferenceVector DisassemblerBase::getReferences(address_t address) { return m_referencetable.referencesToVector(address); }
 
 ReferenceVector DisassemblerBase::getReferences(const SymbolPtr& symbol)
 {
@@ -35,16 +15,13 @@ ReferenceVector DisassemblerBase::getReferences(const SymbolPtr& symbol)
         SymbolPtr ptrsymbol = this->dereferenceSymbol(symbol);
 
         if(ptrsymbol)
-            return this->_referencetable.referencesToVector(ptrsymbol->address);
+            return m_referencetable.referencesToVector(ptrsymbol->address);
     }
 
-    return this->_referencetable.referencesToVector(symbol->address);
+    return m_referencetable.referencesToVector(symbol->address);
 }
 
-u64 DisassemblerBase::getReferencesCount(address_t address)
-{
-    return this->_referencetable.referencesCount(address);
-}
+u64 DisassemblerBase::getReferencesCount(address_t address) { return m_referencetable.referencesCount(address); }
 
 u64 DisassemblerBase::getReferencesCount(const SymbolPtr &symbol)
 {
@@ -53,10 +30,10 @@ u64 DisassemblerBase::getReferencesCount(const SymbolPtr &symbol)
         SymbolPtr ptrsymbol = this->dereferenceSymbol(symbol);
 
         if(ptrsymbol)
-            return this->_referencetable.referencesCount(ptrsymbol->address);
+            return m_referencetable.referencesCount(ptrsymbol->address);
     }
 
-    return this->_referencetable.referencesCount(symbol->address);
+    return m_referencetable.referencesCount(symbol->address);
 }
 
 bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
@@ -66,30 +43,29 @@ bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
         SymbolPtr ptrsymbol = this->dereferenceSymbol(symbol);
 
         if(ptrsymbol)
-            return this->_referencetable.hasReferences(ptrsymbol->address);
+            return m_referencetable.hasReferences(ptrsymbol->address);
     }
 
-    return this->_referencetable.hasReferences(symbol->address);
+    return m_referencetable.hasReferences(symbol->address);
 }
 
 void DisassemblerBase::pushReference(const SymbolPtr &symbol, const InstructionPtr& refbyinstruction)
 {
     refbyinstruction->reference(symbol->address);
     this->updateInstruction(refbyinstruction);
-    this->_referencetable.push(symbol->address, refbyinstruction->address);
+    m_referencetable.push(symbol->address, refbyinstruction->address);
 }
 
 void DisassemblerBase::pushReference(address_t address, const InstructionPtr& refbyinstruction)
 {
     refbyinstruction->reference(address);
     this->updateInstruction(refbyinstruction);
-    this->_referencetable.push(address, refbyinstruction->address);
+    m_referencetable.push(address, refbyinstruction->address);
 }
 
 void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_t address)
 {
-    u64 target = address;
-    u64 stringscount = 0;
+    u64 target = address, stringscount = 0;
 
     while(this->dereferencePointer(target, &target))
     {
@@ -97,16 +73,16 @@ void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_
             break;
 
         stringscount++;
-        target = address + (stringscount * this->_format->addressWidth());
+        target = address + (stringscount * m_format->addressWidth());
     }
 
     if(!stringscount)
     {
         if(!this->checkString(instruction, address))
-            this->_symboltable->createLocation(address, SymbolTypes::Data);
+            m_document->symbol(address, SymbolTypes::Data);
     }
     else
-        this->_symboltable->createLocation(address, SymbolTypes::Data | SymbolTypes::Pointer);
+        m_document->symbol(address, SymbolTypes::Data | SymbolTypes::Pointer);
 
     this->pushReference(address, instruction);
 }
@@ -120,12 +96,12 @@ bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t 
 
     if(wide)
     {
-        this->_symboltable->createWString(address);
+        m_document->symbol(address, SymbolTypes::WideString);
         instruction->cmt("WIDE STRING: " + REDasm::quoted(this->readWString(address)));
     }
     else
     {
-        this->_symboltable->createString(address);
+        m_document->symbol(address, SymbolTypes::String);
         instruction->cmt("STRING: " + REDasm::quoted(this->readString(address)));
     }
 
@@ -134,14 +110,12 @@ bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t 
 }
 
 
-FormatPlugin *DisassemblerBase::format()
-{
-    return this->_format;
-}
+FormatPlugin *DisassemblerBase::format() { return m_format; }
+ListingDocument *DisassemblerBase::document() { return m_document; }
 
 u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
 {
-    Segment* segment = this->_format->segment(address);
+    Segment* segment = m_document->segment(address);
 
     if(!segment || segment->is(SegmentTypes::Bss))
         return 0;
@@ -190,7 +164,7 @@ std::string DisassemblerBase::readHex(address_t address, u32 count) const
     if(!this->getBuffer(address, data))
         return std::string();
 
-    count = std::min(static_cast<s64>(count), this->_buffer.length);
+    count = std::min(static_cast<s64>(count), this->m_buffer.length);
 
     std::stringstream ss;
     ss << std::hex << std::setfill('0');
@@ -215,7 +189,7 @@ SymbolPtr DisassemblerBase::dereferenceSymbol(const SymbolPtr& symbol, u64* valu
     SymbolPtr ptrsymbol;
 
     if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, &address))
-        ptrsymbol = this->_symboltable->symbol(address);
+        ptrsymbol = m_document->symbol(address);
 
     if(value)
         *value = address;
@@ -228,7 +202,7 @@ bool DisassemblerBase::dereferencePointer(address_t address, u64 *value) const
     if(!value)
         return false;
 
-    return this->readAddress(address, this->_format->bits() / 8, value);
+    return this->readAddress(address, m_format->addressWidth(), value);
 }
 
 bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) const
@@ -236,23 +210,23 @@ bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) c
     if(!value)
         return false;
 
-    Segment* segment = this->_format->segment(address);
+    Segment* segment = m_document->segment(address);
 
     if(!segment || segment->is(SegmentTypes::Bss))
         return false;
 
-    offset_t offset = this->_format->offset(address);
+    offset_t offset = m_format->offset(address);
     return this->readOffset(offset, size, value);
 }
 
 bool DisassemblerBase::getBuffer(address_t address, Buffer &data) const
 {
-    Segment* segment = this->_format->segment(address);
+    Segment* segment = m_document->segment(address);
 
     if(!segment || segment->is(SegmentTypes::Bss))
         return false;
 
-    data = this->_buffer + this->_format->offset(address);
+    data = this->m_buffer + m_format->offset(address);
     return true;
 }
 
@@ -261,7 +235,7 @@ bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 *value) cons
     if(!value)
         return false;
 
-    Buffer pdest = this->_buffer + offset;
+    Buffer pdest = m_buffer + offset;
 
     if(size == 1)
         *value = *reinterpret_cast<u8*>(pdest.data);

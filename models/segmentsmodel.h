@@ -21,7 +21,7 @@ class SegmentsModel : public DisassemblerModel
         QString segmentFlags(const REDasm::Segment& block) const;
 
     private:
-        const REDasm::FormatPlugin* _format;
+        const REDasm::FormatPlugin* m_format;
 };
 
 #endif // SEGMENTSMODEL_H

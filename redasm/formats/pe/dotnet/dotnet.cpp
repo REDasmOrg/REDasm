@@ -2,8 +2,8 @@
 #include <cstring>
 #include <iostream>
 
-#define PUSH_TABLE(t) _tables.push_back(CorMetadataTables::t); \
-                      _dispatcher[CorMetadataTables::t] = &PeDotNet::get##t
+#define PUSH_TABLE(t) m_tables.push_back(CorMetadataTables::t); \
+                      m_dispatcher[CorMetadataTables::t] = &PeDotNet::get##t
 
 #define GET_TAGGED_FIELD(S, data, field, tagbits, tables, ...) PeDotNet::getTaggedField<S>(data, field, field##_tag, tagbits, tables, __VA_ARGS__)
 

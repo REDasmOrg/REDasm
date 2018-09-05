@@ -3,38 +3,41 @@
 
 namespace REDasm {
 
-CallGraph::CallGraph(InstructionsPool &listing): Graphing::Graph(), _listing(listing)
+CallGraph::CallGraph(ListingDocument *document): Graphing::Graph(), m_document(document)
 {
 
 }
 
 void CallGraph::walk(address_t address)
 {
+    /*
     this->buildVertices(address);
     this->buildEdges();
 
-    SymbolPtr symbol = this->_listing.getFunction(address);
+    SymbolPtr symbol = this->m_document.getFunction(address);
 
     if(!symbol)
         return;
 
     this->setRootVertex(this->vertexIdByAddress(symbol->address));
     this->layout();
+    */
 }
 
 void CallGraph::buildVertices(address_t fromaddress)
 {
+    /*
     std::queue<address_t> pending;
     pending.push(fromaddress);
 
-    SymbolTable* symboltable = this->_listing.symbolTable();
+    SymbolTable* symboltable = this->m_document.symbolTable();
 
     while(!pending.empty())
     {
         address_t address = pending.front(), startaddress = 0, endaddress = 0;
         pending.pop();
 
-        if(this->vertexIdByAddress(address) || !this->_listing.getFunctionBounds(address, &startaddress, &endaddress))
+        if(this->vertexIdByAddress(address) || !this->m_document.getFunctionBounds(address, &startaddress, &endaddress))
             continue;
 
         SymbolPtr symbol = symboltable->symbol(startaddress);
@@ -42,9 +45,9 @@ void CallGraph::buildVertices(address_t fromaddress)
         if(!symbol)
             continue;
 
-        auto it = this->_listing.find(startaddress);
+        auto it = this->m_document.find(startaddress);
 
-        if(it == this->_listing.end())
+        if(it == this->m_document.end())
             continue;
 
         CallGraphVertex* cgv = new CallGraphVertex(symbol);
@@ -52,7 +55,7 @@ void CallGraph::buildVertices(address_t fromaddress)
 
         this->_byaddress[symbol->address] = cgv->id;
 
-        for( ; it != this->_listing.end(); it++)
+        for( ; it != this->m_document.end(); it++)
         {
             InstructionPtr instruction = *it;
 
@@ -68,6 +71,7 @@ void CallGraph::buildVertices(address_t fromaddress)
             });
         }
     }
+    */
 }
 
 void CallGraph::buildEdges()
@@ -84,9 +88,9 @@ void CallGraph::buildEdges()
 
 Graphing::vertex_id_t CallGraph::vertexIdByAddress(address_t address) const
 {
-    auto it = this->_byaddress.find(address);
+    auto it = m_byaddress.find(address);
 
-    if(it == this->_byaddress.end())
+    if(it == m_byaddress.end())
         return 0;
 
     return it->second;

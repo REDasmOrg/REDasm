@@ -23,9 +23,9 @@ class SymbolTableModel : public DisassemblerModel
         virtual int columnCount(const QModelIndex&) const;
 
     private:
-        REDasm::SymbolTable* _symboltable;
-        QList<REDasm::SymbolPtr> _symbols;
-        u32 _symbolflags;
+        REDasm::SymbolTable* m_symboltable;
+        QList<REDasm::SymbolPtr> m_symbols;
+        u32 m_symbolflags;
 
     friend class SymbolTableFilterModel;
 };

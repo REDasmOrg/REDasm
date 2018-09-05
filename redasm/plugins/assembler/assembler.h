@@ -31,7 +31,7 @@ class AssemblerPlugin: public Plugin
         AssemblerPlugin();
         virtual u32 flags() const;
         virtual VMIL::Emulator* createEmulator(DisassemblerAPI* disassembler) const;
-        virtual Printer* createPrinter(DisassemblerAPI* disassembler, SymbolTable* symboltable) const;
+        virtual Printer* createPrinter(DisassemblerAPI* disassembler) const;
         virtual void analyzeOperand(DisassemblerAPI* disassembler, const InstructionPtr& instruction, const Operand& operand) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual bool done(const InstructionPtr& instruction);
@@ -74,40 +74,40 @@ template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public Assemb
         ~CapstoneAssemblerPlugin();
         csh handle() const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
-        virtual Printer* createPrinter(DisassemblerAPI *disassembler, SymbolTable* symboltable) const { return new CapstonePrinter(this->_cshandle, disassembler, symboltable); }
+        virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new CapstonePrinter(this->m_cshandle, disassembler); }
 
     protected:
-        csh _cshandle;
+        csh m_cshandle;
 };
 
 template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::CapstoneAssemblerPlugin()
 {
-    cs_open(arch, static_cast<cs_mode>(mode), &this->_cshandle);
-    cs_option(this->_cshandle, CS_OPT_DETAIL, CS_OPT_ON);
+    cs_open(arch, static_cast<cs_mode>(mode), &this->m_cshandle);
+    cs_option(this->m_cshandle, CS_OPT_DETAIL, CS_OPT_ON);
 }
 
-template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::~CapstoneAssemblerPlugin() { cs_close(&this->_cshandle); }
-template<cs_arch arch, size_t mode> csh CapstoneAssemblerPlugin<arch, mode>::handle() const { return this->_cshandle; }
+template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::~CapstoneAssemblerPlugin() { cs_close(&this->m_cshandle); }
+template<cs_arch arch, size_t mode> csh CapstoneAssemblerPlugin<arch, mode>::handle() const { return this->m_cshandle; }
 
 template<cs_arch arch, size_t mode> bool CapstoneAssemblerPlugin<arch, mode>::decode(Buffer buffer, const InstructionPtr& instruction)
 {
     u64 address = instruction->address;
     const uint8_t* pdata = reinterpret_cast<const uint8_t*>(buffer.data);
-    cs_insn* insn = cs_malloc(this->_cshandle);
+    cs_insn* insn = cs_malloc(this->m_cshandle);
 
-    if(!cs_disasm_iter(this->_cshandle, &pdata, reinterpret_cast<size_t*>(&buffer.length), &address, insn))
+    if(!cs_disasm_iter(this->m_cshandle, &pdata, reinterpret_cast<size_t*>(&buffer.length), &address, insn))
         return false;
 
-    if(cs_insn_group(this->_cshandle, insn, CS_GRP_JUMP))
+    if(cs_insn_group(this->m_cshandle, insn, CS_GRP_JUMP))
         instruction->type |= InstructionTypes::Jump;
 
-    if(cs_insn_group(this->_cshandle, insn, CS_GRP_CALL))
+    if(cs_insn_group(this->m_cshandle, insn, CS_GRP_CALL))
         instruction->type |= InstructionTypes::Call;
 
-    if(cs_insn_group(this->_cshandle, insn, CS_GRP_RET))
+    if(cs_insn_group(this->m_cshandle, insn, CS_GRP_RET))
         instruction->type |= InstructionTypes::Stop;
 
-    if(cs_insn_group(this->_cshandle, insn, CS_GRP_INT) || cs_insn_group(this->_cshandle, insn, CS_GRP_IRET))
+    if(cs_insn_group(this->m_cshandle, insn, CS_GRP_INT) || cs_insn_group(this->m_cshandle, insn, CS_GRP_IRET))
         instruction->type |= InstructionTypes::Privileged;
 
     instruction->mnemonic = insn->mnemonic;

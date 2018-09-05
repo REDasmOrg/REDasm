@@ -85,23 +85,12 @@ class SymbolTable
         void lock(address_t address);
         void sort();
 
-    public:
-        bool createFunction(address_t address, const Segment *segment = NULL);
-        bool createFunction(address_t address, const std::string& name);
-        bool createString(address_t address);
-        bool createWString(address_t address);
-        bool createLocation(address_t address, u32 type);
-
     private:
-        void promoteSymbol(SymbolPtr symbol, const std::string& name, u32 type);
-        void eraseInVector(address_t address);
-
-    private:
-        AddressList _addresses;
-        SymbolsByName _byname;
-        SymbolCache _byaddress;
-        address_t _epaddress;
-        bool _isepvalid;
+        AddressList m_addresses;
+        SymbolsByName m_byname;
+        SymbolCache m_byaddress;
+        address_t m_epaddress;
+        bool m_isepvalid;
 };
 
 }

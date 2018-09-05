@@ -14,7 +14,7 @@ class ARMAssembler: public CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_ARM>
         virtual u32 flags() const;
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual VMIL::Emulator* createEmulator(DisassemblerAPI *disassembler) const;
-        virtual Printer* createPrinter(DisassemblerAPI *disassembler, SymbolTable *symboltable) const;
+        virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
 };
 
 DECLARE_ASSEMBLER_PLUGIN(ARMAssembler, arm)

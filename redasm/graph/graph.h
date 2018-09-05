@@ -32,7 +32,7 @@ class Graph
                 Vertex* operator *() { return _graph->getVertex(id); }
 
             private:
-                void update() { id = (_vertit == _graph->_vertexmap.end()) ? 0 : _vertit->first; }
+                void update() { id = (_vertit == _graph->m_vertexmap.end()) ? 0 : _vertit->first; }
 
             protected:
                 Graph* _graph;
@@ -44,8 +44,8 @@ class Graph
 
     public:
         Graph();
-        Graph::iterator begin() { return iterator(this, this->_vertexmap.begin()); }
-        Graph::iterator end() { return iterator(this, this->_vertexmap.end()); }
+        Graph::iterator begin() { return iterator(this, this->m_vertexmap.begin()); }
+        Graph::iterator end() { return iterator(this, this->m_vertexmap.end()); }
         void edge(Vertex* from, Vertex* to);
         void edge(vertex_id_t from, vertex_id_t to);
         size_t vertexCount() const;
@@ -64,7 +64,7 @@ class Graph
         void layout();
 
     protected:
-        VertexMap _vertexmap;
+        VertexMap m_vertexmap;
         vertex_id_t _currentid, _rootid;
 };
 

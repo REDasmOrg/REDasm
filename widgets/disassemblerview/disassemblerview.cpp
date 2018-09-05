@@ -185,6 +185,7 @@ void DisassemblerView::on_bottomTabs_currentChanged(int index)
 
 void DisassemblerView::gotoXRef(const QModelIndex &index)
 {
+    /*
     if(!index.isValid() || !index.internalPointer())
         return;
 
@@ -195,10 +196,12 @@ void DisassemblerView::gotoXRef(const QModelIndex &index)
         return;
 
     ui->disassemblerTextView->goTo(address);
+    */
 }
 
 void DisassemblerView::gotoSymbol(const QModelIndex &index)
 {
+    /*
     if(!index.isValid() || !index.internalPointer())
         return;
 
@@ -211,6 +214,7 @@ void DisassemblerView::gotoSymbol(const QModelIndex &index)
         return;
 
     ui->disassemblerTextView->goTo(symbol);
+    */
 }
 
 void DisassemblerView::xrefSymbol(const QModelIndex &index)
@@ -235,6 +239,7 @@ void DisassemblerView::xrefSymbol(const QModelIndex &index)
 
 void DisassemblerView::displayAddress(address_t address)
 {
+    /*
     REDasm::SymbolPtr symbol = this->_disassembler->instructions().getFunction(address);
     const REDasm::Segment* segment = this->_disassembler->format()->segment(address);
     offset_t offset = this->_disassembler->format()->offset(address);
@@ -254,10 +259,12 @@ void DisassemblerView::displayAddress(address_t address)
                                                                                    soffset);
 
     this->_lblstatus->setText(s);
+    */
 }
 
 void DisassemblerView::displayInstructionReferences()
 {
+    /*
     REDasm::InstructionsPool& listing = this->_disassembler->instructions();
     auto it = listing.find(ui->disassemblerTextView->currentAddress());
 
@@ -268,12 +275,13 @@ void DisassemblerView::displayInstructionReferences()
     }
 
     this->_referencesmodel->xref(*it);
+    */
 }
 
 void DisassemblerView::displayReferences()
 {
-    REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(ui->disassemblerTextView->symbolAddress());
-    this->_referencesmodel->xref(ui->disassemblerTextView->currentAddress(), symbol);
+    //REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(ui->disassemblerTextView->symbolAddress());
+    //this->_referencesmodel->xref(ui->disassemblerTextView->currentAddress(), symbol);
 }
 
 void DisassemblerView::updateModel(const REDasm::SymbolPtr &symbol)

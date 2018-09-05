@@ -1,7 +1,7 @@
 #ifndef CALLGRAPH_H
 #define CALLGRAPH_H
 
-#include "../types/listing.h"
+#include "../listing/listingdocument.h"
 #include "../../graph/graph.h"
 
 namespace REDasm {
@@ -18,7 +18,7 @@ struct CallGraphVertex: public Graphing::Vertex
 class CallGraph: public Graphing::Graph
 {
     public:
-        CallGraph(InstructionsPool& listing);
+        CallGraph(ListingDocument* listing);
         void walk(address_t address);
 
     private:
@@ -29,8 +29,8 @@ class CallGraph: public Graphing::Graph
         Graphing::vertex_id_t vertexIdByAddress(address_t address) const;
 
     private:
-        InstructionsPool& _listing;
-        std::unordered_map<address_t, Graphing::vertex_id_t> _byaddress;
+        ListingDocument* m_document;
+        std::unordered_map<address_t, Graphing::vertex_id_t> m_byaddress;
 };
 
 } // namespace REDasm

@@ -10,7 +10,7 @@
 
 namespace REDasm {
 
-VBComponents::Components VBComponents::,_components;
+VBComponents::Components VBComponents::m_components;
 
 VBComponents::VBComponents()
 {

@@ -4,40 +4,28 @@
 
 namespace REDasm {
 
-FunctionGraph::FunctionGraph(InstructionsPool &listing): Graph(), _startaddress(0), _endaddress(0), _listing(listing)
-{
-}
-
-address_t FunctionGraph::startAddress() const
-{
-    return this->_startaddress;
-}
-
-address_t FunctionGraph::endAddress() const
-{
-    return this->_endaddress;
-}
-
-InstructionsPool &FunctionGraph::listing()
-{
-    return this->_listing;
-}
+FunctionGraph::FunctionGraph(ListingDocument* document): Graph(), m_startaddress(0), m_endaddress(0), m_listing(document) { }
+address_t FunctionGraph::startAddress() const { return m_startaddress; }
+address_t FunctionGraph::endAddress() const { return m_endaddress; }
+ListingDocument* FunctionGraph::document() { return m_listing; }
 
 void FunctionGraph::build(address_t address)
 {
-    if(!this->_listing.getFunctionBounds(address, &this->_startaddress, &this->_endaddress))
+    /*
+    if(!this->m_listing.getFunctionBounds(address, &this->m_startaddress, &this->m_endaddress))
         return;
+        */
 
     this->buildBlocksPass1(); // Build nodes
     this->buildBlocksPass2(); // Check overlapping nodes
     this->buildBlocksPass3(); // Elaborate node's edges
-    this->setRootVertex(this->vertexFromAddress(this->_startaddress));
+    this->setRootVertex(this->vertexFromAddress(m_startaddress));
     this->layout();
 }
 
 FunctionGraphVertex *FunctionGraph::vertexFromAddress(address_t address)
 {
-    for(auto& item : this->_vertexmap)
+    for(auto& item : m_vertexmap)
     {
        FunctionGraphVertex* v = static_cast<FunctionGraphVertex*>(this->getVertex(item.first));
 
@@ -50,10 +38,11 @@ FunctionGraphVertex *FunctionGraph::vertexFromAddress(address_t address)
 
 void FunctionGraph::buildBlocksPass1()
 {
+    /*
     std::queue<address_t> queue;
     std::set<address_t> visited;
 
-    queue.push(this->_startaddress);
+    queue.push(this->m_startaddress);
 
     while(!queue.empty())
     {
@@ -65,13 +54,13 @@ void FunctionGraph::buildBlocksPass1()
 
         visited.insert(start);
         FunctionGraphVertex* v = new FunctionGraphVertex(start);
-        auto it = this->_listing.find(start);
+        auto it = this->m_listing.find(start);
 
-        while(it != this->_listing.end())
+        while(it != this->m_listing.end())
         {
             InstructionPtr instruction = *it;
 
-            if(instruction->address >= this->_endaddress)
+            if(instruction->address >= this->m_endaddress)
                 break;
 
             if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
@@ -80,7 +69,7 @@ void FunctionGraph::buildBlocksPass1()
                     queue.push(address);
                 });
 
-                if(instruction->is(InstructionTypes::Conditional) && (instruction->endAddress() < this->_endaddress))
+                if(instruction->is(InstructionTypes::Conditional) && (instruction->endAddress() < this->m_endaddress))
                     queue.push(instruction->endAddress());
 
                 v->end = instruction->address;
@@ -98,14 +87,16 @@ void FunctionGraph::buildBlocksPass1()
             it++;
         }
     }
+    */
 }
 
 void FunctionGraph::buildBlocksPass2()
 {
+    /*
     for(auto vit = this->begin(); vit != this->end(); vit++)
     {
         FunctionGraphVertex* v1 = static_cast<FunctionGraphVertex*>(*vit);
-        auto it = this->_listing.find(v1->start);
+        auto it = this->m_listing.find(v1->start);
 
         while(it.key < v1->end)
         {
@@ -123,14 +114,16 @@ void FunctionGraph::buildBlocksPass2()
             break;
         }
     }
+    */
 }
 
 void FunctionGraph::buildBlocksPass3()
 {
+    /*
     for(auto vit = this->begin(); vit != this->end(); vit++)
     {
         FunctionGraphVertex* v1 = static_cast<FunctionGraphVertex*>(*vit);
-        auto it = this->_listing.find(v1->start);
+        auto it = this->m_listing.find(v1->start);
 
         while(it.key <= v1->end)
         {
@@ -146,7 +139,7 @@ void FunctionGraph::buildBlocksPass3()
                     v1->bTrue(v);
                 });
 
-                if(instruction->is(InstructionTypes::Conditional) && (instruction->endAddress() < this->_endaddress))
+                if(instruction->is(InstructionTypes::Conditional) && (instruction->endAddress() < this->m_endaddress))
                 {
                     Graphing::Vertex* v = this->vertexFromAddress(instruction->endAddress());
                     this->edge(v2, v);
@@ -157,6 +150,7 @@ void FunctionGraph::buildBlocksPass3()
             it++;
         }
     }
+    */
 }
 
 } // namespace REDasm

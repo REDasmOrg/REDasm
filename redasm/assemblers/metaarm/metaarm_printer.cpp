@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-MetaARMPrinter::MetaARMPrinter(csh cshandle, DisassemblerAPI *disassembler, SymbolTable *symboltable): CapstonePrinter(cshandle, disassembler, symboltable)
+MetaARMPrinter::MetaARMPrinter(csh cshandle, DisassemblerAPI *disassembler): CapstonePrinter(cshandle, disassembler)
 {
 
 }

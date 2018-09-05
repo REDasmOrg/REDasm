@@ -18,7 +18,7 @@ class Printer
         typedef std::function<void(const std::string&)> LineCallback;
 
     public:
-        Printer(DisassemblerAPI* disassembler, SymbolTable* symboltable);
+        Printer(DisassemblerAPI* disassembler);
         void symbols(const InstructionPtr& instruction, SymbolCallback symbolfunc);
         std::string symbol(const SymbolPtr& symbol) const;
         std::string out(const InstructionPtr& instruction) const;
@@ -37,20 +37,19 @@ class Printer
         virtual std::string imm(const Operand& operand) const;
 
     protected:
-        DisassemblerAPI* _disassembler;
-        SymbolTable* _symboltable;
+        DisassemblerAPI* m_disassembler;
 };
 
 class CapstonePrinter: public Printer
 {
     public:
-        CapstonePrinter(csh cshandle, DisassemblerAPI* disassembler, SymbolTable* symboltable);
+        CapstonePrinter(csh cshandle, DisassemblerAPI* disassembler);
 
     protected:
         virtual std::string reg(const RegisterOperand &regop) const;
 
     private:
-        csh _cshandle;
+        csh m_cshandle;
 };
 
 typedef std::shared_ptr<Printer> PrinterPtr;

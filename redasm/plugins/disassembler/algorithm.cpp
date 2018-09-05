@@ -3,18 +3,18 @@
 
 namespace REDasm {
 
-DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): _disassembler(disassembler), _assembler(assembler)
+DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler)
 {
 
 }
 
-void DisassemblerAlgorithm::push(address_t address) { this->_pending.push(address); }
-bool DisassemblerAlgorithm::hasNext() const { return !this->_pending.empty(); }
+void DisassemblerAlgorithm::push(address_t address) { this->m_pending.push(address); }
+bool DisassemblerAlgorithm::hasNext() const { return !this->m_pending.empty(); }
 
 address_t DisassemblerAlgorithm::next()
 {
-    address_t address = this->_pending.top();
-    this->_pending.pop();
+    address_t address = this->m_pending.top();
+    this->m_pending.pop();
     return address;
 }
 
@@ -23,9 +23,9 @@ u32 DisassemblerAlgorithm::disassemble(const Buffer& buffer, InstructionPtr &ins
     if(this->isDisassembled(instruction->address))
         return DisassemblerAlgorithm::SKIP;
 
-    this->_disassembled.insert(instruction->address);
+    this->m_disassembled.insert(instruction->address);
 
-    u32 result = this->_assembler->decode(buffer, instruction) ? DisassemblerAlgorithm::OK :
+    u32 result = this->m_assembler->decode(buffer, instruction) ? DisassemblerAlgorithm::OK :
                                                                  DisassemblerAlgorithm::FAIL;
 
     this->onDisassembled(instruction, result);
@@ -42,8 +42,8 @@ void DisassemblerAlgorithm::onDisassembled(const InstructionPtr &instruction, u3
 
 void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
 {
-    FormatPlugin* formatplugin = this->_disassembler->format();
-    SymbolTable* symboltable = this->_disassembler->symbolTable();
+    FormatPlugin* formatplugin = m_disassembler->format();
+    ListingDocument* document = m_disassembler->document();
 
     for(const Operand& op : instruction->operands)
     {
@@ -51,16 +51,16 @@ void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
             continue;
 
         u64 value = op.u_value;
-        const Segment* segment = formatplugin->segment(value);
+        const Segment* segment = document->segment(value);
 
         if(!segment)
             continue;
 
-        if(op.isRead() && this->_disassembler->dereferenceOperand(op, &value))
+        if(op.isRead() && this->m_disassembler->dereferenceOperand(op, &value))
         {
-            segment = formatplugin->segment(value);
-            symboltable->createLocation(op.u_value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
-            this->_disassembler->pushReference(op.u_value, instruction);
+            segment = document->segment(value);
+            document->symbol(op.u_value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
+            this->m_disassembler->pushReference(op.u_value, instruction);
         }
 
         if(instruction->is(InstructionTypes::Jump) && instruction->isTargetOperand(op))
@@ -75,35 +75,30 @@ void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
                     instruction->cmt("Infinite loop");
 
                 instruction->target(value);
-                symboltable->createLocation(value, SymbolTypes::Code);
+                document->symbol(value, SymbolTypes::Code);
             }
             else
             {
-                this->_disassembler->checkJumpTable(instruction, op.u_value);
+                this->m_disassembler->checkJumpTable(instruction, op.u_value);
                 continue;
             }
         }
         else if(instruction->is(InstructionTypes::Call) && instruction->isTargetOperand(op))
-        {
-            if(segment != formatplugin->entryPointSegment())
-                symboltable->createFunction(value, segment);
-            else
-                symboltable->createFunction(value);
-        }
+            document->symbol(value, SymbolTypes::Function);
         else
         {
             if(segment->is(SegmentTypes::Data) || segment->is(SegmentTypes::Bss))
-                this->_disassembler->checkLocation(instruction, value); // Create Symbol + XRefs
+                m_disassembler->checkLocation(instruction, value); // Create Symbol + XRefs
             else if(segment->is(SegmentTypes::Code))
-                this->_disassembler->checkString(instruction, value);   // Create Symbol + XRefs
+                m_disassembler->checkString(instruction, value);   // Create Symbol + XRefs
 
             continue;
         }
 
-        this->_disassembler->pushReference(value, instruction);
+        m_disassembler->pushReference(value, instruction);
     }
 }
 
-bool DisassemblerAlgorithm::isDisassembled(address_t address) const { return this->_disassembled.find(address) != this->_disassembled.end(); }
+bool DisassemblerAlgorithm::isDisassembled(address_t address) const { return this->m_disassembled.find(address) != this->m_disassembled.end(); }
 
 } // namespace REDasm

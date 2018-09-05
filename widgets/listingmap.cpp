@@ -11,6 +11,7 @@ ListingMap::ListingMap(QWidget *parent) : QWidget(parent), _size(0)
 
 void ListingMap::render(REDasm::Disassembler* disassembler)
 {
+    /*
     u64 reloffset = 0;
     const REDasm::SegmentList& segments = disassembler->format()->segments();
 
@@ -66,10 +67,12 @@ void ListingMap::render(REDasm::Disassembler* disassembler)
     });
 
     this->update();
+    */
 }
 
 const ListingMap::Item* ListingMap::segmentBase(REDasm::Disassembler* disassembler, REDasm::SymbolPtr symbol) const
 {
+    /*
     const REDasm::Segment* segment = disassembler->format()->segment(symbol->address);
 
     if(!segment)
@@ -80,6 +83,7 @@ const ListingMap::Item* ListingMap::segmentBase(REDasm::Disassembler* disassembl
         if(item.address == segment->address)
             return &item;
     }
+    */
 
     return NULL;
 }

@@ -11,12 +11,12 @@ ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent), _c
 void ReferencesModel::setDisassembler(REDasm::Disassembler *disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
-    this->_printer = REDasm::PrinterPtr(disassembler->assembler()->createPrinter(disassembler, disassembler->symbolTable()));
+    //this->_printer = REDasm::PrinterPtr(disassembler->assembler()->createPrinter(disassembler, disassembler->symbolTable()));
 }
 
 void ReferencesModel::xref(const REDasm::InstructionPtr& instruction)
 {
-    if(!this->_disassembler)
+    if(!this->m_disassembler)
         return;
 
     this->_instructionrefs = false;
@@ -84,7 +84,8 @@ QVariant ReferencesModel::dataInstructionRefs(const QModelIndex &index, int role
 
 QVariant ReferencesModel::dataSymbolRefs(const QModelIndex &index, int role) const
 {
-    REDasm::SymbolTable* symboltable = this->_disassembler->symbolTable();
+    /*
+    REDasm::SymbolTable* symboltable = this->m_disassembler->symbolTable();
     REDasm::SymbolPtr symbol = symboltable->symbol(this->_references[index.row()]);
 
     if(!symbol)
@@ -93,7 +94,7 @@ QVariant ReferencesModel::dataSymbolRefs(const QModelIndex &index, int role) con
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(symbol->address, this->_disassembler->format()->bits()));
+            return S_TO_QS(REDasm::hex(symbol->address, this->m_disassembler->format()->bits()));
         else if(index.column() == 1)
             return this->direction(symbol->address);
         else if(index.column() == 2)
@@ -109,13 +110,14 @@ QVariant ReferencesModel::dataSymbolRefs(const QModelIndex &index, int role) con
         else if(symbol->is(REDasm::SymbolTypes::String))
             return THEME_VALUE("string_fg");
     }
+    */
 
     return QVariant();
 }
 
 void ReferencesModel::xref(address_t currentaddress, const REDasm::SymbolPtr& symbol)
 {
-    if(!this->_disassembler)
+    if(!this->m_disassembler)
         return;
 
     if(!symbol)
@@ -128,7 +130,7 @@ void ReferencesModel::xref(address_t currentaddress, const REDasm::SymbolPtr& sy
 
     this->beginResetModel();
     this->_currentaddress = currentaddress;
-    this->_references = this->_disassembler->getReferences(symbol);
+    this->_references = this->m_disassembler->getReferences(symbol);
     this->endResetModel();
 }
 
@@ -139,7 +141,7 @@ QModelIndex ReferencesModel::index(int row, int column, const QModelIndex &) con
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 {
-    if(!this->_disassembler)
+    if(!this->m_disassembler)
         return QVariant();
 
     if((role == Qt::ForegroundRole) && (index.column() == 0))

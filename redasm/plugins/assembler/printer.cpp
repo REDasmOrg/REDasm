@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-Printer::Printer(DisassemblerAPI *disassembler, SymbolTable *symboltable): _disassembler(disassembler), _symboltable(symboltable)
+Printer::Printer(DisassemblerAPI *disassembler): m_disassembler(disassembler)
 {
 
 }
@@ -11,7 +11,7 @@ Printer::Printer(DisassemblerAPI *disassembler, SymbolTable *symboltable): _disa
 void Printer::symbols(const InstructionPtr &instruction, Printer::SymbolCallback symbolfunc)
 {
     std::for_each(instruction->references.begin(), instruction->references.end(), [this, symbolfunc](address_t ref) {
-        SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(ref);
+        SymbolPtr symbol = m_disassembler->document()->symbol(ref);
 
         if(symbol)
             this->symbol(symbol, symbolfunc);
@@ -54,15 +54,14 @@ void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc) const
     if(symbol->isFunction() || symbol->is(SymbolTypes::Code))
         return;
 
-    FormatPlugin* formatplugin = this->_disassembler->format();
-    Segment* segment = formatplugin->segment(symbol->address);
+    Segment* segment = m_disassembler->document()->segment(symbol->address);
 
     if(!segment)
         return;
 
     if(symbol->is(SymbolTypes::Pointer))
     {
-        SymbolPtr ptrsymbol = this->_disassembler->dereferenceSymbol(symbol);
+        SymbolPtr ptrsymbol = m_disassembler->dereferenceSymbol(symbol);
 
         if(ptrsymbol)
         {
@@ -80,17 +79,18 @@ void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc) const
             return;
         }
 
+        FormatPlugin* formatplugin = m_disassembler->format();
         u64 value = 0;
 
-        if(!this->_disassembler->readAddress(symbol->address, formatplugin->addressWidth(), &value))
+        if(!m_disassembler->readAddress(symbol->address, formatplugin->addressWidth(), &value))
             return;
 
         symbolfunc(symbol, REDasm::hex(value, formatplugin->addressWidth()));
     }
     else if(symbol->is(SymbolTypes::WideStringMask))
-        symbolfunc(symbol, " \"" + this->_disassembler->readWString(symbol->address) + "\"");
+        symbolfunc(symbol, " \"" + m_disassembler->readWString(symbol->address) + "\"");
     else if(symbol->is(SymbolTypes::String))
-        symbolfunc(symbol, " \"" + this->_disassembler->readString(symbol->address) + "\"");
+        symbolfunc(symbol, " \"" + m_disassembler->readString(symbol->address) + "\"");
 }
 
 void Printer::info(const InstructionPtr &instruction, LineCallback infofunc)
@@ -176,7 +176,7 @@ std::string Printer::disp(const DisplacementOperand &dispop) const
 
     if(dispop.displacement)
     {
-        SymbolPtr symbol = this->_symboltable->symbol(dispop.displacement);
+        SymbolPtr symbol = m_disassembler->document()->symbol(dispop.displacement);
 
         if(!s.empty() && ((dispop.displacement > 0) || symbol))
             s += " + ";
@@ -198,7 +198,7 @@ std::string Printer::loc(const Operand &operand) const
 
 std::string Printer::imm(const Operand &operand) const
 {
-    SymbolPtr symbol = this->_symboltable->symbol(operand.u_value);
+    SymbolPtr symbol = m_disassembler->document()->symbol(operand.u_value);
 
     if(operand.is(OperandTypes::Memory))
         return "[" + (symbol ? symbol->name : REDasm::hex(operand.u_value)) + "]";
@@ -206,7 +206,7 @@ std::string Printer::imm(const Operand &operand) const
     return symbol ? symbol->name : REDasm::hex(operand.s_value);
 }
 
-CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerAPI *disassembler, SymbolTable *symboltable): Printer(disassembler, symboltable), _cshandle(cshandle)
+CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerAPI *disassembler): Printer(disassembler), m_cshandle(cshandle)
 {
 
 }
@@ -219,7 +219,7 @@ std::string CapstonePrinter::reg(const RegisterOperand& regop) const
         return "unkreg";
     }
 
-    return cs_reg_name(this->_cshandle, regop.r);
+    return cs_reg_name(this->m_cshandle, regop.r);
 }
 
 } // namespace REDasm

@@ -17,7 +17,7 @@ class DisassemblerBase: public DisassemblerAPI
 
     public: // Primitive functions
         virtual FormatPlugin* format();
-        virtual SymbolTable* symbolTable();
+        virtual ListingDocument* document();
         virtual ReferenceVector getReferences(address_t address);
         virtual ReferenceVector getReferences(const SymbolPtr &symbol);
         virtual u64 getReferencesCount(address_t address);
@@ -45,15 +45,15 @@ class DisassemblerBase: public DisassemblerAPI
         template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 
    protected:
-        ReferenceTable _referencetable;
-        SymbolTable* _symboltable;
-        FormatPlugin* _format;
-        Buffer _buffer;
+        ReferenceTable m_referencetable;
+        ListingDocument* m_document;
+        FormatPlugin* m_format;
+        Buffer m_buffer;
 };
 
 template<typename T> std::string DisassemblerBase::readStringT(address_t address, std::function<bool(T, std::string&)> fill) const
 {
-    Buffer b = this->_buffer + this->_format->offset(address);
+    Buffer b = m_buffer + m_format->offset(address);
     std::string s;
 
     while(fill(*reinterpret_cast<T*>(b.data), s) && !b.eob())
@@ -64,12 +64,12 @@ template<typename T> std::string DisassemblerBase::readStringT(address_t address
 
 template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const
 {
-    if(!this->_format->segment(address))
+    if(!m_document->segment(address))
         return 0;
 
     u64 alphacount = 0, count = 0;
-    Buffer b = this->_buffer;
-    b += this->_format->offset(address);
+    Buffer b = m_buffer;
+    b += m_format->offset(address);
 
     while(!b.eob() && isp(*reinterpret_cast<T*>(b.data)))
     {

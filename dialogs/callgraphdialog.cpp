@@ -5,11 +5,13 @@ CallGraphDialog::CallGraphDialog(address_t address, REDasm::Disassembler *disass
 {
     ui->setupUi(this);
 
+    /*
     REDasm::SymbolTable* symboltable = disassembler->symbolTable();
     REDasm::SymbolPtr symbol = symboltable->symbol(address);
 
     this->setWindowTitle(QString("Callgraph of %1").arg(QString::fromStdString(symbol ? symbol->name : REDasm::hex(address))));
     ui->callGraphView->display(address, disassembler);
+    */
 }
 
 CallGraphDialog::~CallGraphDialog()

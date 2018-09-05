@@ -16,15 +16,15 @@ class Analyzer
     public:
         Analyzer(DisassemblerAPI* disassembler, const SignatureFiles& signaturefiles);
         virtual ~Analyzer();
-        virtual void analyze(ListingDocument* document);
+        virtual void analyze();
 
     private:
         bool checkCrc16(const SymbolPtr &symbol, const Signature &signature, const SignatureDB &signaturedb);
-        void loadSignatures(ListingDocument* document);
+        void loadSignatures();
         void findSignatures(SignatureDB &signaturedb, ListingDocument* document);
-        void findTrampolines(ListingDocument* document, SymbolPtr symbol);
-        //SymbolPtr findTrampolines_x86(InstructionsPool::iterator& it, SymbolTable *symboltable);
-        //SymbolPtr findTrampolines_arm(InstructionsPool::iterator& it, SymbolTable *symboltable);
+        void findTrampolines(SymbolPtr symbol);
+        SymbolPtr findTrampolines_x86(ListingDocument::iterator it, SymbolTable *symboltable);
+        SymbolPtr findTrampolines_arm(ListingDocument::iterator it, SymbolTable *symboltable);
 
     protected:
         DisassemblerAPI* m_disassembler;

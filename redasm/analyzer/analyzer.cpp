@@ -13,14 +13,14 @@ Analyzer::~Analyzer()
 
 }
 
-void Analyzer::analyze(ListingDocument* document)
+void Analyzer::analyze()
 {
-    this->loadSignatures(document);
+    this->loadSignatures();
 
-    //document.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &document](SymbolPtr symbol) -> bool {
-        //this->findTrampolines(document, symbol);
-        //return true;
-    //});
+    m_disassembler->document()->symbols()->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
+        this->findTrampolines(symbol);
+        return true;
+    });
 }
 
 bool Analyzer::checkCrc16(const SymbolPtr& symbol, const Signature& signature, const SignatureDB& signaturedb)
@@ -42,7 +42,7 @@ bool Analyzer::checkCrc16(const SymbolPtr& symbol, const Signature& signature, c
     return false;
 }
 
-void Analyzer::loadSignatures(ListingDocument* document)
+void Analyzer::loadSignatures()
 {
     /*
     std::for_each(this->m_signaturefiles.begin(), this->m_signaturefiles.end(), [this, &listing](const std::string& signaturefile) {
@@ -71,19 +71,19 @@ void Analyzer::findSignatures(SignatureDB &signaturedb, ListingDocument* documen
     */
 }
 
-/*
-void Analyzer::findTrampolines(InstructionsPool &listing, SymbolPtr symbol)
+void Analyzer::findTrampolines(SymbolPtr symbol)
 {
     if(symbol->is(SymbolTypes::Locked))
         return;
 
-    SymbolTable* symboltable = listing.symbolTable();
-    InstructionsPool::iterator it = listing.find(symbol->address);
+    ListingDocument* doc = m_disassembler->document();
+    SymbolTable* symboltable = doc->symbols();
+    auto it = doc->item(symbol->address, ListingItem::InstructionItem);
 
-    if(it == listing.end())
+    if(it == doc->end())
         return;
 
-    const AssemblerPlugin* assembler = listing.assembler();
+    const AssemblerPlugin* assembler = m_disassembler->assembler();
     SymbolPtr symimport;
 
     if(ASSEMBLER_IS(assembler, "x86"))
@@ -96,12 +96,12 @@ void Analyzer::findTrampolines(InstructionsPool &listing, SymbolPtr symbol)
 
     symbol->type |= SymbolTypes::Locked;
     symboltable->update(symbol, "_" + REDasm::normalize(symimport->name));
-    this->m_disassembler->pushReference(symimport, *it);
+    m_disassembler->pushReference(symimport, doc->instruction(symbol->address));
 }
 
-SymbolPtr Analyzer::findTrampolines_x86(InstructionsPool::iterator& it, SymbolTable* symboltable)
+SymbolPtr Analyzer::findTrampolines_x86(ListingDocument::iterator it, SymbolTable* symboltable)
 {
-    const InstructionPtr& instruction = *it;
+    InstructionPtr instruction = m_disassembler->document()->instruction((*it)->address);
 
     if(!instruction->is(InstructionTypes::Jump))
         return NULL;
@@ -112,10 +112,16 @@ SymbolPtr Analyzer::findTrampolines_x86(InstructionsPool::iterator& it, SymbolTa
     return symboltable->symbol(instruction->target());
 }
 
-SymbolPtr Analyzer::findTrampolines_arm(InstructionsPool::iterator& it, SymbolTable *symboltable)
+SymbolPtr Analyzer::findTrampolines_arm(ListingDocument::iterator it, SymbolTable *symboltable)
 {
-    const InstructionPtr& instruction1 = *it;
-    const InstructionPtr& instruction2 = *(++it);
+    ListingDocument* doc = m_disassembler->document();
+    InstructionPtr instruction1 = doc->instruction((*it)->address);
+    it++;
+
+    if(it == doc->end() || (*it)->type != ListingItem::InstructionItem)
+        return NULL;
+
+    const InstructionPtr& instruction2 = doc->instruction((*it)->address);
 
     if(!instruction1 || !instruction2 || instruction1->isInvalid() || instruction2->isInvalid())
         return NULL;
@@ -128,7 +134,7 @@ SymbolPtr Analyzer::findTrampolines_arm(InstructionsPool::iterator& it, SymbolTa
 
     u64 target = instruction1->operands[1].u_value, importaddress = 0;
 
-    if(!this->m_disassembler->readAddress(target, sizeof(u32), &importaddress))
+    if(!m_disassembler->readAddress(target, sizeof(u32), &importaddress))
         return NULL;
 
     SymbolPtr symbol = symboltable->symbol(target), impsymbol = symboltable->symbol(importaddress);
@@ -138,6 +144,5 @@ SymbolPtr Analyzer::findTrampolines_arm(InstructionsPool::iterator& it, SymbolTa
 
     return impsymbol;
 }
-*/
 
 } // namespace REDasm

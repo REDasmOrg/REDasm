@@ -107,15 +107,13 @@ void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
         m_document->instruction(instruction);
     }
 
-    /*
     std::unique_ptr<Analyzer> a(m_format->createAnalyzer(this, m_format->signatures()));
 
     if(a)
     {
         REDasm::status("Analyzing...");
-        a->analyze(m_document);
+        a->analyze();
     }
-    */
 }
 
 void Disassembler::disassembleUnexploredCode()

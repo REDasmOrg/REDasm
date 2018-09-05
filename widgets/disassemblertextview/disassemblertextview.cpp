@@ -52,7 +52,7 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
     REDasm::ListingDocument* doc = disassembler->document();
     doc->whenChanged([this](int idx) { QMetaObject::invokeMethod(this, "onDocumentChanged", Qt::QueuedConnection, Q_ARG(int, idx)); });
 
-    this->verticalScrollBar()->setRange(0, doc->count());
+    this->verticalScrollBar()->setRange(0, doc->size());
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->renderDocument(); });
 
     m_disassembler = disassembler;
@@ -238,7 +238,7 @@ void DisassemblerTextView::onDocumentChanged(int idx)
     else if(idx > vscrollbar->value() + this->visibleLines())
         return;
 
-    vscrollbar->setMaximum(m_disassembler->document()->count());
+    vscrollbar->setMaximum(m_disassembler->document()->size());
     this->renderDocument();
 }
 

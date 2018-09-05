@@ -13,9 +13,9 @@ void DisassemblerTextDocument::displayRange(size_t start, size_t count)
     REDasm::ListingDocument* doc = m_disassembler->format()->document();
     QTextCursor textcursor;
 
-    for(size_t i = start; i < std::min(doc->count(), start + count); i++)
+    for(size_t i = start; i < std::min(doc->size(), start + count); i++)
     {
-        REDasm::ListingItem* item = doc->at(i);
+        REDasm::ListingItem* item = doc->itemAt(i);
 
         if(this->isItemRendered(i, item))
             continue;

@@ -7,15 +7,15 @@ PsxExeAnalyzer::PsxExeAnalyzer(DisassemblerAPI *disassembler, const SignatureFil
 {
 }
 
-void PsxExeAnalyzer::analyze(ListingDocument *document)
+void PsxExeAnalyzer::analyze()
 {
-    Analyzer::analyze(document);
-    this->detectMain(document);
+    Analyzer::analyze();
+    this->detectMain();
 }
 
-void PsxExeAnalyzer::detectMain(ListingDocument *document)
+void PsxExeAnalyzer::detectMain()
 {
-    SymbolTable* symboltable = document->symbols();
+    SymbolTable* symboltable = m_disassembler->document()->symbols();
     SymbolPtr symentry = symboltable->entryPoint();
 
     if(!symentry)

@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-ListingDocument::ListingDocument(): m_format(NULL) { }
+ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
 void ListingDocument::whenChanged(const ListingDocument::ChangedCallback &cb) { m_changedcb = cb; }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
@@ -103,29 +103,66 @@ InstructionPtr ListingDocument::instruction(address_t address)
     return InstructionPtr();
 }
 
-size_t ListingDocument::count() const { return m_items.size(); }
-ListingItem* ListingDocument::at(size_t i) { return m_items[i].get(); }
+ListingDocument::iterator ListingDocument::item(address_t address, u32 type) { return this->binarySearch(address, type); }
+ListingItem* ListingDocument::itemAt(size_t i) { return this->at(i).get(); }
 SymbolPtr ListingDocument::symbol(address_t address) { return m_symboltable.symbol(address); }
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
 FormatPlugin *ListingDocument::format() { return m_format; }
+
+ListingDocument::iterator ListingDocument::binarySearch(address_t address, u32 type)
+{
+    auto thebegin = this->begin(), theend = this->end();
+
+    while(thebegin <= theend)
+    {
+        auto range = std::distance(thebegin, theend);
+        auto themiddle = thebegin;
+        std::advance(themiddle, range / 2);
+
+        if((*themiddle)->address == address)
+        {
+            int offset = type - (*themiddle)->type;
+
+            if(offset)
+                std::advance(themiddle, offset);
+
+            if((themiddle != this->end()) && (((*themiddle)->address == address) && ((*themiddle)->type == type)))
+                return themiddle;
+
+            return this->end();
+        }
+        else if((*themiddle)->address > address)
+        {
+            theend = themiddle;
+            std::advance(theend, -1);
+        }
+        else if((*themiddle)->address < address)
+        {
+            thebegin = themiddle;
+            std::advance(thebegin, 1);
+        }
+    }
+
+    return this->end();
+}
 
 void ListingDocument::pushSorted(const ListingItem &item)
 {
     ListingItemPtr itemptr = std::make_unique<ListingItem>(item);
 
-    auto it = std::lower_bound(m_items.begin(), m_items.end(), itemptr, [this](const ListingItemPtr& b1, const ListingItemPtr& b2) {
+    auto it = std::lower_bound(this->begin(), this->end(), itemptr, [this](const ListingItemPtr& b1, const ListingItemPtr& b2) {
         if(b1->address == b2->address)
             return b1->type < b2->type;
 
         return b1->address < b2->address;
     });
 
-    m_items.insert(it, std::move(itemptr));
+    this->insert(it, std::move(itemptr));
 
     if(!m_changedcb)
         return;
 
-    size_t idx = std::distance(m_items.begin(), it);
+    size_t idx = std::distance(this->begin(), it);
     m_changedcb(idx);
 }
 

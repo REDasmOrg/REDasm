@@ -20,17 +20,17 @@ PEAnalyzer::PEAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& sign
     ADD_WNDPROC_API(4, "CreateDialogIndirectParamW");
 }
 
-void PEAnalyzer::analyze(ListingDocument *document)
+void PEAnalyzer::analyze()
 {
-    Analyzer::analyze(document);
-    this->findStopAPI(document, "kernel32.dll", "ExitProcess");
-    this->findStopAPI(document, "kernel32.dll", "TerminateProcess");
-    this->findAllWndProc(document);
+    Analyzer::analyze();
+    this->findStopAPI("kernel32.dll", "ExitProcess");
+    this->findStopAPI("kernel32.dll", "TerminateProcess");
+    this->findAllWndProc();
 }
 
-SymbolPtr PEAnalyzer::getImport(ListingDocument *document, const std::string &library, const std::string &api)
+SymbolPtr PEAnalyzer::getImport(const std::string &library, const std::string &api)
 {
-    SymbolTable* symboltable = document->symbols();
+    SymbolTable* symboltable = m_disassembler->document()->symbols();
     SymbolPtr symbol = symboltable->symbol(IMPORT_TRAMPOLINE(library, api));
 
     if(!symbol)
@@ -39,9 +39,9 @@ SymbolPtr PEAnalyzer::getImport(ListingDocument *document, const std::string &li
     return symbol;
 }
 
-ReferenceVector PEAnalyzer::getAPIReferences(ListingDocument *document, const std::string &library, const std::string &api)
+ReferenceVector PEAnalyzer::getAPIReferences(const std::string &library, const std::string &api)
 {
-    SymbolPtr symbol = this->getImport(document, library, api);
+    SymbolPtr symbol = this->getImport(library, api);
 
     if(!symbol)
         return ReferenceVector();
@@ -49,7 +49,7 @@ ReferenceVector PEAnalyzer::getAPIReferences(ListingDocument *document, const st
     return m_disassembler->getReferences(symbol);
 }
 
-void PEAnalyzer::findStopAPI(ListingDocument *document, const std::string& library, const std::string& api)
+void PEAnalyzer::findStopAPI(const std::string& library, const std::string& api)
 {
     /*
     ReferenceVector refs = this->getAPIReferences(document, library, api);
@@ -61,7 +61,7 @@ void PEAnalyzer::findStopAPI(ListingDocument *document, const std::string& libra
     */
 }
 
-void PEAnalyzer::findAllWndProc(ListingDocument *document)
+void PEAnalyzer::findAllWndProc()
 {
     for(auto it = this->m_wndprocapi.begin(); it != this->m_wndprocapi.end(); it++)
     {
@@ -73,7 +73,7 @@ void PEAnalyzer::findAllWndProc(ListingDocument *document)
     }
 }
 
-void PEAnalyzer::findWndProc(ListingDocument *document, address_t address, size_t argidx)
+void PEAnalyzer::findWndProc(address_t address, size_t argidx)
 {
     /*
     auto it = document.find(address);

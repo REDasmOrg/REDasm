@@ -9,10 +9,10 @@ class GbaAnalyzer : public Analyzer
 {
     public:
         GbaAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles& signaturefiles);
-        virtual void analyze(ListingDocument* document);
+        virtual void analyze();
 
     private:
-        void renameEPBranch(ListingDocument* document, SymbolTable *symboltable);
+        void renameEPBranch(SymbolTable *symboltable);
 };
 
 } // namespace REDasm

@@ -27,14 +27,17 @@ struct ListingItem
     u32 type;
 };
 
-class ListingDocument
+typedef std::unique_ptr<ListingItem> ListingItemPtr;
+
+class ListingDocument: public std::vector<ListingItemPtr>
 {
     private:
         typedef std::function<void(int)> ChangedCallback;
-        typedef std::unique_ptr<ListingItem> ListingItemPtr;
 
     public:
         ListingDocument();
+
+   public:
         void whenChanged(const ChangedCallback& cb);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
@@ -55,20 +58,20 @@ class ListingDocument
     public:
         void instruction(const InstructionPtr& instruction);
         InstructionPtr instruction(address_t address);
+        ListingDocument::iterator item(address_t address, u32 type);
 
     public:
-        size_t count() const;
-        ListingItem* at(size_t i);
+        ListingItem* itemAt(size_t i);
         SymbolPtr symbol(address_t address);
         SymbolTable* symbols();
         FormatPlugin* format();
 
     private:
+        ListingDocument::iterator binarySearch(address_t address, u32 type);
         void pushSorted(const ListingItem& item);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
 
     private:
-        std::vector<ListingItemPtr> m_items;
         SegmentList m_segments;
         InstructionPool m_instructions;
         SymbolTable m_symboltable;

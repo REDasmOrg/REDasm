@@ -8,7 +8,8 @@ void ListingDocument::whenChanged(const ListingDocument::ChangedCallback &cb) { 
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
-    m_symboltable.create(address, name, type, tag);
+    if(!m_symboltable.create(address, name, type, tag))
+        return;
 
     if(type & SymbolTypes::Function)
         this->pushSorted(ListingItem(address, ListingItem::FunctionItem));

@@ -72,7 +72,6 @@ class SymbolTable
     public:
         SymbolTable();
         u64 size() const;
-        bool contains(address_t address);
         bool create(address_t address, const std::string& name, u32 type, u32 tag = 0);
         SymbolPtr entryPoint();
         SymbolPtr symbol(address_t address);

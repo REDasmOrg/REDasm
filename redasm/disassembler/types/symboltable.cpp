@@ -28,10 +28,19 @@ void SymbolCache::deserialize(SymbolPtr &value, std::fstream &fs)
 // SymbolTable
 SymbolTable::SymbolTable(): m_epaddress(0), m_isepvalid(false) {  }
 u64 SymbolTable::size() const { return m_addresses.size(); }
-bool SymbolTable::contains(address_t address) { return m_byaddress.find(address) != m_byaddress.end(); }
 
 bool SymbolTable::create(address_t address, const std::string &name, u32 type, u32 tag)
 {
+    auto it = m_byaddress.find(address);
+
+    if(it != m_byaddress.end())
+    {
+        SymbolPtr symbol = *it;
+
+        if(symbol->isLocked())
+            return false;
+    }
+
     if(type & SymbolTypes::EntryPointMask)
     {
         m_isepvalid = true;

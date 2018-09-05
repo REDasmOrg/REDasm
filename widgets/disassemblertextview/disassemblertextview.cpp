@@ -185,7 +185,6 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
         return;
 
     QScrollBar* vscrollbar = this->verticalScrollBar();
-    QTextCharFormat charformat;
     QTextBlock textblock = m_textdocument->findBlockByLineNumber(vscrollbar->value());
     QFontMetrics fm(m_textdocument->defaultFont());
     QPainter painter(this->viewport());
@@ -194,19 +193,21 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
     for(int i = 0, y = this->viewport()->y(); i < this->visibleLines(); i++, y += fm.height())
     {
         if(i >= vscrollbar->maximum())
-        {
             break;
-            //painter.fillRect(this->viewport()->x(), y, this->viewport()->width(), fm.height(), Qt::red);
-            //continue;
+
+        QString s = textblock.text();
+        int x = this->viewport()->x();
+
+        for(const QTextLayout::FormatRange& formatrange : textblock.textFormats())
+        {
+            QTextCharFormat charformat = formatrange.format;
+            QString chunk = s.mid(formatrange.start, formatrange.length);
+            int w = fm.width(chunk);
+
+            painter.setPen(charformat.foreground().color());
+            painter.drawText(QRect(x, y, w, fm.height()), Qt::AlignLeft | Qt::AlignTop, chunk);
+            x += fm.width(chunk);
         }
-
-        charformat = textblock.charFormat();
-
-        QRectF blockrect = m_textdocument->documentLayout()->blockBoundingRect(textblock);
-        blockrect.moveTo(this->viewport()->x(), y);
-
-        painter.setPen(charformat.foreground().color());
-        painter.drawText(blockrect, Qt::AlignLeft | Qt::AlignTop, textblock.text());
 
         textblock = textblock.next();
     }

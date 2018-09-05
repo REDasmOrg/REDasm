@@ -102,7 +102,7 @@ bool PeFormat::load(u8 *rawformat, u64)
     }
     else
     {
-        m_ntheaders->OptionalHeader32.ImageBase;
+        m_imagebase = m_ntheaders->OptionalHeader32.ImageBase;
         m_sectionalignment = m_ntheaders->OptionalHeader32.SectionAlignment;
         m_entrypoint = m_imagebase + m_ntheaders->OptionalHeader32.AddressOfEntryPoint;
         m_datadirectory = reinterpret_cast<ImageDataDirectory*>(&m_ntheaders->OptionalHeader32.DataDirectory);

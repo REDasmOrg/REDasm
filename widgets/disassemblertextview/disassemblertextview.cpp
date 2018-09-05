@@ -18,7 +18,7 @@
 #include <QAction>
 #include <QMenu>
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_issymboladdressvalid(false), m_emitmode(DisassemblerTextView::Normal), m_disdocument(NULL), m_disassembler(NULL), m_currentaddress(INT64_MAX), m_symboladdress(0)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_issymboladdressvalid(false), m_emitmode(DisassemblerTextView::Normal), m_disassembler(NULL), m_currentaddress(INT64_MAX), m_symboladdress(0)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
@@ -47,17 +47,17 @@ void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
 
 void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
 {
-    if(m_disdocument)
-        delete m_disdocument;
+    m_textdocument->clear();
 
     REDasm::ListingDocument* doc = disassembler->document();
-    this->verticalScrollBar()->setRange(0, doc->count());
+    doc->whenChanged([this](int idx) { QMetaObject::invokeMethod(this, "onDocumentChanged", Qt::QueuedConnection, Q_ARG(int, idx)); });
 
-    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->syncDocument(); });
+    this->verticalScrollBar()->setRange(0, doc->count());
+    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->renderDocument(); });
 
     m_disassembler = disassembler;
-    m_disdocument = new DisassemblerTextDocument(disassembler, m_textdocument, this);
-    this->syncDocument();
+    m_dasmdocument = new DisassemblerTextDocument(disassembler, m_textdocument, this);
+    this->renderDocument();
     //this->_highlighter->setHighlightColor(ThemeProvider::highlightColor());
     //this->_highlighter->setSeekColor(ThemeProvider::seekColor());
     //this->_highlighter->setDottedColor(ThemeProvider::dottedColor());
@@ -100,7 +100,7 @@ void DisassemblerTextView::display(address_t address)
     }
     */
 
-    if(!m_disdocument || (m_currentaddress == address))
+    if(!m_textdocument || (m_currentaddress == address))
         return;
 
     //this->_disdocument->generate(address, this->textCursor());
@@ -181,6 +181,9 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e)
 
+    if(!m_disassembler)
+        return;
+
     QScrollBar* vscrollbar = this->verticalScrollBar();
     QTextCharFormat charformat;
     QTextBlock textblock = m_textdocument->findBlockByLineNumber(vscrollbar->value());
@@ -225,9 +228,22 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         this->rename(m_symboladdress);
 }
 
-void DisassemblerTextView::syncDocument()
+void DisassemblerTextView::onDocumentChanged(int idx)
 {
-    this->m_disdocument->displayRange(this->verticalScrollBar()->value(), this->visibleLines());
+    QScrollBar* vscrollbar = this->verticalScrollBar();
+
+    if(idx < vscrollbar->value())
+        return;
+    else if(idx > vscrollbar->value() + this->visibleLines())
+        return;
+
+    vscrollbar->setMaximum(m_disassembler->document()->count());
+    this->renderDocument();
+}
+
+void DisassemblerTextView::renderDocument()
+{
+    this->m_dasmdocument->displayRange(this->verticalScrollBar()->value(), this->visibleLines());
 }
 
 int DisassemblerTextView::visibleLines() const
@@ -324,7 +340,7 @@ void DisassemblerTextView::adjustContextMenu()
 
 void DisassemblerTextView::highlightWords()
 {
-    if(!m_disdocument || !m_currentaddress)
+    if(!m_textdocument || !m_currentaddress)
         return;
 
     //QTextCursor cursor = this->textCursor();
@@ -436,6 +452,6 @@ void DisassemblerTextView::rename(address_t address)
     if(s.simplified().isEmpty() || !symboltable->update(symbol, newsym))
         return;
 
-    m_disdocument->update(address);
+    m_dasmdocument->update(address);
     emit symbolRenamed(symbol);
 }

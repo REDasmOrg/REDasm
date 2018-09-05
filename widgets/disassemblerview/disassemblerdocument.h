@@ -21,9 +21,9 @@ class DisassemblerDocument: public QObject
         typedef std::set<address_t> PendingAddresses;
 
     public:
-        enum { UnknownBlock = 0,
+        enum { UnknownBlock = QTextFormat::UserProperty + 1,
                Address,
-               Block,
+               Item,
                IsEmptyBlock, IsSegmentBlock, IsFunctionBlock, IsInstructionBlock, IsLabelBlock, IsSymbolBlock };
 
         enum { NoAction = 0, GotoAction, LabelAction };
@@ -40,24 +40,23 @@ class DisassemblerDocument: public QObject
         void updateSymbol(const REDasm::SymbolPtr &symbol);
 
     protected:
+        void insertIndent(QTextCursor &textcursor, address_t address, int extraindent = 0);
         virtual void appendEmpty(address_t address);
         virtual void appendLabel(const REDasm::SymbolPtr& symbol, bool replace = false);
         virtual void appendFunctionStart(const REDasm::SymbolPtr& symbol, bool replace = false);
-        virtual void appendInstruction(const REDasm::InstructionPtr& instruction, bool replace = false);
-        virtual void appendOperands(const REDasm::InstructionPtr& instruction);
-        virtual REDasm::SymbolPtr appendOperand(const REDasm::InstructionPtr &instruction, const REDasm::Operand& operand, const QString &opsize, const QString& opstr);
-        virtual void appendAddress(address_t address);
+        virtual void insertInstruction(QTextCursor &textcursor, const REDasm::InstructionPtr& instruction);
+        virtual void insertOperands(QTextCursor& textcursor, const REDasm::InstructionPtr& instruction);
+        virtual void insertOperand(QTextCursor &textcursor, const REDasm::InstructionPtr &instruction, const REDasm::Operand& operand, const QString &opsize, const QString& opstr);
+        virtual void insertAddress(QTextCursor& textcursor, address_t address);
         virtual void appendPathInfo(const REDasm::InstructionPtr &instruction);
-        virtual void appendMnemonic(const REDasm::InstructionPtr& instruction);
-        virtual void appendComment(const REDasm::InstructionPtr& instruction);
+        virtual void insertMnemonic(QTextCursor &textcursor, const REDasm::InstructionPtr& instruction);
+        virtual void insertComment(QTextCursor& textcursor, const REDasm::InstructionPtr& instruction);
         virtual void appendInfo(address_t address, const QString& info);
         virtual void appendSymbol(const REDasm::SymbolPtr& symbol, const std::string &value, bool replace = false);
         virtual void appendSymbols(bool replace = false);
 
     protected:
-        virtual int indentWidth() const;
         int getIndent(address_t address);
-        const REDasm::Segment *getSegment(address_t address);
         void setCurrentPrinter(const REDasm::PrinterPtr& printer);
         void setMetaData(QTextCharFormat &charformat, const REDasm::SymbolPtr &symbol);
         bool selectBlock(address_t address);

@@ -29,8 +29,13 @@ struct ListingItem
 
 class ListingDocument
 {
+    private:
+        typedef std::function<void(int)> ChangedCallback;
+        typedef std::unique_ptr<ListingItem> ListingItemPtr;
+
     public:
         ListingDocument();
+        void whenChanged(const ChangedCallback& cb);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
         void lock(address_t address, const std::string& name, u32 type, u32 tag = 0);
@@ -59,14 +64,16 @@ class ListingDocument
         FormatPlugin* format();
 
     private:
+        void pushSorted(const ListingItem& item);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
 
     private:
-        std::vector<ListingItem> m_items;
+        std::vector<ListingItemPtr> m_items;
         SegmentList m_segments;
         InstructionPool m_instructions;
         SymbolTable m_symboltable;
         FormatPlugin* m_format;
+        ChangedCallback m_changedcb;
 
      friend class FormatPlugin;
 };

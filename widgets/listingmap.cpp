@@ -90,6 +90,7 @@ const ListingMap::Item* ListingMap::segmentBase(REDasm::Disassembler* disassembl
 
 void ListingMap::paintEvent(QPaintEvent *)
 {
+    /*
     QPainter painter(this);
     int w = this->width(), h = this->height();
 
@@ -104,4 +105,5 @@ void ListingMap::paintEvent(QPaintEvent *)
         QRect r(SCALE_TO_WIDGET(item.offset, w), 0, SCALE_TO_WIDGET(item.size, w), h);
         painter.fillRect(r, item.color);
     }
+    */
 }

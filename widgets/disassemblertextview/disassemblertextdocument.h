@@ -12,11 +12,11 @@ class DisassemblerTextDocument : public DisassemblerDocument
         void displayRange(size_t start, size_t count);
 
     private:
-        bool isBlockRendered(size_t line, REDasm::ListingItem* block);
-        void insertBlock(QTextCursor &textcursor, REDasm::ListingItem* block);
-        void insertSegment(QTextCursor &textcursor, REDasm::ListingItem* block);
-        void insertFunction(QTextCursor &textcursor, REDasm::ListingItem* block);
-        void insertInstruction(QTextCursor &textcursor, REDasm::ListingItem* block);
+        bool isItemRendered(size_t line, REDasm::ListingItem* item);
+        void insertItem(QTextCursor &textcursor, REDasm::ListingItem* item);
+        void insertSegmentItem(QTextCursor &textcursor, REDasm::ListingItem* item);
+        void insertFunctionItem(QTextCursor &textcursor, REDasm::ListingItem* item);
+        void insertInstructionItem(QTextCursor &textcursor, REDasm::ListingItem* item);
 };
 
 #endif // DISASSEMBLERTEXTDOCUMENT_H

@@ -7,7 +7,7 @@ DisassemblerGraphDocument::DisassemblerGraphDocument(REDasm::Disassembler *disas
 void DisassemblerGraphDocument::generate(const REDasm::InstructionPtr &instruction, const QTextCursor& cursor)
 {
     this->_textcursor = cursor;
-    this->appendInstruction(instruction);
+    //this->insertInstruction(instruction);
 }
 
 void DisassemblerGraphDocument::generate(const REDasm::SymbolPtr &symbol, const QTextCursor cursor)
@@ -21,7 +21,7 @@ int DisassemblerGraphDocument::indentWidth() const
     return 0;
 }
 
-void DisassemblerGraphDocument::appendAddress(address_t address)
+void DisassemblerGraphDocument::insertAddress(address_t address)
 {
     QTextCharFormat charformat;
     charformat.setForeground(THEME_VALUE("address_fg"));

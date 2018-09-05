@@ -14,7 +14,7 @@ bool DisassemblerAlgorithm::hasNext() const { return !this->m_pending.empty(); }
 address_t DisassemblerAlgorithm::next()
 {
     address_t address = this->m_pending.top();
-    this->m_pending.pop();
+    m_pending.pop();
     return address;
 }
 
@@ -23,10 +23,10 @@ u32 DisassemblerAlgorithm::disassemble(const Buffer& buffer, InstructionPtr &ins
     if(this->isDisassembled(instruction->address))
         return DisassemblerAlgorithm::SKIP;
 
-    this->m_disassembled.insert(instruction->address);
+    m_disassembled.insert(instruction->address);
 
-    u32 result = this->m_assembler->decode(buffer, instruction) ? DisassemblerAlgorithm::OK :
-                                                                 DisassemblerAlgorithm::FAIL;
+    u32 result = m_assembler->decode(buffer, instruction) ? DisassemblerAlgorithm::OK :
+                                                            DisassemblerAlgorithm::FAIL;
 
     this->onDisassembled(instruction, result);
     return result;

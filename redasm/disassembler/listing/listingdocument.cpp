@@ -4,13 +4,14 @@
 namespace REDasm {
 
 ListingDocument::ListingDocument(): m_format(NULL) { }
+void ListingDocument::whenChanged(const ListingDocument::ChangedCallback &cb) { m_changedcb = cb; }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
     m_symboltable.create(address, name, type, tag);
 
     if(type & SymbolTypes::Function)
-        m_items.push_back(ListingItem(address, ListingItem::FunctionItem));
+        this->pushSorted(ListingItem(address, ListingItem::FunctionItem));
 }
 
 void ListingDocument::symbol(address_t address, u32 type, u32 tag)
@@ -42,7 +43,7 @@ void ListingDocument::lock(address_t address, const std::string &name, u32 type,
 void ListingDocument::segment(const std::string &name, offset_t offset, address_t address, u64 size, u32 type)
 {
     m_segments.push_back(Segment(name, offset, address, size, type));
-    m_items.push_back(ListingItem(address, ListingItem::SegmentItem));
+    this->pushSorted(ListingItem(address, ListingItem::SegmentItem));
 }
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
@@ -53,13 +54,6 @@ void ListingDocument::sort()
 {
     std::sort(m_segments.begin(), m_segments.end(), [](const Segment& s1, const Segment& s2) -> bool {
         return s1.address < s2.address;
-    });
-
-    std::sort(m_items.begin(), m_items.end(), [this](const ListingItem& b1, const ListingItem& b2) {
-        if(b1.address == b2.address)
-            return b1.type < b2.type;
-
-        return b1.address < b2.address;
     });
 }
 
@@ -95,7 +89,7 @@ const Segment *ListingDocument::segmentByName(const std::string &name) const
 void ListingDocument::instruction(const InstructionPtr &instruction)
 {
     m_instructions.commit(instruction->address, instruction);
-    m_items.push_back(ListingItem(instruction->address, ListingItem::InstructionItem));
+    this->pushSorted(ListingItem(instruction->address, ListingItem::InstructionItem));
 }
 
 InstructionPtr ListingDocument::instruction(address_t address)
@@ -109,10 +103,30 @@ InstructionPtr ListingDocument::instruction(address_t address)
 }
 
 size_t ListingDocument::count() const { return m_items.size(); }
-ListingItem* ListingDocument::at(size_t i) { return &m_items[i]; }
+ListingItem* ListingDocument::at(size_t i) { return m_items[i].get(); }
 SymbolPtr ListingDocument::symbol(address_t address) { return m_symboltable.symbol(address); }
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
 FormatPlugin *ListingDocument::format() { return m_format; }
+
+void ListingDocument::pushSorted(const ListingItem &item)
+{
+    ListingItemPtr itemptr = std::make_unique<ListingItem>(item);
+
+    auto it = std::lower_bound(m_items.begin(), m_items.end(), itemptr, [this](const ListingItemPtr& b1, const ListingItemPtr& b2) {
+        if(b1->address == b2->address)
+            return b1->type < b2->type;
+
+        return b1->address < b2->address;
+    });
+
+    m_items.insert(it, std::move(itemptr));
+
+    if(!m_changedcb)
+        return;
+
+    size_t idx = std::distance(m_items.begin(), it);
+    m_changedcb(idx);
+}
 
 std::string ListingDocument::symbolName(const std::string &prefix, address_t address, const Segment *segment)
 {

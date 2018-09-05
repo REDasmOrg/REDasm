@@ -87,6 +87,7 @@ void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
         if(!segment || !segment->is(SegmentTypes::Code))
             continue;
 
+        //TODO: Check Segment <-> address bounds
         Buffer buffer = m_buffer + m_format->offset(address);
 
         if(buffer.eob())
@@ -100,10 +101,13 @@ void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
 
         if(status == DisassemblerAlgorithm::FAIL)
             this->createInvalid(instruction, buffer);
+        else if(status == DisassemblerAlgorithm::SKIP)
+            continue;
 
         m_document->instruction(instruction);
     }
 
+    /*
     std::unique_ptr<Analyzer> a(m_format->createAnalyzer(this, m_format->signatures()));
 
     if(a)
@@ -111,6 +115,7 @@ void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
         REDasm::status("Analyzing...");
         a->analyze(m_document);
     }
+    */
 }
 
 void Disassembler::disassembleUnexploredCode()

@@ -37,7 +37,10 @@ class DisassemblerTextView : public QAbstractScrollArea
         virtual void keyPressEvent(QKeyEvent *e);
 
     private:
-        void syncDocument();
+        Q_INVOKABLE void onDocumentChanged(int idx);
+
+    private:
+        void renderDocument();
         int visibleLines() const;
         void createContextMenu();
         void adjustContextMenu();
@@ -68,7 +71,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         bool m_issymboladdressvalid;
         u32 m_emitmode;
         QStack<address_t> m_backstack, m_forwardstack;
-        DisassemblerTextDocument* m_disdocument;
+        DisassemblerTextDocument* m_dasmdocument;
         DisassemblerHighlighter* m_highlighter;
         REDasm::Disassembler* m_disassembler;
         QAction *m_actrename, *m_actcreatestring, *m_actxrefs, *m_actfollow, *m_actcallgraph;

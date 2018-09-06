@@ -44,7 +44,7 @@ void Printer::segment(const Segment *segment, Printer::LineCallback segmentfunc)
     std::string s(HEADER_SYMBOL_COUNT, '=');
     int bits = m_disassembler->format()->bits();
 
-    segmentfunc(s + " SEGMENT " + (segment ? segment->name : "???") +
+    segmentfunc(s + " SEGMENT " + (segment ? REDasm::quoted(segment->name) : "???") +
                 " START: " + REDasm::hex(segment->address, bits) +
                 " END: " + REDasm::hex(segment->endaddress, bits) + " " + s);
 }

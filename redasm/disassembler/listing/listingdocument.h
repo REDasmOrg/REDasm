@@ -38,7 +38,7 @@ class ListingDocument: public std::vector<ListingItemPtr>
     public:
         ListingDocument();
 
-   public:
+    public:
         void whenChanged(const ChangedCallback& cb);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
@@ -72,6 +72,7 @@ class ListingDocument: public std::vector<ListingItemPtr>
         void pushSorted(address_t address, u32 type);
         void eraseSorted(address_t address, u32 type);
         void notifyChanged(ListingDocument::iterator changedit);
+        ListingDocument::iterator adjustSearch(ListingDocument::iterator it, u32 type);
         ListingDocument::iterator binarySearch(address_t address, u32 type);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
 

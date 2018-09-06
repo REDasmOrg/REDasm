@@ -167,6 +167,28 @@ void ListingDocument::notifyChanged(ListingDocument::iterator changedit)
     m_mutex.unlock();
 }
 
+ListingDocument::iterator ListingDocument::adjustSearch(ListingDocument::iterator it, u32 type)
+{
+    int offset = type - (*it)->type;
+    address_t searchaddress = (*it)->address;
+
+    while(searchaddress == (*it)->address)
+    {
+        if(it == this->end())
+            break;
+
+        if((*it)->type == type)
+            return it;
+
+        if((offset < 0) && (it == this->begin()))
+            break;
+
+        offset > 0 ? it++ : it--;
+    }
+
+    return this->end();
+}
+
 ListingDocument::iterator ListingDocument::binarySearch(address_t address, u32 type)
 {
     auto thebegin = this->begin(), theend = this->end();
@@ -178,18 +200,9 @@ ListingDocument::iterator ListingDocument::binarySearch(address_t address, u32 t
         std::advance(themiddle, range / 2);
 
         if((*themiddle)->address == address)
-        {
-            int offset = type - (*themiddle)->type;
+            return this->adjustSearch(themiddle, type);
 
-            if(offset)
-                std::advance(themiddle, offset);
-
-            if((themiddle != this->end()) && (((*themiddle)->address == address) && ((*themiddle)->type == type)))
-                return themiddle;
-
-            return this->end();
-        }
-        else if((*themiddle)->address > address)
+        if((*themiddle)->address > address)
         {
             theend = themiddle;
             std::advance(theend, -1);

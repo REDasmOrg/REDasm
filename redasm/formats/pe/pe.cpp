@@ -17,10 +17,7 @@ PeFormat::PeFormat(): FormatPluginT<ImageDosHeader>(), m_dotnetreader(NULL), m_d
 PeFormat::~PeFormat()
 {
     if(m_dotnetreader)
-    {
-        m_dotnetreader;
         m_dotnetreader = NULL;
-    }
 }
 
 const char *PeFormat::name() const

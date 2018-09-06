@@ -137,7 +137,8 @@ SOURCES += main.cpp\
     redasm/plugins/disassembler/algorithm.cpp \
     redasm/disassembler/algorithm/linearsweep.cpp \
     redasm/disassembler/listing/listingdocument.cpp \
-    redasm/disassembler/listing/instructionpool.cpp
+    redasm/disassembler/listing/instructionpool.cpp \
+    redasm/disassembler/listing/listingrenderer.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -265,7 +266,8 @@ HEADERS  += mainwindow.h \
     redasm/plugins/disassembler/algorithm.h \
     redasm/disassembler/algorithm/linearsweep.h \
     redasm/disassembler/listing/listingdocument.h \
-    redasm/disassembler/listing/instructionpool.h
+    redasm/disassembler/listing/instructionpool.h \
+    redasm/disassembler/listing/listingrenderer.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

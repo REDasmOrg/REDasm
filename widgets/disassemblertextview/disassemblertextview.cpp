@@ -1,44 +1,45 @@
 #include "disassemblertextview.h"
 #include "../../dialogs/referencesdialog.h"
 #include "../../dialogs/callgraphdialog.h"
-#include "../../themeprovider.h"
 #include <cmath>
-#include <QAbstractTextDocumentLayout>
-#include <QDebug>
 #include <QPainter>
 #include <QFontDatabase>
 #include <QFontMetrics>
 #include <QJsonDocument>
 #include <QInputDialog>
-#include <QHeaderView>
 #include <QMessageBox>
 #include <QMouseEvent>
-#include <QTextBlock>
 #include <QScrollBar>
 #include <QAction>
 #include <QMenu>
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_issymboladdressvalid(false), m_emitmode(DisassemblerTextView::Normal), m_disassembler(NULL), m_currentaddress(INT64_MAX), m_symboladdress(0)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_issymboladdressvalid(false), m_emitmode(DisassemblerTextView::Normal), m_renderer(NULL), m_disassembler(NULL), m_currentaddress(INT64_MAX), m_symboladdress(0)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
     font.setPointSize(12);
 
+    this->setFont(font);
+    this->setCursor(Qt::ArrowCursor);
     this->verticalScrollBar()->setValue(0);
     this->verticalScrollBar()->setSingleStep(1);
     this->verticalScrollBar()->setPageStep(1);
 
-    m_textdocument = new QTextDocument(this);
-    m_textdocument->setDefaultFont(font);
-
-    this->setCursor(Qt::ArrowCursor);
 
     connect(this, &DisassemblerTextView::customContextMenuRequested, [this](const QPoint&) {
         m_contextmenu->exec(QCursor::pos());
     });
 }
 
-DisassemblerTextView::~DisassemblerTextView() { }
+DisassemblerTextView::~DisassemblerTextView()
+{
+    if(m_renderer)
+    {
+        delete m_renderer;
+        m_renderer = NULL;
+    }
+}
+
 bool DisassemblerTextView::canGoBack() const { return !m_backstack.isEmpty(); }
 bool DisassemblerTextView::canGoForward() const { return !m_forwardstack.isEmpty(); }
 address_t DisassemblerTextView::currentAddress() const { return m_currentaddress; }
@@ -47,35 +48,15 @@ void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
 
 void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
 {
-    m_textdocument->clear();
-
     REDasm::ListingDocument* doc = disassembler->document();
     doc->whenChanged([this](int idx) { this->onDocumentChanged(idx); });
 
     this->verticalScrollBar()->setRange(0, doc->size());
-    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->renderDocument(); });
+    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->update(); });
 
     m_disassembler = disassembler;
-    m_dasmdocument = new DisassemblerTextDocument(disassembler, m_textdocument, this);
-    this->renderDocument();
-    //this->_highlighter->setHighlightColor(ThemeProvider::highlightColor());
-    //this->_highlighter->setSeekColor(ThemeProvider::seekColor());
-    //this->_highlighter->setDottedColor(ThemeProvider::dottedColor());
-
-    /*
-    REDasm::SymbolPtr symbol = disassembler->symbolTable()->entryPoint();
-
-    if(!symbol)
-    {
-        disassembler->symbolTable()->iterate(REDasm::SymbolTypes::FunctionMask, [&symbol](const REDasm::SymbolPtr& s) -> bool {
-            symbol = s;
-            return false;
-        });
-    }
-
-    if(symbol)
-        this->display(symbol->address);
-    */
+    m_renderer = new DisassemblerTextDocument(this->font(), disassembler);
+    this->update();
 }
 
 void DisassemblerTextView::goTo(address_t address)
@@ -86,67 +67,7 @@ void DisassemblerTextView::goTo(address_t address)
         emit canGoBackChanged();
     }
 
-    this->display(address);
-}
-
-void DisassemblerTextView::display(address_t address)
-{
-    /*
-    if(this->_emitmode == EmitMode::VMIL)
-    {
-        this->clear();
-        this->_disdocument->generateVMIL(address, this->textCursor());
-        return;
-    }
-    */
-
-    if(!m_textdocument || (m_currentaddress == address))
-        return;
-
-    //this->_disdocument->generate(address, this->textCursor());
-
-    /*
-    QTextDocument* document = this->document();
-    QTextCursor cursor = this->textCursor();
-    bool searchforward = address > this->_currentaddress;
-
-    for(QTextBlock b = !this->_currentaddress ? document->begin(): cursor.block(); b.isValid(); b = searchforward ? b.next() : b.previous())
-    {
-        QTextBlockFormat blockformat = b.blockFormat();
-
-        if(!blockformat.hasProperty(DisassemblerTextDocument::IsInstructionBlock) && !blockformat.hasProperty(DisassemblerTextDocument::IsSymbolBlock))
-            continue;
-
-        bool ok = false;
-        address_t blockaddress = blockformat.property(DisassemblerTextDocument::Address).toULongLong(&ok);
-
-        if(!ok || (blockaddress != address))
-            continue;
-
-        this->setTextCursor(QTextCursor(b));
-        this->ensureCursorVisible();
-        this->updateAddress();
-        this->highlightWords();
-        break;
-    }
-    */
-}
-
-void DisassemblerTextView::checkLabel(address_t address)
-{
-    u64 c = m_disassembler->getReferencesCount(address);
-
-    if(!c)
-        return;
-
-    if(c == 1)
-    {
-        REDasm::ReferenceVector refs = m_disassembler->getReferences(address);
-        this->goTo(refs.front());
-        return;
-    }
-
-    this->showReferences(address);
+    //this->display(address);
 }
 
 void DisassemblerTextView::goTo(const REDasm::SymbolPtr &symbol) { this->goTo(symbol->address); }
@@ -161,7 +82,6 @@ void DisassemblerTextView::goBack()
 
     emit canGoBackChanged();
     emit canGoForwardChanged();
-    this->display(address);
 }
 
 void DisassemblerTextView::goForward()
@@ -174,43 +94,20 @@ void DisassemblerTextView::goForward()
 
     emit canGoBackChanged();
     emit canGoForwardChanged();
-    this->display(address);
 }
 
 void DisassemblerTextView::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e)
 
-    if(!m_disassembler)
+    if(!m_renderer)
         return;
 
     QScrollBar* vscrollbar = this->verticalScrollBar();
-    QTextBlock textblock = m_textdocument->findBlockByLineNumber(vscrollbar->value());
-    QFontMetrics fm(m_textdocument->defaultFont());
     QPainter painter(this->viewport());
-    painter.setFont(m_textdocument->defaultFont());
+    painter.setFont(this->font());
 
-    for(int i = 0, y = this->viewport()->y(); i < this->visibleLines(); i++, y += fm.height())
-    {
-        if(i >= vscrollbar->maximum())
-            break;
-
-        QString s = textblock.text();
-        int x = this->viewport()->x();
-
-        for(const QTextLayout::FormatRange& formatrange : textblock.textFormats())
-        {
-            QTextCharFormat charformat = formatrange.format;
-            QString chunk = s.mid(formatrange.start, formatrange.length);
-            int w = fm.width(chunk);
-
-            painter.setPen(charformat.foreground().color());
-            painter.drawText(QRect(x, y, w, fm.height()), Qt::AlignLeft | Qt::AlignTop, chunk);
-            x += fm.width(chunk);
-        }
-
-        textblock = textblock.next();
-    }
+    m_renderer->render(vscrollbar->value(), this->visibleLines(), &painter);
 }
 
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
@@ -232,24 +129,17 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 void DisassemblerTextView::onDocumentChanged(int idx)
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
-
-    if(idx < vscrollbar->value())
-        return;
-    else if(idx > vscrollbar->value() + this->visibleLines())
-        return;
-
     vscrollbar->setMaximum(m_disassembler->document()->size());
-    this->renderDocument();
-}
 
-void DisassemblerTextView::renderDocument()
-{
-    this->m_dasmdocument->displayRange(this->verticalScrollBar()->value(), this->visibleLines());
+    if((idx < vscrollbar->value()) || (idx > vscrollbar->value() + this->visibleLines()))
+        return;
+
+    this->update();
 }
 
 int DisassemblerTextView::visibleLines() const
 {
-    QFontMetrics fm(m_textdocument->defaultFont());
+    QFontMetrics fm = this->fontMetrics();
     return std::ceil(this->height() / fm.height());
 }
 
@@ -341,7 +231,7 @@ void DisassemblerTextView::adjustContextMenu()
 
 void DisassemblerTextView::highlightWords()
 {
-    if(!m_textdocument || !m_currentaddress)
+    if(!m_currentaddress)
         return;
 
     //QTextCursor cursor = this->textCursor();

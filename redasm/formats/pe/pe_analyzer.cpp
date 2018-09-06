@@ -1,6 +1,5 @@
 #include "pe_analyzer.h"
 #include "pe_utils.h"
-#include "../../plugins/format.h"
 
 #define IMPORT_NAME(library, name) PEUtils::importName(library, name)
 #define IMPORT_TRAMPOLINE(library, name) ("_" + REDasm::normalize(IMPORT_NAME(library, name)))
@@ -63,22 +62,21 @@ void PEAnalyzer::findStopAPI(const std::string& library, const std::string& api)
 
 void PEAnalyzer::findAllWndProc()
 {
-    for(auto it = this->m_wndprocapi.begin(); it != this->m_wndprocapi.end(); it++)
+    for(auto it = m_wndprocapi.begin(); it != m_wndprocapi.end(); it++)
     {
-        //ReferenceVector refs = this->getAPIReferences(listing, "user32.dll", it->second);
+        ReferenceVector refs = this->getAPIReferences("user32.dll", it->second);
 
-        //std::for_each(refs.begin(), refs.end(), [this, &listing, it](address_t address) {
-            //kthis->findWndProc(listing, address, it->first);
-        //});
+        for(address_t ref : refs)
+            this->findWndProc(ref, it->first);
     }
 }
 
 void PEAnalyzer::findWndProc(address_t address, size_t argidx)
 {
-    /*
-    auto it = document.find(address);
+    ListingDocument* doc = m_disassembler->document();
+    auto it = doc->item(address, ListingItem::InstructionItem);
 
-    if(it == document.end())
+    if(it == doc->end())
         return;
 
     size_t arg = 0;
@@ -86,7 +84,7 @@ void PEAnalyzer::findWndProc(address_t address, size_t argidx)
 
     while(arg < argidx)
     {
-        const InstructionPtr& instruction = *it;
+        const InstructionPtr& instruction = doc->instruction((*it)->address);
 
         if(instruction->is(InstructionTypes::Push))
         {
@@ -94,25 +92,19 @@ void PEAnalyzer::findWndProc(address_t address, size_t argidx)
 
             if(arg == argidx)
             {
-                FormatPlugin* format = document.format();
                 Operand& op = instruction->op(0);
-                Segment* segment = format->segment(op.u_value);
+                Segment* segment = doc->segment(op.u_value);
 
                 if(segment && segment->is(SegmentTypes::Code))
-                {
-                    SymbolTable* symboltable = document.symbolTable();
-                    symboltable->createFunction(op.u_value, "DlgProc_" + REDasm::hex(op.u_value, 0, false));
-                    symboltable->lock(op.u_value);
-                }
+                    doc->lock(op.u_value, "DlgProc_" + REDasm::hex(op.u_value, 0, false));
             }
         }
 
-        if((arg == argidx) || (it == document.begin()) || instruction->is(InstructionTypes::Stop))
+        if((arg == argidx) || (it == doc->begin()) || instruction->is(InstructionTypes::Stop))
             break;
 
         it--;
     }
-    */
 }
 
 }

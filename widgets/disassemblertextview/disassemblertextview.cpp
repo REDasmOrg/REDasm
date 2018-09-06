@@ -450,9 +450,11 @@ void DisassemblerTextView::rename(address_t address)
 
     std::string newsym = s.simplified().replace(" ", "_").toStdString();
 
+    /*
     if(s.simplified().isEmpty() || !symboltable->update(symbol, newsym))
         return;
 
     m_dasmdocument->update(address);
     emit symbolRenamed(symbol);
+    */
 }

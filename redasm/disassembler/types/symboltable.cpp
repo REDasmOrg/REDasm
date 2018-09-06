@@ -50,7 +50,7 @@ bool SymbolTable::create(address_t address, const std::string &name, u32 type, u
     m_addresses.push_back(address);
     m_byaddress.commit(address, std::make_shared<Symbol>(type, tag, address, name));
     m_byname[name] = address;
-    return true;
+    return it == m_byaddress.end();
 }
 
 SymbolPtr SymbolTable::entryPoint()
@@ -131,34 +131,6 @@ bool SymbolTable::erase(address_t address)
     m_byaddress.erase(it);
     m_byname.erase(symbol->name);
     return true;
-}
-
-bool SymbolTable::update(SymbolPtr symbol, const std::string& name)
-{
-    if(!symbol || (symbol->name == name))
-        return false;
-
-    auto it = m_byname.find(symbol->name);
-
-    if(it != m_byname.end())
-        this->m_byname.erase(it);
-
-    symbol->name = name;
-    m_byname[name] = symbol->address;
-    m_byaddress.commit(symbol->address, symbol);
-    return true;
-}
-
-void SymbolTable::lock(address_t address)
-{
-    auto it = m_byaddress.find(address);
-
-    if(it == m_byaddress.end())
-        return;
-
-    SymbolPtr symbol = *it;
-    symbol->lock();
-    m_byaddress.commit(symbol->address, symbol);
 }
 
 void SymbolTable::sort()

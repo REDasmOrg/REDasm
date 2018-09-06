@@ -3,13 +3,25 @@
 
 namespace REDasm {
 
-ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { this->reserve(100000); }
+ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
 void ListingDocument::whenChanged(const ListingDocument::ChangedCallback &cb) { m_changedcb = cb; }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
-    if(!m_symboltable.create(address, name, type, tag))
-        return;
+    SymbolPtr symbol = m_symboltable.symbol(address);
+
+    if(symbol)
+    {
+        if(symbol->isLocked() || !(type & SymbolTypes::Locked))
+            return;
+
+        m_symboltable.erase(address);
+
+        if(type & SymbolTypes::FunctionMask)
+            this->eraseSorted(address, ListingItem::FunctionItem);
+    }
+
+    m_symboltable.create(address, name, type, tag);
 
     if(type & SymbolTypes::FunctionMask)
         this->pushSorted(address, ListingItem::FunctionItem);
@@ -34,6 +46,16 @@ void ListingDocument::symbol(address_t address, u32 type, u32 tag)
         else
             this->symbol(address, this->symbolName("data", address), type, tag);
     }
+}
+
+void ListingDocument::lock(address_t address, const std::string &name)
+{
+    SymbolPtr symbol = m_symboltable.symbol(address);
+
+    if(!symbol)
+        this->lock(address, name, SymbolTypes::Data);
+    else
+        this->lock(address, name, symbol->type, symbol->tag);
 }
 
 void ListingDocument::lock(address_t address, const std::string &name, u32 type, u32 tag)
@@ -109,6 +131,42 @@ SymbolPtr ListingDocument::symbol(address_t address) { return m_symboltable.symb
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
 FormatPlugin *ListingDocument::format() { return m_format; }
 
+void ListingDocument::pushSorted(address_t address, u32 type)
+{
+    ListingItemPtr itemptr = std::make_unique<ListingItem>(address, type);
+
+    auto it = std::lower_bound(this->begin(), this->end(), itemptr, [this](const ListingItemPtr& b1, const ListingItemPtr& b2) {
+        if(b1->address == b2->address)
+            return b1->type < b2->type;
+
+        return b1->address < b2->address;
+    });
+
+    it = this->insert(it, std::move(itemptr));
+    this->notifyChanged(it);
+}
+
+void ListingDocument::eraseSorted(address_t address, u32 type)
+{
+    auto it = this->binarySearch(address, type);
+
+    if(it == this->end())
+        return;
+
+    it = this->erase(it);
+    this->notifyChanged(it);
+}
+
+void ListingDocument::notifyChanged(ListingDocument::iterator changedit)
+{
+    if(!m_changedcb)
+        return;
+
+    m_mutex.lock();
+        m_changedcb(std::distance(this->begin(), changedit));
+    m_mutex.unlock();
+}
+
 ListingDocument::iterator ListingDocument::binarySearch(address_t address, u32 type)
 {
     auto thebegin = this->begin(), theend = this->end();
@@ -144,27 +202,6 @@ ListingDocument::iterator ListingDocument::binarySearch(address_t address, u32 t
     }
 
     return this->end();
-}
-
-void ListingDocument::pushSorted(address_t address, u32 type)
-{
-    ListingItemPtr itemptr = std::make_unique<ListingItem>(address, type);
-
-    auto it = std::lower_bound(this->begin(), this->end(), itemptr, [this](const ListingItemPtr& b1, const ListingItemPtr& b2) {
-        if(b1->address == b2->address)
-            return b1->type < b2->type;
-
-        return b1->address < b2->address;
-    });
-
-    it = this->insert(it, std::move(itemptr));
-
-    if(!m_changedcb)
-        return;
-
-    m_mutex.lock();
-        m_changedcb(std::distance(this->begin(), it));
-    m_mutex.unlock();
 }
 
 std::string ListingDocument::symbolName(const std::string &prefix, address_t address, const Segment *segment)

@@ -94,8 +94,7 @@ void Analyzer::findTrampolines(SymbolPtr symbol)
     if(!symimport || !symimport->is(SymbolTypes::Import))
         return;
 
-    symbol->type |= SymbolTypes::Locked;
-    symboltable->update(symbol, "_" + REDasm::normalize(symimport->name));
+    doc->lock(symbol->address, "_" + REDasm::normalize(symimport->name));
     m_disassembler->pushReference(symimport, doc->instruction(symbol->address));
 }
 
@@ -140,7 +139,7 @@ SymbolPtr Analyzer::findTrampolines_arm(ListingDocument::iterator it, SymbolTabl
     SymbolPtr symbol = symboltable->symbol(target), impsymbol = symboltable->symbol(importaddress);
 
     if(symbol && impsymbol)
-        symboltable->update(symbol, "imp." + impsymbol->name);
+        doc->lock(symbol->address, "imp." + impsymbol->name);
 
     return impsymbol;
 }

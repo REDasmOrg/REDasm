@@ -80,8 +80,6 @@ class SymbolTable
         void setEntryPoint(const SymbolPtr& symbol);
         void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
         bool erase(address_t address);
-        bool update(SymbolPtr symbol, const std::string &name);
-        void lock(address_t address);
         void sort();
 
     private:

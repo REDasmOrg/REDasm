@@ -114,6 +114,8 @@ void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
         REDasm::status("Analyzing...");
         a->analyze();
     }
+
+    REDasm::status("DONE");
 }
 
 void Disassembler::disassembleUnexploredCode()

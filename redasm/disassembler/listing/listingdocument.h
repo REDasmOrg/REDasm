@@ -2,6 +2,7 @@
 #define LISTINGDOCUMENT_H
 
 #include <vector>
+#include <mutex>
 #include "../../redasm.h"
 #include "../types/symboltable.h"
 #include "../types/referencetable.h"
@@ -68,10 +69,11 @@ class ListingDocument: public std::vector<ListingItemPtr>
 
     private:
         ListingDocument::iterator binarySearch(address_t address, u32 type);
-        void pushSorted(const ListingItem& item);
+        void pushSorted(address_t address, u32 type);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
 
     private:
+        std::mutex m_mutex;
         SegmentList m_segments;
         InstructionPool m_instructions;
         SymbolTable m_symboltable;

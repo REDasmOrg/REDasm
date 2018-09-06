@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
+ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { this->reserve(100000); }
 void ListingDocument::whenChanged(const ListingDocument::ChangedCallback &cb) { m_changedcb = cb; }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
@@ -11,19 +11,19 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
     if(!m_symboltable.create(address, name, type, tag))
         return;
 
-    if(type & SymbolTypes::Function)
-        this->pushSorted(ListingItem(address, ListingItem::FunctionItem));
+    if(type & SymbolTypes::FunctionMask)
+        this->pushSorted(address, ListingItem::FunctionItem);
 }
 
 void ListingDocument::symbol(address_t address, u32 type, u32 tag)
 {
     if(type & SymbolTypes::Pointer)
         this->symbol(address, this->symbolName("ptr", address), type, tag);
-    else if(type & SymbolTypes::WideString)
+    else if(type & SymbolTypes::WideStringMask)
         this->symbol(address, this->symbolName("wstr", address), type, tag);
-    else if(type & SymbolTypes::String)
+    else if(type & SymbolTypes::StringMask)
         this->symbol(address, this->symbolName("str", address), type, tag);
-    else if(type & SymbolTypes::Function)
+    else if(type & SymbolTypes::FunctionMask)
         this->symbol(address, this->symbolName("sub", address), type, tag);
     else
     {
@@ -44,7 +44,7 @@ void ListingDocument::lock(address_t address, const std::string &name, u32 type,
 void ListingDocument::segment(const std::string &name, offset_t offset, address_t address, u64 size, u32 type)
 {
     m_segments.push_back(Segment(name, offset, address, size, type));
-    this->pushSorted(ListingItem(address, ListingItem::SegmentItem));
+    this->pushSorted(address, ListingItem::SegmentItem);
 }
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
@@ -90,7 +90,7 @@ const Segment *ListingDocument::segmentByName(const std::string &name) const
 void ListingDocument::instruction(const InstructionPtr &instruction)
 {
     m_instructions.commit(instruction->address, instruction);
-    this->pushSorted(ListingItem(instruction->address, ListingItem::InstructionItem));
+    this->pushSorted(instruction->address, ListingItem::InstructionItem);
 }
 
 InstructionPtr ListingDocument::instruction(address_t address)
@@ -146,9 +146,9 @@ ListingDocument::iterator ListingDocument::binarySearch(address_t address, u32 t
     return this->end();
 }
 
-void ListingDocument::pushSorted(const ListingItem &item)
+void ListingDocument::pushSorted(address_t address, u32 type)
 {
-    ListingItemPtr itemptr = std::make_unique<ListingItem>(item);
+    ListingItemPtr itemptr = std::make_unique<ListingItem>(address, type);
 
     auto it = std::lower_bound(this->begin(), this->end(), itemptr, [this](const ListingItemPtr& b1, const ListingItemPtr& b2) {
         if(b1->address == b2->address)
@@ -157,13 +157,14 @@ void ListingDocument::pushSorted(const ListingItem &item)
         return b1->address < b2->address;
     });
 
-    this->insert(it, std::move(itemptr));
+    it = this->insert(it, std::move(itemptr));
 
     if(!m_changedcb)
         return;
 
-    size_t idx = std::distance(this->begin(), it);
-    m_changedcb(idx);
+    m_mutex.lock();
+        m_changedcb(std::distance(this->begin(), it));
+    m_mutex.unlock();
 }
 
 std::string ListingDocument::symbolName(const std::string &prefix, address_t address, const Segment *segment)

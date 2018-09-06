@@ -50,7 +50,7 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
     m_textdocument->clear();
 
     REDasm::ListingDocument* doc = disassembler->document();
-    doc->whenChanged([this](int idx) { QMetaObject::invokeMethod(this, "onDocumentChanged", Qt::QueuedConnection, Q_ARG(int, idx)); });
+    doc->whenChanged([this](int idx) { this->onDocumentChanged(idx); });
 
     this->verticalScrollBar()->setRange(0, doc->size());
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->renderDocument(); });

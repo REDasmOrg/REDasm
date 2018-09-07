@@ -2,8 +2,9 @@
 #include <algorithm>
 #include <memory>
 
-#define INVALID_MNEMONIC      "db"
-#define INSTRUCTION_THRESHOLD 10
+#define INVALID_MNEMONIC       "db"
+#define INSTRUCTION_THRESHOLD  10
+#define DO_TICK_DISASSEMBLY()  Timer::tick(std::bind(&Disassembler::disassembleStep, this, m_algorithm.get()))
 
 namespace REDasm {
 
@@ -11,9 +12,11 @@ Disassembler::Disassembler(Buffer buffer, AssemblerPlugin *assembler, FormatPlug
 {
     if(!format->isBinary())
         assembler->setEndianness(format->endianness());
+
+    m_algorithm = std::make_unique<DisassemblerAlgorithm>(m_format->createAlgorithm(this, this->m_assembler));
 }
 
-Disassembler::~Disassembler() { delete this->m_assembler; }
+Disassembler::~Disassembler() { delete m_assembler; }
 ListingDocument *Disassembler::document() { return m_document; }
 
 size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t address)
@@ -73,40 +76,46 @@ std::string Disassembler::comment(const InstructionPtr &instruction) const
      return "# " + res;
 }
 
-void Disassembler::disassemble(DisassemblerAlgorithm* algorithm)
+bool Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
 {
-    const Segment* segment = NULL;
-
-    while(algorithm->hasNext())
+    if(!algorithm->hasNext())
     {
-        address_t address = algorithm->next();
-
-        if(!segment || !segment->contains(address))
-            segment = m_document->segment(address);
-
-        if(!segment || !segment->is(SegmentTypes::Code))
-            continue;
-
-        //TODO: Check Segment <-> address bounds
-        Buffer buffer = m_buffer + m_format->offset(address);
-
-        if(buffer.eob())
-            continue;
-
-        InstructionPtr instruction = std::make_shared<Instruction>();
-        instruction->address = address;
-
-        REDasm::status("Disassembling @ " + REDasm::hex(address, m_format->bits(), false));
-        u32 status = algorithm->disassemble(buffer, instruction);
-
-        if(status == DisassemblerAlgorithm::FAIL)
-            this->createInvalid(instruction, buffer);
-        else if(status == DisassemblerAlgorithm::SKIP)
-            continue;
-
-        m_document->instruction(instruction);
+        this->analyze();
+        return false;
     }
 
+    const Segment* segment = NULL;
+    address_t address = algorithm->next();
+
+    if(!segment || !segment->contains(address))
+        segment = m_document->segment(address);
+
+    if(!segment || !segment->is(SegmentTypes::Code))
+        return true;
+
+    //TODO: Check Segment <-> address bounds
+    Buffer buffer = m_buffer + m_format->offset(address);
+
+    if(buffer.eob())
+        return true;
+
+    InstructionPtr instruction = std::make_shared<Instruction>();
+    instruction->address = address;
+
+    REDasm::status("Disassembling @ " + REDasm::hex(address, m_format->bits(), false));
+    u32 status = algorithm->disassemble(buffer, instruction);
+
+    if(status == DisassemblerAlgorithm::FAIL)
+        this->createInvalid(instruction, buffer);
+    else if(status == DisassemblerAlgorithm::SKIP)
+        return true;
+
+    m_document->instruction(instruction);
+    return true;
+}
+
+void Disassembler::analyze()
+{
     std::unique_ptr<Analyzer> a(m_format->createAnalyzer(this, m_format->signatures()));
 
     if(a)
@@ -347,20 +356,19 @@ bool Disassembler::disassembleFunction(address_t address, const std::string &nam
 
 void Disassembler::disassemble()
 {
-    std::unique_ptr<DisassemblerAlgorithm> algorithm(this->m_format->createAlgorithm(this, this->m_assembler));
     SymbolTable* symboltable = m_document->symbols();
     SymbolPtr entrypoint = symboltable->entryPoint();
 
     if(entrypoint)
-        algorithm->push(entrypoint->address); // Push entry point
+        m_algorithm->push(entrypoint->address); // Push entry point
 
     // Preload format functions for analysis
-    symboltable->iterate(SymbolTypes::FunctionMask, [&algorithm](SymbolPtr symbol) -> bool {
-        algorithm->push(symbol->address);
+    symboltable->iterate(SymbolTypes::FunctionMask, [=](SymbolPtr symbol) -> bool {
+        m_algorithm->push(symbol->address);
         return true;
     });
 
-    this->disassemble(algorithm.get());
+    DO_TICK_DISASSEMBLY();
 
     /*
     // Analyze and disassemble unexplored bytes in code sections
@@ -460,9 +468,8 @@ bool Disassembler::checkJumpTable(const InstructionPtr &instruction, address_t a
 
 void Disassembler::disassemble(address_t address)
 {
-    std::unique_ptr<DisassemblerAlgorithm> algorithm(m_format->createAlgorithm(this, this->m_assembler));
-    algorithm->push(address);
-    this->disassemble(algorithm.get());
+    m_algorithm->push(address);
+    DO_TICK_DISASSEMBLY();
 }
 
 InstructionPtr Disassembler::disassembleInstruction(address_t address)

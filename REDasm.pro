@@ -52,7 +52,6 @@ SOURCES += main.cpp\
     redasm/formats/psxexe/psxexe.cpp \
     redasm/formats/psxexe/psxexe_analyzer.cpp \
     redasm/formats/pe/pe.cpp \
-    widgets/disassemblerview/disassemblerthread.cpp \
     redasm/plugins/assembler/printer.cpp \
     redasm/formats/pe/pe_analyzer.cpp \
     redasm/formats/pe/pe_utils.cpp \
@@ -138,7 +137,8 @@ SOURCES += main.cpp\
     redasm/disassembler/listing/listingdocument.cpp \
     redasm/disassembler/listing/instructionpool.cpp \
     redasm/disassembler/listing/listingrenderer.cpp \
-    widgets/disassemblertextview/listingtextrenderer.cpp
+    widgets/disassemblertextview/listingtextrenderer.cpp \
+    redasm/support/timer.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -161,7 +161,6 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/pe.h \
     redasm/formats/pe/pe_constants.h \
     redasm/formats/pe/pe_headers.h \
-    widgets/disassemblerview/disassemblerthread.h \
     redasm/plugins/assembler/printer.h \
     redasm/formats/pe/pe_analyzer.h \
     redasm/formats/pe/pe_utils.h \
@@ -267,7 +266,8 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/listing/listingdocument.h \
     redasm/disassembler/listing/instructionpool.h \
     redasm/disassembler/listing/listingrenderer.h \
-    widgets/disassemblertextview/listingtextrenderer.h
+    widgets/disassemblertextview/listingtextrenderer.h \
+    redasm/support/timer.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

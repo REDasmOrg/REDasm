@@ -5,7 +5,7 @@
 
 #define VMIL_TAB_INDEX 1
 
-DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), _hexdocument(NULL), _lblstatus(lblstatus), _disassembler(NULL), _disassemblerthread(NULL)
+DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), _hexdocument(NULL), _lblstatus(lblstatus), _disassembler(NULL)
 {
     ui->setupUi(this);
 
@@ -129,24 +129,12 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     ui->disassemblerTextView->setDisassembler(disassembler);
     //FIXME: ui->disassemblerGraphView->setDisassembler(disassembler);
 
-    this->_disassemblerthread = new DisassemblerThread(disassembler, this);
-
-    connect(this->_disassemblerthread, &DisassemblerThread::finished, this, &DisassemblerView::showListing);
-
-    connect(this->_disassemblerthread, &DisassemblerThread::finished, [this]() {
-        this->_disassemblerthread->deleteLater();
-        this->_disassemblerthread = NULL;
-    });
-
-    this->_disassemblerthread->start();
+    disassembler->disassemble();
 }
 
 bool DisassemblerView::busy() const
 {
-    if(!this->_disassemblerthread)
-        return false;
-
-    return this->_disassemblerthread->isRunning();
+    return false; // FIXME: !!!
 }
 
 void DisassemblerView::on_topTabs_currentChanged(int index)

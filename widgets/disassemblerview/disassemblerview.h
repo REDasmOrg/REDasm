@@ -10,7 +10,6 @@
 #include "../../models/segmentsmodel.h"
 #include "../../dialogs/gotodialog.h"
 #include "../../redasm/disassembler/disassembler.h"
-#include "disassemblerthread.h"
 
 namespace Ui {
 class DisassemblerView;
@@ -57,7 +56,6 @@ class DisassemblerView : public QWidget
         QMenu* _contextmenu;
         QLabel* _lblstatus;
         REDasm::Disassembler* _disassembler;
-        DisassemblerThread* _disassemblerthread;
         SymbolTableFilterModel *_functionsmodel, *_importsmodel, *_exportsmodel, *_stringsmodel;
         ReferencesModel* _referencesmodel;
         SegmentsModel* _segmentsmodel;

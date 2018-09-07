@@ -96,7 +96,7 @@ void PEAnalyzer::findWndProc(address_t address, size_t argidx)
                 Segment* segment = doc->segment(op.u_value);
 
                 if(segment && segment->is(SegmentTypes::Code))
-                    doc->lock(op.u_value, "DlgProc_" + REDasm::hex(op.u_value, 0, false));
+                    doc->function(op.u_value, "DlgProc_" + REDasm::hex(op.u_value, 0, false));
             }
         }
 

@@ -36,6 +36,8 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
             this->renderFunction(item, &rf);
         else if(item->is(ListingItem::InstructionItem))
             this->renderInstruction(item, &rf);
+        else if(item->is(ListingItem::SymbolItem))
+            this->renderSymbol(item, &rf);
         else
         {
             rf.text = "Unknown Type: " + std::to_string(item->type);
@@ -99,6 +101,55 @@ void ListingRenderer::renderInstruction(ListingItem *item, RendererFormat *rf)
         return;
 
     this->renderComments(instruction, rf);
+}
+
+void ListingRenderer::renderSymbol(ListingItem *item, RendererFormat *rf)
+{
+    SymbolPtr symbol = m_document->symbol(item->address);
+
+    if(symbol->is(SymbolTypes::Code)) // Label
+    {
+        this->renderAddressIndent(item, rf);
+        rf->style = "label_fg";
+        rf->text = symbol->name + ":";
+    }
+    else
+    {
+        Segment* segment = m_document->segment(item->address);
+        this->renderAddress(item, rf);
+
+        rf->style = "label_fg";
+        rf->text = symbol->name;
+        this->renderText(rf);
+        rf->x += this->measureString(rf->text) + rf->fontwidth;
+
+        if(symbol->is(SymbolTypes::Data))
+            rf->style = "data_fg";
+        else
+            rf->style = "string_fg";
+
+        if(!segment->is(SegmentTypes::Bss))
+        {
+            if(symbol->is(SymbolTypes::String))
+                rf->text = REDasm::quoted(m_disassembler->readString(symbol));
+            else if(symbol->is(SymbolTypes::WideString))
+                rf->text = REDasm::quoted(m_disassembler->readWString(symbol));
+            else
+            {
+                u64 value = 0;
+                FormatPlugin* format = m_disassembler->format();
+
+                if(m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
+                    rf->text = REDasm::hex(value, format->bits(), false);
+                else
+                    rf->text = "??";
+            }
+        }
+        else
+            rf->text = "??";
+    }
+
+    this->renderText(rf);
 }
 
 void ListingRenderer::renderAddress(ListingItem *item, RendererFormat *rf)

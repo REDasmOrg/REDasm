@@ -30,6 +30,7 @@ class ListingRenderer
         void renderSegment(ListingItem* item, RendererFormat *rf);
         void renderFunction(ListingItem* item, RendererFormat* rf);
         void renderInstruction(ListingItem* item, RendererFormat* rf);
+        void renderSymbol(ListingItem* item, RendererFormat* rf);
         void renderAddress(ListingItem* item, RendererFormat* rf);
         void renderMnemonic(const InstructionPtr& instruction, RendererFormat* rf);
         void renderOperands(const InstructionPtr& instruction, RendererFormat* rf);

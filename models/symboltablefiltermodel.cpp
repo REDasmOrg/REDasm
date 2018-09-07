@@ -16,7 +16,7 @@ const QString &SymbolTableFilterModel::filterName() const
     return this->_filtername;
 }
 
-void SymbolTableFilterModel::setDisassembler(REDasm::Disassembler *disassembler)
+void SymbolTableFilterModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     static_cast<SymbolTableModel*>(this->sourceModel())->setDisassembler(disassembler);
 }

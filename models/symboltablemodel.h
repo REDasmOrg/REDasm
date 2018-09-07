@@ -9,7 +9,7 @@ class SymbolTableModel : public DisassemblerModel
 
     public:
         explicit SymbolTableModel(QObject *parent = 0);
-        virtual void setDisassembler(REDasm::Disassembler* disassembler);
+        virtual void setDisassembler(REDasm::DisassemblerAPI* disassembler);
         void setSymbolFlags(u32 symbolflags);
 
     private:

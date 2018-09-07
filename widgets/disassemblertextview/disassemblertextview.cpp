@@ -46,7 +46,7 @@ address_t DisassemblerTextView::currentAddress() const { return m_currentaddress
 address_t DisassemblerTextView::symbolAddress() const { return m_symboladdress; }
 void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
 
-void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
+void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     REDasm::ListingDocument* doc = disassembler->document();
     doc->whenChanged([this](int idx) { this->onDocumentChanged(idx); });
@@ -55,7 +55,7 @@ void DisassemblerTextView::setDisassembler(REDasm::Disassembler *disassembler)
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->update(); });
 
     m_disassembler = disassembler;
-    m_renderer = new DisassemblerTextDocument(this->font(), disassembler);
+    m_renderer = new ListingTextRenderer(this->font(), disassembler);
     this->update();
 }
 
@@ -288,8 +288,8 @@ void DisassemblerTextView::showReferences(address_t address)
 
 void DisassemblerTextView::showCallGraph(address_t address)
 {
-    CallGraphDialog dlgcallgraph(address, m_disassembler, this);
-    dlgcallgraph.exec();
+    //CallGraphDialog dlgcallgraph(address, m_disassembler, this);
+    //dlgcallgraph.exec();
 }
 
 int DisassemblerTextView::getCursorAnchor(address_t& address)

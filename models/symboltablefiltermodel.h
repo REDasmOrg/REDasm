@@ -12,7 +12,7 @@ class SymbolTableFilterModel : public QSortFilterProxyModel
         explicit SymbolTableFilterModel(QObject *parent = 0);
         REDasm::SymbolPtr symbol(const QModelIndex index) const;
         const QString& filterName() const;
-        void setDisassembler(REDasm::Disassembler* disassembler);
+        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
         void setSymbolFlags(u32 symbolflags);
         void setFilterName(const QString& name);
         void reloadSymbols();

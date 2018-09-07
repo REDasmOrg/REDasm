@@ -1,7 +1,7 @@
 #include "referencesdialog.h"
 #include "ui_referencesdialog.h"
 
-ReferencesDialog::ReferencesDialog(REDasm::Disassembler *disassembler, address_t currentaddress, const REDasm::SymbolPtr& symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog)
+ReferencesDialog::ReferencesDialog(REDasm::DisassemblerAPI *disassembler, address_t currentaddress, const REDasm::SymbolPtr& symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog)
 {
     ui->setupUi(this);
     this->setWindowTitle(QString("%1 References").arg(QString::fromStdString(symbol->name)));

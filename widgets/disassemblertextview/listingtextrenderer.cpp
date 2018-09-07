@@ -1,13 +1,13 @@
-#include "disassemblertextdocument.h"
+#include "listingtextrenderer.h"
 #include "../../themeprovider.h"
 #include <QPainter>
 
-DisassemblerTextDocument::DisassemblerTextDocument(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font)
+ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font)
 {
 
 }
 
-void DisassemblerTextDocument::renderText(const REDasm::RendererFormat *rf)
+void ListingTextRenderer::renderText(const REDasm::RendererFormat *rf)
 {
     QPainter* painter = reinterpret_cast<QPainter*>(rf->userdata);
     QRectF rect(rf->x, rf->y, this->measureString(rf->text), rf->fontheight);
@@ -20,7 +20,7 @@ void DisassemblerTextDocument::renderText(const REDasm::RendererFormat *rf)
     painter->drawText(rect, Qt::AlignLeft | Qt::AlignTop, QString::fromStdString(rf->text));
 }
 
-void DisassemblerTextDocument::fontUnit(double *w, double *h) const
+void ListingTextRenderer::fontUnit(double *w, double *h) const
 {
     if(w)
         *w = m_fontmetrics.width(" ");

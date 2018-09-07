@@ -1,4 +1,6 @@
 #include "symboltablemodel.h"
+#include "../../redasm/disassembler/listing/listingdocument.h"
+#include "../../redasm/plugins/format.h"
 #include <QFontDatabase>
 #include <QColor>
 
@@ -7,29 +9,29 @@ SymbolTableModel::SymbolTableModel(QObject *parent) : DisassemblerModel(parent),
 
 }
 
-void SymbolTableModel::setDisassembler(REDasm::Disassembler *disassembler)
+void SymbolTableModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
-    this->m_symboltable = disassembler->document()->symbols();
+    m_symboltable = disassembler->document()->symbols();
     this->loadSymbols();
 }
 
 void SymbolTableModel::setSymbolFlags(u32 symbolflags)
 {
-    this->m_symbolflags = symbolflags;
+    m_symbolflags = symbolflags;
     this->loadSymbols();
 }
 
 void SymbolTableModel::loadSymbols()
 {
-    if(!this->m_symboltable || (this->m_symbolflags == REDasm::SymbolTypes::None))
+    if(!m_symboltable || (this->m_symbolflags == REDasm::SymbolTypes::None))
         return;
 
     this->beginResetModel();
-    this->m_symbols.clear();
+    m_symbols.clear();
 
-    this->m_symboltable->iterate(this->m_symbolflags, [this](const REDasm::SymbolPtr& symbol) -> bool {
-        this->m_symbols << symbol;
+    m_symboltable->iterate(this->m_symbolflags, [this](const REDasm::SymbolPtr& symbol) -> bool {
+        m_symbols << symbol;
         return true;
     });
 

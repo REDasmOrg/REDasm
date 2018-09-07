@@ -5,7 +5,7 @@
 #include <QTextDocument>
 #include <QStack>
 #include <QMenu>
-#include "disassemblertextdocument.h"
+#include "listingtextrenderer.h"
 #include "disassemblerhighlighter.h"
 
 class DisassemblerTextView : public QAbstractScrollArea
@@ -23,7 +23,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         address_t currentAddress() const;
         address_t symbolAddress() const;
         void setEmitMode(u32 emitmode);
-        void setDisassembler(REDasm::Disassembler* disassembler);
+        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
 
     public slots:
         void goTo(const REDasm::SymbolPtr& symbol);
@@ -65,9 +65,9 @@ class DisassemblerTextView : public QAbstractScrollArea
         bool m_issymboladdressvalid;
         u32 m_emitmode;
         QStack<address_t> m_backstack, m_forwardstack;
-        DisassemblerTextDocument* m_renderer;
+        ListingTextRenderer* m_renderer;
         DisassemblerHighlighter* m_highlighter;
-        REDasm::Disassembler* m_disassembler;
+        REDasm::DisassemblerAPI* m_disassembler;
         QAction *m_actrename, *m_actcreatestring, *m_actxrefs, *m_actfollow, *m_actcallgraph;
         QAction *m_actgoto, *m_acthexdump, *m_actback, *m_actforward, *m_actcopy, *m_actselectall;
         QMenu* m_contextmenu;

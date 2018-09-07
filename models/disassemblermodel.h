@@ -2,7 +2,7 @@
 #define DISASSEMBLERMODEL_H
 
 #include <QAbstractListModel>
-#include "../redasm/disassembler/disassembler.h"
+#include "../redasm/disassembler/disassemblerapi.h"
 
 #define S_TO_QS(s) QString::fromStdString(s)
 
@@ -12,10 +12,10 @@ class DisassemblerModel : public QAbstractListModel
 
     public:
         explicit DisassemblerModel(QObject *parent = 0);
-        virtual void setDisassembler(REDasm::Disassembler* disassembler);
+        virtual void setDisassembler(REDasm::DisassemblerAPI *disassembler);
 
     protected:
-        REDasm::Disassembler* m_disassembler;
+        REDasm::DisassemblerAPI* m_disassembler;
 };
 
 #endif // DISASSEMBLERMODEL_H

@@ -8,7 +8,7 @@ ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent), _c
 
 }
 
-void ReferencesModel::setDisassembler(REDasm::Disassembler *disassembler)
+void ReferencesModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
     //this->_printer = REDasm::PrinterPtr(disassembler->assembler()->createPrinter(disassembler, disassembler->symbolTable()));

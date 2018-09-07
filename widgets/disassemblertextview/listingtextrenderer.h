@@ -1,15 +1,14 @@
-#ifndef DISASSEMBLERTEXTDOCUMENT_H
-#define DISASSEMBLERTEXTDOCUMENT_H
+#ifndef LISTINGTEXTRENDERER_H
+#define LISTINGTEXTRENDERER_H
 
 #include <QFont>
 #include <QFontMetrics>
-#include "../disassemblerview/disassemblerdocument.h"
 #include "../../redasm/disassembler/listing/listingrenderer.h"
 
-class DisassemblerTextDocument : public REDasm::ListingRenderer
+class ListingTextRenderer : public REDasm::ListingRenderer
 {
     public:
-        DisassemblerTextDocument(const QFont& font, REDasm::DisassemblerAPI* disassembler);
+        ListingTextRenderer(const QFont& font, REDasm::DisassemblerAPI* disassembler);
         virtual void renderText(const REDasm::RendererFormat* rf);
 
     protected:
@@ -19,4 +18,4 @@ class DisassemblerTextDocument : public REDasm::ListingRenderer
         QFontMetrics m_fontmetrics;
 };
 
-#endif // DISASSEMBLERTEXTDOCUMENT_H
+#endif // LISTINGTEXTRENDERER_H

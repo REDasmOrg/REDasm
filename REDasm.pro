@@ -79,7 +79,6 @@ SOURCES += main.cpp\
     dialogs/aboutdialog.cpp \
     widgets/disassemblergraphview/disassemblergraphview.cpp \
     widgets/disassemblerview/disassemblerdocument.cpp \
-    widgets/disassemblertextview/disassemblertextdocument.cpp \
     widgets/disassemblergraphview/disassemblergraphdocument.cpp \
     widgets/disassemblergraphview/functionblockitem.cpp \
     redasm/redasm.cpp \
@@ -138,7 +137,8 @@ SOURCES += main.cpp\
     redasm/disassembler/algorithm/linearsweep.cpp \
     redasm/disassembler/listing/listingdocument.cpp \
     redasm/disassembler/listing/instructionpool.cpp \
-    redasm/disassembler/listing/listingrenderer.cpp
+    redasm/disassembler/listing/listingrenderer.cpp \
+    widgets/disassemblertextview/listingtextrenderer.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -195,7 +195,6 @@ HEADERS  += mainwindow.h \
     dialogs/aboutdialog.h \
     widgets/disassemblergraphview/disassemblergraphview.h \
     widgets/disassemblerview/disassemblerdocument.h \
-    widgets/disassemblertextview/disassemblertextdocument.h \
     widgets/disassemblergraphview/disassemblergraphdocument.h \
     widgets/disassemblergraphview/functionblockitem.h \
     redasm/formats/pe/pe_resources.h \
@@ -267,7 +266,8 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/algorithm/linearsweep.h \
     redasm/disassembler/listing/listingdocument.h \
     redasm/disassembler/listing/instructionpool.h \
-    redasm/disassembler/listing/listingrenderer.h
+    redasm/disassembler/listing/listingrenderer.h \
+    widgets/disassemblertextview/listingtextrenderer.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

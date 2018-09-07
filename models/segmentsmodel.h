@@ -9,7 +9,7 @@ class SegmentsModel : public DisassemblerModel
 
     public:
         explicit SegmentsModel(QObject *parent = 0);
-        virtual void setDisassembler(REDasm::Disassembler *disassembler);
+        virtual void setDisassembler(REDasm::DisassemblerAPI *disassembler);
 
     public:
         virtual QVariant data(const QModelIndex &index, int role) const;

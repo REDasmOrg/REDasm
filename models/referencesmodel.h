@@ -3,6 +3,7 @@
 
 #include <QJsonObject>
 #include "disassemblermodel.h"
+#include "../redasm/plugins/assembler/printer.h"
 
 class ReferencesModel : public DisassemblerModel
 {
@@ -10,7 +11,7 @@ class ReferencesModel : public DisassemblerModel
 
     public:
         explicit ReferencesModel(QObject *parent = 0);
-        virtual void setDisassembler(REDasm::Disassembler* disassembler);
+        virtual void setDisassembler(REDasm::DisassemblerAPI* disassembler);
         void xref(const REDasm::InstructionPtr &instruction);
         void xref(address_t currentaddress, const REDasm::SymbolPtr &symbol);
 

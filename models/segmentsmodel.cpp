@@ -9,7 +9,7 @@ SegmentsModel::SegmentsModel(QObject *parent) : DisassemblerModel(parent), m_for
 
 }
 
-void SegmentsModel::setDisassembler(REDasm::Disassembler *disassembler)
+void SegmentsModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     this->beginResetModel();
     DisassemblerModel::setDisassembler(disassembler);

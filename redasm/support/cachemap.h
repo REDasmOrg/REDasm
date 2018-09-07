@@ -57,16 +57,11 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
         void erase(const iterator& it);
         T2 operator[](const T1& key);
 
-    private:
-        void doSerialize(const T2& value, std::fstream& fs);
-        void doDeserialize(T2& value, std::fstream& fs);
-
     protected:
         virtual void serialize(const T2& value, std::fstream& fs) = 0;
         virtual void deserialize(T2& value, std::fstream& fs) = 0;
 
     private:
-        std::mutex m_mutex;
         std::string m_name;
         offset_map m_offsets;
         std::fstream m_file;
@@ -94,7 +89,7 @@ template<typename T1, typename T2> void cache_map<T1, T2>::commit(const T1& key,
     this->m_file.seekp(0, std::ios::end); // Ignore old key -> value reference, if any
     this->m_offsets[key] = this->m_file.tellp();
 
-    this->doSerialize(value, this->m_file);
+    this->serialize(value, this->m_file);
     this->m_file.clear(); // Reset error state
 }
 
@@ -118,21 +113,9 @@ template<typename T1, typename T2> T2 cache_map<T1, T2>::operator[](const T1& ke
     T2 value;
 
     this->m_file.seekg(it->second, std::ios::beg);
-    this->doDeserialize(value, this->m_file);
+    this->deserialize(value, this->m_file);
     this->m_file.clear(); // Reset error state
     return value;
-}
-
-template<typename T1, typename T2> void cache_map<T1, T2>::doSerialize(const T2& value, std::fstream& fs)
-{
-    std::lock_guard<std::mutex>(this->m_mutex);
-    this->serialize(value, fs);
-}
-
-template<typename T1, typename T2> void cache_map<T1, T2>::doDeserialize(T2& value, std::fstream& fs)
-{
-    std::lock_guard<std::mutex>(this->m_mutex);
-    this->deserialize(value, fs);
 }
 
 } // namespace REDasm

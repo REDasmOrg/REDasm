@@ -1,22 +1,31 @@
 #include "timer.h"
-#include <thread>
+#include <iostream>
 
 namespace REDasm {
 
-Timer::Timer() { }
+Timer::Timer(): m_running(false) {}
+void Timer::stop() { m_running = false; }
 
-void Timer::tick(std::function<bool()> ontick, size_t interval)
+void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)
 {
-    std::thread([ontick, interval]() {
-        bool res = true;
+    if(m_running)
+        return;
 
-        do {
-            res = ontick();
-            std::this_thread::sleep_for(std::chrono::milliseconds(interval));
-        }
-        while(res);
+    m_interval = interval;
+    m_running = true;
+    m_timercallback = cb;
+    m_worker = std::thread(&Timer::work, this);
+    m_worker.detach();
+}
 
-    }).detach();
+void Timer::work()
+{
+    while(m_running)
+    {
+        timer_lock m_lock(m_mutex);
+        m_timercallback();
+        m_condition.wait_until(m_lock, clock::now() + m_interval);
+    }
 }
 
 } // namespace REDasm

@@ -4,7 +4,7 @@
 
 #define INVALID_MNEMONIC       "db"
 #define INSTRUCTION_THRESHOLD  10
-#define DO_TICK_DISASSEMBLY()  Timer::tick(std::bind(&Disassembler::disassembleStep, this, m_algorithm.get()))
+#define DO_TICK_DISASSEMBLY()  m_timer.tick(std::bind(&Disassembler::disassembleStep, this, m_algorithm.get()))
 
 namespace REDasm {
 
@@ -76,14 +76,12 @@ std::string Disassembler::comment(const InstructionPtr &instruction) const
      return "# " + res;
 }
 
-bool Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
+void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
     if(!algorithm->hasNext())
     {
+        m_timer.stop();
         this->analyze();
-        return false;
     }
 
     const Segment* segment = NULL;
@@ -93,13 +91,13 @@ bool Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
         segment = m_document->segment(address);
 
     if(!segment || !segment->is(SegmentTypes::Code))
-        return true;
+        return;
 
     //TODO: Check Segment <-> address bounds
     Buffer buffer = m_buffer + m_format->offset(address);
 
     if(buffer.eob())
-        return true;
+        return;
 
     InstructionPtr instruction = std::make_shared<Instruction>();
     instruction->address = address;
@@ -110,10 +108,9 @@ bool Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
     if(status == DisassemblerAlgorithm::FAIL)
         this->createInvalid(instruction, buffer);
     else if(status == DisassemblerAlgorithm::SKIP)
-        return true;
+        return;
 
     m_document->instruction(instruction);
-    return true;
 }
 
 void Disassembler::analyze()

@@ -29,8 +29,7 @@ class Disassembler: public DisassemblerBase
         std::string comment(const InstructionPtr& instruction) const;
 
     private:
-        void disassembleT(DisassemblerAlgorithm *algorithm);
-        bool disassembleStep(DisassemblerAlgorithm *algorithm);
+        void disassembleStep(DisassemblerAlgorithm *algorithm);
         void analyze();
         void disassembleUnexploredCode();
         void searchCode(const Segment &segment);
@@ -44,7 +43,7 @@ class Disassembler: public DisassemblerBase
     private:
         AssemblerPlugin* m_assembler;
         std::unique_ptr<DisassemblerAlgorithm> m_algorithm;
-        std::mutex m_mutex;
+        Timer m_timer;
 };
 
 }

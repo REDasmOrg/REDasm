@@ -23,8 +23,13 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
 
     m_symboltable.create(address, name, type, tag);
 
+    if(!this->segment(address))
+        return;
+
     if(type & SymbolTypes::FunctionMask)
         this->pushSorted(address, ListingItem::FunctionItem);
+    else
+        this->pushSorted(address, ListingItem::SymbolItem);
 }
 
 void ListingDocument::symbol(address_t address, u32 type, u32 tag)

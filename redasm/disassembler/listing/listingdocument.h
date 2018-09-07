@@ -16,8 +16,7 @@ struct ListingItem
 {
     enum: u32 {
         Undefined = 0,
-        DataItem,
-        SegmentItem, FunctionItem, PrologueItem, InstructionItem,
+        SegmentItem, FunctionItem, PrologueItem, InstructionItem, SymbolItem,
     };
 
     ListingItem(): address(0), type(ListingItem::Undefined) { }

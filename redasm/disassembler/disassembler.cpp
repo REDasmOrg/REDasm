@@ -82,6 +82,7 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
     {
         m_timer.stop();
         this->analyze();
+        return;
     }
 
     const Segment* segment = NULL;

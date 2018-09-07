@@ -78,6 +78,8 @@ std::string Disassembler::comment(const InstructionPtr &instruction) const
 
 bool Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
 {
+    std::lock_guard<std::mutex> lock(m_mutex);
+
     if(!algorithm->hasNext())
     {
         this->analyze();

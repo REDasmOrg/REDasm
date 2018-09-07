@@ -9,6 +9,7 @@ class ListingTextRenderer : public REDasm::ListingRenderer
 {
     public:
         ListingTextRenderer(const QFont& font, REDasm::DisassemblerAPI* disassembler);
+        virtual ~ListingTextRenderer();
         virtual void renderText(const REDasm::RendererFormat* rf);
 
     protected:

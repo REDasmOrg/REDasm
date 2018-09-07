@@ -7,6 +7,11 @@ ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::Disassembler
 
 }
 
+ListingTextRenderer::~ListingTextRenderer()
+{
+
+}
+
 void ListingTextRenderer::renderText(const REDasm::RendererFormat *rf)
 {
     QPainter* painter = reinterpret_cast<QPainter*>(rf->userdata);

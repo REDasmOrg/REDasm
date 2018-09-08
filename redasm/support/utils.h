@@ -70,18 +70,6 @@ template<typename T> std::string hex(T t, int bits = 0, bool withprefix = true)
     return ss.str();
 }
 
-template<typename T> std::string symbol(const std::string& prefix, T t, const std::string& segmentname = std::string())
-{
-    std::stringstream ss;
-    ss << prefix;
-
-    if(!segmentname.empty())
-        ss << "_" << REDasm::normalize(segmentname);
-
-    ss << "_" << std::hex << t;
-    return ss.str();
-}
-
 }
 
 #endif // UTILS_H

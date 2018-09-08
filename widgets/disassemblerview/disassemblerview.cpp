@@ -5,7 +5,7 @@
 
 #define VMIL_TAB_INDEX 1
 
-DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), _hexdocument(NULL), _lblstatus(lblstatus), _disassembler(NULL)
+DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_lblstatus(lblstatus), m_disassembler(NULL)
 {
     ui->setupUi(this);
 
@@ -27,27 +27,27 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     ui->tbForward->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
     ui->tbGoto->setShortcut(QKeySequence(Qt::Key_G));
 
-    this->_functionsmodel = new SymbolTableFilterModel(ui->tvFunctions);
-    this->_functionsmodel->setSymbolFlags(REDasm::SymbolTypes::FunctionMask);
-    ui->tvFunctions->setModel(this->_functionsmodel);
+    m_functionsmodel = new SymbolTableFilterModel(ui->tvFunctions);
+    m_functionsmodel->setSymbolFlags(REDasm::SymbolTypes::FunctionMask);
+    ui->tvFunctions->setModel(m_functionsmodel);
 
-    this->_importsmodel = new SymbolTableFilterModel(ui->tvFunctions);
-    this->_importsmodel->setSymbolFlags(REDasm::SymbolTypes::ImportMask);
-    ui->tvImports->setModel(this->_importsmodel);
+    m_importsmodel = new SymbolTableFilterModel(ui->tvFunctions);
+    m_importsmodel->setSymbolFlags(REDasm::SymbolTypes::ImportMask);
+    ui->tvImports->setModel(m_importsmodel);
 
-    this->_exportsmodel = new SymbolTableFilterModel(ui->tvFunctions);
-    this->_exportsmodel->setSymbolFlags(REDasm::SymbolTypes::ExportMask);
-    ui->tvExports->setModel(this->_exportsmodel);
+    m_exportsmodel = new SymbolTableFilterModel(ui->tvFunctions);
+    m_exportsmodel->setSymbolFlags(REDasm::SymbolTypes::ExportMask);
+    ui->tvExports->setModel(m_exportsmodel);
 
-    this->_stringsmodel = new SymbolTableFilterModel(ui->tvStrings);
-    this->_stringsmodel->setSymbolFlags(REDasm::SymbolTypes::StringMask);
-    ui->tvStrings->setModel(this->_stringsmodel);
+    m_stringsmodel = new SymbolTableFilterModel(ui->tvStrings);
+    m_stringsmodel->setSymbolFlags(REDasm::SymbolTypes::StringMask);
+    ui->tvStrings->setModel(m_stringsmodel);
 
-    this->_segmentsmodel = new SegmentsModel(ui->tvSegments);
-    ui->tvSegments->setModel(this->_segmentsmodel);
+    m_segmentsmodel = new SegmentsModel(ui->tvSegments);
+    ui->tvSegments->setModel(m_segmentsmodel);
 
-    this->_referencesmodel = new ReferencesModel(ui->tvReferences);
-    ui->tvReferences->setModel(this->_referencesmodel);
+    m_referencesmodel = new ReferencesModel(ui->tvReferences);
+    ui->tvReferences->setModel(m_referencesmodel);
 
     ui->tvFunctions->setColumnHidden(3, true);
     ui->tvFunctions->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -77,7 +77,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayInstructionReferences);
     connect(ui->disassemblerTextView, &DisassemblerTextView::symbolAddressChanged, this, &DisassemblerView::displayReferences);
-    connect(ui->disassemblerTextView, &DisassemblerTextView::symbolDeselected, this->_referencesmodel, &ReferencesModel::clear);
+    connect(ui->disassemblerTextView, &DisassemblerTextView::symbolDeselected, m_referencesmodel, &ReferencesModel::clear);
     connect(ui->disassemblerTextView, &DisassemblerTextView::invalidateSymbols, [this]() { this->updateModel(NULL);});
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoBackChanged, [this]() { ui->tbBack->setEnabled(ui->disassemblerTextView->canGoBack()); });
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoForwardChanged, [this]() { ui->tbForward->setEnabled(ui->disassemblerTextView->canGoForward()); });
@@ -110,21 +110,28 @@ DisassemblerView::~DisassemblerView()
 {
     delete ui;
 
-    if(this->_disassembler)
-        delete this->_disassembler;
+    if(m_disassembler)
+        delete m_disassembler;
 }
 
 void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 {
-    this->_disassembler = disassembler;
+    m_disassembler = disassembler;
     this->log(QString("Found format '%1' with '%2'").arg(S_TO_QS(disassembler->format()->name()),
                                                          S_TO_QS(disassembler->assembler()->name())));
 
     REDasm::Buffer& buffer = disassembler->buffer();
-    this->_hexdocument = QHexDocument::fromMemory(reinterpret_cast<const char*>(buffer.data), buffer.length);
-    this->_hexdocument->setParent(this);
+    m_hexdocument = QHexDocument::fromMemory(reinterpret_cast<const char*>(buffer.data), buffer.length);
+    m_hexdocument->setParent(this);
 
-    ui->hexEdit->setDocument(this->_hexdocument);
+    m_functionsmodel->setDisassembler(disassembler);
+    m_importsmodel->setDisassembler(disassembler);
+    m_exportsmodel->setDisassembler(disassembler);
+    m_stringsmodel->setDisassembler(disassembler);
+    m_segmentsmodel->setDisassembler(disassembler);
+    m_referencesmodel->setDisassembler(disassembler);
+
+    ui->hexEdit->setDocument(m_hexdocument);
     ui->bottomTabs->setCurrentWidget(ui->tabOutput);
     ui->disassemblerTextView->setDisassembler(disassembler);
     //FIXME: ui->disassemblerGraphView->setDisassembler(disassembler);
@@ -162,11 +169,11 @@ void DisassemblerView::on_bottomTabs_currentChanged(int index)
     }
 
     if(w == ui->tabImports)
-        ui->leFilter->setText(this->_importsmodel->filterName());
+        ui->leFilter->setText(m_importsmodel->filterName());
     else if(w == ui->tabExports)
-        ui->leFilter->setText(this->_exportsmodel->filterName());
+        ui->leFilter->setText(m_exportsmodel->filterName());
     else if(w == ui->tabStrings)
-        ui->leFilter->setText(this->_stringsmodel->filterName());
+        ui->leFilter->setText(m_stringsmodel->filterName());
 
     ui->leFilter->setEnabled(true);
 }
@@ -214,13 +221,13 @@ void DisassemblerView::xrefSymbol(const QModelIndex &index)
     QModelIndex srcindex = filtermodel->mapToSource(index);
     REDasm::SymbolPtr symbol = filtermodel->symbol(srcindex);
 
-    if(!this->_disassembler->hasReferences(symbol))
+    if(!m_disassembler->hasReferences(symbol))
     {
         QMessageBox::information(this, "No References", "There are no references to " + S_TO_QS(symbol->name));
         return;
     }
 
-    ReferencesDialog dlgreferences(this->_disassembler, ui->disassemblerTextView->currentAddress(), symbol, this);
+    ReferencesDialog dlgreferences(m_disassembler, ui->disassemblerTextView->currentAddress(), symbol, this);
     connect(&dlgreferences, &ReferencesDialog::jumpTo, [this](address_t address) { ui->disassemblerTextView->goTo(address); });
     dlgreferences.exec();
 }
@@ -276,20 +283,20 @@ void DisassemblerView::updateModel(const REDasm::SymbolPtr &symbol)
 {
     if(!symbol)
     {
-        this->_functionsmodel->reloadSymbols();
-        this->_stringsmodel->reloadSymbols();
+        m_functionsmodel->reloadSymbols();
+        m_stringsmodel->reloadSymbols();
         return;
     }
 
     if(symbol->isFunction())
     {
-        this->_functionsmodel->reloadSymbols();
-        this->_exportsmodel->reloadSymbols();
+        m_functionsmodel->reloadSymbols();
+        m_exportsmodel->reloadSymbols();
     }
     else if(symbol->is(REDasm::SymbolTypes::ImportMask))
-        this->_importsmodel->reloadSymbols();
+        m_importsmodel->reloadSymbols();
     else if(symbol->is(REDasm::SymbolTypes::String))
-        this->_stringsmodel->reloadSymbols();
+        m_stringsmodel->reloadSymbols();
 }
 
 void DisassemblerView::log(const QString &s)
@@ -304,7 +311,7 @@ void DisassemblerView::filterFunctions()
     if(s.length() == 1)
         return;
 
-    this->_functionsmodel->setFilterName(s);
+    m_functionsmodel->setFilterName(s);
 }
 
 void DisassemblerView::filterSymbols()
@@ -317,22 +324,15 @@ void DisassemblerView::filterSymbols()
     QWidget* w = ui->bottomTabs->currentWidget();
 
     if(w == ui->tabImports)
-        this->_importsmodel->setFilterName(s);
+        m_importsmodel->setFilterName(s);
     else if(w == ui->tabExports)
-        this->_exportsmodel->setFilterName(s);
+        m_exportsmodel->setFilterName(s);
     else if(w == ui->tabStrings)
-        this->_stringsmodel->setFilterName(s);
+        m_stringsmodel->setFilterName(s);
 }
 
 void DisassemblerView::showListing()
 {
-    this->_functionsmodel->setDisassembler(this->_disassembler);
-    this->_importsmodel->setDisassembler(this->_disassembler);
-    this->_exportsmodel->setDisassembler(this->_disassembler);
-    this->_stringsmodel->setDisassembler(this->_disassembler);
-    this->_segmentsmodel->setDisassembler(this->_disassembler);
-    this->_referencesmodel->setDisassembler(this->_disassembler);
-
     /*
     if(this->_disassembler->assembler()->hasVMIL())
     {
@@ -342,7 +342,7 @@ void DisassemblerView::showListing()
     }
     */
 
-    ui->disassemblerMap->render(this->_disassembler);
+    ui->disassemblerMap->render(m_disassembler);
     ui->bottomTabs->setCurrentWidget(ui->tabStrings);
     ui->tbGoto->setEnabled(true);
     ui->leFunctionFilter->setEnabled(true);
@@ -354,7 +354,7 @@ void DisassemblerView::showHexDump(address_t address)
 {
     ui->topTabs->setCurrentWidget(ui->hexEdit);
 
-    offset_t offset = this->_disassembler->format()->offset(address);
+    offset_t offset = m_disassembler->format()->offset(address);
     QHexCursor* cursor = ui->hexEdit->document()->cursor();
     cursor->setSelectionRange(offset, 1);
 }
@@ -376,12 +376,12 @@ void DisassemblerView::showMenu(const QPoint&)
     if(!this->_currentindex.isValid())
         return;
 
-    this->_contextmenu->exec(QCursor::pos());
+    m_contextmenu->exec(QCursor::pos());
 }
 
 void DisassemblerView::showGoto()
 {
-    GotoDialog dlggoto(this->_disassembler, this);
+    GotoDialog dlggoto(m_disassembler, this);
     connect(&dlggoto, &GotoDialog::symbolSelected, this, &DisassemblerView::gotoSymbol);
 
     if(dlggoto.exec() == GotoDialog::Accepted)
@@ -390,7 +390,7 @@ void DisassemblerView::showGoto()
 
 void DisassemblerView::createMenu()
 {
-    this->_contextmenu = new QMenu(this);
-    this->_contextmenu->addAction("Cross References", [this]() { this->xrefSymbol(this->_currentindex); });
-    this->_contextmenu->addAction("Goto", [this]() { this->gotoSymbol(this->_currentindex); });
+    m_contextmenu = new QMenu(this);
+    m_contextmenu->addAction("Cross References", [this]() { this->xrefSymbol(this->_currentindex); });
+    m_contextmenu->addAction("Goto", [this]() { this->gotoSymbol(this->_currentindex); });
 }

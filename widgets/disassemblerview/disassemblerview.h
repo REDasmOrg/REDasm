@@ -52,13 +52,13 @@ class DisassemblerView : public QWidget
     private:
         Ui::DisassemblerView *ui;
         QModelIndex _currentindex;
-        QHexDocument* _hexdocument;
-        QMenu* _contextmenu;
-        QLabel* _lblstatus;
-        REDasm::Disassembler* _disassembler;
-        SymbolTableFilterModel *_functionsmodel, *_importsmodel, *_exportsmodel, *_stringsmodel;
-        ReferencesModel* _referencesmodel;
-        SegmentsModel* _segmentsmodel;
+        QHexDocument* m_hexdocument;
+        QMenu* m_contextmenu;
+        QLabel* m_lblstatus;
+        REDasm::Disassembler* m_disassembler;
+        SymbolTableFilterModel *m_functionsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
+        ReferencesModel* m_referencesmodel;
+        SegmentsModel* m_segmentsmodel;
 };
 
 #endif // DISASSEMBLERVIEW_H

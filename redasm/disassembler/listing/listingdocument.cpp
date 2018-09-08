@@ -6,6 +6,7 @@ namespace REDasm {
 ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
 void ListingDocument::whenChanged(const ListingDocument::ChangedCallback &cb) { m_changedcb.push_back(cb); }
 void ListingDocument::symbolChanged(const ListingDocument::SymbolsCallback &cb) { m_symbolscb.push_back(cb); }
+void ListingDocument::segmentAdded(const ListingDocument::SegmentCallback &cb) { m_segmentcb.push_back(cb); }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
@@ -75,9 +76,9 @@ void ListingDocument::segment(const std::string &name, offset_t offset, address_
         return s1.address < s2.address;
     });
 
-    m_segments.insert(it, segment);
+    it = m_segments.insert(it, segment);
     this->pushSorted(address, ListingItem::SegmentItem);
-    this->notify<SymbolsCallback>(m_symbolscb, address, type);
+    this->notify<SegmentCallback>(m_segmentcb, std::distance(m_segments.begin(), it));
 }
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }

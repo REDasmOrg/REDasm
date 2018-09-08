@@ -18,10 +18,10 @@ class SegmentsModel : public DisassemblerModel
         virtual int columnCount(const QModelIndex&) const;
 
     private:
-        QString segmentFlags(const REDasm::Segment& block) const;
+        void onSegmentAdded(size_t idx);
 
     private:
-        const REDasm::FormatPlugin* m_format;
+        static QString segmentFlags(const REDasm::Segment* segment);
 };
 
 #endif // SEGMENTSMODEL_H

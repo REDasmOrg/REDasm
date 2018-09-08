@@ -1,10 +1,12 @@
 #include "segmentsmodel.h"
+#include "../../redasm/disassembler/listing/listingdocument.h"
+#include "../../redasm/plugins/format.h"
 #include <QFontDatabase>
 #include <QColor>
 
-#define SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
+#define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 
-SegmentsModel::SegmentsModel(QObject *parent) : DisassemblerModel(parent), m_format(NULL)
+SegmentsModel::SegmentsModel(QObject *parent) : DisassemblerModel(parent)
 {
 
 }
@@ -12,29 +14,31 @@ SegmentsModel::SegmentsModel(QObject *parent) : DisassemblerModel(parent), m_for
 void SegmentsModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     this->beginResetModel();
+
+    disassembler->document()->segmentAdded(std::bind(&SegmentsModel::onSegmentAdded, this, std::placeholders::_1));
     DisassemblerModel::setDisassembler(disassembler);
-    this->m_format = disassembler->format();
+
     this->endResetModel();
 }
 
 QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 {
-    if(!this->m_format)
+    if(!m_disassembler)
         return QVariant();
 
-    /*
     if(role == Qt::DisplayRole)
     {
-        const REDasm::Segment& s = m_format->segments()[index.row()];
+        const REDasm::FormatPlugin* format = m_disassembler->format();
+        const REDasm::Segment* segment = m_disassembler->document()->segmentAt(index.row());
 
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(s.address, this->m_format->bits()));
+            return S_TO_QS(REDasm::hex(segment->address, format->bits()));
         else if(index.column() == 1)
-            return S_TO_QS(REDasm::hex(s.endaddress, this->m_format->bits()));
+            return S_TO_QS(REDasm::hex(segment->endaddress, format->bits()));
         else if(index.column() == 2)
-            return QString::fromStdString(s.name);
+            return QString::fromStdString(segment->name);
         else if(index.column() == 3)
-            return this->segmentFlags(s);
+            return SegmentsModel::segmentFlags(segment);
     }
     else if(role == Qt::ForegroundRole)
     {
@@ -50,7 +54,6 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
         return Qt::AlignCenter;
     else if(role == Qt::FontRole && index.column() != 3)
         return QFontDatabase::systemFont(QFontDatabase::FixedFont);
-        */
 
     return QVariant();
 }
@@ -77,29 +80,35 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
 
 int SegmentsModel::rowCount(const QModelIndex &) const
 {
-    if(!this->m_format)
+    if(!m_disassembler)
         return 0;
 
-    return 0; //this->m_format->segments().size();
+    return m_disassembler->document()->segmentsCount();
 }
 
-int SegmentsModel::columnCount(const QModelIndex &) const
+int SegmentsModel::columnCount(const QModelIndex &) const { return 4; }
+
+void SegmentsModel::onSegmentAdded(size_t idx)
 {
-    return 4;
+    if(!m_disassembler)
+        return;
+
+    this->beginInsertRows(QModelIndex(), idx, idx);
+    this->endInsertRows();
 }
 
-QString SegmentsModel::segmentFlags(const REDasm::Segment &block) const
+QString SegmentsModel::segmentFlags(const REDasm::Segment *segment)
 {
     QString s;
 
-    if(block.type & REDasm::SegmentTypes::Code)
-        SEGMENT_TYPE(s, "CODE")
+    if(segment->is(REDasm::SegmentTypes::Code))
+        ADD_SEGMENT_TYPE(s, "CODE")
 
-    if(block.type & REDasm::SegmentTypes::Data)
-        SEGMENT_TYPE(s, "DATA")
+    if(segment->is(REDasm::SegmentTypes::Data))
+        ADD_SEGMENT_TYPE(s, "DATA")
 
-    if(block.type & REDasm::SegmentTypes::Bss)
-        SEGMENT_TYPE(s, "BSS")
+    if(segment->is(REDasm::SegmentTypes::Bss))
+        ADD_SEGMENT_TYPE(s, "BSS")
 
     return s;
 

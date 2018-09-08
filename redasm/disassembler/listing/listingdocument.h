@@ -34,6 +34,7 @@ class ListingDocument: public std::vector<ListingItemPtr>
     private:
         typedef std::function<void(int)> ChangedCallback;
         typedef std::function<void(address_t, u32)> SymbolsCallback;
+        typedef std::function<void(size_t)> SegmentCallback;
 
     public:
         ListingDocument();
@@ -41,6 +42,7 @@ class ListingDocument: public std::vector<ListingItemPtr>
     public:
         void whenChanged(const ChangedCallback& cb);
         void symbolChanged(const SymbolsCallback& cb);
+        void segmentAdded(const SegmentCallback& cb);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
         void lock(address_t address, const std::string& name);
@@ -82,6 +84,7 @@ class ListingDocument: public std::vector<ListingItemPtr>
         SymbolTable m_symboltable;
         FormatPlugin* m_format;
         std::list<ChangedCallback> m_changedcb;
+        std::list<SegmentCallback> m_segmentcb;
         std::list<SymbolsCallback> m_symbolscb;
 
      friend class FormatPlugin;

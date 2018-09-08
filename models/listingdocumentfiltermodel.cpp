@@ -25,7 +25,7 @@ bool ListingDocumentFilterModel::filterAcceptsRow(int source_row, const QModelIn
     QModelIndex index = sourcemodel->index(source_row, 0);
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
 
-    if(item->type != m_filteritem)
+    if(!item || (item->type != m_filteritem))
         return false;
 
     if(m_filtername.isEmpty())

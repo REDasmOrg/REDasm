@@ -14,6 +14,10 @@ bool SymbolTableFilterModel::filterAcceptsRow(int source_row, const QModelIndex 
         return false;
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(this->sourceModel()->index(source_row, 0).internalPointer());
+
+    if(!item)
+        return false;
+
     REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);
     return symbol->is(m_symbolflags);
 }

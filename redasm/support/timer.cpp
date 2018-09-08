@@ -4,6 +4,13 @@
 namespace REDasm {
 
 Timer::Timer(): m_running(false) {}
+
+Timer::~Timer()
+{
+    m_running = false;
+    m_mutex.unlock();
+}
+
 void Timer::stop() { m_running = false; }
 
 void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)

@@ -281,15 +281,15 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
 
 void PeFormat::loadDefault()
 {
-    m_document.lock(m_imagebase, "PE_ImageBase", SymbolTypes::Data);
-    m_document.entry(m_entrypoint);
-
     this->loadSections();
     this->loadExports();
     this->loadImports();
     this->loadSymbolTable();
     this->checkDebugInfo();
     this->checkResources();
+
+    m_document.lock(m_imagebase, "PE_ImageBase", SymbolTypes::Data);
+    m_document.entry(m_entrypoint);
 }
 
 void PeFormat::loadSections()

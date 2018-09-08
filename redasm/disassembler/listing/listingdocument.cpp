@@ -4,7 +4,8 @@
 namespace REDasm {
 
 ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
-void ListingDocument::whenChanged(const ListingDocument::ChangedCallback &cb) { m_changedcb = cb; }
+void ListingDocument::whenChanged(const ListingDocument::ChangedCallback &cb) { m_changedcb.push_back(cb); }
+void ListingDocument::symbolChanged(const ListingDocument::SymbolsCallback &cb) { m_symbolscb.push_back(cb); }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
@@ -21,9 +22,7 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
             this->eraseSorted(address, ListingItem::FunctionItem);
     }
 
-    m_symboltable.create(address, name, type, tag);
-
-    if(!this->segment(address))
+    if(!this->segment(address) || !m_symboltable.create(address, name, type, tag))
         return;
 
     if(type & SymbolTypes::FunctionMask)
@@ -70,21 +69,20 @@ void ListingDocument::lock(address_t address, const std::string &name, u32 type,
 
 void ListingDocument::segment(const std::string &name, offset_t offset, address_t address, u64 size, u32 type)
 {
-    m_segments.push_back(Segment(name, offset, address, size, type));
+    Segment segment(name, offset, address, size, type);
+
+    auto it = std::lower_bound(m_segments.begin(), m_segments.end(), segment, [](const Segment& s1, const Segment& s2) -> bool {
+        return s1.address < s2.address;
+    });
+
+    m_segments.insert(it, segment);
     this->pushSorted(address, ListingItem::SegmentItem);
+    this->notify<SymbolsCallback>(m_symbolscb, address, type);
 }
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
 void ListingDocument::function(address_t address, u32 tag) { this->symbol(address, REDasm::symbol("sub", address), SymbolTypes::Function, tag); }
 void ListingDocument::entry(address_t address, u32 tag) { this->symbol(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag); }
-
-void ListingDocument::sort()
-{
-    std::sort(m_segments.begin(), m_segments.end(), [](const Segment& s1, const Segment& s2) -> bool {
-        return s1.address < s2.address;
-    });
-}
-
 size_t ListingDocument::segmentsCount() const { return m_segments.size(); }
 
 Segment *ListingDocument::segment(address_t address)
@@ -140,7 +138,7 @@ void ListingDocument::pushSorted(address_t address, u32 type)
 {
     ListingItemPtr itemptr = std::make_unique<ListingItem>(address, type);
 
-    auto it = std::lower_bound(this->begin(), this->end(), itemptr, [this](const ListingItemPtr& b1, const ListingItemPtr& b2) {
+    auto it = std::lower_bound(this->begin(), this->end(), itemptr, [](const ListingItemPtr& b1, const ListingItemPtr& b2) -> bool {
         if(b1->address == b2->address)
             return b1->type < b2->type;
 
@@ -148,7 +146,7 @@ void ListingDocument::pushSorted(address_t address, u32 type)
     });
 
     it = this->insert(it, std::move(itemptr));
-    this->notifyChanged(it);
+    this->notify<ChangedCallback>(m_changedcb, std::distance(this->begin(), it));
 }
 
 void ListingDocument::eraseSorted(address_t address, u32 type)
@@ -159,17 +157,7 @@ void ListingDocument::eraseSorted(address_t address, u32 type)
         return;
 
     it = this->erase(it);
-    this->notifyChanged(it);
-}
-
-void ListingDocument::notifyChanged(ListingDocument::iterator changedit)
-{
-    if(!m_changedcb)
-        return;
-
-    m_mutex.lock();
-        m_changedcb(std::distance(this->begin(), changedit));
-    m_mutex.unlock();
+    this->notify<ChangedCallback>(m_changedcb, std::distance(this->begin(), it));
 }
 
 ListingDocument::iterator ListingDocument::adjustSearch(ListingDocument::iterator it, u32 type)

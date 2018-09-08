@@ -2,7 +2,7 @@
 #define LISTINGDOCUMENT_H
 
 #include <vector>
-#include <mutex>
+#include <list>
 #include "../../redasm.h"
 #include "../types/symboltable.h"
 #include "../types/referencetable.h"
@@ -16,7 +16,7 @@ struct ListingItem
 {
     enum: u32 {
         Undefined = 0,
-        SegmentItem, FunctionItem, PrologueItem, InstructionItem, SymbolItem,
+        SegmentItem, FunctionItem, PrologueItem, SymbolItem, InstructionItem
     };
 
     ListingItem(): address(0), type(ListingItem::Undefined) { }
@@ -33,12 +33,14 @@ class ListingDocument: public std::vector<ListingItemPtr>
 {
     private:
         typedef std::function<void(int)> ChangedCallback;
+        typedef std::function<void(address_t, u32)> SymbolsCallback;
 
     public:
         ListingDocument();
 
     public:
         void whenChanged(const ChangedCallback& cb);
+        void symbolChanged(const SymbolsCallback& cb);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
         void lock(address_t address, const std::string& name);
@@ -47,7 +49,6 @@ class ListingDocument: public std::vector<ListingItemPtr>
         void function(address_t address, const std::string& name, u32 tag = 0);
         void function(address_t address, u32 tag = 0);
         void entry(address_t address, u32 tag = 0);
-        void sort();
 
     public:
         size_t segmentsCount() const;
@@ -70,21 +71,28 @@ class ListingDocument: public std::vector<ListingItemPtr>
     private:
         void pushSorted(address_t address, u32 type);
         void eraseSorted(address_t address, u32 type);
-        void notifyChanged(ListingDocument::iterator changedit);
         ListingDocument::iterator adjustSearch(ListingDocument::iterator it, u32 type);
         ListingDocument::iterator binarySearch(address_t address, u32 type);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
+        template<typename T, typename... ARGS> void notify(const std::list<T>& handler, ARGS... args);
 
     private:
-        std::mutex m_mutex;
         SegmentList m_segments;
         InstructionPool m_instructions;
         SymbolTable m_symboltable;
         FormatPlugin* m_format;
-        ChangedCallback m_changedcb;
+        std::list<ChangedCallback> m_changedcb;
+        std::list<SymbolsCallback> m_symbolscb;
 
      friend class FormatPlugin;
 };
+
+template<typename T, typename... ARGS> void ListingDocument::notify(const std::list<T>& handler, ARGS... args)
+{
+    std::for_each(handler.begin(), handler.end(), [&](const T& cb) {
+        cb(std::forward<ARGS>(args)...);
+    });
+}
 
 } // namespace REDasm
 

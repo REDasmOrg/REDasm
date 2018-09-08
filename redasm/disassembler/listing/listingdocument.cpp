@@ -82,7 +82,7 @@ void ListingDocument::segment(const std::string &name, offset_t offset, address_
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
 void ListingDocument::function(address_t address, u32 tag) { this->symbol(address, ListingDocument::symbolName("sub", address), SymbolTypes::Function, tag); }
-void ListingDocument::entry(address_t address, u32 tag) { this->symbol(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag); }
+void ListingDocument::entry(address_t address, u32 tag) { this->lock(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag); }
 size_t ListingDocument::segmentsCount() const { return m_segments.size(); }
 
 Segment *ListingDocument::segment(address_t address)

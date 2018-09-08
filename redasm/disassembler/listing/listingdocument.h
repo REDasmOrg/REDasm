@@ -29,20 +29,26 @@ struct ListingItem
 
 typedef std::unique_ptr<ListingItem> ListingItemPtr;
 
+struct ListingDocumentChanged
+{
+    ListingDocumentChanged(int index, bool removed): index(index), removed(removed) { }
+
+    int index;
+    bool removed;
+};
+
 class ListingDocument: public std::vector<ListingItemPtr>
 {
     private:
-        typedef std::function<void(int)> ChangedCallback;
-        typedef std::function<void(address_t, u32)> SymbolsCallback;
-        typedef std::function<void(size_t)> SegmentCallback;
+        typedef std::function<void(ListingDocumentChanged*)> ChangedCallback;
+        typedef std::function<void(int)> SegmentCallback;
 
     public:
         ListingDocument();
+        void whenChanged(const ChangedCallback& cb);
+        void segmentAdded(const SegmentCallback& cb);
 
     public:
-        void whenChanged(const ChangedCallback& cb);
-        void symbolChanged(const SymbolsCallback& cb);
-        void segmentAdded(const SegmentCallback& cb);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
         void lock(address_t address, const std::string& name);
@@ -72,7 +78,7 @@ class ListingDocument: public std::vector<ListingItemPtr>
 
     private:
         void pushSorted(address_t address, u32 type);
-        void eraseSorted(address_t address, u32 type);
+        void removeSorted(address_t address, u32 type);
         ListingDocument::iterator adjustSearch(ListingDocument::iterator it, u32 type);
         ListingDocument::iterator binarySearch(address_t address, u32 type);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
@@ -85,7 +91,6 @@ class ListingDocument: public std::vector<ListingItemPtr>
         FormatPlugin* m_format;
         std::list<ChangedCallback> m_changedcb;
         std::list<SegmentCallback> m_segmentcb;
-        std::list<SymbolsCallback> m_symbolscb;
 
      friend class FormatPlugin;
 };

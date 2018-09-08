@@ -5,7 +5,6 @@ namespace REDasm {
 
 ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
 void ListingDocument::whenChanged(const ListingDocument::ChangedCallback &cb) { m_changedcb.push_back(cb); }
-void ListingDocument::symbolChanged(const ListingDocument::SymbolsCallback &cb) { m_symbolscb.push_back(cb); }
 void ListingDocument::segmentAdded(const ListingDocument::SegmentCallback &cb) { m_segmentcb.push_back(cb); }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
@@ -20,7 +19,7 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
         m_symboltable.erase(address);
 
         if(type & SymbolTypes::FunctionMask)
-            this->eraseSorted(address, ListingItem::FunctionItem);
+            this->removeSorted(address, ListingItem::FunctionItem);
     }
 
     if(!this->segment(address) || !m_symboltable.create(address, name, type, tag))
@@ -147,10 +146,12 @@ void ListingDocument::pushSorted(address_t address, u32 type)
     });
 
     it = this->insert(it, std::move(itemptr));
-    this->notify<ChangedCallback>(m_changedcb, std::distance(this->begin(), it));
+
+    ListingDocumentChanged ldc(std::distance(this->begin(), it), false);
+    this->notify<ChangedCallback>(m_changedcb, &ldc);
 }
 
-void ListingDocument::eraseSorted(address_t address, u32 type)
+void ListingDocument::removeSorted(address_t address, u32 type)
 {
     auto it = this->binarySearch(address, type);
 
@@ -158,7 +159,8 @@ void ListingDocument::eraseSorted(address_t address, u32 type)
         return;
 
     it = this->erase(it);
-    this->notify<ChangedCallback>(m_changedcb, std::distance(this->begin(), it));
+    ListingDocumentChanged ldc(std::distance(this->begin(), it), true);
+    this->notify<ChangedCallback>(m_changedcb, &ldc);
 }
 
 ListingDocument::iterator ListingDocument::adjustSearch(ListingDocument::iterator it, u32 type)

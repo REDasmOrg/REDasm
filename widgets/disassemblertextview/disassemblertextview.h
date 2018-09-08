@@ -37,7 +37,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         virtual void keyPressEvent(QKeyEvent *e);
 
     private:
-        Q_INVOKABLE void onDocumentChanged(int idx);
+        Q_INVOKABLE void onDocumentChanged(REDasm::ListingDocumentChanged* ldc);
 
     private:
         int visibleLines() const;

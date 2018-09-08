@@ -25,7 +25,6 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->verticalScrollBar()->setSingleStep(1);
     this->verticalScrollBar()->setPageStep(1);
 
-
     connect(this, &DisassemblerTextView::customContextMenuRequested, [this](const QPoint&) {
         m_contextmenu->exec(QCursor::pos());
     });
@@ -33,11 +32,11 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 
 DisassemblerTextView::~DisassemblerTextView()
 {
-    if(m_renderer)
-    {
-        delete m_renderer;
-        m_renderer = NULL;
-    }
+    if(!m_renderer)
+        return;
+
+    delete m_renderer;
+    m_renderer = NULL;
 }
 
 bool DisassemblerTextView::canGoBack() const { return !m_backstack.isEmpty(); }
@@ -49,7 +48,7 @@ void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
 void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     REDasm::ListingDocument* doc = disassembler->document();
-    doc->whenChanged([this](int idx) { this->onDocumentChanged(idx); });
+    doc->whenChanged(std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1));
 
     this->verticalScrollBar()->setRange(0, doc->size());
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->update(); });
@@ -78,7 +77,7 @@ void DisassemblerTextView::goBack()
         return;
 
     address_t address = m_backstack.pop();
-    this->m_forwardstack.push(m_currentaddress);
+    m_forwardstack.push(m_currentaddress);
 
     emit canGoBackChanged();
     emit canGoForwardChanged();
@@ -90,7 +89,7 @@ void DisassemblerTextView::goForward()
         return;
 
     address_t address = m_forwardstack.pop();
-    this->m_backstack.push(m_currentaddress);
+    m_backstack.push(m_currentaddress);
 
     emit canGoBackChanged();
     emit canGoForwardChanged();
@@ -126,12 +125,12 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         this->rename(m_symboladdress);
 }
 
-void DisassemblerTextView::onDocumentChanged(int idx)
+void DisassemblerTextView::onDocumentChanged(REDasm::ListingDocumentChanged *ldc)
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
     vscrollbar->setMaximum(m_disassembler->document()->size());
 
-    if((idx < vscrollbar->value()) || (idx > vscrollbar->value() + this->visibleLines()))
+    if((ldc->index < vscrollbar->value()) || (ldc->index > vscrollbar->value() + this->visibleLines()))
         return;
 
     this->update();
@@ -263,8 +262,8 @@ void DisassemblerTextView::updateAddress()
 
 void DisassemblerTextView::updateSymbolAddress(address_t address)
 {
-    this->m_issymboladdressvalid = true;
-    this->m_symboladdress = address;
+    m_issymboladdressvalid = true;
+    m_symboladdress = address;
     emit symbolAddressChanged();
 }
 

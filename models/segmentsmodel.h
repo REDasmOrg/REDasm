@@ -1,24 +1,21 @@
 #ifndef SEGMENTSMODEL_H
 #define SEGMENTSMODEL_H
 
-#include "disassemblermodel.h"
+#include "listingdocumentmodel.h"
 
-class SegmentsModel : public DisassemblerModel
+class SegmentsModel : public ListingDocumentModel
 {
     Q_OBJECT
 
     public:
         explicit SegmentsModel(QObject *parent = 0);
-        virtual void setDisassembler(REDasm::DisassemblerAPI *disassembler);
 
     public:
+        virtual QModelIndex index(int row, int column, const QModelIndex &) const;
         virtual QVariant data(const QModelIndex &index, int role) const;
         virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-        virtual int rowCount(const QModelIndex&) const;
         virtual int columnCount(const QModelIndex&) const;
-
-    private:
-        void onSegmentAdded(size_t idx);
+        virtual int rowCount(const QModelIndex&) const;
 
     private:
         static QString segmentFlags(const REDasm::Segment* segment);

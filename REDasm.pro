@@ -40,8 +40,6 @@ SOURCES += main.cpp\
     redasm/plugins/format.cpp \
     widgets/disassemblerview/disassemblerview.cpp \
     widgets/disassemblertextview/disassemblertextview.cpp \
-    models/symboltablemodel.cpp \
-    models/symboltablefiltermodel.cpp \
     models/disassemblermodel.cpp \
     models/segmentsmodel.cpp \
     redasm/analyzer/analyzer.cpp \
@@ -138,7 +136,10 @@ SOURCES += main.cpp\
     redasm/disassembler/listing/instructionpool.cpp \
     redasm/disassembler/listing/listingrenderer.cpp \
     widgets/disassemblertextview/listingtextrenderer.cpp \
-    redasm/support/timer.cpp
+    redasm/support/timer.cpp \
+    models/listingdocumentmodel.cpp \
+    models/listingdocumentfiltermodel.cpp \
+    models/symboltablefiltermodel.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -147,8 +148,6 @@ HEADERS  += mainwindow.h \
     redasm/plugins/plugins.h \
     widgets/disassemblerview/disassemblerview.h \
     widgets/disassemblertextview/disassemblertextview.h \
-    models/symboltablemodel.h \
-    models/symboltablefiltermodel.h \
     models/disassemblermodel.h \
     models/segmentsmodel.h \
     redasm/analyzer/analyzer.h \
@@ -267,7 +266,10 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/listing/instructionpool.h \
     redasm/disassembler/listing/listingrenderer.h \
     widgets/disassemblertextview/listingtextrenderer.h \
-    redasm/support/timer.h
+    redasm/support/timer.h \
+    models/listingdocumentmodel.h \
+    models/listingdocumentfiltermodel.h \
+    models/symboltablefiltermodel.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

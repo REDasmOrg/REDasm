@@ -5,9 +5,9 @@ GotoDialog::GotoDialog(REDasm::Disassembler *disassembler, QWidget *parent) : QD
 {
     ui->setupUi(this);
 
-    this->_functionsmodel = new SymbolTableFilterModel(ui->tvFunctions);
-    this->_functionsmodel->setSymbolFlags(REDasm::SymbolTypes::FunctionMask);
-    this->_functionsmodel->setDisassembler(disassembler);
+    //this->_functionsmodel = new ListingDocumentFilterModel(ui->tvFunctions);
+    //this->_functionsmodel->setSymbolFlags(REDasm::SymbolTypes::FunctionMask);
+    //this->_functionsmodel->setDisassembler(disassembler);
 
     ui->tvFunctions->setModel(this->_functionsmodel);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);

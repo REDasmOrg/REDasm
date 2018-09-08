@@ -1,4 +1,4 @@
-#include "disassemblerview.h"
+﻿#include "disassemblerview.h"
 #include "ui_disassemblerview.h"
 #include "../../dialogs/referencesdialog.h"
 #include <QMessageBox>
@@ -27,20 +27,17 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     ui->tbForward->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
     ui->tbGoto->setShortcut(QKeySequence(Qt::Key_G));
 
-    m_functionsmodel = new SymbolTableFilterModel(ui->tvFunctions);
-    m_functionsmodel->setSymbolFlags(REDasm::SymbolTypes::FunctionMask);
+    m_functionsmodel = new ListingDocumentFilterModel(REDasm::ListingItem::FunctionItem, ui->tvFunctions);
+    m_functionsmodel->setDefaultFont(true);
     ui->tvFunctions->setModel(m_functionsmodel);
 
-    m_importsmodel = new SymbolTableFilterModel(ui->tvFunctions);
-    m_importsmodel->setSymbolFlags(REDasm::SymbolTypes::ImportMask);
+    m_importsmodel = new SymbolTableFilterModel(REDasm::SymbolTypes::ImportMask, ui->tvFunctions);
     ui->tvImports->setModel(m_importsmodel);
 
-    m_exportsmodel = new SymbolTableFilterModel(ui->tvFunctions);
-    m_exportsmodel->setSymbolFlags(REDasm::SymbolTypes::ExportMask);
+    m_exportsmodel = new SymbolTableFilterModel(REDasm::SymbolTypes::ExportMask, ui->tvFunctions);
     ui->tvExports->setModel(m_exportsmodel);
 
-    m_stringsmodel = new SymbolTableFilterModel(ui->tvStrings);
-    m_stringsmodel->setSymbolFlags(REDasm::SymbolTypes::StringMask);
+    m_stringsmodel = new SymbolTableFilterModel(REDasm::SymbolTypes::StringMask, ui->tvStrings);
     ui->tvStrings->setModel(m_stringsmodel);
 
     m_segmentsmodel = new SegmentsModel(ui->tvSegments);
@@ -55,9 +52,9 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     ui->tvFunctions->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->tvFunctions->header()->moveSection(2, 1);
 
-    ui->tvReferences->setColumnHidden(0, true);
-    ui->tvReferences->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    ui->tvReferences->header()->setSectionResizeMode(2, QHeaderView::Stretch);
+    //ui->tvReferences->setColumnHidden(0, true);
+    //ui->tvReferences->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    //ui->tvReferences->header()->setSectionResizeMode(2, QHeaderView::Stretch);
 
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
@@ -217,7 +214,8 @@ void DisassemblerView::xrefSymbol(const QModelIndex &index)
     if(!index.isValid() || !index.internalPointer())
         return;
 
-    const SymbolTableFilterModel* filtermodel = static_cast<const SymbolTableFilterModel*>(index.model());
+    /*
+    const ListingDocumentFilterModel* filtermodel = static_cast<const ListingDocumentFilterModel*>(index.model());
     QModelIndex srcindex = filtermodel->mapToSource(index);
     REDasm::SymbolPtr symbol = filtermodel->symbol(srcindex);
 
@@ -230,6 +228,7 @@ void DisassemblerView::xrefSymbol(const QModelIndex &index)
     ReferencesDialog dlgreferences(m_disassembler, ui->disassemblerTextView->currentAddress(), symbol, this);
     connect(&dlgreferences, &ReferencesDialog::jumpTo, [this](address_t address) { ui->disassemblerTextView->goTo(address); });
     dlgreferences.exec();
+    */
 }
 
 void DisassemblerView::displayAddress(address_t address)
@@ -281,6 +280,7 @@ void DisassemblerView::displayReferences()
 
 void DisassemblerView::updateModel(const REDasm::SymbolPtr &symbol)
 {
+    /*
     if(!symbol)
     {
         m_functionsmodel->reloadSymbols();
@@ -297,6 +297,7 @@ void DisassemblerView::updateModel(const REDasm::SymbolPtr &symbol)
         m_importsmodel->reloadSymbols();
     else if(symbol->is(REDasm::SymbolTypes::String))
         m_stringsmodel->reloadSymbols();
+        */
 }
 
 void DisassemblerView::log(const QString &s)

@@ -1,56 +1,19 @@
 #include "symboltablefiltermodel.h"
+#include "../../redasm/disassembler/listing/listingdocument.h"
 
-SymbolTableFilterModel::SymbolTableFilterModel(QObject *parent) : QSortFilterProxyModel(parent)
+SymbolTableFilterModel::SymbolTableFilterModel(u32 symbolflags, QObject *parent) : ListingDocumentFilterModel(REDasm::ListingItem::SymbolItem, parent), m_symbolflags(symbolflags)
 {
-    this->setSourceModel(new SymbolTableModel(this));
+
 }
 
-REDasm::SymbolPtr SymbolTableFilterModel::symbol(const QModelIndex index) const
+bool SymbolTableFilterModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
 {
-    SymbolTableModel* symboltablemodel = static_cast<SymbolTableModel*>(this->sourceModel());
-    return symboltablemodel->m_symbols[index.row()];
-}
+    bool res = ListingDocumentFilterModel::filterAcceptsRow(source_row, source_parent);
 
-const QString &SymbolTableFilterModel::filterName() const
-{
-    return this->_filtername;
-}
+    if(!res)
+        return false;
 
-void SymbolTableFilterModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
-{
-    static_cast<SymbolTableModel*>(this->sourceModel())->setDisassembler(disassembler);
-}
-
-void SymbolTableFilterModel::setSymbolFlags(u32 symbolflags)
-{
-    static_cast<SymbolTableModel*>(this->sourceModel())->setSymbolFlags(symbolflags);
-}
-
-void SymbolTableFilterModel::setFilterName(const QString &name)
-{
-    this->_filtername = name;
-    this->invalidateFilter();
-}
-
-void SymbolTableFilterModel::reloadSymbols()
-{
-    this->invalidate();
-    static_cast<SymbolTableModel*>(this->sourceModel())->loadSymbols();
-}
-
-bool SymbolTableFilterModel::filterAcceptsRow(int source_row, const QModelIndex &) const
-{
-    QModelIndex index = this->sourceModel()->index(source_row, 1);
-    const REDasm::Symbol* symbol = reinterpret_cast<const REDasm::Symbol*>(index.internalPointer());
-    bool res = true;
-
-    if(!this->_filtername.isEmpty())
-    {
-        if(symbol->is(REDasm::SymbolTypes::StringMask))
-            res &= this->sourceModel()->data(index).toString().indexOf(this->_filtername, 0, Qt::CaseInsensitive) != -1;
-        else
-            res &= QString::fromStdString(symbol->name).indexOf(this->_filtername, 0, Qt::CaseInsensitive) != -1;
-    }
-
-    return res;
+    REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(this->sourceModel()->index(source_row, 0).internalPointer());
+    REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);
+    return symbol->is(m_symbolflags);
 }

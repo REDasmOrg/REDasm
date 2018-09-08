@@ -1,27 +1,20 @@
 #ifndef SYMBOLTABLEFILTERMODEL_H
 #define SYMBOLTABLEFILTERMODEL_H
 
-#include <QSortFilterProxyModel>
-#include "symboltablemodel.h"
+#include "listingdocumentfiltermodel.h"
 
-class SymbolTableFilterModel : public QSortFilterProxyModel
+class SymbolTableFilterModel : public ListingDocumentFilterModel
 {
     Q_OBJECT
 
     public:
-        explicit SymbolTableFilterModel(QObject *parent = 0);
-        REDasm::SymbolPtr symbol(const QModelIndex index) const;
-        const QString& filterName() const;
-        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
-        void setSymbolFlags(u32 symbolflags);
-        void setFilterName(const QString& name);
-        void reloadSymbols();
+        explicit SymbolTableFilterModel(u32 symbolflags, QObject *parent = nullptr);
 
     protected:
-        virtual bool filterAcceptsRow(int source_row, const QModelIndex&) const;
+        virtual bool filterAcceptsRow(int source_row, const QModelIndex&source_parent) const;
 
     private:
-        QString _filtername;
+        u32 m_symbolflags;
 };
 
 #endif // SYMBOLTABLEFILTERMODEL_H

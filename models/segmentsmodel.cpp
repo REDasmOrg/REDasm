@@ -6,25 +6,17 @@
 
 #define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 
-SegmentsModel::SegmentsModel(QObject *parent) : DisassemblerModel(parent)
+SegmentsModel::SegmentsModel(QObject *parent) : ListingDocumentModel(parent)
 {
 
 }
 
-void SegmentsModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
-{
-    this->beginResetModel();
-
-    disassembler->document()->segmentAdded(std::bind(&SegmentsModel::onSegmentAdded, this, std::placeholders::_1));
-    DisassemblerModel::setDisassembler(disassembler);
-
-    this->endResetModel();
-}
+QModelIndex SegmentsModel::index(int row, int column, const QModelIndex &) const { return this->createIndex(row, column);  }
 
 QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 {
     if(!m_disassembler)
-        return QVariant();
+        return ListingDocumentModel::data(index, role);
 
     if(role == Qt::DisplayRole)
     {
@@ -48,20 +40,15 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
             return QColor(Qt::darkRed);
 
         return QColor(Qt::darkBlue);
-
     }
-    else if(role == Qt::TextAlignmentRole)
-        return Qt::AlignCenter;
-    else if(role == Qt::FontRole && index.column() != 3)
-        return QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
-    return QVariant();
+    return DisassemblerModel::data(index, role);
 }
 
 QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(orientation == Qt::Vertical || role != Qt::DisplayRole)
-        return QVariant();
+        return ListingDocumentModel::headerData(section, orientation, role);
 
     if(section == 0)
         return "Start Address";
@@ -75,8 +62,10 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
     if(section == 3)
         return "Type";
 
-    return QVariant();
+    return ListingDocumentModel::headerData(section, orientation, role);
 }
+
+int SegmentsModel::columnCount(const QModelIndex &) const { return 4; }
 
 int SegmentsModel::rowCount(const QModelIndex &) const
 {
@@ -84,17 +73,6 @@ int SegmentsModel::rowCount(const QModelIndex &) const
         return 0;
 
     return m_disassembler->document()->segmentsCount();
-}
-
-int SegmentsModel::columnCount(const QModelIndex &) const { return 4; }
-
-void SegmentsModel::onSegmentAdded(size_t idx)
-{
-    if(!m_disassembler)
-        return;
-
-    this->beginInsertRows(QModelIndex(), idx, idx);
-    this->endInsertRows();
 }
 
 QString SegmentsModel::segmentFlags(const REDasm::Segment *segment)
@@ -111,5 +89,4 @@ QString SegmentsModel::segmentFlags(const REDasm::Segment *segment)
         ADD_SEGMENT_TYPE(s, "BSS")
 
     return s;
-
 }

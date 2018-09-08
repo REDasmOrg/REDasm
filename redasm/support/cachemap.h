@@ -17,6 +17,8 @@ namespace REDasm {
 
 template<typename T1, typename T2> class cache_map // Use STL's coding style for this type
 {
+    using io_lock = std::unique_lock<std::mutex>;
+
     private:
         typedef cache_map<T1, T2> type;
         typedef std::map<T1, offset_t> offset_map;
@@ -47,12 +49,12 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
         };
 
     public:
-        cache_map(): m_name(CACHE_DEFAULT), m_timestamp(time(NULL)) { }
+        cache_map(): m_name(CACHE_DEFAULT), m_timestamp(time(NULL)) { m_file.exceptions(std::fstream::failbit); }
         cache_map(const std::string& name): m_name(name), m_timestamp(time(NULL)) { }
         ~cache_map();
-        iterator begin() { return iterator(*this, this->m_offsets.begin()); }
-        iterator end() { return iterator(*this, this->m_offsets.end()); }
-        iterator find(const T1& key) { auto it = this->m_offsets.find(key); return iterator(*this, it); }
+        iterator begin() { return iterator(*this, m_offsets.begin()); }
+        iterator end() { return iterator(*this, m_offsets.end()); }
+        iterator find(const T1& key) { auto it = m_offsets.find(key); return iterator(*this, it); }
         void commit(const T1& key, const T2& value);
         void erase(const iterator& it);
         T2 operator[](const T1& key);
@@ -62,6 +64,7 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
         virtual void deserialize(T2& value, std::fstream& fs) = 0;
 
     private:
+        std::mutex m_mutex;
         std::string m_name;
         offset_map m_offsets;
         std::fstream m_file;
@@ -70,51 +73,52 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
 
 template<typename T1, typename T2> cache_map<T1, T2>::~cache_map()
 {
-    if(!this->m_file.is_open())
+    if(!m_file.is_open())
         return;
 
-    this->m_file.close();
+    m_file.close();
     std::remove(CACHE_FILE.c_str());
 }
 
 template<typename T1, typename T2> void cache_map<T1, T2>::commit(const T1& key, const T2 &value)
 {
-    if(!this->m_file.is_open())
+    io_lock lock(m_mutex);
+
+    if(!m_file.is_open())
     {
-        this->m_file.open(CACHE_FILE, std::ios::in | std::ios::out |
+        m_file.open(CACHE_FILE, std::ios::in | std::ios::out |
                                      std::ios::trunc | std::ios::binary);
 
     }
 
-    this->m_file.seekp(0, std::ios::end); // Ignore old key -> value reference, if any
-    this->m_offsets[key] = this->m_file.tellp();
-
-    this->serialize(value, this->m_file);
-    this->m_file.clear(); // Reset error state
+    m_file.seekp(0, std::ios::end); // Ignore old key -> value reference, if any
+    m_offsets[key] = m_file.tellp();
+    this->serialize(value, m_file);
 }
 
 template<typename T1, typename T2> void cache_map<T1, T2>::erase(const cache_map<T1, T2>::iterator &it)
 {
-    auto oit = this->m_offsets.find(it.key);
+    io_lock lock(m_mutex);
+    auto oit = m_offsets.find(it.key);
 
-    if(oit == this->m_offsets.end())
+    if(oit == m_offsets.end())
         return;
 
-    this->m_offsets.erase(oit);
+    m_offsets.erase(oit);
 }
 
 template<typename T1, typename T2> T2 cache_map<T1, T2>::operator[](const T1& key)
 {
-    auto it = this->m_offsets.find(key);
+    io_lock lock(m_mutex);
+    auto it = m_offsets.find(key);
 
-    if(it == this->m_offsets.end())
+    if(it == m_offsets.end())
         return T2();
 
     T2 value;
 
-    this->m_file.seekg(it->second, std::ios::beg);
-    this->deserialize(value, this->m_file);
-    this->m_file.clear(); // Reset error state
+    m_file.seekg(it->second, std::ios::beg);
+    this->deserialize(value, m_file);
     return value;
 }
 

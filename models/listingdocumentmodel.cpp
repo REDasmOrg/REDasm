@@ -1,6 +1,5 @@
 #include "listingdocumentmodel.h"
 #include "../../redasm/plugins/format.h"
-#include <QFontDatabase>
 #include <QColor>
 
 ListingDocumentModel::ListingDocumentModel(QObject *parent) : DisassemblerModel(parent)
@@ -10,15 +9,11 @@ ListingDocumentModel::ListingDocumentModel(QObject *parent) : DisassemblerModel(
 
 void ListingDocumentModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
+    this->beginResetModel();
+
     DisassemblerModel::setDisassembler(disassembler);
     m_disassembler->document()->whenChanged(std::bind(&ListingDocumentModel::onListingChanged, this, std::placeholders::_1));
-}
 
-void ListingDocumentModel::onListingChanged(REDasm::ListingDocumentChanged *ldc)
-{
-    Q_UNUSED(ldc)
-
-    this->beginResetModel();
     this->endResetModel();
 }
 
@@ -52,7 +47,7 @@ QVariant ListingDocumentModel::data(const QModelIndex &index, int role) const
 {
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
 
-    if(!item->is(REDasm::ListingItem::FunctionItem) && !item->is(REDasm::ListingItem::SymbolItem))
+    if(!item || (!item->is(REDasm::ListingItem::FunctionItem) && !item->is(REDasm::ListingItem::SymbolItem)))
         return DisassemblerModel::data(index, role);
 
     REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);
@@ -114,3 +109,17 @@ int ListingDocumentModel::rowCount(const QModelIndex&) const
 
     return m_disassembler->document()->size();
 }
+
+void ListingDocumentModel::onListingChanged(const REDasm::ListingDocumentChanged *ldc)
+{
+    if(ldc->removed)
+    {
+        this->beginRemoveRows(QModelIndex(), ldc->index, ldc->index);
+        this->endRemoveRows();
+        return;
+    }
+
+    this->beginInsertRows(QModelIndex(), ldc->index, ldc->index);
+    this->endInsertRows();
+}
+

@@ -31,7 +31,9 @@ typedef std::unique_ptr<ListingItem> ListingItemPtr;
 
 struct ListingDocumentChanged
 {
-    ListingDocumentChanged(int index, bool removed): index(index), removed(removed) { }
+    ListingDocumentChanged(ListingItem* item, int index, bool removed): item(item), index(index), removed(removed) { }
+
+    ListingItem* item;
 
     int index;
     bool removed;
@@ -40,7 +42,7 @@ struct ListingDocumentChanged
 class ListingDocument: public std::vector<ListingItemPtr>
 {
     private:
-        typedef std::function<void(ListingDocumentChanged*)> ChangedCallback;
+        typedef std::function<void(const ListingDocumentChanged*)> ChangedCallback;
         typedef std::function<void(int)> SegmentCallback;
 
     public:

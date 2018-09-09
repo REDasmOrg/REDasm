@@ -11,12 +11,10 @@ SegmentsModel::SegmentsModel(QObject *parent) : ListingDocumentModel(parent)
 
 }
 
-QModelIndex SegmentsModel::index(int row, int column, const QModelIndex &) const { return this->createIndex(row, column);  }
-
 QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 {
     if(!m_disassembler)
-        return ListingDocumentModel::data(index, role);
+        return DisassemblerModel::data(index, role);
 
     if(role == Qt::DisplayRole)
     {
@@ -28,7 +26,7 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
         else if(index.column() == 1)
             return S_TO_QS(REDasm::hex(segment->endaddress, format->bits()));
         else if(index.column() == 2)
-            return QString::fromStdString(segment->name);
+            return S_TO_QS(segment->name);
         else if(index.column() == 3)
             return SegmentsModel::segmentFlags(segment);
     }
@@ -73,6 +71,15 @@ int SegmentsModel::rowCount(const QModelIndex &) const
         return 0;
 
     return m_disassembler->document()->segmentsCount();
+}
+
+void SegmentsModel::onListingChanged(const REDasm::ListingDocumentChanged *ldc)
+{
+    if(!ldc->item->is(REDasm::ListingItem::SegmentItem))
+        return;
+
+    this->beginResetModel();
+    this->endResetModel();
 }
 
 QString SegmentsModel::segmentFlags(const REDasm::Segment *segment)

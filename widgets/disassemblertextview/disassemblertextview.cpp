@@ -125,7 +125,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         this->rename(m_symboladdress);
 }
 
-void DisassemblerTextView::onDocumentChanged(REDasm::ListingDocumentChanged *ldc)
+void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
     vscrollbar->setMaximum(m_disassembler->document()->size());

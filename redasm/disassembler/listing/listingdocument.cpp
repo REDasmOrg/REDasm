@@ -145,9 +145,8 @@ void ListingDocument::pushSorted(address_t address, u32 type)
         return b1->address < b2->address;
     });
 
-    it = this->insert(it, std::move(itemptr));
-
-    ListingDocumentChanged ldc(std::distance(this->begin(), it), false);
+    ListingDocumentChanged ldc(itemptr.get(), std::distance(this->begin(), it), false);
+    this->insert(it, std::move(itemptr));
     this->notify<ChangedCallback>(m_changedcb, &ldc);
 }
 
@@ -158,8 +157,8 @@ void ListingDocument::removeSorted(address_t address, u32 type)
     if(it == this->end())
         return;
 
-    it = this->erase(it);
-    ListingDocumentChanged ldc(std::distance(this->begin(), it), true);
+    ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), true);
+    this->erase(it);
     this->notify<ChangedCallback>(m_changedcb, &ldc);
 }
 

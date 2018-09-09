@@ -126,7 +126,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     m_exportsmodel->setDisassembler(disassembler);
     m_stringsmodel->setDisassembler(disassembler);
     m_segmentsmodel->setDisassembler(disassembler);
-    m_referencesmodel->setDisassembler(disassembler);
+    //m_referencesmodel->setDisassembler(disassembler);
 
     ui->hexEdit->setDocument(m_hexdocument);
     ui->bottomTabs->setCurrentWidget(ui->tabOutput);

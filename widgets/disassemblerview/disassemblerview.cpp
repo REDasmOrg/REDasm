@@ -27,20 +27,20 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     ui->tbForward->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
     ui->tbGoto->setShortcut(QKeySequence(Qt::Key_G));
 
-    m_functionsmodel = new ListingDocumentFilterModel(REDasm::ListingItem::FunctionItem, ui->tvFunctions);
-    m_functionsmodel->setDefaultFont(true);
+    m_functionsmodel = ListingFilterModel::createFilter<ListingItemModel>(REDasm::ListingItem::FunctionItem, ui->tvFunctions);
+    static_cast<ListingItemModel*>(m_functionsmodel->sourceModel())->setDefaultFont(true);
     ui->tvFunctions->setModel(m_functionsmodel);
 
-    m_importsmodel = new SymbolTableFilterModel(REDasm::SymbolTypes::ImportMask, ui->tvFunctions);
+    m_importsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::SymbolTypes::ImportMask, ui->tvFunctions);
     ui->tvImports->setModel(m_importsmodel);
 
-    m_exportsmodel = new SymbolTableFilterModel(REDasm::SymbolTypes::ExportMask, ui->tvFunctions);
+    m_exportsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::SymbolTypes::ExportMask, ui->tvFunctions);
     ui->tvExports->setModel(m_exportsmodel);
 
-    m_stringsmodel = new SymbolTableFilterModel(REDasm::SymbolTypes::StringMask, ui->tvStrings);
+    m_stringsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::SymbolTypes::StringMask, ui->tvStrings);
     ui->tvStrings->setModel(m_stringsmodel);
 
-    m_segmentsmodel = new SegmentsModel(ui->tvSegments);
+    m_segmentsmodel = ListingFilterModel::createFilter<SegmentsModel>(ui->tvSegments);
     ui->tvSegments->setModel(m_segmentsmodel);
 
     m_referencesmodel = new ReferencesModel(ui->tvReferences);
@@ -165,12 +165,14 @@ void DisassemblerView::on_bottomTabs_currentChanged(int index)
         return;
     }
 
+    /*
     if(w == ui->tabImports)
         ui->leFilter->setText(m_importsmodel->filterName());
     else if(w == ui->tabExports)
         ui->leFilter->setText(m_exportsmodel->filterName());
     else if(w == ui->tabStrings)
         ui->leFilter->setText(m_stringsmodel->filterName());
+    */
 
     ui->leFilter->setEnabled(true);
 }
@@ -312,7 +314,7 @@ void DisassemblerView::filterFunctions()
     if(s.length() == 1)
         return;
 
-    m_functionsmodel->setFilterName(s);
+    //FIXME: m_functionsmodel->setFilterName(s);
 }
 
 void DisassemblerView::filterSymbols()
@@ -324,12 +326,14 @@ void DisassemblerView::filterSymbols()
 
     QWidget* w = ui->bottomTabs->currentWidget();
 
+    /*
     if(w == ui->tabImports)
         m_importsmodel->setFilterName(s);
     else if(w == ui->tabExports)
         m_exportsmodel->setFilterName(s);
     else if(w == ui->tabStrings)
         m_stringsmodel->setFilterName(s);
+    */
 }
 
 void DisassemblerView::showListing()

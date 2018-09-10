@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include "../redasm/disassembler/disassembler.h"
-#include "../models/listingdocumentfiltermodel.h"
 
 namespace Ui {
 class GotoDialog;
@@ -28,7 +27,7 @@ class GotoDialog : public QDialog
     private:
         Ui::GotoDialog *ui;
         REDasm::Disassembler* _disassembler;
-        ListingDocumentFilterModel* _functionsmodel;
+        //ListingDocumentFilterModel* _functionsmodel;
         address_t _address;
 };
 

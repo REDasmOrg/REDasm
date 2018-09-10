@@ -29,6 +29,73 @@ struct ListingItem
 
 typedef std::unique_ptr<ListingItem> ListingItemPtr;
 
+namespace Listing {
+    template<typename T> struct ListingComparator {
+        bool operator()(const T& t1, const T& t2) {
+            if(t1->address == t2->address)
+                return t1->type < t2->type;
+
+            return t1->address < t2->address;
+        }
+    };
+
+    template<typename T, typename V> typename T::iterator insertionPoint(T* container, const V& val) {
+        return std::lower_bound(container->begin(), container->end(), val, ListingComparator<V>());
+    }
+
+    template<typename T> typename T::iterator _adjustSearch(T* container, typename T::iterator it, u32 type) {
+        int offset = type - (*it)->type;
+        address_t searchaddress = (*it)->address;
+
+        while(searchaddress == (*it)->address)
+        {
+            if(it == container->end())
+                break;
+
+            if((*it)->type == type)
+                return it;
+
+            if((offset < 0) && (it == container->begin()))
+                break;
+
+            offset > 0 ? it++ : it--;
+        }
+
+        return container->end();
+    }
+
+    template<typename T> typename T::iterator binarySearch(T* container, address_t address, u32 type) {
+        auto thebegin = container->begin(), theend = container->end();
+
+        while(thebegin <= theend)
+        {
+            auto range = std::distance(thebegin, theend);
+            auto themiddle = thebegin;
+            std::advance(themiddle, range / 2);
+
+            if((*themiddle)->address == address)
+                return Listing::_adjustSearch(container, themiddle, type);
+
+            if((*themiddle)->address > address)
+            {
+                theend = themiddle;
+                std::advance(theend, -1);
+            }
+            else if((*themiddle)->address < address)
+            {
+                thebegin = themiddle;
+                std::advance(thebegin, 1);
+            }
+        }
+
+        return container->end();
+    }
+
+    template<typename T> typename T::iterator binarySearch(T* container, ListingItem* item) {
+        return Listing::binarySearch(container, item->address, item->type);
+    }
+}
+
 struct ListingDocumentChanged
 {
     ListingDocumentChanged(ListingItem* item, int index, bool removed): item(item), index(index), removed(removed) { }
@@ -39,11 +106,20 @@ struct ListingDocumentChanged
     bool removed;
 };
 
-class ListingDocument: public std::vector<ListingItemPtr>
+class ListingDocument: protected std::vector<ListingItemPtr>
 {
+    using document_lock = std::unique_lock<std::mutex>;
+
     private:
         typedef std::function<void(const ListingDocumentChanged*)> ChangedCallback;
         typedef std::function<void(int)> SegmentCallback;
+
+    public:
+        using std::vector<ListingItemPtr>::const_iterator;
+        using std::vector<ListingItemPtr>::iterator;
+        using std::vector<ListingItemPtr>::begin;
+        using std::vector<ListingItemPtr>::end;
+        using std::vector<ListingItemPtr>::size;
 
     public:
         ListingDocument();
@@ -81,12 +157,11 @@ class ListingDocument: public std::vector<ListingItemPtr>
     private:
         void pushSorted(address_t address, u32 type);
         void removeSorted(address_t address, u32 type);
-        ListingDocument::iterator adjustSearch(ListingDocument::iterator it, u32 type);
-        ListingDocument::iterator binarySearch(address_t address, u32 type);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
         template<typename T, typename... ARGS> void notify(const std::list<T>& handler, ARGS... args);
 
     private:
+        std::mutex m_mutex;
         SegmentList m_segments;
         InstructionPool m_instructions;
         SymbolTable m_symboltable;

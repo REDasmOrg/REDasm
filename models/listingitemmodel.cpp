@@ -1,29 +1,40 @@
-#include "listingdocumentmodel.h"
+#include "listingitemmodel.h"
+#include "../../redasm/disassembler/listing/listingdocument.h"
 #include "../../redasm/plugins/format.h"
 #include <QColor>
 
-ListingDocumentModel::ListingDocumentModel(QObject *parent) : DisassemblerModel(parent)
-{
+ListingItemModel::ListingItemModel(u32 itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
 
-}
-
-void ListingDocumentModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
+void ListingItemModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
+    DisassemblerModel::setDisassembler(disassembler);
+    REDasm::ListingDocument* doc = m_disassembler->document();
+
     this->beginResetModel();
 
-    DisassemblerModel::setDisassembler(disassembler);
-    m_disassembler->document()->whenChanged(std::bind(&ListingDocumentModel::onListingChanged, this, std::placeholders::_1));
+    for(auto it = doc->begin(); it != doc->end(); it++)
+    {
+        if(!this->isItemAllowed(it->get()))
+            continue;
+
+        auto itip = REDasm::Listing::insertionPoint(&m_items, it->get());
+        m_items.insert(itip, it->get());
+    }
 
     this->endResetModel();
+    doc->whenChanged(std::bind(&ListingItemModel::onListingChanged, this, std::placeholders::_1));
 }
 
-QModelIndex ListingDocumentModel::index(int row, int column, const QModelIndex &) const
+QModelIndex ListingItemModel::index(int row, int column, const QModelIndex &parent) const
 {
-    REDasm::ListingItem* item = m_disassembler->document()->itemAt(row);
-    return this->createIndex(row, column, item);
+    Q_UNUSED(parent)
+    return this->createIndex(row, column, m_items[row]);
 }
 
-QVariant ListingDocumentModel::headerData(int section, Qt::Orientation orientation, int role) const
+int ListingItemModel::rowCount(const QModelIndex &) const { return m_items.count(); }
+int ListingItemModel::columnCount(const QModelIndex &) const { return 4; }
+
+QVariant ListingItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(orientation == Qt::Vertical)
         return QVariant();
@@ -43,13 +54,9 @@ QVariant ListingDocumentModel::headerData(int section, Qt::Orientation orientati
     return DisassemblerModel::headerData(section, orientation, role);
 }
 
-QVariant ListingDocumentModel::data(const QModelIndex &index, int role) const
+QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 {
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
-
-    if(!item || (!item->is(REDasm::ListingItem::FunctionItem) && !item->is(REDasm::ListingItem::SymbolItem)))
-        return DisassemblerModel::data(index, role);
-
     REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);
 
     if(!symbol)
@@ -100,26 +107,24 @@ QVariant ListingDocumentModel::data(const QModelIndex &index, int role) const
     return DisassemblerModel::data(index, role);
 }
 
-int ListingDocumentModel::columnCount(const QModelIndex &) const { return 4; }
+bool ListingItemModel::isItemAllowed(REDasm::ListingItem *item) const { return m_itemtype == item->type; }
 
-int ListingDocumentModel::rowCount(const QModelIndex&) const
+void ListingItemModel::onListingChanged(const REDasm::ListingDocumentChanged *ldc)
 {
-    if(!m_disassembler)
-        return 0;
+    if(!this->isItemAllowed(ldc->item))
+        return;
 
-    return m_disassembler->document()->size();
-}
-
-void ListingDocumentModel::onListingChanged(const REDasm::ListingDocumentChanged *ldc)
-{
     if(ldc->removed)
     {
         this->beginRemoveRows(QModelIndex(), ldc->index, ldc->index);
+        auto it = REDasm::Listing::binarySearch(&m_items, ldc->item);
+        m_items.erase(it);
         this->endRemoveRows();
         return;
     }
 
     this->beginInsertRows(QModelIndex(), ldc->index, ldc->index);
+    auto it = REDasm::Listing::insertionPoint(&m_items, ldc->item);
+    m_items.insert(it, ldc->item);
     this->endInsertRows();
 }
-

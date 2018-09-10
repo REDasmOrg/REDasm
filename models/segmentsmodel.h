@@ -1,9 +1,9 @@
 #ifndef SEGMENTSMODEL_H
 #define SEGMENTSMODEL_H
 
-#include "listingdocumentmodel.h"
+#include "listingitemmodel.h"
 
-class SegmentsModel : public ListingDocumentModel
+class SegmentsModel : public ListingItemModel
 {
     Q_OBJECT
 
@@ -15,9 +15,6 @@ class SegmentsModel : public ListingDocumentModel
         virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
         virtual int columnCount(const QModelIndex&) const;
         virtual int rowCount(const QModelIndex&) const;
-
-    protected:
-        virtual void onListingChanged(const REDasm::ListingDocumentChanged* ldc);
 
     private:
         static QString segmentFlags(const REDasm::Segment* segment);

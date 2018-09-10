@@ -1,12 +1,10 @@
 #include "segmentsmodel.h"
-#include "../../redasm/disassembler/listing/listingdocument.h"
 #include "../../redasm/plugins/format.h"
-#include <QFontDatabase>
 #include <QColor>
 
 #define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 
-SegmentsModel::SegmentsModel(QObject *parent) : ListingDocumentModel(parent)
+SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(REDasm::ListingItem::SegmentItem, parent)
 {
 
 }
@@ -46,7 +44,7 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(orientation == Qt::Vertical || role != Qt::DisplayRole)
-        return ListingDocumentModel::headerData(section, orientation, role);
+        return ListingItemModel::headerData(section, orientation, role);
 
     if(section == 0)
         return "Start Address";
@@ -60,7 +58,7 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
     if(section == 3)
         return "Type";
 
-    return ListingDocumentModel::headerData(section, orientation, role);
+    return ListingItemModel::headerData(section, orientation, role);
 }
 
 int SegmentsModel::columnCount(const QModelIndex &) const { return 4; }
@@ -71,15 +69,6 @@ int SegmentsModel::rowCount(const QModelIndex &) const
         return 0;
 
     return m_disassembler->document()->segmentsCount();
-}
-
-void SegmentsModel::onListingChanged(const REDasm::ListingDocumentChanged *ldc)
-{
-    if(!ldc->item->is(REDasm::ListingItem::SegmentItem))
-        return;
-
-    this->beginResetModel();
-    this->endResetModel();
 }
 
 QString SegmentsModel::segmentFlags(const REDasm::Segment *segment)

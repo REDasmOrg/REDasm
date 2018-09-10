@@ -137,9 +137,9 @@ SOURCES += main.cpp\
     redasm/disassembler/listing/listingrenderer.cpp \
     widgets/disassemblertextview/listingtextrenderer.cpp \
     redasm/support/timer.cpp \
-    models/listingdocumentmodel.cpp \
-    models/listingdocumentfiltermodel.cpp \
-    models/symboltablefiltermodel.cpp
+    models/listingitemmodel.cpp \
+    models/symboltablemodel.cpp \
+    models/listingfiltermodel.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -267,9 +267,9 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/listing/listingrenderer.h \
     widgets/disassemblertextview/listingtextrenderer.h \
     redasm/support/timer.h \
-    models/listingdocumentmodel.h \
-    models/listingdocumentfiltermodel.h \
-    models/symboltablefiltermodel.h
+    models/listingitemmodel.h \
+    models/symboltablemodel.h \
+    models/listingfiltermodel.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

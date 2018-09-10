@@ -128,88 +128,44 @@ InstructionPtr ListingDocument::instruction(address_t address)
     return InstructionPtr();
 }
 
-ListingDocument::iterator ListingDocument::item(address_t address, u32 type) { return this->binarySearch(address, type); }
-ListingItem* ListingDocument::itemAt(size_t i) { return this->at(i).get(); }
+ListingDocument::iterator ListingDocument::item(address_t address, u32 type)
+{
+    document_lock lock(m_mutex);
+    return Listing::binarySearch(this, address, type);
+}
+
+ListingItem* ListingDocument::itemAt(size_t i)
+{
+    document_lock lock(m_mutex);
+    return this->at(i).get();
+}
+
 SymbolPtr ListingDocument::symbol(address_t address) { return m_symboltable.symbol(address); }
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
 FormatPlugin *ListingDocument::format() { return m_format; }
 
 void ListingDocument::pushSorted(address_t address, u32 type)
 {
+    document_lock lock(m_mutex);
     ListingItemPtr itemptr = std::make_unique<ListingItem>(address, type);
 
-    auto it = std::lower_bound(this->begin(), this->end(), itemptr, [](const ListingItemPtr& b1, const ListingItemPtr& b2) -> bool {
-        if(b1->address == b2->address)
-            return b1->type < b2->type;
-
-        return b1->address < b2->address;
-    });
-
-    ListingDocumentChanged ldc(itemptr.get(), std::distance(this->begin(), it), false);
-    this->insert(it, std::move(itemptr));
+    auto it = Listing::insertionPoint(this, itemptr);
+    it = this->insert(it, std::move(itemptr));
+    ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), false);
     this->notify<ChangedCallback>(m_changedcb, &ldc);
 }
 
 void ListingDocument::removeSorted(address_t address, u32 type)
 {
-    auto it = this->binarySearch(address, type);
+    document_lock lock(m_mutex);
+    auto it = Listing::binarySearch(this, address, type);
 
     if(it == this->end())
         return;
 
     ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), true);
-    this->erase(it);
     this->notify<ChangedCallback>(m_changedcb, &ldc);
-}
-
-ListingDocument::iterator ListingDocument::adjustSearch(ListingDocument::iterator it, u32 type)
-{
-    int offset = type - (*it)->type;
-    address_t searchaddress = (*it)->address;
-
-    while(searchaddress == (*it)->address)
-    {
-        if(it == this->end())
-            break;
-
-        if((*it)->type == type)
-            return it;
-
-        if((offset < 0) && (it == this->begin()))
-            break;
-
-        offset > 0 ? it++ : it--;
-    }
-
-    return this->end();
-}
-
-ListingDocument::iterator ListingDocument::binarySearch(address_t address, u32 type)
-{
-    auto thebegin = this->begin(), theend = this->end();
-
-    while(thebegin <= theend)
-    {
-        auto range = std::distance(thebegin, theend);
-        auto themiddle = thebegin;
-        std::advance(themiddle, range / 2);
-
-        if((*themiddle)->address == address)
-            return this->adjustSearch(themiddle, type);
-
-        if((*themiddle)->address > address)
-        {
-            theend = themiddle;
-            std::advance(theend, -1);
-        }
-        else if((*themiddle)->address < address)
-        {
-            thebegin = themiddle;
-            std::advance(thebegin, 1);
-        }
-    }
-
-    return this->end();
+    this->erase(it);
 }
 
 std::string ListingDocument::symbolName(const std::string &prefix, address_t address, const Segment *segment)

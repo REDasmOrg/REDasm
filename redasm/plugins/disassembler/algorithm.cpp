@@ -42,7 +42,6 @@ void DisassemblerAlgorithm::onDisassembled(const InstructionPtr &instruction, u3
 
 void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
 {
-    FormatPlugin* formatplugin = m_disassembler->format();
     ListingDocument* document = m_disassembler->document();
 
     for(const Operand& op : instruction->operands)

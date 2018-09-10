@@ -5,8 +5,8 @@
 #include <QLabel>
 #include <QMenu>
 #include <qhexedit.h>
-#include "../../models/listingdocumentfiltermodel.h"
-#include "../../models/symboltablefiltermodel.h"
+#include "../../models/listingfiltermodel.h"
+#include "../../models/symboltablemodel.h"
 #include "../../models/referencesmodel.h"
 #include "../../models/segmentsmodel.h"
 #include "../../dialogs/gotodialog.h"
@@ -57,9 +57,7 @@ class DisassemblerView : public QWidget
         QMenu* m_contextmenu;
         QLabel* m_lblstatus;
         REDasm::Disassembler* m_disassembler;
-        SegmentsModel* m_segmentsmodel;
-        ListingDocumentFilterModel* m_functionsmodel;
-        SymbolTableFilterModel *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
+        ListingFilterModel *m_segmentsmodel, *m_functionsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
         ReferencesModel* m_referencesmodel;
 };
 

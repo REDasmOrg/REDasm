@@ -9,7 +9,7 @@ GotoDialog::GotoDialog(REDasm::Disassembler *disassembler, QWidget *parent) : QD
     //this->_functionsmodel->setSymbolFlags(REDasm::SymbolTypes::FunctionMask);
     //this->_functionsmodel->setDisassembler(disassembler);
 
-    ui->tvFunctions->setModel(this->_functionsmodel);
+    //ui->tvFunctions->setModel(this->_functionsmodel);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 
@@ -32,6 +32,7 @@ GotoDialog::~GotoDialog()
 
 void GotoDialog::validateEntry()
 {
+    /*
     bool ok = false;
     QString s = ui->leAddress->text();
 
@@ -46,4 +47,5 @@ void GotoDialog::validateEntry()
     ui->pbGoto->setEnabled(ok);
 
     this->_functionsmodel->setFilterName(s);
+    */
 }

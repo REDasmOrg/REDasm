@@ -52,9 +52,9 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     ui->tvFunctions->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->tvFunctions->header()->moveSection(2, 1);
 
-    //ui->tvReferences->setColumnHidden(0, true);
-    //ui->tvReferences->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    //ui->tvReferences->header()->setSectionResizeMode(2, QHeaderView::Stretch);
+    ui->tvReferences->setColumnHidden(0, true);
+    ui->tvReferences->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    ui->tvReferences->header()->setSectionResizeMode(2, QHeaderView::Stretch);
 
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);

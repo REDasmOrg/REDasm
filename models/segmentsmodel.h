@@ -14,7 +14,6 @@ class SegmentsModel : public ListingItemModel
         virtual QVariant data(const QModelIndex &index, int role) const;
         virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
         virtual int columnCount(const QModelIndex&) const;
-        virtual int rowCount(const QModelIndex&) const;
 
     private:
         static QString segmentFlags(const REDasm::Segment* segment);

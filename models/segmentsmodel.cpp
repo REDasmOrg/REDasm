@@ -63,14 +63,6 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
 
 int SegmentsModel::columnCount(const QModelIndex &) const { return 4; }
 
-int SegmentsModel::rowCount(const QModelIndex &) const
-{
-    if(!m_disassembler)
-        return 0;
-
-    return m_disassembler->document()->segmentsCount();
-}
-
 QString SegmentsModel::segmentFlags(const REDasm::Segment *segment)
 {
     QString s;

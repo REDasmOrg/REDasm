@@ -28,6 +28,10 @@ void ListingItemModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 QModelIndex ListingItemModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
+
+    if((row < 0) || (row > m_items.count()))
+        return QModelIndex();
+
     return this->createIndex(row, column, m_items[row]);
 }
 
@@ -56,6 +60,9 @@ QVariant ListingItemModel::headerData(int section, Qt::Orientation orientation, 
 
 QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 {
+    if(!index.isValid())
+        return QVariant();
+
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
     REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);
 

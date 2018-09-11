@@ -1,6 +1,7 @@
 #ifndef LISTINGDOCUMENT_H
 #define LISTINGDOCUMENT_H
 
+#include <type_traits>
 #include <vector>
 #include <list>
 #include "../../redasm.h"
@@ -39,11 +40,15 @@ namespace Listing {
         }
     };
 
-    template<typename T, typename V> typename T::iterator insertionPoint(T* container, const V& val) {
+    template<typename T> struct ListingIterator {
+        typedef typename std::conditional<std::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type Type;
+    };
+
+    template<typename T, typename V, typename IT = typename ListingIterator<T>::Type> typename T::iterator insertionPoint(T* container, const V& val) {
         return std::lower_bound(container->begin(), container->end(), val, ListingComparator<V>());
     }
 
-    template<typename T> typename T::iterator _adjustSearch(T* container, typename T::iterator it, u32 type) {
+    template<typename T, typename IT = typename ListingIterator<T>::Type> IT _adjustSearch(T* container, IT it, u32 type) {
         int offset = type - (*it)->type;
         address_t searchaddress = (*it)->address;
 
@@ -64,7 +69,7 @@ namespace Listing {
         return container->end();
     }
 
-    template<typename T> typename T::iterator binarySearch(T* container, address_t address, u32 type) {
+    template<typename T, typename IT = typename ListingIterator<T>::Type> IT binarySearch(T* container, address_t address, u32 type) {
         auto thebegin = container->begin(), theend = container->end();
 
         while(thebegin <= theend)
@@ -91,8 +96,17 @@ namespace Listing {
         return container->end();
     }
 
-    template<typename T> typename T::iterator binarySearch(T* container, ListingItem* item) {
+    template<typename T, typename IT = typename ListingIterator<T>::Type> IT binarySearch(T* container, ListingItem* item) {
         return Listing::binarySearch(container, item->address, item->type);
+    }
+
+    template<typename T, typename IT = typename ListingIterator<T>::Type> int indexOf(T* container, ListingItem* item) {
+        auto it = Listing::binarySearch(container, item);
+
+        if(it == container->end())
+            return -1;
+
+        return std::distance(container->begin(), it);
     }
 }
 

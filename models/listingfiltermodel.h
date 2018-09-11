@@ -4,7 +4,7 @@
 #include <QSortFilterProxyModel>
 #include "listingitemmodel.h"
 
-class ListingFilterModel : public QSortFilterProxyModel
+class ListingFilterModel : public QIdentityProxyModel
 {
     Q_OBJECT
 
@@ -14,14 +14,21 @@ class ListingFilterModel : public QSortFilterProxyModel
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
         void setFilter(const QString& filter);
 
-    protected:
-        virtual bool filterAcceptsRow(int source_row, const QModelIndex&) const;
+    public:
+        virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
+        virtual QModelIndex index(int row, int column, const QModelIndex& = QModelIndex()) const;
+        virtual QModelIndex mapFromSource(const QModelIndex& sourceindex) const;
+        virtual QModelIndex mapToSource(const QModelIndex& proxyindex) const;
+
+    private:
+        void updateFiltering();
 
     public:
         template<typename T> static ListingFilterModel* createFilter(QObject* parent);
         template<typename T> static ListingFilterModel* createFilter(u32 filter, QObject* parent);
 
     private:
+        QVector<REDasm::ListingItem*> m_items;
         QString m_filterstring;
 };
 

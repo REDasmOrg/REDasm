@@ -97,10 +97,8 @@ void ListingRenderer::renderInstruction(ListingItem *item, RendererFormat *rf)
     if(rf->x > m_commentcolumn)
         m_commentcolumn = rf->x;
 
-    if(instruction->comments.empty())
-        return;
-
-    this->renderComments(instruction, rf);
+    if(!instruction->comments.empty())
+        this->renderComments(instruction, rf);
 }
 
 void ListingRenderer::renderSymbol(ListingItem *item, RendererFormat *rf)
@@ -121,7 +119,7 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererFormat *rf)
         rf->style = "label_fg";
         rf->text = symbol->name;
         this->renderText(rf);
-        rf->x += this->measureString(rf->text) + rf->fontwidth;
+        this->moveX(rf, 1);
 
         if(symbol->is(SymbolTypes::Data))
             rf->style = "data_fg";
@@ -160,7 +158,7 @@ void ListingRenderer::renderAddress(ListingItem *item, RendererFormat *rf)
     rf->text = (segment ? segment->name : "unk") + ":" + HEX_ADDRESS(item->address);
 
     this->renderText(rf);
-    rf->x += this->measureString(rf->text);
+    this->moveX(rf);
     this->renderIndent(rf);
 }
 
@@ -184,7 +182,7 @@ void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, Renderer
 
     rf->text = instruction->mnemonic + " ";
     this->renderText(rf);
-    rf->x += this->measureString(rf->text);
+    this->moveX(rf);
 }
 
 void ListingRenderer::renderOperands(const InstructionPtr &instruction, RendererFormat *rf)
@@ -216,7 +214,7 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
 
         rf->text += opstr;
         this->renderText(rf);
-        rf->x += this->measureString(rf->text);
+        this->moveX(rf);
     });
 }
 
@@ -242,7 +240,7 @@ void ListingRenderer::renderAddressIndent(ListingItem* item, RendererFormat *rf)
     rf->text = std::string(count + INDENT_WIDTH, ' ');
 
     this->renderText(rf);
-    rf->x += this->measureString(rf->text);
+    this->moveX(rf);
 }
 
 void ListingRenderer::renderIndent(RendererFormat* rf, int n)
@@ -251,8 +249,10 @@ void ListingRenderer::renderIndent(RendererFormat* rf, int n)
     rf->text = std::string(n * INDENT_WIDTH, ' ');
 
     this->renderText(rf);
-    rf->x += this->measureString(rf->text);
+    this->moveX(rf);
 }
+
+void ListingRenderer::moveX(RendererFormat *rf, size_t extra) const { rf->x += this->measureString(rf->text) + (rf->fontwidth * extra); }
 
 std::string ListingRenderer::commentString(const InstructionPtr &instruction)
 {

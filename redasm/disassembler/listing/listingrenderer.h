@@ -39,6 +39,7 @@ class ListingRenderer
         void renderIndent(RendererFormat *rf, int n = 1);
 
     private:
+        void moveX(RendererFormat* rf, size_t extra = 0) const;
         static std::string commentString(const InstructionPtr& instruction);
 
     private:

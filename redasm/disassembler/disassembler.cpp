@@ -359,14 +359,14 @@ void Disassembler::disassemble()
     SymbolTable* symboltable = m_document->symbols();
     SymbolPtr entrypoint = symboltable->entryPoint();
 
-    if(entrypoint)
-        m_algorithm->push(entrypoint->address); // Push entry point
-
     // Preload format functions for analysis
     symboltable->iterate(SymbolTypes::FunctionMask, [=](SymbolPtr symbol) -> bool {
         m_algorithm->push(symbol->address);
         return true;
     });
+
+    if(entrypoint)
+        m_algorithm->push(entrypoint->address); // Push entry point
 
     DO_TICK_DISASSEMBLY();
 

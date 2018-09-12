@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_disassembler(disassembler), m_commentcolumn(0)
+ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_disassembler(disassembler), m_commentxpos(0)
 {
     m_document = disassembler->document();
     m_printer = PrinterPtr(disassembler->assembler()->createPrinter(disassembler));
@@ -94,8 +94,8 @@ void ListingRenderer::renderInstruction(ListingItem *item, RendererFormat *rf)
     this->renderMnemonic(instruction, rf);
     this->renderOperands(instruction, rf);
 
-    if(rf->x > m_commentcolumn)
-        m_commentcolumn = rf->x;
+    if(rf->x > m_commentxpos)
+        m_commentxpos = rf->x;
 
     if(!instruction->comments.empty())
         this->renderComments(instruction, rf);
@@ -220,7 +220,7 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
 
 void ListingRenderer::renderComments(const InstructionPtr &instruction, RendererFormat *rf)
 {
-    rf->x = (m_commentcolumn + INDENT_WIDTH) * rf->fontwidth;
+    rf->x = m_commentxpos + (INDENT_WIDTH * rf->fontwidth);
     rf->style = "comment_fg";
     rf->text = ListingRenderer::commentString(instruction);
     this->renderText(rf);
@@ -254,6 +254,31 @@ void ListingRenderer::renderIndent(RendererFormat* rf, int n)
 
 void ListingRenderer::moveX(RendererFormat *rf, size_t extra) const { rf->x += this->measureString(rf->text) + (rf->fontwidth * extra); }
 
+std::string ListingRenderer::escapeString(const std::string &s)
+{
+    std::string res;
+
+    for(size_t i = 0; i < s.size(); i++)
+    {
+        switch(s[i])
+        {
+            case '\n':
+                res += "\\\n";
+                break;
+
+            case '\r':
+                res += "\\\r";
+                break;
+
+            default:
+                res += s[i];
+                break;
+        }
+    }
+
+    return res;
+}
+
 std::string ListingRenderer::commentString(const InstructionPtr &instruction)
 {
     std::stringstream ss;
@@ -267,7 +292,7 @@ std::string ListingRenderer::commentString(const InstructionPtr &instruction)
         ss << s;
     }
 
-    return ss.str();
+    return ListingRenderer::escapeString(ss.str());
 }
 
 } // namespace REDasm

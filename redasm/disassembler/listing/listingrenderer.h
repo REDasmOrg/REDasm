@@ -40,13 +40,14 @@ class ListingRenderer
 
     private:
         void moveX(RendererFormat* rf, size_t extra = 0) const;
+        static std::string escapeString(const std::string& s);
         static std::string commentString(const InstructionPtr& instruction);
 
     private:
         DisassemblerAPI* m_disassembler;
         ListingDocument* m_document;
         PrinterPtr m_printer;
-        double m_commentcolumn;
+        double m_commentxpos;
 
 };
 

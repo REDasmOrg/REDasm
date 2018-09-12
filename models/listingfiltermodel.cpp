@@ -30,7 +30,7 @@ QModelIndex ListingFilterModel::index(int row, int column, const QModelIndex&) c
 QModelIndex ListingFilterModel::mapFromSource(const QModelIndex &sourceindex) const
 {
     if(m_items.empty())
-        return sourceindex;
+        return QIdentityProxyModel::mapFromSource(sourceindex);
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(sourceindex.internalPointer());
     int idx = REDasm::Listing::indexOf(&m_items, item);
@@ -44,7 +44,7 @@ QModelIndex ListingFilterModel::mapFromSource(const QModelIndex &sourceindex) co
 QModelIndex ListingFilterModel::mapToSource(const QModelIndex &proxyindex) const
 {
     if(m_items.empty())
-        return proxyindex;
+        return QIdentityProxyModel::mapToSource(proxyindex);
 
     ListingItemModel* listingitemmodel = reinterpret_cast<ListingItemModel*>(this->sourceModel());
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(proxyindex.internalPointer());

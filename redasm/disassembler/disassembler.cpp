@@ -81,7 +81,7 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
     if(!algorithm->hasNext())
     {
         m_timer.stop();
-        this->analyze();
+        algorithm->analyze();
         return;
     }
 
@@ -112,19 +112,6 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
         return;
 
     m_document->instruction(instruction);
-}
-
-void Disassembler::analyze()
-{
-    std::unique_ptr<Analyzer> a(m_format->createAnalyzer(this, m_format->signatures()));
-
-    if(a)
-    {
-        REDasm::status("Analyzing...");
-        a->analyze();
-    }
-
-    REDasm::status("DONE");
 }
 
 void Disassembler::disassembleUnexploredCode()

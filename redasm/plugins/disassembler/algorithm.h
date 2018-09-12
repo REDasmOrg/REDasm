@@ -4,6 +4,7 @@
 #include <stack>
 #include <set>
 #include "../../redasm.h"
+#include "../../redasm/analyzer/analyzer.h"
 #include "../assembler/assembler.h"
 
 namespace REDasm {
@@ -19,6 +20,7 @@ class DisassemblerAlgorithm
     public:
         u32 disassemble(const Buffer &buffer, InstructionPtr& instruction);
         void push(address_t address);
+        void analyze();
         bool hasNext() const;
         address_t next();
 
@@ -36,6 +38,7 @@ class DisassemblerAlgorithm
     private:
         std::set<address_t> m_disassembled;
         std::stack<address_t> m_pending;
+        std::unique_ptr<Analyzer> m_analyzer;
 };
 
 } // namespace REDasm

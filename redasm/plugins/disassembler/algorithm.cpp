@@ -1,15 +1,25 @@
 #include "algorithm.h"
 #include "../../plugins/format.h"
+#include <thread>
 
 namespace REDasm {
 
-DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler)
-{
+DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler) { }
+void DisassemblerAlgorithm::push(address_t address) { this->m_pending.push(address); }
 
+void DisassemblerAlgorithm::analyze()
+{
+    FormatPlugin* format = m_disassembler->format();
+    m_analyzer.reset(format->createAnalyzer(m_disassembler, format->signatures()));
+
+    std::thread([&]() {
+        REDasm::status("Analyzing...");
+            m_analyzer->analyze();
+        REDasm::status("DONE");
+    }).detach();
 }
 
-void DisassemblerAlgorithm::push(address_t address) { this->m_pending.push(address); }
-bool DisassemblerAlgorithm::hasNext() const { return !this->m_pending.empty(); }
+bool DisassemblerAlgorithm::hasNext() const { return !m_pending.empty(); }
 
 address_t DisassemblerAlgorithm::next()
 {

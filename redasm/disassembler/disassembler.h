@@ -30,7 +30,6 @@ class Disassembler: public DisassemblerBase
 
     private:
         void disassembleStep(DisassemblerAlgorithm *algorithm);
-        void analyze();
         void disassembleUnexploredCode();
         void searchCode(const Segment &segment);
         void searchStrings(const Segment& segment);

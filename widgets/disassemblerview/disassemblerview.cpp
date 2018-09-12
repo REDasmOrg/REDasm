@@ -31,13 +31,16 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     static_cast<ListingItemModel*>(m_functionsmodel->sourceModel())->setDefaultFont(true);
     ui->tvFunctions->setModel(m_functionsmodel);
 
-    m_importsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::SymbolTypes::ImportMask, ui->tvFunctions);
+    m_importsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItem::SymbolItem, ui->tvFunctions);
+    static_cast<SymbolTableModel*>(m_importsmodel->sourceModel())->setSymbolFlags(REDasm::SymbolTypes::ImportMask);
     ui->tvImports->setModel(m_importsmodel);
 
-    m_exportsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::SymbolTypes::ExportMask, ui->tvFunctions);
+    m_exportsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItem::AllItems, ui->tvFunctions);
+    static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolFlags(REDasm::SymbolTypes::ExportMask);
     ui->tvExports->setModel(m_exportsmodel);
 
-    m_stringsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::SymbolTypes::StringMask, ui->tvStrings);
+    m_stringsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItem::SymbolItem, ui->tvStrings);
+    static_cast<SymbolTableModel*>(m_stringsmodel->sourceModel())->setSymbolFlags(REDasm::SymbolTypes::StringMask);
     ui->tvStrings->setModel(m_stringsmodel);
 
     m_segmentsmodel = ListingFilterModel::createFilter<SegmentsModel>(ui->tvSegments);

@@ -17,7 +17,8 @@ struct ListingItem
 {
     enum: u32 {
         Undefined = 0,
-        SegmentItem, FunctionItem, PrologueItem, SymbolItem, InstructionItem
+        SegmentItem, FunctionItem, PrologueItem, SymbolItem, InstructionItem,
+        AllItems = static_cast<u32>(-1)
     };
 
     ListingItem(): address(0), type(ListingItem::Undefined) { }

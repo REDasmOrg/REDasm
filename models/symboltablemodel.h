@@ -8,7 +8,8 @@ class SymbolTableModel : public ListingItemModel
     Q_OBJECT
 
     public:
-        explicit SymbolTableModel(u32 symbolflags, QObject *parent = nullptr);
+        explicit SymbolTableModel(u32 itemtype, QObject *parent = nullptr);
+        void setSymbolFlags(u32 symbolflags);
 
     protected:
         virtual bool isItemAllowed(REDasm::ListingItem* item) const;

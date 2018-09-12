@@ -1,10 +1,11 @@
 #include "symboltablemodel.h"
 
-SymbolTableModel::SymbolTableModel(u32 symbolflags, QObject *parent) : ListingItemModel(REDasm::ListingItem::SymbolItem, parent), m_symbolflags(symbolflags) { }
+SymbolTableModel::SymbolTableModel(u32 itemtype, QObject *parent) : ListingItemModel(itemtype, parent), m_symbolflags(REDasm::SymbolTypes::None) { }
+void SymbolTableModel::setSymbolFlags(u32 symbolflags) { m_symbolflags = symbolflags; }
 
 bool SymbolTableModel::isItemAllowed(REDasm::ListingItem *item) const
 {
-    if(!ListingItemModel::isItemAllowed(item))
+    if(!ListingItemModel::isItemAllowed(item) || item->is(REDasm::ListingItem::InstructionItem))
         return false;
 
     REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);

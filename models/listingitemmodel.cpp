@@ -114,7 +114,13 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     return DisassemblerModel::data(index, role);
 }
 
-bool ListingItemModel::isItemAllowed(REDasm::ListingItem *item) const { return m_itemtype == item->type; }
+bool ListingItemModel::isItemAllowed(REDasm::ListingItem *item) const
+{
+    if(m_itemtype == REDasm::ListingItem::AllItems)
+        return true;
+
+    return m_itemtype == item->type;
+}
 
 void ListingItemModel::onListingChanged(const REDasm::ListingDocumentChanged *ldc)
 {

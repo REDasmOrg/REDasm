@@ -54,6 +54,11 @@ u32 DisassemblerAlgorithm::disassemble(address_t address, const InstructionPtr &
     if(!m_currentsegment || !m_currentsegment->is(SegmentTypes::Code))
         return DisassemblerAlgorithm::SKIP;
 
+    SymbolPtr symbol = m_document->symbol(address);
+
+    if(symbol && symbol->is(SymbolTypes::Data))
+        return DisassemblerAlgorithm::SKIP;
+
     instruction->address = address;
 
     REDasm::status("Disassembling @ " + REDasm::hex(address, m_format->bits(), false));

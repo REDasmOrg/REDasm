@@ -129,15 +129,19 @@ void ListingItemModel::onListingChanged(const REDasm::ListingDocumentChanged *ld
 
     if(ldc->removed)
     {
-        this->beginRemoveRows(QModelIndex(), ldc->index, ldc->index);
-        auto it = REDasm::Listing::binarySearch(&m_items, ldc->item);
-        m_items.erase(it);
-        this->endRemoveRows();
-        return;
-    }
+        int idx = REDasm::Listing::indexOf(&m_items, ldc->item);
 
-    this->beginInsertRows(QModelIndex(), ldc->index, ldc->index);
-    auto it = REDasm::Listing::insertionPoint(&m_items, ldc->item);
-    m_items.insert(it, ldc->item);
-    this->endInsertRows();
+        this->beginRemoveRows(QModelIndex(), idx, idx);
+        m_items.removeAt(idx);
+        this->endRemoveRows();
+    }
+    else
+    {
+        auto it = REDasm::Listing::insertionPoint(&m_items, ldc->item);
+        int idx = std::distance(m_items.begin(), it);
+
+        this->beginInsertRows(QModelIndex(), idx, idx);
+        m_items.insert(it, ldc->item);
+        this->endInsertRows();
+    }
 }

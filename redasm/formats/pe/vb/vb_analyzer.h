@@ -12,12 +12,12 @@ class VBAnalyzer : public PEAnalyzer
 {
     public:
         VBAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles& signatures);
-        virtual void analyze(ListingDocument* document);
+        virtual void analyze();
 
     private:
-        void disassembleTrampoline(u32 eventva, const std::string &name, ListingDocument* document);
-        void decompileObject(ListingDocument* document, const VBPublicObjectDescriptor& pubobjdescr);
-        void decompile(ListingDocument* document, SymbolPtr thunrtdata);
+        void disassembleTrampoline(u32 eventva, const std::string &name);
+        void decompileObject(const VBPublicObjectDescriptor& pubobjdescr);
+        void decompile( SymbolPtr thunrtdata);
 
     private:
         const PeFormat* m_peformat;

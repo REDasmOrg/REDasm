@@ -28,6 +28,7 @@ class Analyzer
 
     protected:
         DisassemblerAPI* m_disassembler;
+        ListingDocument* m_document;
         const SignatureFiles& m_signaturefiles;
 };
 

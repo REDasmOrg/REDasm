@@ -264,7 +264,7 @@ struct Instruction
     void op_size(s32 index, u32 size) { operands[index].size = size; }
     u32 op_size(s32 index) const { return operands[index].size; }
     address_t target() const { return *targets.begin(); }
-    address_t endAddress() const { return (address + size) - 1; }
+    address_t endAddress() const { return address + size; }
 
     Operand& op(size_t idx) { return operands[idx]; }
     Instruction& cmt(const std::string& s) { comments.push_back(s); return *this; }

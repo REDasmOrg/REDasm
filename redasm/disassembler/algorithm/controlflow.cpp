@@ -17,7 +17,7 @@ void DisassemblerControlFlow::onDisassembled(const InstructionPtr &instruction, 
     for(address_t target : instruction->targets)
         this->push(target);
 
-    this->push(instruction->endAddress() + 1);
+    this->push(instruction->endAddress());
 }
 
 } // namespace REDasm

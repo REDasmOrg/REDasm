@@ -43,6 +43,7 @@ class DisassemblerAlgorithm
         std::set<address_t> m_disassembled;
         std::stack<address_t> m_pending;
         std::unique_ptr<Analyzer> m_analyzer;
+        const Segment* m_currentsegment;
 };
 
 } // namespace REDasm

@@ -136,6 +136,8 @@ ListingDocument::iterator ListingDocument::item(address_t address, u32 type)
     return Listing::binarySearch(this, address, type);
 }
 
+ListingDocument::iterator ListingDocument::instructionItem(address_t address) { return this->item(address, ListingItem::InstructionItem); }
+
 ListingItem* ListingDocument::itemAt(size_t i)
 {
     document_lock lock(m_mutex);

@@ -73,10 +73,9 @@ void PEAnalyzer::findAllWndProc()
 
 void PEAnalyzer::findWndProc(address_t address, size_t argidx)
 {
-    ListingDocument* doc = m_disassembler->document();
-    auto it = doc->item(address, ListingItem::InstructionItem);
+    auto it = m_document->instructionItem(address);
 
-    if(it == doc->end())
+    if(it == m_document->end())
         return;
 
     size_t arg = 0;
@@ -84,7 +83,7 @@ void PEAnalyzer::findWndProc(address_t address, size_t argidx)
 
     while(arg < argidx)
     {
-        const InstructionPtr& instruction = doc->instruction((*it)->address);
+        const InstructionPtr& instruction = m_document->instruction((*it)->address);
 
         if(instruction->is(InstructionTypes::Push))
         {
@@ -93,14 +92,14 @@ void PEAnalyzer::findWndProc(address_t address, size_t argidx)
             if(arg == argidx)
             {
                 Operand& op = instruction->op(0);
-                Segment* segment = doc->segment(op.u_value);
+                Segment* segment = m_document->segment(op.u_value);
 
                 if(segment && segment->is(SegmentTypes::Code))
-                    doc->function(op.u_value, "DlgProc_" + REDasm::hex(op.u_value, 0, false));
+                    m_document->function(op.u_value, "DlgProc_" + REDasm::hex(op.u_value, 0, false));
             }
         }
 
-        if((arg == argidx) || (it == doc->begin()) || instruction->is(InstructionTypes::Stop))
+        if((arg == argidx) || (it == m_document->begin()) || instruction->is(InstructionTypes::Stop))
             break;
 
         it--;

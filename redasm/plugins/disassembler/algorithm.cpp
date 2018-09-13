@@ -6,7 +6,7 @@
 
 namespace REDasm {
 
-DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler)
+DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(NULL)
 {
     m_format = m_disassembler->format();
     m_document = m_disassembler->document();
@@ -48,9 +48,10 @@ u32 DisassemblerAlgorithm::disassemble(address_t address, const InstructionPtr &
     if(buffer.eob())
         return DisassemblerAlgorithm::SKIP;
 
-    const Segment* segment = m_document->segment(address);
+    if(!m_currentsegment || !m_currentsegment->contains(address))
+        m_currentsegment = m_document->segment(address);
 
-    if(!segment || !segment->is(SegmentTypes::Code))
+    if(!m_currentsegment || !m_currentsegment->is(SegmentTypes::Code))
         return DisassemblerAlgorithm::SKIP;
 
     instruction->address = address;

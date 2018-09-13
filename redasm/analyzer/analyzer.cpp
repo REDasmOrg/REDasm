@@ -5,7 +5,7 @@ namespace REDasm {
 
 Analyzer::Analyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): m_disassembler(disassembler), m_signaturefiles(signaturefiles)
 {
-
+    m_document = disassembler->document();
 }
 
 Analyzer::~Analyzer()
@@ -76,13 +76,12 @@ void Analyzer::findTrampolines(SymbolPtr symbol)
     if(symbol->is(SymbolTypes::Locked))
         return;
 
-    ListingDocument* doc = m_disassembler->document();
-    SymbolTable* symboltable = doc->symbols();
-    auto it = doc->item(symbol->address, ListingItem::InstructionItem);
+    auto it = m_document->instructionItem(symbol->address);
 
-    if(it == doc->end())
+    if(it == m_document->end())
         return;
 
+    SymbolTable* symboltable = m_document->symbols();
     const AssemblerPlugin* assembler = m_disassembler->assembler();
     SymbolPtr symimport;
 
@@ -94,8 +93,8 @@ void Analyzer::findTrampolines(SymbolPtr symbol)
     if(!symimport || !symimport->is(SymbolTypes::Import))
         return;
 
-    doc->lock(symbol->address, "_" + REDasm::normalize(symimport->name));
-    m_disassembler->pushReference(symimport, doc->instruction(symbol->address));
+    m_document->lock(symbol->address, "_" + REDasm::normalize(symimport->name));
+    m_disassembler->pushReference(symimport, m_document->instruction(symbol->address));
 }
 
 SymbolPtr Analyzer::findTrampolines_x86(ListingDocument::iterator it, SymbolTable* symboltable)

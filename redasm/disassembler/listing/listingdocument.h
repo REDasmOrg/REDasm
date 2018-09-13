@@ -162,7 +162,9 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         void instruction(const InstructionPtr& instruction);
         void update(const InstructionPtr& instruction);
         InstructionPtr instruction(address_t address);
-        ListingDocument::iterator item(address_t address, u32 type);
+
+    public:
+        ListingDocument::iterator instructionItem(address_t address);
 
     public:
         ListingItem* itemAt(size_t i);
@@ -173,6 +175,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
     private:
         void pushSorted(address_t address, u32 type);
         void removeSorted(address_t address, u32 type);
+        ListingDocument::iterator item(address_t address, u32 type);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
         template<typename T, typename... ARGS> void notify(const std::list<T>& handler, ARGS... args);
 

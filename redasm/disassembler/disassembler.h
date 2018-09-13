@@ -22,7 +22,6 @@ class Disassembler: public DisassemblerBase
         virtual void updateInstruction(const InstructionPtr& instruction);
         virtual bool dataToString(address_t address);
         virtual InstructionPtr disassembleInstruction(address_t address);
-        virtual bool disassembleFunction(address_t address, const std::string& name = std::string());
         virtual void disassemble(address_t address);
 
     public:

@@ -5,7 +5,7 @@
 namespace REDasm {
 
 DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler) { }
-void DisassemblerAlgorithm::push(address_t address) { this->m_pending.push(address); }
+void DisassemblerAlgorithm::push(address_t address) { m_pending.push(address); }
 
 void DisassemblerAlgorithm::analyze()
 {
@@ -112,6 +112,6 @@ void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
     }
 }
 
-bool DisassemblerAlgorithm::isDisassembled(address_t address) const { return this->m_disassembled.find(address) != this->m_disassembled.end(); }
+bool DisassemblerAlgorithm::isDisassembled(address_t address) const { return m_disassembled.find(address) != m_disassembled.end(); }
 
 } // namespace REDasm

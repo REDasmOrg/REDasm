@@ -13,7 +13,7 @@ Disassembler::Disassembler(Buffer buffer, AssemblerPlugin *assembler, FormatPlug
     if(!format->isBinary())
         assembler->setEndianness(format->endianness());
 
-    m_algorithm = std::make_unique<DisassemblerAlgorithm>(m_format->createAlgorithm(this, this->m_assembler));
+    m_algorithm = std::make_unique<DisassemblerAlgorithm>(m_format->createAlgorithm(this, m_assembler));
 }
 
 Disassembler::~Disassembler() { delete m_assembler; }
@@ -147,7 +147,7 @@ void Disassembler::searchCode(const Segment &segment)
         if(!this->maybeValidCode(address))
             continue;
 
-        this->disassembleFunction(address);
+        //this->disassembleFunction(address);
     }
 }
 
@@ -293,52 +293,6 @@ bool Disassembler::maybeValidCode(address_t& address)
     */
 
     return false;
-}
-
-bool Disassembler::disassembleFunction(address_t address, const std::string &name)
-{
-    /*
-    Segment* segment = this->m_format->segment(address);
-
-    if(!segment || !segment->is(SegmentTypes::Code))
-        return false;
-
-    SymbolPtr symbol = this->_symboltable->symbol(address);
-
-    if(symbol && symbol->isFunction())
-    {
-        if(!name.empty() && !symbol->isLocked())
-            this->_symboltable->update(symbol, name);
-
-        return true;
-    }
-
-    auto it = this->_listing.find(address);
-
-    if(it != this->_listing.end())
-    {
-        it--;
-
-        if(it != this->_listing.end())
-            this->_listing.stopFunctionAt(*it); // Stop function @ previous address, if any
-    }
-
-    this->_symboltable->erase(address);
-
-    if(name.empty())
-    {
-        if(segment != this->m_format->entryPointSegment())
-            this->_symboltable->createFunction(address, segment);
-        else
-            this->_symboltable->createFunction(address);
-    }
-    else
-        this->_symboltable->createFunction(address, name);
-
-    this->disassemble(address);
-    this->_listing.checkBounds(address);
-    */
-    return true;
 }
 
 void Disassembler::disassemble()

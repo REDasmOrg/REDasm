@@ -118,6 +118,8 @@ void ListingDocument::instruction(const InstructionPtr &instruction)
     this->pushSorted(instruction->address, ListingItem::InstructionItem);
 }
 
+void ListingDocument::update(const InstructionPtr &instruction) { m_instructions.update(instruction); }
+
 InstructionPtr ListingDocument::instruction(address_t address)
 {
     auto it = m_instructions.find(address);

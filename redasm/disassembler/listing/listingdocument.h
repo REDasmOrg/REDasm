@@ -160,6 +160,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
 
     public:
         void instruction(const InstructionPtr& instruction);
+        void update(const InstructionPtr& instruction);
         InstructionPtr instruction(address_t address);
         ListingDocument::iterator item(address_t address, u32 type);
 

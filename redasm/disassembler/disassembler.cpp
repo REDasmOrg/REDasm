@@ -8,15 +8,16 @@
 
 namespace REDasm {
 
-Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): DisassemblerBase(format), m_assembler(assembler)
+Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): DisassemblerBase(format)
 {
     if(!format->isBinary())
         assembler->setEndianness(format->endianness());
 
-    m_algorithm = std::make_unique<DisassemblerAlgorithm>(m_format->createAlgorithm(this, m_assembler));
+    m_assembler = std::make_unique<AssemblerPlugin>(assembler);
+    m_algorithm = std::make_unique<DisassemblerAlgorithm>(m_format->createAlgorithm(this, assembler));
 }
 
-Disassembler::~Disassembler() { delete m_assembler; }
+Disassembler::~Disassembler() { }
 ListingDocument *Disassembler::document() { return m_document; }
 
 size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t address)
@@ -62,20 +63,6 @@ size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t 
     return cases;
 }
 
-std::string Disassembler::comment(const InstructionPtr &instruction) const
-{
-     std::string res;
-
-     std::for_each(instruction->comments.cbegin(), instruction->comments.cend(), [&res](const std::string& s) {
-         if(!res.empty())
-             res += " | ";
-
-         res += s;
-     });
-
-     return "# " + res;
-}
-
 void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
 {
     if(!algorithm->hasNext())
@@ -85,30 +72,11 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
         return;
     }
 
-    const Segment* segment = NULL;
     address_t address = algorithm->next();
-
-    if(!segment || !segment->contains(address))
-        segment = m_document->segment(address);
-
-    if(!segment || !segment->is(SegmentTypes::Code))
-        return;
-
-    //TODO: Check Segment <-> address bounds
-    Buffer buffer = m_format->buffer() + m_format->offset(address);
-
-    if(buffer.eob())
-        return;
-
     InstructionPtr instruction = std::make_shared<Instruction>();
-    instruction->address = address;
+    u32 status = algorithm->disassemble(address, instruction);
 
-    REDasm::status("Disassembling @ " + REDasm::hex(address, m_format->bits(), false));
-    u32 status = algorithm->disassemble(buffer, instruction);
-
-    if(status == DisassemblerAlgorithm::FAIL)
-        this->createInvalid(instruction, buffer);
-    else if(status == DisassemblerAlgorithm::SKIP)
+    if(status == DisassemblerAlgorithm::SKIP)
         return;
 
     m_document->instruction(instruction);
@@ -321,50 +289,7 @@ void Disassembler::disassemble()
     */
 }
 
-AssemblerPlugin *Disassembler::assembler() { return this->m_assembler; }
-
-void Disassembler::updateInstruction(const InstructionPtr &instruction)
-{
-    //this->_listing.update(instruction);
-}
-
-bool Disassembler::dataToString(address_t address)
-{
-    /*
-    SymbolPtr symbol = m_document->symbol(address);
-
-    if(!symbol)
-        return false;
-
-    bool wide = false;
-    this->locationIsString(address, &wide);
-
-    std::string s;
-    ReferenceVector refs = m_referencetable.referencesToVector(symbol->address);
-
-    symbol->type &= (~SymbolTypes::Data);
-    symbol->type |= wide ? SymbolTypes::WideString : SymbolTypes::String;
-
-    if(wide)
-    {
-        symbol->type |= SymbolTypes::WideString;
-        s = REDasm::quoted(this->readWString(address));
-    }
-    else
-    {
-        symbol->type |= SymbolTypes::String;
-        s = REDasm::quoted(this->readString(address));
-    }
-
-    std::for_each(refs.begin(), refs.end(), [this, s, wide](address_t address) {
-        InstructionPtr instruction = this->_listing[address];
-        wide ? instruction->cmt("UNICODE: " + s) : instruction->cmt("STRING: " + s);
-        this->_listing.update(instruction);
-    });
-
-    return this->_symboltable->update(symbol, "str_" + REDasm::hex(address, 0, false));
-    */
-}
+AssemblerPlugin *Disassembler::assembler() { return m_assembler.get(); }
 
 bool Disassembler::checkJumpTable(const InstructionPtr &instruction, address_t address)
 {
@@ -421,30 +346,8 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address)
         return instruction;
 
     instruction = std::make_shared<Instruction>();
-    instruction->address = address;
-
-    Buffer b = m_format->buffer() + m_format->offset(instruction->address);
-
-    if(b.eob() || !m_assembler->decode(b, instruction))
-        this->createInvalid(instruction, b);
-
+    m_algorithm->disassembleSingle(address, instruction);
     return instruction;
-}
-
-void Disassembler::createInvalid(const InstructionPtr &instruction, Buffer& b)
-{
-    if(!instruction->size)
-        instruction->size = 1; // Invalid instruction uses at least 1 byte
-
-    instruction->type = InstructionTypes::Invalid;
-    instruction->mnemonic = INVALID_MNEMONIC;
-
-    if(!instruction->bytes.empty())
-        return;
-
-    std::stringstream ss;
-    ss << std::hex << *b;
-    instruction->bytes = ss.str();
 }
 
 }

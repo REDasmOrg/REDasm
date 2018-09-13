@@ -328,7 +328,7 @@ void DisassemblerDocument::insertComment(QTextCursor &textcursor, const REDasm::
     charformat.setForeground(THEME_VALUE("comment_fg"));
 
     textcursor.insertText(QString(" ").repeated(this->getIndent(instruction->address) + INDENT_COMMENT), QTextCharFormat());
-    textcursor.insertText(S_TO_QS(this->m_disassembler->comment(instruction)), charformat);
+    //textcursor.insertText(S_TO_QS(this->m_disassembler->comment(instruction)), charformat);
 }
 
 void DisassemblerDocument::appendInfo(address_t address, const QString &info)

@@ -18,7 +18,8 @@ class DisassemblerAlgorithm
         DisassemblerAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assembler);
 
     public:
-        u32 disassemble(const Buffer &buffer, InstructionPtr& instruction);
+        u32 disassemble(address_t address, const InstructionPtr& instruction);
+        u32 disassembleSingle(address_t address, const InstructionPtr& instruction);
         void push(address_t address);
         void analyze();
         bool hasNext() const;
@@ -30,10 +31,13 @@ class DisassemblerAlgorithm
 
     private:
         bool isDisassembled(address_t address) const;
+        void createInvalidInstruction(const InstructionPtr& instruction, const Buffer &buffer);
 
     protected:
         DisassemblerAPI* m_disassembler;
         AssemblerPlugin* m_assembler;
+        ListingDocument* m_document;
+        FormatPlugin* m_format;
 
     private:
         std::set<address_t> m_disassembled;

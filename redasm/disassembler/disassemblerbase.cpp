@@ -51,14 +51,14 @@ bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
 void DisassemblerBase::pushReference(const SymbolPtr &symbol, const InstructionPtr& refbyinstruction)
 {
     refbyinstruction->reference(symbol->address);
-    this->updateInstruction(refbyinstruction);
+    m_document->update(refbyinstruction);
     m_referencetable.push(symbol->address, refbyinstruction->address);
 }
 
 void DisassemblerBase::pushReference(address_t address, const InstructionPtr& refbyinstruction)
 {
     refbyinstruction->reference(address);
-    this->updateInstruction(refbyinstruction);
+    m_document->update(refbyinstruction);
     m_referencetable.push(address, refbyinstruction->address);
 }
 

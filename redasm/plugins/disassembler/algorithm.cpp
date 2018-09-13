@@ -2,9 +2,16 @@
 #include "../../plugins/format.h"
 #include <thread>
 
+#define INVALID_MNEMONIC "db"
+
 namespace REDasm {
 
-DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler) { }
+DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler)
+{
+    m_format = m_disassembler->format();
+    m_document = m_disassembler->document();
+}
+
 void DisassemblerAlgorithm::push(address_t address) { m_pending.push(address); }
 
 void DisassemblerAlgorithm::analyze()
@@ -28,18 +35,45 @@ address_t DisassemblerAlgorithm::next()
     return address;
 }
 
-u32 DisassemblerAlgorithm::disassemble(const Buffer& buffer, InstructionPtr &instruction)
+u32 DisassemblerAlgorithm::disassemble(address_t address, const InstructionPtr &instruction)
 {
-    if(this->isDisassembled(instruction->address))
+    if(this->isDisassembled(address))
         return DisassemblerAlgorithm::SKIP;
 
-    m_disassembled.insert(instruction->address);
+    m_disassembled.insert(address);
 
+    //TODO: Check Segment <-> address bounds
+    Buffer buffer = m_format->buffer() + m_format->offset(address);
+
+    if(buffer.eob())
+        return DisassemblerAlgorithm::SKIP;
+
+    const Segment* segment = m_document->segment(address);
+
+    if(!segment || !segment->is(SegmentTypes::Code))
+        return DisassemblerAlgorithm::SKIP;
+
+    instruction->address = address;
+
+    REDasm::status("Disassembling @ " + REDasm::hex(address, m_format->bits(), false));
     u32 result = m_assembler->decode(buffer, instruction) ? DisassemblerAlgorithm::OK :
                                                             DisassemblerAlgorithm::FAIL;
 
+    if(result == DisassemblerAlgorithm::FAIL)
+        this->createInvalidInstruction(instruction, buffer);
+
     this->onDisassembled(instruction, result);
     return result;
+}
+
+u32 DisassemblerAlgorithm::disassembleSingle(address_t address, const InstructionPtr& instruction)
+{
+    u32 res = this->disassemble(address, instruction);
+
+    while(!m_pending.empty())
+        m_pending.pop();
+
+    return res;
 }
 
 void DisassemblerAlgorithm::onDisassembled(const InstructionPtr &instruction, u32 result)
@@ -113,5 +147,21 @@ void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
 }
 
 bool DisassemblerAlgorithm::isDisassembled(address_t address) const { return m_disassembled.find(address) != m_disassembled.end(); }
+
+void DisassemblerAlgorithm::createInvalidInstruction(const InstructionPtr &instruction, const Buffer& buffer)
+{
+    if(!instruction->size)
+        instruction->size = 1; // Invalid instruction uses at least 1 byte
+
+    instruction->type = InstructionTypes::Invalid;
+    instruction->mnemonic = INVALID_MNEMONIC;
+
+    if(!instruction->bytes.empty())
+        return;
+
+    std::stringstream ss;
+    ss << std::hex << *buffer;
+    instruction->bytes = ss.str();
+}
 
 } // namespace REDasm

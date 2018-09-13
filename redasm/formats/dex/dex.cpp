@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-DEXFormat::DEXFormat(): m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL) {  }
+DEXFormat::DEXFormat(const Buffer &buffer): FormatPluginT<DEXHeader>(buffer), m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL) {  }
 const char *DEXFormat::name() const { return "DEX"; }
 u32 DEXFormat::bits() const { return 32; }
 u32 DEXFormat::flags() const { return FormatFlags::IgnoreUnexploredCode; }
@@ -19,36 +19,33 @@ endianness_t DEXFormat::endianness() const
     return Endianness::BigEndian;
 }
 
-bool DEXFormat::load(u8 *rawformat, u64)
+bool DEXFormat::load()
 {
-    DEXHeader* format = convert(rawformat);
-
-    if(!DEXFormat::validateSignature(format) || (!format->data_off || !format->data_size))
+    if(!DEXFormat::validateSignature(m_format) || (!m_format->data_off || !m_format->data_size))
         return false;
 
-    if((!format->type_ids_off || !format->type_ids_size) || (!format->string_ids_off || !format->string_ids_size))
+    if((!m_format->type_ids_off || !m_format->type_ids_size) || (!m_format->string_ids_off || !m_format->string_ids_size))
         return false;
 
-    if((!format->method_ids_off || !format->method_ids_size) || (!format->proto_ids_off || !format->proto_ids_size))
+    if((!m_format->method_ids_off || !m_format->method_ids_size) || (!m_format->proto_ids_off || !m_format->proto_ids_size))
         return false;
 
-    REDasm::log("Loading DEX Version " + std::string(format->version, 3));
+    REDasm::log("Loading DEX Version " + std::string(m_format->version, 3));
 
-    m_types = pointer<DEXTypeIdItem>(format->type_ids_off);
-    m_strings = pointer<DEXStringIdItem>(format->string_ids_off);
-    m_methods = pointer<DEXMethodIdItem>(format->method_ids_off);
-    m_protos = pointer<DEXProtoIdItem>(format->proto_ids_off);
+    m_types = pointer<DEXTypeIdItem>(m_format->type_ids_off);
+    m_strings = pointer<DEXStringIdItem>(m_format->string_ids_off);
+    m_methods = pointer<DEXMethodIdItem>(m_format->method_ids_off);
+    m_protos = pointer<DEXProtoIdItem>(m_format->proto_ids_off);
 
-    if(format->field_ids_off && format->field_ids_size)
-        m_fields = pointer<DEXFieldIdItem>(format->field_ids_off);
+    if(m_format->field_ids_off && m_format->field_ids_size)
+        m_fields = pointer<DEXFieldIdItem>(m_format->field_ids_off);
 
-    m_document.segment("DATA", format->data_off, format->data_off, format->data_size, SegmentTypes::Code);
-    DEXClassIdItem* dexclasses = pointer<DEXClassIdItem>(format->class_defs_off);
+    m_document.segment("DATA", m_format->data_off, m_format->data_off, m_format->data_size, SegmentTypes::Code);
+    DEXClassIdItem* dexclasses = pointer<DEXClassIdItem>(m_format->class_defs_off);
 
-    for(u32 i = 0; i < format->class_defs_size; i++)
+    for(u32 i = 0; i < m_format->class_defs_size; i++)
         this->loadClass(dexclasses[i]);
 
-    FormatPluginT<DEXHeader>::load(rawformat);
     return true;
 }
 

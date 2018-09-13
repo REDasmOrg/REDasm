@@ -35,18 +35,18 @@ struct GbaRomHeader // From: http://problemkaputt.de/gbatek.htm#gbacartridgehead
 class GbaRomFormat: public FormatPluginT<GbaRomHeader>
 {
     public:
-        GbaRomFormat();
+        GbaRomFormat(const Buffer& buffer);
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual u32 flags() const;
         virtual const char* assembler() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
-        virtual bool load(u8 *rawformat, u64 length);
+        virtual bool load();
 
     private:
         static bool isUppercaseAscii(const char* s, size_t c);
-        static u8 calculateChecksum(GbaRomHeader* gbaheader);
-        bool validateRom(GbaRomHeader* gbaheader, u64 length);
+        u8 calculateChecksum();
+        bool validateRom();
 };
 
 DECLARE_FORMAT_PLUGIN(GbaRomFormat, gbarom)

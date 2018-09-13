@@ -119,9 +119,9 @@ void MainWindow::load(const QString& s)
         this->initDisassembler();
 }
 
-bool MainWindow::checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
+bool MainWindow::checkPlugins(const REDasm::Buffer& buffer, REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
 {
-    *format = REDasm::getFormat(reinterpret_cast<u8*>(this->_loadeddata.data()), this->_loadeddata.length());
+    *format = REDasm::getFormat(buffer);
 
     if((*format)->isBinary()) // Use manual loader
     {
@@ -149,13 +149,13 @@ void MainWindow::initDisassembler()
     REDasm::FormatPlugin* format = NULL;
     REDasm::AssemblerPlugin* assembler = NULL;
 
-    if(!this->checkPlugins(&format, &assembler))
+    if(!this->checkPlugins(buffer, &format, &assembler))
     {
         dv->deleteLater();
         return;
     }
 
-    REDasm::Disassembler* disassembler = new REDasm::Disassembler(buffer, assembler, format);
+    REDasm::Disassembler* disassembler = new REDasm::Disassembler(assembler, format);
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 

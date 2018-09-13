@@ -30,7 +30,7 @@
 
 namespace REDasm {
 
-GbaRomFormat::GbaRomFormat(): FormatPluginT<GbaRomHeader>() { }
+GbaRomFormat::GbaRomFormat(const Buffer &buffer): FormatPluginT<GbaRomHeader>(buffer) { }
 const char *GbaRomFormat::name() const { return "Game Boy Advance ROM"; }
 u32 GbaRomFormat::bits() const { return 32; }
 u32 GbaRomFormat::flags() const { return FormatFlags::IgnoreUnexploredCode; }
@@ -41,11 +41,9 @@ Analyzer *GbaRomFormat::createAnalyzer(DisassemblerAPI *disassembler, const Sign
     return new GbaAnalyzer(disassembler, signatures);
 }
 
-bool GbaRomFormat::load(u8* rawformat, u64 length)
+bool GbaRomFormat::load()
 {
-    GbaRomHeader* format = convert(rawformat);
-
-    if(!this->validateRom(format, length))
+    if(!this->validateRom())
         return false;
 
     m_document.segment("EWRAM", 0, GBA_SEGMENT_AREA(EWRAM), SegmentTypes::Bss);
@@ -54,10 +52,9 @@ bool GbaRomFormat::load(u8* rawformat, u64 length)
     m_document.segment("PALETTE", 0, GBA_SEGMENT_AREA(PALETTE), SegmentTypes::Bss);
     m_document.segment("VRAM", 0, GBA_SEGMENT_AREA(VRAM), SegmentTypes::Bss);
     m_document.segment("OAM", 0, GBA_SEGMENT_AREA(OAM), SegmentTypes::Bss);
-    m_document.segment("ROM", 0, GBA_ROM_START_ADDR, length, SegmentTypes::Code | SegmentTypes::Data);
+    m_document.segment("ROM", 0, GBA_ROM_START_ADDR, m_buffer.length, SegmentTypes::Code | SegmentTypes::Data);
 
     m_document.entry(GBA_ROM_START_ADDR); // Let REDasm decode and follow the "EP Field"
-    FormatPluginT<GbaRomHeader>::load(rawformat);
     return true;
 }
 
@@ -77,32 +74,31 @@ bool GbaRomFormat::isUppercaseAscii(const char *s, size_t c)
     return true;
 }
 
-u8 GbaRomFormat::calculateChecksum(GbaRomHeader *gbaheader)
+u8 GbaRomFormat::calculateChecksum()
 {
-    u8* header = reinterpret_cast<u8*>(gbaheader);
     u8 checksum = 0;
 
     for(size_t i = 0xA0; i <= 0xBC; i++)
-        checksum -= header[i];
+        checksum -= m_buffer[i];
 
     return checksum - 0x19;
 }
 
-bool GbaRomFormat::validateRom(GbaRomHeader *gbaheader, u64 length)
+bool GbaRomFormat::validateRom()
 {
-    if((gbaheader->fixed_val != 0x96) || (length < GBA_ROM_HEADER_SIZE))
+    if((m_format->fixed_val != 0x96) || (m_buffer.length < GBA_ROM_HEADER_SIZE))
         return false;
 
-    if(!GbaRomFormat::isUppercaseAscii(gbaheader->game_title, GBA_GAME_TITLE_SIZE))
+    if(!GbaRomFormat::isUppercaseAscii(m_format->game_title, GBA_GAME_TITLE_SIZE))
         return false;
 
-    if(!GbaRomFormat::isUppercaseAscii(gbaheader->game_code, GBA_GAME_CODE_SIZE))
+    if(!GbaRomFormat::isUppercaseAscii(m_format->game_code, GBA_GAME_CODE_SIZE))
         return false;
 
-    if(!GbaRomFormat::isUppercaseAscii(gbaheader->maker_code, GBA_MAKER_CODE_SIZE))
+    if(!GbaRomFormat::isUppercaseAscii(m_format->maker_code, GBA_MAKER_CODE_SIZE))
         return false;
 
-    return gbaheader->header_checksum == GbaRomFormat::calculateChecksum(gbaheader);
+    return m_format->header_checksum == this->calculateChecksum();
 }
 
 }

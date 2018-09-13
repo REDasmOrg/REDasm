@@ -11,7 +11,7 @@ namespace REDasm {
 class Disassembler: public DisassemblerBase
 {
     public:
-        Disassembler(Buffer buffer, AssemblerPlugin* assembler, FormatPlugin* format);
+        Disassembler(AssemblerPlugin* assembler, FormatPlugin* format);
         virtual ~Disassembler();
         ListingDocument* document();
         void disassemble();

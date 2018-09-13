@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-FormatPlugin::FormatPlugin(): Plugin() { m_document.m_format = this; }
+FormatPlugin::FormatPlugin(const Buffer &buffer): Plugin(), m_buffer(buffer) { m_document.m_format = this; }
 ListingDocument *FormatPlugin::document() { return &m_document; }
 const SignatureFiles &FormatPlugin::signatures() const { return m_signatures; }
 u64 FormatPlugin::addressWidth() const { return this->bits() / 8; }
@@ -26,6 +26,6 @@ DisassemblerAlgorithm *FormatPlugin::createAlgorithm(DisassemblerAPI *disassembl
 u32 FormatPlugin::flags() const { return FormatFlags::None; }
 endianness_t FormatPlugin::endianness() const { return Endianness::LittleEndian; /* Use LE by default */ }
 bool FormatPlugin::isBinary() const { return this->flags() & FormatFlags::Binary; }
-bool FormatPlugin::load(u8 *format) { RE_UNUSED(format); return false; }
+const Buffer &FormatPlugin::buffer() const { return m_buffer; }
 
 }

@@ -9,7 +9,7 @@
 
 namespace REDasm {
 
-PeFormat::PeFormat(): FormatPluginT<ImageDosHeader>(), m_dotnetreader(NULL), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL), m_petype(PeType::None), m_imagebase(0), m_sectionalignment(0), m_entrypoint(0)
+PeFormat::PeFormat(const Buffer &buffer): FormatPluginT<ImageDosHeader>(buffer), m_dotnetreader(NULL), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL), m_petype(PeType::None), m_imagebase(0), m_sectionalignment(0), m_entrypoint(0)
 {
 
 }
@@ -20,10 +20,7 @@ PeFormat::~PeFormat()
         m_dotnetreader = NULL;
 }
 
-const char *PeFormat::name() const
-{
-    return "PE Format";
-}
+const char *PeFormat::name() const { return "PE Format"; }
 
 u32 PeFormat::bits() const
 {
@@ -75,14 +72,14 @@ Analyzer *PeFormat::createAnalyzer(DisassemblerAPI *disassembler, const Signatur
     return new PEAnalyzer(disassembler, signatures);
 }
 
-bool PeFormat::load(u8 *rawformat, u64)
+bool PeFormat::load()
 {
-    m_dosheader = convert(rawformat);
+    m_dosheader = m_format;
 
     if(m_dosheader->e_magic != IMAGE_DOS_SIGNATURE)
         return false;
 
-    m_ntheaders = reinterpret_cast<ImageNtHeaders*>(rawformat + m_dosheader->e_lfanew);
+    m_ntheaders = reinterpret_cast<ImageNtHeaders*>(m_buffer.data + m_dosheader->e_lfanew);
 
     if((m_ntheaders->Signature != IMAGE_NT_SIGNATURE) || ((m_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) &&
                                                           (m_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)))
@@ -117,7 +114,6 @@ bool PeFormat::load(u8 *rawformat, u64)
     else
         this->loadDotNet(reinterpret_cast<ImageCor20Header*>(corheader));
 
-    FormatPluginT<ImageDosHeader>::load(rawformat);
     return true;
 }
 

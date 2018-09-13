@@ -10,18 +10,17 @@
 #include "disassembler/algorithm.h"
 #include "base.h"
 
-#define DECLARE_FORMAT_PLUGIN(T, id) inline FormatPlugin* id##_formatPlugin(u8* data, u64 length) { return REDasm::declareFormatPlugin<T>(data, length); }
+#define DECLARE_FORMAT_PLUGIN(T, id) inline FormatPlugin* id##_formatPlugin(const Buffer& buffer) { return REDasm::declareFormatPlugin<T>(buffer); }
 
 namespace REDasm {
 
-template<typename T> T* declareFormatPlugin(u8* data, u64 length)
+template<typename T> T* declareFormatPlugin(const Buffer& buffer)
 {
-    T* t = new T();
+    std::unique_ptr<T> t = std::make_unique<T>(buffer);
 
-    if(t->load(data, length))
-        return t;
+    if(t->load())
+        return t.release();
 
-    delete t;
     return NULL;
 }
 
@@ -34,8 +33,9 @@ namespace FormatFlags {
 class FormatPlugin: public Plugin
 {
     public:
-        FormatPlugin();
+        FormatPlugin(const Buffer& buffer);
         bool isBinary() const;
+        const Buffer& buffer() const;
         ListingDocument* document();
         Segment* entryPointSegment();
         const SignatureFiles& signatures() const;
@@ -49,23 +49,21 @@ class FormatPlugin: public Plugin
         virtual u32 bits() const = 0;
         virtual u32 flags() const;
         virtual endianness_t endianness() const;
-        virtual bool load(u8* format);
+        virtual bool load() = 0;
 
     protected:
         ListingDocument m_document;
         SignatureFiles m_signatures;
+        Buffer m_buffer;
 };
 
 template<typename T> class FormatPluginT: public FormatPlugin
 {
     public:
-        FormatPluginT(): FormatPlugin() { }
+        FormatPluginT(const Buffer& buffer): FormatPlugin(buffer) { m_format = reinterpret_cast<T*>(buffer.data); }
         template<typename U> inline offset_t fileoffset(U* ptr) const { return reinterpret_cast<u8*>(ptr) - reinterpret_cast<u8*>(this->m_format); }
         template<typename U> inline U* pointer(s64 offset) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_format) + offset); }
         template<typename U, typename V> inline U* relpointer(V* base, s64 offset) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(base) + offset); }
-
-    protected:
-        inline T* convert(u8* format) { m_format = reinterpret_cast<T*>(format); return m_format; }
 
     protected:
         T* m_format;
@@ -74,11 +72,10 @@ template<typename T> class FormatPluginT: public FormatPlugin
 class FormatPluginB: public FormatPluginT<u8>
 {
     public:
-        FormatPluginB(): FormatPluginT<u8>() { }
-        virtual bool load(u8* format) { this->m_format = format; return FormatPluginT<u8>::load(format); }
+        FormatPluginB(const Buffer& buffer): FormatPluginT<u8>(buffer) { }
 };
 
-typedef std::function<FormatPlugin*(u8*, u64)> FormatPlugin_Entry;
+typedef std::function<FormatPlugin*(const Buffer&)> FormatPlugin_Entry;
 
 }
 

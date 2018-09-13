@@ -20,14 +20,14 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         enum PeType { None, DotNet, VisualBasic, Delphi, TurboCpp };
 
     public:
-        PeFormat();
+        PeFormat(const Buffer& buffer);
         virtual ~PeFormat();
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;
         virtual offset_t offset(address_t address) const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
-        virtual bool load(u8 *rawformat, u64);
+        virtual bool load();
         const DotNetReader *dotNetReader() const;
 
     private:

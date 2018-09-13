@@ -5,29 +5,27 @@
 
 namespace REDasm {
 
-XbeFormat::XbeFormat(): FormatPluginT<XbeImageHeader>() { }
+XbeFormat::XbeFormat(const Buffer &buffer): FormatPluginT<XbeImageHeader>(buffer) { }
 const char *XbeFormat::name() const { return "XBox Executable"; }
 u32 XbeFormat::bits() const { return 32; }
 const char *XbeFormat::assembler() const { return "x86_32"; }
 
-bool XbeFormat::load(u8 *rawformat, u64)
+bool XbeFormat::load()
 {
-    XbeImageHeader* format = convert(rawformat);
-
-    if((format->Magic != XBE_MAGIC_NUMBER) || !format->SectionHeader || !format->NumberOfSections)
+    if((m_format->Magic != XBE_MAGIC_NUMBER) || !m_format->SectionHeader || !m_format->NumberOfSections)
     {
-        if(!format->SectionHeader)
+        if(!m_format->SectionHeader)
             REDasm::log("Invalid Section Header");
-        else if(!format->NumberOfSections)
+        else if(!m_format->NumberOfSections)
             REDasm::log("Invalid Number Of Sections");
 
         return false;
     }
 
-    this->loadSections(this->memoryoffset<XbeSectionHeader>(format->SectionHeader));
+    this->loadSections(this->memoryoffset<XbeSectionHeader>(m_format->SectionHeader));
     address_t entrypoint = 0;
 
-    if(!this->decodeEP(format->EntryPoint, entrypoint))
+    if(!this->decodeEP(m_format->EntryPoint, entrypoint))
     {
         REDasm::log("Cannot decode Entry Point");
         return false;
@@ -41,7 +39,6 @@ bool XbeFormat::load(u8 *rawformat, u64)
 
     m_document.entry(entrypoint);
     this->displayXbeInfo();
-    FormatPluginT<XbeImageHeader>::load(rawformat);
     return true;
 }
 

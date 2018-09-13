@@ -22,12 +22,12 @@ struct PsxExeHeader
 class PsxExeFormat: public FormatPluginT<PsxExeHeader>
 {
     public:
-        PsxExeFormat();
+        PsxExeFormat(const Buffer& buffer);
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
-        virtual bool load(u8 *rawformat, u64);
+        virtual bool load();
 };
 
 DECLARE_FORMAT_PLUGIN(PsxExeFormat, psxexe)

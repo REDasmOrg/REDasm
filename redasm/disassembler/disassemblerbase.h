@@ -11,9 +11,8 @@ namespace REDasm {
 class DisassemblerBase: public DisassemblerAPI
 {
     public:
-        DisassemblerBase(Buffer buffer, FormatPlugin* format);
+        DisassemblerBase(FormatPlugin* format);
         virtual ~DisassemblerBase();
-        Buffer& buffer();
 
     public: // Primitive functions
         virtual FormatPlugin* format();
@@ -48,12 +47,11 @@ class DisassemblerBase: public DisassemblerAPI
         ReferenceTable m_referencetable;
         ListingDocument* m_document;
         FormatPlugin* m_format;
-        Buffer m_buffer;
 };
 
 template<typename T> std::string DisassemblerBase::readStringT(address_t address, std::function<bool(T, std::string&)> fill) const
 {
-    Buffer b = m_buffer + m_format->offset(address);
+    Buffer b = m_format->buffer() + m_format->offset(address);
     std::string s;
 
     while(fill(*reinterpret_cast<T*>(b.data), s) && !b.eob())
@@ -68,8 +66,7 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
         return 0;
 
     u64 alphacount = 0, count = 0;
-    Buffer b = m_buffer;
-    b += m_format->offset(address);
+    Buffer b = m_format->buffer() + m_format->offset(address);
 
     while(!b.eob() && isp(*reinterpret_cast<T*>(b.data)))
     {

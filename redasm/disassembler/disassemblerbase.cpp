@@ -3,9 +3,8 @@
 
 namespace REDasm {
 
-DisassemblerBase::DisassemblerBase(Buffer buffer, FormatPlugin *format): DisassemblerAPI(), m_format(format), m_buffer(buffer) { m_document = format->document(); }
+DisassemblerBase::DisassemblerBase(FormatPlugin *format): DisassemblerAPI(), m_format(format) { m_document = format->document(); }
 DisassemblerBase::~DisassemblerBase() { delete m_format; }
-Buffer &DisassemblerBase::buffer() { return m_buffer; }
 ReferenceVector DisassemblerBase::getReferences(address_t address) { return m_referencetable.referencesToVector(address); }
 
 ReferenceVector DisassemblerBase::getReferences(const SymbolPtr& symbol)
@@ -164,7 +163,7 @@ std::string DisassemblerBase::readHex(address_t address, u32 count) const
     if(!this->getBuffer(address, data))
         return std::string();
 
-    count = std::min(static_cast<s64>(count), this->m_buffer.length);
+    count = std::min(static_cast<s64>(count), m_format->buffer().length);
 
     std::stringstream ss;
     ss << std::hex << std::setfill('0');
@@ -226,7 +225,7 @@ bool DisassemblerBase::getBuffer(address_t address, Buffer &data) const
     if(!segment || segment->is(SegmentTypes::Bss))
         return false;
 
-    data = this->m_buffer + m_format->offset(address);
+    data = m_format->buffer() + m_format->offset(address);
     return true;
 }
 
@@ -235,7 +234,7 @@ bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 *value) cons
     if(!value)
         return false;
 
-    Buffer pdest = m_buffer + offset;
+    Buffer pdest = m_format->buffer() + offset;
 
     if(size == 1)
         *value = *reinterpret_cast<u8*>(pdest.data);

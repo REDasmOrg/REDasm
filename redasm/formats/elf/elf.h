@@ -20,11 +20,11 @@ namespace REDasm {
 template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 {
     public:
-        ElfFormat(): FormatPluginT<EHDR>(), m_shdr(NULL) { }
+        ElfFormat(const Buffer& buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL) { }
         virtual const char* name() const { return "ELF Format"; }
         virtual u32 bits() const;
         virtual const char* assembler() const;
-        virtual bool load(u8* format, u64);
+        virtual bool load();
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
 
     protected:
@@ -75,18 +75,15 @@ template<ELF_PARAMS_T> const char* ElfFormat<ELF_PARAMS_D>::assembler() const
     return NULL;
 }
 
-template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load(u8* format, u64)
+template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load()
 {
-    EHDR* ehdr = this->convert(format);
-
     if(!this->validate() || !this->bits())
         return false;
 
-    this->m_shdr = POINTER(SHDR, ehdr->e_shoff);
+    this->m_shdr = POINTER(SHDR, this->m_format->e_shoff);
     this->parseSections();
     this->m_document.entry(this->m_format->e_entry);
 
-    FormatPluginT<EHDR>::load(format);
     return true;
 }
 
@@ -234,7 +231,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSections()
 class Elf32Format: public ElfFormat<ELF_PARAMS(32)>
 {
     public:
-        Elf32Format();
+        Elf32Format(const Buffer& buffer);
 
     protected:
         virtual bool validate() const;
@@ -244,7 +241,7 @@ class Elf32Format: public ElfFormat<ELF_PARAMS(32)>
 class Elf64Format: public ElfFormat<ELF_PARAMS(64)>
 {
     public:
-        Elf64Format();
+        Elf64Format(const Buffer& buffer);
 
     protected:
         virtual bool validate() const;

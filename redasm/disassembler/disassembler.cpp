@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-Disassembler::Disassembler(Buffer buffer, AssemblerPlugin *assembler, FormatPlugin *format): DisassemblerBase(buffer, format), m_assembler(assembler)
+Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): DisassemblerBase(format), m_assembler(assembler)
 {
     if(!format->isBinary())
         assembler->setEndianness(format->endianness());
@@ -95,7 +95,7 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
         return;
 
     //TODO: Check Segment <-> address bounds
-    Buffer buffer = m_buffer + m_format->offset(address);
+    Buffer buffer = m_format->buffer() + m_format->offset(address);
 
     if(buffer.eob())
         return;
@@ -423,7 +423,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address)
     instruction = std::make_shared<Instruction>();
     instruction->address = address;
 
-    Buffer b = m_buffer + m_format->offset(instruction->address);
+    Buffer b = m_format->buffer() + m_format->offset(instruction->address);
 
     if(b.eob() || !m_assembler->decode(b, instruction))
         this->createInvalid(instruction, b);

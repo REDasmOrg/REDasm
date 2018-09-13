@@ -12,13 +12,13 @@ namespace REDasm {
 class DEXFormat : public FormatPluginT<DEXHeader>
 {
     public:
-        DEXFormat();
+        DEXFormat(const Buffer& buffer);
         virtual const char* name() const;
         virtual const char* assembler() const;
         virtual u32 bits() const;
         virtual u32 flags() const;
         virtual endianness_t endianness() const;
-        virtual bool load(u8 *rawformat, u64);
+        virtual bool load();
 
     public:
         bool getMethodOffset(u32 idx, offset_t &offset) const;

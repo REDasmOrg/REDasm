@@ -105,7 +105,8 @@ QByteArray DisassemblerTest::readFile(const QString &file)
 
 void DisassemblerTest::runTest(QByteArray &data, const TestCallback& testcallback)
 {
-    FormatPlugin* format = REDasm::getFormat(reinterpret_cast<u8*>(data.data()), data.length());
+    Buffer buffer(data.data(), data.length());
+    FormatPlugin* format = REDasm::getFormat(buffer);
     TEST("Format", format);
 
     if(!format)
@@ -117,8 +118,7 @@ void DisassemblerTest::runTest(QByteArray &data, const TestCallback& testcallbac
     if(!assembler)
         return;
 
-    Buffer buffer(data.data(), data.length());
-    Disassembler disassembler(buffer, assembler, format);
+    Disassembler disassembler(assembler, format);
 
     cout << "->> Disassembler...";
         disassembler.disassemble();

@@ -11,11 +11,11 @@ namespace REDasm {
 class XbeFormat : public FormatPluginT<XbeImageHeader>
 {
     public:
-        XbeFormat();
+        XbeFormat(const Buffer& buffer);
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;
-        virtual bool load(u8 *rawformat, u64);
+        virtual bool load();
 
     private:
         void displayXbeInfo();

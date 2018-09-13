@@ -13,27 +13,27 @@ void ListingFilterModel::setFilter(const QString &filter)
 
 int ListingFilterModel::rowCount(const QModelIndex& parent) const
 {
-    if(!m_items.empty())
-        return m_items.count();
+    if(!m_filtereditems.empty())
+        return m_filtereditems.count();
 
     return QIdentityProxyModel::rowCount(parent);
 }
 
 QModelIndex ListingFilterModel::index(int row, int column, const QModelIndex&) const
 {
-    if(m_items.empty())
+    if(m_filtereditems.empty())
         return QIdentityProxyModel::index(row, column);
 
-    return this->createIndex(row, column, m_items[row]);
+    return this->createIndex(row, column, m_filtereditems[row]);
 }
 
 QModelIndex ListingFilterModel::mapFromSource(const QModelIndex &sourceindex) const
 {
-    if(m_items.empty())
+    if(m_filtereditems.empty())
         return QIdentityProxyModel::mapFromSource(sourceindex);
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(sourceindex.internalPointer());
-    int idx = REDasm::Listing::indexOf(&m_items, item);
+    int idx = REDasm::Listing::indexOf(&m_filtereditems, item);
 
     if(idx == -1)
         return QModelIndex();
@@ -43,7 +43,7 @@ QModelIndex ListingFilterModel::mapFromSource(const QModelIndex &sourceindex) co
 
 QModelIndex ListingFilterModel::mapToSource(const QModelIndex &proxyindex) const
 {
-    if(m_items.empty())
+    if(m_filtereditems.empty())
         return QIdentityProxyModel::mapToSource(proxyindex);
 
     ListingItemModel* listingitemmodel = reinterpret_cast<ListingItemModel*>(this->sourceModel());
@@ -59,7 +59,7 @@ QModelIndex ListingFilterModel::mapToSource(const QModelIndex &proxyindex) const
 void ListingFilterModel::updateFiltering()
 {
     this->beginResetModel();
-    m_items.clear();
+    m_filtereditems.clear();
 
     if(m_filterstring.length() >= 2)
     {
@@ -76,7 +76,7 @@ void ListingFilterModel::updateFiltering()
                     continue;
 
                 if(data.toString().indexOf(m_filterstring, 0, Qt::CaseInsensitive) != -1)
-                    m_items.append(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer()));
+                    m_filtereditems.append(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer()));
             }
         }
     }

@@ -71,6 +71,9 @@ namespace Listing {
     }
 
     template<typename T, typename IT = typename ListingIterator<T>::Type> IT binarySearch(T* container, address_t address, u32 type) {
+        if(!container->size())
+            return container->end();
+
         auto thebegin = container->begin(), theend = container->end();
 
         while(thebegin <= theend)

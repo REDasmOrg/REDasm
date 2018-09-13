@@ -16,10 +16,12 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
         if(symbol->isLocked() || !(type & SymbolTypes::Locked))
             return;
 
-        m_symboltable.erase(address);
-
         if(type & SymbolTypes::FunctionMask)
             this->removeSorted(address, ListingItem::FunctionItem);
+        else
+            this->removeSorted(address, ListingItem::SymbolItem);
+
+        m_symboltable.erase(address);
     }
 
     if(!this->segment(address) || !m_symboltable.create(address, name, type, tag))

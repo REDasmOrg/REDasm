@@ -6,7 +6,7 @@
 
 namespace REDasm {
 
-DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(NULL)
+DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(NULL), m_analyzed(false)
 {
     m_format = m_disassembler->format();
     m_document = m_disassembler->document();
@@ -16,13 +16,17 @@ void DisassemblerAlgorithm::push(address_t address) { m_pending.push(address); }
 
 void DisassemblerAlgorithm::analyze()
 {
+    if(m_analyzed)
+        return;
+
+    m_analyzed = true;
+
     FormatPlugin* format = m_disassembler->format();
     m_analyzer.reset(format->createAnalyzer(m_disassembler, format->signatures()));
 
     std::thread([&]() {
         REDasm::status("Analyzing...");
             m_analyzer->analyze();
-        REDasm::status("DONE");
     }).detach();
 }
 

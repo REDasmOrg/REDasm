@@ -124,6 +124,7 @@ void ListingDocument::update(const InstructionPtr &instruction) { m_instructions
 
 InstructionPtr ListingDocument::instruction(address_t address)
 {
+    document_lock lock(m_mutex);
     auto it = m_instructions.find(address);
 
     if(it != m_instructions.end())

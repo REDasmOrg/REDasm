@@ -3,12 +3,20 @@
 
 namespace REDasm {
 
-Timer::Timer(): m_running(false) {}
+Timer::Timer(): m_running(false) { }
 
 Timer::~Timer()
 {
+    timer_lock m_lock(m_mutex);
     m_running = false;
-    m_mutex.unlock();
+    m_lock.unlock();
+    m_worker.join();
+}
+
+bool Timer::running()
+{
+    timer_lock m_lock(m_mutex);
+    return m_running;
 }
 
 void Timer::stop() { m_running = false; }
@@ -18,11 +26,13 @@ void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)
     if(m_running)
         return;
 
+    if(m_worker.joinable())
+        m_worker.join();
+
     m_interval = interval;
     m_running = true;
     m_timercallback = cb;
     m_worker = std::thread(&Timer::work, this);
-    m_worker.detach();
 }
 
 void Timer::work()

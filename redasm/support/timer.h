@@ -21,6 +21,7 @@ class Timer
     public:
         Timer();
         ~Timer();
+        bool running();
         void stop();
         void tick(TimerCallback cb, std::chrono::milliseconds interval = std::chrono::milliseconds(TIMER_INTERVAL));
 

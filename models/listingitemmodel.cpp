@@ -22,7 +22,8 @@ void ListingItemModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
     }
 
     this->endResetModel();
-    doc->whenChanged(std::bind(&ListingItemModel::onListingChanged, this, std::placeholders::_1));
+
+    doc->changed += std::bind(&ListingItemModel::onListingChanged, this, std::placeholders::_1);
 }
 
 QModelIndex ListingItemModel::index(int row, int column, const QModelIndex &parent) const

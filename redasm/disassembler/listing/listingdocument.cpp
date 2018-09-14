@@ -4,8 +4,6 @@
 namespace REDasm {
 
 ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
-void ListingDocument::whenChanged(const ListingDocument::ChangedCallback &cb) { m_changedcb.push_back(cb); }
-void ListingDocument::segmentAdded(const ListingDocument::SegmentCallback &cb) { m_segmentcb.push_back(cb); }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
@@ -79,7 +77,7 @@ void ListingDocument::segment(const std::string &name, offset_t offset, address_
 
     it = m_segments.insert(it, segment);
     this->pushSorted(address, ListingItem::SegmentItem);
-    this->notify<SegmentCallback>(m_segmentcb, std::distance(m_segments.begin(), it));
+    segmentadded(std::distance(m_segments.begin(), it));
 }
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
@@ -159,7 +157,7 @@ void ListingDocument::pushSorted(address_t address, u32 type)
     auto it = Listing::insertionPoint(this, itemptr);
     it = this->insert(it, std::move(itemptr));
     ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), false);
-    this->notify<ChangedCallback>(m_changedcb, &ldc);
+    changed(&ldc);
 }
 
 void ListingDocument::removeSorted(address_t address, u32 type)
@@ -171,7 +169,7 @@ void ListingDocument::removeSorted(address_t address, u32 type)
         return;
 
     ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), true);
-    this->notify<ChangedCallback>(m_changedcb, &ldc);
+    changed(&ldc);
     this->erase(it);
 }
 

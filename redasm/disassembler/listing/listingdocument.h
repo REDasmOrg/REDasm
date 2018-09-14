@@ -5,6 +5,7 @@
 #include <vector>
 #include <list>
 #include "../../redasm.h"
+#include "../../support/event.h"
 #include "../types/symboltable.h"
 #include "../types/referencetable.h"
 #include "instructionpool.h"
@@ -128,9 +129,12 @@ class ListingDocument: protected std::vector<ListingItemPtr>
 {
     using document_lock = std::unique_lock<std::mutex>;
 
+    public:
+        Event<const ListingDocumentChanged*> changed;
+        Event<int> segmentadded;
+
     private:
         typedef std::function<void(const ListingDocumentChanged*)> ChangedCallback;
-        typedef std::function<void(int)> SegmentCallback;
 
     public:
         using std::vector<ListingItemPtr>::const_iterator;
@@ -141,8 +145,6 @@ class ListingDocument: protected std::vector<ListingItemPtr>
 
     public:
         ListingDocument();
-        void whenChanged(const ChangedCallback& cb);
-        void segmentAdded(const SegmentCallback& cb);
 
     public:
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
@@ -189,7 +191,6 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         SymbolTable m_symboltable;
         FormatPlugin* m_format;
         std::list<ChangedCallback> m_changedcb;
-        std::list<SegmentCallback> m_segmentcb;
 
      friend class FormatPlugin;
 };

@@ -269,7 +269,8 @@ HEADERS  += mainwindow.h \
     redasm/support/timer.h \
     models/listingitemmodel.h \
     models/symboltablemodel.h \
-    models/listingfiltermodel.h
+    models/listingfiltermodel.h \
+    redasm/support/event.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

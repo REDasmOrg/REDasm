@@ -48,7 +48,7 @@ void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
 void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     REDasm::ListingDocument* doc = disassembler->document();
-    doc->whenChanged(std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1));
+    doc->changed += std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1);
 
     this->verticalScrollBar()->setRange(0, doc->size());
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->update(); });

@@ -117,8 +117,8 @@ DisassemblerView::~DisassemblerView()
 void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 {
     m_disassembler = disassembler;
-    this->log(QString("Found format '%1' with '%2'").arg(S_TO_QS(disassembler->format()->name()),
-                                                         S_TO_QS(disassembler->assembler()->name())));
+    this->log(QString("Found format '%1' with '%2' instruction set").arg(S_TO_QS(disassembler->format()->name()),
+                                                                         S_TO_QS(disassembler->assembler()->name())));
 
     REDasm::Buffer buffer = disassembler->format()->buffer();
     m_hexdocument = QHexDocument::fromMemory(reinterpret_cast<const char*>(buffer.data), buffer.length);

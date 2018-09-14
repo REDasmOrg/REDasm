@@ -1,7 +1,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#define TIMER_INTERVAL 50
+#define TIMER_INTERVAL 5
 
 #include <condition_variable>
 #include <functional>

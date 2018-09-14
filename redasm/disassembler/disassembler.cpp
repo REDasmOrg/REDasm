@@ -77,7 +77,12 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
     u32 status = algorithm->disassemble(address, instruction);
 
     if(status == DisassemblerAlgorithm::SKIP)
+    {
+        REDasm::status("Skipping @ " + REDasm::hex(address, m_format->bits(), false));
         return;
+    }
+    else
+        REDasm::status("Disassembling @ " + REDasm::hex(address, m_format->bits(), false));
 
     m_document->instruction(instruction);
 }
@@ -145,7 +150,6 @@ bool Disassembler::checkJumpTable(const InstructionPtr &instruction, address_t a
 void Disassembler::disassemble(address_t address)
 {
     m_algorithm->push(address);
-    std::cout << m_timer.running() << std::endl;
 
     if(m_timer.running())
         return;

@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <memory>
 
-#define INVALID_MNEMONIC       "db"
 #define INSTRUCTION_THRESHOLD  10
 #define DO_TICK_DISASSEMBLY()  m_timer.tick(std::bind(&Disassembler::disassembleStep, this, m_algorithm.get()))
 
@@ -69,6 +68,7 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
     {
         m_timer.stop();
         algorithm->analyze();
+        REDasm::status("DONE");
         return;
     }
 
@@ -80,187 +80,6 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
         return;
 
     m_document->instruction(instruction);
-}
-
-void Disassembler::disassembleUnexploredCode()
-{
-    /*
-    for(auto it = m_document->segments().begin(); it != m_document->segments().end(); it++)
-    {
-        const Segment& segment = *it;
-
-        if(!segment.is(SegmentTypes::Code))
-            continue;
-
-        this->searchStrings(segment);
-        this->searchCode(segment);
-    }
-    */
-}
-
-void Disassembler::searchCode(const Segment &segment)
-{
-    address_t address = segment.address;
-
-    while(address < segment.endaddress)
-    {
-        REDasm::status("Searching code @ " + REDasm::hex(address));
-
-        if(this->skipExploredData(address))
-            continue;
-
-        if(this->skipPadding(address))
-            continue;
-
-        if(!this->maybeValidCode(address))
-            continue;
-
-        //this->disassembleFunction(address);
-    }
-}
-
-void Disassembler::searchStrings(const Segment &segment)
-{
-    address_t address = segment.address;
-    u64 value = 0;
-    bool wide = false;
-
-    while(address < segment.endaddress)
-    {
-        REDasm::status("Searching strings @ " + REDasm::hex(address));
-
-        if(this->skipExploredData(address))
-            continue;
-
-        if(this->locationIsString(address, &wide) >= MIN_STRING)
-        {
-            if(wide)
-            {
-                m_document->symbol(address, SymbolTypes::WideString);
-                address += this->readWString(address).size() * sizeof(u16);
-            }
-            else
-            {
-                m_document->symbol(address, SymbolTypes::String);
-                address += this->readString(address).size();
-            }
-
-            if(this->readAddress(address, wide ? sizeof(u16) : sizeof(char), &value) && !value) // Check for null terminator
-                address += (wide ? sizeof(u16) : sizeof(char));
-
-            continue;
-        }
-
-        address++;
-    }
-}
-
-bool Disassembler::skipExploredData(address_t &address)
-{
-    SymbolPtr symbol = m_document->symbol(address);
-
-    if(!symbol)
-        return false;
-
-    if(symbol->is(SymbolTypes::String))
-    {
-        u64 value = 0;
-        bool wide = false;
-
-        this->locationIsString(address, &wide);
-
-        if(wide)
-            address += this->readWString(symbol).size() * sizeof(u16);
-        else
-            address += this->readString(symbol).size();
-
-        if(this->readAddress(address, wide ? sizeof(u16) : sizeof(char), &value) && !value) // Check for null terminator
-            address += (wide ? sizeof(u16) : sizeof(char));
-
-        return true;
-    }
-
-    /*
-    if(symbol->isFunction())
-    {
-        if(!this->_listing.getFunctionBounds(address, NULL, &address))
-            address++;
-
-        return true;
-    }
-    */
-
-    if(symbol->is(SymbolTypes::Pointer))
-    {
-        address += this->m_format->addressWidth();
-        return true;
-    }
-
-    return false;
-}
-
-bool Disassembler::skipPadding(address_t &address)
-{
-    address_t startaddress = address;
-    u64 value = 0;
-
-    while(this->readAddress(address, this->m_format->addressWidth(), &value) && !value)
-        address += this->m_format->addressWidth();
-
-    return address != startaddress;
-}
-
-bool Disassembler::maybeValidCode(address_t& address)
-{
-    /*
-    auto it = this->_listing.find(address);
-
-    if(it != this->_listing.end())
-    {
-        address += (*it)->size;
-        return false;
-    }
-
-    u64 value = 0;
-
-    if(!this->readAddress(address, this->m_format->addressWidth(), &value)) // Check for address
-    {
-        address++;
-        return false;
-    }
-
-    Segment* segment = this->m_format->segment(value); // Check if this value points somewhere
-
-    if(!segment)
-    {
-        address_t caddress = address;
-        InstructionPtr instruction;
-
-        for(u32 i = 0; i < INSTRUCTION_THRESHOLD; i++) // Try to disassemble some instructions
-        {
-            if(this->skipExploredData(caddress) || !this->m_format->segment(caddress))
-            {
-                address = caddress;
-                return false;
-            }
-
-            instruction = this->disassembleInstruction(caddress);
-            caddress += instruction->size ? instruction->size : 1;
-
-            if(instruction->isInvalid())
-            {
-                address++;
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    address += this->m_format->addressWidth();
-    */
-
-    return false;
 }
 
 void Disassembler::disassemble()
@@ -278,15 +97,6 @@ void Disassembler::disassemble()
         m_algorithm->push(entrypoint->address); // Push entry point
 
     DO_TICK_DISASSEMBLY();
-
-    /*
-    // Analyze and disassemble unexplored bytes in code sections
-    if(!(this->_format->flags() & FormatFlags::IgnoreUnexploredCode))
-    {
-        REDasm::status("Looking for missing code...");
-        this->disassembleUnexploredCode();
-    }
-    */
 }
 
 AssemblerPlugin *Disassembler::assembler() { return m_assembler.get(); }
@@ -335,6 +145,11 @@ bool Disassembler::checkJumpTable(const InstructionPtr &instruction, address_t a
 void Disassembler::disassemble(address_t address)
 {
     m_algorithm->push(address);
+    std::cout << m_timer.running() << std::endl;
+
+    if(m_timer.running())
+        return;
+
     DO_TICK_DISASSEMBLY();
 }
 

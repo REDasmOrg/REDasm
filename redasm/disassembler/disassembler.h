@@ -24,12 +24,6 @@ class Disassembler: public DisassemblerBase
 
     private:
         void disassembleStep(DisassemblerAlgorithm *algorithm);
-        void disassembleUnexploredCode();
-        void searchCode(const Segment &segment);
-        void searchStrings(const Segment& segment);
-        bool skipExploredData(address_t& address);
-        bool skipPadding(address_t& address);
-        bool maybeValidCode(address_t& address);
         size_t walkJumpTable(const InstructionPtr &instruction, address_t address);
 
     private:

@@ -34,38 +34,25 @@ bool DisassemblerAlgorithm::hasNext() const { return !m_pending.empty(); }
 
 address_t DisassemblerAlgorithm::next()
 {
-    address_t address = this->m_pending.top();
+    address_t address = m_pending.top();
     m_pending.pop();
     return address;
 }
 
 u32 DisassemblerAlgorithm::disassemble(address_t address, const InstructionPtr &instruction)
 {
-    if(this->isDisassembled(address))
+    auto it = m_disassembled.find(address);
+
+    if(it != m_disassembled.end())
         return DisassemblerAlgorithm::SKIP;
 
     m_disassembled.insert(address);
 
-    //TODO: Check Segment <-> address bounds
+    if(!this->canBeDisassembled(address))
+        return DisassemblerAlgorithm::SKIP;
+
     Buffer buffer = m_format->buffer() + m_format->offset(address);
-
-    if(buffer.eob())
-        return DisassemblerAlgorithm::SKIP;
-
-    if(!m_currentsegment || !m_currentsegment->contains(address))
-        m_currentsegment = m_document->segment(address);
-
-    if(!m_currentsegment || !m_currentsegment->is(SegmentTypes::Code))
-        return DisassemblerAlgorithm::SKIP;
-
-    SymbolPtr symbol = m_document->symbol(address);
-
-    if(symbol && symbol->is(SymbolTypes::Data))
-        return DisassemblerAlgorithm::SKIP;
-
     instruction->address = address;
-
-    REDasm::status("Disassembling @ " + REDasm::hex(address, m_format->bits(), false));
     u32 result = m_assembler->decode(buffer, instruction) ? DisassemblerAlgorithm::OK :
                                                             DisassemblerAlgorithm::FAIL;
 
@@ -78,12 +65,17 @@ u32 DisassemblerAlgorithm::disassemble(address_t address, const InstructionPtr &
 
 u32 DisassemblerAlgorithm::disassembleSingle(address_t address, const InstructionPtr& instruction)
 {
-    u32 res = this->disassemble(address, instruction);
+    if(!this->canBeDisassembled(address))
+        return DisassemblerAlgorithm::SKIP;
 
-    while(!m_pending.empty())
-        m_pending.pop();
+    Buffer buffer = m_format->buffer() + m_format->offset(address);
 
-    return res;
+    if(buffer.eob())
+        return DisassemblerAlgorithm::SKIP;
+
+    instruction->address = address;
+    return m_assembler->decode(buffer, instruction) ? DisassemblerAlgorithm::OK :
+                                                      DisassemblerAlgorithm::FAIL;
 }
 
 void DisassemblerAlgorithm::onDisassembled(const InstructionPtr &instruction, u32 result)
@@ -144,10 +136,10 @@ void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
             document->symbol(value, SymbolTypes::Function);
         else
         {
-            if(segment->is(SegmentTypes::Data) || segment->is(SegmentTypes::Bss))
-                m_disassembler->checkLocation(instruction, value); // Create Symbol + XRefs
-            else if(segment->is(SegmentTypes::Code))
+            if(segment->is(SegmentTypes::Code))
                 m_disassembler->checkString(instruction, value);   // Create Symbol + XRefs
+            else if(segment->is(SegmentTypes::Data) || segment->is(SegmentTypes::Bss))
+                m_disassembler->checkLocation(instruction, value); // Create Symbol + XRefs
 
             continue;
         }
@@ -156,7 +148,26 @@ void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
     }
 }
 
-bool DisassemblerAlgorithm::isDisassembled(address_t address) const { return m_disassembled.find(address) != m_disassembled.end(); }
+bool DisassemblerAlgorithm::canBeDisassembled(address_t address)
+{
+    Buffer buffer = m_format->buffer() + m_format->offset(address);
+
+    if(buffer.eob())
+        return false;
+
+    if(!m_currentsegment || !m_currentsegment->contains(address))
+        m_currentsegment = m_document->segment(address);
+
+    if(!m_currentsegment || !m_currentsegment->is(SegmentTypes::Code))
+        return false;
+
+    SymbolPtr symbol = m_document->symbol(address);
+
+    if(symbol && !symbol->is(SymbolTypes::Code))
+        return false;
+
+    return true;
+}
 
 void DisassemblerAlgorithm::createInvalidInstruction(const InstructionPtr &instruction, const Buffer& buffer)
 {
@@ -170,7 +181,7 @@ void DisassemblerAlgorithm::createInvalidInstruction(const InstructionPtr &instr
         return;
 
     std::stringstream ss;
-    ss << std::hex << *buffer;
+    ss << std::hex << static_cast<size_t>(*buffer);
     instruction->bytes = ss.str();
 }
 

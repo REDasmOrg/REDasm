@@ -14,6 +14,9 @@ class DisassemblerAlgorithm
     public:
         enum: u32 { OK, SKIP, FAIL };
 
+    private:
+        typedef std::set<address_t> DecodedAddresses;
+
     protected:
         DisassemblerAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assembler);
 
@@ -30,7 +33,7 @@ class DisassemblerAlgorithm
         virtual void checkOperands(const InstructionPtr& instruction);
 
     private:
-        bool isDisassembled(address_t address) const;
+        bool canBeDisassembled(address_t address);
         void createInvalidInstruction(const InstructionPtr& instruction, const Buffer &buffer);
 
     protected:
@@ -40,7 +43,7 @@ class DisassemblerAlgorithm
         FormatPlugin* m_format;
 
     private:
-        std::set<address_t> m_disassembled;
+        DecodedAddresses m_disassembled;
         std::stack<address_t> m_pending;
         std::unique_ptr<Analyzer> m_analyzer;
         const Segment* m_currentsegment;

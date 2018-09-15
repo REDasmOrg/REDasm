@@ -33,7 +33,10 @@ class DisassemblerTextView : public QAbstractScrollArea
         void goBack();
         void goForward();
 
-    protected:
+    private slots:
+        void blinkCursor();
+
+    private:
         virtual void paintEvent(QPaintEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);
         virtual void keyPressEvent(QKeyEvent *e);
@@ -45,8 +48,9 @@ class DisassemblerTextView : public QAbstractScrollArea
     private:
         int visibleLines() const;
         int lastVisibleLine() const;
-        int lineFromPos(const QPoint& p) const;
+        void cursorFromPos(const QPoint& p, int *line, int *column = NULL) const;
         bool isLineVisible(int line) const;
+        QPoint currentPosXY() const;
         void moveToCurrentLine();
         void createContextMenu();
         void adjustContextMenu();
@@ -72,6 +76,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         QAction *m_actrename, *m_actcreatestring, *m_actxrefs, *m_actfollow, *m_actcallgraph;
         QAction *m_actgoto, *m_acthexdump, *m_actback, *m_actforward, *m_actcopy, *m_actselectall;
         QMenu* m_contextmenu;
+        QTimer* m_blinktimer;
         address_t m_currentaddress, m_symboladdress;
 };
 

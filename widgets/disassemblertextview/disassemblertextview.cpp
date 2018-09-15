@@ -2,6 +2,7 @@
 #include "../../dialogs/referencesdialog.h"
 #include "../../dialogs/callgraphdialog.h"
 #include <cmath>
+#include <QTimer>
 #include <QPainter>
 #include <QFontDatabase>
 #include <QFontMetrics>
@@ -12,6 +13,8 @@
 #include <QScrollBar>
 #include <QAction>
 #include <QMenu>
+
+#define CURSOR_BLINK_INTERVAL 500 // 500ms
 
 DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_issymboladdressvalid(false), m_emitmode(DisassemblerTextView::Normal), m_renderer(NULL), m_disassembler(NULL), m_currentaddress(INT64_MAX), m_symboladdress(0)
 {
@@ -25,6 +28,11 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->verticalScrollBar()->setSingleStep(1);
     this->verticalScrollBar()->setPageStep(1);
 
+    m_blinktimer = new QTimer(this);
+    m_blinktimer->setInterval(CURSOR_BLINK_INTERVAL);
+
+    connect(m_blinktimer, &QTimer::timeout, this, &DisassemblerTextView::blinkCursor);
+
     connect(this, &DisassemblerTextView::customContextMenuRequested, [this](const QPoint&) {
         m_contextmenu->exec(QCursor::pos());
     });
@@ -32,11 +40,11 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 
 DisassemblerTextView::~DisassemblerTextView()
 {
-    if(!m_renderer)
-        return;
-
-    delete m_renderer;
-    m_renderer = NULL;
+    if(m_renderer)
+    {
+        delete m_renderer;
+        m_renderer = NULL;
+    }
 }
 
 bool DisassemblerTextView::canGoBack() const { return !m_backstack.isEmpty(); }
@@ -50,8 +58,6 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
     disassembler->finished += std::bind(&DisassemblerTextView::onDisassemblerFinished, this);
 
     REDasm::ListingDocument* doc = disassembler->document();
-    REDasm::ListingCursor* cur = doc->cursor();
-
     doc->changed += std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1);
 
     this->verticalScrollBar()->setRange(0, doc->size());
@@ -59,6 +65,7 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
 
     m_disassembler = disassembler;
     m_renderer = new ListingTextRenderer(this->font(), disassembler);
+    m_blinktimer->start();
     this->update();
 }
 
@@ -99,6 +106,19 @@ void DisassemblerTextView::goForward()
     emit canGoForwardChanged();
 }
 
+void DisassemblerTextView::blinkCursor()
+{
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingCursor* cur = doc->cursor();
+
+    m_renderer->toggleCursorActive();
+
+    if(!this->isLineVisible(cur->currentLine()))
+        return;
+
+    this->update();
+}
+
 void DisassemblerTextView::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e)
@@ -118,7 +138,10 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
     if(e->button() == Qt::LeftButton)
     {
         REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
-        cur->select(this->lineFromPos(e->pos()));
+        int line = 0, column = 0;
+
+        this->cursorFromPos(e->pos(), &line, &column);
+        cur->select(line, column);
     }
 
     QAbstractScrollArea::mousePressEvent(e);
@@ -172,18 +195,31 @@ int DisassemblerTextView::lastVisibleLine() const
     return vscrollbar->value() + this->visibleLines();
 }
 
-int DisassemblerTextView::lineFromPos(const QPoint &p) const
+void DisassemblerTextView::cursorFromPos(const QPoint &p, int* line, int* column) const
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
     QFontMetrics fm = this->fontMetrics();
 
-    return vscrollbar->value() + (p.y() / fm.height());
+    if(line)
+        *line = vscrollbar->value() + (p.y() / fm.height());
+
+    if(column)
+        *column = p.x() / fm.width(" ");
 }
 
 bool DisassemblerTextView::isLineVisible(int line) const
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
     return (line >= vscrollbar->value()) && (line < this->lastVisibleLine());
+}
+
+QPoint DisassemblerTextView::currentPosXY() const
+{
+    QFontMetrics fm = this->fontMetrics();
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingCursor* cur = doc->cursor();
+
+    return QPoint(cur->currentColumn() * fm.width(' '), cur->currentLine() * fm.height());
 }
 
 void DisassemblerTextView::moveToCurrentLine()

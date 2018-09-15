@@ -11,11 +11,14 @@ class ListingTextRenderer : public REDasm::ListingRenderer
         ListingTextRenderer(const QFont& font, REDasm::DisassemblerAPI* disassembler);
         virtual ~ListingTextRenderer();
         virtual void renderText(const REDasm::RendererFormat* rf);
+        virtual void renderCursor(const REDasm::RendererFormat* rf);
+        void toggleCursorActive();
 
     protected:
         virtual void fontUnit(double* w = NULL, double* h = NULL) const;
 
     private:
+        bool m_cursoractive;
         QFontMetrics m_fontmetrics;
 };
 

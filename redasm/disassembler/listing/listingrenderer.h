@@ -9,13 +9,32 @@ namespace REDasm {
 struct RendererFormat
 {
     double fontwidth, fontheight, x, y;
-    std::string text, style;
+    std::string fulltext, text, style;
     void* userdata;
 
     struct {
         bool highlighted;
-        int start, end;
-    } selection;
+        int line, column;
+    } cursor;
+
+    RendererFormat& clear() {
+        fulltext.clear();
+        text.clear();
+        style.clear();
+        return *this;
+    }
+
+    RendererFormat& operator <<(const std::string& rhs) {
+        fulltext += rhs;
+        text = rhs;
+        return *this;
+    }
+
+    RendererFormat& operator +=(const std::string& rhs) {
+        fulltext += rhs;
+        text += rhs;
+        return *this;
+    }
 };
 
 class ListingRenderer
@@ -26,25 +45,26 @@ class ListingRenderer
 
     public:
         virtual void renderText(const RendererFormat* rf) = 0;
+        virtual void renderCursor(const RendererFormat* rf) = 0;
 
     protected:
         virtual void fontUnit(double* w = NULL, double* h = NULL) const = 0;
 
     protected:
         double measureString(const std::string& s) const;
-        void renderSegment(ListingItem* item, RendererFormat *rf);
-        void renderFunction(ListingItem* item, RendererFormat* rf);
-        void renderInstruction(ListingItem* item, RendererFormat* rf);
-        void renderSymbol(ListingItem* item, RendererFormat* rf);
-        void renderAddress(ListingItem* item, RendererFormat* rf);
-        void renderMnemonic(const InstructionPtr& instruction, RendererFormat* rf);
-        void renderOperands(const InstructionPtr& instruction, RendererFormat* rf);
-        void renderComments(const InstructionPtr& instruction, RendererFormat* rf);
-        void renderAddressIndent(ListingItem *item, RendererFormat* rf);
-        void renderIndent(RendererFormat *rf, int n = 1);
+        void renderSegment(ListingItem* item, RendererFormat& rf);
+        void renderFunction(ListingItem* item, RendererFormat& rf);
+        void renderInstruction(ListingItem* item, RendererFormat& rf);
+        void renderSymbol(ListingItem* item, RendererFormat& rf);
+        void renderAddress(ListingItem* item, RendererFormat& rf);
+        void renderMnemonic(const InstructionPtr& instruction, RendererFormat& rf);
+        void renderOperands(const InstructionPtr& instruction, RendererFormat& rf);
+        void renderComments(const InstructionPtr& instruction, RendererFormat& rf);
+        void renderAddressIndent(ListingItem *item, RendererFormat& rf);
+        void renderIndent(RendererFormat& rf, int n = 1);
 
     private:
-        void moveX(RendererFormat* rf, size_t extra = 0) const;
+        void moveX(RendererFormat& rf, size_t extra = 0) const;
         static std::string escapeString(const std::string& s);
         static std::string commentString(const InstructionPtr& instruction);
 

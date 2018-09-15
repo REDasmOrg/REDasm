@@ -51,7 +51,7 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
     REDasm::ListingCursor* cur = doc->cursor();
 
     doc->changed += std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1);
-    cur->selectionChanged += std::bind(&DisassemblerTextView::onSelectionChanged, this);
+    cur->selectionChanged += std::bind(&DisassemblerTextView::moveToCurrentLine, this);
 
     this->verticalScrollBar()->setRange(0, doc->size());
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->update(); });
@@ -112,6 +112,17 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
     m_renderer->render(vscrollbar->value(), this->visibleLines(), &painter);
 }
 
+void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
+{
+    if(e->button() == Qt::LeftButton)
+    {
+        REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
+        cur->select(this->lineFromPos(e->pos()));
+    }
+
+    QAbstractScrollArea::mousePressEvent(e);
+}
+
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
     if(e->key() == Qt::Key_X)
@@ -139,16 +150,41 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
     this->update();
 }
 
-void DisassemblerTextView::onSelectionChanged()
-{
-    QScrollBar* vscrollbar = this->verticalScrollBar();
-    vscrollbar->setValue(m_disassembler->document()->cursor()->currentLine());
-}
-
 int DisassemblerTextView::visibleLines() const
 {
     QFontMetrics fm = this->fontMetrics();
     return std::ceil(this->height() / fm.height());
+}
+
+int DisassemblerTextView::lastVisibleLine() const
+{
+    QScrollBar* vscrollbar = this->verticalScrollBar();
+    return vscrollbar->value() + this->visibleLines();
+}
+
+int DisassemblerTextView::lineFromPos(const QPoint &p) const
+{
+    QScrollBar* vscrollbar = this->verticalScrollBar();
+    QFontMetrics fm = this->fontMetrics();
+
+    return vscrollbar->value() + (p.y() / fm.height());
+}
+
+bool DisassemblerTextView::isLineVisible(int line) const
+{
+    QScrollBar* vscrollbar = this->verticalScrollBar();
+    return (line >= vscrollbar->value()) && (line < this->lastVisibleLine());
+}
+
+void DisassemblerTextView::moveToCurrentLine()
+{
+    QScrollBar* vscrollbar = this->verticalScrollBar();
+    REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
+
+    if(!this->isLineVisible(cur->currentLine()))
+        vscrollbar->setValue(cur->currentLine());
+    else
+        this->update();
 }
 
 void DisassemblerTextView::createContextMenu()

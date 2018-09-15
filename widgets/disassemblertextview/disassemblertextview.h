@@ -3,6 +3,7 @@
 
 #include <QAbstractScrollArea>
 #include <QTextDocument>
+#include <QFontMetrics>
 #include <QStack>
 #include <QMenu>
 #include "listingtextrenderer.h"
@@ -34,14 +35,18 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     protected:
         virtual void paintEvent(QPaintEvent* e);
+        virtual void mousePressEvent(QMouseEvent* e);
         virtual void keyPressEvent(QKeyEvent *e);
 
     private:
         void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
-        void onSelectionChanged();
 
     private:
         int visibleLines() const;
+        int lastVisibleLine() const;
+        int lineFromPos(const QPoint& p) const;
+        bool isLineVisible(int line) const;
+        void moveToCurrentLine();
         void createContextMenu();
         void adjustContextMenu();
         void highlightWords();

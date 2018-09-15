@@ -20,8 +20,7 @@ VBAnalyzer::VBAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &sign
 
 void VBAnalyzer::analyze()
 {
-    SymbolTable* symboltable = m_document->symbols();
-    SymbolPtr entrypoint = symboltable->entryPoint();
+    SymbolPtr entrypoint = m_document->documentEntry();
 
     if(!entrypoint)
         return;
@@ -37,7 +36,7 @@ void VBAnalyzer::analyze()
     if(!pushinstruction->is(InstructionTypes::Push) && !callinstruction->is(InstructionTypes::Call))
         return;
 
-    SymbolPtr thunrtdata = symboltable->symbol(pushinstruction->operands[0].u_value);
+    SymbolPtr thunrtdata = m_document->symbol(pushinstruction->operands[0].u_value);
 
     if(thunrtdata)
         m_document->lock(thunrtdata->address, "thunRTData", SymbolTypes::Data);

@@ -20,6 +20,8 @@ template<typename ...ARGS> struct Event
         std::list<HandlerType> m_handlers;
 };
 
+typedef Event<> SimpleEvent;
+
 }
 
 #endif // EVENT_H

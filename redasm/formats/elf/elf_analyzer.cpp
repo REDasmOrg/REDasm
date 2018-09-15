@@ -10,11 +10,10 @@ ElfAnalyzer::ElfAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &si
 void ElfAnalyzer::analyze()
 {
     Analyzer::analyze();
-    SymbolTable* symbolable = m_disassembler->document()->symbols();
-    SymbolPtr symbol = symbolable->symbol("main");
+    SymbolPtr symbol = m_document->symbol("main");
 
     if(symbol)
-        symbolable->setEntryPoint(symbol);
+        m_document->setDocumentEntry(symbol->address);
 }
 
 } // namespace REDasm

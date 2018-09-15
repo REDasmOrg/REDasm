@@ -10,12 +10,12 @@ GbaAnalyzer::GbaAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles& si
 void GbaAnalyzer::analyze()
 {
     Analyzer::analyze();
-    this->renameEPBranch(m_disassembler->document()->symbols());
+    this->renameEPBranch();
 }
 
-void GbaAnalyzer::renameEPBranch(SymbolTable *symboltable)
+void GbaAnalyzer::renameEPBranch()
 {
-    SymbolPtr symbol = symboltable->entryPoint();
+    SymbolPtr symbol = m_document->documentEntry();
 
     if(!symbol)
         return;

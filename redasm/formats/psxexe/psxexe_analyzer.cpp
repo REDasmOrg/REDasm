@@ -15,8 +15,7 @@ void PsxExeAnalyzer::analyze()
 
 void PsxExeAnalyzer::detectMain()
 {
-    SymbolTable* symboltable = m_disassembler->document()->symbols();
-    SymbolPtr symentry = symboltable->entryPoint();
+    SymbolPtr symentry = m_document->documentEntry();
 
     if(!symentry)
         return;

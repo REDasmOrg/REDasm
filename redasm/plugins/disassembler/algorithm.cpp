@@ -25,8 +25,15 @@ void DisassemblerAlgorithm::analyze()
     m_analyzer.reset(format->createAnalyzer(m_disassembler, format->signatures()));
 
     std::thread([&]() {
+        ListingCursor* cur = m_document->cursor();
         REDasm::status("Analyzing...");
-            m_analyzer->analyze();
+
+        m_analyzer->analyze();
+        SymbolPtr symep = m_document->documentEntry();
+
+        if(symep)
+            cur->select(m_document->functionIndex(symep->address));
+
     }).detach();
 }
 

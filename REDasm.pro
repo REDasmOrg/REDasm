@@ -139,7 +139,8 @@ SOURCES += main.cpp\
     redasm/support/timer.cpp \
     models/listingitemmodel.cpp \
     models/symboltablemodel.cpp \
-    models/listingfiltermodel.cpp
+    models/listingfiltermodel.cpp \
+    redasm/disassembler/listing/listingcursor.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -270,7 +271,8 @@ HEADERS  += mainwindow.h \
     models/listingitemmodel.h \
     models/symboltablemodel.h \
     models/listingfiltermodel.h \
-    redasm/support/event.h
+    redasm/support/event.h \
+    redasm/disassembler/listing/listingcursor.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

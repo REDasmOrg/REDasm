@@ -73,11 +73,9 @@ class SymbolTable
         SymbolTable();
         u64 size() const;
         bool create(address_t address, const std::string& name, u32 type, u32 tag = 0);
-        SymbolPtr entryPoint();
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);
         SymbolPtr at(u64 index);
-        void setEntryPoint(const SymbolPtr& symbol);
         void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
         bool erase(address_t address);
         void sort();
@@ -86,8 +84,6 @@ class SymbolTable
         AddressList m_addresses;
         SymbolsByName m_byname;
         SymbolCache m_byaddress;
-        address_t m_epaddress;
-        bool m_isepvalid;
 };
 
 }

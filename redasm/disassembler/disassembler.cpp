@@ -90,13 +90,14 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
 void Disassembler::disassemble()
 {
     SymbolTable* symboltable = m_document->symbols();
-    SymbolPtr entrypoint = symboltable->entryPoint();
 
     // Preload format functions for analysis
     symboltable->iterate(SymbolTypes::FunctionMask, [=](SymbolPtr symbol) -> bool {
         m_algorithm->push(symbol->address);
         return true;
     });
+
+    SymbolPtr entrypoint = m_document->documentEntry();
 
     if(entrypoint)
         m_algorithm->push(entrypoint->address); // Push entry point

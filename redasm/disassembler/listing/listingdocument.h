@@ -8,6 +8,7 @@
 #include "../../support/event.h"
 #include "../types/symboltable.h"
 #include "../types/referencetable.h"
+#include "listingcursor.h"
 #include "instructionpool.h"
 
 namespace REDasm {
@@ -113,6 +114,15 @@ namespace Listing {
 
         return std::distance(container->begin(), it);
     }
+
+    template<typename T, typename IT = typename ListingIterator<T>::Type> int indexOf(T* container, address_t address, u32 type) {
+        auto it = Listing::binarySearch(container, address, type);
+
+        if(it == container->end())
+            return -1;
+
+        return std::distance(container->begin(), it);
+    }
 }
 
 struct ListingDocumentChanged
@@ -145,6 +155,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
 
     public:
         ListingDocument();
+        ListingCursor* cursor();
 
     public:
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
@@ -155,25 +166,22 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         void function(address_t address, const std::string& name, u32 tag = 0);
         void function(address_t address, u32 tag = 0);
         void entry(address_t address, u32 tag = 0);
-
-    public:
+        void setDocumentEntry(address_t address);
+        SymbolPtr documentEntry() const;
         size_t segmentsCount() const;
         Segment *segment(address_t address);
         const Segment *segment(address_t address) const;
         const Segment *segmentAt(size_t idx) const;
         const Segment *segmentByName(const std::string& name) const;
-
-    public:
         void instruction(const InstructionPtr& instruction);
         void update(const InstructionPtr& instruction);
         InstructionPtr instruction(address_t address);
-
-    public:
         ListingDocument::iterator instructionItem(address_t address);
-
-    public:
+        int functionIndex(address_t address);
+        int instructionIndex(address_t address);
         ListingItem* itemAt(size_t i);
         SymbolPtr symbol(address_t address);
+        SymbolPtr symbol(const std::string& name);
         SymbolTable* symbols();
         FormatPlugin* format();
 
@@ -181,26 +189,20 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         void pushSorted(address_t address, u32 type);
         void removeSorted(address_t address, u32 type);
         ListingDocument::iterator item(address_t address, u32 type);
+        int index(address_t address, u32 type);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
-        template<typename T, typename... ARGS> void notify(const std::list<T>& handler, ARGS... args);
 
     private:
         std::mutex m_mutex;
+        ListingCursor m_cursor;
         SegmentList m_segments;
         InstructionPool m_instructions;
         SymbolTable m_symboltable;
         FormatPlugin* m_format;
-        std::list<ChangedCallback> m_changedcb;
+        SymbolPtr m_documententry;
 
      friend class FormatPlugin;
 };
-
-template<typename T, typename... ARGS> void ListingDocument::notify(const std::list<T>& handler, ARGS... args)
-{
-    std::for_each(handler.begin(), handler.end(), [&](const T& cb) {
-        cb(std::forward<ARGS>(args)...);
-    });
-}
 
 } // namespace REDasm
 

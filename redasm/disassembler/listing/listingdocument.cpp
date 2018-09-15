@@ -4,6 +4,7 @@
 namespace REDasm {
 
 ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
+ListingCursor *ListingDocument::cursor() { return &m_cursor; }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
@@ -82,7 +83,20 @@ void ListingDocument::segment(const std::string &name, offset_t offset, address_
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
 void ListingDocument::function(address_t address, u32 tag) { this->symbol(address, ListingDocument::symbolName("sub", address), SymbolTypes::Function, tag); }
-void ListingDocument::entry(address_t address, u32 tag) { this->lock(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag); }
+
+void ListingDocument::entry(address_t address, u32 tag)
+{
+    this->lock(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag);
+    this->setDocumentEntry(address);
+}
+
+void ListingDocument::setDocumentEntry(address_t address)
+{
+    m_documententry = m_symboltable.symbol(address);
+    m_cursor.select(this->functionIndex(address));
+}
+
+SymbolPtr ListingDocument::documentEntry() const { return m_documententry; }
 size_t ListingDocument::segmentsCount() const { return m_segments.size(); }
 
 Segment *ListingDocument::segment(address_t address)
@@ -137,7 +151,15 @@ ListingDocument::iterator ListingDocument::item(address_t address, u32 type)
     return Listing::binarySearch(this, address, type);
 }
 
+int ListingDocument::index(address_t address, u32 type)
+{
+    document_lock lock(m_mutex);
+    return Listing::indexOf(this, address, type);
+}
+
 ListingDocument::iterator ListingDocument::instructionItem(address_t address) { return this->item(address, ListingItem::InstructionItem); }
+int ListingDocument::functionIndex(address_t address) { return this->index(address, ListingItem::FunctionItem); }
+int ListingDocument::instructionIndex(address_t address) { return this->index(address, ListingItem::InstructionItem); }
 
 ListingItem* ListingDocument::itemAt(size_t i)
 {
@@ -146,6 +168,7 @@ ListingItem* ListingDocument::itemAt(size_t i)
 }
 
 SymbolPtr ListingDocument::symbol(address_t address) { return m_symboltable.symbol(address); }
+SymbolPtr ListingDocument::symbol(const std::string &name) { return m_symboltable.symbol(name); }
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
 FormatPlugin *ListingDocument::format() { return m_format; }
 

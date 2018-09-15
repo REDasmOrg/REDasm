@@ -26,7 +26,7 @@ void SymbolCache::deserialize(SymbolPtr &value, std::fstream &fs)
 }
 
 // SymbolTable
-SymbolTable::SymbolTable(): m_epaddress(0), m_isepvalid(false) {  }
+SymbolTable::SymbolTable() { }
 u64 SymbolTable::size() const { return m_addresses.size(); }
 
 bool SymbolTable::create(address_t address, const std::string &name, u32 type, u32 tag)
@@ -41,24 +41,10 @@ bool SymbolTable::create(address_t address, const std::string &name, u32 type, u
             return false;
     }
 
-    if(type & SymbolTypes::EntryPointMask)
-    {
-        m_isepvalid = true;
-        m_epaddress = address;
-    }
-
     m_addresses.push_back(address);
     m_byaddress.commit(address, std::make_shared<Symbol>(type, tag, address, name));
     m_byname[name] = address;
     return it == m_byaddress.end();
-}
-
-SymbolPtr SymbolTable::entryPoint()
-{
-    if(!m_isepvalid)
-        return NULL;
-
-    return symbol(this->m_epaddress);
 }
 
 SymbolPtr SymbolTable::symbol(const std::string &name)
@@ -87,12 +73,6 @@ SymbolPtr SymbolTable::at(u64 index)
         throw std::runtime_error("SymbolTable[]: Index out of range");
 
     return this->symbol(m_addresses[index]);
-}
-
-void SymbolTable::setEntryPoint(const SymbolPtr &symbol)
-{
-    m_isepvalid = true;
-    m_epaddress = symbol->address;
 }
 
 void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)> f)

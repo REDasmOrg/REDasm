@@ -12,7 +12,7 @@ class GbaAnalyzer : public Analyzer
         virtual void analyze();
 
     private:
-        void renameEPBranch(SymbolTable *symboltable);
+        void renameEPBranch();
 };
 
 } // namespace REDasm

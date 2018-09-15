@@ -2,9 +2,7 @@
 #define DISASSEMBLERTEXTVIEW_H
 
 #include <QAbstractScrollArea>
-#include <QTextDocument>
 #include <QFontMetrics>
-#include <QStack>
 #include <QMenu>
 #include "listingtextrenderer.h"
 #include "disassemblerhighlighter.h"
@@ -27,7 +25,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
 
     public slots:
-        void goTo(const REDasm::SymbolPtr& symbol);
+        void goTo(REDasm::ListingItem *item);
         void goTo(address_t address);
         void rename(address_t address);
         void goBack();
@@ -69,7 +67,6 @@ class DisassemblerTextView : public QAbstractScrollArea
     private:
         bool m_issymboladdressvalid;
         u32 m_emitmode;
-        QStack<address_t> m_backstack, m_forwardstack;
         ListingTextRenderer* m_renderer;
         DisassemblerHighlighter* m_highlighter;
         REDasm::DisassemblerAPI* m_disassembler;

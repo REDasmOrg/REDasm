@@ -167,6 +167,12 @@ ListingItem* ListingDocument::itemAt(size_t i)
     return this->at(i).get();
 }
 
+int ListingDocument::indexOf(ListingItem *item)
+{
+    document_lock lock(m_mutex);
+    return Listing::indexOf(this, item);
+}
+
 SymbolPtr ListingDocument::symbol(address_t address) { return m_symboltable.symbol(address); }
 SymbolPtr ListingDocument::symbol(const std::string &name) { return m_symboltable.symbol(name); }
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }

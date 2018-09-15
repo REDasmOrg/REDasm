@@ -195,20 +195,11 @@ void DisassemblerView::gotoXRef(const QModelIndex &index)
 
 void DisassemblerView::gotoSymbol(const QModelIndex &index)
 {
-    /*
     if(!index.isValid() || !index.internalPointer())
         return;
 
-    const SymbolTableFilterModel* filtermodel = static_cast<const SymbolTableFilterModel*>(index.model());
-    QModelIndex srcindex = filtermodel->mapToSource(index);
-    REDasm::SymbolPtr symbol = filtermodel->symbol(srcindex);
-    const REDasm::Segment* segment = this->_disassembler->format()->segment(symbol->address);
-
-    if(!segment)
-        return;
-
-    ui->disassemblerTextView->goTo(symbol);
-    */
+    REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
+    ui->disassemblerTextView->goTo(item);
 }
 
 void DisassemblerView::xrefSymbol(const QModelIndex &index)

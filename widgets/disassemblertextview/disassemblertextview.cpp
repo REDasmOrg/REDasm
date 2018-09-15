@@ -47,8 +47,8 @@ DisassemblerTextView::~DisassemblerTextView()
     }
 }
 
-bool DisassemblerTextView::canGoBack() const { return !m_backstack.isEmpty(); }
-bool DisassemblerTextView::canGoForward() const { return !m_forwardstack.isEmpty(); }
+bool DisassemblerTextView::canGoBack() const { return false; }
+bool DisassemblerTextView::canGoForward() const { return false; }
 address_t DisassemblerTextView::currentAddress() const { return m_currentaddress; }
 address_t DisassemblerTextView::symbolAddress() const { return m_symboladdress; }
 void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
@@ -71,39 +71,27 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
 
 void DisassemblerTextView::goTo(address_t address)
 {
-    if(m_currentaddress != address)
-    {
-        m_backstack.push(m_currentaddress);
-        emit canGoBackChanged();
-    }
-
-    //this->display(address);
 }
 
-void DisassemblerTextView::goTo(const REDasm::SymbolPtr &symbol) { this->goTo(symbol->address); }
+void DisassemblerTextView::goTo(REDasm::ListingItem *item)
+{
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingCursor* cur = doc->cursor();
+    int idx = doc->indexOf(item);
+
+    if(idx == -1)
+        return;
+
+    doc->cursor()->select(idx);
+}
 
 void DisassemblerTextView::goBack()
 {
-    if(m_backstack.isEmpty())
-        return;
 
-    address_t address = m_backstack.pop();
-    m_forwardstack.push(m_currentaddress);
-
-    emit canGoBackChanged();
-    emit canGoForwardChanged();
 }
 
 void DisassemblerTextView::goForward()
 {
-    if(m_forwardstack.isEmpty())
-        return;
-
-    address_t address = m_forwardstack.pop();
-    m_backstack.push(m_currentaddress);
-
-    emit canGoBackChanged();
-    emit canGoForwardChanged();
 }
 
 void DisassemblerTextView::blinkCursor()

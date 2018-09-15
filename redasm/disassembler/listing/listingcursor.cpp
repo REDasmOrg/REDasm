@@ -2,17 +2,15 @@
 
 namespace REDasm {
 
-ListingCursor::ListingCursor(): m_selectedline(0)
-{
-
-}
+ListingCursor::ListingCursor(): m_currentline(0) { }
+int ListingCursor::currentLine() const { return m_currentline; }
 
 void ListingCursor::select(int line)
 {
-    if(m_selectedline == line)
+    if(m_currentline == line)
         return;
 
-    m_selectedline = line;
+    m_currentline = line;
     selectionChanged();
 }
 

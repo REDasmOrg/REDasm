@@ -16,10 +16,12 @@ ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_disassembler(
 
 void ListingRenderer::render(size_t start, size_t count, void *userdata)
 {
+    ListingCursor* cur = m_document->cursor();
     size_t end = start + count;
 
     RendererFormat rf;
     rf.userdata = userdata;
+    rf.selection.start = rf.selection.end = -1;
 
     this->fontUnit(&rf.fontwidth, &rf.fontheight);
 
@@ -29,6 +31,7 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
 
         rf.x = 0;
         rf.y = i * rf.fontheight;
+        rf.selection.highlighted = cur->currentLine() == static_cast<int>(line);
 
         if(item->is(ListingItem::SegmentItem))
             this->renderSegment(item, &rf);

@@ -17,6 +17,15 @@ void ListingTextRenderer::renderText(const REDasm::RendererFormat *rf)
     QPainter* painter = reinterpret_cast<QPainter*>(rf->userdata);
     QRectF rect(rf->x, rf->y, this->measureString(rf->text), rf->fontheight);
 
+    if(rf->selection.highlighted)
+    {
+        QRect rvp = painter->viewport();
+        rvp.moveTo(rf->x, rf->y);
+        rvp.setHeight(rf->fontheight);
+
+        painter->fillRect(rvp, THEME_VALUE("highlight"));
+    }
+
     if(!rf->style.empty())
         painter->setPen(THEME_VALUE(QString::fromStdString(rf->style)));
     else

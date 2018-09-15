@@ -13,10 +13,11 @@ class ListingCursor
 
     public:
         ListingCursor();
+        int currentLine() const;
         void select(int line);
 
     private:
-        int m_selectedline;
+        int m_currentline;
 };
 
 } // namespace REDasm

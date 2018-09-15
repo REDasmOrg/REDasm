@@ -11,6 +11,11 @@ struct RendererFormat
     double fontwidth, fontheight, x, y;
     std::string text, style;
     void* userdata;
+
+    struct {
+        bool highlighted;
+        int start, end;
+    } selection;
 };
 
 class ListingRenderer

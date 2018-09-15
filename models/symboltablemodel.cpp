@@ -5,7 +5,7 @@ void SymbolTableModel::setSymbolFlags(u32 symbolflags) { m_symbolflags = symbolf
 
 bool SymbolTableModel::isItemAllowed(REDasm::ListingItem *item) const
 {
-    if(!ListingItemModel::isItemAllowed(item) || item->is(REDasm::ListingItem::InstructionItem))
+    if(!ListingItemModel::isItemAllowed(item) || (!item->is(REDasm::ListingItem::FunctionItem) && !item->is(REDasm::ListingItem::SymbolItem)))
         return false;
 
     REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);

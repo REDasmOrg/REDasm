@@ -141,7 +141,8 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
 
 void DisassemblerTextView::onSelectionChanged()
 {
-
+    QScrollBar* vscrollbar = this->verticalScrollBar();
+    vscrollbar->setValue(m_disassembler->document()->cursor()->currentLine());
 }
 
 int DisassemblerTextView::visibleLines() const

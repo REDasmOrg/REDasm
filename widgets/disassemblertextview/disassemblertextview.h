@@ -39,6 +39,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         virtual void keyPressEvent(QKeyEvent *e);
 
     private:
+        void onDisassemblerFinished();
         void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
 
     private:
@@ -50,21 +51,15 @@ class DisassemblerTextView : public QAbstractScrollArea
         void createContextMenu();
         void adjustContextMenu();
         void highlightWords();
-        void updateAddress();
-        void updateSymbolAddress(address_t address);
         void showReferences(address_t address);
         void showCallGraph(address_t address);
-        int getCursorAnchor(address_t &address);
 
     signals:
         void gotoRequested();
         void canGoBackChanged();
         void canGoForwardChanged();
-        void invalidateSymbols();
         void hexDumpRequested(address_t address);
         void symbolRenamed(const REDasm::SymbolPtr& symbol);
-        void symbolAddressChanged();
-        void symbolDeselected();
         void addressChanged(address_t address);
 
     private:

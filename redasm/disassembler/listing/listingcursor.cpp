@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-ListingCursor::ListingCursor(): m_currentline(0) { }
+ListingCursor::ListingCursor(): m_currentline(-1) { }
 int ListingCursor::currentLine() const { return m_currentline; }
 
 void ListingCursor::select(int line)

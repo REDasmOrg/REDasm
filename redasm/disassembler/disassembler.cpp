@@ -67,8 +67,10 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
     if(!algorithm->hasNext())
     {
         m_timer.stop();
-        algorithm->analyze();
-        REDasm::status("DONE");
+
+        if(algorithm->analyze())
+            finished();
+
         return;
     }
 

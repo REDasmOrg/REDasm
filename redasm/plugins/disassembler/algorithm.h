@@ -24,7 +24,7 @@ class DisassemblerAlgorithm
         u32 disassemble(address_t address, const InstructionPtr& instruction);
         u32 disassembleSingle(address_t address, const InstructionPtr& instruction);
         void push(address_t address);
-        void analyze();
+        bool analyze();
         bool hasNext() const;
         address_t next();
 

@@ -14,10 +14,10 @@ DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, Asse
 
 void DisassemblerAlgorithm::push(address_t address) { m_pending.push(address); }
 
-void DisassemblerAlgorithm::analyze()
+bool DisassemblerAlgorithm::analyze()
 {
     if(m_analyzed)
-        return;
+        return false;
 
     m_analyzed = true;
 
@@ -27,14 +27,15 @@ void DisassemblerAlgorithm::analyze()
     std::thread([&]() {
         ListingCursor* cur = m_document->cursor();
         REDasm::status("Analyzing...");
-
         m_analyzer->analyze();
+
         SymbolPtr symep = m_document->documentEntry();
 
         if(symep)
             cur->select(m_document->functionIndex(symep->address));
-
     }).detach();
+
+    return true;
 }
 
 bool DisassemblerAlgorithm::hasNext() const { return !m_pending.empty(); }

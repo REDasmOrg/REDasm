@@ -47,11 +47,12 @@ void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
 
 void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
+    disassembler->finished += std::bind(&DisassemblerTextView::onDisassemblerFinished, this);
+
     REDasm::ListingDocument* doc = disassembler->document();
     REDasm::ListingCursor* cur = doc->cursor();
 
     doc->changed += std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1);
-    cur->selectionChanged += std::bind(&DisassemblerTextView::moveToCurrentLine, this);
 
     this->verticalScrollBar()->setRange(0, doc->size());
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->update(); });
@@ -127,16 +128,25 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
     if(e->key() == Qt::Key_X)
     {
-        int action = 0;
-        address_t address = 0;
+        //int action = 0;
+        //address_t address = 0;
 
-        if(!(action = this->getCursorAnchor(address)))
-            return;
+        //if(!(action = this->getCursorAnchor(address)))
+            //return;
 
-        this->showReferences(address);
+        //this->showReferences(address);
     }
     else if(e->key() == Qt::Key_N)
         this->rename(m_symboladdress);
+}
+
+void DisassemblerTextView::onDisassemblerFinished()
+{
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingCursor* cur = doc->cursor();
+
+    cur->selectionChanged += std::bind(&DisassemblerTextView::moveToCurrentLine, this);
+    this->moveToCurrentLine();
 }
 
 void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
@@ -179,12 +189,18 @@ bool DisassemblerTextView::isLineVisible(int line) const
 void DisassemblerTextView::moveToCurrentLine()
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
-    REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingCursor* cur = doc->cursor();
 
     if(!this->isLineVisible(cur->currentLine()))
         vscrollbar->setValue(cur->currentLine());
     else
         this->update();
+
+    REDasm::ListingItem* item = doc->itemAt(cur->currentLine());
+
+    if(item)
+        emit addressChanged(item->address);
 }
 
 void DisassemblerTextView::createContextMenu()
@@ -287,31 +303,6 @@ void DisassemblerTextView::highlightWords()
         //this->_highlighter->highlight(cursor.selectedText(), currentaddress, b);
 }
 
-void DisassemblerTextView::updateAddress()
-{
-    //QTextCursor cursor = this->textCursor();
-    //QTextBlockFormat blockformat = cursor.blockFormat();
-
-    //if(!blockformat.hasProperty(DisassemblerTextDocument::Address))
-        //return;
-
-    //bool ok = false;
-    //address_t address = blockformat.property(DisassemblerTextDocument::Address).toULongLong(&ok);
-
-    //if(!ok || address == this->_currentaddress)
-        //return;
-
-    //this->_currentaddress = address;
-    //emit addressChanged(this->_currentaddress);
-}
-
-void DisassemblerTextView::updateSymbolAddress(address_t address)
-{
-    m_issymboladdressvalid = true;
-    m_symboladdress = address;
-    emit symbolAddressChanged();
-}
-
 void DisassemblerTextView::showReferences(address_t address)
 {
     REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(address);
@@ -334,27 +325,6 @@ void DisassemblerTextView::showCallGraph(address_t address)
 {
     //CallGraphDialog dlgcallgraph(address, m_disassembler, this);
     //dlgcallgraph.exec();
-}
-
-int DisassemblerTextView::getCursorAnchor(address_t& address)
-{
-    /*
-    QTextCursor cursor = this->textCursor();
-    QTextCharFormat charformat = cursor.charFormat();
-
-    if(!charformat.isAnchor())
-        return DisassemblerTextDocument::NoAction;
-
-    QJsonObject data = DisassemblerTextDocument::decode(charformat.anchorHref());
-    int action = data["action"].toInt();
-
-    if(action != DisassemblerTextDocument::NoAction)
-        address = data["address"].toVariant().toULongLong();
-
-    return action;
-    */
-
-    return 0;
 }
 
 void DisassemblerTextView::rename(address_t address)

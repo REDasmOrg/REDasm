@@ -76,9 +76,6 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     connect(ui->disassemblerTextView, &DisassemblerTextView::symbolRenamed, this, &DisassemblerView::updateModel);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayInstructionReferences);
-    connect(ui->disassemblerTextView, &DisassemblerTextView::symbolAddressChanged, this, &DisassemblerView::displayReferences);
-    connect(ui->disassemblerTextView, &DisassemblerTextView::symbolDeselected, m_referencesmodel, &ReferencesModel::clear);
-    connect(ui->disassemblerTextView, &DisassemblerTextView::invalidateSymbols, [this]() { this->updateModel(NULL);});
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoBackChanged, [this]() { ui->tbBack->setEnabled(ui->disassemblerTextView->canGoBack()); });
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoForwardChanged, [this]() { ui->tbForward->setEnabled(ui->disassemblerTextView->canGoForward()); });
 
@@ -238,27 +235,16 @@ void DisassemblerView::xrefSymbol(const QModelIndex &index)
 
 void DisassemblerView::displayAddress(address_t address)
 {
-    /*
-    REDasm::SymbolPtr symbol = this->_disassembler->instructions().getFunction(address);
-    const REDasm::Segment* segment = this->_disassembler->format()->segment(address);
-    offset_t offset = this->_disassembler->format()->offset(address);
-    s64 foffset = symbol ? address - symbol->address : 0;
-    int bits = this->_disassembler->format()->bits();
-    QString soffset;
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::FormatPlugin* format = doc->format();
+    const REDasm::Segment* segment = doc->segment(address);
 
-    if(foffset > 0)
-        soffset = "+" + QString::number(foffset, 16);
-    else if(foffset < 0)
-        soffset = "-" + QString::number(foffset, 16);
+    QString segm = segment ? S_TO_QS(segment->name) : "???",
+            offs = segment ? S_TO_QS(REDasm::hex(format->offset(address), format->bits(), false)) : "???",
+            addr = S_TO_QS(REDasm::hex(address, format->bits(), false));
 
-    QString s = QString("<b>%1:%2</b>\u00A0\u00A0[%3]\u00A0\u00A0<b>%4%5</b>").arg(segment ? S_TO_QS(segment->name) : "unk",
-                                                                                   S_TO_QS(REDasm::hex(address, bits, false)),
-                                                                                   S_TO_QS(REDasm::hex(offset, bits, false)),
-                                                                                   symbol ? S_TO_QS(symbol->name) : QString(),
-                                                                                   soffset);
-
-    this->_lblstatus->setText(s);
-    */
+    QString s = QString("<b>Address: </b>%1\u00A0\u00A0<b>Offset: </b>%2\u00A0\u00A0<b>Segment: </b>%3").arg(addr, offs, segm);
+    m_lblstatus->setText(s);
 }
 
 void DisassemblerView::displayInstructionReferences()

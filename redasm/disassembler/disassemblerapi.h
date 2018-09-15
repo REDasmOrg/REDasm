@@ -2,9 +2,9 @@
 #define DISASSEMBLERAPI_H
 
 #define MIN_STRING       4
-//#define MAX_STRING       200
 
 #include "../redasm.h"
+#include "../support/event.h"
 #include "types/symboltable.h"
 #include "types/referencetable.h"
 
@@ -20,6 +20,9 @@ class Emulator;
 
 class DisassemblerAPI
 {
+    public:
+        SimpleEvent finished;
+
     public:
         DisassemblerAPI();
         virtual FormatPlugin* format() = 0;

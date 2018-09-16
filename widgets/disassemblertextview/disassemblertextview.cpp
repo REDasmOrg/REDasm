@@ -99,7 +99,7 @@ void DisassemblerTextView::blinkCursor()
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::ListingCursor* cur = doc->cursor();
 
-    m_renderer->toggleCursorActive();
+    m_renderer->toggleCursor();
 
     if(!this->isLineVisible(cur->currentLine()))
         return;
@@ -189,10 +189,10 @@ void DisassemblerTextView::cursorFromPos(const QPoint &p, int* line, int* column
     QFontMetrics fm = this->fontMetrics();
 
     if(line)
-        *line = vscrollbar->value() + (p.y() / fm.height());
+        *line = vscrollbar->value() + std::ceil(p.y() / fm.height());
 
     if(column)
-        *column = p.x() / fm.width(" ");
+        *column = std::ceil(p.x() / fm.width(" "));
 }
 
 bool DisassemblerTextView::isLineVisible(int line) const

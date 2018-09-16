@@ -8,33 +8,38 @@ namespace REDasm {
 
 struct RendererFormat
 {
-    double fontwidth, fontheight, x, y;
-    std::string fulltext, text, style;
+    RendererFormat(const std::string& text, const std::string& style): text(text), style(style) { }
+    std::string text, style;
+};
+
+struct RendererLine
+{
+    RendererLine() { }
+
     void* userdata;
+    size_t index;
+    bool highlighted;
+    std::list<RendererFormat> formats;
 
-    struct {
-        bool highlighted;
-        int line, column;
-    } cursor;
+    std::string text() const {
+        std::string s;
 
-    RendererFormat& clear() {
-        fulltext.clear();
-        text.clear();
-        style.clear();
-        return *this;
+        for(const RendererFormat& rf : formats)
+            s += rf.text;
+
+        return s;
     }
 
-    RendererFormat& operator <<(const std::string& rhs) {
-        fulltext += rhs;
-        text = rhs;
-        return *this;
+    size_t length() const {
+        size_t len = 0;
+
+        for(const RendererFormat& rf : formats)
+            len += rf.text.size();
+
+        return len;
     }
 
-    RendererFormat& operator +=(const std::string& rhs) {
-        fulltext += rhs;
-        text += rhs;
-        return *this;
-    }
+    void push(const std::string& text, const std::string& style = std::string()) { formats.push_back(RendererFormat(text, style)); }
 };
 
 class ListingRenderer
@@ -43,37 +48,30 @@ class ListingRenderer
         ListingRenderer(DisassemblerAPI* disassembler);
         void render(size_t start, size_t count, void* userdata = NULL);
 
-    public:
-        virtual void renderText(const RendererFormat* rf) = 0;
-        virtual void renderCursor(const RendererFormat* rf) = 0;
-
     protected:
-        virtual void fontUnit(double* w = NULL, double* h = NULL) const = 0;
-
-    protected:
-        double measureString(const std::string& s) const;
-        void renderSegment(ListingItem* item, RendererFormat& rf);
-        void renderFunction(ListingItem* item, RendererFormat& rf);
-        void renderInstruction(ListingItem* item, RendererFormat& rf);
-        void renderSymbol(ListingItem* item, RendererFormat& rf);
-        void renderAddress(ListingItem* item, RendererFormat& rf);
-        void renderMnemonic(const InstructionPtr& instruction, RendererFormat& rf);
-        void renderOperands(const InstructionPtr& instruction, RendererFormat& rf);
-        void renderComments(const InstructionPtr& instruction, RendererFormat& rf);
-        void renderAddressIndent(ListingItem *item, RendererFormat& rf);
-        void renderIndent(RendererFormat& rf, int n = 1);
+        virtual void renderLine(const RendererLine& rl) = 0;
+        void renderSegment(ListingItem* item, RendererLine& rl);
+        void renderFunction(ListingItem* item, RendererLine &rl);
+        void renderInstruction(ListingItem* item, RendererLine &rl);
+        void renderSymbol(ListingItem* item, RendererLine &rl);
+        void renderAddress(ListingItem* item, RendererLine &rl);
+        void renderMnemonic(const InstructionPtr& instruction, RendererLine &rl);
+        void renderOperands(const InstructionPtr& instruction, RendererLine &rl);
+        void renderComments(const InstructionPtr& instruction, RendererLine &rl);
+        void renderAddressIndent(ListingItem *item, RendererLine& rl);
+        void renderIndent(RendererLine &rl, int n = 1);
 
     private:
-        void moveX(RendererFormat& rf, size_t extra = 0) const;
+        std::string commentString(const InstructionPtr& instruction);
         static std::string escapeString(const std::string& s);
-        static std::string commentString(const InstructionPtr& instruction);
+
+    protected:
+        ListingDocument* m_document;
 
     private:
         DisassemblerAPI* m_disassembler;
-        ListingDocument* m_document;
         PrinterPtr m_printer;
-        double m_commentxpos;
-
+        size_t m_commentcolumn;
 };
 
 } // namespace REDasm

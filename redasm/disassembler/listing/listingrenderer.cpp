@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_disassembler(disassembler), m_commentxpos(0)
+ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_disassembler(disassembler), m_commentcolumn(0)
 {
     m_document = disassembler->document();
     m_printer = PrinterPtr(disassembler->assembler()->createPrinter(disassembler));
@@ -19,223 +19,160 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
     ListingCursor* cur = m_document->cursor();
     size_t end = start + count;
 
-    RendererFormat rf;
-    rf.userdata = userdata;
-    rf.cursor.line = cur->currentLine();
-    rf.cursor.column = cur->currentColumn();
-
-    this->fontUnit(&rf.fontwidth, &rf.fontheight);
-
     for(size_t i = 0, line = start; line < std::min(m_document->size(), end); i++, line++)
     {
         ListingItem* item = m_document->itemAt(line);
 
-        rf.clear();
-        rf.cursor.highlighted = cur->currentLine() == static_cast<int>(line);
-        rf.y = i * rf.fontheight;
-        rf.x = 0;
+        RendererLine rl;
+        rl.userdata = userdata;
+        rl.index = i;
+        rl.highlighted = cur->currentLine() == static_cast<int>(line);
 
         if(item->is(ListingItem::SegmentItem))
-            this->renderSegment(item, rf);
+            this->renderSegment(item, rl);
         else if(item->is(ListingItem::FunctionItem))
-            this->renderFunction(item, rf);
+            this->renderFunction(item, rl);
         else if(item->is(ListingItem::InstructionItem))
-            this->renderInstruction(item, rf);
+            this->renderInstruction(item, rl);
         else if(item->is(ListingItem::SymbolItem))
-            this->renderSymbol(item, rf);
+            this->renderSymbol(item, rl);
         else
-        {
-            rf << "Unknown Type: " + std::to_string(item->type);
-            this->renderText(&rf);
-        }
+            rl.push("Unknown Type: " + std::to_string(item->type));
 
-        if(rf.cursor.highlighted)
-            this->renderCursor(&rf);
+        this->renderLine(rl);
     }
 }
 
-double ListingRenderer::measureString(const std::string &s) const
-{
-    double w = 0;
-    this->fontUnit(&w);
-    return s.size() * w;
-}
-
-void ListingRenderer::renderSegment(ListingItem *item, RendererFormat &rf)
+void ListingRenderer::renderSegment(ListingItem *item, RendererLine &rl)
 {
     m_printer->segment(m_document->segment(item->address), [&](const std::string& line) {
-        rf.style = "segment_fg";
-        rf << line;
-
-        this->renderText(&rf);
+        rl.push(line, "segment_fg");
     });
 }
 
-void ListingRenderer::renderFunction(ListingItem *item, RendererFormat &rf)
+void ListingRenderer::renderFunction(ListingItem *item, RendererLine& rl)
 {
-    this->renderAddressIndent(item, rf);
+    this->renderAddressIndent(item, rl);
 
     m_printer->function(m_document->symbol(item->address), [&](const std::string& pre, const std::string& sym, const std::string& post) {
-        rf.style = "function_fg";
+        if(!pre.empty())
+            rl.push(pre, "function_fg");
 
-        if(!pre.empty()) {
-            rf << pre;
-            this->renderText(&rf);
-            this->moveX(rf);
-        }
+        rl.push(sym, "function_fg");
 
-        rf << sym;
-        this->renderText(&rf);
-
-        if(!post.empty()) {
-            this->moveX(rf);
-            rf << post;
-            this->renderText(&rf);
-        }
+        if(!post.empty())
+            rl.push(post, "function_fg");
     });
 }
 
-void ListingRenderer::renderInstruction(ListingItem *item, RendererFormat &rf)
+void ListingRenderer::renderInstruction(ListingItem *item, RendererLine &rl)
 {
     InstructionPtr instruction = m_document->instruction(item->address);
 
-    this->renderAddress(item, rf);
-    this->renderMnemonic(instruction, rf);
-    this->renderOperands(instruction, rf);
+    this->renderAddress(item, rl);
+    this->renderMnemonic(instruction, rl);
+    this->renderOperands(instruction, rl);
 
-    if(rf.x > m_commentxpos)
-        m_commentxpos = rf.x;
+    m_commentcolumn = std::max(rl.length(), m_commentcolumn);
 
     if(!instruction->comments.empty())
-        this->renderComments(instruction, rf);
+        this->renderComments(instruction, rl);
 }
 
-void ListingRenderer::renderSymbol(ListingItem *item, RendererFormat &rf)
+void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
 {
     SymbolPtr symbol = m_document->symbol(item->address);
 
     if(symbol->is(SymbolTypes::Code)) // Label
     {
-        this->renderAddressIndent(item, rf);
-        rf.style = "label_fg";
-        rf << symbol->name + ":";
+        this->renderAddressIndent(item, rl);
+        rl.push(symbol->name + ":", "label_fg");
     }
     else
     {
         Segment* segment = m_document->segment(item->address);
-        this->renderAddress(item, rf);
-
-        rf.style = "label_fg";
-        rf << symbol->name;
-        this->renderText(&rf);
-        this->moveX(rf, 1);
-
-        if(symbol->is(SymbolTypes::Data))
-            rf.style = "data_fg";
-        else
-            rf.style = "string_fg";
+        this->renderAddress(item, rl);
+        rl.push(symbol->name + " ", "label_fg");
 
         if(!segment->is(SegmentTypes::Bss))
         {
             if(symbol->is(SymbolTypes::String))
-                rf << REDasm::quoted(m_disassembler->readString(symbol));
+                rl.push(REDasm::quoted(m_disassembler->readString(symbol)), "string_fg");
             else if(symbol->is(SymbolTypes::WideString))
-                rf << REDasm::quoted(m_disassembler->readWString(symbol));
+                rl.push(REDasm::quoted(m_disassembler->readWString(symbol)), "string_fg");
             else
             {
                 u64 value = 0;
                 FormatPlugin* format = m_disassembler->format();
 
                 if(m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
-                    rf << REDasm::hex(value, format->bits(), false);
+                    rl.push(REDasm::hex(value, format->bits(), false), "data_fg");
                 else
-                    rf << "??";
+                    rl.push("??", "data_fg");
             }
         }
         else
-            rf << "??";
+            rl.push("??", "data_fg");
     }
-
-    this->renderText(&rf);
 }
 
-void ListingRenderer::renderAddress(ListingItem *item, RendererFormat &rf)
+void ListingRenderer::renderAddress(ListingItem *item, RendererLine &rl)
 {
     Segment* segment = m_document->segment(item->address);
-
-    rf.style = "address_fg";
-    rf << (segment ? segment->name : "unk") + ":" + HEX_ADDRESS(item->address);
-
-    this->renderText(&rf);
-    this->moveX(rf);
-    this->renderIndent(rf);
+    rl.push((segment ? segment->name : "unk") + ":" + HEX_ADDRESS(item->address), "address_fg");
+    this->renderIndent(rl);
 }
 
-void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, RendererFormat &rf)
+void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, RendererLine &rl)
 {
+    std::string mnemonic = instruction->mnemonic + " ";
+
     if(instruction->isInvalid())
-        rf.style = "instruction_invalid";
+        rl.push(mnemonic, "instruction_invalid");
     else if(instruction->is(REDasm::InstructionTypes::Stop))
-        rf.style = "instruction_stop";
+        rl.push(mnemonic, "instruction_stop");
     else if(instruction->is(REDasm::InstructionTypes::Nop))
-        rf.style = "instruction_nop";
+        rl.push(mnemonic, "instruction_nop");
     else if(instruction->is(REDasm::InstructionTypes::Call))
-        rf.style = "instruction_call";
+        rl.push(mnemonic, "instruction_call");
     else if(instruction->is(REDasm::InstructionTypes::Jump))
     {
         if(instruction->is(REDasm::InstructionTypes::Conditional))
-            rf.style = "instruction_jmp_c";
+            rl.push(mnemonic, "instruction_jmp_c");
         else
-            rf.style = "instruction_jmp";
+            rl.push(mnemonic, "instruction_jmp");
     }
-
-    rf << instruction->mnemonic + " ";
-    this->renderText(&rf);
-    this->moveX(rf);
+    else
+        rl.push(mnemonic);
 }
 
-void ListingRenderer::renderOperands(const InstructionPtr &instruction, RendererFormat &rf)
+void ListingRenderer::renderOperands(const InstructionPtr &instruction, RendererLine &rl)
 {
     m_printer->out(instruction, [&](const REDasm::Operand& operand, const std::string& opsize, const std::string& opstr) {
-        rf.text.clear();
+        if(operand.index > 0)
+            rl.push(", ");
 
-        if(operand.index > 0) {
-            rf.style.clear();
-            rf << ", ";
-            this->renderText(&rf);
-            this->moveX(rf);
-            rf.text.clear();
-        }
+        if(!opsize.empty())
+            rl.push(opsize + " ");
 
         if(operand.isNumeric()) {
             if(operand.is(REDasm::OperandTypes::Memory))
-                rf.style = "memory_fg";
+                rl.push(opstr, "memory_fg");
             else
-                rf.style = "immediate_fg";
+                rl.push(opstr, "immediate_fg");
         }
         else if(operand.is(REDasm::OperandTypes::Displacement))
-            rf.style = "displacement_fg";
+            rl.push(opstr, "displacement_fg");
         else if(operand.is(REDasm::OperandTypes::Register))
-            rf.style = "register_fg";
-
-        if(!opsize.empty())
-            rf << opsize + " ";
-
-        rf += opstr;
-        this->renderText(&rf);
-        this->moveX(rf);
+            rl.push(opstr, "register_fg");
+        else
+            rl.push(opstr);
     });
 }
 
-void ListingRenderer::renderComments(const InstructionPtr &instruction, RendererFormat &rf)
-{
-    rf.x = m_commentxpos + (INDENT_WIDTH * rf.fontwidth);
-    rf.style = "comment_fg";
-    rf << ListingRenderer::commentString(instruction);
-    this->renderText(&rf);
-}
+void ListingRenderer::renderComments(const InstructionPtr &instruction, RendererLine &rl) { rl.push("comment_fg", this->commentString(instruction)); }
 
-void ListingRenderer::renderAddressIndent(ListingItem* item, RendererFormat &rf)
+void ListingRenderer::renderAddressIndent(ListingItem* item, RendererLine &rl)
 {
     FormatPlugin* format = m_disassembler->format();
     Segment* segment = m_document->segment(item->address);
@@ -245,23 +182,10 @@ void ListingRenderer::renderAddressIndent(ListingItem* item, RendererFormat &rf)
     if(segment)
         count += segment->name.length();
 
-    rf.style.clear();
-    rf << std::string(count + INDENT_WIDTH, ' ');
-
-    this->renderText(&rf);
-    this->moveX(rf);
+    rl.push(std::string(count + INDENT_WIDTH, ' '));
 }
 
-void ListingRenderer::renderIndent(RendererFormat &rf, int n)
-{
-    rf.style.clear();
-    rf << std::string(n * INDENT_WIDTH, ' ');
-
-    this->renderText(&rf);
-    this->moveX(rf);
-}
-
-void ListingRenderer::moveX(RendererFormat &rf, size_t extra) const { rf.x += this->measureString(rf.text) + (rf.fontwidth * extra); }
+void ListingRenderer::renderIndent(RendererLine &rl, int n) { rl.push(std::string(n * INDENT_WIDTH, ' ')); }
 
 std::string ListingRenderer::escapeString(const std::string &s)
 {
@@ -301,7 +225,7 @@ std::string ListingRenderer::commentString(const InstructionPtr &instruction)
         ss << s;
     }
 
-    return ListingRenderer::escapeString(ss.str());
+    return std::string(m_commentcolumn, ' ') + ListingRenderer::escapeString(ss.str());
 }
 
 } // namespace REDasm

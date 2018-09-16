@@ -3,7 +3,6 @@
 #include "../../plugins/format.h"
 
 #define INDENT_WIDTH         2
-#define INDENT_COMMENT       10
 #define HEX_ADDRESS(address) REDasm::hex(address, m_disassembler->format()->bits(), false)
 
 namespace REDasm {
@@ -73,10 +72,18 @@ void ListingRenderer::renderInstruction(ListingItem *item, RendererLine &rl)
     this->renderMnemonic(instruction, rl);
     this->renderOperands(instruction, rl);
 
-    m_commentcolumn = std::max(rl.length(), m_commentcolumn);
+    size_t len = rl.length();
+
+    if(len > m_commentcolumn)
+        m_commentcolumn = len;
 
     if(!instruction->comments.empty())
+    {
+        if(m_commentcolumn != len)
+            this->renderIndent(rl, m_commentcolumn - len);
+
         this->renderComments(instruction, rl);
+    }
 }
 
 void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
@@ -170,7 +177,7 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
     });
 }
 
-void ListingRenderer::renderComments(const InstructionPtr &instruction, RendererLine &rl) { rl.push("comment_fg", this->commentString(instruction)); }
+void ListingRenderer::renderComments(const InstructionPtr &instruction, RendererLine &rl) { rl.push(this->commentString(instruction), "comment_fg"); }
 
 void ListingRenderer::renderAddressIndent(ListingItem* item, RendererLine &rl)
 {
@@ -225,7 +232,8 @@ std::string ListingRenderer::commentString(const InstructionPtr &instruction)
         ss << s;
     }
 
-    return std::string(m_commentcolumn, ' ') + ListingRenderer::escapeString(ss.str());
+    return ListingRenderer::escapeString(ss.str());
+
 }
 
 } // namespace REDasm

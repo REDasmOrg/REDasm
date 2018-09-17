@@ -18,8 +18,6 @@ class DisassemblerTextView : public QAbstractScrollArea
         ~DisassemblerTextView();
         bool canGoBack() const;
         bool canGoForward() const;
-        address_t currentAddress() const;
-        address_t symbolAddress() const;
         void setEmitMode(u32 emitmode);
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
 
@@ -43,14 +41,16 @@ class DisassemblerTextView : public QAbstractScrollArea
         void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
 
     private:
+        REDasm::SymbolPtr symbolUnderCursor();
         int visibleLines() const;
         int lastVisibleLine() const;
         bool isLineVisible(int line) const;
         void moveToSelection();
         void createContextMenu();
         void adjustContextMenu();
-        void showReferenceDialog(const REDasm::SymbolPtr &symbol);
+        void showReferences();
         void showCallGraph(address_t address);
+        void followUnderCursor();
 
     signals:
         void gotoRequested();
@@ -61,15 +61,13 @@ class DisassemblerTextView : public QAbstractScrollArea
         void addressChanged(address_t address);
 
     private:
-        bool m_issymboladdressvalid;
         u32 m_emitmode;
         ListingTextRenderer* m_renderer;
         REDasm::DisassemblerAPI* m_disassembler;
-        QAction *m_actrename, *m_actcreatestring, *m_actxrefs, *m_actfollow, *m_actcallgraph;
+        QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actcallgraph;
         QAction *m_actgoto, *m_acthexdump, *m_actback, *m_actforward, *m_actcopy, *m_actselectall;
         QMenu* m_contextmenu;
         QTimer* m_blinktimer;
-        address_t m_currentaddress, m_symboladdress;
 };
 
 #endif // DISASSEMBLERTEXTVIEW_H

@@ -16,7 +16,7 @@
 
 #define CURSOR_BLINK_INTERVAL 500 // 500ms
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_issymboladdressvalid(false), m_emitmode(DisassemblerTextView::Normal), m_renderer(NULL), m_disassembler(NULL), m_currentaddress(INT64_MAX), m_symboladdress(0)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_emitmode(DisassemblerTextView::Normal), m_renderer(NULL), m_disassembler(NULL)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
@@ -24,6 +24,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 
     this->setFont(font);
     this->setCursor(Qt::ArrowCursor);
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->verticalScrollBar()->setValue(0);
     this->verticalScrollBar()->setSingleStep(1);
     this->verticalScrollBar()->setPageStep(1);
@@ -33,9 +34,11 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 
     connect(m_blinktimer, &QTimer::timeout, this, &DisassemblerTextView::blinkCursor);
 
-    connect(this, &DisassemblerTextView::customContextMenuRequested, [this](const QPoint&) {
+    connect(this, &DisassemblerTextView::customContextMenuRequested, [&](const QPoint&) {
         m_contextmenu->exec(QCursor::pos());
     });
+
+    this->createContextMenu();
 }
 
 DisassemblerTextView::~DisassemblerTextView()
@@ -49,8 +52,6 @@ DisassemblerTextView::~DisassemblerTextView()
 
 bool DisassemblerTextView::canGoBack() const { return false; }
 bool DisassemblerTextView::canGoForward() const { return false; }
-address_t DisassemblerTextView::currentAddress() const { return m_currentaddress; }
-address_t DisassemblerTextView::symbolAddress() const { return m_symboladdress; }
 void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
 
 void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
@@ -133,7 +134,7 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
 
 void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
 {
-    if(e->button() == Qt::LeftButton)
+    if((e->button() == Qt::LeftButton) || (e->button() == Qt::RightButton))
     {
         REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
         REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos(), this->verticalScrollBar());
@@ -147,15 +148,10 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
     if(e->key() == Qt::Key_X)
     {
-        const std::string& word = m_disassembler->document()->cursor()->wordUnderCursor();
-
-        if(word.empty())
-            return;
-
-        this->showReferenceDialog(m_disassembler->document()->symbol(word));
+        this->showReferences();
     }
-    else if(e->key() == Qt::Key_N)
-        this->rename(m_symboladdress);
+    //else if(e->key() == Qt::Key_N)
+        //this->rename(m_symboladdress);
 }
 
 void DisassemblerTextView::onDisassemblerFinished()
@@ -176,6 +172,16 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
         return;
 
     this->update();
+}
+
+REDasm::SymbolPtr DisassemblerTextView::symbolUnderCursor()
+{
+    const std::string& word = m_disassembler->document()->cursor()->wordUnderCursor();
+
+    if(word.empty())
+        return NULL;
+
+    return m_disassembler->document()->symbol(word);
 }
 
 int DisassemblerTextView::visibleLines() const
@@ -215,92 +221,56 @@ void DisassemblerTextView::moveToSelection()
 
 void DisassemblerTextView::createContextMenu()
 {
-    /*
-    this->_contextmenu = new QMenu(this);
+    m_contextmenu = new QMenu(this);
+    m_actrename = m_contextmenu->addAction("Rename", [=]() { /* this->rename(this->_symboladdress); */ } );
 
-    this->_actrename = this->_contextmenu->addAction("Rename", [this]() { this->rename(this->_symboladdress);} );
+    m_contextmenu->addSeparator();
+    m_actxrefs = m_contextmenu->addAction("Cross References", [&]() { this->showReferences(); });
+    m_actfollow = m_contextmenu->addAction("Follow", [&]() { this->followUnderCursor(); });
+    m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
+    m_actcallgraph = m_contextmenu->addAction("Call Graph", [this]() { });
+    m_acthexdump = m_contextmenu->addAction("Hex Dump", [this]() { });
+    m_contextmenu->addSeparator();
+    m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
+    m_actforward = m_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward);
+    m_contextmenu->addSeparator();
+    m_actcopy = m_contextmenu->addAction("Copy");
+    m_actselectall = m_contextmenu->addAction("Select All");
 
-    this->_actcreatestring = this->_contextmenu->addAction("Create String", [this]() {
-        if(!this->_disassembler->dataToString(this->_symboladdress))
-            return;
-
-        this->_disdocument->update(this->_symboladdress);
-        emit invalidateSymbols();
-    });
-
-    this->_contextmenu->addSeparator();
-    this->_actxrefs = this->_contextmenu->addAction("Cross References", [this]() { this->showReferences(this->_symboladdress); });
-    this->_actfollow = this->_contextmenu->addAction("Follow", [this]() { this->goTo(this->_symboladdress); });
-    this->_actgoto = this->_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
-    this->_actcallgraph = this->_contextmenu->addAction("Call Graph", [this]() { this->showCallGraph(this->_symboladdress); });
-    this->_acthexdump = this->_contextmenu->addAction("Hex Dump", [this]() { emit hexDumpRequested(this->_symboladdress); });
-    this->_contextmenu->addSeparator();
-    this->_actback = this->_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
-    this->_actforward = this->_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward);
-    this->_contextmenu->addSeparator();
-    this->_actcopy = this->_contextmenu->addAction("Copy", this, &DisassemblerTextView::copy);
-    this->_actselectall = this->_contextmenu->addAction("Select All", this, &DisassemblerTextView::selectAll);
-
-    connect(this->_contextmenu, &QMenu::aboutToShow, this, &DisassemblerTextView::adjustContextMenu);
-    */
+    connect(m_contextmenu, &QMenu::aboutToShow, this, &DisassemblerTextView::adjustContextMenu);
 }
 
 void DisassemblerTextView::adjustContextMenu()
 {
-    /*
-    this->_actback->setVisible(this->canGoBack());
-    this->_actforward->setVisible(this->canGoForward());
+    m_actback->setVisible(this->canGoBack());
+    m_actforward->setVisible(this->canGoForward());
 
-    QTextCursor cursor = this->textCursor();
-    QTextCharFormat charformat = cursor.charFormat();
-    QString encdata = charformat.isAnchor() ? charformat.anchorHref() : QString();
+    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
 
-    if(!this->_issymboladdressvalid || encdata.isEmpty())
+    if(!symbol)
     {
-        this->_actrename->setVisible(false);
-        this->_actcreatestring->setVisible(false);
-        this->_actxrefs->setVisible(false);
-        this->_actfollow->setVisible(false);
-        this->_actcallgraph->setVisible(false);
-        this->_acthexdump->setVisible(false);
+        m_actrename->setVisible(false);
+        m_actxrefs->setVisible(false);
+        m_actfollow->setVisible(false);
+        m_actcallgraph->setVisible(false);
+        m_acthexdump->setVisible(false);
         return;
     }
 
-    QTextBlockFormat blockformat = cursor.blockFormat();
-    QJsonObject data = this->_disdocument->decode(encdata);
+    REDasm::Segment* segment = m_disassembler->document()->segment(symbol->address);
 
-    if(blockformat.hasProperty(DisassemblerTextDocument::IsLabelBlock))
-        this->updateSymbolAddress(blockformat.property(DisassemblerTextDocument::Address).toULongLong());
-    else
-        this->updateSymbolAddress(data["address"].toVariant().toULongLong());
-
-    REDasm::Segment* segment = this->_disassembler->format()->segment(this->_symboladdress);
-    REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(this->_symboladdress);
-
-    this->_actrename->setVisible(symbol != NULL);
-    this->_actcallgraph->setVisible(symbol && symbol->isFunction());
-
-    if((segment && segment->is(REDasm::SegmentTypes::Data)) && (symbol && !symbol->isFunction() && symbol->is(REDasm::SymbolTypes::Data)))
-    {
-        u64 c = this->_disassembler->locationIsString(this->_symboladdress);
-
-        if(c > 1)
-            this->_actcreatestring->setVisible(c > 1);
-    }
-    else
-        this->_actcreatestring->setVisible(false);
-
-    this->_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
-    this->_actxrefs->setVisible(symbol != NULL);
-    this->_actback->setVisible(this->canGoBack());
-    this->_actforward->setVisible(this->canGoForward());
-    this->_actfollow->setVisible(symbol && (symbol->is(REDasm::SymbolTypes::Code)));
-    this->_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
-    */
+    m_actback->setVisible(this->canGoBack());
+    m_actforward->setVisible(this->canGoForward());
+    m_actcallgraph->setVisible(symbol->isFunction());
+    m_actfollow->setVisible(symbol->is(REDasm::SymbolTypes::Code));
+    m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
+    m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
 }
 
-void DisassemblerTextView::showReferenceDialog(const REDasm::SymbolPtr& symbol)
+void DisassemblerTextView::showReferences()
 {
+    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+
     if(!symbol)
         return;
 
@@ -321,11 +291,18 @@ void DisassemblerTextView::showCallGraph(address_t address)
     //dlgcallgraph.exec();
 }
 
-void DisassemblerTextView::rename(address_t address)
+void DisassemblerTextView::followUnderCursor()
 {
-    if(!m_issymboladdressvalid)
+    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+
+    if(!symbol)
         return;
 
+    this->goTo(symbol->address);
+}
+
+void DisassemblerTextView::rename(address_t address)
+{
     REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(address);
 
     if(!symbol)

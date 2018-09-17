@@ -133,6 +133,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     ui->disassemblerTextView->setDisassembler(disassembler);
     //FIXME: ui->disassemblerGraphView->setDisassembler(disassembler);
 
+    disassembler->finished += std::bind(&DisassemblerView::onDisassemblerFinished, this);
     disassembler->disassemble();
 }
 
@@ -160,14 +161,12 @@ void DisassemblerView::on_bottomTabs_currentChanged(int index)
         return;
     }
 
-    /*
     if(w == ui->tabImports)
-        ui->leFilter->setText(m_importsmodel->filterName());
+        ui->leFilter->setText(m_importsmodel->filter());
     else if(w == ui->tabExports)
-        ui->leFilter->setText(m_exportsmodel->filterName());
+        ui->leFilter->setText(m_exportsmodel->filter());
     else if(w == ui->tabStrings)
-        ui->leFilter->setText(m_stringsmodel->filterName());
-    */
+        ui->leFilter->setText(m_stringsmodel->filter());
 
     ui->leFilter->setEnabled(true);
 }
@@ -274,7 +273,7 @@ void DisassemblerView::filterFunctions()
     if(s.length() == 1)
         return;
 
-    //FIXME: m_functionsmodel->setFilterName(s);
+    m_functionsmodel->setFilter(s);
 }
 
 void DisassemblerView::filterSymbols()
@@ -286,17 +285,15 @@ void DisassemblerView::filterSymbols()
 
     QWidget* w = ui->bottomTabs->currentWidget();
 
-    /*
     if(w == ui->tabImports)
-        m_importsmodel->setFilterName(s);
+        m_importsmodel->setFilter(s);
     else if(w == ui->tabExports)
-        m_exportsmodel->setFilterName(s);
+        m_exportsmodel->setFilter(s);
     else if(w == ui->tabStrings)
-        m_stringsmodel->setFilterName(s);
-    */
+        m_stringsmodel->setFilter(s);
 }
 
-void DisassemblerView::showListing()
+void DisassemblerView::onDisassemblerFinished()
 {
     /*
     if(this->_disassembler->assembler()->hasVMIL())
@@ -311,8 +308,6 @@ void DisassemblerView::showListing()
     ui->bottomTabs->setCurrentWidget(ui->tabStrings);
     ui->tbGoto->setEnabled(true);
     ui->leFunctionFilter->setEnabled(true);
-
-    emit done();
 }
 
 void DisassemblerView::showHexDump(address_t address)

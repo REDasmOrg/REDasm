@@ -22,6 +22,7 @@ class ListingFilterModel : public QIdentityProxyModel
 
     private:
         void updateFiltering();
+        bool canFilter() const;
 
     public:
         template<typename T> static ListingFilterModel* createFilter(QObject* parent);

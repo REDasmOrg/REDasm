@@ -1,5 +1,7 @@
 #include "listingfiltermodel.h"
 
+#define FILTER_MIN_CHARS 2
+
 ListingFilterModel::ListingFilterModel(QObject *parent) : QIdentityProxyModel(parent) { }
 const QString &ListingFilterModel::filter() const { return m_filterstring; }
 
@@ -13,15 +15,15 @@ void ListingFilterModel::setFilter(const QString &filter)
 
 int ListingFilterModel::rowCount(const QModelIndex& parent) const
 {
-    if(!m_filtereditems.empty())
-        return m_filtereditems.count();
+    if(!this->canFilter())
+        return QIdentityProxyModel::rowCount(parent);
 
-    return QIdentityProxyModel::rowCount(parent);
+    return m_filtereditems.count();
 }
 
 QModelIndex ListingFilterModel::index(int row, int column, const QModelIndex&) const
 {
-    if(m_filtereditems.empty())
+    if(!this->canFilter())
         return QIdentityProxyModel::index(row, column);
 
     return this->createIndex(row, column, m_filtereditems[row]);
@@ -29,7 +31,7 @@ QModelIndex ListingFilterModel::index(int row, int column, const QModelIndex&) c
 
 QModelIndex ListingFilterModel::mapFromSource(const QModelIndex &sourceindex) const
 {
-    if(m_filtereditems.empty())
+    if(!this->canFilter() || !sourceindex.isValid())
         return QIdentityProxyModel::mapFromSource(sourceindex);
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(sourceindex.internalPointer());
@@ -43,7 +45,7 @@ QModelIndex ListingFilterModel::mapFromSource(const QModelIndex &sourceindex) co
 
 QModelIndex ListingFilterModel::mapToSource(const QModelIndex &proxyindex) const
 {
-    if(m_filtereditems.empty())
+    if(!this->canFilter() || !proxyindex.isValid())
         return QIdentityProxyModel::mapToSource(proxyindex);
 
     ListingItemModel* listingitemmodel = reinterpret_cast<ListingItemModel*>(this->sourceModel());
@@ -61,7 +63,7 @@ void ListingFilterModel::updateFiltering()
     this->beginResetModel();
     m_filtereditems.clear();
 
-    if(m_filterstring.length() >= 2)
+    if(this->canFilter())
     {
         QAbstractItemModel* sourcemodel = this->sourceModel();
 
@@ -72,14 +74,16 @@ void ListingFilterModel::updateFiltering()
                 QModelIndex index = sourcemodel->index(i, j);
                 QVariant data = sourcemodel->data(index);
 
-                if(data.type() != QVariant::String)
+                if((data.type() != QVariant::String) || (data.toString().indexOf(m_filterstring, 0, Qt::CaseInsensitive) == -1))
                     continue;
 
-                if(data.toString().indexOf(m_filterstring, 0, Qt::CaseInsensitive) != -1)
-                    m_filtereditems.append(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer()));
+                m_filtereditems.append(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer()));
+                break;
             }
         }
     }
 
     this->endResetModel();
 }
+
+bool ListingFilterModel::canFilter() const { return m_filterstring.length() >= FILTER_MIN_CHARS; }

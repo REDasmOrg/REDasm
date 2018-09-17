@@ -145,7 +145,7 @@ bool MainWindow::checkPlugins(const REDasm::Buffer& buffer, REDasm::FormatPlugin
 void MainWindow::initDisassembler()
 {
     REDasm::Buffer buffer(m_loadeddata.data(), m_loadeddata.length());
-    DisassemblerView *olddv = NULL, *dv = new DisassemblerView(m_lblstatus, ui->stackView);
+    DisassemblerView *dv = new DisassemblerView(m_lblstatus, ui->stackView);
     REDasm::FormatPlugin* format = NULL;
     REDasm::AssemblerPlugin* assembler = NULL;
 
@@ -160,18 +160,6 @@ void MainWindow::initDisassembler()
     ui->stackView->addWidget(dv);
 
     QWidget* oldwidget = static_cast<DisassemblerView*>(ui->stackView->widget(0));
-
-    if((olddv = dynamic_cast<DisassemblerView*>(oldwidget)))
-    {
-        connect(olddv, &DisassemblerView::done, [this]() {
-            QObject* sender = this->sender();
-            ui->stackView->removeWidget(static_cast<QWidget*>(sender));
-            sender->deleteLater();
-        });
-
-        return;
-    }
-
     ui->stackView->removeWidget(oldwidget);
     oldwidget->deleteLater();
 }

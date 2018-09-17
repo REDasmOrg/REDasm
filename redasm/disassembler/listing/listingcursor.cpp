@@ -41,7 +41,7 @@ void ListingCursor::goForward()
 
 void ListingCursor::select(int line, int column, bool save)
 {
-    Position pos = std::make_pair(line, column);
+    Position pos = std::make_pair(std::max(line, 0), std::max(column, 0));
 
     if(pos == m_position)
         return;

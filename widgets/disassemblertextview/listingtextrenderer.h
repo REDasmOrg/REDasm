@@ -1,6 +1,7 @@
 #ifndef LISTINGTEXTRENDERER_H
 #define LISTINGTEXTRENDERER_H
 
+#include <QRegularExpression>
 #include <QTextCursor>
 #include <QScrollBar>
 #include <QFontMetrics>
@@ -21,11 +22,15 @@ class ListingTextRenderer : public REDasm::ListingRenderer
         virtual void renderLine(const REDasm::RendererLine& rl);
 
     private:
+        void findWordUnderCursor(const QString& s, const REDasm::ListingCursor::Position& cp);
+        void highlightWords(QTextCursor &textcursor, const REDasm::RendererLine& rl) const;
         void highlightLine(QTextCursor& textcursor) const;
         void renderCursor(QTextCursor& textcursor) const;
 
     private:
+        QRegularExpression m_rgxwords;
         QFontMetrics m_fontmetrics;
+        QString m_wordundercursor;
         bool m_cursoractive;
 };
 

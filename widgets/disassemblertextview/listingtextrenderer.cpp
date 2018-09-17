@@ -1,12 +1,15 @@
 #include "listingtextrenderer.h"
 #include "../../themeprovider.h"
 #include <cmath>
-#include <QPainter>
 #include <QTextCharFormat>
 #include <QTextDocument>
-#include <QAbstractTextDocumentLayout>
+#include <QPainter>
 
-ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font), m_cursoractive(false) { }
+ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font), m_cursoractive(false)
+{
+    m_rgxwords.setPattern("[\\w\\.]+");
+}
+
 ListingTextRenderer::~ListingTextRenderer() { }
 
 REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos, QScrollBar *vscrollbar)
@@ -33,6 +36,7 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     if(cp.second == -1)
         cp.second = s.length() - 1;
 
+    this->findWordUnderCursor(s, cp);
     return cp;
 }
 
@@ -62,6 +66,8 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
         textcursor.insertText(QString::fromStdString(rf.text), charformat);
     }
 
+    this->highlightWords(textcursor, rl);
+
     if(rl.highlighted)
     {
         this->highlightLine(textcursor);
@@ -77,10 +83,49 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
     painter->restore();
 }
 
+void ListingTextRenderer::findWordUnderCursor(const QString &s, const REDasm::ListingCursor::Position &cp)
+{
+    QRegularExpressionMatchIterator it = m_rgxwords.globalMatch(s);
+
+    while(it.hasNext())
+    {
+        QRegularExpressionMatch match = it.next();
+
+        if((cp.second < match.capturedStart()) || (cp.second > match.capturedEnd()))
+            continue;
+
+        m_wordundercursor = match.captured();
+        return;
+    }
+
+    m_wordundercursor.clear();
+}
+
+void ListingTextRenderer::highlightWords(QTextCursor& textcursor, const REDasm::RendererLine &rl) const
+{
+    if(m_wordundercursor.isEmpty())
+        return;
+
+    QTextCharFormat charformat;
+    charformat.setBackground(THEME_VALUE("highlight"));
+
+    QRegularExpression rgx(m_wordundercursor);
+    QRegularExpressionMatchIterator it = rgx.globalMatch(QString::fromStdString(rl.text()));
+
+    while(it.hasNext())
+    {
+        QRegularExpressionMatch match = it.next();
+
+        textcursor.setPosition(match.capturedStart());
+        textcursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, match.capturedLength());
+        textcursor.setCharFormat(charformat);
+    }
+}
+
 void ListingTextRenderer::highlightLine(QTextCursor &textcursor) const
 {
     QTextBlockFormat blockformat;
-    blockformat.setBackground(THEME_VALUE("highlight"));
+    blockformat.setBackground(THEME_VALUE("seek"));
     textcursor.setBlockFormat(blockformat);
 }
 

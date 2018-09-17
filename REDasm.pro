@@ -66,7 +66,6 @@ SOURCES += main.cpp\
     redasm/disassembler/types/referencetable.cpp \
     redasm/disassembler/types/symboltable.cpp \
     redasm/support/coff/coff_symboltable.cpp \
-    widgets/disassemblertextview/disassemblerhighlighter.cpp \
     dialogs/databasedialog.cpp \
     redasm/support/hash.cpp \
     redasm/signatures/patparser.cpp \
@@ -184,7 +183,6 @@ HEADERS  += mainwindow.h \
     redasm/support/coff/coff_types.h \
     redasm/support/coff/coff_constants.h \
     redasm/support/cachemap.h \
-    widgets/disassemblertextview/disassemblerhighlighter.h \
     dialogs/databasedialog.h \
     redasm/support/hash.h \
     redasm/signatures/patparser.h \

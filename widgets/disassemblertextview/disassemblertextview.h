@@ -5,7 +5,6 @@
 #include <QFontMetrics>
 #include <QMenu>
 #include "listingtextrenderer.h"
-#include "disassemblerhighlighter.h"
 
 class DisassemblerTextView : public QAbstractScrollArea
 {
@@ -47,11 +46,9 @@ class DisassemblerTextView : public QAbstractScrollArea
         int visibleLines() const;
         int lastVisibleLine() const;
         bool isLineVisible(int line) const;
-        QPoint currentPosXY() const;
         void moveToCurrentLine();
         void createContextMenu();
         void adjustContextMenu();
-        void highlightWords();
         void showReferences(address_t address);
         void showCallGraph(address_t address);
 
@@ -67,7 +64,6 @@ class DisassemblerTextView : public QAbstractScrollArea
         bool m_issymboladdressvalid;
         u32 m_emitmode;
         ListingTextRenderer* m_renderer;
-        DisassemblerHighlighter* m_highlighter;
         REDasm::DisassemblerAPI* m_disassembler;
         QAction *m_actrename, *m_actcreatestring, *m_actxrefs, *m_actfollow, *m_actcallgraph;
         QAction *m_actgoto, *m_acthexdump, *m_actback, *m_actforward, *m_actcopy, *m_actselectall;

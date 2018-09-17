@@ -187,15 +187,6 @@ bool DisassemblerTextView::isLineVisible(int line) const
     return (line >= vscrollbar->value()) && (line < this->lastVisibleLine());
 }
 
-QPoint DisassemblerTextView::currentPosXY() const
-{
-    QFontMetrics fm = this->fontMetrics();
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingCursor* cur = doc->cursor();
-
-    return QPoint(cur->currentColumn() * fm.width(' '), cur->currentLine() * fm.height());
-}
-
 void DisassemblerTextView::moveToCurrentLine()
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
@@ -297,20 +288,6 @@ void DisassemblerTextView::adjustContextMenu()
     this->_actfollow->setVisible(symbol && (symbol->is(REDasm::SymbolTypes::Code)));
     this->_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
     */
-}
-
-void DisassemblerTextView::highlightWords()
-{
-    if(!m_currentaddress)
-        return;
-
-    //QTextCursor cursor = this->textCursor();
-    //cursor.select(QTextCursor::WordUnderCursor);
-
-    //QString currentaddress = HEX_ADDRESS(this->_currentaddress);
-
-    //for(QTextBlock b = this->firstVisibleBlock(); b.isValid() && b.isVisible(); b = b.next())
-        //this->_highlighter->highlight(cursor.selectedText(), currentaddress, b);
 }
 
 void DisassemblerTextView::showReferences(address_t address)

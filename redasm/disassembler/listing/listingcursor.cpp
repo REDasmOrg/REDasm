@@ -47,12 +47,13 @@ void ListingCursor::select(int line, int column, bool save)
         return;
 
     if(save)
+    {
         m_backstack.push(m_position);
+        backChanged();
+    }
 
     m_position = pos;
-
     selectionChanged();
-    backChanged();
 }
 
 } // namespace REDasm

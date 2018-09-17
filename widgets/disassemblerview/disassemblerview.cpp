@@ -174,18 +174,10 @@ void DisassemblerView::on_bottomTabs_currentChanged(int index)
 
 void DisassemblerView::gotoXRef(const QModelIndex &index)
 {
-    /*
     if(!index.isValid() || !index.internalPointer())
         return;
 
-    address_t address = static_cast<address_t>(index.internalId());
-    const REDasm::Segment* segment = this->_disassembler->format()->segment(address);
-
-    if(!segment)
-        return;
-
-    ui->disassemblerTextView->goTo(address);
-    */
+    ui->disassemblerTextView->goTo(static_cast<address_t>(index.internalId()));
 }
 
 void DisassemblerView::gotoSymbol(const QModelIndex &index)

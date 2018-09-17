@@ -1,6 +1,7 @@
 #ifndef LISTINGTEXTRENDERER_H
 #define LISTINGTEXTRENDERER_H
 
+#include <QTextCursor>
 #include <QScrollBar>
 #include <QFontMetrics>
 #include <QFont>
@@ -20,7 +21,8 @@ class ListingTextRenderer : public REDasm::ListingRenderer
         virtual void renderLine(const REDasm::RendererLine& rl);
 
     private:
-        void renderCursor(const REDasm::RendererLine &rl);
+        void highlightLine(QTextCursor& textcursor) const;
+        void renderCursor(QTextCursor& textcursor) const;
 
     private:
         QFontMetrics m_fontmetrics;

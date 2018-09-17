@@ -46,7 +46,6 @@ class DisassemblerTextView : public QAbstractScrollArea
     private:
         int visibleLines() const;
         int lastVisibleLine() const;
-        void cursorFromPos(const QPoint& p, int *line, int *column = NULL) const;
         bool isLineVisible(int line) const;
         QPoint currentPosXY() const;
         void moveToCurrentLine();

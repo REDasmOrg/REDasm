@@ -181,18 +181,6 @@ int DisassemblerTextView::lastVisibleLine() const
     return vscrollbar->value() + this->visibleLines();
 }
 
-void DisassemblerTextView::cursorFromPos(const QPoint &p, int* line, int* column) const
-{
-    QScrollBar* vscrollbar = this->verticalScrollBar();
-    QFontMetrics fm = this->fontMetrics();
-
-    if(line)
-        *line = vscrollbar->value() + std::ceil(p.y() / fm.height());
-
-    if(column)
-        *column = std::floor(p.x() / fm.boundingRect('9').width());
-}
-
 bool DisassemblerTextView::isLineVisible(int line) const
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();

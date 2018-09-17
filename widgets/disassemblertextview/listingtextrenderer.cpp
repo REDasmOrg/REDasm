@@ -4,7 +4,6 @@
 #include <QPainter>
 #include <QTextCharFormat>
 #include <QTextDocument>
-#include <QTextCursor>
 #include <QAbstractTextDocumentLayout>
 
 ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font), m_cursoractive(false) { }
@@ -65,21 +64,10 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
 
     if(rl.highlighted)
     {
-        QTextBlockFormat blockformat;
-        blockformat.setBackground(THEME_VALUE("highlight"));
-        textcursor.setBlockFormat(blockformat);
+        this->highlightLine(textcursor);
 
         if(m_cursoractive)
-        {
-            REDasm::ListingCursor* cur = m_document->cursor();
-            textcursor.setPosition(cur->currentColumn());
-            textcursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
-
-            QTextCharFormat charformat;
-            charformat.setBackground(Qt::black);
-            charformat.setForeground(Qt::white);
-            textcursor.setCharFormat(charformat);
-        }
+            this->renderCursor(textcursor);
     }
 
     painter->save();
@@ -89,27 +77,21 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
     painter->restore();
 }
 
-void ListingTextRenderer::renderCursor(const REDasm::RendererLine& rl)
+void ListingTextRenderer::highlightLine(QTextCursor &textcursor) const
 {
-    QString s = QString::fromStdString(rl.text());
+    QTextBlockFormat blockformat;
+    blockformat.setBackground(THEME_VALUE("highlight"));
+    textcursor.setBlockFormat(blockformat);
+}
+
+void ListingTextRenderer::renderCursor(QTextCursor &textcursor) const
+{
     REDasm::ListingCursor* cur = m_document->cursor();
-    QRectF r;
+    textcursor.setPosition(cur->currentColumn());
+    textcursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
 
-    if(cur->currentColumn() < s.length())
-        r.setX(m_fontmetrics.horizontalAdvance(s, cur->currentColumn()));
-    else
-        r.setX(cur->currentColumn() * m_fontmetrics.averageCharWidth());
-
-    r.setY(rl.index * m_fontmetrics.height());
-    r.setHeight(m_fontmetrics.height());
-    r.setWidth(m_fontmetrics.averageCharWidth());
-
-    QPainter* painter = reinterpret_cast<QPainter*>(rl.userdata);
-    painter->fillRect(r, Qt::black);
-
-    if(cur->currentColumn() < s.length())
-    {
-        painter->setPen(Qt::white);
-        painter->drawText(r, Qt::AlignLeft | Qt::AlignTop, s.mid(cur->currentColumn(), 1));
-    }
+    QTextCharFormat charformat;
+    charformat.setBackground(Qt::black);
+    charformat.setForeground(Qt::white);
+    textcursor.setCharFormat(charformat);
 }

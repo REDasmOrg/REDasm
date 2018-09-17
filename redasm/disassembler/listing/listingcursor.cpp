@@ -3,6 +3,9 @@
 namespace REDasm {
 
 ListingCursor::ListingCursor() { m_position = std::make_pair(0, 0); }
+const std::string &ListingCursor::wordUnderCursor() const { return m_wordundercursor;  }
+void ListingCursor::setWordUnderCursor(const std::string &s) { m_wordundercursor = s; }
+void ListingCursor::clearWordUnderCursor() { m_wordundercursor.clear(); }
 int ListingCursor::currentLine() const { return m_position.first; }
 int ListingCursor::currentColumn() const { return m_position.second; }
 bool ListingCursor::hasBack() const { return !m_backstack.empty(); }

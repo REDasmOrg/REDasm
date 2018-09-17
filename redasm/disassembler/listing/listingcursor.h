@@ -20,6 +20,9 @@ class ListingCursor
 
     public:
         ListingCursor();
+        const std::string& wordUnderCursor() const;
+        void setWordUnderCursor(const std::string& s);
+        void clearWordUnderCursor();
         int currentLine() const;
         int currentColumn() const;
         bool hasBack() const;
@@ -31,6 +34,7 @@ class ListingCursor
     private:
         Position m_position;
         PositionStack m_backstack, m_forwardstack;
+        std::string m_wordundercursor;
 };
 
 } // namespace REDasm

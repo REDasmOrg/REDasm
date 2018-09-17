@@ -75,7 +75,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget
     connect(ui->disassemblerTextView, &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
     connect(ui->disassemblerTextView, &DisassemblerTextView::symbolRenamed, this, &DisassemblerView::updateModel);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
-    connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayInstructionReferences);
+    connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoBackChanged, [this]() { ui->tbBack->setEnabled(ui->disassemblerTextView->canGoBack()); });
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoForwardChanged, [this]() { ui->tbForward->setEnabled(ui->disassemblerTextView->canGoForward()); });
 
@@ -126,7 +126,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     m_exportsmodel->setDisassembler(disassembler);
     m_stringsmodel->setDisassembler(disassembler);
     m_segmentsmodel->setDisassembler(disassembler);
-    //m_referencesmodel->setDisassembler(disassembler);
+    m_referencesmodel->setDisassembler(disassembler);
 
     ui->hexEdit->setDocument(m_hexdocument);
     ui->bottomTabs->setCurrentWidget(ui->tabOutput);
@@ -134,11 +134,6 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     //FIXME: ui->disassemblerGraphView->setDisassembler(disassembler);
 
     disassembler->disassemble();
-}
-
-bool DisassemblerView::busy() const
-{
-    return false; // FIXME: !!!
 }
 
 void DisassemblerView::on_topTabs_currentChanged(int index)
@@ -238,26 +233,24 @@ void DisassemblerView::displayAddress(address_t address)
     m_lblstatus->setText(s);
 }
 
-void DisassemblerView::displayInstructionReferences()
+void DisassemblerView::displayCurrentReferences()
 {
-    /*
-    REDasm::InstructionsPool& listing = this->_disassembler->instructions();
-    auto it = listing.find(ui->disassemblerTextView->currentAddress());
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    const std::string& word = doc->cursor()->wordUnderCursor();
 
-    if(it == listing.end())
+    if(!word.empty())
     {
-        this->_referencesmodel->clear();
-        return;
+        REDasm::SymbolPtr symbol = doc->symbol(word);
+
+        if(symbol)
+        {
+            m_referencesmodel->xref(symbol->address);
+            return;
+        }
     }
 
-    this->_referencesmodel->xref(*it);
-    */
-}
-
-void DisassemblerView::displayReferences()
-{
-    //REDasm::SymbolPtr symbol = this->_disassembler->symbolTable()->symbol(ui->disassemblerTextView->symbolAddress());
-    //this->_referencesmodel->xref(ui->disassemblerTextView->currentAddress(), symbol);
+    REDasm::ListingItem* item = doc->itemAt(doc->cursor()->currentLine());
+    m_referencesmodel->xref(item->address);
 }
 
 void DisassemblerView::updateModel(const REDasm::SymbolPtr &symbol)

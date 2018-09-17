@@ -15,7 +15,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     REDasm::setStatusCallback([this](std::string s) {
-        QMetaObject::invokeMethod(this->_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
+        QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
 
     REDasm::init(QDir::currentPath().toStdString());
@@ -23,8 +23,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->applyTheme();
     ui->setupUi(this);
 
-    this->_lblstatus = new QLabel(this);
-    ui->statusBar->addPermanentWidget(this->_lblstatus, 1);
+    m_lblstatus = new QLabel(this);
+    ui->statusBar->addPermanentWidget(m_lblstatus, 1);
 
     this->centerWindow();
     this->setAcceptDrops(true);
@@ -112,10 +112,10 @@ void MainWindow::load(const QString& s)
     QDir::setCurrent(fi.path());
     this->setWindowTitle(fi.fileName());
 
-    this->_loadeddata = f.readAll();
+    m_loadeddata = f.readAll();
     f.close();
 
-    if(!this->_loadeddata.isEmpty())
+    if(!m_loadeddata.isEmpty())
         this->initDisassembler();
 }
 
@@ -125,7 +125,7 @@ bool MainWindow::checkPlugins(const REDasm::Buffer& buffer, REDasm::FormatPlugin
 
     if((*format)->isBinary()) // Use manual loader
     {
-        ManualLoadDialog dlgmanload(*format, this->_loadeddata.size(), this);
+        ManualLoadDialog dlgmanload(*format, m_loadeddata.size(), this);
 
         if(dlgmanload.exec() != ManualLoadDialog::Accepted)
             return false;
@@ -144,8 +144,8 @@ bool MainWindow::checkPlugins(const REDasm::Buffer& buffer, REDasm::FormatPlugin
 
 void MainWindow::initDisassembler()
 {
-    REDasm::Buffer buffer(this->_loadeddata.data(), this->_loadeddata.length());
-    DisassemblerView *olddv = NULL, *dv = new DisassemblerView(this->_lblstatus, ui->stackView);
+    REDasm::Buffer buffer(m_loadeddata.data(), m_loadeddata.length());
+    DisassemblerView *olddv = NULL, *dv = new DisassemblerView(m_lblstatus, ui->stackView);
     REDasm::FormatPlugin* format = NULL;
     REDasm::AssemblerPlugin* assembler = NULL;
 
@@ -161,7 +161,7 @@ void MainWindow::initDisassembler()
 
     QWidget* oldwidget = static_cast<DisassemblerView*>(ui->stackView->widget(0));
 
-    if((olddv = dynamic_cast<DisassemblerView*>(oldwidget)) && olddv->busy())
+    if((olddv = dynamic_cast<DisassemblerView*>(oldwidget)))
     {
         connect(olddv, &DisassemblerView::done, [this]() {
             QObject* sender = this->sender();

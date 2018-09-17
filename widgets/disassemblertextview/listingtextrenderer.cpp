@@ -94,22 +94,22 @@ void ListingTextRenderer::findWordUnderCursor(const QString &s, const REDasm::Li
         if((cp.second < match.capturedStart()) || (cp.second > match.capturedEnd()))
             continue;
 
-        m_wordundercursor = match.captured();
+        m_document->cursor()->setWordUnderCursor(match.captured().toStdString());
         return;
     }
 
-    m_wordundercursor.clear();
+    m_document->cursor()->clearWordUnderCursor();
 }
 
 void ListingTextRenderer::highlightWords(QTextCursor& textcursor, const REDasm::RendererLine &rl) const
 {
-    if(m_wordundercursor.isEmpty())
+    if(m_document->cursor()->wordUnderCursor().empty())
         return;
 
     QTextCharFormat charformat;
     charformat.setBackground(THEME_VALUE("highlight"));
 
-    QRegularExpression rgx(m_wordundercursor);
+    QRegularExpression rgx(QString::fromStdString(m_document->cursor()->wordUnderCursor()));
     QRegularExpressionMatchIterator it = rgx.globalMatch(QString::fromStdString(rl.text()));
 
     while(it.hasNext())

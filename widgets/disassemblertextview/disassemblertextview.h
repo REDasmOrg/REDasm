@@ -46,10 +46,10 @@ class DisassemblerTextView : public QAbstractScrollArea
         int visibleLines() const;
         int lastVisibleLine() const;
         bool isLineVisible(int line) const;
-        void moveToCurrentLine();
+        void moveToSelection();
         void createContextMenu();
         void adjustContextMenu();
-        void showReferences(address_t address);
+        void showReferenceDialog(const REDasm::SymbolPtr &symbol);
         void showCallGraph(address_t address);
 
     signals:

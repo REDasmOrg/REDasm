@@ -36,8 +36,8 @@ class MainWindow : public QMainWindow
 
     private:
         Ui::MainWindow *ui;
-        QLabel* _lblstatus;
-        QByteArray _loadeddata;
+        QLabel* m_lblstatus;
+        QByteArray m_loadeddata;
 };
 
 #endif // MAINWINDOW_H

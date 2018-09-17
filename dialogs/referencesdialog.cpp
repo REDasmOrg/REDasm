@@ -1,22 +1,19 @@
 #include "referencesdialog.h"
 #include "ui_referencesdialog.h"
 
-ReferencesDialog::ReferencesDialog(REDasm::DisassemblerAPI *disassembler, address_t currentaddress, const REDasm::SymbolPtr& symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog)
+ReferencesDialog::ReferencesDialog(REDasm::DisassemblerAPI *disassembler, const REDasm::SymbolPtr& symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog)
 {
     ui->setupUi(this);
     this->setWindowTitle(QString("%1 References").arg(QString::fromStdString(symbol->name)));
 
-    this->_referencesmodel = new ReferencesModel(ui->tvReferences);
-    this->_referencesmodel->setDisassembler(disassembler);
-    this->_referencesmodel->xref(currentaddress, symbol);
+    m_referencesmodel = new ReferencesModel(ui->tvReferences);
+    m_referencesmodel->setDisassembler(disassembler);
+    m_referencesmodel->xref(symbol->address);
 
-    ui->tvReferences->setModel(this->_referencesmodel);
+    ui->tvReferences->setModel(m_referencesmodel);
 }
 
-ReferencesDialog::~ReferencesDialog()
-{
-    delete ui;
-}
+ReferencesDialog::~ReferencesDialog() { delete ui; }
 
 void ReferencesDialog::on_tvReferences_doubleClicked(const QModelIndex &index)
 {

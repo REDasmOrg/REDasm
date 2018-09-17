@@ -158,6 +158,7 @@ int ListingDocument::index(address_t address, u32 type)
 }
 
 ListingDocument::iterator ListingDocument::instructionItem(address_t address) { return this->item(address, ListingItem::InstructionItem); }
+ListingDocument::iterator ListingDocument::symbolItem(address_t address) { return this->item(address, ListingItem::SymbolItem); }
 int ListingDocument::functionIndex(address_t address) { return this->index(address, ListingItem::FunctionItem); }
 int ListingDocument::instructionIndex(address_t address) { return this->index(address, ListingItem::InstructionItem); }
 

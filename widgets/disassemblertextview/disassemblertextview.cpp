@@ -71,12 +71,22 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
 
 void DisassemblerTextView::goTo(address_t address)
 {
+    REDasm::ListingDocument* doc = m_disassembler->document();
+
+    auto it = doc->instructionItem(address);
+
+    if(it == doc->end())
+        it = doc->symbolItem(address);
+
+    if(it == doc->end())
+        return;
+
+    this->goTo((*it).get());
 }
 
 void DisassemblerTextView::goTo(REDasm::ListingItem *item)
 {
     REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingCursor* cur = doc->cursor();
     int idx = doc->indexOf(item);
 
     if(idx == -1)
@@ -137,13 +147,12 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
     if(e->key() == Qt::Key_X)
     {
-        //int action = 0;
-        //address_t address = 0;
+        const std::string& word = m_disassembler->document()->cursor()->wordUnderCursor();
 
-        //if(!(action = this->getCursorAnchor(address)))
-            //return;
+        if(word.empty())
+            return;
 
-        //this->showReferences(address);
+        this->showReferenceDialog(m_disassembler->document()->symbol(word));
     }
     else if(e->key() == Qt::Key_N)
         this->rename(m_symboladdress);
@@ -154,8 +163,8 @@ void DisassemblerTextView::onDisassemblerFinished()
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::ListingCursor* cur = doc->cursor();
 
-    cur->selectionChanged += std::bind(&DisassemblerTextView::moveToCurrentLine, this);
-    this->moveToCurrentLine();
+    cur->selectionChanged += std::bind(&DisassemblerTextView::moveToSelection, this);
+    this->moveToSelection();
 }
 
 void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
@@ -187,7 +196,7 @@ bool DisassemblerTextView::isLineVisible(int line) const
     return (line >= vscrollbar->value()) && (line < this->lastVisibleLine());
 }
 
-void DisassemblerTextView::moveToCurrentLine()
+void DisassemblerTextView::moveToSelection()
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
     REDasm::ListingDocument* doc = m_disassembler->document();
@@ -290,20 +299,18 @@ void DisassemblerTextView::adjustContextMenu()
     */
 }
 
-void DisassemblerTextView::showReferences(address_t address)
+void DisassemblerTextView::showReferenceDialog(const REDasm::SymbolPtr& symbol)
 {
-    REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(address);
-
     if(!symbol)
         return;
 
-    if(!m_disassembler->getReferencesCount(address))
+    if(!m_disassembler->getReferencesCount(symbol->address))
     {
         QMessageBox::information(this, "No References", "There are no references to " + S_TO_QS(symbol->name));
         return;
     }
 
-    ReferencesDialog dlgreferences(m_disassembler, m_currentaddress, symbol, this);
+    ReferencesDialog dlgreferences(m_disassembler, symbol, this);
     connect(&dlgreferences, &ReferencesDialog::jumpTo, [this](address_t address) { this->goTo(address); });
     dlgreferences.exec();
 }

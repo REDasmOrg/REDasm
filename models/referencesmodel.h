@@ -12,8 +12,7 @@ class ReferencesModel : public DisassemblerModel
     public:
         explicit ReferencesModel(QObject *parent = 0);
         virtual void setDisassembler(REDasm::DisassemblerAPI* disassembler);
-        void xref(const REDasm::InstructionPtr &instruction);
-        void xref(address_t currentaddress, const REDasm::SymbolPtr &symbol);
+        void xref(address_t address);
 
     public:
         virtual QModelIndex index(int row, int column, const QModelIndex &) const;
@@ -26,15 +25,11 @@ class ReferencesModel : public DisassemblerModel
         void clear();
 
     private:
-        virtual QVariant dataInstructionRefs(const QModelIndex &index, int role) const;
-        virtual QVariant dataSymbolRefs(const QModelIndex &index, int role) const;
         QString direction(address_t address) const;
 
     private:
-        std::vector<address_t> _references;
-        REDasm::PrinterPtr _printer;
-        address_t _currentaddress;
-        bool _instructionrefs;
+        REDasm::ReferenceVector m_references;
+        REDasm::PrinterPtr m_printer;
 };
 
 #endif // REFERENCESMODEL_H

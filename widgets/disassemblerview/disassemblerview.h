@@ -24,7 +24,6 @@ class DisassemblerView : public QWidget
         explicit DisassemblerView(QLabel* lblstatus, QWidget *parent = 0);
         ~DisassemblerView();
         void setDisassembler(REDasm::Disassembler* disassembler);
-        bool busy() const;
 
     private slots:
         void on_topTabs_currentChanged(int index);
@@ -33,8 +32,7 @@ class DisassemblerView : public QWidget
         void gotoSymbol(const QModelIndex &index);
         void xrefSymbol(const QModelIndex &index);
         void displayAddress(address_t address);
-        void displayInstructionReferences();
-        void displayReferences();
+        void displayCurrentReferences();
         void updateModel(const REDasm::SymbolPtr& symbol);
         void log(const QString& s);
         void filterFunctions();

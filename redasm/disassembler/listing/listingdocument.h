@@ -177,6 +177,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         void update(const InstructionPtr& instruction);
         InstructionPtr instruction(address_t address);
         ListingDocument::iterator instructionItem(address_t address);
+        ListingDocument::iterator symbolItem(address_t address);
         int functionIndex(address_t address);
         int instructionIndex(address_t address);
         ListingItem* itemAt(size_t i);

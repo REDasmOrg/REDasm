@@ -23,13 +23,14 @@ class ListingCursor
         const std::string& wordUnderCursor() const;
         void setWordUnderCursor(const std::string& s);
         void clearWordUnderCursor();
+        const ListingCursor::Position& currentPosition() const;
         int currentLine() const;
         int currentColumn() const;
-        bool hasBack() const;
-        bool hasForward() const;
+        bool canGoBack() const;
+        bool canGoForward() const;
         void select(int line, int column = 0);
-        void back();
-        void forward();
+        void goBack();
+        void goForward();
 
     private:
         Position m_position;

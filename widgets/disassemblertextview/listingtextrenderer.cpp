@@ -40,6 +40,15 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     return cp;
 }
 
+void ListingTextRenderer::findWordUnderCursor()
+{
+    REDasm::ListingCursor* cur = m_document->cursor();
+    REDasm::RendererLine rl;
+
+    this->getRendererLine(cur->currentLine(), rl);
+    this->findWordUnderCursor(QString::fromStdString(rl.text()), cur->currentPosition());
+}
+
 void ListingTextRenderer::toggleCursor() { m_cursoractive = !m_cursoractive; }
 
 void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)

@@ -16,6 +16,7 @@ class ListingTextRenderer : public REDasm::ListingRenderer
 
     public:
         REDasm::ListingCursor::Position hitTest(const QPointF& pos, QScrollBar* vscrollbar);
+        void findWordUnderCursor();
         void toggleCursor();
 
     protected:

@@ -6,10 +6,11 @@ ListingCursor::ListingCursor() { m_position = std::make_pair(0, 0); }
 const std::string &ListingCursor::wordUnderCursor() const { return m_wordundercursor;  }
 void ListingCursor::setWordUnderCursor(const std::string &s) { m_wordundercursor = s; }
 void ListingCursor::clearWordUnderCursor() { m_wordundercursor.clear(); }
+const ListingCursor::Position &ListingCursor::currentPosition() const { return m_position; }
 int ListingCursor::currentLine() const { return m_position.first; }
 int ListingCursor::currentColumn() const { return m_position.second; }
-bool ListingCursor::hasBack() const { return !m_backstack.empty(); }
-bool ListingCursor::hasForward() const { return !m_forwardstack.empty(); }
+bool ListingCursor::canGoBack() const { return !m_backstack.empty(); }
+bool ListingCursor::canGoForward() const { return !m_forwardstack.empty(); }
 
 void ListingCursor::select(int line, int column)
 {
@@ -25,7 +26,7 @@ void ListingCursor::select(int line, int column)
     backChanged();
 }
 
-void ListingCursor::back()
+void ListingCursor::goBack()
 {
     if(m_backstack.empty())
         return;
@@ -38,7 +39,7 @@ void ListingCursor::back()
     forwardChanged();
 }
 
-void ListingCursor::forward()
+void ListingCursor::goForward()
 {
     if(m_forwardstack.empty())
         return;

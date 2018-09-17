@@ -50,8 +50,8 @@ DisassemblerTextView::~DisassemblerTextView()
     }
 }
 
-bool DisassemblerTextView::canGoBack() const { return false; }
-bool DisassemblerTextView::canGoForward() const { return false; }
+bool DisassemblerTextView::canGoBack() const { return m_disassembler->document()->cursor()->canGoBack(); }
+bool DisassemblerTextView::canGoForward() const { return m_disassembler->document()->cursor()->canGoForward(); }
 void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
 
 void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
@@ -62,7 +62,7 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
     doc->changed += std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1);
 
     this->verticalScrollBar()->setRange(0, doc->size());
-    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [this](int) { this->update(); });
+    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [&](int) { this->update(); });
 
     m_disassembler = disassembler;
     m_renderer = new ListingTextRenderer(this->font(), disassembler);
@@ -96,14 +96,8 @@ void DisassemblerTextView::goTo(REDasm::ListingItem *item)
     doc->cursor()->select(idx);
 }
 
-void DisassemblerTextView::goBack()
-{
-
-}
-
-void DisassemblerTextView::goForward()
-{
-}
+void DisassemblerTextView::goBack() { m_disassembler->document()->cursor()->goBack();  }
+void DisassemblerTextView::goForward() { m_disassembler->document()->cursor()->goForward(); }
 
 void DisassemblerTextView::blinkCursor()
 {
@@ -160,6 +154,9 @@ void DisassemblerTextView::onDisassemblerFinished()
     REDasm::ListingCursor* cur = doc->cursor();
 
     cur->selectionChanged += std::bind(&DisassemblerTextView::moveToSelection, this);
+    cur->backChanged += [=]() { emit canGoBackChanged(); };
+    cur->forwardChanged += [=]() { emit canGoForwardChanged(); };
+
     this->moveToSelection();
 }
 
@@ -208,10 +205,13 @@ void DisassemblerTextView::moveToSelection()
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::ListingCursor* cur = doc->cursor();
 
-    if(!this->isLineVisible(cur->currentLine()))
-        vscrollbar->setValue(cur->currentLine());
-    else
+    if(this->isLineVisible(cur->currentLine()))
+    {
         this->update();
+        m_renderer->findWordUnderCursor();
+    }
+    else
+        vscrollbar->setValue(cur->currentLine());
 
     REDasm::ListingItem* item = doc->itemAt(cur->currentLine());
 
@@ -259,8 +259,6 @@ void DisassemblerTextView::adjustContextMenu()
 
     REDasm::Segment* segment = m_disassembler->document()->segment(symbol->address);
 
-    m_actback->setVisible(this->canGoBack());
-    m_actforward->setVisible(this->canGoForward());
     m_actcallgraph->setVisible(symbol->isFunction());
     m_actfollow->setVisible(symbol->is(REDasm::SymbolTypes::Code));
     m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));

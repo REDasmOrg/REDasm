@@ -11,20 +11,7 @@ int ListingCursor::currentLine() const { return m_position.first; }
 int ListingCursor::currentColumn() const { return m_position.second; }
 bool ListingCursor::canGoBack() const { return !m_backstack.empty(); }
 bool ListingCursor::canGoForward() const { return !m_forwardstack.empty(); }
-
-void ListingCursor::select(int line, int column)
-{
-    Position pos = std::make_pair(line, column);
-
-    if(pos == m_position)
-        return;
-
-    m_backstack.push(m_position);
-    m_position = pos;
-
-    selectionChanged();
-    backChanged();
-}
+void ListingCursor::select(int line, int column) { this->select(line, column, true); }
 
 void ListingCursor::goBack()
 {
@@ -35,7 +22,7 @@ void ListingCursor::goBack()
     m_backstack.pop();
 
     m_forwardstack.push(m_position);
-    this->select(pos.first, pos.second);
+    this->select(pos.first, pos.second, false);
     forwardChanged();
 }
 
@@ -48,8 +35,24 @@ void ListingCursor::goForward()
     m_forwardstack.pop();
 
     m_backstack.push(m_position);
-    this->select(pos.first, pos.second);
+    this->select(pos.first, pos.second, false);
     forwardChanged();
+}
+
+void ListingCursor::select(int line, int column, bool save)
+{
+    Position pos = std::make_pair(line, column);
+
+    if(pos == m_position)
+        return;
+
+    if(save)
+        m_backstack.push(m_position);
+
+    m_position = pos;
+
+    selectionChanged();
+    backChanged();
 }
 
 } // namespace REDasm

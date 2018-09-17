@@ -33,6 +33,9 @@ class ListingCursor
         void goForward();
 
     private:
+        void select(int line, int column, bool save);
+
+    private:
         Position m_position;
         PositionStack m_backstack, m_forwardstack;
         std::string m_wordundercursor;

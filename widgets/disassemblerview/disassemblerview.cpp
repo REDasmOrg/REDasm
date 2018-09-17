@@ -194,21 +194,19 @@ void DisassemblerView::xrefSymbol(const QModelIndex &index)
     if(!index.isValid() || !index.internalPointer())
         return;
 
-    /*
-    const ListingDocumentFilterModel* filtermodel = static_cast<const ListingDocumentFilterModel*>(index.model());
-    QModelIndex srcindex = filtermodel->mapToSource(index);
-    REDasm::SymbolPtr symbol = filtermodel->symbol(srcindex);
+    const ListingFilterModel* filtermodel = static_cast<const ListingFilterModel*>(index.model());
+    REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(filtermodel->mapToSource(index).internalPointer());
+    REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);
 
-    if(!m_disassembler->hasReferences(symbol))
+    if(!m_disassembler->getReferencesCount(item->address))
     {
         QMessageBox::information(this, "No References", "There are no references to " + S_TO_QS(symbol->name));
         return;
     }
 
-    ReferencesDialog dlgreferences(m_disassembler, ui->disassemblerTextView->currentAddress(), symbol, this);
-    connect(&dlgreferences, &ReferencesDialog::jumpTo, [this](address_t address) { ui->disassemblerTextView->goTo(address); });
+    ReferencesDialog dlgreferences(m_disassembler, symbol, this);
+    connect(&dlgreferences, &ReferencesDialog::jumpTo, [&](address_t address) { ui->disassemblerTextView->goTo(address); });
     dlgreferences.exec();
-    */
 }
 
 void DisassemblerView::displayAddress(address_t address)
@@ -267,10 +265,7 @@ void DisassemblerView::updateModel(const REDasm::SymbolPtr &symbol)
         */
 }
 
-void DisassemblerView::log(const QString &s)
-{
-    ui->pteOutput->insertPlainText(s + "\n");
-}
+void DisassemblerView::log(const QString &s) { ui->pteOutput->insertPlainText(s + "\n"); }
 
 void DisassemblerView::filterFunctions()
 {

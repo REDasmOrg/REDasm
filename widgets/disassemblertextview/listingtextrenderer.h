@@ -1,8 +1,9 @@
 #ifndef LISTINGTEXTRENDERER_H
 #define LISTINGTEXTRENDERER_H
 
-#include <QFont>
+#include <QScrollBar>
 #include <QFontMetrics>
+#include <QFont>
 #include "../../redasm/disassembler/listing/listingrenderer.h"
 
 class ListingTextRenderer : public REDasm::ListingRenderer
@@ -10,6 +11,9 @@ class ListingTextRenderer : public REDasm::ListingRenderer
     public:
         ListingTextRenderer(const QFont& font, REDasm::DisassemblerAPI* disassembler);
         virtual ~ListingTextRenderer();
+
+    public:
+        REDasm::ListingCursor::Position hitTest(const QPointF& pos, QScrollBar* vscrollbar);
         void toggleCursor();
 
     protected:

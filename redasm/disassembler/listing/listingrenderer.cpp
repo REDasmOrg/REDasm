@@ -16,30 +16,34 @@ ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_disassembler(
 void ListingRenderer::render(size_t start, size_t count, void *userdata)
 {
     ListingCursor* cur = m_document->cursor();
-    size_t end = start + count;
+    size_t end = start + count, line = start;
 
-    for(size_t i = 0, line = start; line < std::min(m_document->size(), end); i++, line++)
+    for(size_t i = 0; line < std::min(m_document->size(), end); i++, line++)
     {
-        ListingItem* item = m_document->itemAt(line);
-
         RendererLine rl;
         rl.userdata = userdata;
         rl.index = i;
         rl.highlighted = cur->currentLine() == static_cast<int>(line);
 
-        if(item->is(ListingItem::SegmentItem))
-            this->renderSegment(item, rl);
-        else if(item->is(ListingItem::FunctionItem))
-            this->renderFunction(item, rl);
-        else if(item->is(ListingItem::InstructionItem))
-            this->renderInstruction(item, rl);
-        else if(item->is(ListingItem::SymbolItem))
-            this->renderSymbol(item, rl);
-        else
-            rl.push("Unknown Type: " + std::to_string(item->type));
-
+        this->getRendererLine(line, rl);
         this->renderLine(rl);
     }
+}
+
+void ListingRenderer::getRendererLine(size_t line, RendererLine& rl)
+{
+    ListingItem* item = m_document->itemAt(line);
+
+    if(item->is(ListingItem::SegmentItem))
+        this->renderSegment(item, rl);
+    else if(item->is(ListingItem::FunctionItem))
+        this->renderFunction(item, rl);
+    else if(item->is(ListingItem::InstructionItem))
+        this->renderInstruction(item, rl);
+    else if(item->is(ListingItem::SymbolItem))
+        this->renderSymbol(item, rl);
+    else
+        rl.push("Unknown Type: " + std::to_string(item->type));
 }
 
 void ListingRenderer::renderSegment(ListingItem *item, RendererLine &rl)

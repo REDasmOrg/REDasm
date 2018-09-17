@@ -126,10 +126,8 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
     if(e->button() == Qt::LeftButton)
     {
         REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
-        int line = 0, column = 0;
-
-        this->cursorFromPos(e->pos(), &line, &column);
-        cur->select(line, column);
+        REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos(), this->verticalScrollBar());
+        cur->select(cp.first, cp.second);
     }
 
     QAbstractScrollArea::mousePressEvent(e);
@@ -192,7 +190,7 @@ void DisassemblerTextView::cursorFromPos(const QPoint &p, int* line, int* column
         *line = vscrollbar->value() + std::ceil(p.y() / fm.height());
 
     if(column)
-        *column = std::ceil(p.x() / fm.width(" "));
+        *column = std::floor(p.x() / fm.boundingRect('9').width());
 }
 
 bool DisassemblerTextView::isLineVisible(int line) const

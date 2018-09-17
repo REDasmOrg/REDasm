@@ -1,9 +1,42 @@
 #include "listingtextrenderer.h"
 #include "../../themeprovider.h"
+#include <cmath>
 #include <QPainter>
+#include <QTextCharFormat>
+#include <QTextDocument>
+#include <QTextCursor>
+#include <QAbstractTextDocumentLayout>
 
 ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font), m_cursoractive(false) { }
 ListingTextRenderer::~ListingTextRenderer() { }
+
+REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos, QScrollBar *vscrollbar)
+{
+    REDasm::ListingCursor::Position cp;
+    cp.first = vscrollbar->value() + std::floor(pos.y() / m_fontmetrics.height());
+    cp.second = -1;
+
+    REDasm::RendererLine rl;
+    this->getRendererLine(cp.first, rl);
+    QString s = QString::fromStdString(rl.text());
+
+    for(int i = 0; i < s.length(); i++)
+    {
+        QRect r = m_fontmetrics.boundingRect(s.left(i + 1));
+
+        if(!r.contains(QPoint(pos.x(), r.y())))
+            continue;
+
+        cp.second = i;
+        break;
+    }
+
+    if(cp.second == -1)
+        cp.second = s.length() - 1;
+
+    return cp;
+}
+
 void ListingTextRenderer::toggleCursor() { m_cursoractive = !m_cursoractive; }
 
 void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
@@ -13,27 +46,47 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
     rvp.setY(rl.index * m_fontmetrics.height());
     rvp.setHeight(m_fontmetrics.height());
 
-    if(rl.highlighted)
-        painter->fillRect(rvp, THEME_VALUE("highlight"));
+    QTextDocument textdocument;
+    textdocument.setDocumentMargin(0);
+    textdocument.setUndoRedoEnabled(false);
+    textdocument.setDefaultFont(painter->font());
 
-    rvp.setX(0);
+    QTextCursor textcursor(&textdocument);
 
     for(const REDasm::RendererFormat& rf : rl.formats)
     {
-        QString s = QString::fromStdString(rf.text);
-        rvp.setWidth(m_fontmetrics.horizontalAdvance(s));
+        QTextCharFormat charformat;
 
         if(!rf.style.empty())
-            painter->setPen(THEME_VALUE(QString::fromStdString(rf.style)));
-        else
-            painter->setPen(Qt::black);
+            charformat.setForeground(THEME_VALUE(QString::fromStdString(rf.style)));
 
-        painter->drawText(rvp, Qt::AlignLeft | Qt::AlignTop, s);
-        rvp.setX(rvp.x() + rvp.width());
+        textcursor.insertText(QString::fromStdString(rf.text), charformat);
     }
 
-    if(m_cursoractive && rl.highlighted)
-        this->renderCursor(rl);
+    if(rl.highlighted)
+    {
+        QTextBlockFormat blockformat;
+        blockformat.setBackground(THEME_VALUE("highlight"));
+        textcursor.setBlockFormat(blockformat);
+
+        if(m_cursoractive)
+        {
+            REDasm::ListingCursor* cur = m_document->cursor();
+            textcursor.setPosition(cur->currentColumn());
+            textcursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+
+            QTextCharFormat charformat;
+            charformat.setBackground(Qt::black);
+            charformat.setForeground(Qt::white);
+            textcursor.setCharFormat(charformat);
+        }
+    }
+
+    painter->save();
+        painter->translate(rvp.topLeft());
+        textdocument.setTextWidth(rvp.width());
+        textdocument.drawContents(painter);
+    painter->restore();
 }
 
 void ListingTextRenderer::renderCursor(const REDasm::RendererLine& rl)

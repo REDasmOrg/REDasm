@@ -14,10 +14,10 @@ struct RendererFormat
 
 struct RendererLine
 {
-    RendererLine() { }
+    RendererLine(): userdata(NULL), index(-1), highlighted(false) { }
 
     void* userdata;
-    size_t index;
+    int index;
     bool highlighted;
     std::list<RendererFormat> formats;
 
@@ -49,6 +49,7 @@ class ListingRenderer
         void render(size_t start, size_t count, void* userdata = NULL);
 
     protected:
+        void getRendererLine(size_t line, RendererLine& rl);
         virtual void renderLine(const RendererLine& rl) = 0;
         void renderSegment(ListingItem* item, RendererLine& rl);
         void renderFunction(ListingItem* item, RendererLine &rl);

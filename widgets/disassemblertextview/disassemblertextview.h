@@ -22,6 +22,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
 
     public slots:
+        void copy();
         void goTo(REDasm::ListingItem *item);
         void goTo(address_t address);
         void rename(address_t address);
@@ -35,6 +36,8 @@ class DisassemblerTextView : public QAbstractScrollArea
         virtual void paintEvent(QPaintEvent* e);
         virtual void resizeEvent(QResizeEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);
+        virtual void mouseMoveEvent(QMouseEvent* e);
+        virtual void mouseReleaseEvent(QMouseEvent* e);
         virtual void keyPressEvent(QKeyEvent *e);
 
     private:
@@ -68,7 +71,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         ListingTextRenderer* m_renderer;
         REDasm::DisassemblerAPI* m_disassembler;
         QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actcallgraph;
-        QAction *m_actgoto, *m_acthexdump, *m_actback, *m_actforward, *m_actcopy, *m_actselectall;
+        QAction *m_actgoto, *m_acthexdump, *m_actback, *m_actforward, *m_actcopy;
         QMenu* m_contextmenu;
         QTimer* m_blinktimer;
 };

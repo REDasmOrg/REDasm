@@ -22,12 +22,46 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
     {
         RendererLine rl;
         rl.userdata = userdata;
+        rl.line = line;
         rl.index = i;
         rl.highlighted = cur->currentLine() == static_cast<int>(line);
 
         this->getRendererLine(line, rl);
         this->renderLine(rl);
     }
+}
+
+std::string ListingRenderer::getSelectedText()
+{
+    const ListingCursor* cur = m_document->cursor();
+
+    if(!cur->hasSelection())
+        return std::string();
+
+    const ListingCursor::Position& startpos = cur->startSelection();
+    const ListingCursor::Position& endpos = cur->endSelection();
+
+    std::stringstream ss;
+    int line = startpos.first;
+
+    while(line <= endpos.first)
+    {
+        RendererLine rl;
+        this->getRendererLine(line, rl);
+        std::string s = rl.text();
+
+        if(line == startpos.first)
+            ss << s.substr(startpos.second);
+        else if(line == endpos.first)
+            ss << s.substr(0, endpos.second);
+        else
+            ss << s;
+
+        ss << std::endl;
+        line++;
+    }
+
+    return ss.str();
 }
 
 void ListingRenderer::getRendererLine(size_t line, RendererLine& rl)

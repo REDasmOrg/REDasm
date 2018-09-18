@@ -1,5 +1,6 @@
 #include "listingdocument.h"
 #include <algorithm>
+#include <sstream>
 
 namespace REDasm {
 
@@ -93,7 +94,7 @@ void ListingDocument::entry(address_t address, u32 tag)
 void ListingDocument::setDocumentEntry(address_t address)
 {
     m_documententry = m_symboltable.symbol(address);
-    m_cursor.select(this->functionIndex(address));
+    m_cursor.moveTo(this->functionIndex(address));
 }
 
 SymbolPtr ListingDocument::documentEntry() const { return m_documententry; }

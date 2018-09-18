@@ -2,17 +2,8 @@
 #include "../../dialogs/referencesdialog.h"
 #include "../../dialogs/callgraphdialog.h"
 #include <cmath>
-#include <QTimer>
-#include <QPainter>
-#include <QFontDatabase>
-#include <QFontMetrics>
-#include <QJsonDocument>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QMouseEvent>
-#include <QScrollBar>
-#include <QAction>
-#include <QMenu>
+#include <QtGui>
+#include <QtWidgets>
 
 #define CURSOR_BLINK_INTERVAL 500 // 500ms
 
@@ -23,6 +14,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     font.setPointSize(12);
 
     this->setFont(font);
+    this->setFocusPolicy(Qt::StrongFocus);
     this->setCursor(Qt::ArrowCursor);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->verticalScrollBar()->setMinimum(0);
@@ -71,6 +63,8 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
     this->update();
 }
 
+void DisassemblerTextView::copy() { qApp->clipboard()->setText(S_TO_QS(m_renderer->getSelectedText())); }
+
 void DisassemblerTextView::goTo(address_t address)
 {
     REDasm::ListingDocument* doc = m_disassembler->document();
@@ -94,7 +88,7 @@ void DisassemblerTextView::goTo(REDasm::ListingItem *item)
     if(idx == -1)
         return;
 
-    doc->cursor()->select(idx);
+    doc->cursor()->moveTo(idx);
 }
 
 void DisassemblerTextView::goBack() { m_disassembler->document()->cursor()->goBack();  }
@@ -133,14 +127,47 @@ void DisassemblerTextView::resizeEvent(QResizeEvent *e)
 
 void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
 {
-    if((e->button() == Qt::LeftButton) || (e->button() == Qt::RightButton))
+    REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
+
+    if((e->button() == Qt::LeftButton) || (!cur->hasSelection() && (e->button() == Qt::RightButton)))
     {
-        REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
         REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos(), this->firstVisibleLine());
-        cur->select(cp.first, cp.second);
+        cur->moveTo(cp.first, cp.second);
+        e->accept();
     }
 
     QAbstractScrollArea::mousePressEvent(e);
+}
+
+void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
+{
+    if(e->buttons() == Qt::LeftButton)
+    {
+        if(m_blinktimer->isActive())
+        {
+            m_blinktimer->stop();
+            m_renderer->disableCursor();
+        }
+
+        REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
+        REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos(), this->firstVisibleLine());
+        cur->select(cp.first, cp.second);
+        e->accept();
+        return;
+    }
+
+    QAbstractScrollArea::mouseMoveEvent(e);
+}
+
+void DisassemblerTextView::mouseReleaseEvent(QMouseEvent *e)
+{
+    if(e->button() == Qt::LeftButton)
+    {
+        if(!m_blinktimer->isActive())
+            m_blinktimer->start();
+    }
+
+    QAbstractScrollArea::mouseReleaseEvent(e);
 }
 
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
@@ -156,7 +183,7 @@ void DisassemblerTextView::onDisassemblerFinished()
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::ListingCursor* cur = doc->cursor();
 
-    cur->selectionChanged += std::bind(&DisassemblerTextView::moveToSelection, this);
+    cur->positionChanged += std::bind(&DisassemblerTextView::moveToSelection, this);
     cur->backChanged += [=]() { emit canGoBackChanged(); };
     cur->forwardChanged += [=]() { emit canGoForwardChanged(); };
 
@@ -259,8 +286,7 @@ void DisassemblerTextView::createContextMenu()
     m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
     m_actforward = m_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward);
     m_contextmenu->addSeparator();
-    m_actcopy = m_contextmenu->addAction("Copy");
-    m_actselectall = m_contextmenu->addAction("Select All");
+    m_actcopy = m_contextmenu->addAction("Copy", this, &DisassemblerTextView::copy);
 
     connect(m_contextmenu, &QMenu::aboutToShow, this, &DisassemblerTextView::adjustContextMenu);
 }
@@ -269,6 +295,7 @@ void DisassemblerTextView::adjustContextMenu()
 {
     m_actback->setVisible(this->canGoBack());
     m_actforward->setVisible(this->canGoForward());
+    m_actcopy->setVisible(m_disassembler->document()->cursor()->hasSelection());
 
     REDasm::SymbolPtr symbol = this->symbolUnderCursor();
 

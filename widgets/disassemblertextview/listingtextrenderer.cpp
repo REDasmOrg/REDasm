@@ -1,8 +1,10 @@
 #include "listingtextrenderer.h"
 #include "../../themeprovider.h"
 #include <cmath>
+#include <QApplication>
 #include <QTextCharFormat>
 #include <QTextDocument>
+#include <QPalette>
 #include <QPainter>
 
 ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font), m_cursoractive(false)
@@ -50,9 +52,11 @@ void ListingTextRenderer::findWordUnderCursor()
 }
 
 void ListingTextRenderer::toggleCursor() { m_cursoractive = !m_cursoractive; }
+void ListingTextRenderer::disableCursor() { m_cursoractive = false; }
 
 void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
 {
+    REDasm::ListingCursor* cur = m_document->cursor();
     QPainter* painter = reinterpret_cast<QPainter*>(rl.userdata);
     QRect rvp = painter->viewport();
     rvp.setY(rl.index * m_fontmetrics.height());
@@ -75,11 +79,15 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
         textcursor.insertText(QString::fromStdString(rf.text), charformat);
     }
 
-    this->highlightWords(textcursor, rl);
+    if(cur->isLineSelected(rl.line))
+        this->renderSelection(textcursor, rl);
+    else
+        this->highlightWords(textcursor, rl);
 
     if(rl.highlighted)
     {
-        this->highlightLine(textcursor);
+        if(!cur->isLineSelected(rl.line))
+            this->highlightLine(textcursor);
 
         if(m_cursoractive)
             this->renderCursor(textcursor);
@@ -147,5 +155,36 @@ void ListingTextRenderer::renderCursor(QTextCursor &textcursor) const
     QTextCharFormat charformat;
     charformat.setBackground(Qt::black);
     charformat.setForeground(Qt::white);
+    textcursor.setCharFormat(charformat);
+}
+
+void ListingTextRenderer::renderSelection(QTextCursor &textcursor, const REDasm::RendererLine& rl) const
+{
+    QPalette palette = qApp->palette();
+    REDasm::ListingCursor* cur = m_document->cursor();
+    const REDasm::ListingCursor::Position& startsel = cur->startSelection();
+    const REDasm::ListingCursor::Position& endsel = cur->endSelection();
+
+    if(startsel.first == endsel.first)
+    {
+        textcursor.setPosition(startsel.second);
+        textcursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, endsel.second - startsel.second + 1);
+    }
+    else
+    {
+        if(rl.line == startsel.first)
+            textcursor.setPosition(startsel.second);
+        else
+            textcursor.setPosition(0);
+
+        if(rl.line == endsel.first)
+            textcursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, endsel.second + 1);
+        else
+            textcursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+    }
+
+    QTextCharFormat charformat;
+    charformat.setBackground(palette.color(QPalette::Highlight));
+    charformat.setForeground(palette.color(QPalette::HighlightedText));
     textcursor.setCharFormat(charformat);
 }

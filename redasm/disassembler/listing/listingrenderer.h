@@ -14,10 +14,10 @@ struct RendererFormat
 
 struct RendererLine
 {
-    RendererLine(): userdata(NULL), index(-1), highlighted(false) { }
+    RendererLine(): userdata(NULL), line(-1), index(-1), highlighted(false) { }
 
     void* userdata;
-    int index;
+    int line, index;
     bool highlighted;
     std::list<RendererFormat> formats;
 
@@ -47,6 +47,7 @@ class ListingRenderer
     public:
         ListingRenderer(DisassemblerAPI* disassembler);
         void render(size_t start, size_t count, void* userdata = NULL);
+        std::string getSelectedText();
 
     protected:
         void getRendererLine(size_t line, RendererLine& rl);

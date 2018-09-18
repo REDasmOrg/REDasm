@@ -32,7 +32,7 @@ bool DisassemblerAlgorithm::analyze()
         SymbolPtr symep = m_document->documentEntry();
 
         if(symep)
-            cur->select(m_document->functionIndex(symep->address));
+            cur->moveTo(m_document->functionIndex(symep->address));
     }).detach();
 
     return true;

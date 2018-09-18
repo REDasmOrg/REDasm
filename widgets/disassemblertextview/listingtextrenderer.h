@@ -17,6 +17,7 @@ class ListingTextRenderer : public REDasm::ListingRenderer
         REDasm::ListingCursor::Position hitTest(const QPointF& pos, int firstline);
         void findWordUnderCursor();
         void toggleCursor();
+        void disableCursor();
 
     protected:
         virtual void renderLine(const REDasm::RendererLine& rl);
@@ -26,6 +27,7 @@ class ListingTextRenderer : public REDasm::ListingRenderer
         void highlightWords(QTextCursor& textcursor, const REDasm::RendererLine& rl) const;
         void highlightLine(QTextCursor& textcursor) const;
         void renderCursor(QTextCursor& textcursor) const;
+        void renderSelection(QTextCursor& textcursor, const REDasm::RendererLine &rl) const;
 
     private:
         QRegularExpression m_rgxwords;

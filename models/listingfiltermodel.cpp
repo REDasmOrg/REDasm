@@ -26,6 +26,9 @@ QModelIndex ListingFilterModel::index(int row, int column, const QModelIndex&) c
     if(!this->canFilter())
         return QIdentityProxyModel::index(row, column);
 
+    if(m_filtereditems.empty())
+        return QModelIndex();
+
     return this->createIndex(row, column, m_filtereditems[row]);
 }
 

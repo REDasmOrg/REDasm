@@ -318,7 +318,7 @@ void DisassemblerTextView::onDisassemblerFinished()
 void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
-    vscrollbar->setMaximum(m_disassembler->document()->size());
+    this->adjustScrollBars();
 
     if((ldc->index < vscrollbar->value()) || (ldc->index > vscrollbar->value() + this->visibleLines()))
         return;
@@ -342,17 +342,7 @@ int DisassemblerTextView::visibleLines() const
     return std::ceil(this->height() / fm.height());
 }
 
-int DisassemblerTextView::firstVisibleLine() const
-{
-    QScrollBar* vscrollbar = this->verticalScrollBar();
-    int start = vscrollbar->value() - (this->visibleLines() / 2);
-
-    if(start < 0)
-        start = 0;
-
-    return start;
-}
-
+int DisassemblerTextView::firstVisibleLine() const { return this->verticalScrollBar()->value(); }
 int DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines() - 1; }
 
 bool DisassemblerTextView::isLineVisible(int line) const
@@ -373,7 +363,11 @@ void DisassemblerTextView::adjustScrollBars()
 
     QScrollBar* vscrollbar = this->verticalScrollBar();
     REDasm::ListingDocument* doc = m_disassembler->document();
-    vscrollbar->setMaximum(doc->size() - (this->visibleLines() / 2));
+
+    if(doc->size() <= static_cast<size_t>(this->visibleLines()))
+        vscrollbar->setMaximum(doc->size());
+    else
+        vscrollbar->setMaximum(doc->size() - this->visibleLines());
 }
 
 void DisassemblerTextView::moveToSelection()

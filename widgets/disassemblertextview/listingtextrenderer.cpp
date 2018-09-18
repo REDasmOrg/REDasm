@@ -24,7 +24,7 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     this->getRendererLine(cp.first, rl);
     std::string s = rl.text();
 
-    for(int i = 0; i < s.length(); i++)
+    for(size_t i = 0; i < s.length(); i++)
     {
         QRect r = m_fontmetrics.boundingRect(QString::fromStdString(s.substr(0, i + 1)));
 

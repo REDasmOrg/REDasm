@@ -31,6 +31,18 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
     }
 }
 
+int ListingRenderer::getLastColumn(size_t line)
+{
+    RendererLine rl;
+    this->getRendererLine(line, rl);
+    int len = static_cast<int>(rl.length());
+
+    if(!len)
+        return 0;
+
+    return len - 1;
+}
+
 std::string ListingRenderer::getSelectedText()
 {
     const ListingCursor* cur = m_document->cursor();

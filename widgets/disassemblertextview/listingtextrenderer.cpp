@@ -64,6 +64,7 @@ void ListingTextRenderer::updateWordUnderCursor()
 }
 
 void ListingTextRenderer::toggleCursor() { m_cursoractive = !m_cursoractive; }
+void ListingTextRenderer::enableCursor() { m_cursoractive = true; }
 void ListingTextRenderer::disableCursor() { m_cursoractive = false; }
 
 void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
@@ -107,7 +108,6 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
 
     painter->save();
         painter->translate(rvp.topLeft());
-        textdocument.setTextWidth(rvp.width());
         textdocument.drawContents(painter);
     painter->restore();
 }

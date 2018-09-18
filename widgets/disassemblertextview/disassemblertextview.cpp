@@ -190,10 +190,116 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
 
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
-    if(e->key() == Qt::Key_X)
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingCursor* cur = doc->cursor();
+
+    m_blinktimer->stop();
+    m_renderer->enableCursor();
+
+    if(e->matches(QKeySequence::MoveToNextChar) || e->matches(QKeySequence::SelectNextChar))
+    {
+        int len = m_renderer->getLastColumn(cur->currentLine());
+
+        if(e->matches(QKeySequence::MoveToNextChar))
+            cur->moveTo(cur->currentLine(), std::min(len, cur->currentColumn() + 1));
+        else
+            cur->select(cur->currentLine(), std::min(len, cur->currentColumn() + 1));
+    }
+    else if(e->matches(QKeySequence::MoveToPreviousChar) || e->matches(QKeySequence::SelectPreviousChar))
+    {
+        if(e->matches(QKeySequence::MoveToNextChar))
+            cur->moveTo(cur->currentLine(), std::max(0, cur->currentColumn() - 1));
+        else
+            cur->select(cur->currentLine(), std::max(0, cur->currentColumn() - 1));
+    }
+    else if(e->matches(QKeySequence::MoveToNextLine) || e->matches(QKeySequence::SelectNextLine))
+    {
+        if(doc->lastLine()  == cur->currentLine())
+            return;
+
+        int nextline = cur->currentLine() + 1;
+
+        if(e->matches(QKeySequence::MoveToNextLine))
+            cur->moveTo(nextline, std::min(cur->currentColumn(), m_renderer->getLastColumn(nextline)));
+        else
+            cur->select(nextline, std::min(cur->currentColumn(), m_renderer->getLastColumn(nextline)));
+    }
+    else if(e->matches(QKeySequence::MoveToPreviousLine) || e->matches(QKeySequence::SelectPreviousLine))
+    {
+        if(!cur->currentLine())
+            return;
+
+        int prevline = cur->currentLine() - 1;
+
+        if(e->matches(QKeySequence::MoveToPreviousLine))
+            cur->moveTo(prevline, std::min(cur->currentColumn(), m_renderer->getLastColumn(prevline)));
+        else
+            cur->select(prevline, std::min(cur->currentColumn(), m_renderer->getLastColumn(prevline)));
+    }
+    else if(e->matches(QKeySequence::MoveToNextPage) || e->matches(QKeySequence::SelectNextPage))
+    {
+        if(doc->lastLine()  == cur->currentLine())
+            return;
+
+        int pageline = std::min(doc->lastLine(), this->firstVisibleLine() + this->visibleLines());
+
+        if(e->matches(QKeySequence::MoveToNextPage))
+            cur->moveTo(pageline, std::min(cur->currentColumn(), m_renderer->getLastColumn(pageline)));
+        else
+            cur->select(pageline, std::min(cur->currentColumn(), m_renderer->getLastColumn(pageline)));
+    }
+    else if(e->matches(QKeySequence::MoveToPreviousPage) || e->matches(QKeySequence::SelectPreviousPage))
+    {
+        if(!cur->currentLine())
+            return;
+
+        int pageline = std::max(0, this->firstVisibleLine() - this->visibleLines());
+
+        if(e->matches(QKeySequence::MoveToPreviousPage))
+            cur->moveTo(pageline, std::min(cur->currentColumn(), m_renderer->getLastColumn(pageline)));
+        else
+            cur->select(pageline, std::min(cur->currentColumn(), m_renderer->getLastColumn(pageline)));
+    }
+    else if(e->matches(QKeySequence::MoveToStartOfDocument) || e->matches(QKeySequence::SelectStartOfDocument))
+    {
+        if(!cur->currentLine())
+            return;
+
+        if(e->matches(QKeySequence::MoveToStartOfDocument))
+            cur->moveTo(0, 0);
+        else
+            cur->select(0, 0);
+    }
+    else if(e->matches(QKeySequence::MoveToEndOfDocument) || e->matches(QKeySequence::SelectEndOfDocument))
+    {
+        if(doc->lastLine() == cur->currentLine())
+            return;
+
+        if(e->matches(QKeySequence::MoveToEndOfDocument))
+            cur->moveTo(doc->lastLine(), m_renderer->getLastColumn(doc->lastLine()));
+        else
+            cur->select(doc->lastLine(), m_renderer->getLastColumn(doc->lastLine()));
+    }
+    else if(e->matches(QKeySequence::MoveToStartOfLine) || e->matches(QKeySequence::SelectStartOfLine))
+    {
+        if(e->matches(QKeySequence::MoveToStartOfLine))
+            cur->moveTo(cur->currentLine(), 0);
+        else
+            cur->select(cur->currentLine(), 0);
+    }
+    else if(e->matches(QKeySequence::MoveToEndOfLine) || e->matches(QKeySequence::SelectEndOfLine))
+    {
+        if(e->matches(QKeySequence::MoveToEndOfLine))
+            cur->moveTo(cur->currentLine(), m_renderer->getLastColumn(cur->currentLine()));
+        else
+            cur->select(cur->currentLine(), m_renderer->getLastColumn(cur->currentLine()));
+    }
+    else if(e->key() == Qt::Key_X)
         this->showReferences();
     //else if(e->key() == Qt::Key_N)
         //this->rename(m_symboladdress);
+
+    m_blinktimer->start();
 }
 
 void DisassemblerTextView::onDisassemblerFinished()
@@ -206,6 +312,7 @@ void DisassemblerTextView::onDisassemblerFinished()
     cur->forwardChanged += [=]() { emit canGoForwardChanged(); };
 
     this->moveToSelection();
+    this->setFocus();
 }
 
 void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
@@ -246,7 +353,7 @@ int DisassemblerTextView::firstVisibleLine() const
     return start;
 }
 
-int DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines(); }
+int DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines() - 1; }
 
 bool DisassemblerTextView::isLineVisible(int line) const
 {

@@ -156,6 +156,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
     public:
         ListingDocument();
         ListingCursor* cursor();
+        int lastLine() const;
 
     public:
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);

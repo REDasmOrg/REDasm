@@ -6,6 +6,7 @@ namespace REDasm {
 
 ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
 ListingCursor *ListingDocument::cursor() { return &m_cursor; }
+int ListingDocument::lastLine() const { return static_cast<int>(this->size()) - 1; }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {

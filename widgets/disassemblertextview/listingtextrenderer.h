@@ -21,6 +21,7 @@ class ListingTextRenderer : public REDasm::ListingRenderer
         Range wordHitTest(const QPointF& pos, int firstline);
         void updateWordUnderCursor();
         void toggleCursor();
+        void enableCursor();
         void disableCursor();
 
     protected:

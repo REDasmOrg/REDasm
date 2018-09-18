@@ -3,7 +3,6 @@
 
 #include <QRegularExpression>
 #include <QTextCursor>
-#include <QScrollBar>
 #include <QFontMetrics>
 #include <QFont>
 #include "../../redasm/disassembler/listing/listingrenderer.h"
@@ -15,7 +14,7 @@ class ListingTextRenderer : public REDasm::ListingRenderer
         virtual ~ListingTextRenderer();
 
     public:
-        REDasm::ListingCursor::Position hitTest(const QPointF& pos, QScrollBar* vscrollbar);
+        REDasm::ListingCursor::Position hitTest(const QPointF& pos, int firstline);
         void findWordUnderCursor();
         void toggleCursor();
 
@@ -24,7 +23,7 @@ class ListingTextRenderer : public REDasm::ListingRenderer
 
     private:
         void findWordUnderCursor(const QString& s, const REDasm::ListingCursor::Position& cp);
-        void highlightWords(QTextCursor &textcursor, const REDasm::RendererLine& rl) const;
+        void highlightWords(QTextCursor& textcursor, const REDasm::RendererLine& rl) const;
         void highlightLine(QTextCursor& textcursor) const;
         void renderCursor(QTextCursor& textcursor) const;
 

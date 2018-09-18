@@ -4,7 +4,6 @@
 
 ListingFilterModel::ListingFilterModel(QObject *parent) : QIdentityProxyModel(parent) { }
 const QString &ListingFilterModel::filter() const { return m_filterstring; }
-
 void ListingFilterModel::setDisassembler(REDasm::DisassemblerAPI *disassembler) { reinterpret_cast<ListingItemModel*>(this->sourceModel())->setDisassembler(disassembler); }
 
 void ListingFilterModel::setFilter(const QString &filter)

@@ -25,6 +25,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->setFont(font);
     this->setCursor(Qt::ArrowCursor);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
+    this->verticalScrollBar()->setMinimum(0);
     this->verticalScrollBar()->setValue(0);
     this->verticalScrollBar()->setSingleStep(1);
     this->verticalScrollBar()->setPageStep(1);
@@ -61,7 +62,7 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
     REDasm::ListingDocument* doc = disassembler->document();
     doc->changed += std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1);
 
-    this->verticalScrollBar()->setRange(0, doc->size());
+    this->adjustScrollBars();
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [&](int) { this->update(); });
 
     m_disassembler = disassembler;
@@ -119,11 +120,15 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
     if(!m_renderer)
         return;
 
-    QScrollBar* vscrollbar = this->verticalScrollBar();
     QPainter painter(this->viewport());
     painter.setFont(this->font());
+    m_renderer->render(this->firstVisibleLine(), this->visibleLines(), &painter);
+}
 
-    m_renderer->render(vscrollbar->value(), this->visibleLines(), &painter);
+void DisassemblerTextView::resizeEvent(QResizeEvent *e)
+{
+    QAbstractScrollArea::resizeEvent(e);
+    this->adjustScrollBars();
 }
 
 void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
@@ -131,7 +136,7 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
     if((e->button() == Qt::LeftButton) || (e->button() == Qt::RightButton))
     {
         REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
-        REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos(), this->verticalScrollBar());
+        REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos(), this->firstVisibleLine());
         cur->select(cp.first, cp.second);
     }
 
@@ -141,9 +146,7 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
     if(e->key() == Qt::Key_X)
-    {
         this->showReferences();
-    }
     //else if(e->key() == Qt::Key_N)
         //this->rename(m_symboladdress);
 }
@@ -187,16 +190,38 @@ int DisassemblerTextView::visibleLines() const
     return std::ceil(this->height() / fm.height());
 }
 
-int DisassemblerTextView::lastVisibleLine() const
+int DisassemblerTextView::firstVisibleLine() const
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
-    return vscrollbar->value() + this->visibleLines();
+    int start = vscrollbar->value() - (this->visibleLines() / 2);
+
+    if(start < 0)
+        start = 0;
+
+    return start;
 }
+
+int DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines(); }
 
 bool DisassemblerTextView::isLineVisible(int line) const
 {
+    if(line < this->firstVisibleLine())
+        return false;
+
+    if(line > this->lastVisibleLine())
+        return false;
+
+    return true;
+}
+
+void DisassemblerTextView::adjustScrollBars()
+{
+    if(!m_disassembler)
+        return;
+
     QScrollBar* vscrollbar = this->verticalScrollBar();
-    return (line >= vscrollbar->value()) && (line < this->lastVisibleLine());
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    vscrollbar->setMaximum(doc->size() - (this->visibleLines() / 2));
 }
 
 void DisassemblerTextView::moveToSelection()

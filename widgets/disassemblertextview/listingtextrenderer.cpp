@@ -12,10 +12,10 @@ ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::Disassembler
 
 ListingTextRenderer::~ListingTextRenderer() { }
 
-REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos, QScrollBar *vscrollbar)
+REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos, int firstline)
 {
     REDasm::ListingCursor::Position cp;
-    cp.first = vscrollbar->value() + std::floor(pos.y() / m_fontmetrics.height());
+    cp.first = firstline + std::floor(pos.y() / m_fontmetrics.height());
     cp.second = -1;
 
     REDasm::RendererLine rl;

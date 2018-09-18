@@ -33,6 +33,7 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     private:
         virtual void paintEvent(QPaintEvent* e);
+        virtual void resizeEvent(QResizeEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);
         virtual void keyPressEvent(QKeyEvent *e);
 
@@ -43,8 +44,10 @@ class DisassemblerTextView : public QAbstractScrollArea
     private:
         REDasm::SymbolPtr symbolUnderCursor();
         int visibleLines() const;
+        int firstVisibleLine() const;
         int lastVisibleLine() const;
         bool isLineVisible(int line) const;
+        void adjustScrollBars();
         void moveToSelection();
         void createContextMenu();
         void adjustContextMenu();

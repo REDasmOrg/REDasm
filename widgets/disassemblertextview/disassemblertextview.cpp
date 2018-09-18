@@ -170,6 +170,24 @@ void DisassemblerTextView::mouseReleaseEvent(QMouseEvent *e)
     QAbstractScrollArea::mouseReleaseEvent(e);
 }
 
+void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    if(e->button() == Qt::LeftButton)
+    {
+        ListingTextRenderer::Range r = m_renderer->wordHitTest(e->pos(), this->firstVisibleLine());
+
+        if(r.first == -1)
+            return;
+
+        REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
+        cur->moveTo(cur->currentLine(), r.first);
+        cur->select(cur->currentLine(), r.second);
+        return;
+    }
+
+    QAbstractScrollArea::mouseReleaseEvent(e);
+}
+
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
     if(e->key() == Qt::Key_X)
@@ -260,7 +278,7 @@ void DisassemblerTextView::moveToSelection()
     if(this->isLineVisible(cur->currentLine()))
     {
         this->update();
-        m_renderer->findWordUnderCursor();
+        m_renderer->updateWordUnderCursor();
     }
     else
         vscrollbar->setValue(cur->currentLine());

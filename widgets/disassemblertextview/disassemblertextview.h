@@ -38,6 +38,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         virtual void mousePressEvent(QMouseEvent* e);
         virtual void mouseMoveEvent(QMouseEvent* e);
         virtual void mouseReleaseEvent(QMouseEvent* e);
+        virtual void mouseDoubleClickEvent(QMouseEvent* e);
         virtual void keyPressEvent(QKeyEvent *e);
 
     private:

@@ -10,12 +10,16 @@
 class ListingTextRenderer : public REDasm::ListingRenderer
 {
     public:
+        typedef std::pair<int, int> Range;
+
+    public:
         ListingTextRenderer(const QFont& font, REDasm::DisassemblerAPI* disassembler);
         virtual ~ListingTextRenderer();
 
     public:
         REDasm::ListingCursor::Position hitTest(const QPointF& pos, int firstline);
-        void findWordUnderCursor();
+        Range wordHitTest(const QPointF& pos, int firstline);
+        void updateWordUnderCursor();
         void toggleCursor();
         void disableCursor();
 
@@ -23,7 +27,8 @@ class ListingTextRenderer : public REDasm::ListingRenderer
         virtual void renderLine(const REDasm::RendererLine& rl);
 
     private:
-        void findWordUnderCursor(const QString& s, const REDasm::ListingCursor::Position& cp);
+        std::string findWordUnderCursor(const std::string &s, const REDasm::ListingCursor::Position& cp, int *pos = NULL);
+        void updateWordUnderCursor(const std::string& s, const REDasm::ListingCursor::Position& cp);
         void highlightWords(QTextCursor& textcursor, const REDasm::RendererLine& rl) const;
         void highlightLine(QTextCursor& textcursor) const;
         void renderCursor(QTextCursor& textcursor) const;

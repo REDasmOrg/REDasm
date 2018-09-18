@@ -22,11 +22,11 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
 
     REDasm::RendererLine rl;
     this->getRendererLine(cp.first, rl);
-    QString s = QString::fromStdString(rl.text());
+    std::string s = rl.text();
 
     for(int i = 0; i < s.length(); i++)
     {
-        QRect r = m_fontmetrics.boundingRect(s.left(i + 1));
+        QRect r = m_fontmetrics.boundingRect(QString::fromStdString(s.substr(0, i + 1)));
 
         if(!r.contains(QPoint(pos.x(), r.y())))
             continue;
@@ -38,17 +38,29 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     if(cp.second == -1)
         cp.second = s.length() - 1;
 
-    this->findWordUnderCursor(s, cp);
+    this->updateWordUnderCursor(s, cp);
     return cp;
 }
 
-void ListingTextRenderer::findWordUnderCursor()
+ListingTextRenderer::Range ListingTextRenderer::wordHitTest(const QPointF &pos, int firstline)
+{
+    REDasm::ListingCursor::Position cp = this->hitTest(pos, firstline);
+
+    REDasm::RendererLine rl;
+    this->getRendererLine(cp.first, rl);
+
+    int p = -1;
+    std::string s = rl.text(), res = this->findWordUnderCursor(s, cp, &p);
+    return std::make_pair(p, p + res.length() - 1);
+}
+
+void ListingTextRenderer::updateWordUnderCursor()
 {
     REDasm::ListingCursor* cur = m_document->cursor();
     REDasm::RendererLine rl;
 
     this->getRendererLine(cur->currentLine(), rl);
-    this->findWordUnderCursor(QString::fromStdString(rl.text()), cur->currentPosition());
+    this->updateWordUnderCursor(rl.text(), cur->currentPosition());
 }
 
 void ListingTextRenderer::toggleCursor() { m_cursoractive = !m_cursoractive; }
@@ -100,9 +112,9 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
     painter->restore();
 }
 
-void ListingTextRenderer::findWordUnderCursor(const QString &s, const REDasm::ListingCursor::Position &cp)
+std::string ListingTextRenderer::findWordUnderCursor(const std::string &s, const REDasm::ListingCursor::Position &cp, int* pos)
 {
-    QRegularExpressionMatchIterator it = m_rgxwords.globalMatch(s);
+    QRegularExpressionMatchIterator it = m_rgxwords.globalMatch(QString::fromStdString(s));
 
     while(it.hasNext())
     {
@@ -111,11 +123,18 @@ void ListingTextRenderer::findWordUnderCursor(const QString &s, const REDasm::Li
         if((cp.second < match.capturedStart()) || (cp.second > match.capturedEnd()))
             continue;
 
-        m_document->cursor()->setWordUnderCursor(match.captured().toStdString());
-        return;
+        if(pos)
+            *pos = match.capturedStart();
+
+        return match.captured().toStdString();
     }
 
-    m_document->cursor()->clearWordUnderCursor();
+    return std::string();
+}
+
+void ListingTextRenderer::updateWordUnderCursor(const std::string &s, const REDasm::ListingCursor::Position &cp)
+{
+    m_document->cursor()->setWordUnderCursor(this->findWordUnderCursor(s, cp));
 }
 
 void ListingTextRenderer::highlightWords(QTextCursor& textcursor, const REDasm::RendererLine &rl) const

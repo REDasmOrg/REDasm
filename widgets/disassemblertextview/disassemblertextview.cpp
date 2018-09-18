@@ -381,8 +381,8 @@ void DisassemblerTextView::moveToSelection()
         this->update();
         m_renderer->updateWordUnderCursor();
     }
-    else
-        vscrollbar->setValue(cur->currentLine());
+    else // Center on selection
+        vscrollbar->setValue(std::max(0, cur->currentLine() - this->visibleLines() / 2));
 
     REDasm::ListingItem* item = doc->itemAt(cur->currentLine());
 

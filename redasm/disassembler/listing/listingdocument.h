@@ -193,6 +193,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         void removeSorted(address_t address, u32 type);
         ListingDocument::iterator item(address_t address, u32 type);
         int index(address_t address, u32 type);
+        static std::string normalized(std::string s);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
 
     private:

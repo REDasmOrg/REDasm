@@ -93,7 +93,7 @@ void Analyzer::findTrampolines(SymbolPtr symbol)
     if(!symimport || !symimport->is(SymbolTypes::Import))
         return;
 
-    m_document->lock(symbol->address, "_" + REDasm::normalize(symimport->name));
+    m_document->lock(symbol->address, "_" + symimport->name);
     m_disassembler->pushReference(symimport, m_document->instruction(symbol->address));
 }
 

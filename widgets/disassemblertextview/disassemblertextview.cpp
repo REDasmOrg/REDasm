@@ -147,9 +147,9 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
 
     if((e->button() == Qt::LeftButton) || (!cur->hasSelection() && (e->button() == Qt::RightButton)))
     {
+        e->accept();
         REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos(), this->firstVisibleLine());
         cur->moveTo(cp.first, cp.second);
-        e->accept();
     }
 
     QAbstractScrollArea::mousePressEvent(e);
@@ -159,6 +159,8 @@ void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
 {
     if(e->buttons() == Qt::LeftButton)
     {
+        e->accept();
+
         if(m_blinktimer->isActive())
         {
             m_blinktimer->stop();
@@ -179,6 +181,8 @@ void DisassemblerTextView::mouseReleaseEvent(QMouseEvent *e)
 {
     if(e->button() == Qt::LeftButton)
     {
+        e->accept();
+
         if(!m_blinktimer->isActive())
             m_blinktimer->start();
     }
@@ -190,19 +194,12 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     if(e->button() == Qt::LeftButton)
     {
+        e->accept();
+
+        if(this->followUnderCursor())
+            return;
+
         REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
-
-        if(cur->hasWordUnderCursor())
-        {
-            REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(cur->wordUnderCursor());
-
-            if(symbol)
-            {
-                this->goTo(symbol->address);
-                return;
-            }
-        }
-
         ListingTextRenderer::Range r = m_renderer->wordHitTest(e->pos(), this->firstVisibleLine());
 
         if(r.first == -1)
@@ -324,8 +321,8 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     }
     else if(e->key() == Qt::Key_X)
         this->showReferences();
-    //else if(e->key() == Qt::Key_N)
-        //this->rename(m_symboladdress);
+    else if(e->key() == Qt::Key_N)
+        this->renameCurrentSymbol();
 
     m_blinktimer->start();
 }
@@ -356,12 +353,13 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
 
 REDasm::SymbolPtr DisassemblerTextView::symbolUnderCursor()
 {
-    const std::string& word = m_disassembler->document()->cursor()->wordUnderCursor();
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingCursor* cur = doc->cursor();
 
-    if(word.empty())
+    if(!cur->hasWordUnderCursor())
         return NULL;
 
-    return m_disassembler->document()->symbol(word);
+    return doc->symbol(cur->wordUnderCursor());
 }
 
 int DisassemblerTextView::visibleLines() const
@@ -421,7 +419,7 @@ void DisassemblerTextView::moveToSelection()
 void DisassemblerTextView::createContextMenu()
 {
     m_contextmenu = new QMenu(this);
-    m_actrename = m_contextmenu->addAction("Rename", [=]() { /* this->rename(this->_symboladdress); */ } );
+    m_actrename = m_contextmenu->addAction("Rename", [=]() { this->renameCurrentSymbol(); } );
 
     m_contextmenu->addSeparator();
     m_actxrefs = m_contextmenu->addAction("Cross References", [&]() { this->showReferences(); });
@@ -458,6 +456,7 @@ void DisassemblerTextView::adjustContextMenu()
 
     REDasm::Segment* segment = m_disassembler->document()->segment(symbol->address);
 
+    m_actrename->setVisible(true);
     m_actcallgraph->setVisible(symbol->isFunction());
     m_actfollow->setVisible(symbol->is(REDasm::SymbolTypes::Code));
     m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
@@ -488,45 +487,34 @@ void DisassemblerTextView::showCallGraph(address_t address)
     //dlgcallgraph.exec();
 }
 
-void DisassemblerTextView::followUnderCursor()
+bool DisassemblerTextView::followUnderCursor()
+{
+    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+
+    if(!symbol)
+        return false;
+
+    this->goTo(symbol->address);
+    return true;
+}
+
+void DisassemblerTextView::renameCurrentSymbol()
 {
     REDasm::SymbolPtr symbol = this->symbolUnderCursor();
 
     if(!symbol)
         return;
 
-    this->goTo(symbol->address);
-}
+    REDasm::ListingDocument* doc = m_disassembler->document();
 
-void DisassemblerTextView::rename(address_t address)
-{
-    REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(address);
+    QString symbolname = S_TO_QS(symbol->name);
+    QString res = QInputDialog::getText(this, QString("Rename %1").arg(symbolname), "Symbol name:", QLineEdit::Normal, symbolname);
 
-    if(!symbol)
-        return;
-
-    REDasm::SymbolTable* symboltable = m_disassembler->document()->symbols(); // FIXME: !!!
-    QString sym = S_TO_QS(symbol->name), s = QInputDialog::getText(this, QString("Rename %1").arg(sym), "Symbol name:", QLineEdit::Normal, sym);
-
-    if(s.isEmpty())
-        return;
-
-    REDasm::SymbolPtr checksymbol = symboltable->symbol(s.toStdString());
-
-    if(checksymbol)
+    if(doc->symbol(res.toStdString()))
     {
         QMessageBox::warning(this, "Rename failed", "Duplicate symbol name");
-        this->rename(address);
+        this->renameCurrentSymbol();
         return;
     }
 
-    std::string newsym = s.simplified().replace(" ", "_").toStdString();
-
-    /*
-    if(s.simplified().isEmpty() || !symboltable->update(symbol, newsym))
-        return;
-
-    m_dasmdocument->update(address);
-    emit symbolRenamed(symbol);
-    */
 }

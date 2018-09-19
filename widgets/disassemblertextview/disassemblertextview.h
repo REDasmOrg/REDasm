@@ -21,14 +21,13 @@ class DisassemblerTextView : public QAbstractScrollArea
         void copy();
         void goTo(REDasm::ListingItem *item);
         void goTo(address_t address);
-        void rename(address_t address);
         void goBack();
         void goForward();
 
     private slots:
         void blinkCursor();
 
-    private:
+    protected:
         virtual bool viewportEvent(QEvent* e);
         virtual void paintEvent(QPaintEvent* e);
         virtual void resizeEvent(QResizeEvent* e);
@@ -54,7 +53,8 @@ class DisassemblerTextView : public QAbstractScrollArea
         void adjustContextMenu();
         void showReferences();
         void showCallGraph(address_t address);
-        void followUnderCursor();
+        bool followUnderCursor();
+        void renameCurrentSymbol();
 
     signals:
         void gotoRequested();

@@ -3,13 +3,6 @@
 
 namespace REDasm {
 
-std::string normalize(std::string s)
-{
-    std::replace(s.begin(), s.end(), '.', '_');
-    std::replace(s.begin(), s.end(), ' ', '_');
-    return s;
-}
-
 std::string wtoa(const std::wstring& ws)
 {
     std::string s;

@@ -1,4 +1,5 @@
 #include "listingdocument.h"
+#include "../../support/utils.h"
 #include <algorithm>
 #include <sstream>
 
@@ -25,7 +26,7 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
         m_symboltable.erase(address);
     }
 
-    if(!this->segment(address) || !m_symboltable.create(address, name, type, tag))
+    if(!this->segment(address) || !m_symboltable.create(address, ListingDocument::normalized(name), type, tag))
         return;
 
     if(type & SymbolTypes::FunctionMask)
@@ -159,6 +160,13 @@ int ListingDocument::index(address_t address, u32 type)
     return Listing::indexOf(this, address, type);
 }
 
+std::string ListingDocument::normalized(std::string s)
+{
+    std::replace(s.begin(), s.end(), '.', '_');
+    std::replace(s.begin(), s.end(), ' ', '_');
+    return s;
+}
+
 ListingDocument::iterator ListingDocument::instructionItem(address_t address) { return this->item(address, ListingItem::InstructionItem); }
 ListingDocument::iterator ListingDocument::symbolItem(address_t address) { return this->item(address, ListingItem::SymbolItem); }
 int ListingDocument::functionIndex(address_t address) { return this->index(address, ListingItem::FunctionItem); }
@@ -211,7 +219,7 @@ std::string ListingDocument::symbolName(const std::string &prefix, address_t add
     ss << prefix;
 
     if(segment)
-        ss << "_" << REDasm::normalize(segment->name);
+        ss << "_" << ListingDocument::normalized(segment->name);
 
     ss << "_" << std::hex << address;
     return ss.str();

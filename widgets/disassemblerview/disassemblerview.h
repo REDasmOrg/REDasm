@@ -37,7 +37,7 @@ class DisassemblerView : public QWidget
         void log(const QString& s);
         void filterFunctions();
         void filterSymbols();
-        void onDisassemblerFinished();
+        void onDisassemblerBusyChanged();
         void showHexDump(address_t address);
         void showMenu(const QPoint&);
         void showGoto();

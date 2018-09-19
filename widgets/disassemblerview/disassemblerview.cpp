@@ -129,7 +129,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     ui->disassemblerTextView->setDisassembler(disassembler);
     //FIXME: ui->disassemblerGraphView->setDisassembler(disassembler);
 
-    disassembler->finished += std::bind(&DisassemblerView::onDisassemblerFinished, this);
+    disassembler->busyChanged += std::bind(&DisassemblerView::onDisassemblerBusyChanged, this);
     disassembler->disassemble();
 }
 
@@ -287,12 +287,13 @@ void DisassemblerView::filterSymbols()
         m_stringsmodel->setFilter(s);
 }
 
-void DisassemblerView::onDisassemblerFinished()
+void DisassemblerView::onDisassemblerBusyChanged()
 {
-    ui->disassemblerMap->render(m_disassembler);
-    ui->bottomTabs->setCurrentWidget(ui->tabStrings);
-    ui->tbGoto->setEnabled(true);
-    ui->leFunctionFilter->setEnabled(true);
+    if(!m_disassembler->busy())
+        ui->disassemblerMap->render(m_disassembler);
+
+    ui->tbGoto->setEnabled(!m_disassembler->busy());
+    ui->leFunctionFilter->setEnabled(!m_disassembler->busy());
 }
 
 void DisassemblerView::showHexDump(address_t address)

@@ -47,10 +47,20 @@ bool DisassemblerTextView::canGoForward() const { return m_disassembler->documen
 
 void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
-    disassembler->finished += std::bind(&DisassemblerTextView::onDisassemblerFinished, this);
-
     REDasm::ListingDocument* doc = disassembler->document();
+    REDasm::ListingCursor* cur = doc->cursor();
+
+    disassembler->busyChanged += [&]() {
+      if(m_disassembler->busy())
+          return;
+
+      m_disassembler->document()->moveToEP();
+    };
+
     doc->changed += std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1);
+    cur->positionChanged += std::bind(&DisassemblerTextView::moveToSelection, this);
+    cur->backChanged += [=]() { emit canGoBackChanged(); };
+    cur->forwardChanged += [=]() { emit canGoForwardChanged(); };
 
     this->adjustScrollBars();
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [&](int) { this->update(); });
@@ -325,19 +335,6 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         this->renameCurrentSymbol();
 
     m_blinktimer->start();
-}
-
-void DisassemblerTextView::onDisassemblerFinished()
-{
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingCursor* cur = doc->cursor();
-
-    cur->positionChanged += std::bind(&DisassemblerTextView::moveToSelection, this);
-    cur->backChanged += [=]() { emit canGoBackChanged(); };
-    cur->forwardChanged += [=]() { emit canGoForwardChanged(); };
-
-    this->moveToSelection();
-    this->setFocus();
 }
 
 void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)

@@ -7,6 +7,15 @@ namespace REDasm {
 
 ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
 ListingCursor *ListingDocument::cursor() { return &m_cursor; }
+
+void ListingDocument::moveToEP()
+{
+    if(!m_documententry)
+        return;
+
+    m_cursor.set(this->functionIndex(m_documententry->address));
+}
+
 int ListingDocument::lastLine() const { return static_cast<int>(this->size()) - 1; }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
@@ -106,7 +115,7 @@ void ListingDocument::entry(address_t address, u32 tag)
 void ListingDocument::setDocumentEntry(address_t address)
 {
     m_documententry = m_symboltable.symbol(address);
-    m_cursor.moveTo(this->functionIndex(address));
+    m_cursor.set(this->functionIndex(address));
 }
 
 SymbolPtr ListingDocument::documentEntry() const { return m_documententry; }

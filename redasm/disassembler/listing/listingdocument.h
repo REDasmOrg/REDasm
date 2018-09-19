@@ -156,6 +156,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
     public:
         ListingDocument();
         ListingCursor* cursor();
+        void moveToEP();
         int lastLine() const;
 
     public:

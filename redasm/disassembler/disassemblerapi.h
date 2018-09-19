@@ -21,7 +21,7 @@ class Emulator;
 class DisassemblerAPI
 {
     public:
-        SimpleEvent finished;
+        SimpleEvent busyChanged;
 
     public:
         DisassemblerAPI();
@@ -52,6 +52,7 @@ class DisassemblerAPI
         virtual SymbolPtr dereferenceSymbol(const SymbolPtr& symbol, u64* value = NULL) = 0;
         virtual InstructionPtr disassembleInstruction(address_t address) = 0;
         virtual void disassemble(address_t address) = 0;
+        virtual bool busy() const = 0;
 };
 
 } // namespace REDasm

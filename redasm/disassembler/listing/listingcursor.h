@@ -35,6 +35,7 @@ class ListingCursor
         bool hasSelection() const;
         bool canGoBack() const;
         bool canGoForward() const;
+        void set(int line, int column = 0);
         void moveTo(int line, int column = 0);
         void select(int line, int column = 0);
         void goBack();

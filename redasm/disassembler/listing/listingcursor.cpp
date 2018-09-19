@@ -59,16 +59,12 @@ bool ListingCursor::isLineSelected(int line) const
 bool ListingCursor::hasSelection() const { return m_position != m_selection; }
 bool ListingCursor::canGoBack() const { return !m_backstack.empty(); }
 bool ListingCursor::canGoForward() const { return !m_forwardstack.empty(); }
+void ListingCursor::set(int line, int column) { this->moveTo(line, column, false); }
 void ListingCursor::moveTo(int line, int column) { this->moveTo(line, column, true); }
 
 void ListingCursor::select(int line, int column)
 {
-    Position pos = std::make_pair(std::max(line, 0), std::max(column, 0));
-
-    if(pos == m_position)
-        return;
-
-    m_position = pos;
+    m_position = std::make_pair(std::max(line, 0), std::max(column, 0));
     positionChanged();
 }
 
@@ -101,9 +97,6 @@ void ListingCursor::goForward()
 void ListingCursor::moveTo(int line, int column, bool save)
 {
     Position pos = std::make_pair(std::max(line, 0), std::max(column, 0));
-
-    if(pos == m_position)
-        return;
 
     if(save && !this->hasSelection())
     {

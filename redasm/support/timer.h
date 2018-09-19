@@ -7,6 +7,7 @@
 #include <functional>
 #include <thread>
 #include <mutex>
+#include "event.h"
 
 namespace REDasm {
 
@@ -15,13 +16,16 @@ class Timer
     using timer_lock = std::unique_lock<std::mutex>;
     using clock = std::chrono::steady_clock;
 
+    public:
+        Event<Timer*> runningChanged;
+
     private:
         typedef std::function<void()> TimerCallback;
 
     public:
         Timer();
         ~Timer();
-        bool running();
+        bool running() const;
         void stop();
         void tick(TimerCallback cb, std::chrono::milliseconds interval = std::chrono::milliseconds(TIMER_INTERVAL));
 

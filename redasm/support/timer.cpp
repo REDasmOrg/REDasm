@@ -13,13 +13,16 @@ Timer::~Timer()
     m_worker.join();
 }
 
-bool Timer::running()
-{
-    timer_lock m_lock(m_mutex);
-    return m_running;
-}
+bool Timer::running() const { return m_running; }
 
-void Timer::stop() { m_running = false; }
+void Timer::stop()
+{
+    if(!m_running)
+        return;
+
+    m_running = false;
+    runningChanged(this);
+}
 
 void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)
 {
@@ -33,6 +36,7 @@ void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)
     m_running = true;
     m_timercallback = cb;
     m_worker = std::thread(&Timer::work, this);
+    runningChanged(this);
 }
 
 void Timer::work()

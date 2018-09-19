@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPushButton>
 #include <QLabel>
 #include "redasm/plugins/plugins.h"
 
@@ -36,6 +37,7 @@ class MainWindow : public QMainWindow
 
     private:
         Ui::MainWindow *ui;
+        QPushButton* m_pbstatus;
         QLabel* m_lblstatus;
         QByteArray m_loadeddata;
 };

@@ -24,7 +24,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     m_lblstatus = new QLabel(this);
+
+    m_pbstatus = new QPushButton(this);
+    m_pbstatus->setFlat(true);
+    m_pbstatus->setFixedWidth(ui->statusBar->height() * 0.8);
+    m_pbstatus->setFixedHeight(ui->statusBar->height() * 0.8);
+    m_pbstatus->setText("\u25cf");
+    m_pbstatus->setVisible(false);
+
     ui->statusBar->addPermanentWidget(m_lblstatus, 1);
+    ui->statusBar->addPermanentWidget(m_pbstatus);
 
     this->centerWindow();
     this->setAcceptDrops(true);
@@ -145,7 +154,7 @@ bool MainWindow::checkPlugins(const REDasm::Buffer& buffer, REDasm::FormatPlugin
 void MainWindow::initDisassembler()
 {
     REDasm::Buffer buffer(m_loadeddata.data(), m_loadeddata.length());
-    DisassemblerView *dv = new DisassemblerView(m_lblstatus, ui->stackView);
+    DisassemblerView *dv = new DisassemblerView(m_lblstatus, m_pbstatus, ui->stackView);
     REDasm::FormatPlugin* format = NULL;
     REDasm::AssemblerPlugin* assembler = NULL;
 

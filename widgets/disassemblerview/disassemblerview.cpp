@@ -2,8 +2,9 @@
 #include "ui_disassemblerview.h"
 #include "../../dialogs/referencesdialog.h"
 #include <QMessageBox>
+#include <QPushButton>
 
-DisassemblerView::DisassemblerView(QLabel *lblstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_lblstatus(lblstatus), m_disassembler(NULL)
+DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_lblstatus(lblstatus), m_pbstatus(pbstatus), m_disassembler(NULL)
 {
     ui->setupUi(this);
 
@@ -290,8 +291,14 @@ void DisassemblerView::filterSymbols()
 void DisassemblerView::onDisassemblerBusyChanged()
 {
     if(!m_disassembler->busy())
+    {
         ui->disassemblerMap->render(m_disassembler);
+        m_pbstatus->setStyleSheet("color: green;");
+    }
+    else
+        m_pbstatus->setStyleSheet("color: red;");
 
+    m_pbstatus->setVisible(true);
     ui->tbGoto->setEnabled(!m_disassembler->busy());
     ui->leFunctionFilter->setEnabled(!m_disassembler->busy());
 }

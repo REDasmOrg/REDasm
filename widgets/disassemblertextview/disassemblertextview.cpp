@@ -11,7 +11,6 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
-    font.setPointSize(12);
 
     this->setFont(font);
     this->setFocusPolicy(Qt::StrongFocus);

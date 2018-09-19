@@ -17,9 +17,8 @@ class PEAnalyzer: public Analyzer
     private:
         SymbolPtr getImport(const std::string& library, const std::string& api);
         ReferenceVector getAPIReferences(const std::string& library, const std::string& api);
-        void findStopAPI(const std::string &library, const std::string &api);
-        void findAllWndProc();
         void findWndProc(address_t address, size_t argidx);
+        void findAllWndProc();
 
     private:
         std::list<APIInfo> m_wndprocapi;

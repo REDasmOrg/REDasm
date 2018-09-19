@@ -22,18 +22,15 @@ PEAnalyzer::PEAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& sign
 void PEAnalyzer::analyze()
 {
     Analyzer::analyze();
-    this->findStopAPI("kernel32.dll", "ExitProcess");
-    this->findStopAPI("kernel32.dll", "TerminateProcess");
     this->findAllWndProc();
 }
 
 SymbolPtr PEAnalyzer::getImport(const std::string &library, const std::string &api)
 {
-    SymbolTable* symboltable = m_disassembler->document()->symbols();
-    SymbolPtr symbol = symboltable->symbol(IMPORT_TRAMPOLINE(library, api));
+    SymbolPtr symbol = m_disassembler->document()->symbol(IMPORT_TRAMPOLINE(library, api));
 
     if(!symbol)
-        symbol = symboltable->symbol(IMPORT_NAME(library, api));
+        symbol = m_disassembler->document()->symbol(IMPORT_NAME(library, api));
 
     return symbol;
 }
@@ -46,18 +43,6 @@ ReferenceVector PEAnalyzer::getAPIReferences(const std::string &library, const s
         return ReferenceVector();
 
     return m_disassembler->getReferences(symbol);
-}
-
-void PEAnalyzer::findStopAPI(const std::string& library, const std::string& api)
-{
-    /*
-    ReferenceVector refs = this->getAPIReferences(document, library, api);
-
-    std::for_each(refs.begin(), refs.end(), [&document](address_t address) {
-        InstructionPtr instruction = document[address];
-        document.splitFunctionAt(instruction);
-    });
-    */
 }
 
 void PEAnalyzer::findAllWndProc()

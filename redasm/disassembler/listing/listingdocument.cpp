@@ -195,7 +195,7 @@ int ListingDocument::indexOf(ListingItem *item)
 }
 
 SymbolPtr ListingDocument::symbol(address_t address) { return m_symboltable.symbol(address); }
-SymbolPtr ListingDocument::symbol(const std::string &name) { return m_symboltable.symbol(name); }
+SymbolPtr ListingDocument::symbol(const std::string &name) { return m_symboltable.symbol(ListingDocument::normalized(name)); }
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
 FormatPlugin *ListingDocument::format() { return m_format; }
 

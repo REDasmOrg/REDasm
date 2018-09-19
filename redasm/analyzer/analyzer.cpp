@@ -81,14 +81,13 @@ void Analyzer::findTrampolines(SymbolPtr symbol)
     if(it == m_document->end())
         return;
 
-    SymbolTable* symboltable = m_document->symbols();
     const AssemblerPlugin* assembler = m_disassembler->assembler();
     SymbolPtr symimport;
 
     if(ASSEMBLER_IS(assembler, "x86"))
-        symimport = this->findTrampolines_x86(it, symboltable);
+        symimport = this->findTrampolines_x86(it);
     else if(ASSEMBLER_IS(assembler, "ARM"))
-        symimport = this->findTrampolines_arm(it, symboltable);
+        symimport = this->findTrampolines_arm(it);
 
     if(!symimport || !symimport->is(SymbolTypes::Import))
         return;
@@ -97,7 +96,7 @@ void Analyzer::findTrampolines(SymbolPtr symbol)
     m_disassembler->pushReference(symimport, m_document->instruction(symbol->address));
 }
 
-SymbolPtr Analyzer::findTrampolines_x86(ListingDocument::iterator it, SymbolTable* symboltable)
+SymbolPtr Analyzer::findTrampolines_x86(ListingDocument::iterator it)
 {
     InstructionPtr instruction = m_disassembler->document()->instruction((*it)->address);
 
@@ -107,10 +106,10 @@ SymbolPtr Analyzer::findTrampolines_x86(ListingDocument::iterator it, SymbolTabl
     if(!instruction->hasTargets())
         return NULL;
 
-    return symboltable->symbol(instruction->target());
+    return m_disassembler->document()->symbol(instruction->target());
 }
 
-SymbolPtr Analyzer::findTrampolines_arm(ListingDocument::iterator it, SymbolTable *symboltable)
+SymbolPtr Analyzer::findTrampolines_arm(ListingDocument::iterator it)
 {
     ListingDocument* doc = m_disassembler->document();
     InstructionPtr instruction1 = doc->instruction((*it)->address);
@@ -135,7 +134,7 @@ SymbolPtr Analyzer::findTrampolines_arm(ListingDocument::iterator it, SymbolTabl
     if(!m_disassembler->readAddress(target, sizeof(u32), &importaddress))
         return NULL;
 
-    SymbolPtr symbol = symboltable->symbol(target), impsymbol = symboltable->symbol(importaddress);
+    SymbolPtr symbol = doc->symbol(target), impsymbol = doc->symbol(importaddress);
 
     if(symbol && impsymbol)
         doc->lock(symbol->address, "imp." + impsymbol->name);

@@ -23,8 +23,8 @@ class Analyzer
         void loadSignatures();
         void findSignatures(SignatureDB &signaturedb, ListingDocument* document);
         void findTrampolines(SymbolPtr symbol);
-        SymbolPtr findTrampolines_x86(ListingDocument::iterator it, SymbolTable *symboltable);
-        SymbolPtr findTrampolines_arm(ListingDocument::iterator it, SymbolTable *symboltable);
+        SymbolPtr findTrampolines_x86(ListingDocument::iterator it);
+        SymbolPtr findTrampolines_arm(ListingDocument::iterator it);
 
     protected:
         DisassemblerAPI* m_disassembler;

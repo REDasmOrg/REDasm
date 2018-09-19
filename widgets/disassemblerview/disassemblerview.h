@@ -33,7 +33,6 @@ class DisassemblerView : public QWidget
         void xrefSymbol(const QModelIndex &index);
         void displayAddress(address_t address);
         void displayCurrentReferences();
-        void updateModel(const REDasm::SymbolPtr& symbol);
         void log(const QString& s);
         void filterFunctions();
         void filterSymbols();

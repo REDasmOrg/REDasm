@@ -47,8 +47,8 @@ namespace Listing {
         typedef typename std::conditional<std::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type Type;
     };
 
-    template<typename T, typename V, typename IT = typename ListingIterator<T>::Type> typename T::iterator insertionPoint(T* container, const V& val) {
-        return std::lower_bound(container->begin(), container->end(), val, ListingComparator<V>());
+    template<typename T, typename V, typename IT = typename ListingIterator<T>::Type> typename T::iterator insertionPoint(T* container, const V& item) {
+        return std::lower_bound(container->begin(), container->end(), item, ListingComparator<V>());
     }
 
     template<typename T, typename IT = typename ListingIterator<T>::Type> IT _adjustSearch(T* container, IT it, u32 type) {
@@ -102,11 +102,11 @@ namespace Listing {
         return container->end();
     }
 
-    template<typename T, typename IT = typename ListingIterator<T>::Type> IT binarySearch(T* container, ListingItem* item) {
+    template<typename T, typename V, typename IT = typename ListingIterator<T>::Type> IT binarySearch(T* container, V* item) {
         return Listing::binarySearch(container, item->address, item->type);
     }
 
-    template<typename T, typename IT = typename ListingIterator<T>::Type> int indexOf(T* container, ListingItem* item) {
+    template<typename T, typename V, typename IT = typename ListingIterator<T>::Type> int indexOf(T* container, V* item) {
         auto it = Listing::binarySearch(container, item);
 
         if(it == container->end())

@@ -70,7 +70,6 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
 
     connect(ui->disassemblerTextView, &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
     connect(ui->disassemblerTextView, &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
-    connect(ui->disassemblerTextView, &DisassemblerTextView::symbolRenamed, this, &DisassemblerView::updateModel);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoBackChanged, [this]() { ui->tbBack->setEnabled(ui->disassemblerTextView->canGoBack()); });
@@ -127,6 +126,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 
     ui->hexEdit->setDocument(m_hexdocument);
     ui->bottomTabs->setCurrentWidget(ui->tabOutput);
+    ui->disassemblerMap->setDisassembler(disassembler);
     ui->disassemblerTextView->setDisassembler(disassembler);
     //FIXME: ui->disassemblerGraphView->setDisassembler(disassembler);
 
@@ -237,28 +237,6 @@ void DisassemblerView::displayCurrentReferences()
     m_referencesmodel->xref(item->address);
 }
 
-void DisassemblerView::updateModel(const REDasm::SymbolPtr &symbol)
-{
-    /*
-    if(!symbol)
-    {
-        m_functionsmodel->reloadSymbols();
-        m_stringsmodel->reloadSymbols();
-        return;
-    }
-
-    if(symbol->isFunction())
-    {
-        m_functionsmodel->reloadSymbols();
-        m_exportsmodel->reloadSymbols();
-    }
-    else if(symbol->is(REDasm::SymbolTypes::ImportMask))
-        m_importsmodel->reloadSymbols();
-    else if(symbol->is(REDasm::SymbolTypes::String))
-        m_stringsmodel->reloadSymbols();
-        */
-}
-
 void DisassemblerView::log(const QString &s) { ui->pteOutput->insertPlainText(s + "\n"); }
 
 void DisassemblerView::filterFunctions()
@@ -291,10 +269,7 @@ void DisassemblerView::filterSymbols()
 void DisassemblerView::onDisassemblerBusyChanged()
 {
     if(!m_disassembler->busy())
-    {
-        ui->disassemblerMap->render(m_disassembler);
         m_pbstatus->setStyleSheet("color: green;");
-    }
     else
         m_pbstatus->setStyleSheet("color: red;");
 

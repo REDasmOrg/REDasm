@@ -2,34 +2,30 @@
 #define LISTINGMAP_H
 
 #include <QWidget>
-#include <QMap>
-#include <QColor>
 #include "../redasm/disassembler/disassembler.h"
 
 class ListingMap : public QWidget
 {
     Q_OBJECT
 
-    private:
-        struct Item {
-            u64 address, offset, size;
-            QColor color;
-        };
-
     public:
         explicit ListingMap(QWidget *parent = 0);
-        void render(REDasm::Disassembler *disassembler);
+        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
 
     private:
-        const Item *segmentBase(REDasm::Disassembler* disassembler, REDasm::SymbolPtr symbol) const;
+        int calculateWidth(u64 sz) const;
+        void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
+        void addItem(const REDasm::ListingItem* item);
+        void removeItem(const REDasm::ListingItem* item);
 
     protected:
         virtual void paintEvent(QPaintEvent *);
 
     private:
-        u64 _size;
-        QMap<u64, Item> _segments;
-        QMap<u64, Item> _functions;
+        REDasm::DisassemblerAPI* m_disassembler;
+        QList<const REDasm::ListingItem*> m_segments;
+        QVector<const REDasm::ListingItem*> m_functions;
+        s32 m_totalsize;
 };
 
 #endif // LISTINGMAP_H

@@ -3,11 +3,12 @@
 #include "../../plugins/format.h"
 
 #define INDENT_WIDTH         2
+#define INDENT_COMMENT       10
 #define HEX_ADDRESS(address) REDasm::hex(address, m_disassembler->format()->bits(), false)
 
 namespace REDasm {
 
-ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_disassembler(disassembler), m_commentcolumn(0)
+ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_disassembler(disassembler)
 {
     m_document = disassembler->document();
     m_printer = PrinterPtr(disassembler->assembler()->createPrinter(disassembler));
@@ -122,16 +123,9 @@ void ListingRenderer::renderInstruction(ListingItem *item, RendererLine &rl)
     this->renderMnemonic(instruction, rl);
     this->renderOperands(instruction, rl);
 
-    size_t len = rl.length();
-
-    if(len > m_commentcolumn)
-        m_commentcolumn = len;
-
     if(!instruction->comments.empty())
     {
-        if(m_commentcolumn != len)
-            this->renderIndent(rl, m_commentcolumn - len);
-
+        this->renderIndent(rl, INDENT_COMMENT);
         this->renderComments(instruction, rl);
     }
 }

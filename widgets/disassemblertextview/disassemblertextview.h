@@ -60,7 +60,6 @@ class DisassemblerTextView : public QAbstractScrollArea
         void canGoBackChanged();
         void canGoForwardChanged();
         void hexDumpRequested(address_t address);
-        void symbolRenamed(const REDasm::SymbolPtr& symbol);
         void addressChanged(address_t address);
 
     private:

@@ -1,109 +1,127 @@
 #include "listingmap.h"
+#include "../../themeprovider.h"
 #include <QPainter>
 #include <cmath>
 
-#define SCALE_TO_WIDGET(v, w) std::ceil((v * w) / static_cast<double>(this->_size))
+#define SCALE_TO_WIDGET(v, w, s) std::ceil((v * w) / static_cast<double>(s))
 
-ListingMap::ListingMap(QWidget *parent) : QWidget(parent), _size(0)
+ListingMap::ListingMap(QWidget *parent) : QWidget(parent), m_disassembler(NULL), m_totalsize(0)
 {
 
 }
 
-void ListingMap::render(REDasm::Disassembler* disassembler)
+void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
-    /*
-    u64 reloffset = 0;
-    const REDasm::SegmentList& segments = disassembler->format()->segments();
+    m_disassembler = disassembler;
 
-    this->_size = 0;
-    this->_segments.clear();
-    this->_functions.clear();
+    REDasm::ListingDocument* doc = m_disassembler->document();
 
-    std::for_each(segments.begin(), segments.end(), [this, &reloffset](const REDasm::Segment& segment) {
+    for(auto it = doc->begin(); it != doc->end(); it++)
+        this->addItem(it->get());
 
-        Item item;
-        item.address = segment.address;
-        item.offset = reloffset;
-        item.size = segment.size();
+    doc->changed += std::bind(&ListingMap::onDocumentChanged, this, std::placeholders::_1);
+}
 
-        if((segment.type & REDasm::SegmentTypes::Code) && (segment.type & REDasm::SegmentTypes::Data))
-            item.color = QColor(Qt::darkGreen);
-        else if(segment.type & REDasm::SegmentTypes::Code)
-            item.color = QColor(Qt::darkMagenta);
-        else if(segment.type & REDasm::SegmentTypes::Data)
-            item.color = QColor(Qt::darkRed);
-        else
-            item.color = QColor(Qt::gray);
+int ListingMap::calculateWidth(u64 sz) const { return (sz * this->width()) / m_totalsize; }
 
-        this->_segments[reloffset] = item;
-        reloffset += item.size;
-    });
+void ListingMap::addItem(const REDasm::ListingItem *item)
+{
+    if(item->is(REDasm::ListingItem::SegmentItem))
+    {
+        REDasm::ListingDocument* doc = m_disassembler->document();
+        m_totalsize += doc->segment(item->address)->size();
 
-    this->_size = reloffset;
-
-    disassembler->symbolTable()->iterate(REDasm::SymbolTypes::FunctionMask, [this, disassembler](REDasm::SymbolPtr symbol) -> bool {
-        const Item* segmentitem = this->segmentBase(disassembler, symbol);
-
-        if(!segmentitem)
-            return true;
-
-        std::string sig = disassembler->instructions().getSignature(symbol);
-
-        if(sig.empty())
-            return true;
-
-        Item item;
-        item.address = symbol->address;
-        item.offset = segmentitem->offset + (symbol->address - segmentitem->address);
-        item.size = sig.size();
-
-        if(symbol->type & REDasm::SymbolTypes::Locked)
-            item.color = QColor(Qt::magenta);
-        else
-            item.color = QColor(Qt::blue);
-
-        this->_functions[symbol->address] = item;
-        return true;
-    });
+        auto it = REDasm::Listing::insertionPoint(&m_segments, item);
+        m_segments.insert(it, item);
+    }
+    else if(item->is(REDasm::ListingItem::FunctionItem))
+    {
+        auto it = REDasm::Listing::insertionPoint(&m_functions, item);
+        m_functions.insert(it, item);
+    }
+    else
+        return;
 
     this->update();
-    */
 }
 
-const ListingMap::Item* ListingMap::segmentBase(REDasm::Disassembler* disassembler, REDasm::SymbolPtr symbol) const
+void ListingMap::removeItem(const REDasm::ListingItem *item)
 {
-    /*
-    const REDasm::Segment* segment = disassembler->format()->segment(symbol->address);
-
-    if(!segment)
-        return NULL;
-
-    foreach(const Item& item, this->_segments)
+    if(item->is(REDasm::ListingItem::SegmentItem))
     {
-        if(item.address == segment->address)
-            return &item;
-    }
-    */
+        REDasm::ListingDocument* doc = m_disassembler->document();
+        m_totalsize -= doc->segment(item->address)->size();
 
-    return NULL;
+        int idx = REDasm::Listing::indexOf(&m_segments, item);
+        m_segments.removeAt(idx);
+    }
+    else if(item->is(REDasm::ListingItem::FunctionItem))
+    {
+        int idx = REDasm::Listing::indexOf(&m_functions, item);
+        m_functions.removeAt(idx);
+    }
+    else
+        return;
+
+    this->update();
+}
+
+void ListingMap::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
+{
+    if(!ldc->removed)
+        this->addItem(ldc->item);
+    else
+        this->removeItem(ldc->item);
 }
 
 void ListingMap::paintEvent(QPaintEvent *)
 {
-    /*
+    if(!m_disassembler)
+        return;
+
     QPainter painter(this);
-    int w = this->width(), h = this->height();
+    QHash<REDasm::Segment*, int> origins;
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    int x = 0, size = 0;
 
-    foreach(const Item& item, this->_segments)
+    painter.fillRect(this->rect(), Qt::gray);
+    painter.setPen(Qt::gray);
+
+    for(const REDasm::ListingItem* item : m_segments)
     {
-        QRect r(SCALE_TO_WIDGET(item.offset, w), 0, SCALE_TO_WIDGET(item.size, w), h);
-        painter.fillRect(r, item.color);
+        REDasm::Segment* segment = doc->segment(item->address);
+        QRect r(x, 0, this->calculateWidth(segment->size()), this->height());
+
+        if(segment->is(REDasm::SegmentTypes::Code))
+            painter.fillRect(r, THEME_VALUE("label_fg"));
+        else
+            painter.fillRect(r, THEME_VALUE("data_fg"));
+
+        origins[segment] = x;
+        x += r.width();
     }
 
-    foreach(const Item& item, this->_functions)
+    x = 0;
+
+    for(int i = 0; i < m_functions.size(); i++)
     {
-        QRect r(SCALE_TO_WIDGET(item.offset, w), 0, SCALE_TO_WIDGET(item.size, w), h);
-        painter.fillRect(r, item.color);
+        const REDasm::ListingItem* item = m_functions[i];
+        REDasm::Segment* segment = doc->segment(item->address);
+
+        if(item == m_functions.last())
+            size = segment->size();
+        else
+            size = m_functions[i + 1]->address - item->address;
+
+        REDasm::SymbolPtr symbol = doc->symbol(item->address);
+        QRect r(origins[segment] + x, 0, this->calculateWidth(size), this->height());
+
+        if(symbol->isLocked())
+            painter.fillRect(r, THEME_VALUE("locked"));
+        else
+            painter.fillRect(r, THEME_VALUE("function_fg"));
+
+        painter.drawRect(r.adjusted(0, -1, 0, +1));
+        x += r.width();
     }
-    */
 }

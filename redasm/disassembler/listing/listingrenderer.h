@@ -74,7 +74,6 @@ class ListingRenderer
     private:
         DisassemblerAPI* m_disassembler;
         PrinterPtr m_printer;
-        size_t m_commentcolumn;
 };
 
 } // namespace REDasm

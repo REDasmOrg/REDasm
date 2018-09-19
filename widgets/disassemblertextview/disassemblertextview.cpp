@@ -7,7 +7,7 @@
 
 #define CURSOR_BLINK_INTERVAL 500 // 500ms
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_emitmode(DisassemblerTextView::Normal), m_renderer(NULL), m_disassembler(NULL)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_renderer(NULL), m_disassembler(NULL)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
@@ -44,7 +44,6 @@ DisassemblerTextView::~DisassemblerTextView()
 
 bool DisassemblerTextView::canGoBack() const { return m_disassembler->document()->cursor()->canGoBack(); }
 bool DisassemblerTextView::canGoForward() const { return m_disassembler->document()->cursor()->canGoForward(); }
-void DisassemblerTextView::setEmitMode(u32 emitmode) { m_emitmode = emitmode; }
 
 void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {

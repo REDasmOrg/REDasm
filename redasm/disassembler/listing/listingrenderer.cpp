@@ -153,9 +153,9 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
 
         if(!segment->is(SegmentTypes::Bss))
         {
-            if(symbol->is(SymbolTypes::WideString))
+            if(symbol->is(SymbolTypes::WideStringMask))
                 rl.push(REDasm::quoted(m_disassembler->readWString(symbol)), "string_fg");
-            else if(symbol->is(SymbolTypes::String))
+            else if(symbol->is(SymbolTypes::StringMask))
                 rl.push(REDasm::quoted(m_disassembler->readString(symbol)), "string_fg");
             else
             {

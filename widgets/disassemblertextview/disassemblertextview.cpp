@@ -13,9 +13,9 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     font.setStyleHint(QFont::TypeWriter);
 
     this->setFont(font);
-    this->setFocusPolicy(Qt::StrongFocus);
     this->setCursor(Qt::ArrowCursor);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
+    this->viewport()->setFocusPolicy(Qt::StrongFocus);
     this->verticalScrollBar()->setMinimum(0);
     this->verticalScrollBar()->setValue(0);
     this->verticalScrollBar()->setSingleStep(1);
@@ -104,6 +104,24 @@ void DisassemblerTextView::blinkCursor()
         return;
 
     this->update();
+}
+
+bool DisassemblerTextView::viewportEvent(QEvent *e)
+{
+    if(e->type() == QEvent::WindowActivate)
+    {
+        m_renderer->enableCursor();
+        m_blinktimer->start();
+        return true;
+    }
+    else if(e->type() == QEvent::WindowDeactivate)
+    {
+        m_blinktimer->stop();
+        m_renderer->disableCursor();
+        return true;
+    }
+
+    return QAbstractScrollArea::viewportEvent(e);
 }
 
 void DisassemblerTextView::paintEvent(QPaintEvent *e)

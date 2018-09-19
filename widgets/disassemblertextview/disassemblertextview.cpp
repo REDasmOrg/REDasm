@@ -191,12 +191,24 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     if(e->button() == Qt::LeftButton)
     {
+        REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
+
+        if(cur->hasWordUnderCursor())
+        {
+            REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(cur->wordUnderCursor());
+
+            if(symbol)
+            {
+                this->goTo(symbol->address);
+                return;
+            }
+        }
+
         ListingTextRenderer::Range r = m_renderer->wordHitTest(e->pos(), this->firstVisibleLine());
 
         if(r.first == -1)
             return;
 
-        REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
         cur->moveTo(cur->currentLine(), r.first);
         cur->select(cur->currentLine(), r.second);
         return;

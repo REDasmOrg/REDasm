@@ -456,7 +456,7 @@ void DisassemblerTextView::adjustContextMenu()
 
     REDasm::Segment* segment = m_disassembler->document()->segment(symbol->address);
 
-    m_actrename->setVisible(true);
+    m_actrename->setVisible(!symbol->isLocked());
     m_actcallgraph->setVisible(symbol->isFunction());
     m_actfollow->setVisible(symbol->is(REDasm::SymbolTypes::Code));
     m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
@@ -502,7 +502,7 @@ void DisassemblerTextView::renameCurrentSymbol()
 {
     REDasm::SymbolPtr symbol = this->symbolUnderCursor();
 
-    if(!symbol)
+    if(!symbol || symbol->isLocked())
         return;
 
     REDasm::ListingDocument* doc = m_disassembler->document();
@@ -517,4 +517,5 @@ void DisassemblerTextView::renameCurrentSymbol()
         return;
     }
 
+    doc->rename(symbol->address, res.toStdString());
 }

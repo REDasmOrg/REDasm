@@ -161,6 +161,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
     public:
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
+        void rename(address_t address, const std::string& name);
         void lock(address_t address, const std::string& name);
         void lock(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void segment(const std::string& name, offset_t offset, address_t address, u64 size, u32 type);

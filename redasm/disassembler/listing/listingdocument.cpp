@@ -15,7 +15,7 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
 
     if(symbol)
     {
-        if(symbol->isLocked() || !(type & SymbolTypes::Locked))
+        if(symbol->isLocked() && !(type & SymbolTypes::Locked))
             return;
 
         if(type & SymbolTypes::FunctionMask)
@@ -54,6 +54,16 @@ void ListingDocument::symbol(address_t address, u32 type, u32 tag)
         else
             this->symbol(address, this->symbolName("data", address), type, tag);
     }
+}
+
+void ListingDocument::rename(address_t address, const std::string &name)
+{
+    SymbolPtr symbol = this->symbol(address);
+
+    if(!symbol)
+        return;
+
+    this->symbol(address, name, symbol->type, symbol->tag);
 }
 
 void ListingDocument::lock(address_t address, const std::string &name)

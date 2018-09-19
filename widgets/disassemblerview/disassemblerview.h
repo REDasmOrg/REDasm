@@ -47,7 +47,7 @@ class DisassemblerView : public QWidget
 
     private:
         Ui::DisassemblerView *ui;
-        QModelIndex _currentindex;
+        QModelIndex m_currentindex;
         QHexDocument* m_hexdocument;
         QMenu* m_contextmenu;
         QLabel* m_lblstatus;

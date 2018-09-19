@@ -316,9 +316,9 @@ void DisassemblerView::showMenu(const QPoint&)
     if(!selectionmodel->hasSelection())
         return;
 
-    this->_currentindex = selectionmodel->currentIndex();
+    m_currentindex = selectionmodel->currentIndex();
 
-    if(!this->_currentindex.isValid())
+    if(!m_currentindex.isValid())
         return;
 
     m_contextmenu->exec(QCursor::pos());
@@ -336,6 +336,6 @@ void DisassemblerView::showGoto()
 void DisassemblerView::createMenu()
 {
     m_contextmenu = new QMenu(this);
-    m_contextmenu->addAction("Cross References", [this]() { this->xrefSymbol(this->_currentindex); });
-    m_contextmenu->addAction("Goto", [this]() { this->gotoSymbol(this->_currentindex); });
+    m_contextmenu->addAction("Cross References", [&]() { this->xrefSymbol(m_currentindex); });
+    m_contextmenu->addAction("Goto", [&]() { this->gotoSymbol(m_currentindex); });
 }

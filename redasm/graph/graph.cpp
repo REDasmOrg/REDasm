@@ -4,10 +4,7 @@
 namespace REDasm {
 namespace Graphing {
 
-Graph::Graph(): _currentid(0), _rootid(0)
-{
-
-}
+Graph::Graph(): m_currentid(0), m_rootid(0) { }
 
 void Graph::edge(Vertex *from, Vertex *to)
 {
@@ -22,31 +19,25 @@ void Graph::edge(vertex_id_t from, vertex_id_t to)
     if(!from || !to)
         return;
 
-    this->m_vertexmap.at(from)->edge(to);
+    m_vertexmap.at(from)->edge(to);
 }
 
-size_t Graph::vertexCount() const
-{
-    return this->m_vertexmap.size();
-}
+size_t Graph::vertexCount() const { return m_vertexmap.size(); }
 
 Vertex *Graph::rootVertex()
 {
-    if(!this->_rootid)
+    if(!m_rootid)
         return NULL;
 
-    auto it = this->m_vertexmap.find(this->_rootid);
+    auto it = m_vertexmap.find(m_rootid);
 
-    if(it == this->m_vertexmap.end())
+    if(it == m_vertexmap.end())
         return NULL;
 
     return it->second.get();
 }
 
-Vertex *Graph::getVertex(vertex_id_t id)
-{
-    return this->m_vertexmap.at(id).get();
-}
+Vertex *Graph::getVertex(vertex_id_t id) { return m_vertexmap.at(id).get(); }
 
 Vertex *Graph::getRealParentVertex(vertex_id_t id)
 {
@@ -75,7 +66,7 @@ VertexSet Graph::getParents(const Vertex *v) const
 {
     VertexSet parents;
 
-    for(auto& item : this->m_vertexmap)
+    for(auto& item : m_vertexmap)
     {
         const VertexPtr& vi = item.second;
 
@@ -99,7 +90,7 @@ VertexList Graph::getVertexList() const
 {
     VertexList vl;
 
-    for(auto& item : this->m_vertexmap)
+    for(auto& item : m_vertexmap)
         vl.push_back(item.second.get());
 
     return vl;
@@ -109,23 +100,20 @@ void Graph::setRootVertex(Vertex *v)
 {
     if(!v)
     {
-        this->_rootid = 0;
+        m_rootid = 0;
         return;
     }
 
     this->setRootVertex(v->id);
 }
 
-void Graph::setRootVertex(vertex_id_t id)
-{
-    this->_rootid = id;
-}
+void Graph::setRootVertex(vertex_id_t id) { m_rootid = id; }
 
 void Graph::pushVertex(Vertex *v)
 {
-    v->id = ++this->_currentid;
+    v->id = ++m_currentid;
     v->graph = this;
-    this->m_vertexmap.emplace(v->id, VertexPtr(v));
+    m_vertexmap.emplace(v->id, VertexPtr(v));
 }
 
 Vertex* Graph::pushFakeVertex(vertex_layer_t layer)
@@ -143,26 +131,15 @@ void Graph::layout()
     gl.layout();
 }
 
-LayeredGraph::LayeredGraph(): std::vector<VertexList>(), _graph(NULL)
-{
-
-}
-
-LayeredGraph::LayeredGraph(Graph *graph): std::vector<VertexList>()
-{
-    this->setGraph(graph);
-}
-
-vertex_layer_t LayeredGraph::lastLayer() const
-{
-    return this->size() - 1;
-}
+LayeredGraph::LayeredGraph(): std::vector<VertexList>(), m_graph(NULL) { }
+LayeredGraph::LayeredGraph(Graph *graph): std::vector<VertexList>() { this->setGraph(graph); }
+vertex_layer_t LayeredGraph::lastLayer() const { return this->size() - 1; }
 
 void LayeredGraph::setGraph(Graph *graph)
 {
-    this->_graph = graph;
+    m_graph = graph;
 
-    if(!this->_graph)
+    if(!m_graph)
         return;
 
     this->clear();
@@ -180,7 +157,7 @@ void LayeredGraph::layerize()
 {
     std::map<vertex_layer_t, VertexList> bylayer;
 
-    for(auto& item : this->_graph->m_vertexmap)
+    for(auto& item : m_graph->m_vertexmap)
     {
         Vertex* v = item.second.get();
         auto it = bylayer.find(v->layer());

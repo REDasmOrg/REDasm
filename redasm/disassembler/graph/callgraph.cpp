@@ -10,68 +10,65 @@ CallGraph::CallGraph(ListingDocument *document): Graphing::Graph(), m_document(d
 
 void CallGraph::walk(address_t address)
 {
-    /*
     this->buildVertices(address);
     this->buildEdges();
-
-    SymbolPtr symbol = this->m_document.getFunction(address);
-
-    if(!symbol)
-        return;
-
-    this->setRootVertex(this->vertexIdByAddress(symbol->address));
+    this->setRootVertex(this->vertexIdByAddress(address));
     this->layout();
-    */
 }
 
 void CallGraph::buildVertices(address_t fromaddress)
 {
-    /*
     std::queue<address_t> pending;
     pending.push(fromaddress);
 
-    SymbolTable* symboltable = this->m_document.symbolTable();
-
     while(!pending.empty())
     {
-        address_t address = pending.front(), startaddress = 0, endaddress = 0;
+        address_t address = pending.front();
         pending.pop();
 
-        if(this->vertexIdByAddress(address) || !this->m_document.getFunctionBounds(address, &startaddress, &endaddress))
+        if(this->vertexIdByAddress(address))
             continue;
 
-        SymbolPtr symbol = symboltable->symbol(startaddress);
+        auto it = m_document->instructionItem(address);
 
-        if(!symbol)
+        if(it == m_document->end())
             continue;
 
-        auto it = this->m_document.find(startaddress);
-
-        if(it == this->m_document.end())
-            continue;
-
-        CallGraphVertex* cgv = new CallGraphVertex(symbol);
+        CallGraphVertex* cgv = new CallGraphVertex(m_document->symbol(address));
         this->pushVertex(cgv);
 
-        this->_byaddress[symbol->address] = cgv->id;
+        m_byaddress[address] = cgv->id;
 
-        for( ; it != this->m_document.end(); it++)
+        while(it != m_document->end())
         {
-            InstructionPtr instruction = *it;
+            ListingItem* item = it->get();
 
-            if(instruction->address >= endaddress)
+            if(item->is(ListingItem::InstructionItem))
+            {
+                InstructionPtr instruction = m_document->instruction(item->address);
+
+                if(instruction->is(InstructionTypes::Call))
+                {
+                    for(address_t target : instruction->targets)
+                    {
+                        cgv->calls.insert(target);
+                        pending.push(target);
+                    }
+                }
+            }
+            else if(item->is(ListingItem::SymbolItem))
+            {
+                SymbolPtr symbol = m_document->symbol(item->address);
+
+                if(!symbol->is(SymbolTypes::Code))
+                    break;
+            }
+            else
                 break;
 
-            if(!instruction->is(InstructionTypes::Call) || !instruction->hasTargets())
-                continue;
-
-            instruction->foreachTarget([this, cgv, &pending](address_t target) {
-                cgv->calls.insert(target);
-                pending.push(target);
-            });
+            it++;
         }
     }
-    */
 }
 
 void CallGraph::buildEdges()

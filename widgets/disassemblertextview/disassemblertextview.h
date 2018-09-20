@@ -53,6 +53,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void showReferences();
         void showCallGraph(address_t address);
         bool followUnderCursor();
+        void showCallGraphUnderCursor();
         void renameCurrentSymbol();
 
     signals:

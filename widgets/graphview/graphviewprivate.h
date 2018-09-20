@@ -37,14 +37,14 @@ class GraphViewPrivate : public QWidget
         void graphChanged();
 
     private:
-        bool _overviewmode;
-        double _zoomfactor;
-        REDasm::Graphing::Graph* _graph;
-        REDasm::Graphing::LayeredGraph _lgraph;
-        QMap<REDasm::Graphing::vertex_id_t, GraphItem*> _itembyid;
-        QHash<REDasm::Graphing::vertex_layer_t, double> _layerheight;
-        QList<GraphItem*> _items;
-        QSize _graphsize;
+        bool m_overviewmode;
+        double m_zoomfactor;
+        REDasm::Graphing::Graph* m_graph;
+        REDasm::Graphing::LayeredGraph m_lgraph;
+        QMap<REDasm::Graphing::vertex_id_t, GraphItem*> m_itembyid;
+        QHash<REDasm::Graphing::vertex_layer_t, double> m_layerheight;
+        QList<GraphItem*> m_items;
+        QSize m_graphsize;
 };
 
 #endif // GRAPHVIEWPRIVATE_H

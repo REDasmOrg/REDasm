@@ -23,20 +23,20 @@ class Graph
     public:
         class iterator: public std::iterator<std::random_access_iterator_tag, Vertex*> {
             public:
-                explicit iterator(Graph* graph, const VertexIterator& vertit): _graph(graph), _vertit(vertit) { update(); }
-                iterator& operator++() { _vertit++; update(); return *this; }
-                iterator operator++(int) { iterator copy = *this; _vertit++; update(); return copy; }
-                bool operator==(const iterator& rhs) const { return _vertit == rhs._vertit; }
-                bool operator!=(const iterator& rhs) const { return _vertit != rhs._vertit; }
-                iterator& operator=(const iterator& rhs) { _vertit = rhs._vertit; update(); return *this; }
-                Vertex* operator *() { return _graph->getVertex(id); }
+                explicit iterator(Graph* graph, const VertexIterator& vertit): m_graph(graph), m_vertit(vertit) { update(); }
+                iterator& operator++() { m_vertit++; update(); return *this; }
+                iterator operator++(int) { iterator copy = *this; m_vertit++; update(); return copy; }
+                bool operator==(const iterator& rhs) const { return m_vertit == rhs.m_vertit; }
+                bool operator!=(const iterator& rhs) const { return m_vertit != rhs.m_vertit; }
+                iterator& operator=(const iterator& rhs) { m_vertit = rhs.m_vertit; update(); return *this; }
+                Vertex* operator *() { return m_graph->getVertex(id); }
 
             private:
-                void update() { id = (_vertit == _graph->m_vertexmap.end()) ? 0 : _vertit->first; }
+                void update() { id = (m_vertit == m_graph->m_vertexmap.end()) ? 0 : m_vertit->first; }
 
             protected:
-                Graph* _graph;
-                VertexIterator _vertit;
+                Graph* m_graph;
+                VertexIterator m_vertit;
 
             public:
                 vertex_id_t id;
@@ -65,7 +65,7 @@ class Graph
 
     protected:
         VertexMap m_vertexmap;
-        vertex_id_t _currentid, _rootid;
+        vertex_id_t m_currentid, m_rootid;
 };
 
 class LayeredGraph: public std::vector<VertexList>
@@ -82,7 +82,7 @@ class LayeredGraph: public std::vector<VertexList>
         void indicize();
 
     private:
-        Graph* _graph;
+        Graph* m_graph;
 };
 
 typedef std::shared_ptr<LayeredGraph> LayeredGraphPtr;

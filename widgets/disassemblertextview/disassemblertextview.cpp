@@ -422,7 +422,7 @@ void DisassemblerTextView::createContextMenu()
     m_actxrefs = m_contextmenu->addAction("Cross References", [&]() { this->showReferences(); });
     m_actfollow = m_contextmenu->addAction("Follow", [&]() { this->followUnderCursor(); });
     m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
-    m_actcallgraph = m_contextmenu->addAction("Call Graph", [this]() { });
+    m_actcallgraph = m_contextmenu->addAction("Call Graph", [this]() { this->showCallGraphUnderCursor(); });
     m_acthexdump = m_contextmenu->addAction("Hex Dump", [this]() { });
     m_contextmenu->addSeparator();
     m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
@@ -478,12 +478,6 @@ void DisassemblerTextView::showReferences()
     dlgreferences.exec();
 }
 
-void DisassemblerTextView::showCallGraph(address_t address)
-{
-    //CallGraphDialog dlgcallgraph(address, m_disassembler, this);
-    //dlgcallgraph.exec();
-}
-
 bool DisassemblerTextView::followUnderCursor()
 {
     REDasm::SymbolPtr symbol = this->symbolUnderCursor();
@@ -493,6 +487,17 @@ bool DisassemblerTextView::followUnderCursor()
 
     this->goTo(symbol->address);
     return true;
+}
+
+void DisassemblerTextView::showCallGraphUnderCursor()
+{
+    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+
+    if(!symbol || !symbol->isFunction())
+        return;
+
+    CallGraphDialog dlgcallgraph(symbol->address, m_disassembler, this);
+    dlgcallgraph.exec();
 }
 
 void DisassemblerTextView::renameCurrentSymbol()

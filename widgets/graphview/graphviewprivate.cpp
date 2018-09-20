@@ -10,56 +10,46 @@
 #define ZOOM_FACTOR_STEP  0.050
 #define ITEM_PADDING      25
 
-GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), _overviewmode(false), _zoomfactor(1.0), _graph(NULL), _lgraph(NULL)
+GraphViewPrivate::GraphViewPrivate(QWidget *parent) : QWidget(parent), m_overviewmode(false), m_zoomfactor(1.0), m_graph(NULL), m_lgraph(NULL)
 {
     QPalette p = this->palette();
     p.setColor(QPalette::Background, QColor("azure"));
     this->setAutoFillBackground(true);
     this->setPalette(p);
 
-    this->_graphsize = QSize(0, 0);
+    m_graphsize = QSize(0, 0);
 }
 
-const QSize &GraphViewPrivate::graphSize() const
-{
-    return this->_graphsize;
-}
+const QSize &GraphViewPrivate::graphSize() const { return m_graphsize; }
 
 void GraphViewPrivate::addItem(GraphItem *item)
 {
     item->setParent(this); // Take ownership
 
-    this->_items << item;
-    this->_itembyid[item->vertex()->id] = item;
+    m_items << item;
+    m_itembyid[item->vertex()->id] = item;
 }
 
 void GraphViewPrivate::removeAll()
 {
-    this->_graphsize = QSize(0, 0);
+    m_graphsize = QSize(0, 0);
 
-    if(!this->_items.isEmpty())
+    if(!m_items.isEmpty())
     {
-        qDeleteAll(this->_items);
-        this->_items.clear();
+        qDeleteAll(m_items);
+        m_items.clear();
     }
 
     this->update();
 }
 
-bool GraphViewPrivate::overviewMode() const
-{
-    return this->_overviewmode;
-}
-
-void GraphViewPrivate::setOverviewMode(bool b)
-{
-    this->_overviewmode = b;
-}
+bool GraphViewPrivate::overviewMode() const { return m_overviewmode; }
+void GraphViewPrivate::setOverviewMode(bool b) { m_overviewmode = b; }
 
 void GraphViewPrivate::setGraph(REDasm::Graphing::Graph *graph)
 {
-    this->_graph = graph;
-    this->_lgraph.setGraph(graph);
+    m_graph = graph;
+    m_lgraph.setGraph(graph);
 }
 
 void GraphViewPrivate::drawEdge(QPainter *painter, GraphItem *fromitem, GraphItem *toitem, double offset)
@@ -97,16 +87,16 @@ void GraphViewPrivate::drawEdges(QPainter *painter, GraphItem* item)
 
     for(REDasm::Graphing::vertex_id_t edge : v1->edges)
     {
-        if(!this->_itembyid.contains(edge))
+        if(!m_itembyid.contains(edge))
             continue;
 
-        GraphItem* toitem = this->_itembyid[edge];
-        REDasm::Graphing::Vertex *rv1 = this->_graph->getRealParentVertex(v1->id), *rv2 = this->_graph->getRealVertex(edge);
+        GraphItem* toitem = m_itembyid[edge];
+        REDasm::Graphing::Vertex *rv1 = m_graph->getRealParentVertex(v1->id), *rv2 = m_graph->getRealVertex(edge);
         QColor c(QString::fromStdString(rv1->edgeColor(rv2)));
 
         painter->setPen(QPen(c, 2));
         painter->setBrush(c);
-        this->drawEdge(painter, item, toitem, this->getEdgeOffset(this->_itembyid[rv1->id], toitem));
+        this->drawEdge(painter, item, toitem, this->getEdgeOffset(m_itembyid[rv1->id], toitem));
     }
 
     painter->restore();
@@ -114,7 +104,7 @@ void GraphViewPrivate::drawEdges(QPainter *painter, GraphItem* item)
 
 void GraphViewPrivate::setGraphSize(const QSize &size)
 {
-    this->_graphsize = size;
+    m_graphsize = size;
 
     emit graphChanged();
     this->update();
@@ -122,20 +112,20 @@ void GraphViewPrivate::setGraphSize(const QSize &size)
 
 double GraphViewPrivate::getLayerHeight(GraphItem *item)
 {
-    if(!this->_layerheight.contains(item->layer()))
+    if(!m_layerheight.contains(item->layer()))
     {
         double maxheight = 0;
 
-        for(REDasm::Graphing::Vertex* v : this->_lgraph[item->layer()])
+        for(REDasm::Graphing::Vertex* v : m_lgraph[item->layer()])
         {
-            GraphItem* litem = this->_itembyid[v->id];
+            GraphItem* litem = m_itembyid[v->id];
             maxheight = std::max(maxheight, static_cast<double>(litem->size().height()));
         }
 
-        this->_layerheight[item->layer()] = maxheight;
+        m_layerheight[item->layer()] = maxheight;
     }
 
-    return this->_layerheight[item->layer()];
+    return m_layerheight[item->layer()];
 }
 
 double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) const
@@ -172,17 +162,17 @@ double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) c
 
 void GraphViewPrivate::paintEvent(QPaintEvent*)
 {
-    if(!this->_graph)
+    if(!m_graph)
         return;
 
-    this->_layerheight.clear();
+    m_layerheight.clear();
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.eraseRect(this->rect());
-    painter.scale(this->_zoomfactor, this->_zoomfactor);
+    painter.scale(m_zoomfactor, m_zoomfactor);
 
-    foreach(GraphItem* item, this->_items)
+    foreach(GraphItem* item, m_items)
     {
         if(!item->vertex()->isFake())
         {
@@ -209,16 +199,16 @@ void GraphViewPrivate::wheelEvent(QWheelEvent *event)
     if(event->modifiers() & Qt::ControlModifier)
     {
         if(event->delta() > 0)
-            this->_zoomfactor += ZOOM_FACTOR_STEP;
+            m_zoomfactor += ZOOM_FACTOR_STEP;
         else if(event->delta() < 0)
-            this->_zoomfactor -= ZOOM_FACTOR_STEP;
+            m_zoomfactor -= ZOOM_FACTOR_STEP;
         else
             return;
 
-        if(this->_zoomfactor < 0.005)
-            this->_zoomfactor = 0.005;
-        else if(this->_zoomfactor > 2.005)
-            this->_zoomfactor = 2.005;
+        if(m_zoomfactor < 0.005)
+            m_zoomfactor = 0.005;
+        else if(m_zoomfactor > 2.005)
+            m_zoomfactor = 2.005;
 
         this->update();
     }

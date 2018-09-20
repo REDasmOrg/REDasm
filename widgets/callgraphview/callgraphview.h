@@ -12,13 +12,13 @@ class CallGraphView : public GraphView
     public:
         explicit CallGraphView(QWidget *parent = NULL);
         ~CallGraphView();
-        void display(address_t address, REDasm::Disassembler* disassembler);
+        void display(address_t address, REDasm::DisassemblerAPI* disassembler);
 
     protected:
         virtual GraphItem* createItem(REDasm::Graphing::Vertex* v);
 
     private:
-        std::unique_ptr<REDasm::CallGraph> _callgraph;
+        std::unique_ptr<REDasm::CallGraph> m_callgraph;
 };
 
 #endif // CALLGRAPHVIEW_H

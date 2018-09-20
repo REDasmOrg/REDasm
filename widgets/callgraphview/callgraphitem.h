@@ -16,7 +16,7 @@ class CallGraphItem : public GraphItem
         virtual void paint(QPainter* painter);
 
     private:
-        QFont _font;
+        QFont m_font;
 };
 
 #endif // CALLGRAPHITEM_H

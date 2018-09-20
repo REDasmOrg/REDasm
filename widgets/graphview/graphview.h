@@ -36,8 +36,8 @@ class GraphView : public QScrollArea
         void resizeGraphView();
 
     private:
-        GraphViewPrivate* _graphview_p;
-        QPoint _lastpos;
+        GraphViewPrivate* m_graphview_p;
+        QPoint m_lastpos;
 };
 
 #endif // GRAPHVIEW_H

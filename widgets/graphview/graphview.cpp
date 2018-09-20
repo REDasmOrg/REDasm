@@ -7,12 +7,12 @@
 
 GraphView::GraphView(QWidget *parent): QScrollArea(parent)
 {
-    this->_graphview_p = new GraphViewPrivate(this);
+    m_graphview_p = new GraphViewPrivate(this);
     this->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-    this->setFocusProxy(this->_graphview_p);
-    this->setWidget(this->_graphview_p);
+    this->setFocusProxy(m_graphview_p);
+    this->setWidget(m_graphview_p);
 
-    connect(this->_graphview_p, &GraphViewPrivate::graphChanged, this, &GraphView::resizeGraphView);
+    connect(m_graphview_p, &GraphViewPrivate::graphChanged, this, &GraphView::resizeGraphView);
 }
 
 void GraphView::render(REDasm::Graphing::Graph* graph)
@@ -58,30 +58,11 @@ void GraphView::render(REDasm::Graphing::Graph* graph)
     this->setGraphSize(QSize(maxx + this->minimumSize(), y + this->minimumSize()));
 }
 
-u64 GraphView::minimumSize() const
-{
-    return MINIMUM_SIZE;
-}
-
-bool GraphView::overviewMode() const
-{
-    return this->_graphview_p->overviewMode();
-}
-
-void GraphView::setOverviewMode(bool b)
-{
-    this->_graphview_p->setOverviewMode(b);
-}
-
-void GraphView::setGraph(REDasm::Graphing::Graph *graph)
-{
-    this->_graphview_p->setGraph(graph);
-}
-
-void GraphView::setGraphSize(const QSize &size)
-{
-    this->_graphview_p->setGraphSize(size);
-}
+u64 GraphView::minimumSize() const { return MINIMUM_SIZE; }
+bool GraphView::overviewMode() const { return m_graphview_p->overviewMode(); }
+void GraphView::setOverviewMode(bool b) { m_graphview_p->setOverviewMode(b); }
+void GraphView::setGraph(REDasm::Graphing::Graph *graph) { m_graphview_p->setGraph(graph); }
+void GraphView::setGraphSize(const QSize &size) { m_graphview_p->setGraphSize(size); }
 
 void GraphView::wheelEvent(QWheelEvent *e)
 {
@@ -104,7 +85,7 @@ void GraphView::mousePressEvent(QMouseEvent *e)
 
     if(e->button() == Qt::LeftButton)
     {
-        this->_lastpos = e->pos();
+        m_lastpos = e->pos();
         this->setCursor(QCursor(Qt::ClosedHandCursor));
     }
 }
@@ -123,35 +104,28 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
 
     if(e->buttons() & Qt::LeftButton)
     {
-        int xdelta = this->_lastpos.x() - e->x();
-        int ydelta = this->_lastpos.y() - e->y();
+        int xdelta = m_lastpos.x() - e->x();
+        int ydelta = m_lastpos.y() - e->y();
 
         this->horizontalScrollBar()->setValue(this->horizontalScrollBar()->value() + xdelta);
         this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() + ydelta);
 
-        this->_lastpos = e->pos();
+        m_lastpos = e->pos();
     }
 }
 
-void GraphView::addItem(GraphItem *item)
-{
-    this->_graphview_p->addItem(item);
-}
-
-void GraphView::removeAll()
-{
-    return this->_graphview_p->removeAll();
-}
+void GraphView::addItem(GraphItem *item) { m_graphview_p->addItem(item); }
+void GraphView::removeAll() { return m_graphview_p->removeAll(); }
 
 void GraphView::resizeGraphView()
 {
-    if(!this->_graphview_p)
+    if(!m_graphview_p)
         return;
 
-    QSize sz = this->_graphview_p->graphSize();
+    QSize sz = m_graphview_p->graphSize();
 
     if(sz.width() < this->width())
         sz.setWidth(this->width());
 
-    this->_graphview_p->resize(sz);
+    m_graphview_p->resize(sz);
 }

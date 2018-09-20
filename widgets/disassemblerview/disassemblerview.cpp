@@ -43,6 +43,9 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     m_segmentsmodel = ListingFilterModel::createFilter<SegmentsModel>(ui->tvSegments);
     ui->tvSegments->setModel(m_segmentsmodel);
 
+    m_callgraphmodel = new CallGraphModel(ui->tvCallGraph);
+    ui->tvCallGraph->setModel(m_callgraphmodel);
+
     m_referencesmodel = new ReferencesModel(ui->tvReferences);
     ui->tvReferences->setModel(m_referencesmodel);
 
@@ -51,6 +54,10 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     ui->tvFunctions->header()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvFunctions->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->tvFunctions->header()->moveSection(2, 1);
+
+    ui->tvCallGraph->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui->tvCallGraph->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tvCallGraph->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     ui->tvReferences->setColumnHidden(0, true);
     ui->tvReferences->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -68,8 +75,11 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
+    connect(ui->bottomTabs, &QTabWidget::currentChanged, this, &DisassemblerView::filterBottomTab);
+
     connect(ui->disassemblerTextView, &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
     connect(ui->disassemblerTextView, &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
+    connect(ui->disassemblerTextView, &DisassemblerTextView::callGraphRequested, this, &DisassemblerView::initializeCallGraph);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(ui->disassemblerTextView, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
     connect(ui->disassemblerTextView, &DisassemblerTextView::canGoBackChanged, [this]() { ui->tbBack->setEnabled(ui->disassemblerTextView->canGoBack()); });
@@ -79,6 +89,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     connect(ui->tbForward, &QToolButton::clicked, ui->disassemblerTextView, &DisassemblerTextView::goForward);
     connect(ui->tbGoto, &QToolButton::clicked, this, &DisassemblerView::showGoto);
 
+    connect(ui->tvCallGraph, &QTreeView::expanded, m_callgraphmodel, &CallGraphModel::populateCallGraph);
     connect(ui->tvReferences, &QTreeView::doubleClicked, this, &DisassemblerView::gotoXRef);
     connect(ui->tvFunctions, &QTreeView::doubleClicked, this, &DisassemblerView::gotoSymbol);
     connect(ui->tvFunctions, &QTreeView::customContextMenuRequested, this, &DisassemblerView::showMenu);
@@ -122,6 +133,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     m_exportsmodel->setDisassembler(disassembler);
     m_stringsmodel->setDisassembler(disassembler);
     m_segmentsmodel->setDisassembler(disassembler);
+    m_callgraphmodel->setDisassembler(disassembler);
     m_referencesmodel->setDisassembler(disassembler);
 
     ui->hexEdit->setDocument(m_hexdocument);
@@ -134,18 +146,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     disassembler->disassemble();
 }
 
-void DisassemblerView::on_topTabs_currentChanged(int index)
-{
-    QWidget* w = ui->topTabs->widget(index);
-
-    if(!w)
-        return;
-
-    //if(w == ui->disassemblerGraphView)
-        //ui->disassemblerGraphView->display(ui->disassemblerTextView->currentAddress());
-}
-
-void DisassemblerView::on_bottomTabs_currentChanged(int index)
+void DisassemblerView::filterBottomTab(int index)
 {
     QWidget* w = ui->bottomTabs->widget(index);
 
@@ -215,6 +216,13 @@ void DisassemblerView::displayAddress(address_t address)
 
     QString s = QString("<b>Address: </b>%1\u00A0\u00A0<b>Offset: </b>%2\u00A0\u00A0<b>Segment: </b>%3").arg(addr, offs, segm);
     m_lblstatus->setText(s);
+}
+
+void DisassemblerView::initializeCallGraph(address_t address)
+{
+    m_callgraphmodel->initializeGraph(address);
+    ui->tvCallGraph->expandToDepth(0);
+    ui->tabModels->setCurrentIndex(1);
 }
 
 void DisassemblerView::displayCurrentReferences()

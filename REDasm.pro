@@ -139,7 +139,8 @@ SOURCES += main.cpp\
     models/listingitemmodel.cpp \
     models/symboltablemodel.cpp \
     models/listingfiltermodel.cpp \
-    redasm/disassembler/listing/listingcursor.cpp
+    redasm/disassembler/listing/listingcursor.cpp \
+    models/callgraphmodel.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -270,7 +271,8 @@ HEADERS  += mainwindow.h \
     models/symboltablemodel.h \
     models/listingfiltermodel.h \
     redasm/support/event.h \
-    redasm/disassembler/listing/listingcursor.h
+    redasm/disassembler/listing/listingcursor.h \
+    models/callgraphmodel.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

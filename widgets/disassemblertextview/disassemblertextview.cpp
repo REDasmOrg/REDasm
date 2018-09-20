@@ -1,9 +1,8 @@
 #include "disassemblertextview.h"
 #include "../../dialogs/referencesdialog.h"
-#include "../../dialogs/callgraphdialog.h"
-#include <cmath>
-#include <QtGui>
 #include <QtWidgets>
+#include <QtGui>
+#include <cmath>
 
 #define CURSOR_BLINK_INTERVAL 500 // 500ms
 
@@ -496,8 +495,7 @@ void DisassemblerTextView::showCallGraphUnderCursor()
     if(!symbol || !symbol->isFunction())
         return;
 
-    CallGraphDialog dlgcallgraph(symbol->address, m_disassembler, this);
-    dlgcallgraph.exec();
+    emit callGraphRequested(symbol->address);
 }
 
 void DisassemblerTextView::renameCurrentSymbol()

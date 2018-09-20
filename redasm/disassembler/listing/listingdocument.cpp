@@ -18,6 +18,50 @@ void ListingDocument::moveToEP()
 
 int ListingDocument::lastLine() const { return static_cast<int>(this->size()) - 1; }
 
+ListingItems ListingDocument::getCalls(ListingItem *item)
+{
+    ListingItems calls;
+    ListingDocument::iterator it = this->end();
+
+    if(item->is(ListingItem::InstructionItem))
+    {
+        InstructionPtr instruction = this->instruction(item->address);
+
+        if(!instruction->hasTargets())
+            return ListingItems();
+
+        it = this->instructionItem(instruction->target());
+    }
+    else
+        it = this->instructionItem(item->address);
+
+    for( ; it != this->end(); it++)
+    {
+        ListingItem* item = it->get();
+
+        if(item->is(ListingItem::InstructionItem))
+        {
+            InstructionPtr instruction = this->instruction(item->address);
+
+            if(!instruction->is(InstructionTypes::Call))
+                continue;
+
+            calls.push_back(item);
+        }
+        else if(item->is(ListingItem::SymbolItem))
+        {
+            SymbolPtr symbol = this->symbol(item->address);
+
+            if(!symbol->is(SymbolTypes::Code))
+                break;
+        }
+        else
+            break;
+    }
+
+    return calls;
+}
+
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
     SymbolPtr symbol = m_symboltable.symbol(address);
@@ -166,6 +210,8 @@ InstructionPtr ListingDocument::instruction(address_t address)
 
     return InstructionPtr();
 }
+
+ListingDocument::iterator ListingDocument::functionItem(address_t address) { return this->item(address, ListingItem::FunctionItem); }
 
 ListingDocument::iterator ListingDocument::item(address_t address, u32 type)
 {

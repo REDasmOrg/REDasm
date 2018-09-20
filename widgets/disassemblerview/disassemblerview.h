@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QMenu>
 #include <qhexedit.h>
+#include "../../models/callgraphmodel.h"
 #include "../../models/listingfiltermodel.h"
 #include "../../models/symboltablemodel.h"
 #include "../../models/referencesmodel.h"
@@ -26,12 +27,12 @@ class DisassemblerView : public QWidget
         void setDisassembler(REDasm::Disassembler* disassembler);
 
     private slots:
-        void on_topTabs_currentChanged(int index);
-        void on_bottomTabs_currentChanged(int index);
+        void filterBottomTab(int index);
         void gotoXRef(const QModelIndex &index);
         void gotoSymbol(const QModelIndex &index);
         void xrefSymbol(const QModelIndex &index);
         void displayAddress(address_t address);
+        void initializeCallGraph(address_t address);
         void displayCurrentReferences();
         void log(const QString& s);
         void filterFunctions();
@@ -53,6 +54,7 @@ class DisassemblerView : public QWidget
         QPushButton* m_pbstatus;
         REDasm::Disassembler* m_disassembler;
         ListingFilterModel *m_segmentsmodel, *m_functionsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
+        CallGraphModel* m_callgraphmodel;
         ReferencesModel* m_referencesmodel;
 };
 

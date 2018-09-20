@@ -32,6 +32,7 @@ struct ListingItem
 };
 
 typedef std::unique_ptr<ListingItem> ListingItemPtr;
+typedef std::vector<ListingItem*> ListingItems;
 
 namespace Listing {
     template<typename T> struct ListingComparator {
@@ -157,6 +158,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         int lastLine() const;
 
     public:
+        ListingItems getCalls(ListingItem* item);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
         void rename(address_t address, const std::string& name);
@@ -176,6 +178,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         void instruction(const InstructionPtr& instruction);
         void update(const InstructionPtr& instruction);
         InstructionPtr instruction(address_t address);
+        ListingDocument::iterator functionItem(address_t address);
         ListingDocument::iterator instructionItem(address_t address);
         ListingDocument::iterator symbolItem(address_t address);
         int functionIndex(address_t address);

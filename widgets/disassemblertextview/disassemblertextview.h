@@ -51,7 +51,6 @@ class DisassemblerTextView : public QAbstractScrollArea
         void createContextMenu();
         void adjustContextMenu();
         void showReferences();
-        void showCallGraph(address_t address);
         bool followUnderCursor();
         void showCallGraphUnderCursor();
         void renameCurrentSymbol();
@@ -60,6 +59,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void gotoRequested();
         void canGoBackChanged();
         void canGoForwardChanged();
+        void callGraphRequested(address_t address);
         void hexDumpRequested(address_t address);
         void addressChanged(address_t address);
 

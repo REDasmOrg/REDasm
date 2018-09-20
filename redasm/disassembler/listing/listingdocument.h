@@ -55,11 +55,8 @@ namespace Listing {
         int offset = type - (*it)->type;
         address_t searchaddress = (*it)->address;
 
-        while(searchaddress == (*it)->address)
+        while((it == container->end()) && (searchaddress == (*it)->address))
         {
-            if(it == container->end())
-                break;
-
             if((*it)->type == type)
                 return it;
 

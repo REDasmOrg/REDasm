@@ -105,7 +105,7 @@ bool SymbolTable::erase(address_t address)
 
     SymbolPtr symbol = *it;
 
-    if(!symbol || symbol->is(SymbolTypes::Locked))
+    if(!symbol)
         return false;
 
     m_byaddress.erase(it);

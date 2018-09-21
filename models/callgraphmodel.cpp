@@ -1,5 +1,6 @@
 #include "callgraphmodel.h"
 #include "../../redasm/plugins/format.h"
+#include "../../themeprovider.h"
 #include <QFontDatabase>
 #include <QColor>
 
@@ -15,6 +16,7 @@ void CallGraphModel::initializeGraph(address_t address)
 {
     this->beginResetModel();
     m_root = NULL;
+    m_depths.clear();
     m_children.clear();
     m_parents.clear();
     this->endResetModel();
@@ -25,6 +27,7 @@ void CallGraphModel::initializeGraph(address_t address)
     if(it != doc->end())
     {
         m_root = it->get();
+        m_depths[m_root] = 0;
         m_parents[m_root] = NULL;
         this->populate(m_root);
     }
@@ -39,15 +42,35 @@ void CallGraphModel::populate(REDasm::ListingItem* parentitem)
 
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::ListingItems calls = doc->getCalls(parentitem);
-    QModelIndex index = parentitem == m_root ? QModelIndex() : this->createIndex(this->getParentIndex(parentitem), 0, parentitem);
+    QModelIndex index;
+
+    if(parentitem != m_root)
+        index = this->createIndex(this->getParentIndex(parentitem), 0, parentitem);
 
     this->beginInsertRows(index, 0, calls.size());
     m_children[parentitem] = calls;
 
     for(REDasm::ListingItem* item : m_children[parentitem])
+    {
         m_parents[item] = parentitem;
 
+        if(!m_depths.contains(item))
+            m_depths[item] = m_depths[parentitem] + 1;
+    }
+
     this->endInsertRows();
+}
+
+bool CallGraphModel::isDuplicate(const QModelIndex &index) const
+{
+    REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
+
+    if(item == m_root)
+        return false;
+
+    QModelIndex parentindex = this->parent(index);
+    REDasm::ListingItem* parentitem = reinterpret_cast<REDasm::ListingItem*>(parentindex.internalPointer());
+    return (m_depths[item] - m_depths[parentitem]) != 1;
 }
 
 int CallGraphModel::getParentIndexFromChild(REDasm::ListingItem *childitem) const
@@ -71,6 +94,12 @@ bool CallGraphModel::hasChildren(const QModelIndex &parentindex) const
         return false;
 
     REDasm::ListingItem* parentitem = reinterpret_cast<REDasm::ListingItem*>(parentindex.internalPointer());
+
+    if(!parentitem)
+        return true;
+
+    if(this->isDuplicate(parentindex))
+        return false;
 
     if(m_children.contains(parentitem))
     {
@@ -138,6 +167,15 @@ QVariant CallGraphModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
+    REDasm::SymbolPtr symbol;
+
+    if(item->is(REDasm::ListingItem::InstructionItem))
+    {
+        REDasm::InstructionPtr instruction = m_disassembler->document()->instruction(item->address);
+        symbol = m_disassembler->document()->symbol(instruction->target());
+    }
+    else
+        symbol = m_disassembler->document()->symbol(item->address);
 
     if(role == Qt::DisplayRole)
     {
@@ -146,18 +184,22 @@ QVariant CallGraphModel::data(const QModelIndex &index, int role) const
         else if(index.column() == 1)
         {
             if(item->is(REDasm::ListingItem::FunctionItem))
-            {
-                REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);
                 return QString::fromStdString(symbol->name);
-            }
 
             return QString::fromStdString(m_printer->out(m_disassembler->document()->instruction(item->address)));
         }
         else if(index.column() == 2)
             return item == m_root ? "---" : QString::number(m_disassembler->getReferencesCount(item->address));
     }
-    else if((role == Qt::ForegroundRole) && (index.column() == 0))
-        return QColor(Qt::darkBlue);
+    else if(role == Qt::ForegroundRole)
+    {
+        if(index.column() == 0)
+            return QColor(Qt::darkBlue);
+        else if((index.column() == 1) && this->isDuplicate(index) && !symbol->isLocked())
+            return QColor(Qt::gray);
+    }
+    else if(role == Qt::BackgroundColorRole && symbol->isLocked())
+        return THEME_VALUE("locked_bg");
     else if((role == Qt::TextAlignmentRole) && (index.column() == 2))
         return Qt::AlignCenter;
 

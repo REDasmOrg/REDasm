@@ -2,6 +2,7 @@
 #define CALLGRAPHMODEL_H
 
 #include <QAbstractItemModel>
+#include <QHash>
 #include "../redasm/disassembler/disassemblerapi.h"
 #include "../redasm/plugins/assembler/printer.h"
 #include "../redasm/disassembler/listing/listingdocument.h"
@@ -20,6 +21,7 @@ class CallGraphModel : public QAbstractItemModel
 
     private:
         void populate(REDasm::ListingItem *parentitem);
+        bool isDuplicate(const QModelIndex& index) const;
         int getParentIndexFromChild(REDasm::ListingItem *childitem) const;
         int getParentIndex(REDasm::ListingItem *parentitem) const;
 
@@ -36,6 +38,7 @@ class CallGraphModel : public QAbstractItemModel
         REDasm::PrinterPtr m_printer;
         REDasm::DisassemblerAPI* m_disassembler;
         REDasm::ListingItem* m_root;
+        QHash<REDasm::ListingItem*, s32> m_depths;
         QHash<REDasm::ListingItem*, REDasm::ListingItems> m_children;
         QHash<REDasm::ListingItem*, REDasm::ListingItem*> m_parents;
 };

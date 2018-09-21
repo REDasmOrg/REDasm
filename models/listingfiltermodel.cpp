@@ -8,7 +8,19 @@ void ListingFilterModel::setDisassembler(REDasm::DisassemblerAPI *disassembler) 
 
 void ListingFilterModel::setFilter(const QString &filter)
 {
+    if(m_filterstring == filter)
+        return;
+
     m_filterstring = filter;
+    this->updateFiltering();
+}
+
+void ListingFilterModel::clearFilter()
+{
+    if(m_filterstring.isEmpty())
+        return;
+
+    m_filterstring.clear();
     this->updateFiltering();
 }
 

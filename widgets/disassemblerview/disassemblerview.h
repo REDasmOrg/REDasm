@@ -12,6 +12,8 @@
 #include "../../models/segmentsmodel.h"
 #include "../../dialogs/gotodialog.h"
 #include "../../redasm/disassembler/disassembler.h"
+#include "../disassemblertextview/disassemblertextview.h"
+#include "../disassemblergraphview/disassemblergraphview.h"
 
 namespace Ui {
 class DisassemblerView;
@@ -27,26 +29,33 @@ class DisassemblerView : public QWidget
         void setDisassembler(REDasm::Disassembler* disassembler);
 
     private slots:
-        void filterBottomTab(int index);
+        void updateCurrentFilter(int index);
         void gotoXRef(const QModelIndex &index);
-        void gotoSymbol(const QModelIndex &index);
-        void xrefSymbol(const QModelIndex &index);
+        void goTo(const QModelIndex &index);
+        void showReferences();
         void displayAddress(address_t address);
         void initializeCallGraph(address_t address);
         void displayCurrentReferences();
         void log(const QString& s);
-        void filterFunctions();
-        void filterSymbols();
-        void onDisassemblerBusyChanged();
+        void checkBusyState();
+        void showFilter();
+        void clearFilter();
         void showHexDump(address_t address);
         void showMenu(const QPoint&);
         void showGoto();
 
+    protected:
+        bool eventFilter(QObject* obj, QEvent* e);
+
     private:
         void createMenu();
+        void filterSymbols();
+        ListingFilterModel* getSelectedFilterModel();
 
     private:
         Ui::DisassemblerView *ui;
+        DisassemblerTextView* m_disassemblertextview;
+        DisassemblerGraphView* m_disassemblergraphview;
         QModelIndex m_currentindex;
         QHexDocument* m_hexdocument;
         QMenu* m_contextmenu;
@@ -56,6 +65,7 @@ class DisassemblerView : public QWidget
         ListingFilterModel *m_segmentsmodel, *m_functionsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
         CallGraphModel* m_callgraphmodel;
         ReferencesModel* m_referencesmodel;
+        QAction* m_actsetfilter;
 };
 
 #endif // DISASSEMBLERVIEW_H

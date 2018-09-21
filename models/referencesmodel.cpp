@@ -3,7 +3,6 @@
 #include "../redasm/disassembler/listing/listingdocument.h"
 #include "../redasm/plugins/format.h"
 #include "../themeprovider.h"
-#include <QFontDatabase>
 
 ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent) { }
 
@@ -92,8 +91,6 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
             }
         }
     }
-    else if((role == Qt::FontRole) && (index.column() != 1))
-        return QFontDatabase::systemFont(QFontDatabase::FixedFont);
     else if((role == Qt::TextAlignmentRole) && (index.column() > 0))
         return Qt::AlignCenter;
 

@@ -13,6 +13,7 @@ class ListingFilterModel : public QIdentityProxyModel
         const QString& filter() const;
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
         void setFilter(const QString& filter);
+        void clearFilter();
 
     public:
         virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;

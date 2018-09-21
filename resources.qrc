@@ -9,5 +9,8 @@
         <file>res/database.png</file>
         <file>res/database_import.png</file>
         <file>res/logo.png</file>
+        <file>res/graph.png</file>
+        <file>res/hex.png</file>
+        <file>res/listing.png</file>
     </qresource>
 </RCC>

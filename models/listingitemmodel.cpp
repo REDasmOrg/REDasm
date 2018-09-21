@@ -1,6 +1,7 @@
 #include "listingitemmodel.h"
 #include "../../redasm/disassembler/listing/listingdocument.h"
 #include "../../redasm/plugins/format.h"
+#include "../../themeprovider.h"
 #include <QColor>
 
 ListingItemModel::ListingItemModel(u32 itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
@@ -101,7 +102,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     else if(role == Qt::BackgroundRole)
     {
         if(symbol->isFunction() && symbol->isLocked())
-            return QColor::fromRgb(0xE2, 0xFF, 0xFF);
+            return THEME_VALUE("locked_bg");
     }
     else if(role == Qt::ForegroundRole)
     {

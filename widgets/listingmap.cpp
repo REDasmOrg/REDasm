@@ -117,7 +117,7 @@ void ListingMap::paintEvent(QPaintEvent *)
         QRect r(origins[segment] + x, 0, this->calculateWidth(size), this->height());
 
         if(symbol->isLocked())
-            painter.fillRect(r, THEME_VALUE("locked"));
+            painter.fillRect(r, THEME_VALUE("locked_fg"));
         else
             painter.fillRect(r, THEME_VALUE("function_fg"));
 

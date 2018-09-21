@@ -13,7 +13,6 @@ class DisassemblerModel : public QAbstractListModel
 
     public:
         explicit DisassemblerModel(QObject *parent = 0);
-        void setDefaultFont(bool b);
 
     public:
         virtual void setDisassembler(REDasm::DisassemblerAPI *disassembler);

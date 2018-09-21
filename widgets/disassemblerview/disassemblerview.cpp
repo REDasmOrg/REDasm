@@ -25,7 +25,6 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     ui->tbGoto->setShortcut(QKeySequence(Qt::Key_G));
 
     m_functionsmodel = ListingFilterModel::createFilter<ListingItemModel>(REDasm::ListingItem::FunctionItem, ui->tvFunctions);
-    static_cast<ListingItemModel*>(m_functionsmodel->sourceModel())->setDefaultFont(true);
     ui->tvFunctions->setModel(m_functionsmodel);
 
     m_importsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItem::SymbolItem, ui->tvFunctions);

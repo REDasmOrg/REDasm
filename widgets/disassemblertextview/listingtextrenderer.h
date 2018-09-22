@@ -38,6 +38,7 @@ class ListingTextRenderer : public REDasm::ListingRenderer
     private:
         QRegularExpression m_rgxwords;
         QFontMetrics m_fontmetrics;
+        QTextOption m_textoption;
         bool m_cursoractive;
 };
 

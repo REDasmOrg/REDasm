@@ -10,6 +10,7 @@
 ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font), m_cursoractive(false)
 {
     m_rgxwords.setPattern("[\\w\\.]+");
+    m_textoption.setWrapMode(QTextOption::NoWrap);
 }
 
 ListingTextRenderer::~ListingTextRenderer() { }
@@ -78,6 +79,7 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
     QTextDocument textdocument;
     textdocument.setDocumentMargin(0);
     textdocument.setUndoRedoEnabled(false);
+    textdocument.setDefaultTextOption(m_textoption);
     textdocument.setDefaultFont(painter->font());
 
     QTextCursor textcursor(&textdocument);
@@ -108,6 +110,7 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
 
     painter->save();
         painter->translate(rvp.topLeft());
+        textdocument.setTextWidth(rvp.width());
         textdocument.drawContents(painter);
     painter->restore();
 }

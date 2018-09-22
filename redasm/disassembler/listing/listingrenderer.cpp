@@ -44,6 +44,13 @@ int ListingRenderer::getLastColumn(size_t line)
     return len - 1;
 }
 
+std::string ListingRenderer::getLine(size_t line)
+{
+    RendererLine rl;
+    this->getRendererLine(line, rl);
+    return rl.text();
+}
+
 std::string ListingRenderer::getSelectedText()
 {
     const ListingCursor* cur = m_document->cursor();

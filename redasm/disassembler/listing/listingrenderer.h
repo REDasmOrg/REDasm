@@ -48,6 +48,7 @@ class ListingRenderer
         ListingRenderer(DisassemblerAPI* disassembler);
         void render(size_t start, size_t count, void* userdata = NULL);
         int getLastColumn(size_t line);
+        std::string getLine(size_t line);
         std::string getSelectedText();
 
     protected:

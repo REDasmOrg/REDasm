@@ -19,6 +19,11 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->verticalScrollBar()->setValue(0);
     this->verticalScrollBar()->setSingleStep(1);
     this->verticalScrollBar()->setPageStep(1);
+    this->horizontalScrollBar()->setSingleStep(this->fontMetrics().boundingRect(" ").width());
+
+    int maxwidth = qApp->primaryScreen()->size().width();
+    this->horizontalScrollBar()->setMaximum(maxwidth);
+    this->viewport()->setFixedWidth(maxwidth);
 
     m_blinktimer = new QTimer(this);
     m_blinktimer->setInterval(CURSOR_BLINK_INTERVAL);
@@ -110,6 +115,18 @@ void DisassemblerTextView::blinkCursor()
     this->update();
 }
 
+void DisassemblerTextView::scrollContentsBy(int dx, int dy)
+{
+    if(dx)
+    {
+        QWidget* viewport = this->viewport();
+        viewport->move(viewport->x() + dx, viewport->y());
+        return;
+    }
+
+    QAbstractScrollArea::scrollContentsBy(dx, dy);
+}
+
 void DisassemblerTextView::focusInEvent(QFocusEvent *e)
 {
     m_renderer->enableCursor();
@@ -122,6 +139,7 @@ void DisassemblerTextView::focusOutEvent(QFocusEvent *e)
 {
     m_blinktimer->stop();
     m_renderer->disableCursor();
+
     QAbstractScrollArea::focusOutEvent(e);
 }
 
@@ -234,7 +252,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     }
     else if(e->matches(QKeySequence::MoveToPreviousChar) || e->matches(QKeySequence::SelectPreviousChar))
     {
-        if(e->matches(QKeySequence::MoveToNextChar))
+        if(e->matches(QKeySequence::MoveToPreviousChar))
             cur->moveTo(cur->currentLine(), std::max(0, cur->currentColumn() - 1));
         else
             cur->select(cur->currentLine(), std::max(0, cur->currentColumn() - 1));
@@ -373,6 +391,27 @@ bool DisassemblerTextView::isLineVisible(int line) const
     return true;
 }
 
+bool DisassemblerTextView::isColumnVisible(int column, int* xpos)
+{
+    QScrollBar* hscrollbar = this->horizontalScrollBar();
+    int lastxpos = hscrollbar->value() + this->width();
+    int adv = this->fontMetrics().horizontalAdvance(" ");
+    *xpos = adv * column;
+
+    if(*xpos > lastxpos)
+    {
+        *xpos -= this->width();
+        return false;
+    }
+    else if(*xpos < hscrollbar->value())
+    {
+        *xpos = hscrollbar->value() - *xpos;
+        return false;
+    }
+
+    return true;
+}
+
 void DisassemblerTextView::adjustScrollBars()
 {
     if(!m_disassembler)
@@ -389,7 +428,6 @@ void DisassemblerTextView::adjustScrollBars()
 
 void DisassemblerTextView::moveToSelection()
 {
-    QScrollBar* vscrollbar = this->verticalScrollBar();
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::ListingCursor* cur = doc->cursor();
 
@@ -399,7 +437,18 @@ void DisassemblerTextView::moveToSelection()
         m_renderer->updateWordUnderCursor();
     }
     else // Center on selection
+    {
+        QScrollBar* vscrollbar = this->verticalScrollBar();
         vscrollbar->setValue(std::max(0, cur->currentLine() - this->visibleLines() / 2));
+    }
+
+    int xpos = 0;
+
+    if(!this->isColumnVisible(cur->currentColumn(), &xpos))
+    {
+        QScrollBar* hscrollbar = this->horizontalScrollBar();
+        hscrollbar->setValue(xpos);
+    }
 
     REDasm::ListingItem* item = doc->itemAt(cur->currentLine());
 

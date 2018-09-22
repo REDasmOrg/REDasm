@@ -27,6 +27,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void blinkCursor();
 
     protected:
+        virtual void scrollContentsBy(int dx, int dy);
         virtual void focusInEvent(QFocusEvent* e);
         virtual void focusOutEvent(QFocusEvent* e);
         virtual void paintEvent(QPaintEvent* e);
@@ -46,6 +47,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         int firstVisibleLine() const;
         int lastVisibleLine() const;
         bool isLineVisible(int line) const;
+        bool isColumnVisible(int column, int *xpos);
         void adjustScrollBars();
         void moveToSelection();
         void createContextMenu();

@@ -14,7 +14,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->setFont(font);
     this->setCursor(Qt::ArrowCursor);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
-    this->viewport()->setFocusPolicy(Qt::StrongFocus);
+    this->setFocusPolicy(Qt::StrongFocus);
     this->verticalScrollBar()->setMinimum(0);
     this->verticalScrollBar()->setValue(0);
     this->verticalScrollBar()->setSingleStep(1);
@@ -57,7 +57,6 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
 
     m_disassembler = disassembler;
     m_renderer = std::make_unique<ListingTextRenderer>(this->font(), disassembler);
-    m_blinktimer->start();
     this->update();
 }
 
@@ -111,22 +110,19 @@ void DisassemblerTextView::blinkCursor()
     this->update();
 }
 
-bool DisassemblerTextView::viewportEvent(QEvent *e)
+void DisassemblerTextView::focusInEvent(QFocusEvent *e)
 {
-    if(e->type() == QEvent::WindowActivate)
-    {
-        m_renderer->enableCursor();
-        m_blinktimer->start();
-        return true;
-    }
-    else if(e->type() == QEvent::WindowDeactivate)
-    {
-        m_blinktimer->stop();
-        m_renderer->disableCursor();
-        return true;
-    }
+    m_renderer->enableCursor();
+    m_blinktimer->start();
 
-    return QAbstractScrollArea::viewportEvent(e);
+    QAbstractScrollArea::focusInEvent(e);
+}
+
+void DisassemblerTextView::focusOutEvent(QFocusEvent *e)
+{
+    m_blinktimer->stop();
+    m_renderer->disableCursor();
+    QAbstractScrollArea::focusOutEvent(e);
 }
 
 void DisassemblerTextView::paintEvent(QPaintEvent *e)

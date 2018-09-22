@@ -27,7 +27,8 @@ class DisassemblerTextView : public QAbstractScrollArea
         void blinkCursor();
 
     protected:
-        virtual bool viewportEvent(QEvent* e);
+        virtual void focusInEvent(QFocusEvent* e);
+        virtual void focusOutEvent(QFocusEvent* e);
         virtual void paintEvent(QPaintEvent* e);
         virtual void resizeEvent(QResizeEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);

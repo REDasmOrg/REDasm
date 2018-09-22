@@ -12,7 +12,6 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     public:
         explicit DisassemblerTextView(QWidget *parent = 0);
-        ~DisassemblerTextView();
         bool canGoBack() const;
         bool canGoForward() const;
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
@@ -64,7 +63,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void addressChanged(address_t address);
 
     private:
-        ListingTextRenderer* m_renderer;
+        std::unique_ptr<ListingTextRenderer> m_renderer;
         REDasm::DisassemblerAPI* m_disassembler;
         QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actcallgraph;
         QAction *m_actgoto, *m_acthexdump, *m_actback, *m_actforward, *m_actcopy;

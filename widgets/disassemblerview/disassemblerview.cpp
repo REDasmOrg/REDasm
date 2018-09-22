@@ -99,14 +99,19 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
 
     connect(ui->tvReferences, &QTreeView::doubleClicked, this, &DisassemblerView::gotoXRef);
     connect(ui->tvCallGraph, &QTreeView::expanded, m_callgraphmodel, &CallGraphModel::populateCallGraph);
+    connect(ui->tvCallGraph, &QTreeView::pressed, this, &DisassemblerView::modelIndexSelected);
     connect(ui->tvCallGraph, &QTreeView::doubleClicked, this, &DisassemblerView::goTo);
     connect(ui->tvCallGraph, &QTreeView::customContextMenuRequested, this, &DisassemblerView::showMenu);
+    connect(ui->tvFunctions, &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
     connect(ui->tvFunctions, &QTreeView::doubleClicked, this, &DisassemblerView::goTo);
     connect(ui->tvFunctions, &QTreeView::customContextMenuRequested, this, &DisassemblerView::showMenu);
+    connect(ui->tvExports, &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
     connect(ui->tvExports, &QTableView::doubleClicked, this, &DisassemblerView::goTo);
     connect(ui->tvExports, &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
+    connect(ui->tvImports, &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
     connect(ui->tvImports, &QTableView::doubleClicked, this, &DisassemblerView::goTo);
     connect(ui->tvImports, &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
+    connect(ui->tvStrings, &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
     connect(ui->tvStrings, &QTableView::doubleClicked, this, &DisassemblerView::goTo);
     connect(ui->tvStrings, &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
 
@@ -116,7 +121,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
         QMetaObject::invokeMethod(this, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
 
-    this->createMenu();
+    this->createActions();
 }
 
 DisassemblerView::~DisassemblerView()
@@ -153,6 +158,12 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 
     disassembler->busyChanged += std::bind(&DisassemblerView::checkBusyState, this);
     disassembler->disassemble();
+}
+
+void DisassemblerView::modelIndexSelected(const QModelIndex &index)
+{
+    m_currentindex = index;
+    m_actsetfilter->setVisible(index.isValid() && (index.model() != m_callgraphmodel));
 }
 
 void DisassemblerView::updateCurrentFilter(int index)
@@ -325,26 +336,7 @@ void DisassemblerView::showHexDump(address_t address)
     cursor->setSelectionRange(offset, 1);
 }
 
-void DisassemblerView::showMenu(const QPoint&)
-{
-    QAbstractItemView* view = dynamic_cast<QAbstractItemView*>(this->sender());
-
-    if(!view)
-        return;
-
-    QItemSelectionModel* selectionmodel = view->selectionModel();
-
-    if(!selectionmodel->hasSelection())
-        return;
-
-    m_currentindex = selectionmodel->currentIndex();
-
-    if(!m_currentindex.isValid())
-        return;
-
-    m_actsetfilter->setVisible(view->model() != m_callgraphmodel);
-    m_contextmenu->exec(QCursor::pos());
-}
+void DisassemblerView::showMenu(const QPoint&) { m_contextmenu->exec(QCursor::pos()); }
 
 void DisassemblerView::showGoto()
 {
@@ -371,10 +363,12 @@ bool DisassemblerView::eventFilter(QObject *obj, QEvent *e)
     return QWidget::eventFilter(obj, e);
 }
 
-void DisassemblerView::createMenu()
+void DisassemblerView::createActions()
 {
     m_contextmenu = new QMenu(this);
-    m_actsetfilter = m_contextmenu->addAction("Set Filter", this, &DisassemblerView::showFilter);
+    m_actsetfilter = m_contextmenu->addAction("Set Filter", this, &DisassemblerView::showFilter, Qt::Key_F3);
+    this->addAction(m_actsetfilter);
+
     m_contextmenu->addSeparator();
     m_contextmenu->addAction("Cross References", this, &DisassemblerView::showReferences);
     m_contextmenu->addAction("Goto", [&]() { this->goTo(m_currentindex); });

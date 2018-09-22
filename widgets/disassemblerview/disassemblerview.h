@@ -29,6 +29,7 @@ class DisassemblerView : public QWidget
         void setDisassembler(REDasm::Disassembler* disassembler);
 
     private slots:
+        void modelIndexSelected(const QModelIndex& index);
         void updateCurrentFilter(int index);
         void gotoXRef(const QModelIndex &index);
         void goTo(const QModelIndex &index);
@@ -48,7 +49,7 @@ class DisassemblerView : public QWidget
         bool eventFilter(QObject* obj, QEvent* e);
 
     private:
-        void createMenu();
+        void createActions();
         void filterSymbols();
         ListingFilterModel* getSelectedFilterModel();
 
@@ -66,6 +67,7 @@ class DisassemblerView : public QWidget
         CallGraphModel* m_callgraphmodel;
         ReferencesModel* m_referencesmodel;
         QAction* m_actsetfilter;
+        QActionGroup* m_viewactions;
 };
 
 #endif // DISASSEMBLERVIEW_H

@@ -6,7 +6,7 @@
 
 #define CURSOR_BLINK_INTERVAL 500 // 500ms
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_renderer(NULL), m_disassembler(NULL)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(NULL)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
@@ -30,15 +30,6 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     });
 
     this->createContextMenu();
-}
-
-DisassemblerTextView::~DisassemblerTextView()
-{
-    if(m_renderer)
-    {
-        delete m_renderer;
-        m_renderer = NULL;
-    }
 }
 
 bool DisassemblerTextView::canGoBack() const { return m_disassembler->document()->cursor()->canGoBack(); }
@@ -65,12 +56,18 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [&](int) { this->update(); });
 
     m_disassembler = disassembler;
-    m_renderer = new ListingTextRenderer(this->font(), disassembler);
+    m_renderer = std::make_unique<ListingTextRenderer>(this->font(), disassembler);
     m_blinktimer->start();
     this->update();
 }
 
-void DisassemblerTextView::copy() { qApp->clipboard()->setText(S_TO_QS(m_renderer->getSelectedText())); }
+void DisassemblerTextView::copy()
+{
+    if(!m_disassembler->document()->cursor()->hasSelection())
+        return;
+
+    qApp->clipboard()->setText(S_TO_QS(m_renderer->getSelectedText()));
+}
 
 void DisassemblerTextView::goTo(address_t address)
 {
@@ -328,6 +325,8 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         else
             cur->select(cur->currentLine(), m_renderer->getLastColumn(cur->currentLine()));
     }
+    else if(e->matches(QKeySequence::Copy))
+        this->copy();
     else if(e->key() == Qt::Key_X)
         this->showReferences();
     else if(e->key() == Qt::Key_N)

@@ -31,13 +31,13 @@ QModelIndex ListingItemModel::index(int row, int column, const QModelIndex &pare
 {
     Q_UNUSED(parent)
 
-    if((row < 0) || (row > m_items.count()))
+    if((row < 0) || (row >= m_items.size()))
         return QModelIndex();
 
     return this->createIndex(row, column, m_items[row]);
 }
 
-int ListingItemModel::rowCount(const QModelIndex &) const { return m_items.count(); }
+int ListingItemModel::rowCount(const QModelIndex &) const { return m_items.size(); }
 int ListingItemModel::columnCount(const QModelIndex &) const { return 4; }
 
 QVariant ListingItemModel::headerData(int section, Qt::Orientation orientation, int role) const

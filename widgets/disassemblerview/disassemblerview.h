@@ -30,6 +30,7 @@ class DisassemblerView : public QWidget
 
     private slots:
         void changeDisassemblerStatus();
+        void checkDisassemblerStatus();
         void modelIndexSelected(const QModelIndex& index);
         void updateCurrentFilter(int index);
         void gotoXRef(const QModelIndex &index);
@@ -39,7 +40,6 @@ class DisassemblerView : public QWidget
         void initializeCallGraph(address_t address);
         void displayCurrentReferences();
         void log(const QString& s);
-        void checkBusyState();
         void showFilter();
         void clearFilter();
         void showHexDump(address_t address);

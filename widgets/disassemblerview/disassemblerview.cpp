@@ -156,7 +156,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     m_disassemblertextview->setDisassembler(disassembler);
     //FIXME: m_disassemblergraphview->setDisassembler(disassembler);
 
-    disassembler->busyChanged += std::bind(&DisassemblerView::checkBusyState, this);
+    disassembler->busyChanged += std::bind(&DisassemblerView::checkDisassemblerStatus, this);
     disassembler->disassemble();
 }
 
@@ -166,6 +166,24 @@ void DisassemblerView::changeDisassemblerStatus()
         m_disassembler->pause();
     else if(m_disassembler->state() == REDasm::Timer::PausedState)
         m_disassembler->resume();
+}
+
+void DisassemblerView::checkDisassemblerStatus()
+{
+    size_t state = m_disassembler->state();
+
+    if(state == REDasm::Timer::ActiveState)
+        m_pbstatus->setStyleSheet("color: red;");
+    else if(state == REDasm::Timer::PausedState)
+        m_pbstatus->setStyleSheet("color: goldenrod;");
+    else
+        m_pbstatus->setStyleSheet("color: green;");
+
+    m_pbstatus->setVisible(true);
+    m_actsetfilter->setEnabled(!m_disassembler->busy());
+    ui->tbGoto->setEnabled(!m_disassembler->busy());
+    ui->tbListingGraph->setEnabled(!m_disassembler->busy());
+    ui->leFilter->setEnabled(!m_disassembler->busy());
 }
 
 void DisassemblerView::modelIndexSelected(const QModelIndex &index)
@@ -284,24 +302,6 @@ void DisassemblerView::displayCurrentReferences()
 }
 
 void DisassemblerView::log(const QString &s) { ui->pteOutput->insertPlainText(s + "\n"); }
-
-void DisassemblerView::checkBusyState()
-{
-    size_t state = m_disassembler->state();
-
-    if(state == REDasm::Timer::ActiveState)
-        m_pbstatus->setStyleSheet("color: red;");
-    else if(state == REDasm::Timer::PausedState)
-        m_pbstatus->setStyleSheet("color: yellow;");
-    else
-        m_pbstatus->setStyleSheet("color: green;");
-
-    m_pbstatus->setVisible(true);
-    m_actsetfilter->setEnabled(!m_disassembler->busy());
-    ui->tbGoto->setEnabled(!m_disassembler->busy());
-    ui->tbListingGraph->setEnabled(!m_disassembler->busy());
-    ui->leFilter->setEnabled(!m_disassembler->busy());
-}
 
 void DisassemblerView::filterSymbols()
 {

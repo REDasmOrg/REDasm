@@ -265,12 +265,34 @@ void DisassemblerView::displayAddress(address_t address)
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::FormatPlugin* format = doc->format();
     const REDasm::Segment* segment = doc->segment(address);
+    REDasm::SymbolPtr functionstart = doc->functionStartSymbol(address);
 
     QString segm = segment ? S_TO_QS(segment->name) : "???",
             offs = segment ? S_TO_QS(REDasm::hex(format->offset(address), format->bits(), false)) : "???",
             addr = S_TO_QS(REDasm::hex(address, format->bits(), false));
 
-    QString s = QString("<b>Address: </b>%1\u00A0\u00A0<b>Offset: </b>%2\u00A0\u00A0<b>Segment: </b>%3").arg(addr, offs, segm);
+    QString s = QString("<b>Address: </b>%1\u00A0\u00A0").arg(addr);
+    s += QString("<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
+    s += QString("<b>Segment: </b>%1\u00A0\u00A0").arg(segm);
+
+    REDasm::ListingItem* item = doc->currentItem();
+
+    if(item && item->is(REDasm::ListingItem::InstructionItem))
+    {
+        QString func = "???";
+
+        if(functionstart)
+        {
+            func = S_TO_QS(functionstart->name);
+            size_t offset = address - functionstart->address;
+
+            if(offset)
+                func += "+" + S_TO_QS(REDasm::hex(offset, 8, false));
+        }
+
+        s = QString("<b>Function: </b>%1\u00A0\u00A0").arg(func) + s;
+    }
+
     m_lblstatus->setText(s);
 }
 

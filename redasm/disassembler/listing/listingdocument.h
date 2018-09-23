@@ -44,15 +44,15 @@ namespace Listing {
         }
     };
 
-    template<typename T> struct ListingIterator {
+    template<typename T> struct IteratorSelector {
         typedef typename std::conditional<std::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type Type;
     };
 
-    template<typename T, typename V, typename IT = typename ListingIterator<T>::Type> typename T::iterator insertionPoint(T* container, const V& item) {
+    template<typename T, typename V, typename IT = typename IteratorSelector<T>::Type> typename T::iterator insertionPoint(T* container, const V& item) {
         return std::lower_bound(container->begin(), container->end(), item, ListingComparator<V>());
     }
 
-    template<typename T, typename IT = typename ListingIterator<T>::Type> IT _adjustSearch(T* container, IT it, u32 type) {
+    template<typename T, typename IT = typename IteratorSelector<T>::Type> IT _adjustSearch(T* container, IT it, u32 type) {
         int offset = type - (*it)->type;
         address_t searchaddress = (*it)->address;
 
@@ -70,7 +70,7 @@ namespace Listing {
         return container->end();
     }
 
-    template<typename T, typename IT = typename ListingIterator<T>::Type> IT binarySearch(T* container, address_t address, u32 type) {
+    template<typename T, typename IT = typename IteratorSelector<T>::Type> IT binarySearch(T* container, address_t address, u32 type) {
         if(!container->size())
             return container->end();
 
@@ -100,11 +100,11 @@ namespace Listing {
         return container->end();
     }
 
-    template<typename T, typename V, typename IT = typename ListingIterator<T>::Type> IT binarySearch(T* container, V* item) {
+    template<typename T, typename V, typename IT = typename IteratorSelector<T>::Type> IT binarySearch(T* container, V* item) {
         return Listing::binarySearch(container, item->address, item->type);
     }
 
-    template<typename T, typename V, typename IT = typename ListingIterator<T>::Type> int indexOf(T* container, V* item) {
+    template<typename T, typename V, typename IT = typename IteratorSelector<T>::Type> int indexOf(T* container, V* item) {
         auto it = Listing::binarySearch(container, item);
 
         if(it == container->end())
@@ -113,7 +113,7 @@ namespace Listing {
         return std::distance(container->begin(), it);
     }
 
-    template<typename T, typename IT = typename ListingIterator<T>::Type> int indexOf(T* container, address_t address, u32 type) {
+    template<typename T, typename IT = typename IteratorSelector<T>::Type> int indexOf(T* container, address_t address, u32 type) {
         auto it = Listing::binarySearch(container, address, type);
 
         if(it == container->end())
@@ -139,10 +139,9 @@ class ListingDocument: protected std::vector<ListingItemPtr>
 
     public:
         Event<const ListingDocumentChanged*> changed;
-        Event<int> segmentadded;
 
     private:
-        typedef std::function<void(const ListingDocumentChanged*)> ChangedCallback;
+        typedef std::vector<ListingItem*> FunctionList;
 
     public:
         using std::vector<ListingItemPtr>::const_iterator;
@@ -159,6 +158,9 @@ class ListingDocument: protected std::vector<ListingItemPtr>
 
     public:
         ListingItems getCalls(ListingItem* item);
+        ListingItem* functionStart(address_t address);
+        ListingItem* currentItem();
+        SymbolPtr functionStartSymbol(address_t address);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
         void rename(address_t address, const std::string& name);
@@ -202,6 +204,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         std::mutex m_mutex;
         ListingCursor m_cursor;
         SegmentList m_segments;
+        FunctionList m_functions;
         InstructionPool m_instructions;
         SymbolTable m_symboltable;
         FormatPlugin* m_format;

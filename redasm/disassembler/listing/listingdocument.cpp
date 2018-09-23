@@ -62,6 +62,43 @@ ListingItems ListingDocument::getCalls(ListingItem *item)
     return calls;
 }
 
+ListingItem *ListingDocument::functionStart(address_t address)
+{
+    auto iit = this->instructionItem(address);
+
+    if(iit == this->end())
+        return NULL;
+
+    document_lock lock(m_mutex);
+    auto fit = std::lower_bound(m_functions.begin(), m_functions.end(), iit->get(), Listing::ListingComparator<ListingItem*>());
+
+    if(fit == m_functions.end())
+        return NULL;
+
+    if(fit != m_functions.begin())
+        fit--;
+
+    return *fit;
+}
+
+ListingItem *ListingDocument::currentItem()
+{
+    if((m_cursor.currentLine() < 0) || (m_cursor.currentLine() >= this->size()))
+        return NULL;
+
+    return this->itemAt(m_cursor.currentLine());
+}
+
+SymbolPtr ListingDocument::functionStartSymbol(address_t address)
+{
+    ListingItem* item = this->functionStart(address);
+
+    if(item)
+        return this->symbol(item->address);
+
+    return NULL;
+}
+
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
     SymbolPtr symbol = m_symboltable.symbol(address);
@@ -144,7 +181,6 @@ void ListingDocument::segment(const std::string &name, offset_t offset, address_
 
     it = m_segments.insert(it, segment);
     this->pushSorted(address, ListingItem::SegmentItem);
-    segmentadded(std::distance(m_segments.begin(), it));
 }
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
@@ -259,6 +295,12 @@ void ListingDocument::pushSorted(address_t address, u32 type)
     document_lock lock(m_mutex);
     ListingItemPtr itemptr = std::make_unique<ListingItem>(address, type);
 
+    if(type == ListingItem::FunctionItem)
+    {
+        auto it = Listing::insertionPoint(&m_functions, itemptr.get());
+        m_functions.insert(it, itemptr.get());
+    }
+
     auto it = Listing::insertionPoint(this, itemptr);
     it = this->insert(it, std::move(itemptr));
     ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), false);
@@ -275,6 +317,13 @@ void ListingDocument::removeSorted(address_t address, u32 type)
 
     ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), true);
     changed(&ldc);
+
+    if(type == ListingItem::FunctionItem)
+    {
+        auto it = Listing::binarySearch(&m_functions, address, type);
+        m_functions.erase(it);
+    }
+
     this->erase(it);
 }
 

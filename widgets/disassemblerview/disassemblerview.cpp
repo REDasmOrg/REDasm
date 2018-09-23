@@ -154,7 +154,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     ui->bottomTabs->setCurrentWidget(ui->tabOutput);
     ui->disassemblerMap->setDisassembler(disassembler);
     m_disassemblertextview->setDisassembler(disassembler);
-    //FIXME: m_disassemblergraphview->setDisassembler(disassembler);
+    m_disassemblergraphview->setDisassembler(disassembler);
 
     disassembler->busyChanged += std::bind(&DisassemblerView::checkDisassemblerStatus, this);
     disassembler->disassemble();

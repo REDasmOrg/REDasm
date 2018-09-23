@@ -11,8 +11,7 @@ class DisassemblerGraphView : public GraphView
 
     public:
         explicit DisassemblerGraphView(QWidget *parent = NULL);
-        ~DisassemblerGraphView();
-        void setDisassembler(REDasm::Disassembler* disassembler);
+        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
 
     public slots:
         void display(address_t address);
@@ -21,8 +20,8 @@ class DisassemblerGraphView : public GraphView
         virtual GraphItem* createItem(REDasm::Graphing::Vertex* v);
 
     private:
-        REDasm::Disassembler* _disassembler;
-        REDasm::FunctionGraph* _functiongraph;
+        REDasm::DisassemblerAPI* m_disassembler;
+        std::unique_ptr<REDasm::FunctionGraph> m_functiongraph;
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

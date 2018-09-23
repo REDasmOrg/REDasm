@@ -2,16 +2,15 @@
 #define FUNCTIONBLOCKITEM_H
 
 #include "../../redasm/redasm.h"
+#include "../../redasm/disassembler/disassemblerapi.h"
 #include "../../widgets/graphview/graphitems/graphtextitem.h"
-#include "disassemblergraphdocument.h"
 
 class FunctionBlockItem : public GraphTextItem
 {
     Q_OBJECT
 
     public:
-        FunctionBlockItem(REDasm::Disassembler* disassembler, REDasm::Graphing::Vertex *v, QObject* parent = NULL);
-        ~FunctionBlockItem();
+        FunctionBlockItem(REDasm::DisassemblerAPI* disassembler, REDasm::Graphing::Vertex *v, QObject* parent = NULL);
 
    public:
         void append(const REDasm::InstructionPtr &instruction);
@@ -24,8 +23,7 @@ class FunctionBlockItem : public GraphTextItem
         virtual void paint(QPainter *painter);
 
    private:
-        REDasm::Disassembler* _disassembler;
-        DisassemblerGraphDocument* _graphdocument;
+        REDasm::DisassemblerAPI* m_disassembler;
 };
 
 #endif // FUNCTIONBLOCK_H

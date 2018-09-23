@@ -2,36 +2,21 @@
 #include "../../redasm/graph/graph_layout.h"
 #include "../../redasm/disassembler/graph/functiongraph.h"
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent) : GraphView(parent), _disassembler(NULL), _functiongraph(NULL)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent) : GraphView(parent), m_disassembler(NULL)
 {
 }
 
-DisassemblerGraphView::~DisassemblerGraphView()
-{
-    if(this->_functiongraph)
-    {
-        delete this->_functiongraph;
-        this->_functiongraph = NULL;
-    }
-}
-
-void DisassemblerGraphView::setDisassembler(REDasm::Disassembler *disassembler)
-{
-    this->_disassembler = disassembler;
-}
+void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassembler) { m_disassembler = disassembler; }
 
 void DisassemblerGraphView::display(address_t address)
 {
-    if(!this->_disassembler)
+    if(!m_disassembler)
         return;
 
-    if(this->_functiongraph)
-        delete this->_functiongraph;
+    m_functiongraph = std::make_unique<REDasm::FunctionGraph>(m_disassembler->document());
+    m_functiongraph->build(address);
 
     /*
-    this->_functiongraph = new REDasm::FunctionGraph(this->_disassembler->instructions());
-    this->_functiongraph->build(address);
-
     this->setGraph(this->_functiongraph);
     this->render(this->_functiongraph);
     */

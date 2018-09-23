@@ -3,6 +3,7 @@
 
 #include "../listing/listingdocument.h"
 #include "../../graph/graph.h"
+#include <queue>
 
 namespace REDasm {
 
@@ -18,22 +19,22 @@ struct FunctionGraphVertex: public Graphing::Vertex
 
 class FunctionGraph: public Graphing::Graph
 {
+    private:
+        typedef std::queue<address_t> AddressQueue;
+
     public:
         FunctionGraph(ListingDocument* document);
-        address_t startAddress() const;
-        address_t endAddress() const;
         ListingDocument* document();
         void build(address_t address);
 
     private:
         FunctionGraphVertex* vertexFromAddress(address_t address);
-        void buildBlocksPass1();
-        void buildBlocksPass2();
-        void buildBlocksPass3();
+        void buildNode(address_t address, AddressQueue& addressqueue);
+        void buildNodes(address_t startaddress);
+        void buildEdges();
 
     private:
-        address_t m_startaddress, m_endaddress;
-        ListingDocument* m_listing;
+        ListingDocument* m_document;
 };
 
 } // namespace REDasm

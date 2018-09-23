@@ -74,8 +74,6 @@ SOURCES += main.cpp\
     redasm/signatures/signaturedb.cpp \
     dialogs/aboutdialog.cpp \
     widgets/disassemblergraphview/disassemblergraphview.cpp \
-    widgets/disassemblerview/disassemblerdocument.cpp \
-    widgets/disassemblergraphview/disassemblergraphdocument.cpp \
     widgets/disassemblergraphview/functionblockitem.cpp \
     redasm/redasm.cpp \
     redasm/formats/pe/pe_resources.cpp \
@@ -189,8 +187,6 @@ HEADERS  += mainwindow.h \
     redasm/signatures/signaturedb.h \
     dialogs/aboutdialog.h \
     widgets/disassemblergraphview/disassemblergraphview.h \
-    widgets/disassemblerview/disassemblerdocument.h \
-    widgets/disassemblergraphview/disassemblergraphdocument.h \
     widgets/disassemblergraphview/functionblockitem.h \
     redasm/formats/pe/pe_resources.h \
     redasm/formats/pe/borland/borland_types.h \

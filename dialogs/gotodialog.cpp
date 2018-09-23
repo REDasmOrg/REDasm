@@ -1,51 +1,40 @@
 #include "gotodialog.h"
 #include "ui_gotodialog.h"
 
-GotoDialog::GotoDialog(REDasm::Disassembler *disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), _disassembler(disassembler), _address(0)
+GotoDialog::GotoDialog(REDasm::DisassemblerAPI *disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_disassembler(disassembler), m_address(0)
 {
     ui->setupUi(this);
 
-    //this->_functionsmodel = new ListingDocumentFilterModel(ui->tvFunctions);
-    //this->_functionsmodel->setSymbolFlags(REDasm::SymbolTypes::FunctionMask);
-    //this->_functionsmodel->setDisassembler(disassembler);
+    m_functionsmodel = ListingFilterModel::createFilter<ListingItemModel>(REDasm::ListingItem::FunctionItem, ui->tvFunctions);
+    m_functionsmodel->setDisassembler(disassembler);
 
-    //ui->tvFunctions->setModel(this->_functionsmodel);
+    ui->tvFunctions->setModel(m_functionsmodel);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 
-    connect(ui->leAddress, &QLineEdit::textChanged, [this](const QString) { this->validateEntry(); });
+    connect(ui->leAddress, &QLineEdit::textChanged, [=](const QString) { this->validateEntry(); });
     connect(ui->leAddress, &QLineEdit::returnPressed, this, &GotoDialog::accept);
 
     connect(ui->tvFunctions, &QTableView::doubleClicked, this, &GotoDialog::symbolSelected);
     connect(ui->tvFunctions, &QTableView::doubleClicked, this, &GotoDialog::accept);
 }
 
-address_t GotoDialog::address() const
-{
-    return this->_address;
-}
-
-GotoDialog::~GotoDialog()
-{
-    delete ui;
-}
+GotoDialog::~GotoDialog() { delete ui; }
+address_t GotoDialog::address() const { return m_address; }
 
 void GotoDialog::validateEntry()
 {
-    /*
     bool ok = false;
     QString s = ui->leAddress->text();
 
     if(s.isEmpty())
     {
         ui->pbGoto->setEnabled(false);
-        this->_functionsmodel->setFilterName(QString());
+        m_functionsmodel->clearFilter();
         return;
     }
 
-    this->_address = s.toULongLong(&ok, 16);
+    m_address = s.toULongLong(&ok, 16);
     ui->pbGoto->setEnabled(ok);
-
-    this->_functionsmodel->setFilterName(s);
-    */
+    m_functionsmodel->setFilter(s);
 }

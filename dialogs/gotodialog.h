@@ -2,7 +2,8 @@
 #define GOTODIALOG_H
 
 #include <QDialog>
-#include "../redasm/disassembler/disassembler.h"
+#include "../redasm/disassembler/disassemblerapi.h"
+#include "../models/listingfiltermodel.h"
 
 namespace Ui {
 class GotoDialog;
@@ -13,7 +14,7 @@ class GotoDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit GotoDialog(REDasm::Disassembler* disassembler, QWidget *parent = 0);
+        explicit GotoDialog(REDasm::DisassemblerAPI* disassembler, QWidget *parent = 0);
         address_t address() const;
         ~GotoDialog();
 
@@ -26,9 +27,9 @@ class GotoDialog : public QDialog
 
     private:
         Ui::GotoDialog *ui;
-        REDasm::Disassembler* _disassembler;
-        //ListingDocumentFilterModel* _functionsmodel;
-        address_t _address;
+        REDasm::DisassemblerAPI* m_disassembler;
+        ListingFilterModel* m_functionsmodel;
+        address_t m_address;
 };
 
 #endif // GOTODIALOG_H

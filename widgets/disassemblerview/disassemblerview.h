@@ -29,6 +29,7 @@ class DisassemblerView : public QWidget
         void setDisassembler(REDasm::Disassembler* disassembler);
 
     private slots:
+        void changeDisassemblerStatus();
         void modelIndexSelected(const QModelIndex& index);
         void updateCurrentFilter(int index);
         void gotoXRef(const QModelIndex &index);

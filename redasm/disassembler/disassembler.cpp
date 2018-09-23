@@ -15,7 +15,7 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
     m_assembler = std::make_unique<AssemblerPlugin>(assembler);
     m_algorithm = std::make_unique<DisassemblerAlgorithm>(m_format->createAlgorithm(this, assembler));
 
-    m_timer.runningChanged += [&](Timer*) { busyChanged(); };
+    m_timer.stateChanged += [&](Timer*) { busyChanged(); };
 }
 
 Disassembler::~Disassembler() { }
@@ -153,13 +153,16 @@ void Disassembler::disassemble(address_t address)
 {
     m_algorithm->push(address);
 
-    if(m_timer.running())
+    if(m_timer.active())
         return;
 
     DO_TICK_DISASSEMBLY();
 }
 
-bool Disassembler::busy() const { return m_timer.running(); }
+void Disassembler::pause() { m_timer.pause(); }
+void Disassembler::resume() { m_timer.resume(); }
+size_t Disassembler::state() const { return m_timer.state(); }
+bool Disassembler::busy() const { return m_timer.active(); }
 
 InstructionPtr Disassembler::disassembleInstruction(address_t address)
 {

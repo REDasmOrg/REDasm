@@ -17,7 +17,10 @@ class Timer
     using clock = std::chrono::steady_clock;
 
     public:
-        Event<Timer*> runningChanged;
+        Event<Timer*> stateChanged;
+
+    public:
+        enum : size_t { InactiveState = 0, ActiveState, PausedState };
 
     private:
         typedef std::function<void()> TimerCallback;
@@ -25,8 +28,12 @@ class Timer
     public:
         Timer();
         ~Timer();
-        bool running() const;
+        size_t state() const;
+        bool active() const;
+        bool paused() const;
         void stop();
+        void pause();
+        void resume();
         void tick(TimerCallback cb, std::chrono::milliseconds interval = std::chrono::milliseconds(TIMER_INTERVAL));
 
     private:
@@ -34,6 +41,7 @@ class Timer
 
     private:
         bool m_running;
+        size_t m_state;
         TimerCallback m_timercallback;
         std::chrono::milliseconds m_interval;
         std::condition_variable m_condition;

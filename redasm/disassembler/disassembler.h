@@ -21,6 +21,9 @@ class Disassembler: public DisassemblerBase
         virtual bool checkJumpTable(const InstructionPtr& instruction, address_t address);
         virtual InstructionPtr disassembleInstruction(address_t address);
         virtual void disassemble(address_t address);
+        virtual void pause();
+        virtual void resume();
+        virtual size_t state() const;
         virtual bool busy() const;
 
     private:

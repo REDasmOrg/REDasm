@@ -84,6 +84,8 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     connect(ui->bottomTabs, &QTabWidget::currentChanged, this, &DisassemblerView::updateCurrentFilter);
+    connect(ui->leFilter, &QLineEdit::textChanged, [&](const QString&) { this->filterSymbols(); });
+    connect(m_pbstatus, &QPushButton::clicked, this, &DisassemblerView::changeDisassemblerStatus);
 
     connect(m_disassemblertextview, &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
     connect(m_disassemblertextview, &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
@@ -114,8 +116,6 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     connect(ui->tvStrings, &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
     connect(ui->tvStrings, &QTableView::doubleClicked, this, &DisassemblerView::goTo);
     connect(ui->tvStrings, &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
-
-    connect(ui->leFilter, &QLineEdit::textChanged, [&](const QString&) { this->filterSymbols(); });
 
     REDasm::setLoggerCallback([this](const std::string& s) {
         QMetaObject::invokeMethod(this, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
@@ -158,6 +158,14 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 
     disassembler->busyChanged += std::bind(&DisassemblerView::checkBusyState, this);
     disassembler->disassemble();
+}
+
+void DisassemblerView::changeDisassemblerStatus()
+{
+    if(m_disassembler->state() == REDasm::Timer::ActiveState)
+        m_disassembler->pause();
+    else if(m_disassembler->state() == REDasm::Timer::PausedState)
+        m_disassembler->resume();
 }
 
 void DisassemblerView::modelIndexSelected(const QModelIndex &index)
@@ -279,10 +287,14 @@ void DisassemblerView::log(const QString &s) { ui->pteOutput->insertPlainText(s 
 
 void DisassemblerView::checkBusyState()
 {
-    if(!m_disassembler->busy())
-        m_pbstatus->setStyleSheet("color: green;");
-    else
+    size_t state = m_disassembler->state();
+
+    if(state == REDasm::Timer::ActiveState)
         m_pbstatus->setStyleSheet("color: red;");
+    else if(state == REDasm::Timer::PausedState)
+        m_pbstatus->setStyleSheet("color: yellow;");
+    else
+        m_pbstatus->setStyleSheet("color: green;");
 
     m_pbstatus->setVisible(true);
     m_actsetfilter->setEnabled(!m_disassembler->busy());

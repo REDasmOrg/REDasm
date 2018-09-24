@@ -465,7 +465,7 @@ void DisassemblerTextView::createContextMenu()
     m_actxrefs = m_contextmenu->addAction("Cross References", [&]() { this->showReferences(); });
     m_actfollow = m_contextmenu->addAction("Follow", [&]() { this->followUnderCursor(); });
     m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
-    m_actcallgraph = m_contextmenu->addAction("Call Graph", [this]() { this->showCallGraphUnderCursor(); });
+    m_actcallgraph = m_contextmenu->addAction("Call Graph", [this]() { this->showCallGraph(); });
     m_acthexdump = m_contextmenu->addAction("Hex Dump", [this]() { });
     m_contextmenu->addSeparator();
     m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
@@ -478,27 +478,45 @@ void DisassemblerTextView::createContextMenu()
 
 void DisassemblerTextView::adjustContextMenu()
 {
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+    REDasm::Segment* segment = NULL;
+
     m_actback->setVisible(this->canGoBack());
     m_actforward->setVisible(this->canGoForward());
-    m_actcopy->setVisible(m_disassembler->document()->cursor()->hasSelection());
-
-    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+    m_actcopy->setVisible(doc->cursor()->hasSelection());
 
     if(!symbol)
     {
+        REDasm::ListingItem* item = doc->currentItem();
+        segment = doc->segment(item->address);
+        symbol = doc->functionStartSymbol(item->address);
+
         m_actrename->setVisible(false);
         m_actxrefs->setVisible(false);
         m_actfollow->setVisible(false);
-        m_actcallgraph->setVisible(false);
+
+        m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
+        m_actcallgraph->setVisible(segment && segment->is(REDasm::SegmentTypes::Code));
+
         m_acthexdump->setVisible(false);
         return;
     }
 
-    REDasm::Segment* segment = m_disassembler->document()->segment(symbol->address);
+    segment = doc->segment(symbol->address);
 
+    m_actxrefs->setVisible(true);
+    m_actxrefs->setText(QString("Cross Reference %1").arg(S_TO_QS(symbol->name)));
+
+    m_actrename->setText(QString("Rename %1").arg(S_TO_QS(symbol->name)));
     m_actrename->setVisible(!symbol->isLocked());
+
     m_actcallgraph->setVisible(symbol->isFunction());
+    m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
+
+    m_actfollow->setText(QString("Follow %1").arg(S_TO_QS(symbol->name)));
     m_actfollow->setVisible(symbol->is(REDasm::SymbolTypes::Code));
+
     m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
     m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
 }
@@ -532,12 +550,16 @@ bool DisassemblerTextView::followUnderCursor()
     return true;
 }
 
-void DisassemblerTextView::showCallGraphUnderCursor()
+void DisassemblerTextView::showCallGraph()
 {
     REDasm::SymbolPtr symbol = this->symbolUnderCursor();
 
-    if(!symbol || !symbol->isFunction())
-        return;
+    if(!symbol)
+    {
+        REDasm::ListingDocument* doc = m_disassembler->document();
+        REDasm::ListingItem* item = doc->currentItem();
+        symbol = doc->functionStartSymbol(item->address);
+    }
 
     emit callGraphRequested(symbol->address);
 }

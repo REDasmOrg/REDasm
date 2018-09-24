@@ -54,7 +54,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void adjustContextMenu();
         void showReferences();
         bool followUnderCursor();
-        void showCallGraphUnderCursor();
+        void showCallGraph();
         void renameCurrentSymbol();
 
     signals:

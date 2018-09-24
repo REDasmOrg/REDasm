@@ -52,8 +52,8 @@ class ListingRenderer
         std::string getSelectedText();
 
     protected:
-        void getRendererLine(size_t line, RendererLine& rl);
         virtual void renderLine(const RendererLine& rl) = 0;
+        void getRendererLine(size_t line, RendererLine& rl);
         void renderSegment(ListingItem* item, RendererLine& rl);
         void renderFunction(ListingItem* item, RendererLine &rl);
         void renderInstruction(ListingItem* item, RendererLine &rl);

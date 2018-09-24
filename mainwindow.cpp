@@ -4,13 +4,9 @@
 #include "dialogs/manualloaddialog.h"
 #include "dialogs/databasedialog.h"
 #include "dialogs/aboutdialog.h"
-#include <QDragEnterEvent>
-#include <QDesktopWidget>
-#include <QMimeDatabase>
-#include <QMessageBox>
-#include <QMimeData>
-#include <QFileDialog>
-#include <QFile>
+#include <QtCore>
+#include <QtGui>
+#include <QtWidgets>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -95,7 +91,7 @@ void MainWindow::on_tbOpen_clicked()
 void MainWindow::centerWindow()
 {
     QRect position = this->frameGeometry();
-    position.moveCenter(QDesktopWidget().availableGeometry().center());
+    position.moveCenter(qApp->primaryScreen()->availableGeometry().center());
     this->move(position.topLeft());
 }
 

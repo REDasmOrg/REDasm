@@ -30,7 +30,7 @@ class GraphGenetic : public genetic<LayeredGraphPtr, VertexList>
         static bool linesCrossing(size_t a1, size_t a2, size_t b1, size_t b2);
 
     private:
-        Graph* _graph;
+        Graph* m_graph;
 };
 
 } // namespace Graphing

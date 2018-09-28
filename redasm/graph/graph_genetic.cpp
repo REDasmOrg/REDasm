@@ -6,7 +6,7 @@
 namespace REDasm {
 namespace Graphing {
 
-GraphGenetic::GraphGenetic(Graph *graph): genetic<LayeredGraphPtr, VertexList>(), _graph(graph)
+GraphGenetic::GraphGenetic(Graph *graph): genetic<LayeredGraphPtr, VertexList>(), m_graph(graph)
 {
     for(size_t i = 0; i < MAX_GRAPHS; i++)
     {

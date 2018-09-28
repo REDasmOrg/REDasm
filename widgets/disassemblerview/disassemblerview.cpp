@@ -85,6 +85,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
 
     connect(ui->bottomTabs, &QTabWidget::currentChanged, this, &DisassemblerView::updateCurrentFilter);
     connect(ui->leFilter, &QLineEdit::textChanged, [&](const QString&) { this->filterSymbols(); });
+    connect(ui->tbListingGraph, &QPushButton::clicked, this, &DisassemblerView::switchGraphListing);
     connect(m_pbstatus, &QPushButton::clicked, this, &DisassemblerView::changeDisassemblerStatus);
 
     connect(m_disassemblertextview, &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
@@ -324,6 +325,22 @@ void DisassemblerView::displayCurrentReferences()
 }
 
 void DisassemblerView::log(const QString &s) { ui->pteOutput->insertPlainText(s + "\n"); }
+
+void DisassemblerView::switchGraphListing()
+{
+    if(ui->stackedWidget->currentWidget() == m_disassemblertextview)
+    {
+        ui->tbListingGraph->setIcon(QIcon(":/res/listing.png"));
+        m_disassemblergraphview->graph();
+        ui->stackedWidget->setCurrentWidget(m_disassemblergraphview);
+
+    }
+    else
+    {
+        ui->tbListingGraph->setIcon(QIcon(":/res/graph.png"));
+        ui->stackedWidget->setCurrentWidget(m_disassemblertextview);
+    }
+}
 
 void DisassemblerView::filterSymbols()
 {

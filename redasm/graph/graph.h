@@ -51,14 +51,14 @@ class Graph
         size_t vertexCount() const;
         Vertex* rootVertex();
         Vertex* getVertex(vertex_id_t id);
-        Vertex* getRealParentVertex(vertex_id_t id);
-        Vertex* getRealVertex(vertex_id_t id);
+        Vertex* getRealParentVertex(Vertex *v);
+        Vertex* getRealVertex(Vertex *v);
         VertexSet getParents(const Vertex *v) const;
         VertexList getVertexList() const;
         void setRootVertex(Vertex* v);
         void setRootVertex(vertex_id_t id);
         void pushVertex(Vertex* v);
-        Vertex *pushFakeVertex(vertex_layer_t layer);
+        Vertex* pushFakeVertex(vertex_layer_t layer);
 
     protected:
         void layout();
@@ -74,7 +74,6 @@ class LayeredGraph: public std::vector<VertexList>
         LayeredGraph();
         LayeredGraph(Graph* graph);
         vertex_layer_t lastLayer() const;
-        void setGraph(Graph* graph);
         void shuffle();
 
     private:

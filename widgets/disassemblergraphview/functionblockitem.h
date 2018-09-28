@@ -1,9 +1,9 @@
 #ifndef FUNCTIONBLOCKITEM_H
 #define FUNCTIONBLOCKITEM_H
 
-#include "../../redasm/redasm.h"
-#include "../../redasm/disassembler/disassemblerapi.h"
 #include "../../widgets/graphview/graphitems/graphtextitem.h"
+#include "../../renderer/listinggraphrenderer.h"
+#include "../../redasm/disassembler/disassemblerapi.h"
 
 class FunctionBlockItem : public GraphTextItem
 {
@@ -12,18 +12,10 @@ class FunctionBlockItem : public GraphTextItem
     public:
         FunctionBlockItem(REDasm::DisassemblerAPI* disassembler, REDasm::Graphing::Vertex *v, QObject* parent = NULL);
 
-   public:
-        void append(const REDasm::InstructionPtr &instruction);
-        void append(const REDasm::SymbolPtr& symbol);
-
-   protected:
-        virtual int titleHeight() const;
-        virtual QPoint origin() const;
-        virtual QSize size() const;
-        virtual void paint(QPainter *painter);
-
    private:
         REDasm::DisassemblerAPI* m_disassembler;
+        REDasm::Graphing::Vertex* m_vertex;
+        std::unique_ptr<ListingGraphRenderer> m_renderer;
 };
 
 #endif // FUNCTIONBLOCK_H

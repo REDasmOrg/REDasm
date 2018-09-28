@@ -1,27 +1,21 @@
 #ifndef GRAPHVIEW_H
 #define GRAPHVIEW_H
 
-#include <QScrollArea>
+#include <QAbstractScrollArea>
 #include "../../redasm/graph/graph.h"
-#include "graphviewprivate.h"
+#include "graphitems/graphitem.h"
 
-class GraphView : public QScrollArea
+class GraphView : public QAbstractScrollArea
 {
     Q_OBJECT
 
     public:
         explicit GraphView(QWidget *parent = NULL);
-        void render(REDasm::Graphing::Graph *graph);
-        u64 minimumSize() const;
-
-    public:
-        bool overviewMode() const;
-        void setOverviewMode(bool b);
-        void setGraph(REDasm::Graphing::Graph* graph);
-        void setGraphSize(const QSize& size);
+        void setGraph(REDasm::Graphing::Graph *graph);
 
     protected:
-        virtual GraphItem* createItem(REDasm::Graphing::Vertex* v) = 0;
+        virtual GraphItem* createItem(REDasm::Graphing::Vertex* v);
+        virtual void paintEvent(QPaintEvent*e);
         virtual void wheelEvent(QWheelEvent* e);
         virtual void resizeEvent(QResizeEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);
@@ -29,15 +23,18 @@ class GraphView : public QScrollArea
         virtual void mouseMoveEvent(QMouseEvent* e);
 
     private:
-        void addItem(GraphItem* item);
-        void removeAll();
-
-    private slots:
-        void resizeGraphView();
+        int getEdgesHeight(const REDasm::Graphing::VertexList& vl) const;
+        int getEdgeIndex(GraphItem* from, GraphItem* to) const;
+        int getLayerHeight(GraphItem* item) const;
+        void drawBlocks(QPainter* painter);
+        void drawEdges(QPainter* painter);
+        void drawEdge(QPainter *painter, GraphItem* from, GraphItem* to);
 
     private:
-        GraphViewPrivate* m_graphview_p;
         QPoint m_lastpos;
+        std::unique_ptr<REDasm::Graphing::Graph> m_graph;
+        REDasm::Graphing::LayeredGraph m_lgraph;
+        QHash<REDasm::Graphing::vertex_id_t, GraphItem*> m_items;
 };
 
 #endif // GRAPHVIEW_H

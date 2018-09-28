@@ -2,10 +2,10 @@
 #define LISTINGTEXTRENDERER_H
 
 #include <QRegularExpression>
-#include <QTextCursor>
+#include <QTextOption>
 #include <QFontMetrics>
 #include <QFont>
-#include "../../redasm/disassembler/listing/listingrenderer.h"
+#include "../redasm/disassembler/listing/listingrenderer.h"
 
 class ListingTextRenderer : public REDasm::ListingRenderer
 {
@@ -30,15 +30,12 @@ class ListingTextRenderer : public REDasm::ListingRenderer
     private:
         std::string findWordUnderCursor(const std::string &s, const REDasm::ListingCursor::Position& cp, int *pos = NULL);
         void updateWordUnderCursor(const std::string& s, const REDasm::ListingCursor::Position& cp);
-        void highlightWords(QTextCursor& textcursor, const REDasm::RendererLine& rl) const;
-        void highlightLine(QTextCursor& textcursor) const;
-        void renderCursor(QTextCursor& textcursor) const;
-        void renderSelection(QTextCursor& textcursor, const REDasm::RendererLine &rl) const;
 
     private:
-        QRegularExpression m_rgxwords;
+        QFont m_font;
         QFontMetrics m_fontmetrics;
         QTextOption m_textoption;
+        QRegularExpression m_rgxwords;
         bool m_cursoractive;
 };
 

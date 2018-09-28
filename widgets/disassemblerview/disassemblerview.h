@@ -1,6 +1,7 @@
 #ifndef DISASSEMBLERVIEW_H
 #define DISASSEMBLERVIEW_H
 
+#include <QGraphicsView>
 #include <QWidget>
 #include <QLabel>
 #include <QMenu>
@@ -40,6 +41,7 @@ class DisassemblerView : public QWidget
         void initializeCallGraph(address_t address);
         void displayCurrentReferences();
         void log(const QString& s);
+        void switchGraphListing();
         void showFilter();
         void clearFilter();
         void showHexDump(address_t address);
@@ -56,8 +58,8 @@ class DisassemblerView : public QWidget
 
     private:
         Ui::DisassemblerView *ui;
-        DisassemblerTextView* m_disassemblertextview;
         DisassemblerGraphView* m_disassemblergraphview;
+        DisassemblerTextView* m_disassemblertextview;
         QModelIndex m_currentindex;
         QHexDocument* m_hexdocument;
         QMenu* m_contextmenu;

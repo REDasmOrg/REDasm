@@ -1,5 +1,5 @@
 #include "graphviewprivate.h"
-#include "graphviewmetrics.h"
+#include "graphmetrics.h"
 #include <QWheelEvent>
 #include <QStack>
 #include <cmath>
@@ -49,32 +49,32 @@ void GraphViewPrivate::setOverviewMode(bool b) { m_overviewmode = b; }
 void GraphViewPrivate::setGraph(REDasm::Graphing::Graph *graph)
 {
     m_graph = graph;
-    m_lgraph.setGraph(graph);
+    //m_lgraph.setGraph(graph);
 }
 
 void GraphViewPrivate::drawEdge(QPainter *painter, GraphItem *fromitem, GraphItem *toitem, double offset)
 {
-    QRect fromrect = fromitem->rect(), torect = toitem->rect();
+    QRect fromrect = fromitem->boundingRect(), torect = toitem->boundingRect();
     QPoint fromcenter = fromrect.center(), tocenter = torect.center();
     double layerheight = this->getLayerHeight(fromitem);
 
     std::array<QPoint, 5> points;
-    points[0] = QPoint(fromcenter.x() + offset, fromrect.bottom() + GraphViewMetrics::borderPadding());
+    points[0] = QPoint(fromcenter.x() + offset, fromrect.bottom() + GraphMetrics::borderPadding());
     points[1] = QPoint(fromcenter.x() + offset, fromrect.top() + layerheight);
-    points[2] = QPoint(fromcenter.x() + offset, fromrect.top() + layerheight + std::abs(offset) + GraphViewMetrics::angleSize());
-    points[3] = QPoint(tocenter.x() + offset, fromrect.top() + layerheight + std::abs(offset) + GraphViewMetrics::angleSize());
-    points[4] = QPoint(tocenter.x() + offset, tocenter.y() - GraphViewMetrics::borderPadding());
+    points[2] = QPoint(fromcenter.x() + offset, fromrect.top() + layerheight + std::abs(offset) + GraphMetrics::angleSize());
+    points[3] = QPoint(tocenter.x() + offset, fromrect.top() + layerheight + std::abs(offset) + GraphMetrics::angleSize());
+    points[4] = QPoint(tocenter.x() + offset, tocenter.y() - GraphMetrics::borderPadding());
     painter->drawPolyline(points.data(), points.size());
 
     if(toitem->vertex()->isFake())
     {
-        painter->drawLine(points[4], QPoint(tocenter.x() + offset, tocenter.y() + GraphViewMetrics::borderPadding()));
+        painter->drawLine(points[4], QPoint(tocenter.x() + offset, tocenter.y() + GraphMetrics::borderPadding()));
         return;
     }
 
     QPolygonF arrowhead;
-    arrowhead << QPoint(points[4].x() - GraphViewMetrics::arrowSize(), torect.top() - (GraphViewMetrics::arrowSize() * 2))
-              << QPoint(points[4].x() + GraphViewMetrics::arrowSize(), torect.top() - (GraphViewMetrics::arrowSize() * 2))
+    arrowhead << QPoint(points[4].x() - GraphMetrics::arrowSize(), torect.top() - (GraphMetrics::arrowSize() * 2))
+              << QPoint(points[4].x() + GraphMetrics::arrowSize(), torect.top() - (GraphMetrics::arrowSize() * 2))
               << QPoint(points[4].x(), torect.top());
 
     painter->drawPolygon(arrowhead);
@@ -91,12 +91,12 @@ void GraphViewPrivate::drawEdges(QPainter *painter, GraphItem* item)
             continue;
 
         GraphItem* toitem = m_itembyid[edge];
-        REDasm::Graphing::Vertex *rv1 = m_graph->getRealParentVertex(v1->id), *rv2 = m_graph->getRealVertex(edge);
-        QColor c(QString::fromStdString(rv1->edgeColor(rv2)));
+        //REDasm::Graphing::Vertex *rv1 = m_graph->getRealParentVertex(v1->id), *rv2 = m_graph->getRealVertex(edge);
+        //QColor c(QString::fromStdString(rv1->edgeColor(rv2)));
 
-        painter->setPen(QPen(c, 2));
-        painter->setBrush(c);
-        this->drawEdge(painter, item, toitem, this->getEdgeOffset(m_itembyid[rv1->id], toitem));
+        //painter->setPen(QPen(c, 2));
+        //painter->setBrush(c);
+        //this->drawEdge(painter, item, toitem, this->getEdgeOffset(m_itembyid[rv1->id], toitem));
     }
 
     painter->restore();
@@ -119,7 +119,7 @@ double GraphViewPrivate::getLayerHeight(GraphItem *item)
         for(REDasm::Graphing::Vertex* v : m_lgraph[item->layer()])
         {
             GraphItem* litem = m_itembyid[v->id];
-            maxheight = std::max(maxheight, static_cast<double>(litem->size().height()));
+            //FIXME: maxheight = std::max(maxheight, static_cast<double>(litem->size().height()));
         }
 
         m_layerheight[item->layer()] = maxheight;
@@ -132,7 +132,7 @@ double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) c
 {
     const REDasm::Graphing::Vertex* fromvertex = fromitem->vertex();
     const REDasm::Graphing::EdgeList& edges = fromvertex->edges;
-    double offset = fromitem->index() * GraphViewMetrics::edgeOffsetBase();
+    double offset = fromitem->index() * GraphMetrics::edgeOffsetBase();
 
     if(edges.size() == 1)
         return offset;
@@ -140,9 +140,9 @@ double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) c
     if(edges.size() == 2)
     {
         if(edges[0] == toitem->id())
-            return offset + GraphViewMetrics::edgeOffsetBase();
+            return offset + GraphMetrics::edgeOffsetBase();
 
-        return offset + (GraphViewMetrics::edgeOffsetBase() * 2);
+        return offset + (GraphMetrics::edgeOffsetBase() * 2);
     }
 
     size_t mid = edges.size() / 2;
@@ -153,7 +153,7 @@ double GraphViewPrivate::getEdgeOffset(GraphItem *fromitem, GraphItem *toitem) c
             continue;
 
         ssize_t offsetidx = i - static_cast<ssize_t>(mid);
-        offset += GraphViewMetrics::edgeOffsetBase() * offsetidx;
+        offset += GraphMetrics::edgeOffsetBase() * offsetidx;
         break;
     }
 
@@ -172,20 +172,23 @@ void GraphViewPrivate::paintEvent(QPaintEvent*)
     painter.eraseRect(this->rect());
     painter.scale(m_zoomfactor, m_zoomfactor);
 
-    foreach(GraphItem* item, m_items)
+    for(GraphItem* item : m_items)
     {
         if(!item->vertex()->isFake())
         {
-            painter.fillRect(item->rect().adjusted(DROP_SHADOW_ARG), Qt::lightGray);
-            painter.fillRect(item->rect(), QColor("white"));
+            painter.fillRect(item->boundingRect().adjusted(DROP_SHADOW_ARG), Qt::lightGray);
+            painter.fillRect(item->boundingRect(), QColor("white"));
+
+            QRect cliprect = item->boundingRect().adjusted(-2, -2, 2, 2);
+            painter.setClipRect(cliprect);
 
             painter.save();
-            painter.setClipRect(item->rect().adjusted(-1, -1, 1, 1));
-            item->paint(&painter);
-
-            painter.setPen(QPen(item->borderColor(), 2));
-            painter.drawRect(item->rect());
+                //FIXME: painter.translate(item->position());
+                item->paint(&painter);
             painter.restore();
+
+            //FIXME: painter.setPen(QPen(item->borderColor(), 1));
+            painter.drawRect(cliprect);
         }
 
         this->drawEdges(&painter, item);

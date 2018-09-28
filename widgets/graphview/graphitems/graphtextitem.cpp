@@ -1,61 +1,26 @@
 #include "graphtextitem.h"
-#include "../graphviewmetrics.h"
+#include <QApplication>
+#include <QPalette>
 #include <cmath>
 
-GraphTextItem::GraphTextItem(REDasm::Graphing::Vertex *v, QObject *parent) : GraphItem(v, parent)
+GraphTextItem::GraphTextItem(REDasm::Graphing::Vertex *v, QObject *parent) : GraphRectItem(v, parent) { }
+
+QRect GraphTextItem::boundingRect() const
 {
-    this->_textcursor = QTextCursor(&this->_document);
-}
-
-GraphTextItem::GraphTextItem(REDasm::Graphing::Vertex *v, const QString &text, QObject *parent) : GraphItem(v, parent)
-{
-    this->_textcursor = QTextCursor(&this->_document);
-    this->setText(text);
-}
-
-QTextDocument *GraphTextItem::document()
-{
-    return &this->_document;
-}
-
-QTextCursor GraphTextItem::textCursor()
-{
-    return this->_textcursor;
-}
-
-QFont GraphTextItem::font() const
-{
-    return this->_document.defaultFont();
-}
-
-void GraphTextItem::setText(const QString &s)
-{
-    this->_document.clear();
-    this->_textcursor.insertText(s);
-}
-
-void GraphTextItem::setFont(const QFont &font)
-{
-    this->_document.setDefaultFont(font);
-}
-
-QSize GraphTextItem::size() const
-{
-    QSize sz = this->_document.size().toSize();
-    int mw = std::ceil(GraphViewMetrics::minimumWidth(this->vertex()));
-
-    if(mw > sz.width())
-        sz.setWidth(mw);
-
-    return sz;
+    QRect r = GraphRectItem::boundingRect();
+    r.setSize(m_textdocument.size().toSize());
+    return r;
 }
 
 void GraphTextItem::paint(QPainter *painter)
 {
-    painter->save();
-        painter->translate(this->origin());
-        this->_document.drawContents(painter);
-    painter->restore();
-}
+    QRect r = this->boundingRect();
+    painter->fillRect(r, qApp->palette().brush(QPalette::Base));
 
-QPoint GraphTextItem::origin() const { return this->position(); }
+    painter->save();
+        painter->translate(r.topLeft());
+        m_textdocument.drawContents(painter);
+    painter->restore();
+
+    GraphRectItem::paint(painter);
+}

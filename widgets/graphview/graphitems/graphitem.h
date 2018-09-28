@@ -12,28 +12,21 @@ class GraphItem : public QObject
     Q_OBJECT
 
     public:
-        explicit GraphItem(REDasm::Graphing::Vertex* v, QObject *parent = nullptr);
-        const REDasm::Graphing::Vertex *vertex() const;
+        explicit GraphItem(REDasm::Graphing::Vertex* v, QObject *parent = NULL);
+        REDasm::Graphing::Vertex *vertex();
         REDasm::Graphing::vertex_index_t index() const;
         REDasm::Graphing::vertex_layer_t layer() const;
         REDasm::Graphing::vertex_id_t id() const;
-        int width() const;
-        int height() const;
         bool isFake() const;
-        QColor borderColor() const;
-        QRect rect() const;
-        const QPoint& position() const;
-        void move(int x, int y);
-        void resize(int width, int height);
+        void setPosition(int x, int y);
 
     public:
-        virtual QSize size() const;
+        virtual QRect boundingRect() const;
         virtual void paint(QPainter* painter);
 
     private:
-        QPoint _pos;
-        QSize _defaultsize;
-        REDasm::Graphing::Vertex* _vertex;
+        QPoint m_pos;
+        REDasm::Graphing::Vertex* m_vertex;
 
 };
 

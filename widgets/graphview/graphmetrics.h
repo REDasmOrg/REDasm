@@ -1,10 +1,12 @@
-#ifndef GRAPHVIEWMETRICS_H
-#define GRAPHVIEWMETRICS_H
+#ifndef GRAPHMETRICS_H
+#define GRAPHMETRICS_H
 
-#include "../../redasm/graph/graph.h"
-
-class GraphViewMetrics
+class GraphMetrics
 {
+    public:
+        GraphMetrics() = delete;
+        GraphMetrics(const GraphMetrics&) = delete;
+
     public:
         static int borderPadding();
         static int itemPadding();
@@ -12,9 +14,6 @@ class GraphViewMetrics
         static float edgeOffsetBase();
         static float arrowSize();
         static float angleSize();
-
-    public:
-        static float minimumWidth(const REDasm::Graphing::Vertex* v);
 };
 
-#endif // GRAPHVIEWMETRICS_H
+#endif // GRAPHMETRICS_H

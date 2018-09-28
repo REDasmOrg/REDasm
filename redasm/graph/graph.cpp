@@ -39,10 +39,8 @@ Vertex *Graph::rootVertex()
 
 Vertex *Graph::getVertex(vertex_id_t id) { return m_vertexmap.at(id).get(); }
 
-Vertex *Graph::getRealParentVertex(vertex_id_t id)
+Vertex *Graph::getRealParentVertex(Vertex* v)
 {
-    Vertex* v = this->getVertex(id);
-
     while(v->isFake())
     {
         VertexSet vs = this->getParents(v);
@@ -52,10 +50,8 @@ Vertex *Graph::getRealParentVertex(vertex_id_t id)
     return v;
 }
 
-Vertex *Graph::getRealVertex(vertex_id_t id)
+Vertex *Graph::getRealVertex(Vertex* v)
 {
-    Vertex* v = this->getVertex(id);
-
     while(v->isFake())
         v = this->getVertex(*v->edges.begin());
 
@@ -132,13 +128,9 @@ void Graph::layout()
 }
 
 LayeredGraph::LayeredGraph(): std::vector<VertexList>(), m_graph(NULL) { }
-LayeredGraph::LayeredGraph(Graph *graph): std::vector<VertexList>() { this->setGraph(graph); }
-vertex_layer_t LayeredGraph::lastLayer() const { return this->size() - 1; }
 
-void LayeredGraph::setGraph(Graph *graph)
+LayeredGraph::LayeredGraph(Graph *graph): std::vector<VertexList>(), m_graph(graph)
 {
-    m_graph = graph;
-
     if(!m_graph)
         return;
 
@@ -146,6 +138,8 @@ void LayeredGraph::setGraph(Graph *graph)
     this->layerize();
     this->indicize();
 }
+
+vertex_layer_t LayeredGraph::lastLayer() const { return this->size() - 1; }
 
 void LayeredGraph::shuffle()
 {

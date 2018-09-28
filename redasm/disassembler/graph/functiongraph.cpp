@@ -2,12 +2,16 @@
 #include "../../graph/graph_layout.h"
 
 namespace REDasm {
+namespace Graphing {
 
 FunctionGraph::FunctionGraph(ListingDocument* document): Graph(), m_document(document) { }
 ListingDocument* FunctionGraph::document() { return m_document; }
 
 void FunctionGraph::build(address_t address)
 {
+    REDasm::ListingItem* item = m_document->functionStart(address);
+    address = item->address;
+
     this->buildNodes(address);
     this->buildEdges();
     this->setRootVertex(this->vertexFromAddress(address));
@@ -34,12 +38,13 @@ void FunctionGraph::buildNode(address_t address, FunctionGraph::AddressQueue &ad
     if(it == m_document->end())
         return;
 
+    ListingItem* item = NULL;
     FunctionGraphVertex* fgv = new FunctionGraphVertex(address);
+    fgv->startidx = m_document->indexOf(it->get());
 
     for( ; it != m_document->end(); it++)
     {
-        ListingItem* item = it->get();
-        fgv->end = item->address;
+        item = it->get();
 
         if(item->is(ListingItem::SymbolItem))
         {
@@ -64,6 +69,12 @@ void FunctionGraph::buildNode(address_t address, FunctionGraph::AddressQueue &ad
         }
         else if(instruction->is(InstructionTypes::Stop))
             break;
+    }
+
+    if(item)
+    {
+        fgv->end = item->address;
+        fgv->endidx = m_document->indexOf(item);
     }
 
     this->pushVertex(fgv);
@@ -131,4 +142,5 @@ void FunctionGraph::buildEdges()
     }
 }
 
+} // namespace Graphing
 } // namespace REDasm

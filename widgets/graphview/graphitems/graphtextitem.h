@@ -2,32 +2,19 @@
 #define GRAPHTEXTITEM_H
 
 #include <QTextDocument>
-#include <QTextCursor>
-#include "graphitem.h"
+#include "graphrectitem.h"
 
-class GraphTextItem : public GraphItem
+class GraphTextItem : public GraphRectItem
 {
     Q_OBJECT
 
     public:
         explicit GraphTextItem(REDasm::Graphing::Vertex* v, QObject *parent = NULL);
-        GraphTextItem(REDasm::Graphing::Vertex* v, const QString& text, QObject *parent = NULL);
-        QTextDocument* document();
-        QTextCursor textCursor();
-        QFont font() const;
-        void setText(const QString& s);
-        void setFont(const QFont& font);
-
-    public:
-        virtual QSize size() const;
-        virtual void paint(QPainter *painter);
+        virtual QRect boundingRect() const;
+        virtual void paint(QPainter* painter);
 
     protected:
-        virtual QPoint origin() const;
-
-    private:
-        QTextDocument _document;
-        QTextCursor _textcursor;
+        QTextDocument m_textdocument;
 };
 
 #endif // GRAPHTEXTITEM_H

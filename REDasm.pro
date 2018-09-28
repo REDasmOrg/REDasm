@@ -73,7 +73,6 @@ SOURCES += main.cpp\
     redasm/support/serializer.cpp \
     redasm/signatures/signaturedb.cpp \
     dialogs/aboutdialog.cpp \
-    widgets/disassemblergraphview/disassemblergraphview.cpp \
     widgets/disassemblergraphview/functionblockitem.cpp \
     redasm/redasm.cpp \
     redasm/formats/pe/pe_resources.cpp \
@@ -110,8 +109,6 @@ SOURCES += main.cpp\
     redasm/graph/graph_layout.cpp \
     redasm/disassembler/graph/functiongraph.cpp \
     redasm/graph/graph_genetic.cpp \
-    redasm/disassembler/graph/callgraph.cpp \
-    widgets/graphview/graphviewmetrics.cpp \
     redasm/formats/xbe/xbe.cpp \
     redasm/support/ordinals.cpp \
     redasm/formats/gba/gba.cpp \
@@ -129,13 +126,19 @@ SOURCES += main.cpp\
     redasm/disassembler/listing/listingdocument.cpp \
     redasm/disassembler/listing/instructionpool.cpp \
     redasm/disassembler/listing/listingrenderer.cpp \
-    widgets/disassemblertextview/listingtextrenderer.cpp \
     redasm/support/timer.cpp \
     models/listingitemmodel.cpp \
     models/symboltablemodel.cpp \
     models/listingfiltermodel.cpp \
     redasm/disassembler/listing/listingcursor.cpp \
-    models/callgraphmodel.cpp
+    models/callgraphmodel.cpp \
+    widgets/disassemblergraphview/disassemblergraphscene.cpp \
+    renderer/listingtextrenderer.cpp \
+    renderer/listingrenderercommon.cpp \
+    renderer/listinggraphrenderer.cpp \
+    widgets/disassemblergraphview/disassemblergraphview.cpp \
+    widgets/graphview/graphitems/graphrectitem.cpp \
+    widgets/graphview/graphmetrics.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -186,7 +189,6 @@ HEADERS  += mainwindow.h \
     redasm/support/serializer.h \
     redasm/signatures/signaturedb.h \
     dialogs/aboutdialog.h \
-    widgets/disassemblergraphview/disassemblergraphview.h \
     widgets/disassemblergraphview/functionblockitem.h \
     redasm/formats/pe/pe_resources.h \
     redasm/formats/pe/borland/borland_types.h \
@@ -235,8 +237,6 @@ HEADERS  += mainwindow.h \
     redasm/graph/vertex.h \
     redasm/support/genetic.h \
     redasm/graph/graph_genetic.h \
-    redasm/disassembler/graph/callgraph.h \
-    widgets/graphview/graphviewmetrics.h \
     redasm/formats/xbe/xbe.h \
     redasm/formats/xbe/xbe_header.h \
     redasm/support/ordinals.h \
@@ -255,14 +255,20 @@ HEADERS  += mainwindow.h \
     redasm/disassembler/listing/listingdocument.h \
     redasm/disassembler/listing/instructionpool.h \
     redasm/disassembler/listing/listingrenderer.h \
-    widgets/disassemblertextview/listingtextrenderer.h \
     redasm/support/timer.h \
     models/listingitemmodel.h \
     models/symboltablemodel.h \
     models/listingfiltermodel.h \
     redasm/support/event.h \
     redasm/disassembler/listing/listingcursor.h \
-    models/callgraphmodel.h
+    models/callgraphmodel.h \
+    widgets/disassemblergraphview/disassemblergraphscene.h \
+    renderer/listingtextrenderer.h \
+    renderer/listingrenderercommon.h \
+    renderer/listinggraphrenderer.h \
+    widgets/disassemblergraphview/disassemblergraphview.h \
+    widgets/graphview/graphitems/graphrectitem.h \
+    widgets/graphview/graphmetrics.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

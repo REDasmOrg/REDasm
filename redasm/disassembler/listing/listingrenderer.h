@@ -8,8 +8,9 @@ namespace REDasm {
 
 struct RendererFormat
 {
-    RendererFormat(const std::string& text, const std::string& style): text(text), style(style) { }
-    std::string text, style;
+    RendererFormat(int start, int length, const std::string& style): start(start), length(length), style(style) { }
+    int start, length;
+    std::string style;
 };
 
 struct RendererLine
@@ -20,26 +21,14 @@ struct RendererLine
     int line, index;
     bool highlighted;
     std::list<RendererFormat> formats;
+    std::string text;
 
-    std::string text() const {
-        std::string s;
+    size_t length() const { return text.length(); }
 
-        for(const RendererFormat& rf : formats)
-            s += rf.text;
-
-        return s;
+    void push(const std::string& text, const std::string& style = std::string()) {
+        formats.push_back(RendererFormat(this->text.size(), text.length(), style));
+        this->text += text;
     }
-
-    size_t length() const {
-        size_t len = 0;
-
-        for(const RendererFormat& rf : formats)
-            len += rf.text.size();
-
-        return len;
-    }
-
-    void push(const std::string& text, const std::string& style = std::string()) { formats.push_back(RendererFormat(text, style)); }
 };
 
 class ListingRenderer

@@ -48,7 +48,7 @@ std::string ListingRenderer::getLine(size_t line)
 {
     RendererLine rl;
     this->getRendererLine(line, rl);
-    return rl.text();
+    return rl.text;
 }
 
 std::string ListingRenderer::getSelectedText()
@@ -68,7 +68,7 @@ std::string ListingRenderer::getSelectedText()
     {
         RendererLine rl;
         this->getRendererLine(line, rl);
-        std::string s = rl.text();
+        std::string s = rl.text;
 
         if(line == startpos.first)
             ss << s.substr(startpos.second);

@@ -39,6 +39,7 @@ class DisassemblerView : public QWidget
         void showReferences();
         void displayAddress(address_t address);
         void initializeCallGraph(address_t address);
+        void updateCallGraph();
         void displayCurrentReferences();
         void log(const QString& s);
         void switchGraphListing();

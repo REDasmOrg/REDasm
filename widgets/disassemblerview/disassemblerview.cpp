@@ -83,6 +83,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
+    connect(ui->tabModels, &QTabWidget::currentChanged, this, &DisassemblerView::updateCallGraph);
     connect(ui->bottomTabs, &QTabWidget::currentChanged, this, &DisassemblerView::updateCurrentFilter);
     connect(ui->leFilter, &QLineEdit::textChanged, [&](const QString&) { this->filterSymbols(); });
     connect(ui->tbListingGraph, &QPushButton::clicked, this, &DisassemblerView::switchGraphListing);
@@ -93,6 +94,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     connect(m_disassemblertextview, &DisassemblerTextView::callGraphRequested, this, &DisassemblerView::initializeCallGraph);
     connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
+    connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::updateCallGraph);
     connect(m_disassemblertextview, &DisassemblerTextView::canGoBackChanged, [=]() { ui->tbBack->setEnabled(m_disassemblertextview->canGoBack()); });
     connect(m_disassemblertextview, &DisassemblerTextView::canGoForwardChanged, [=]() { ui->tbForward->setEnabled(m_disassemblertextview->canGoForward()); });
 
@@ -301,7 +303,18 @@ void DisassemblerView::initializeCallGraph(address_t address)
 {
     m_callgraphmodel->initializeGraph(address);
     ui->tvCallGraph->expandToDepth(0);
-    ui->tabModels->setCurrentIndex(1);
+    ui->tabModels->setCurrentWidget(ui->tabCallGraph);
+}
+
+void DisassemblerView::updateCallGraph()
+{
+    if(ui->tabModels->currentWidget() != ui->tabCallGraph)
+        return;
+
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingItem* item = doc->functionStart(doc->currentItem()->address);
+    m_callgraphmodel->initializeGraph(item->address);
+    ui->tvCallGraph->expandToDepth(0);
 }
 
 void DisassemblerView::displayCurrentReferences()

@@ -198,7 +198,7 @@ QVariant CallGraphModel::data(const QModelIndex &index, int role) const
         else if((index.column() == 1) && this->isDuplicate(index) && !symbol->isLocked())
             return QColor(Qt::gray);
     }
-    else if(role == Qt::BackgroundColorRole && symbol->isLocked())
+    else if(role == Qt::BackgroundColorRole && symbol && symbol->isLocked())
         return THEME_VALUE("locked_bg");
     else if((role == Qt::TextAlignmentRole) && (index.column() == 2))
         return Qt::AlignCenter;

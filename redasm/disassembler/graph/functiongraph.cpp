@@ -9,63 +9,79 @@ ListingDocument* FunctionGraph::document() { return m_document; }
 
 void FunctionGraph::build(address_t address)
 {
-    this->buildNodes(address);
+    s64 idx = this->buildNodes(address);
+
+    if(idx == -1)
+        return;
+
     this->buildEdges();
-    this->setRootVertex(this->vertexFromAddress(address));
+    this->setRootVertex(this->vertexFromListingIndex(idx));
     this->layout();
 }
 
-FunctionGraphVertex *FunctionGraph::vertexFromAddress(address_t address)
+FunctionGraphVertex *FunctionGraph::vertexFromListingIndex(s64 index)
 {
     for(auto& item : m_vertexmap)
     {
        FunctionGraphVertex* v = static_cast<FunctionGraphVertex*>(this->getVertex(item.first));
 
-        if(v->contains(address))
+        if(v->contains(index))
             return v;
     }
 
     return NULL;
 }
 
-void FunctionGraph::buildNode(address_t address, FunctionGraph::AddressQueue &addressqueue)
+void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
 {
-    auto it = m_document->instructionItem(address);
+    auto it = std::next(m_document->begin(), index);
 
     if(it == m_document->end())
         return;
 
-    std::unique_ptr<FunctionGraphVertex> fgv = std::make_unique<FunctionGraphVertex>(address);
+    std::unique_ptr<FunctionGraphVertex> fgv = std::make_unique<FunctionGraphVertex>(index);
     ListingItem* item = it->get();
 
-    for( ; it != m_document->end(); it++)
+    for( ; it != m_document->end(); it++, index++)
     {
         item = it->get();
 
-        if(this->vertexFromAddress(item->address))
+        if(item->address == 0x080483F7)
+        {
+            int zzz = 0;
+            zzz++;
+        }
+
+        if(this->vertexFromListingIndex(index))
             break;
 
         if(item->is(ListingItem::SymbolItem))
         {
+            if(index == fgv->startidx) // Skip first label
+                continue;
+
             SymbolPtr symbol = m_document->symbol(item->address);
 
             if(symbol->is(SymbolTypes::Code) && !symbol->isFunction())
-                addressqueue.push(item->address);
+                indexqueue.push(index);
+
+            fgv->labelbreak = true;
+            break;
         }
 
         if(!item->is(ListingItem::InstructionItem))
             break;
 
-        fgv->end = item->address;
+        fgv->endidx = index;
         InstructionPtr instruction = m_document->instruction(item->address);
 
         if(instruction->is(InstructionTypes::Jump))
         {
             for(address_t target : instruction->targets)
-                addressqueue.push(target);
+                indexqueue.push(m_document->indexOfSymbol(target));
 
             if(instruction->is(InstructionTypes::Conditional))
-                addressqueue.push(instruction->endAddress());
+                indexqueue.push(index + 1);
 
             break;
         }
@@ -74,34 +90,39 @@ void FunctionGraph::buildNode(address_t address, FunctionGraph::AddressQueue &ad
             break;
     }
 
-    if(!item)
-        return;
-
-    fgv->startidx = m_document->indexOfInstruction(fgv->start);
-    fgv->endidx = m_document->indexOfInstruction(fgv->end);
     this->pushVertex(fgv.release());
 }
 
-void FunctionGraph::buildNodes(address_t startaddress)
+s64 FunctionGraph::buildNodes(address_t startaddress)
 {
     REDasm::ListingItem* item = m_document->functionStart(startaddress);
-    startaddress = item->address;
 
-    std::queue<address_t> queue;
-    queue.push(startaddress);
+    if(!item)
+        return -1;
+
+    startaddress = item->address;
+    s64 firstindex = m_document->indexOf(item) + 1; // Skip declaration
+
+    IndexQueue queue;
+    queue.push(firstindex);
 
     while(!queue.empty())
     {
-        address_t address = queue.front();
+        s64 index = queue.front();
         queue.pop();
 
-        item = m_document->functionStart(address);
-
-        if(!item || (item->address != startaddress) || this->vertexFromAddress(address))
+        if(index == -1)
             continue;
 
-        this->buildNode(address, queue);
+        item = m_document->functionStart(m_document->itemAt(index));
+
+        if(!item || (item->address != startaddress) || this->vertexFromListingIndex(index))
+            continue;
+
+        this->buildNode(index, queue);
     }
+
+    return firstindex;
 }
 
 void FunctionGraph::buildEdges()
@@ -109,39 +130,46 @@ void FunctionGraph::buildEdges()
     for(auto vit = this->begin(); vit != this->end(); vit++)
     {
         FunctionGraphVertex* v = static_cast<FunctionGraphVertex*>(*vit);
-        auto it = m_document->instructionItem(v->start);
+        auto it = std::next(m_document->begin(), v->startidx);
+        int index = v->startidx;
 
-        while(it != m_document->end())
+        if(v->labelbreak && (v->endidx + 1 < static_cast<s64>(m_document->size())))
+            this->edge(v, this->vertexFromListingIndex(v->endidx + 1));
+
+        for( ; (it != m_document->end()) && (index <= v->endidx); it++, index++)
         {
             ListingItem* item = it->get();
 
-            if(!v->contains(item->address))
-                break;
+            if(!item->is(ListingItem::InstructionItem))
+                continue;
 
             InstructionPtr instruction = m_document->instruction(item->address);
 
-            if(instruction->is(InstructionTypes::Jump))
+            if(!instruction->is(InstructionTypes::Jump))
+                continue;
+
+            for(address_t target : instruction->targets)
             {
-                for(address_t target : instruction->targets)
-                {
-                    Graphing::Vertex* tov = this->vertexFromAddress(target);
+                int tgtindex = m_document->indexOfSymbol(target);
+                Graphing::Vertex* tov = this->vertexFromListingIndex(tgtindex);
 
-                    if(!tov)
-                        continue;
+                if(!tov)
+                    continue;
 
-                    this->edge(v, tov);
-                    v->bTrue(tov);
-                }
-
-                if(instruction->is(InstructionTypes::Conditional))
-                {
-                    Graphing::Vertex* tov = this->vertexFromAddress(instruction->endAddress());
-                    this->edge(v, tov);
-                    v->bFalse(tov);
-                }
+                this->edge(v, tov);
+                v->bTrue(tov);
             }
 
-            it++;
+            if(instruction->is(InstructionTypes::Conditional))
+            {
+                Graphing::Vertex* tov = this->vertexFromListingIndex(index + 1);
+
+                if(!tov)
+                    continue;
+
+                this->edge(v, tov);
+                v->bFalse(tov);
+            }
         }
     }
 }

@@ -158,6 +158,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
 
     public:
         ListingItems getCalls(ListingItem* item);
+        ListingItem* functionStart(ListingItem* item);
         ListingItem* functionStart(address_t address);
         ListingItem* currentItem();
         SymbolPtr functionStartSymbol(address_t address);
@@ -186,6 +187,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         int functionIndex(address_t address);
         int instructionIndex(address_t address);
         ListingItem* itemAt(size_t i);
+        int indexOfSymbol(address_t address);
         int indexOfInstruction(address_t address);
         int indexOf(ListingItem *item);
         SymbolPtr symbol(address_t address);

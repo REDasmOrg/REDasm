@@ -62,6 +62,8 @@ ListingItems ListingDocument::getCalls(ListingItem *item)
     return calls;
 }
 
+ListingItem *ListingDocument::functionStart(ListingItem *item) { return this->functionStart(item->address); }
+
 ListingItem *ListingDocument::functionStart(address_t address)
 {
     auto iit = this->instructionItem(address);
@@ -277,6 +279,12 @@ ListingItem* ListingDocument::itemAt(size_t i)
 {
     document_lock lock(m_mutex);
     return this->at(i).get();
+}
+
+int ListingDocument::indexOfSymbol(address_t address)
+{
+    document_lock lock(m_mutex);
+    return Listing::indexOf(this, address, ListingItem::SymbolItem);
 }
 
 int ListingDocument::indexOfInstruction(address_t address)

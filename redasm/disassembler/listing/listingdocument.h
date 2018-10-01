@@ -186,6 +186,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         int functionIndex(address_t address);
         int instructionIndex(address_t address);
         ListingItem* itemAt(size_t i);
+        int indexOfInstruction(address_t address);
         int indexOf(ListingItem *item);
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);

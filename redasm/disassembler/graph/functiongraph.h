@@ -15,7 +15,8 @@ struct FunctionGraphVertex: public Graphing::Vertex
 
     FunctionGraphVertex(address_t start): Vertex(), start(start), end(start), startidx(-1), endidx(-1) { }
     virtual s64 compare(Vertex* v) const { return start - static_cast<FunctionGraphVertex*>(v)->start; }
-    int count() const { return endidx - startidx; }
+    bool contains(address_t address) const { return (address >= start) && (address <= end); }
+    int count() const { return (endidx - startidx) + 1; }
     void bTrue(Graphing::Vertex* v) { edgeColor(v, "green"); }
     void bFalse(Graphing::Vertex* v) { edgeColor(v, "red"); }
 };

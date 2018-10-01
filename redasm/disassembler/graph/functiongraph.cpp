@@ -9,9 +9,6 @@ ListingDocument* FunctionGraph::document() { return m_document; }
 
 void FunctionGraph::build(address_t address)
 {
-    REDasm::ListingItem* item = m_document->functionStart(address);
-    address = item->address;
-
     this->buildNodes(address);
     this->buildEdges();
     this->setRootVertex(this->vertexFromAddress(address));
@@ -24,7 +21,7 @@ FunctionGraphVertex *FunctionGraph::vertexFromAddress(address_t address)
     {
        FunctionGraphVertex* v = static_cast<FunctionGraphVertex*>(this->getVertex(item.first));
 
-        if(v->start == address)
+        if(v->contains(address))
             return v;
     }
 
@@ -38,25 +35,28 @@ void FunctionGraph::buildNode(address_t address, FunctionGraph::AddressQueue &ad
     if(it == m_document->end())
         return;
 
-    ListingItem* item = NULL;
-    FunctionGraphVertex* fgv = new FunctionGraphVertex(address);
-    fgv->startidx = m_document->indexOf(it->get());
+    std::unique_ptr<FunctionGraphVertex> fgv = std::make_unique<FunctionGraphVertex>(address);
+    ListingItem* item = it->get();
 
     for( ; it != m_document->end(); it++)
     {
         item = it->get();
 
+        if(this->vertexFromAddress(item->address))
+            break;
+
         if(item->is(ListingItem::SymbolItem))
         {
             SymbolPtr symbol = m_document->symbol(item->address);
 
-            if(symbol->is(SymbolTypes::Code))
+            if(symbol->is(SymbolTypes::Code) && !symbol->isFunction())
                 addressqueue.push(item->address);
         }
 
         if(!item->is(ListingItem::InstructionItem))
             break;
 
+        fgv->end = item->address;
         InstructionPtr instruction = m_document->instruction(item->address);
 
         if(instruction->is(InstructionTypes::Jump))
@@ -66,25 +66,28 @@ void FunctionGraph::buildNode(address_t address, FunctionGraph::AddressQueue &ad
 
             if(instruction->is(InstructionTypes::Conditional))
                 addressqueue.push(instruction->endAddress());
+
+            break;
         }
-        else if(instruction->is(InstructionTypes::Stop))
+
+        if(instruction->is(InstructionTypes::Stop))
             break;
     }
 
-    if(item)
-    {
-        fgv->end = item->address;
-        fgv->endidx = m_document->indexOf(item);
-    }
+    if(!item)
+        return;
 
-    this->pushVertex(fgv);
+    fgv->startidx = m_document->indexOfInstruction(fgv->start);
+    fgv->endidx = m_document->indexOfInstruction(fgv->end);
+    this->pushVertex(fgv.release());
 }
 
 void FunctionGraph::buildNodes(address_t startaddress)
 {
-    std::queue<address_t> queue;
-    std::set<address_t> visited;
+    REDasm::ListingItem* item = m_document->functionStart(startaddress);
+    startaddress = item->address;
 
+    std::queue<address_t> queue;
     queue.push(startaddress);
 
     while(!queue.empty())
@@ -92,10 +95,11 @@ void FunctionGraph::buildNodes(address_t startaddress)
         address_t address = queue.front();
         queue.pop();
 
-        if(visited.find(address) != visited.end())
+        item = m_document->functionStart(address);
+
+        if(!item || (item->address != startaddress) || this->vertexFromAddress(address))
             continue;
 
-        visited.insert(address);
         this->buildNode(address, queue);
     }
 }
@@ -111,7 +115,7 @@ void FunctionGraph::buildEdges()
         {
             ListingItem* item = it->get();
 
-            if(item->address == v->end)
+            if(!v->contains(item->address))
                 break;
 
             InstructionPtr instruction = m_document->instruction(item->address);

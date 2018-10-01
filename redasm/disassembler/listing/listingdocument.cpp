@@ -279,6 +279,12 @@ ListingItem* ListingDocument::itemAt(size_t i)
     return this->at(i).get();
 }
 
+int ListingDocument::indexOfInstruction(address_t address)
+{
+    document_lock lock(m_mutex);
+    return Listing::indexOf(this, address, ListingItem::InstructionItem);
+}
+
 int ListingDocument::indexOf(ListingItem *item)
 {
     document_lock lock(m_mutex);

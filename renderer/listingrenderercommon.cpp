@@ -12,7 +12,7 @@ ListingRendererCommon::ListingRendererCommon(QTextDocument *textdocument, REDasm
 
 void ListingRendererCommon::insertLine(const REDasm::RendererLine &rl, bool showcursor)
 {
-    m_textcursor.movePosition(QTextCursor::EndOfBlock);
+    m_textcursor.movePosition(QTextCursor::End);
     m_textcursor.insertBlock(QTextBlockFormat());
     this->insertText(rl, showcursor);
 }

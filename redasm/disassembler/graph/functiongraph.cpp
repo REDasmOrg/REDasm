@@ -46,12 +46,6 @@ void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
     {
         item = it->get();
 
-        if(item->address == 0x080483F7)
-        {
-            int zzz = 0;
-            zzz++;
-        }
-
         if(this->vertexFromListingIndex(index))
             break;
 

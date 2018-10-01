@@ -28,7 +28,7 @@ class GraphLayout
         static vertex_layer_t maxLayer(const VertexSet &vs);
 
     private:
-        Graph* _graph;
+        Graph* m_graph;
 };
 
 } // namespace Graphing

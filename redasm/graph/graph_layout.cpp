@@ -5,14 +5,14 @@
 namespace REDasm {
 namespace Graphing {
 
-GraphLayout::GraphLayout(Graph *graph): _graph(graph)
+GraphLayout::GraphLayout(Graph *graph): m_graph(graph)
 {
 
 }
 
 void GraphLayout::layout()
 {
-    if(!this->_graph->rootVertex())
+    if(!m_graph->rootVertex())
         return;
 
     this->removeLoops();
@@ -24,11 +24,11 @@ void GraphLayout::layout()
 
 void GraphLayout::removeLoops()
 {
-    for(Vertex* v1 : *this->_graph)
+    for(Vertex* v1 : *m_graph)
     {
         for(auto it = v1->edges.begin(); it != v1->edges.end(); )
         {
-            Vertex* v2 = this->_graph->getVertex(*it);
+            Vertex* v2 = m_graph->getVertex(*it);
 
             if(v2->lessThan(v1) || v2->equalsTo(v1))
                 it = v1->edges.erase(it);
@@ -41,31 +41,31 @@ void GraphLayout::removeLoops()
 void GraphLayout::assignLayers()
 {
     std::queue<Vertex*> pending;
-    pending.push(this->_graph->rootVertex());
+    pending.push(m_graph->rootVertex());
 
     while(!pending.empty())
     {
         Vertex* v = pending.front();
         pending.pop();
 
-        VertexSet parents = this->_graph->getParents(v);
+        VertexSet parents = m_graph->getParents(v);
         v->layout.layer = parents.empty() ? 0 : GraphLayout::maxLayer(parents) + 1;
 
         for(vertex_id_t edge : v->edges)
-            pending.push(this->_graph->getVertex(edge));
+            pending.push(m_graph->getVertex(edge));
     }
 }
 
 void GraphLayout::insertFakeVertices()
 {
-    VertexList vl = this->_graph->getVertexList();
+    VertexList vl = m_graph->getVertexList();
 
     for(Vertex* v1 : vl)
     {
         for(auto it = v1->edges.begin(); it != v1->edges.end(); )
         {
             vertex_id_t edge = *it;
-            Vertex* v2 = this->_graph->getVertex(edge);
+            Vertex* v2 = m_graph->getVertex(edge);
 
             if(v2->isFake()) // Don't continue through fake edges
                 break;
@@ -81,13 +81,13 @@ void GraphLayout::insertFakeVertices()
 
             while(layer < v2->layer())
             {
-                v = this->_graph->pushFakeVertex(layer);
-                this->_graph->edge(pv, v);
+                v = m_graph->pushFakeVertex(layer);
+                m_graph->edge(pv, v);
                 pv = v;
                 layer++;
             }
 
-            this->_graph->edge(pv, v2);
+            m_graph->edge(pv, v2);
             it = v1->edges.erase(it);
         }
     }
@@ -95,14 +95,14 @@ void GraphLayout::insertFakeVertices()
 
 void GraphLayout::minimizeCrossings()
 {
-    GraphGenetic gc(this->_graph);
+    GraphGenetic gc(m_graph);
     GraphGenetic::individual_fitness_t res = gc.grow(NULL);
     LayeredGraphPtr lgraph;
 
     if(gc.generation() > 1)
         lgraph = res.first;
     else
-        lgraph = std::make_shared<LayeredGraph>(this->_graph);
+        lgraph = std::make_shared<LayeredGraph>(m_graph);
 
     for(VertexList& vl : *lgraph)
     {

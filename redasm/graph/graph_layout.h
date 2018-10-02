@@ -28,6 +28,7 @@ class GraphLayout
         static vertex_layer_t maxLayer(const VertexSet &vs);
 
     private:
+        std::unordered_map<Vertex*, EdgeList> m_removedloops;
         Graph* m_graph;
 };
 

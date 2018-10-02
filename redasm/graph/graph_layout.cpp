@@ -26,15 +26,22 @@ void GraphLayout::removeLoops()
 {
     for(Vertex* v1 : *m_graph)
     {
+        EdgeList removededges;
+
         for(auto it = v1->edges.begin(); it != v1->edges.end(); )
         {
             Vertex* v2 = m_graph->getVertex(*it);
 
             if(v2->lessThan(v1) || v2->equalsTo(v1))
+            {
+                removededges.push_back(*it);
                 it = v1->edges.erase(it);
+            }
             else
                 it++;
         }
+
+        m_removedloops[v1] = removededges;
     }
 }
 
@@ -113,7 +120,13 @@ void GraphLayout::minimizeCrossings()
 
 void GraphLayout::restoreLoops()
 {
+    for(auto& kv : m_removedloops)
+    {
+        for(vertex_id_t vid : kv.second)
+            kv.first->edge(vid);
+    }
 
+    m_removedloops.clear();
 }
 
 vertex_layer_t GraphLayout::maxLayer(const VertexSet& vs)

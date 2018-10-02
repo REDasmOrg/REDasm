@@ -1,7 +1,7 @@
 #include "graphrectitem.h"
 #include "../graphmetrics.h"
 
-GraphRectItem::GraphRectItem(REDasm::Graphing::Vertex *v, QObject *parent): GraphItem(v, parent)
+GraphRectItem::GraphRectItem(REDasm::Graphing::NodeData *data, QObject *parent): GraphItem(data, parent)
 {
 
 }

@@ -11,10 +11,4 @@ void DisassemblerGraphView::graph()
     this->setGraph(graph);
 }
 
-GraphItem *DisassemblerGraphView::createItem(REDasm::Graphing::Vertex *v)
-{
-    if(v->isFake())
-        return GraphView::createItem(v);
-
-    return new FunctionBlockItem(m_disassembler, v, this);
-}
+GraphItem *DisassemblerGraphView::createItem(REDasm::Graphing::NodeData *v) { return new FunctionBlockItem(m_disassembler, v, this); }

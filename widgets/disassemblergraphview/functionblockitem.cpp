@@ -2,7 +2,7 @@
 #include "../../redasm/disassembler/graph/functiongraph.h"
 #include <QFontDatabase>
 
-FunctionBlockItem::FunctionBlockItem(REDasm::DisassemblerAPI *disassembler, REDasm::Graphing::Vertex* v, QObject *parent): GraphTextItem(v, parent), m_disassembler(disassembler), m_vertex(v)
+FunctionBlockItem::FunctionBlockItem(REDasm::DisassemblerAPI *disassembler, REDasm::Graphing::NodeData *data, QObject *parent): GraphTextItem(data, parent), m_disassembler(disassembler)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
@@ -10,6 +10,9 @@ FunctionBlockItem::FunctionBlockItem(REDasm::DisassemblerAPI *disassembler, REDa
     m_textdocument.setDefaultFont(font);
     m_renderer = std::make_unique<ListingGraphRenderer>(disassembler);
 
-    REDasm::Graphing::FunctionGraphVertex* fgv = static_cast<REDasm::Graphing::FunctionGraphVertex*>(v);
-    m_renderer->render(fgv->startidx, fgv->count(), &m_textdocument);
+    REDasm::Graphing::FunctionGraphData* fgdata = static_cast<REDasm::Graphing::FunctionGraphData*>(data);
+    m_renderer->render(fgdata->startidx, fgdata->count(), &m_textdocument);
+
+    QSizeF size = m_textdocument.size();
+    data->resize(size.width(), size.height());
 }

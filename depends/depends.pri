@@ -30,3 +30,20 @@ PRE_TARGETDEPS += lib_capstone
 QMAKE_EXTRA_TARGETS += lib_capstone
 
 # ==========================================================
+
+# ========================== OGDF ==========================
+OGDF_SRC   = $$shell_path($$DEPENDS_ROOT/ogdf)
+OGDF_BUILD = $$shell_path($$OUT_PWD/ogdf)
+
+lib_ogdf.commands = @echo "Compiling OGDF..." && \
+                    $(MKDIR) $$OGDF_BUILD && \
+                    cd $$OGDF_BUILD && \
+                    cmake $$CMAKE_GENERATOR $$OGDF_SRC -DOGDF_WARNING_ERRORS=OFF && \
+                    $(MAKE)
+
+INCLUDEPATH += $$shell_path($$OGDF_BUILD/include) $$shell_path($$OGDF_SRC/include)
+LIBS += -L$$OGDF_BUILD -lOGDF -lCOIN
+PRE_TARGETDEPS += lib_ogdf
+QMAKE_EXTRA_TARGETS += lib_ogdf
+
+# ==========================================================

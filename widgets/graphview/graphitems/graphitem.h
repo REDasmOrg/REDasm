@@ -5,28 +5,19 @@
 #include <QPainter>
 #include <QPoint>
 #include <QSize>
-#include "../../redasm/graph/vertex.h"
+#include "../../redasm/graph/nodedata.h"
 
 class GraphItem : public QObject
 {
     Q_OBJECT
 
     public:
-        explicit GraphItem(REDasm::Graphing::Vertex* v, QObject *parent = NULL);
-        REDasm::Graphing::Vertex *vertex();
-        REDasm::Graphing::vertex_index_t index() const;
-        REDasm::Graphing::vertex_layer_t layer() const;
-        REDasm::Graphing::vertex_id_t id() const;
-        bool isFake() const;
-        void setPosition(int x, int y);
-
-    public:
-        virtual QRect boundingRect() const;
+        explicit GraphItem(REDasm::Graphing::NodeData* data, QObject *parent = NULL);
+        virtual QRectF boundingRect() const;
         virtual void paint(QPainter* painter);
 
     private:
-        QPoint m_pos;
-        REDasm::Graphing::Vertex* m_vertex;
+        REDasm::Graphing::NodeData* m_data;
 
 };
 

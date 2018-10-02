@@ -8,7 +8,7 @@ class GraphRectItem : public GraphItem
     Q_OBJECT
 
     public:
-        explicit GraphRectItem(REDasm::Graphing::Vertex* v, QObject *parent = NULL);
+        explicit GraphRectItem(REDasm::Graphing::NodeData* data, QObject *parent = NULL);
         virtual void paint(QPainter* painter);
 };
 

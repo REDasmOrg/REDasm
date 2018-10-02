@@ -10,11 +10,10 @@ class FunctionBlockItem : public GraphTextItem
     Q_OBJECT
 
     public:
-        FunctionBlockItem(REDasm::DisassemblerAPI* disassembler, REDasm::Graphing::Vertex *v, QObject* parent = NULL);
+        FunctionBlockItem(REDasm::DisassemblerAPI* disassembler, REDasm::Graphing::NodeData *data, QObject* parent = NULL);
 
    private:
         REDasm::DisassemblerAPI* m_disassembler;
-        REDasm::Graphing::Vertex* m_vertex;
         std::unique_ptr<ListingGraphRenderer> m_renderer;
 };
 

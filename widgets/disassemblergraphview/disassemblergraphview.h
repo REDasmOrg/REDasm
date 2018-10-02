@@ -16,7 +16,7 @@ class DisassemblerGraphView : public GraphView
         void graph();
 
     protected:
-        virtual GraphItem* createItem(REDasm::Graphing::Vertex* v);
+        virtual GraphItem* createItem(REDasm::Graphing::NodeData* v);
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;

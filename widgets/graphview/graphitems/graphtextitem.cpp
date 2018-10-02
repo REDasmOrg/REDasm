@@ -1,21 +1,16 @@
 #include "graphtextitem.h"
+#include "../graphmetrics.h"
 #include <QApplication>
 #include <QPalette>
 #include <cmath>
 
-GraphTextItem::GraphTextItem(REDasm::Graphing::Vertex *v, QObject *parent) : GraphRectItem(v, parent) { }
-
-QRect GraphTextItem::boundingRect() const
-{
-    QRect r = GraphRectItem::boundingRect();
-    r.setSize(m_textdocument.size().toSize());
-    return r;
-}
+GraphTextItem::GraphTextItem(REDasm::Graphing::NodeData *data, QObject *parent) : GraphRectItem(data, parent) { }
 
 void GraphTextItem::paint(QPainter *painter)
 {
-    QRect r = this->boundingRect();
-    painter->fillRect(r, qApp->palette().brush(QPalette::Base));
+    QRectF r = this->boundingRect();
+    int p = GraphMetrics::borderPadding();
+    painter->fillRect(r.adjusted(-p, -p, p, p), qApp->palette().brush(QPalette::Base));
 
     painter->save();
         painter->translate(r.topLeft());

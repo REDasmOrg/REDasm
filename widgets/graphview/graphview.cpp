@@ -1,8 +1,14 @@
 #include "graphview.h"
 #include "graphmetrics.h"
+#include "../../redasm/redasm.h"
 #include <QtGui>
+#include <QtWidgets>
 
 #define MINIMUM_SIZE 50
+#define DROP_SHADOW_SIZE(x) x, x, x, x
+#define DROP_SHADOW_VALUE 8
+#define DROP_SHADOW_ARG   DROP_SHADOW_SIZE(DROP_SHADOW_VALUE)
+#define ZOOM_FACTOR_STEP  0.050
 
 GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent)
 {
@@ -12,39 +18,28 @@ GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent)
 void GraphView::setGraph(REDasm::Graphing::Graph* graph)
 {
     m_graph = std::make_unique<REDasm::Graphing::Graph>(graph);
-    m_lgraph = REDasm::Graphing::LayeredGraph(graph);
-
-    s64 y = GraphMetrics::itemPadding(), maxx = 0;
     m_items.clear();
 
-    for(REDasm::Graphing::VertexList& vl : m_lgraph)
-    {
-        s64 x = GraphMetrics::itemPadding(), maxheight = 0;
+    this->horizontalScrollBar()->setValue(0);
+    this->verticalScrollBar()->setValue(0);
 
-        for(REDasm::Graphing::Vertex* v : vl)
-        {
-            GraphItem* gi = this->createItem(v);
-            gi->setPosition(x, y);
+    for(auto& item : m_graph->nodes())
+        m_items.push_back(this->createItem(item.get()));
 
-            QRect r = gi->boundingRect();
-            x += r.width() + GraphMetrics::itemPadding();
-
-            m_items[v->id] = gi;
-
-            if(r.height() > maxheight)
-                maxheight = r.height();
-        }
-
-        if(x > maxx)
-            maxx = x;
-
-        y += maxheight + this->getEdgesHeight(vl);
-    }
-
+    m_graph->layout();
+    this->updateScrollBars();
     this->update();
 }
 
-GraphItem *GraphView::createItem(REDasm::Graphing::Vertex *v) { return new GraphItem(v, this); }
+GraphItem *GraphView::createItem(REDasm::Graphing::NodeData *data) { return new GraphItem(data, this); }
+
+void GraphView::scrollContentsBy(int dx, int dy)
+{
+    QWidget* viewport = this->viewport();
+
+    viewport->move(viewport->x() + dx,
+                   viewport->y() + dy);
+}
 
 void GraphView::paintEvent(QPaintEvent* e)
 {
@@ -52,10 +47,10 @@ void GraphView::paintEvent(QPaintEvent* e)
 
     QPainter painter(this->viewport());
     painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.fillRect(this->rect(), QColor("azure"));
+    painter.fillRect(this->viewport()->rect(), QColor("azure"));
 
-    this->drawBlocks(&painter);
     this->drawEdges(&painter);
+    this->drawBlocks(&painter);
 }
 
 void GraphView::wheelEvent(QWheelEvent *e)
@@ -69,19 +64,18 @@ void GraphView::wheelEvent(QWheelEvent *e)
 void GraphView::resizeEvent(QResizeEvent *e)
 {
     QAbstractScrollArea::resizeEvent(e);
+    this->updateScrollBars();
 }
 
 void GraphView::mousePressEvent(QMouseEvent *e)
 {
     QAbstractScrollArea::mousePressEvent(e);
 
-    /*
     if(e->button() == Qt::LeftButton)
     {
         m_lastpos = e->pos();
         this->setCursor(QCursor(Qt::ClosedHandCursor));
     }
-    */
 }
 
 void GraphView::mouseReleaseEvent(QMouseEvent *e)
@@ -93,7 +87,6 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
 {
     QAbstractScrollArea::mouseMoveEvent(e);
 
-    /*
     if(e->buttons() & Qt::LeftButton)
     {
         int xdelta = m_lastpos.x() - e->x();
@@ -104,96 +97,40 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
 
         m_lastpos = e->pos();
     }
-    */
 }
 
-int GraphView::getEdgesHeight(const REDasm::Graphing::VertexList &vl) const
+void GraphView::updateScrollBars()
 {
-    size_t maxedges = 0;
+    this->horizontalScrollBar()->setMaximum(m_graph->width());
+    this->verticalScrollBar()->setMaximum(m_graph->height());
 
-    for(const REDasm::Graphing::Vertex* v : vl)
-        maxedges = std::max(maxedges, v->edges.size());
-
-    return (maxedges + 1) * GraphMetrics::itemPadding();
-}
-
-int GraphView::getEdgeIndex(GraphItem *from, GraphItem *to) const
-{
-    REDasm::Graphing::Vertex* vf = from->vertex();
-    REDasm::Graphing::Vertex* vt = to->vertex();
-
-    for(size_t i = 0; i < vf->edges.size(); i++)
-    {
-        if(vf->edges[i] == vt->id)
-            return i;
-    }
-
-    return -1;
-}
-
-int GraphView::getLayerHeight(GraphItem *item) const
-{
-    int maxheight = 0;
-
-    for(const REDasm::Graphing::Vertex* v : m_lgraph[item->layer()])
-    {
-        QRect rect = m_items[v->id]->boundingRect();
-        maxheight = std::max(maxheight, rect.height());
-    }
-
-    return maxheight;
+    this->viewport()->resize(std::max(this->width(), static_cast<int>(m_graph->width())),
+                             std::max(this->height(), static_cast<int>(m_graph->height())));
 }
 
 void GraphView::drawBlocks(QPainter *painter)
 {
     for(GraphItem* gi : m_items)
     {
-        if(gi->isFake())
-            continue;
-
+        painter->fillRect(gi->boundingRect().adjusted(DROP_SHADOW_ARG), Qt::lightGray);
         gi->paint(painter);
     }
 }
 
 void GraphView::drawEdges(QPainter *painter)
 {
-    for(GraphItem* gi : m_items)
-    {
-        for(REDasm::Graphing::vertex_id_t vid : gi->vertex()->edges)
-            this->drawEdge(painter, gi, m_items[vid]);
-    }
+    for(ogdf::EdgeElement* edge : m_graph->edges())
+        this->drawEdge(painter, edge);
 }
 
-void GraphView::drawEdge(QPainter* painter, GraphItem *from, GraphItem *to)
+void GraphView::drawEdge(QPainter* painter, ogdf::EdgeElement* edge)
 {
-    QRect fr = from->boundingRect(), tr = to->boundingRect();
-    QPoint fc = fr.center(), tc = tr.center();
-    REDasm::Graphing::Vertex *rvf = m_graph->getRealParentVertex(from->vertex()), *rvt = m_graph->getRealVertex(to->vertex());
-    int edgeheight = GraphMetrics::itemPadding() + (this->getEdgeIndex(from, to) * GraphMetrics::itemPadding());
+    const ogdf::DPolyline& polyline = m_graph->polyline(edge);
+    QVector<QPointF> lines;
 
-    QVector<QPoint> lines;
+    for(const ogdf::DPoint& p : polyline)
+        lines.push_front(QPointF(p.m_x, p.m_y));
 
-    if(from->isFake())
-    {
-        int h = this->getLayerHeight(from);
-
-        lines << QPoint(fc.x(), fr.bottom());
-        lines << QPoint(fc.x(), fr.bottom() + h + edgeheight);
-        lines << QPoint(tc.x(), fr.bottom() + h + edgeheight);
-    }
-    else
-    {
-        lines << QPoint(fc.x(), fr.bottom() + GraphMetrics::borderPadding());
-        lines << QPoint(fc.x(), fr.bottom() + edgeheight);
-        lines << QPoint(tc.x(), fr.bottom() + edgeheight);
-    }
-
-    if(to->isFake())
-        lines << QPoint(tc.x(), tr.top());
-    else
-        lines << QPoint(tc.x(), tr.top() - GraphMetrics::borderPadding());
-
-    QColor c(QString::fromStdString(rvf->edgeColor(rvt)));
-    painter->setPen(QPen(c, 2));
+    painter->setPen(QPen(Qt::black, 2));
     painter->drawPolyline(lines.data(), lines.size());
 }

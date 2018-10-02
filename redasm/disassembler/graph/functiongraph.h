@@ -8,20 +8,19 @@
 namespace REDasm {
 namespace Graphing {
 
-struct FunctionGraphVertex: public Graphing::Vertex
+struct FunctionGraphData: public NodeData
 {
     s64 startidx, endidx;
     bool labelbreak;
 
-    FunctionGraphVertex(s64 startidx): Vertex(), startidx(startidx), endidx(startidx), labelbreak(false) { }
-    virtual s64 compare(Vertex* v) const { return startidx - static_cast<FunctionGraphVertex*>(v)->startidx; }
+    FunctionGraphData(s64 startidx): NodeData(), startidx(startidx), endidx(startidx), labelbreak(false) { }
     bool contains(s64 index) const { return (index >= startidx) && (index <= endidx); }
     int count() const { return (endidx - startidx) + 1; }
-    void bTrue(Graphing::Vertex* v) { edgeColor(v, "green"); }
-    void bFalse(Graphing::Vertex* v) { edgeColor(v, "red"); }
+    //void bTrue(Graphing::Vertex* v) { edgeColor(v, "green"); }
+    //void bFalse(Graphing::Vertex* v) { edgeColor(v, "red"); }
 };
 
-class FunctionGraph: public Graphing::Graph
+class FunctionGraph: public Graph
 {
     private:
         typedef std::queue<address_t> AddressQueue;
@@ -33,8 +32,8 @@ class FunctionGraph: public Graphing::Graph
         void build(address_t address);
 
     private:
-        FunctionGraphVertex* vertexFromListingIndex(s64 index);
-        s64 buildNodes(address_t startaddress);
+        FunctionGraphData* vertexFromListingIndex(s64 index);
+        void buildNodes(address_t startaddress);
         void buildNode(int index, IndexQueue &indexqueue);
         void buildEdges();
 

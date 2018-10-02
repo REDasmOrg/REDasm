@@ -99,16 +99,12 @@ SOURCES += main.cpp\
     widgets/graphview/graphitems/graphitem.cpp \
     widgets/graphview/graphitems/graphtextitem.cpp \
     widgets/graphview/graphview.cpp \
-    widgets/graphview/graphviewprivate.cpp \
     redasm/formats/elf/elf_analyzer.cpp \
     redasm/disassembler/disassemblerapi.cpp \
     redasm/assemblers/cil/cil.cpp \
     redasm/formats/pe/dotnet/dotnet.cpp \
     redasm/formats/pe/dotnet/dotnet_reader.cpp \
-    redasm/graph/graph.cpp \
-    redasm/graph/graph_layout.cpp \
     redasm/disassembler/graph/functiongraph.cpp \
-    redasm/graph/graph_genetic.cpp \
     redasm/formats/xbe/xbe.cpp \
     redasm/support/ordinals.cpp \
     redasm/formats/gba/gba.cpp \
@@ -132,13 +128,14 @@ SOURCES += main.cpp\
     models/listingfiltermodel.cpp \
     redasm/disassembler/listing/listingcursor.cpp \
     models/callgraphmodel.cpp \
-    widgets/disassemblergraphview/disassemblergraphscene.cpp \
     renderer/listingtextrenderer.cpp \
     renderer/listingrenderercommon.cpp \
     renderer/listinggraphrenderer.cpp \
     widgets/disassemblergraphview/disassemblergraphview.cpp \
     widgets/graphview/graphitems/graphrectitem.cpp \
-    widgets/graphview/graphmetrics.cpp
+    widgets/graphview/graphmetrics.cpp \
+    redasm/graph/graph.cpp \
+    redasm/graph/nodedata.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -223,7 +220,6 @@ HEADERS  += mainwindow.h \
     widgets/graphview/graphitems/graphitem.h \
     widgets/graphview/graphitems/graphtextitem.h \
     widgets/graphview/graphview.h \
-    widgets/graphview/graphviewprivate.h \
     redasm/formats/elf/elf_analyzer.h \
     redasm/disassembler/disassemblerapi.h \
     redasm/formats/pe/dotnet/dotnet_header.h \
@@ -231,12 +227,8 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/dotnet/dotnet.h \
     redasm/formats/pe/dotnet/dotnet_tables.h \
     redasm/formats/pe/dotnet/dotnet_reader.h \
-    redasm/graph/graph.h \
-    redasm/graph/graph_layout.h \
     redasm/disassembler/graph/functiongraph.h \
-    redasm/graph/vertex.h \
     redasm/support/genetic.h \
-    redasm/graph/graph_genetic.h \
     redasm/formats/xbe/xbe.h \
     redasm/formats/xbe/xbe_header.h \
     redasm/support/ordinals.h \
@@ -262,13 +254,14 @@ HEADERS  += mainwindow.h \
     redasm/support/event.h \
     redasm/disassembler/listing/listingcursor.h \
     models/callgraphmodel.h \
-    widgets/disassemblergraphview/disassemblergraphscene.h \
     renderer/listingtextrenderer.h \
     renderer/listingrenderercommon.h \
     renderer/listinggraphrenderer.h \
     widgets/disassemblergraphview/disassemblergraphview.h \
     widgets/graphview/graphitems/graphrectitem.h \
-    widgets/graphview/graphmetrics.h
+    widgets/graphview/graphmetrics.h \
+    redasm/graph/graph.h \
+    redasm/graph/nodedata.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

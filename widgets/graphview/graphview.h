@@ -14,7 +14,8 @@ class GraphView : public QAbstractScrollArea
         void setGraph(REDasm::Graphing::Graph *graph);
 
     protected:
-        virtual GraphItem* createItem(REDasm::Graphing::Vertex* v);
+        virtual GraphItem* createItem(REDasm::Graphing::NodeData* data);
+        virtual void scrollContentsBy(int dx, int dy);
         virtual void paintEvent(QPaintEvent*e);
         virtual void wheelEvent(QWheelEvent* e);
         virtual void resizeEvent(QResizeEvent* e);
@@ -23,18 +24,15 @@ class GraphView : public QAbstractScrollArea
         virtual void mouseMoveEvent(QMouseEvent* e);
 
     private:
-        int getEdgesHeight(const REDasm::Graphing::VertexList& vl) const;
-        int getEdgeIndex(GraphItem* from, GraphItem* to) const;
-        int getLayerHeight(GraphItem* item) const;
+        void updateScrollBars();
         void drawBlocks(QPainter* painter);
         void drawEdges(QPainter* painter);
-        void drawEdge(QPainter *painter, GraphItem* from, GraphItem* to);
+        void drawEdge(QPainter *painter, ogdf::EdgeElement *edge);
 
     private:
         QPoint m_lastpos;
         std::unique_ptr<REDasm::Graphing::Graph> m_graph;
-        REDasm::Graphing::LayeredGraph m_lgraph;
-        QHash<REDasm::Graphing::vertex_id_t, GraphItem*> m_items;
+        QList<GraphItem*> m_items;
 };
 
 #endif // GRAPHVIEW_H

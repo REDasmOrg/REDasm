@@ -9,8 +9,7 @@ class GraphTextItem : public GraphRectItem
     Q_OBJECT
 
     public:
-        explicit GraphTextItem(REDasm::Graphing::Vertex* v, QObject *parent = NULL);
-        virtual QRect boundingRect() const;
+        explicit GraphTextItem(REDasm::Graphing::NodeData* data, QObject *parent = NULL);
         virtual void paint(QPainter* painter);
 
     protected:

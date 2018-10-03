@@ -16,8 +16,6 @@ struct FunctionGraphData: public NodeData
     FunctionGraphData(s64 startidx): NodeData(), startidx(startidx), endidx(startidx), labelbreak(false) { }
     bool contains(s64 index) const { return (index >= startidx) && (index <= endidx); }
     int count() const { return (endidx - startidx) + 1; }
-    //void bTrue(Graphing::Vertex* v) { edgeColor(v, "green"); }
-    //void bFalse(Graphing::Vertex* v) { edgeColor(v, "red"); }
 };
 
 class FunctionGraph: public Graph

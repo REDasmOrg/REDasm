@@ -38,7 +38,7 @@ OGDF_BUILD = $$shell_path($$OUT_PWD/ogdf)
 lib_ogdf.commands = @echo "Compiling OGDF..." && \
                     $(MKDIR) $$OGDF_BUILD && \
                     cd $$OGDF_BUILD && \
-                    cmake $$CMAKE_GENERATOR $$OGDF_SRC -DOGDF_WARNING_ERRORS=OFF && \
+                    cmake -DCMAKE_CXX_FLAGS="-w" $$CMAKE_GENERATOR $$OGDF_SRC -DOGDF_WARNING_ERRORS=OFF && \
                     $(MAKE)
 
 INCLUDEPATH += $$shell_path($$OGDF_BUILD/include) $$shell_path($$OGDF_SRC/include)

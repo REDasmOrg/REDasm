@@ -118,7 +118,7 @@ void FunctionGraph::buildEdges()
         int index = data->startidx;
 
         if(data->labelbreak && (data->endidx + 1 < static_cast<s64>(m_document->size())))
-            this->addEdge(data, this->vertexFromListingIndex(data->endidx + 1));
+            this->addEdge(data, this->vertexFromListingIndex(data->endidx + 1), ogdf::Color::Name::Blue);
 
         for( ; (it != m_document->end()) && (index <= data->endidx); it++, index++)
         {
@@ -140,8 +140,7 @@ void FunctionGraph::buildEdges()
                 if(!todata)
                     continue;
 
-                this->addEdge(data, todata);
-                //v->bTrue(tov);
+                this->addEdge(data, todata, ogdf::Color::Name::Green);
             }
 
             if(instruction->is(InstructionTypes::Conditional))
@@ -151,8 +150,7 @@ void FunctionGraph::buildEdges()
                 if(!todata)
                     continue;
 
-                this->addEdge(data, todata);
-                //v->bFalse(tov);
+                this->addEdge(data, todata, ogdf::Color::Name::Red);
             }
         }
     }

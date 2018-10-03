@@ -26,8 +26,9 @@ class Graph
         const NodeDataList& nodes() const;
         const EdgeList& edges() const;
         void addNode(NodeData* data);
-        void addEdge(NodeData* from, NodeData* to);
-        ogdf::DPolyline polyline(ogdf::EdgeElement* edge);
+        void addEdge(NodeData* from, NodeData* to, const ogdf::Color& color = ogdf::Color::Name::Black);
+        const ogdf::Color& color(ogdf::EdgeElement* edge) const;
+        ogdf::DPolyline polyline(ogdf::EdgeElement* edge) const;
         virtual void layout();
 
     protected:

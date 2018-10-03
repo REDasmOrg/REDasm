@@ -3,6 +3,7 @@
 #include "../../redasm/redasm.h"
 #include <QtGui>
 #include <QtWidgets>
+#include <QScreen>
 
 #define MINIMUM_SIZE 50
 #define DROP_SHADOW_SIZE(x) x, x, x, x
@@ -10,18 +11,12 @@
 #define DROP_SHADOW_ARG   DROP_SHADOW_SIZE(DROP_SHADOW_VALUE)
 #define ZOOM_FACTOR_STEP  0.050
 
-GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent)
-{
-    this->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-}
+GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent) { this->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken); }
 
 void GraphView::setGraph(REDasm::Graphing::Graph* graph)
 {
     m_graph = std::make_unique<REDasm::Graphing::Graph>(graph);
     m_items.clear();
-
-    this->horizontalScrollBar()->setValue(0);
-    this->verticalScrollBar()->setValue(0);
 
     for(auto& item : m_graph->nodes())
         m_items.push_back(this->createItem(item.get()));
@@ -64,7 +59,7 @@ void GraphView::wheelEvent(QWheelEvent *e)
 void GraphView::resizeEvent(QResizeEvent *e)
 {
     QAbstractScrollArea::resizeEvent(e);
-    this->updateScrollBars();
+    //this->updateScrollBars();
 }
 
 void GraphView::mousePressEvent(QMouseEvent *e)
@@ -101,11 +96,14 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
 
 void GraphView::updateScrollBars()
 {
-    this->horizontalScrollBar()->setMaximum(m_graph->width());
-    this->verticalScrollBar()->setMaximum(m_graph->height());
+    int w = qApp->primaryScreen()->size().width() * 2;
+    int h = qApp->primaryScreen()->size().height() * 2;
 
-    this->viewport()->resize(std::max(this->width(), static_cast<int>(m_graph->width())),
-                             std::max(this->height(), static_cast<int>(m_graph->height())));
+    this->horizontalScrollBar()->setMaximum(w);
+    this->verticalScrollBar()->setMaximum(h);
+
+    this->viewport()->setFixedWidth(w);
+    this->viewport()->setFixedHeight(h);
 }
 
 void GraphView::drawBlocks(QPainter *painter)
@@ -125,12 +123,14 @@ void GraphView::drawEdges(QPainter *painter)
 
 void GraphView::drawEdge(QPainter* painter, ogdf::EdgeElement* edge)
 {
-    const ogdf::DPolyline& polyline = m_graph->polyline(edge);
+    ogdf::DPolyline polyline = m_graph->polyline(edge);
+    polyline.normalize();
     QVector<QPointF> lines;
 
     for(const ogdf::DPoint& p : polyline)
-        lines.push_front(QPointF(p.m_x, p.m_y));
+        lines.push_back(QPointF(p.m_x, p.m_y));
 
-    painter->setPen(QPen(Qt::black, 2));
+    QColor c(QString::fromStdString(m_graph->color(edge).toString()));
+    painter->setPen(QPen(c, 2));
     painter->drawPolyline(lines.data(), lines.size());
 }

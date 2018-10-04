@@ -17,6 +17,17 @@ void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
 {
     m_graphready = false;
 
+    this->page()->runJavaScript("d3.select('body').on('keydown', function() { "
+                                    "if(svg && d3.event.ctrlKey)"
+                                        "svg.call(d3.zoom().on('zoom', function () { svg.attr('transform', d3.event.transform); }));"
+                                    "else if(svg)"
+                                        "svg.call(d3.zoom().on('zoom', null));"
+                                " });"
+                                "d3.select('body').on('keyup', function() { "
+                                    "if(svg)"
+                                        "svg.call(d3.zoom().on('zoom', null));"
+                                "}); ");
+
     this->page()->runJavaScript("var g = new dagre.graphlib.Graph();"
                                 "g.setDefaultEdgeLabel(function() { return { }; });"
                                 "g.setGraph({ });");
@@ -26,9 +37,9 @@ void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
 
     this->page()->runJavaScript("d3.selectAll('svg > *').remove();"
                                 "var svg = d3.select('svg');"
-                                "svg.append('g').call(new dagreD3.render(), g);" +
-                                QString("svg.attr('width', g.graph().width + %1);").arg(GRAPH_MARGINS) +
-                                QString("svg.attr('height', g.graph().height + %1);").arg(GRAPH_MARGINS));
+                                "svg.append('g').call(new dagreD3.render(), g);"
+                                "svg.attr('preserveAspectRatio', 'xMinYMin meet');"
+                                "svg.attr('viewBox', '0 0 ' + g.graph().width + ' ' + g.graph().height);");
     m_graphready = true;
     this->redraw();
 }
@@ -51,9 +62,14 @@ void GraphView::loadTheme()
     QString blockcss = ".node rect {"
                            "fill: white;"
                            "stroke: black;"
+                           "stroke-width: 1.5;"
                        "}"
                        ".edgePath path {"
                            "stroke: black;"
+                           "stroke-width: 2;"
+                       "}"
+                       ".edgePath path:hover {"
+                           "stroke-width: 3;"
                        "}";
 
     this->appendCSS(generalcss);
@@ -94,9 +110,4 @@ void GraphView::redraw()
 {
     if(!m_graphready)
         return;
-
-    this->page()->runJavaScript("var width = " + QString::number(this->width()) + ";" +
-                                "var height = " + QString::number(this->height()) + ";" +
-                                "var mid = (width - g.graph().width) / 2;" +
-                                QString("svg.attr('transform', 'translate(' + mid  + ', %1)');").arg(GRAPH_MARGINS));
 }

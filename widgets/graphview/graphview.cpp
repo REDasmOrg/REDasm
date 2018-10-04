@@ -1,136 +1,102 @@
 #include "graphview.h"
-#include "graphmetrics.h"
-#include "../../redasm/redasm.h"
-#include <QtGui>
-#include <QtWidgets>
-#include <QScreen>
+#include <QWebEngineSettings>
+#include <QFontDatabase>
+#include "../../themeprovider.h"
 
-#define MINIMUM_SIZE 50
-#define DROP_SHADOW_SIZE(x) x, x, x, x
-#define DROP_SHADOW_VALUE 8
-#define DROP_SHADOW_ARG   DROP_SHADOW_SIZE(DROP_SHADOW_VALUE)
-#define ZOOM_FACTOR_STEP  0.050
+#define GRAPH_MARGINS 20
 
-GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent) { this->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken); }
-
-void GraphView::setGraph(REDasm::Graphing::Graph* graph)
+GraphView::GraphView(QWidget *parent): QWebEngineView(parent), m_graphready(false)
 {
-    m_graph = std::make_unique<REDasm::Graphing::Graph>(graph);
-    m_items.clear();
+    connect(this, &GraphView::loadFinished, this, &GraphView::loadTheme);
 
-    for(auto& item : m_graph->nodes())
-        m_items.push_back(this->createItem(item.get()));
-
-    m_graph->layout();
-    this->updateScrollBars();
-    this->update();
+    this->page()->setBackgroundColor("azure");
+    this->load(QUrl("qrc:/web/graph.html"));
 }
 
-GraphItem *GraphView::createItem(REDasm::Graphing::NodeData *data) { return new GraphItem(data, this); }
-
-void GraphView::scrollContentsBy(int dx, int dy)
+void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
 {
-    QWidget* viewport = this->viewport();
+    m_graphready = false;
 
-    viewport->move(viewport->x() + dx,
-                   viewport->y() + dy);
-}
+    this->page()->runJavaScript("var g = new dagre.graphlib.Graph();"
+                                "g.setDefaultEdgeLabel(function() { return { }; });"
+                                "g.setGraph({ });");
 
-void GraphView::paintEvent(QPaintEvent* e)
-{
-    Q_UNUSED(e)
+    this->generateNodes(graph);
+    this->generateEdges(graph);
 
-    QPainter painter(this->viewport());
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.fillRect(this->viewport()->rect(), QColor("azure"));
-
-    this->drawEdges(&painter);
-    this->drawBlocks(&painter);
-}
-
-void GraphView::wheelEvent(QWheelEvent *e)
-{
-    if(e->modifiers() & Qt::ControlModifier)
-        return;
-
-    QAbstractScrollArea::wheelEvent(e);
+    this->page()->runJavaScript("d3.selectAll('svg > *').remove();"
+                                "var svg = d3.select('svg');"
+                                "svg.append('g').call(new dagreD3.render(), g);" +
+                                QString("svg.attr('width', g.graph().width + %1);").arg(GRAPH_MARGINS) +
+                                QString("svg.attr('height', g.graph().height + %1);").arg(GRAPH_MARGINS));
+    m_graphready = true;
+    this->redraw();
 }
 
 void GraphView::resizeEvent(QResizeEvent *e)
 {
-    QAbstractScrollArea::resizeEvent(e);
-    //this->updateScrollBars();
+    QWebEngineView::resizeEvent(e);
+    this->redraw();
 }
 
-void GraphView::mousePressEvent(QMouseEvent *e)
+void GraphView::loadTheme()
 {
-    QAbstractScrollArea::mousePressEvent(e);
+    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
-    if(e->button() == Qt::LeftButton)
+    QString generalcss = "html {"
+                             "font-family:" + font.family() + ";" +
+                             "font-size" + QString::number(font.pointSize()) + "pt;" +
+                         "}";
+
+    QString blockcss = ".node rect {"
+                           "fill: white;"
+                           "stroke: black;"
+                       "}"
+                       ".edgePath path {"
+                           "stroke: black;"
+                       "}";
+
+    this->appendCSS(generalcss);
+    this->appendCSS(blockcss);
+}
+
+void GraphView::generateNodes(const REDasm::Graphing::Graph &graph)
+{
+    for(auto& n : graph)
     {
-        m_lastpos = e->pos();
-        this->setCursor(QCursor(Qt::ClosedHandCursor));
+        QString content = this->getNodeContent(n.get());
+
+        this->page()->runJavaScript(QString("g.setNode(%1, { labelType: 'html', "
+                                            "                label: '%2' });").arg(n->id).arg(content));
     }
 }
 
-void GraphView::mouseReleaseEvent(QMouseEvent *e)
+void GraphView::generateEdges(const REDasm::Graphing::Graph &graph)
 {
-    QAbstractScrollArea::mouseReleaseEvent(e);
-}
-
-void GraphView::mouseMoveEvent(QMouseEvent *e)
-{
-    QAbstractScrollArea::mouseMoveEvent(e);
-
-    if(e->buttons() & Qt::LeftButton)
+    for(auto& n : graph)
     {
-        int xdelta = m_lastpos.x() - e->x();
-        int ydelta = m_lastpos.y() - e->y();
+        const REDasm::Graphing::AdjacencyList& edges = graph.edges(n);
 
-        this->horizontalScrollBar()->setValue(this->horizontalScrollBar()->value() + xdelta);
-        this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() + ydelta);
-
-        m_lastpos = e->pos();
+        for(auto& e : edges)
+            this->page()->runJavaScript(QString("g.setEdge(%1, %2);").arg(n->id).arg(e->id));
     }
 }
 
-void GraphView::updateScrollBars()
+void GraphView::appendCSS(const QString &css)
 {
-    int w = qApp->primaryScreen()->size().width() * 2;
-    int h = qApp->primaryScreen()->size().height() * 2;
-
-    this->horizontalScrollBar()->setMaximum(w);
-    this->verticalScrollBar()->setMaximum(h);
-
-    this->viewport()->setFixedWidth(w);
-    this->viewport()->setFixedHeight(h);
+    this->page()->runJavaScript("var css = document.createElement('style');"
+                                "css.type = 'text/css';"
+                                "document.head.appendChild(css);"
+                                "css.innerText = '" + css + "';");
 }
 
-void GraphView::drawBlocks(QPainter *painter)
+void GraphView::redraw()
 {
-    for(GraphItem* gi : m_items)
-    {
-        painter->fillRect(gi->boundingRect().adjusted(DROP_SHADOW_ARG), Qt::lightGray);
-        gi->paint(painter);
-    }
-}
+    if(!m_graphready)
+        return;
 
-void GraphView::drawEdges(QPainter *painter)
-{
-    for(ogdf::EdgeElement* edge : m_graph->edges())
-        this->drawEdge(painter, edge);
-}
-
-void GraphView::drawEdge(QPainter* painter, ogdf::EdgeElement* edge)
-{
-    ogdf::DPolyline polyline = m_graph->polyline(edge);
-    polyline.normalize();
-    QVector<QPointF> lines;
-
-    for(const ogdf::DPoint& p : polyline)
-        lines.push_back(QPointF(p.m_x, p.m_y));
-
-    QColor c(QString::fromStdString(m_graph->color(edge).toString()));
-    painter->setPen(QPen(c, 2));
-    painter->drawPolyline(lines.data(), lines.size());
+    this->page()->runJavaScript("var width = " + QString::number(this->width()) + ";" +
+                                "var height = " + QString::number(this->height()) + ";" +
+                                "var mid = (width - g.graph().width) / 2;" +
+                                QString("svg.attr('transform', 'translate(' + mid  + ', %1)');").arg(GRAPH_MARGINS));
 }

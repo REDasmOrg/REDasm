@@ -7,7 +7,7 @@
 QT       += core gui xml
 CONFIG   += c++11
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webengine webenginewidgets
 
 TARGET = REDasm
 TEMPLATE = app
@@ -73,7 +73,6 @@ SOURCES += main.cpp\
     redasm/support/serializer.cpp \
     redasm/signatures/signaturedb.cpp \
     dialogs/aboutdialog.cpp \
-    widgets/disassemblergraphview/functionblockitem.cpp \
     redasm/redasm.cpp \
     redasm/formats/pe/pe_resources.cpp \
     redasm/formats/pe/borland/borland_version.cpp \
@@ -96,8 +95,6 @@ SOURCES += main.cpp\
     redasm/formats/dex/dex_statemachine.cpp \
     redasm/formats/dex/dex_utils.cpp \
     themeprovider.cpp \
-    widgets/graphview/graphitems/graphitem.cpp \
-    widgets/graphview/graphitems/graphtextitem.cpp \
     widgets/graphview/graphview.cpp \
     redasm/formats/elf/elf_analyzer.cpp \
     redasm/disassembler/disassemblerapi.cpp \
@@ -132,10 +129,8 @@ SOURCES += main.cpp\
     renderer/listingrenderercommon.cpp \
     renderer/listinggraphrenderer.cpp \
     widgets/disassemblergraphview/disassemblergraphview.cpp \
-    widgets/graphview/graphitems/graphrectitem.cpp \
     widgets/graphview/graphmetrics.cpp \
-    redasm/graph/graph.cpp \
-    redasm/graph/nodedata.cpp
+    redasm/graph/graph.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -186,7 +181,6 @@ HEADERS  += mainwindow.h \
     redasm/support/serializer.h \
     redasm/signatures/signaturedb.h \
     dialogs/aboutdialog.h \
-    widgets/disassemblergraphview/functionblockitem.h \
     redasm/formats/pe/pe_resources.h \
     redasm/formats/pe/borland/borland_types.h \
     redasm/formats/pe/borland/borland_version.h \
@@ -217,8 +211,6 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/pe_debug.h \
     redasm/formats/pe/pe_common.h \
     themeprovider.h \
-    widgets/graphview/graphitems/graphitem.h \
-    widgets/graphview/graphitems/graphtextitem.h \
     widgets/graphview/graphview.h \
     redasm/formats/elf/elf_analyzer.h \
     redasm/disassembler/disassemblerapi.h \
@@ -258,10 +250,8 @@ HEADERS  += mainwindow.h \
     renderer/listingrenderercommon.h \
     renderer/listinggraphrenderer.h \
     widgets/disassemblergraphview/disassemblergraphview.h \
-    widgets/graphview/graphitems/graphrectitem.h \
     widgets/graphview/graphmetrics.h \
-    redasm/graph/graph.h \
-    redasm/graph/nodedata.h
+    redasm/graph/graph.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

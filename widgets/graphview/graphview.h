@@ -2,37 +2,32 @@
 #define GRAPHVIEW_H
 
 #include <QAbstractScrollArea>
+#include <QWebEngineView>
 #include "../../redasm/graph/graph.h"
-#include "graphitems/graphitem.h"
 
-class GraphView : public QAbstractScrollArea
+class GraphView : public QWebEngineView
 {
     Q_OBJECT
 
     public:
         explicit GraphView(QWidget *parent = NULL);
-        void setGraph(REDasm::Graphing::Graph *graph);
+        void setGraph(const REDasm::Graphing::Graph &graph);
 
     protected:
-        virtual GraphItem* createItem(REDasm::Graphing::NodeData* data);
-        virtual void scrollContentsBy(int dx, int dy);
-        virtual void paintEvent(QPaintEvent*e);
-        virtual void wheelEvent(QWheelEvent* e);
+        virtual QString getNodeContent(const REDasm::Graphing::Node* n) = 0;
         virtual void resizeEvent(QResizeEvent* e);
-        virtual void mousePressEvent(QMouseEvent* e);
-        virtual void mouseReleaseEvent(QMouseEvent* e);
-        virtual void mouseMoveEvent(QMouseEvent* e);
+
+    private slots:
+        void loadTheme();
 
     private:
-        void updateScrollBars();
-        void drawBlocks(QPainter* painter);
-        void drawEdges(QPainter* painter);
-        void drawEdge(QPainter *painter, ogdf::EdgeElement *edge);
+        void generateNodes(const REDasm::Graphing::Graph& graph);
+        void generateEdges(const REDasm::Graphing::Graph& graph);
+        void appendCSS(const QString& css);
+        void redraw();
 
     private:
-        QPoint m_lastpos;
-        std::unique_ptr<REDasm::Graphing::Graph> m_graph;
-        QList<GraphItem*> m_items;
+        bool m_graphready;
 };
 
 #endif // GRAPHVIEW_H

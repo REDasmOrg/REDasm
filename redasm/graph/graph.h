@@ -1,41 +1,42 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <functional>
+#include <unordered_map>
 #include <memory>
 #include <list>
-#include <ogdf/basic/Graph.h>
-#include <ogdf/basic/GraphAttributes.h>
-#include "nodedata.h"
+#include <set>
 
 namespace REDasm {
 namespace Graphing {
 
-class Graph
+struct Node { int id; };
+
+typedef std::unique_ptr<Node> NodePtr;
+typedef std::set<Node*> AdjacencyList;
+
+class Graph: protected std::list<NodePtr>
 {
+    private:
+        typedef std::list<NodePtr> Type;
+
     public:
-        typedef std::unique_ptr<NodeData> NodeDataPtr;
-        typedef std::list<NodeDataPtr> NodeDataList;
-        typedef std::list<ogdf::EdgeElement*> EdgeList;
+        using Type::begin;
+        using Type::end;
+        using Type::size;
 
     public:
         Graph();
-        double width();
-        double height();
-        ogdf::GraphAttributes* attributes();
-        const NodeDataList& nodes() const;
-        const EdgeList& edges() const;
-        void addNode(NodeData* data);
-        void addEdge(NodeData* from, NodeData* to, const ogdf::Color& color = ogdf::Color::Name::Black);
-        const ogdf::Color& color(ogdf::EdgeElement* edge) const;
-        ogdf::DPolyline polyline(ogdf::EdgeElement* edge) const;
-        virtual void layout();
+        void addNode(Node* n);
+        void addEdge(Node* from, Node* to);
+        const AdjacencyList& edges(const NodePtr& np) const;
+        const AdjacencyList& edges(Node *n) const;
 
-    protected:
-        ogdf::Graph m_graph;
-        ogdf::GraphAttributes m_attributes;
-        NodeDataList m_nodelist;
-        EdgeList m_edgelist;
+    private:
+        int getId();
+
+    private:
+        std::unordered_map<int, AdjacencyList> m_graph;
+        int m_currentid;
 };
 
 } // namespace Graphing

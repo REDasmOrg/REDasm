@@ -13,6 +13,11 @@ class ListingRendererCommon
         ListingRendererCommon(QTextDocument* textdocument, REDasm::ListingDocument* document);
         void insertLine(const REDasm::RendererLine& rl, bool showcursor = false);
         void insertText(const REDasm::RendererLine& rl, bool showcursor = false);
+        void insertHtmlLine(const REDasm::RendererLine& rl);
+        void insertHtmlText(const REDasm::RendererLine& rl);
+
+    private:
+        QString foregroundHtml(const std::string& s, const std::string& style) const;
 
     private:
         void showCursor();

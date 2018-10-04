@@ -46,6 +46,32 @@ void ListingRendererCommon::insertText(const REDasm::RendererLine &rl, bool show
     }
 }
 
+void ListingRendererCommon::insertHtmlLine(const REDasm::RendererLine &rl)
+{
+    m_textcursor.movePosition(QTextCursor::End);
+    m_textcursor.insertText("<br>");
+    this->insertHtmlText(rl);
+}
+
+void ListingRendererCommon::insertHtmlText(const REDasm::RendererLine &rl)
+{
+    for(const REDasm::RendererFormat& rf : rl.formats)
+    {
+       std::string s = rl.text.substr(rf.start, rf.length);
+
+       if(!rf.style.empty())
+           m_textcursor.insertText(this->foregroundHtml(s, rf.style));
+       else
+           m_textcursor.insertText(QString::fromStdString(s));
+    }
+}
+
+QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style) const
+{
+    QColor c = THEME_VALUE(QString::fromStdString(style));
+    return QString("<font color=&quot;%1&quot;>%2</font>").arg(c.name(), QString::fromStdString(s));
+}
+
 void ListingRendererCommon::showCursor()
 {
     REDasm::ListingCursor* cur = m_document->cursor();

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include <QtWebEngine>
 
 #ifdef QT_DEBUG
 #include "unittest/unittest.h"
@@ -12,6 +13,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setApplicationDisplayName("REDasm 2.0-" + QString::fromUtf8(GIT_VERSION));
 
+    QtWebEngine::initialize();
     MainWindow w;
 
 #ifdef QT_DEBUG

@@ -9,7 +9,7 @@ void ListingGraphRenderer::renderLine(const REDasm::RendererLine &rl)
     ListingRendererCommon lrc(textdocument, m_document);
 
     if(!rl.index)
-        lrc.insertText(rl);
+        lrc.insertHtmlText(rl);
     else
-        lrc.insertLine(rl);
+        lrc.insertHtmlLine(rl);
 }

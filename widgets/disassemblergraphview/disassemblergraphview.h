@@ -3,8 +3,6 @@
 
 #include "../graphview/graphview.h"
 #include "../../redasm/disassembler/disassemblerapi.h"
-#include "../../redasm/disassembler/graph/functiongraph.h"
-#include "functionblockitem.h"
 
 class DisassemblerGraphView : public GraphView
 {
@@ -16,7 +14,7 @@ class DisassemblerGraphView : public GraphView
         void graph();
 
     protected:
-        virtual GraphItem* createItem(REDasm::Graphing::NodeData* v);
+        virtual QString getNodeContent(const REDasm::Graphing::Node* n);
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;

@@ -8,14 +8,18 @@
 namespace REDasm {
 namespace Graphing {
 
-struct FunctionGraphData: public NodeData
+struct FunctionBlock: public Node
 {
     s64 startidx, endidx;
     bool labelbreak;
 
-    FunctionGraphData(s64 startidx): NodeData(), startidx(startidx), endidx(startidx), labelbreak(false) { }
+    std::unordered_map<FunctionBlock*, std::string> colors;
+
+    FunctionBlock(s64 startidx): startidx(startidx), endidx(startidx), labelbreak(false) { }
     bool contains(s64 index) const { return (index >= startidx) && (index <= endidx); }
     int count() const { return (endidx - startidx) + 1; }
+    void bTrue(FunctionBlock* v) { colors[v] = "green"; }
+    void bFalse(FunctionBlock* v) { colors[v] = "red"; }
 };
 
 class FunctionGraph: public Graph
@@ -30,8 +34,8 @@ class FunctionGraph: public Graph
         void build(address_t address);
 
     private:
-        FunctionGraphData* vertexFromListingIndex(s64 index);
-        void buildNodes(address_t startaddress);
+        FunctionBlock* vertexFromListingIndex(s64 index);
+        void buildVertices(address_t startaddress);
         void buildNode(int index, IndexQueue &indexqueue);
         void buildEdges();
 

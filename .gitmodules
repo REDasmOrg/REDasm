@@ -5,6 +5,3 @@
 	path = depends/capstone
 	url = https://github.com/aquynh/capstone.git
 	branch = next
-[submodule "depends/ogdf"]
-	path = depends/ogdf
-	url = https://github.com/ogdf/ogdf.git

@@ -8,15 +8,15 @@ ListingDocument* FunctionGraph::document() { return m_document; }
 
 void FunctionGraph::build(address_t address)
 {
-    this->buildNodes(address);
+    this->buildVertices(address);
     this->buildEdges();
 }
 
-FunctionGraphData *FunctionGraph::vertexFromListingIndex(s64 index)
+FunctionBlock *FunctionGraph::vertexFromListingIndex(s64 index)
 {
-    for(auto& item : m_nodelist)
+    for(auto& item : *this)
     {
-       FunctionGraphData* v = static_cast<FunctionGraphData*>(item.get());
+       FunctionBlock* v = static_cast<FunctionBlock*>(item.get());
 
         if(v->contains(index))
             return v;
@@ -32,7 +32,7 @@ void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
     if(it == m_document->end())
         return;
 
-    std::unique_ptr<FunctionGraphData> data = std::make_unique<FunctionGraphData>(index);
+    std::unique_ptr<FunctionBlock> data = std::make_unique<FunctionBlock>(index);
     ListingItem* item = it->get();
 
     for( ; it != m_document->end(); it++, index++)
@@ -80,7 +80,7 @@ void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
     this->addNode(data.release());
 }
 
-void FunctionGraph::buildNodes(address_t startaddress)
+void FunctionGraph::buildVertices(address_t startaddress)
 {
     REDasm::ListingItem* item = m_document->functionStart(startaddress);
 
@@ -111,14 +111,14 @@ void FunctionGraph::buildNodes(address_t startaddress)
 
 void FunctionGraph::buildEdges()
 {
-    for(auto& item : m_nodelist)
+    for(auto& item : *this)
     {
-        FunctionGraphData* data = static_cast<FunctionGraphData*>(item.get());
+        FunctionBlock* data = static_cast<FunctionBlock*>(item.get());
         auto it = std::next(m_document->begin(), data->startidx);
         int index = data->startidx;
 
         if(data->labelbreak && (data->endidx + 1 < static_cast<s64>(m_document->size())))
-            this->addEdge(data, this->vertexFromListingIndex(data->endidx + 1), ogdf::Color::Name::Blue);
+            this->addEdge(data, this->vertexFromListingIndex(data->endidx + 1));
 
         for( ; (it != m_document->end()) && (index <= data->endidx); it++, index++)
         {
@@ -135,22 +135,24 @@ void FunctionGraph::buildEdges()
             for(address_t target : instruction->targets)
             {
                 int tgtindex = m_document->indexOfSymbol(target);
-                FunctionGraphData* todata = this->vertexFromListingIndex(tgtindex);
+                FunctionBlock* todata = this->vertexFromListingIndex(tgtindex);
 
                 if(!todata)
                     continue;
 
-                this->addEdge(data, todata, ogdf::Color::Name::Green);
+                this->addEdge(data, todata);
+                data->bTrue(todata);
             }
 
             if(instruction->is(InstructionTypes::Conditional))
             {
-                FunctionGraphData* todata = this->vertexFromListingIndex(index + 1);
+                FunctionBlock* todata = this->vertexFromListingIndex(index + 1);
 
                 if(!todata)
                     continue;
 
-                this->addEdge(data, todata, ogdf::Color::Name::Red);
+                this->addEdge(data, todata);
+                data->bFalse(todata);
             }
         }
     }

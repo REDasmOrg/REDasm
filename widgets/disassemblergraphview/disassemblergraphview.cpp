@@ -23,3 +23,9 @@ QString DisassemblerGraphView::getNodeContent(const REDasm::Graphing::Node *n)
     lgr.render(fb->startidx, fb->count(), &textdocument);
     return textdocument.toPlainText();
 }
+
+QColor DisassemblerGraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to)
+{
+    const REDasm::Graphing::FunctionBlock* fb = static_cast<const REDasm::Graphing::FunctionBlock*>(from);
+    return QColor(QString::fromStdString(fb->color(static_cast<const REDasm::Graphing::FunctionBlock*>(to))));
+}

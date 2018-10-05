@@ -36,6 +36,14 @@ void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
                                 QString("svg.attr('width', '%1');").arg(this->width()));
 }
 
+QColor GraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to)
+{
+    Q_UNUSED(from)
+    Q_UNUSED(to)
+
+    return QColor(Qt::black);
+}
+
 void GraphView::initializePage()
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
@@ -54,11 +62,7 @@ void GraphView::initializePage()
                            "stroke-width: 1.5;"
                        "}"
                        ".edgePath path {"
-                           "stroke: black;"
-                           "stroke-width: 2;"
-                       "}"
-                       ".edgePath path:hover {"
-                           "stroke-width: 3;"
+                           "stroke-width: 1.5;"
                        "}";
 
     this->appendCSS(generalcss);
@@ -82,7 +86,13 @@ void GraphView::generateEdges(const REDasm::Graphing::Graph &graph)
         const REDasm::Graphing::AdjacencyList& edges = graph.edges(n);
 
         for(auto& e : edges)
-            this->page()->runJavaScript(QString("graph.setEdge(%1, %2);").arg(n->id).arg(e->id));
+        {
+            QColor color = this->getEdgeColor(n.get(), e);
+            this->page()->runJavaScript(QString("graph.setEdge(%1, %2, { style: 'stroke: %3; fill: transparent', "
+                                                                        "arrowheadStyle: 'stroke: %3; fill: %3' });").arg(n->id)
+                                                                                                                   .arg(e->id)
+                                                                                                                   .arg(color.name()));
+        }
     }
 }
 

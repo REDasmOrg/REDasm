@@ -15,6 +15,7 @@ class DisassemblerGraphView : public GraphView
 
     protected:
         virtual QString getNodeContent(const REDasm::Graphing::Node* n);
+        virtual QColor getEdgeColor(const REDasm::Graphing::Node* from, const REDasm::Graphing::Node* to);
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;

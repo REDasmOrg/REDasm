@@ -15,6 +15,7 @@ class GraphView : public QWebEngineView
 
     protected:
         virtual QString getNodeContent(const REDasm::Graphing::Node* n) = 0;
+        virtual QColor getEdgeColor(const REDasm::Graphing::Node* from, const REDasm::Graphing::Node* to);
 
     private slots:
         void initializePage();

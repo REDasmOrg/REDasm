@@ -69,7 +69,7 @@ void ListingRendererCommon::insertHtmlText(const REDasm::RendererLine &rl)
 QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style) const
 {
     QColor c = THEME_VALUE(QString::fromStdString(style));
-    return QString("<font color=&quot;%1&quot;>%2</font>").arg(c.name(), QString::fromStdString(s));
+    return QString("<font style=\"color: %1\">%2</font>").arg(c.name(), QString::fromStdString(s));
 }
 
 void ListingRendererCommon::showCursor()

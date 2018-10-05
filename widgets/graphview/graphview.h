@@ -15,19 +15,14 @@ class GraphView : public QWebEngineView
 
     protected:
         virtual QString getNodeContent(const REDasm::Graphing::Node* n) = 0;
-        virtual void resizeEvent(QResizeEvent* e);
 
     private slots:
-        void loadTheme();
+        void initializePage();
 
     private:
         void generateNodes(const REDasm::Graphing::Graph& graph);
         void generateEdges(const REDasm::Graphing::Graph& graph);
         void appendCSS(const QString& css);
-        void redraw();
-
-    private:
-        bool m_graphready;
 };
 
 #endif // GRAPHVIEW_H

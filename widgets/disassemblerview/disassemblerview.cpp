@@ -344,8 +344,8 @@ void DisassemblerView::switchGraphListing()
     if(ui->stackedWidget->currentWidget() == m_disassemblertextview)
     {
         ui->tbListingGraph->setIcon(QIcon(":/res/listing.png"));
-        m_disassemblergraphview->graph();
         ui->stackedWidget->setCurrentWidget(m_disassemblergraphview);
+        m_disassemblergraphview->graph();
 
     }
     else

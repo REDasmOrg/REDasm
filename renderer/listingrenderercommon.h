@@ -18,6 +18,7 @@ class ListingRendererCommon
 
     private:
         QString foregroundHtml(const std::string& s, const std::string& style) const;
+        QString wordsToSpan(const std::string& s) const;
 
     private:
         void showCursor();

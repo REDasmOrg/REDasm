@@ -1,7 +1,8 @@
 #ifndef THEMEPROVIDER_H
 #define THEMEPROVIDER_H
 
-#define THEME_VALUE(name) ThemeProvider::themeValue(name)
+#define THEME_VALUE(n) ThemeProvider::themeValue(n)
+#define THEME_VALUE_COLOR(n) THEME_VALUE(n).name()
 
 #include <QJsonObject>
 #include <QColor>

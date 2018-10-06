@@ -44,6 +44,14 @@ QColor GraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm:
     return QColor(Qt::black);
 }
 
+void GraphView::appendCSS(const QString &css)
+{
+    this->page()->runJavaScript("var css = document.createElement('style');"
+                                "css.type = 'text/css';"
+                                "document.head.appendChild(css);"
+                                "css.innerText = '" + css + "';");
+}
+
 void GraphView::initializePage()
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
@@ -94,12 +102,4 @@ void GraphView::generateEdges(const REDasm::Graphing::Graph &graph)
                                                                                                                    .arg(color.name()));
         }
     }
-}
-
-void GraphView::appendCSS(const QString &css)
-{
-    this->page()->runJavaScript("var css = document.createElement('style');"
-                                "css.type = 'text/css';"
-                                "document.head.appendChild(css);"
-                                "css.innerText = '" + css + "';");
 }

@@ -6,7 +6,7 @@
 
 ListingRendererCommon::ListingRendererCommon(QTextDocument *textdocument, REDasm::ListingDocument *document): m_textdocument(textdocument), m_document(document)
 {
-    m_rgxwords.setPattern("[\\w\\.]+");
+    m_rgxwords.setPattern("([\\w\\.]+)");
     m_textcursor = QTextCursor(textdocument);
 }
 
@@ -62,14 +62,21 @@ void ListingRendererCommon::insertHtmlText(const REDasm::RendererLine &rl)
        if(!rf.style.empty())
            m_textcursor.insertText(this->foregroundHtml(s, rf.style));
        else
-           m_textcursor.insertText(QString::fromStdString(s));
+           m_textcursor.insertText(this->wordsToSpan(s));
     }
 }
 
 QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style) const
 {
     QColor c = THEME_VALUE(QString::fromStdString(style));
-    return QString("<font style=\"color: %1\">%2</font>").arg(c.name(), QString::fromStdString(s));
+    return QString("<font style=\"color: %1\">%2</font>").arg(c.name(), this->wordsToSpan(s));
+}
+
+QString ListingRendererCommon::wordsToSpan(const std::string &s) const
+{
+    QString spans = QString::fromStdString(s);
+    spans.replace(m_rgxwords, "<span>\\1</span>");
+    return spans;
 }
 
 void ListingRendererCommon::showCursor()

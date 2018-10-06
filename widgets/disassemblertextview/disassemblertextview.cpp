@@ -354,7 +354,7 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
     QScrollBar* vscrollbar = this->verticalScrollBar();
     this->adjustScrollBars();
 
-    if((ldc->index < vscrollbar->value()) || (ldc->index > vscrollbar->value() + this->visibleLines()))
+    if(!this->isVisible() || (ldc->index < vscrollbar->value()) || (ldc->index > vscrollbar->value() + this->visibleLines()))
         return;
 
     this->update();
@@ -428,6 +428,9 @@ void DisassemblerTextView::adjustScrollBars()
 
 void DisassemblerTextView::moveToSelection()
 {
+    if(!this->isVisible())
+        return;
+
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::ListingCursor* cur = doc->cursor();
 

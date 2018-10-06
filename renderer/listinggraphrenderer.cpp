@@ -1,7 +1,10 @@
 #include "listinggraphrenderer.h"
 #include "listingrenderercommon.h"
 
-ListingGraphRenderer::ListingGraphRenderer(REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler) { }
+ListingGraphRenderer::ListingGraphRenderer(REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler)
+{
+    this->setFlags(ListingGraphRenderer::HideSegmentName);
+}
 
 void ListingGraphRenderer::renderLine(const REDasm::RendererLine &rl)
 {

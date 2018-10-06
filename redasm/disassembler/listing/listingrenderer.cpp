@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_disassembler(disassembler)
+ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_flags(ListingRenderer::Normal), m_disassembler(disassembler)
 {
     m_document = disassembler->document();
     m_printer = PrinterPtr(disassembler->assembler()->createPrinter(disassembler));
@@ -83,6 +83,8 @@ std::string ListingRenderer::getSelectedText()
 
     return ss.str();
 }
+
+void ListingRenderer::setFlags(u32 flags) { m_flags = flags; }
 
 void ListingRenderer::getRendererLine(size_t line, RendererLine& rl)
 {
@@ -176,8 +178,14 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
 
 void ListingRenderer::renderAddress(ListingItem *item, RendererLine &rl)
 {
-    Segment* segment = m_document->segment(item->address);
-    rl.push((segment ? segment->name : "unk") + ":" + HEX_ADDRESS(item->address), "address_fg");
+    if(m_flags & ListingRenderer::HideSegmentName)
+        rl.push(HEX_ADDRESS(item->address), "address_fg");
+    else
+    {
+        Segment* segment = m_document->segment(item->address);
+        rl.push((segment ? segment->name : "unk") + ":" + HEX_ADDRESS(item->address), "address_fg");
+    }
+
     this->renderIndent(rl);
 }
 

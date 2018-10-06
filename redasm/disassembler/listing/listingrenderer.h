@@ -33,6 +33,9 @@ struct RendererLine
 
 class ListingRenderer
 {
+    protected:
+        enum: u32 { Normal = 0, HideSegmentName = 1 };
+
     public:
         ListingRenderer(DisassemblerAPI* disassembler);
         void render(size_t start, size_t count, void* userdata = NULL);
@@ -42,6 +45,7 @@ class ListingRenderer
 
     protected:
         virtual void renderLine(const RendererLine& rl) = 0;
+        void setFlags(u32 flags);
         void getRendererLine(size_t line, RendererLine& rl);
         void renderSegment(ListingItem* item, RendererLine& rl);
         void renderFunction(ListingItem* item, RendererLine &rl);
@@ -62,6 +66,7 @@ class ListingRenderer
         ListingDocument* m_document;
 
     private:
+        u32 m_flags;
         DisassemblerAPI* m_disassembler;
         PrinterPtr m_printer;
 };

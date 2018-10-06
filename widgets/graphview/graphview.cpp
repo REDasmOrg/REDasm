@@ -23,7 +23,7 @@ void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
     this->generateNodes(graph);
     this->generateEdges(graph);
 
-    this->page()->runJavaScript("d3.selectAll('svg > *').remove();"
+    this->page()->runJavaScript("d3.selectAll('svg > :not(defs)').remove();"
                                 "var svg = d3.select('svg');"
                                 "var g = svg.append('g');"
                                 "g.call(new dagreD3.render(), graph);" +
@@ -72,7 +72,8 @@ void GraphView::initializePage()
     QString blockcss = ".node rect {"
                            "fill: white;"
                            "stroke: black;"
-                           "stroke-width: 1.5;"
+                           "stroke-width: 2;"
+                           "filter: url(#dropshadow);"
                        "}"
                        ".edgePath path {"
                            "stroke-width: 1.5;"

@@ -20,6 +20,7 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
     m_webchannel->registerObject("graphchannel", m_graphwebchannel);
 
     connect(m_graphwebchannel, &DisassemblerWebChannel::addressChanged, this, &DisassemblerGraphView::addressChanged);
+    connect(m_graphwebchannel, &DisassemblerWebChannel::switchView, this, &DisassemblerGraphView::switchView);
 }
 
 void DisassemblerGraphView::graph()
@@ -52,6 +53,11 @@ void DisassemblerGraphView::initializePage()
 
     this->appendCSS(QString(".highlight { background-color: %1; }"
                             ".seek { background-color: %2; }").arg(THEME_VALUE_COLOR("highlight")).arg(THEME_VALUE_COLOR("seek")));
+
+    this->page()->runJavaScript("document.addEventListener('keydown', function(e) {"
+                                    "if(e.code === 'Space')"
+                                        "channelobjects.graphchannel.switchToListing();"
+                                "});");
 
     this->page()->runJavaScript("document.addEventListener('click', function(e) {"
                                     "let line = document.querySelector('.seek');"

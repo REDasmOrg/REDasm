@@ -24,6 +24,7 @@ class DisassemblerGraphView : public GraphView
 
     signals:
         void addressChanged(address_t address);
+        void switchView();
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;

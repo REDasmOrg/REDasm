@@ -13,10 +13,12 @@ class DisassemblerWebChannel : public QObject
         explicit DisassemblerWebChannel(REDasm::DisassemblerAPI* disassembler, QObject *parent = nullptr);
 
     public slots:
+        void switchToListing();
         void moveTo(int line, const QString& word);
 
     signals:
         void addressChanged(address_t address);
+        void switchView();
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;

@@ -58,6 +58,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void renameCurrentSymbol();
 
     signals:
+        void switchView();
         void gotoRequested();
         void canGoBackChanged();
         void canGoForwardChanged();

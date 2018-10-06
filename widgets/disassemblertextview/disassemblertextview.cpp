@@ -345,6 +345,8 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         this->showReferences();
     else if(e->key() == Qt::Key_N)
         this->renameCurrentSymbol();
+    else if(e->key() == Qt::Key_Space)
+        emit switchView();
 
     m_blinktimer->start();
 }

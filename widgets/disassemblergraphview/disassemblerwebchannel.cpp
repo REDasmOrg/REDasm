@@ -6,6 +6,8 @@ DisassemblerWebChannel::DisassemblerWebChannel(REDasm::DisassemblerAPI *disassem
     m_cursor = m_document->cursor();
 }
 
+void DisassemblerWebChannel::switchToListing() { emit switchView(); }
+
 void DisassemblerWebChannel::moveTo(int line, const QString &word)
 {
     m_cursor->setWordUnderCursor(word.toStdString());

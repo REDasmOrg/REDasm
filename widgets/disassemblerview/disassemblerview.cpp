@@ -95,12 +95,14 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
     connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::updateCallGraph);
+    connect(m_disassemblertextview, &DisassemblerTextView::switchView, this, &DisassemblerView::switchGraphListing);
     connect(m_disassemblertextview, &DisassemblerTextView::canGoBackChanged, [=]() { ui->tbBack->setEnabled(m_disassemblertextview->canGoBack()); });
     connect(m_disassemblertextview, &DisassemblerTextView::canGoForwardChanged, [=]() { ui->tbForward->setEnabled(m_disassemblertextview->canGoForward()); });
 
     connect(m_disassemblergraphview, &DisassemblerGraphView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(m_disassemblergraphview, &DisassemblerGraphView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
     connect(m_disassemblergraphview, &DisassemblerGraphView::addressChanged, this, &DisassemblerView::updateCallGraph);
+    connect(m_disassemblergraphview, &DisassemblerGraphView::switchView, this, &DisassemblerView::switchGraphListing);
 
     connect(ui->tbBack, &QToolButton::clicked, m_disassemblertextview, &DisassemblerTextView::goBack);
     connect(ui->tbForward, &QToolButton::clicked, m_disassemblertextview, &DisassemblerTextView::goForward);

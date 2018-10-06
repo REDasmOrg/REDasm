@@ -10,7 +10,6 @@ GraphView::GraphView(QWidget *parent): QWebEngineView(parent)
     connect(this, &GraphView::loadFinished, this, &GraphView::initializePage);
 
     this->settings()->setAttribute(QWebEngineSettings::ShowScrollBars, false);
-    this->page()->setBackgroundColor("azure");
     this->load(QUrl("qrc:/web/graph.html"));
 }
 

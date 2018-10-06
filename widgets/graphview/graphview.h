@@ -1,7 +1,6 @@
 #ifndef GRAPHVIEW_H
 #define GRAPHVIEW_H
 
-#include <QAbstractScrollArea>
 #include <QWebEngineView>
 #include "../../redasm/graph/graph.h"
 

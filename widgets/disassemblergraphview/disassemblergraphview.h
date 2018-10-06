@@ -1,8 +1,10 @@
 #ifndef DISASSEMBLERGRAPHVIEW_H
 #define DISASSEMBLERGRAPHVIEW_H
 
+#include <QtWebChannel>
 #include "../graphview/graphview.h"
 #include "../../redasm/disassembler/disassemblerapi.h"
+#include "disassemblerwebchannel.h"
 
 class DisassemblerGraphView : public GraphView
 {
@@ -22,6 +24,8 @@ class DisassemblerGraphView : public GraphView
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;
+        QWebChannel* m_webchannel;
+        DisassemblerWebChannel* m_graphwebchannel;
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

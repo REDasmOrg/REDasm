@@ -17,8 +17,8 @@ class ListingRendererCommon
         void insertHtmlText(const REDasm::RendererLine& rl);
 
     private:
-        QString foregroundHtml(const std::string& s, const std::string& style) const;
-        QString wordsToSpan(const std::string& s) const;
+        QString foregroundHtml(const std::string& s, const std::string& style, const REDasm::RendererLine &rl) const;
+        QString wordsToSpan(const std::string& s, const REDasm::RendererLine &rl) const;
 
     private:
         void showCursor();

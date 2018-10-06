@@ -4,8 +4,21 @@
 #include "../../themeprovider.h"
 #include <QTextDocument>
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_disassembler(NULL) { }
-void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassembler) { m_disassembler = disassembler; }
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_disassembler(NULL)
+{
+    m_webchannel = new QWebChannel(this);
+
+    this->page()->setWebChannel(m_webchannel);
+    this->page()->setBackgroundColor(THEME_VALUE("graph_bg"));
+}
+
+void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
+{
+    m_disassembler = disassembler;
+
+    m_graphwebchannel = new DisassemblerWebChannel(disassembler, this);
+    m_webchannel->registerObject("graphchannel", m_graphwebchannel);
+}
 
 void DisassemblerGraphView::graph()
 {
@@ -35,18 +48,35 @@ void DisassemblerGraphView::initializePage()
 {
     GraphView::initializePage();
 
-    this->appendCSS(QString(".highlight { background-color: %1; }").arg(THEME_VALUE_COLOR("highlight")));
+    this->appendCSS(QString(".highlight { background-color: %1; }"
+                            ".seek { background-color: %2; }").arg(THEME_VALUE_COLOR("highlight")).arg(THEME_VALUE_COLOR("seek")));
 
     this->page()->runJavaScript("document.addEventListener('click', function(e) {"
-                                    "var oldhighlight = document.querySelectorAll('.highlight');"               // Remove old highlighting (1)
+                                    "let line = document.querySelector('.seek');"
+                                    "if(line)"
+                                        "line.classList.remove('seek');"
+                                    "line = e.target;"
+                                    "while(line && !('lineroot' in line.dataset))"
+                                        "line = line.parentElement;"
+                                    "if(line)"
+                                        "line.classList.add('seek');"
+                                "});");
+
+    this->page()->runJavaScript("document.addEventListener('click', function(e) {"
+                                    "if(!('line' in e.target.dataset))"
+                                        "return;"
+                                    "channelobjects.graphchannel.updateLine(e.target.dataset.line);"
+                                "});");
+
+    this->page()->runJavaScript("document.addEventListener('click', function(e) {"
+                                    "let oldhighlight = document.querySelectorAll('.highlight');"               // Remove old highlighting (1)
                                     "oldhighlight.forEach(function(e) { e.classList.remove('highlight'); });"   // Remove old highlighting (2)
                                     "if(e.target.tagName !== 'SPAN')"
                                         "return;"
-                                    "var word = e.target.innerText;"
-                                    "var query = '//span[text()=\"' + word + '\"]';"
-                                    "var xhl = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE);" // Find all spans
+                                    "let word = e.target.innerText;"
+                                    "let query = '//span[text()=\"' + word + '\"]';"
+                                    "let xhl = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE);" // Find all spans
                                     "for(let i = 0; i < xhl.snapshotLength; i++)"
                                         "xhl.snapshotItem(i).classList.add('highlight');"                       // Apply highlighting
                                 "});");
-
 }

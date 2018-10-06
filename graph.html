@@ -1,8 +1,15 @@
 <html>
     <head>
+        <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
         <script src="qrc:/web/d3.js"></script>
         <script src="qrc:/web/dagre.js"></script>
         <script src="qrc:/web/dagre-d3.js"></script>
+        <script type="text/javascript">
+            new QWebChannel(qt.webChannelTransport, function(channel) {
+                window.webchannel = channel;
+                window.channelobjects = channel.objects;
+            });
+        </script>
     </head>
     <body>
         <svg>

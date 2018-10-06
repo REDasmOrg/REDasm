@@ -62,24 +62,24 @@ void ListingRendererCommon::insertHtmlText(const REDasm::RendererLine &rl)
        std::string s = rl.text.substr(rf.start, rf.length);
 
        if(!rf.style.empty())
-           content += this->foregroundHtml(s, rf.style);
+           content += this->foregroundHtml(s, rf.style, rl);
        else
-           content += this->wordsToSpan(s);
+           content += this->wordsToSpan(s, rl);
     }
 
-    m_textcursor.insertText(QString("<div style=\"display: inline-block\" id=\"%1\">%2</div>").arg(rl.line).arg(content));
+    m_textcursor.insertText(QString("<div style=\"display: inline-block; width: 100%\" data-lineroot=\"1\" data-line=\"%1\">%2</div>").arg(rl.line).arg(content));
 }
 
-QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style) const
+QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style, const REDasm::RendererLine& rl) const
 {
     QColor c = THEME_VALUE(QString::fromStdString(style));
-    return QString("<font style=\"color: %1\">%2</font>").arg(c.name(), this->wordsToSpan(s));
+    return QString("<font data-line=\"%1\" style=\"color: %2\">%3</font>").arg(rl.line).arg(c.name(), this->wordsToSpan(s, rl));
 }
 
-QString ListingRendererCommon::wordsToSpan(const std::string &s) const
+QString ListingRendererCommon::wordsToSpan(const std::string &s, const REDasm::RendererLine& rl) const
 {
     QString spans = QString::fromStdString(s);
-    spans.replace(m_rgxwords, "<span>\\1</span>");
+    spans.replace(m_rgxwords, QString("<span data-line=\"%1\">\\1</span>").arg(rl.line));
     return spans;
 }
 

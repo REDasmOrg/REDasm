@@ -18,6 +18,8 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
 
     m_graphwebchannel = new DisassemblerWebChannel(disassembler, this);
     m_webchannel->registerObject("graphchannel", m_graphwebchannel);
+
+    connect(m_graphwebchannel, &DisassemblerWebChannel::addressChanged, this, &DisassemblerGraphView::addressChanged);
 }
 
 void DisassemblerGraphView::graph()
@@ -65,7 +67,7 @@ void DisassemblerGraphView::initializePage()
     this->page()->runJavaScript("document.addEventListener('click', function(e) {"
                                     "if(!('line' in e.target.dataset))"
                                         "return;"
-                                    "channelobjects.graphchannel.updateLine(e.target.dataset.line);"
+                                    "channelobjects.graphchannel.moveTo(e.target.dataset.line, e.target.innerText);"
                                 "});");
 
     this->page()->runJavaScript("document.addEventListener('click', function(e) {"

@@ -22,6 +22,9 @@ class DisassemblerGraphView : public GraphView
     protected slots:
         virtual void initializePage();
 
+    signals:
+        void addressChanged(address_t address);
+
     private:
         REDasm::DisassemblerAPI* m_disassembler;
         QWebChannel* m_webchannel;

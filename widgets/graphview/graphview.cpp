@@ -57,7 +57,7 @@ void GraphView::initializePage()
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
     this->page()->runJavaScript("document.designMode = 'on';"
-                                "window.ondrop = function() { return false; }"                            // Disable text dragging
+                                "window.ondrop = function() { return false; };"                           // Disable text dragging
                                 "window.onkeydown = function(e) { return e.key.startsWith('Arrow'); };"); // Disable character input
 
     QString generalcss = "html {"

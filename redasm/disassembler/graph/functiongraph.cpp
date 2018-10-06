@@ -141,7 +141,9 @@ void FunctionGraph::buildEdges()
                     continue;
 
                 this->addEdge(data, todata);
-                data->bTrue(todata);
+
+                if(instruction->is(InstructionTypes::Conditional))
+                    data->bTrue(todata);
             }
 
             if(instruction->is(InstructionTypes::Conditional))

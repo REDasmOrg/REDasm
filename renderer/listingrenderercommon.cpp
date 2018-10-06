@@ -55,15 +55,19 @@ void ListingRendererCommon::insertHtmlLine(const REDasm::RendererLine &rl)
 
 void ListingRendererCommon::insertHtmlText(const REDasm::RendererLine &rl)
 {
+    QString content;
+
     for(const REDasm::RendererFormat& rf : rl.formats)
     {
        std::string s = rl.text.substr(rf.start, rf.length);
 
        if(!rf.style.empty())
-           m_textcursor.insertText(this->foregroundHtml(s, rf.style));
+           content += this->foregroundHtml(s, rf.style);
        else
-           m_textcursor.insertText(this->wordsToSpan(s));
+           content += this->wordsToSpan(s);
     }
+
+    m_textcursor.insertText(QString("<div style=\"display: inline-block\" id=\"%1\">%2</div>").arg(rl.line).arg(content));
 }
 
 QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style) const

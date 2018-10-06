@@ -23,7 +23,8 @@ void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
     this->generateNodes(graph);
     this->generateEdges(graph);
 
-    this->page()->runJavaScript("d3.selectAll('svg > :not(defs)').remove();"
+    this->page()->runJavaScript("dagre.layout(graph, { acyclier: 'greedy' });"
+                                "d3.selectAll('svg > :not(defs)').remove();"
                                 "var svg = d3.select('svg');"
                                 "var g = svg.append('g');"
                                 "g.call(new dagreD3.render(), graph);" +

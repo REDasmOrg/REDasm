@@ -56,7 +56,10 @@ void GraphView::initializePage()
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
-    QString generalcss = "html {"
+    QString generalcss = "* {"
+                             "cursor: default;"
+                         "}"
+                         "html {"
                              "font-family:" + font.family() + ";" +
                              "font-size" + QString::number(font.pointSize()) + "pt;" +
                          "}"

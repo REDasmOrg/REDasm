@@ -227,6 +227,9 @@ void DisassemblerView::goTo(const QModelIndex &index)
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
     m_disassemblertextview->goTo(item);
+
+    if(ui->stackedWidget->currentWidget() == m_disassemblergraphview)
+        m_disassemblergraphview->graph();
 }
 
 void DisassemblerView::showReferences()

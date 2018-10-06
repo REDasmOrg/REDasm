@@ -72,7 +72,7 @@ void GraphView::initializePage()
     QString blockcss = ".node rect {"
                            "fill: white;"
                            "stroke: black;"
-                           "stroke-width: 2;"
+                           "stroke-width: 3;"
                            "filter: url(#dropshadow);"
                        "}"
                        ".edgePath path {"

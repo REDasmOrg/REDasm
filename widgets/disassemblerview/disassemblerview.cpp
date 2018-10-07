@@ -92,6 +92,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     connect(m_disassemblertextview, &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
     connect(m_disassemblertextview, &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
     connect(m_disassemblertextview, &DisassemblerTextView::callGraphRequested, this, &DisassemblerView::initializeCallGraph);
+    connect(m_disassemblertextview, &DisassemblerTextView::referencesRequested, this, &DisassemblerView::showReferences);
     connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
     connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::updateCallGraph);
@@ -102,6 +103,7 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     connect(m_disassemblergraphview, &DisassemblerGraphView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(m_disassemblergraphview, &DisassemblerGraphView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
     connect(m_disassemblergraphview, &DisassemblerGraphView::addressChanged, this, &DisassemblerView::updateCallGraph);
+    connect(m_disassemblergraphview, &DisassemblerGraphView::referencesRequested, this, &DisassemblerView::showReferences);
     connect(m_disassemblergraphview, &DisassemblerGraphView::switchView, this, &DisassemblerView::switchGraphListing);
 
     connect(ui->tbBack, &QToolButton::clicked, m_disassemblertextview, &DisassemblerTextView::goBack);
@@ -241,7 +243,7 @@ void DisassemblerView::goTo(const QModelIndex &index)
         m_disassemblergraphview->graph();
 }
 
-void DisassemblerView::showReferences()
+void DisassemblerView::showModelReferences()
 {
     if(!m_currentindex.isValid() || !m_currentindex.internalPointer())
         return;
@@ -264,6 +266,16 @@ void DisassemblerView::showReferences()
     else
         symbol = m_disassembler->document()->symbol(item->address);
 
+    this->showReferences(symbol->address);
+}
+
+void DisassemblerView::showReferences(address_t address)
+{
+    REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(address);
+
+    if(!symbol)
+        return;
+
     if(!m_disassembler->getReferencesCount(symbol->address))
     {
         QMessageBox::information(this, "No References", "There are no references to " + S_TO_QS(symbol->name));
@@ -271,7 +283,22 @@ void DisassemblerView::showReferences()
     }
 
     ReferencesDialog dlgreferences(m_disassembler, symbol, this);
-    connect(&dlgreferences, &ReferencesDialog::jumpTo, [&](address_t address) { m_disassemblertextview->goTo(address); });
+
+    connect(&dlgreferences, &ReferencesDialog::jumpTo, [&](address_t address) {
+        if(ui->stackedWidget->currentWidget() == m_disassemblergraphview) {
+            auto it = m_disassembler->document()->instructionItem(address);
+
+            if(it != m_disassembler->document()->end()) {
+                m_disassemblergraphview->goTo(address);
+                return;
+            }
+
+            this->switchGraphListing();
+        }
+
+        m_disassemblertextview->goTo(address);
+    });
+
     dlgreferences.exec();
 }
 
@@ -448,7 +475,7 @@ void DisassemblerView::createActions()
     this->addAction(m_actsetfilter);
 
     m_contextmenu->addSeparator();
-    m_contextmenu->addAction("Cross References", this, &DisassemblerView::showReferences);
+    m_contextmenu->addAction("Cross References", this, &DisassemblerView::showModelReferences);
     m_contextmenu->addAction("Goto", [&]() { this->goTo(m_currentindex); });
 }
 

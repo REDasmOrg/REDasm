@@ -52,7 +52,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void moveToSelection();
         void createContextMenu();
         void adjustContextMenu();
-        void showReferences();
+        void showReferencesUnderCursor();
         bool followUnderCursor();
         void showCallGraph();
         void renameCurrentSymbol();
@@ -65,6 +65,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void callGraphRequested(address_t address);
         void hexDumpRequested(address_t address);
         void addressChanged(address_t address);
+        void referencesRequested(address_t address);
 
     private:
         std::unique_ptr<ListingTextRenderer> m_renderer;

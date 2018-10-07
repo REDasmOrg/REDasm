@@ -1,5 +1,5 @@
 #include "disassemblertextview.h"
-#include "../../dialogs/referencesdialog.h"
+#include "../../models/disassemblermodel.h"
 #include <QtWidgets>
 #include <QtGui>
 #include <cmath>
@@ -342,7 +342,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     else if(e->matches(QKeySequence::Copy))
         this->copy();
     else if(e->key() == Qt::Key_X)
-        this->showReferences();
+        this->showReferencesUnderCursor();
     else if(e->key() == Qt::Key_N)
         this->renameCurrentSymbol();
     else if(e->key() == Qt::Key_Space)
@@ -467,7 +467,7 @@ void DisassemblerTextView::createContextMenu()
     m_actrename = m_contextmenu->addAction("Rename", [=]() { this->renameCurrentSymbol(); } );
 
     m_contextmenu->addSeparator();
-    m_actxrefs = m_contextmenu->addAction("Cross References", [&]() { this->showReferences(); });
+    m_actxrefs = m_contextmenu->addAction("Cross References", [&]() { this->showReferencesUnderCursor(); });
     m_actfollow = m_contextmenu->addAction("Follow", [&]() { this->followUnderCursor(); });
     m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
     m_actcallgraph = m_contextmenu->addAction("Call Graph", [this]() { this->showCallGraph(); });
@@ -526,22 +526,14 @@ void DisassemblerTextView::adjustContextMenu()
     m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
 }
 
-void DisassemblerTextView::showReferences()
+void DisassemblerTextView::showReferencesUnderCursor()
 {
     REDasm::SymbolPtr symbol = this->symbolUnderCursor();
 
     if(!symbol)
         return;
 
-    if(!m_disassembler->getReferencesCount(symbol->address))
-    {
-        QMessageBox::information(this, "No References", "There are no references to " + S_TO_QS(symbol->name));
-        return;
-    }
-
-    ReferencesDialog dlgreferences(m_disassembler, symbol, this);
-    connect(&dlgreferences, &ReferencesDialog::jumpTo, [this](address_t address) { this->goTo(address); });
-    dlgreferences.exec();
+    emit referencesRequested(symbol->address);
 }
 
 bool DisassemblerTextView::followUnderCursor()

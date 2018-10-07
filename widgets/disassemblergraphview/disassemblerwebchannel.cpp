@@ -21,6 +21,16 @@ void DisassemblerWebChannel::followUnderCursor()
     this->moveTo(m_document->indexOf(it->get()));
 }
 
+void DisassemblerWebChannel::showReferencesUnderCursor()
+{
+    REDasm::SymbolPtr symbol = m_document->symbol(m_cursor->wordUnderCursor());
+
+    if(!symbol)
+        return;
+
+    emit referencesRequested(symbol->address);
+}
+
 void DisassemblerWebChannel::switchToListing() { emit switchView(); }
 
 void DisassemblerWebChannel::moveTo(int line, const QString &word)

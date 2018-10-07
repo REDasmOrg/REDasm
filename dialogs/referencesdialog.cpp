@@ -1,9 +1,11 @@
 #include "referencesdialog.h"
 #include "ui_referencesdialog.h"
+#include "../redasm/disassembler/listing/listingdocument.h"
 
 ReferencesDialog::ReferencesDialog(REDasm::DisassemblerAPI *disassembler, const REDasm::SymbolPtr& symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog)
 {
     ui->setupUi(this);
+
     this->setWindowTitle(QString("%1 References").arg(QString::fromStdString(symbol->name)));
 
     m_referencesmodel = new ReferencesModel(ui->tvReferences);

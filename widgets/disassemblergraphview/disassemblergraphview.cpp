@@ -21,7 +21,15 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
 
     connect(m_graphwebchannel, &DisassemblerWebChannel::addressChanged, this, &DisassemblerGraphView::updateGraph);
     connect(m_graphwebchannel, &DisassemblerWebChannel::addressChanged, this, &DisassemblerGraphView::addressChanged);
+    connect(m_graphwebchannel, &DisassemblerWebChannel::referencesRequested, this, &DisassemblerGraphView::referencesRequested);
     connect(m_graphwebchannel, &DisassemblerWebChannel::switchView, this, &DisassemblerGraphView::switchView);
+}
+
+void DisassemblerGraphView::goTo(address_t address)
+{
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    doc->cursor()->moveTo(doc->indexOfInstruction(address));
+    this->graph();
 }
 
 void DisassemblerGraphView::graph()
@@ -98,6 +106,8 @@ void DisassemblerGraphView::initializePage()
     this->page()->runJavaScript("document.addEventListener('keydown', function(e) {"
                                     "if(e.code === 'Space')"
                                         "channelobjects.graphchannel.switchToListing();"
+                                    "else if(e.key === 'x')"
+                                        "channelobjects.graphchannel.showReferencesUnderCursor();"
                                 "});");
 
     this->page()->runJavaScript("document.addEventListener('dblclick', function(e) {"

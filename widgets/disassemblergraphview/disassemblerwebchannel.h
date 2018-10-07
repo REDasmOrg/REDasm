@@ -14,11 +14,13 @@ class DisassemblerWebChannel : public QObject
 
     public slots:
         void followUnderCursor();
+        void showReferencesUnderCursor();
         void switchToListing();
         void moveTo(int line, const QString& word = QString());
 
     signals:
         void addressChanged(address_t address);
+        void referencesRequested(address_t address);
         void switchView();
 
     private:

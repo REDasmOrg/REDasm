@@ -13,6 +13,7 @@ class DisassemblerGraphView : public GraphView
     public:
         explicit DisassemblerGraphView(QWidget *parent = NULL);
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        void goTo(address_t address);
         void graph();
 
     protected:
@@ -26,6 +27,7 @@ class DisassemblerGraphView : public GraphView
 
     signals:
         void addressChanged(address_t address);
+        void referencesRequested(address_t address);
         void switchView();
 
     private:

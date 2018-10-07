@@ -4,7 +4,7 @@
 #include "../../themeprovider.h"
 #include <QTextDocument>
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_disassembler(NULL)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_disassembler(NULL), m_currentfunction(NULL)
 {
     m_webchannel = new QWebChannel(this);
 
@@ -19,6 +19,7 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
     m_graphwebchannel = new DisassemblerWebChannel(disassembler, this);
     m_webchannel->registerObject("graphchannel", m_graphwebchannel);
 
+    connect(m_graphwebchannel, &DisassemblerWebChannel::addressChanged, this, &DisassemblerGraphView::updateGraph);
     connect(m_graphwebchannel, &DisassemblerWebChannel::addressChanged, this, &DisassemblerGraphView::addressChanged);
     connect(m_graphwebchannel, &DisassemblerWebChannel::switchView, this, &DisassemblerGraphView::switchView);
 }
@@ -26,9 +27,16 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
 void DisassemblerGraphView::graph()
 {
     REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::Graphing::FunctionGraph graph(doc);
+    REDasm::ListingItem* currentfunction = doc->functionStart(doc->currentItem());
 
+    if(m_currentfunction && (m_currentfunction == currentfunction))
+        return;
+
+    m_currentfunction = currentfunction;
+
+    REDasm::Graphing::FunctionGraph graph(doc);
     graph.build(doc->currentItem()->address);
+
     this->setGraph(graph);
     this->zoomOn(doc->cursor()->currentLine());
 }
@@ -92,6 +100,11 @@ void DisassemblerGraphView::initializePage()
                                         "channelobjects.graphchannel.switchToListing();"
                                 "});");
 
+    this->page()->runJavaScript("document.addEventListener('dblclick', function(e) {"
+                                    "if(e.button === 0)" // Left button
+                                        "channelobjects.graphchannel.followUnderCursor();"
+                                "});");
+
     this->page()->runJavaScript("document.addEventListener('click', function(e) {"
                                     "let line = document.querySelector('.seek');"
                                     "if(line)"
@@ -120,4 +133,12 @@ void DisassemblerGraphView::initializePage()
                                     "for(let i = 0; i < xhl.snapshotLength; i++)"
                                         "xhl.snapshotItem(i).classList.add('highlight');"                       // Apply highlighting
                                 "});");
+}
+
+void DisassemblerGraphView::updateGraph()
+{
+    if(!this->isVisible())
+        return;
+
+    this->graph();
 }

@@ -85,7 +85,7 @@ ListingItem *ListingDocument::functionStart(address_t address)
 
 ListingItem *ListingDocument::currentItem()
 {
-    if((m_cursor.currentLine() < 0) || (m_cursor.currentLine() >= this->size()))
+    if((m_cursor.currentLine() < 0) || (m_cursor.currentLine() >= static_cast<int>(this->size())))
         return NULL;
 
     return this->itemAt(m_cursor.currentLine());

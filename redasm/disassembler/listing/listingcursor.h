@@ -21,6 +21,7 @@ class ListingCursor
     public:
         ListingCursor();
         bool hasWordUnderCursor() const;
+        void clearWordUnderCursor();
         void setWordUnderCursor(const std::string& s);
         const std::string& wordUnderCursor() const;
         const ListingCursor::Position& currentPosition() const;

@@ -4,6 +4,7 @@ namespace REDasm {
 
 ListingCursor::ListingCursor() { m_position = std::make_pair(0, 0); }
 bool ListingCursor::hasWordUnderCursor() const { return !m_wordundercursor.empty(); }
+void ListingCursor::clearWordUnderCursor() { m_wordundercursor.clear(); }
 void ListingCursor::setWordUnderCursor(const std::string &s) { m_wordundercursor = s; }
 const std::string &ListingCursor::wordUnderCursor() const { return m_wordundercursor;  }
 const ListingCursor::Position &ListingCursor::currentPosition() const { return m_position; }

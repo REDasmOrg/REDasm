@@ -36,7 +36,9 @@ void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
                                 QString("svg.attr('width', '%1');").arg(this->width()));
 }
 
-QColor GraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to)
+QString GraphView::getNodeTitle(const REDasm::Graphing::Node *n) const { Q_UNUSED(n) return QString(); }
+
+QColor GraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to) const
 {
     Q_UNUSED(from)
     Q_UNUSED(to)
@@ -63,33 +65,51 @@ void GraphView::initializePage()
     QString generalcss = "html {"
                              "cursor: default;"
                              "font-family:" + font.family() + ";" +
-                             "font-size" + QString::number(font.pointSize()) + "pt;" +
+                             "font-size:" + QString::number(font.pointSize()) + "pt;" +
                          "}"
                          "html, body {"
                             "overflow: hidden;"
                          "}";
 
-    QString blockcss = ".node rect {"
-                           "fill: white;"
-                           "stroke: black;"
-                           "stroke-width: 3;"
-                           "filter: url(#dropshadow);"
-                       "}"
-                       ".edgePath path {"
-                           "stroke-width: 1.5;"
-                       "}";
+    QString blockcss =  ".nodetitle { "
+                            "text-align: center;"
+                            "margin-bottom: 4px;"
+                            "border: 1px solid " + THEME_VALUE_COLOR("text_fg") + ";"
+                            "background-color: " + THEME_VALUE_COLOR("seek") + ";"
+                            "color: " + THEME_VALUE_COLOR("text_fg") + ";"
+                        "}"
+                         ".node rect {"
+                            "fill: white;"
+                            "stroke: black;"
+                            "stroke-width: 3;"
+                            "filter: url(#dropshadow);"
+                        "}"
+                        ".edgePath path {"
+                            "stroke-width: 1.5;"
+                        "}";
 
     this->appendCSS(generalcss);
     this->appendCSS(blockcss);
+}
+
+QString GraphView::nodeTitle(const REDasm::Graphing::Node *n) const
+{
+    QString titlecontent = this->getNodeTitle(n);
+
+    if(titlecontent.isEmpty())
+        return QString();
+
+    return QString("<div contenteditable=\"false\" class=\"nodetitle\">%1</div>").arg(titlecontent);
 }
 
 void GraphView::generateNodes(const REDasm::Graphing::Graph &graph)
 {
     for(auto& n : graph)
     {
-        QString content = this->getNodeContent(n.get());
+        QString title = this->nodeTitle(n.get()), content = this->getNodeContent(n.get());
+
         this->page()->runJavaScript(QString("graph.setNode(%1, { labelType: 'html', "
-                                            "                    label: '%2' });").arg(n->id).arg(content));
+                                            "                    label: '%2%3' });").arg(n->id).arg(title, content));
     }
 }
 

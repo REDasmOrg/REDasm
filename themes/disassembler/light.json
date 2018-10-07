@@ -27,5 +27,6 @@
     "instruction_jmp": "#394c81",
     "instruction_jmp_c": "#5b48a2",
 
+    "text_fg": "#2b2b2b",
     "graph_bg": "azure"
 }

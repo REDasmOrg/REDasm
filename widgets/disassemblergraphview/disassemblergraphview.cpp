@@ -31,7 +31,38 @@ void DisassemblerGraphView::graph()
     this->setGraph(graph);
 }
 
-QString DisassemblerGraphView::getNodeContent(const REDasm::Graphing::Node *n)
+QString DisassemblerGraphView::getNodeTitle(const REDasm::Graphing::Node *n) const
+{
+    const REDasm::Graphing::FunctionBlock* fb = static_cast<const REDasm::Graphing::FunctionBlock*>(n);
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingItem* item = doc->itemAt(fb->startidx);
+    REDasm::SymbolPtr symbol = doc->symbol(item->address);
+
+    if(!symbol)
+        return "Condition FALSE";
+
+    if(symbol->isFunction())
+        return QString::fromStdString(symbol->name);
+
+    REDasm::ReferenceVector refs = m_disassembler->getReferences(symbol->address);
+
+    if(refs.size() > 1)
+        return QString("From %1 blocks").arg(refs.size());
+
+    REDasm::InstructionPtr instruction = doc->instruction(refs.front());
+
+    if(instruction->is(REDasm::InstructionTypes::Conditional))
+    {
+        if(instruction->target() == item->address)
+            return "Condition TRUE";
+
+        return "Condition FALSE";
+    }
+
+    return "Unconditional";
+}
+
+QString DisassemblerGraphView::getNodeContent(const REDasm::Graphing::Node *n) const
 {
     const REDasm::Graphing::FunctionBlock* fb = static_cast<const REDasm::Graphing::FunctionBlock*>(n);
     ListingGraphRenderer lgr(m_disassembler);
@@ -41,7 +72,7 @@ QString DisassemblerGraphView::getNodeContent(const REDasm::Graphing::Node *n)
     return textdocument.toPlainText();
 }
 
-QColor DisassemblerGraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to)
+QColor DisassemblerGraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to) const
 {
     const REDasm::Graphing::FunctionBlock* fb = static_cast<const REDasm::Graphing::FunctionBlock*>(from);
     return QColor(QString::fromStdString(fb->color(static_cast<const REDasm::Graphing::FunctionBlock*>(to))));

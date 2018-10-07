@@ -16,6 +16,7 @@ class GraphView : public QWebEngineView
         virtual QString getNodeTitle(const REDasm::Graphing::Node* n) const;
         virtual QString getNodeContent(const REDasm::Graphing::Node* n) const = 0;
         virtual QColor getEdgeColor(const REDasm::Graphing::Node* from, const REDasm::Graphing::Node* to) const;
+        void zoomOn(int line);
         void appendCSS(const QString& css);
 
     protected slots:

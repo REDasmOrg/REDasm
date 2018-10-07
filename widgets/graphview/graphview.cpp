@@ -26,12 +26,11 @@ void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
                                 "d3.selectAll('svg > :not(defs)').remove();"
                                 "var svg = d3.select('svg');"
                                 "var g = svg.append('g');"
+                                "var zoom = d3.zoom().on('zoom', function() { g.attr('transform', d3.event.transform); });"
                                 "g.call(new dagreD3.render(), graph);" +
                                 QString("var mid = (%1 - graph.graph().width) / 2;").arg(this->width()) +
                                 QString("g.attr('transform', 'translate(' + mid + ', %1)');").arg(GRAPH_MARGINS) +
-                                "svg.call(d3.zoom().on('zoom', function () { "
-                                    "g.attr('transform', d3.event.transform);"
-                                "}).filter(function() { return d3.event.ctrlKey; }));" +
+                                "svg.call(zoom.filter(function() { return d3.event.ctrlKey; }));" +
                                 QString("svg.attr('height', '%1');").arg(this->height()) +
                                 QString("svg.attr('width', '%1');").arg(this->width()));
 }
@@ -44,6 +43,21 @@ QColor GraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm:
     Q_UNUSED(to)
 
     return QColor(Qt::black);
+}
+
+void GraphView::zoomOn(int line)
+{
+    /*
+    this->page()->runJavaScript(QString("var n = d3.select('div[data-lineroot][data-line=\"%1\"]').node();").arg(line) +
+                                QString("console.log('div[data-lineroot][data-line=\"%1\"]');").arg(line) +
+                                "while(n && !n.classList.contains('label'))"
+                                    "n = n.parentElement;"
+                                "if(n) {"
+                                    "var zoomscale = 2.0;"
+                                    "var bb = n.getBBox();"
+                                    "var s = d3.select(n);"
+                                "}");
+    */
 }
 
 void GraphView::appendCSS(const QString &css)

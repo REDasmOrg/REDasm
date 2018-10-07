@@ -27,8 +27,10 @@ void DisassemblerGraphView::graph()
 {
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::Graphing::FunctionGraph graph(doc);
+
     graph.build(doc->currentItem()->address);
     this->setGraph(graph);
+    this->zoomOn(doc->cursor()->currentLine());
 }
 
 QString DisassemblerGraphView::getNodeTitle(const REDasm::Graphing::Node *n) const

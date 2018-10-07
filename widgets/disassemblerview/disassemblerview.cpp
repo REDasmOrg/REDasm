@@ -162,8 +162,11 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     ui->hexEdit->setDocument(m_hexdocument);
     ui->bottomTabs->setCurrentWidget(ui->tabOutput);
     ui->disassemblerMap->setDisassembler(disassembler);
+
     m_disassemblertextview->setDisassembler(disassembler);
     m_disassemblergraphview->setDisassembler(disassembler);
+
+    ui->stackedWidget->currentWidget()->setFocus();
 
     disassembler->busyChanged += std::bind(&DisassemblerView::checkDisassemblerStatus, this);
     disassembler->disassemble();
@@ -362,6 +365,8 @@ void DisassemblerView::switchGraphListing()
         ui->tbListingGraph->setIcon(QIcon(":/res/graph.png"));
         ui->stackedWidget->setCurrentWidget(m_disassemblertextview);
     }
+
+    ui->stackedWidget->currentWidget()->setFocus();
 }
 
 void DisassemblerView::filterSymbols()

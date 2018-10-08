@@ -2,19 +2,13 @@
 
 namespace REDasm {
 
-DisassemblerLinearSweep::DisassemblerLinearSweep(DisassemblerAPI *disassembler, AssemblerPlugin *assemblerplugin): DisassemblerAlgorithm(disassembler, assemblerplugin)
+DisassemblerLinearSweep::DisassemblerLinearSweep(DisassemblerAPI *disassembler, AssemblerPlugin *assemblerplugin): DisassemblerAlgorithm(disassembler, assemblerplugin) { }
+void DisassemblerLinearSweep::onDecodeFailed(const InstructionPtr &instruction) { this->enqueue(instruction->address + 1); }
+
+void DisassemblerLinearSweep::onDecoded(const InstructionPtr &instruction)
 {
-
-}
-
-void DisassemblerLinearSweep::onDisassembled(const InstructionPtr &instruction, u32 result)
-{
-    DisassemblerAlgorithm::onDisassembled(instruction, result);
-
-    if(result == DisassemblerAlgorithm::OK)
-        this->push(instruction->endAddress() + 1);
-    else
-        this->push(instruction->address + 1);
+    DisassemblerAlgorithm::onDecoded(instruction);
+    this->enqueue(instruction->endAddress());
 }
 
 } // namespace REDasm

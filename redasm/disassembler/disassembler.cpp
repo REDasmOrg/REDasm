@@ -21,49 +21,6 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
 Disassembler::~Disassembler() { }
 ListingDocument *Disassembler::document() { return m_document; }
 
-size_t Disassembler::walkJumpTable(const InstructionPtr &instruction, address_t address)
-{
-    address_t target = 0;
-    size_t cases = 0, sz = m_format->addressWidth();
-    SymbolPtr jmpsymbol = m_document->symbol(address);
-
-    while(this->readAddress(address, sz, &target))
-    {
-        const Segment* segment = m_document->segment(target);
-
-        if(!segment || !segment->is(SegmentTypes::Code))
-            break;
-
-        instruction->target(target);
-        m_document->symbol(target, SymbolTypes::Code);
-
-        /*
-        auto it = this->_listing.find(target);
-
-        if(it != this->_listing.end())
-        {
-            InstructionPtr tgtinstruction = *it;
-            tgtinstruction->cmt("JUMP_TABLE @ " + REDasm::hex(instruction->address) + " case " + std::to_string(cases));
-            this->_listing.update(tgtinstruction);
-            this->pushReference(jmpsymbol, tgtinstruction);
-        }
-
-        this->pushReference(target, instruction);
-        address += sz;
-        cases++;
-        */
-    }
-
-    if(cases)
-    {
-        instruction->type |= InstructionTypes::JumpTable;
-        instruction->cmt("#" + std::to_string(cases) + " case(s) jump table");
-        //this->_listing.update(instruction);
-    }
-
-    return cases;
-}
-
 void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
 {
     if(!algorithm->hasNext())
@@ -73,19 +30,7 @@ void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
         return;
     }
 
-    address_t address = algorithm->next();
-    InstructionPtr instruction = std::make_shared<Instruction>();
-    u32 status = algorithm->disassemble(address, instruction);
-
-    if(status == DisassemblerAlgorithm::SKIP)
-    {
-        REDasm::status("Skipping @ " + REDasm::hex(address, m_format->bits(), false));
-        return;
-    }
-    else
-        REDasm::status("Disassembling @ " + REDasm::hex(address, m_format->bits(), false));
-
-    m_document->instruction(instruction);
+    algorithm->next();
 }
 
 void Disassembler::disassemble()
@@ -94,64 +39,23 @@ void Disassembler::disassemble()
 
     // Preload format functions for analysis
     symboltable->iterate(SymbolTypes::FunctionMask, [=](SymbolPtr symbol) -> bool {
-        m_algorithm->push(symbol->address);
+        m_algorithm->enqueue(symbol->address);
         return true;
     });
 
     SymbolPtr entrypoint = m_document->documentEntry();
 
     if(entrypoint)
-        m_algorithm->push(entrypoint->address); // Push entry point
+        m_algorithm->enqueue(entrypoint->address); // Push entry point
 
     DO_TICK_DISASSEMBLY();
 }
 
 AssemblerPlugin *Disassembler::assembler() { return m_assembler.get(); }
 
-bool Disassembler::checkJumpTable(const InstructionPtr &instruction, address_t address)
-{
-    /*
-    address_t target = 0;
-    size_t cases = 0, sz = this->m_format->bits() / 8;
-    SymbolPtr jmpsymbol = this->_symboltable->symbol(address);
-
-    while(this->readAddress(address, sz, &target))
-    {
-        Segment* segment = this->m_format->segment(target);
-
-        if(!segment || !segment->is(SegmentTypes::Code))
-            break;
-
-        instruction->target(target);
-
-        if(instruction->is(InstructionTypes::Call))
-        {
-            if(segment != this->m_format->entryPointSegment())
-                this->_symboltable->createFunction(target, segment);
-            else
-                this->_symboltable->createFunction(target);
-        }
-        else
-            this->_symboltable->createLocation(target, SymbolTypes::Code);
-
-        this->pushReference(target, instruction);
-        address += sz;
-        cases++;
-    }
-
-    if(cases)
-    {
-        instruction->type |= InstructionTypes::JumpTable;
-        instruction->cmt("#" + std::to_string(cases) + " case(s) jump table");
-    }
-
-    return cases > 0;
-    */
-}
-
 void Disassembler::disassemble(address_t address)
 {
-    m_algorithm->push(address);
+    m_algorithm->enqueue(address);
 
     if(m_timer.active())
         return;
@@ -172,7 +76,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address)
         return instruction;
 
     instruction = std::make_shared<Instruction>();
-    m_algorithm->disassembleSingle(address, instruction);
+    m_algorithm->disassembleInstruction(address, instruction);
     return instruction;
 }
 

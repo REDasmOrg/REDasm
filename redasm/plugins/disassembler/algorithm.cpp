@@ -6,13 +6,20 @@
 
 namespace REDasm {
 
-DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(NULL), m_analyzed(false)
+DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): StateMachine(), m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(NULL), m_analyzed(false)
 {
     m_format = m_disassembler->format();
     m_document = m_disassembler->document();
+
+    REGISTER_STATE(DisassemblerAlgorithm::DecodeState, &DisassemblerAlgorithm::decodeState);
+    REGISTER_STATE(DisassemblerAlgorithm::JumpState, &DisassemblerAlgorithm::jumpState);
+    REGISTER_STATE(DisassemblerAlgorithm::CallState, &DisassemblerAlgorithm::callState);
+    REGISTER_STATE(DisassemblerAlgorithm::AddressTableState, &DisassemblerAlgorithm::addressTableState);
+    REGISTER_STATE(DisassemblerAlgorithm::MemoryState, &DisassemblerAlgorithm::memoryState);
+    REGISTER_STATE(DisassemblerAlgorithm::ImmediateState, &DisassemblerAlgorithm::immediateState);
 }
 
-void DisassemblerAlgorithm::push(address_t address) { m_pending.push(address); }
+void DisassemblerAlgorithm::enqueue(address_t address) { ENQUEUE_DECODE_STATE(DisassemblerAlgorithm::DecodeState, address); }
 
 bool DisassemblerAlgorithm::analyze()
 {
@@ -33,122 +40,149 @@ bool DisassemblerAlgorithm::analyze()
     return true;
 }
 
-bool DisassemblerAlgorithm::hasNext() const { return !m_pending.empty(); }
-
-address_t DisassemblerAlgorithm::next()
-{
-    address_t address = m_pending.top();
-    m_pending.pop();
-    return address;
-}
-
-u32 DisassemblerAlgorithm::disassemble(address_t address, const InstructionPtr &instruction)
-{
-    auto it = m_disassembled.find(address);
-
-    if(it != m_disassembled.end())
-        return DisassemblerAlgorithm::SKIP;
-
-    m_disassembled.insert(address);
-
-    if(!this->canBeDisassembled(address))
-        return DisassemblerAlgorithm::SKIP;
-
-    Buffer buffer = m_format->buffer() + m_format->offset(address);
-    instruction->address = address;
-    u32 result = m_assembler->decode(buffer, instruction) ? DisassemblerAlgorithm::OK :
-                                                            DisassemblerAlgorithm::FAIL;
-
-    if(result == DisassemblerAlgorithm::FAIL)
-        this->createInvalidInstruction(instruction, buffer);
-
-    this->onDisassembled(instruction, result);
-    return result;
-}
-
-u32 DisassemblerAlgorithm::disassembleSingle(address_t address, const InstructionPtr& instruction)
+u32 DisassemblerAlgorithm::disassembleInstruction(address_t address, const InstructionPtr& instruction)
 {
     if(!this->canBeDisassembled(address))
         return DisassemblerAlgorithm::SKIP;
 
-    Buffer buffer = m_format->buffer() + m_format->offset(address);
-
-    if(buffer.eob())
-        return DisassemblerAlgorithm::SKIP;
-
     instruction->address = address;
-    return m_assembler->decode(buffer, instruction) ? DisassemblerAlgorithm::OK :
-                                                      DisassemblerAlgorithm::FAIL;
+
+    Buffer buffer = m_format->buffer() + m_format->offset(address);
+    return m_assembler->decode(buffer, instruction) ? DisassemblerAlgorithm::OK : DisassemblerAlgorithm::FAIL;
 }
 
-void DisassemblerAlgorithm::onDisassembled(const InstructionPtr &instruction, u32 result)
+void DisassemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
 {
-    if(result == DisassemblerAlgorithm::FAIL)
-        return;
-
-    this->checkOperands(instruction);
-}
-
-void DisassemblerAlgorithm::checkOperands(const InstructionPtr &instruction)
-{
-    ListingDocument* document = m_disassembler->document();
-
     for(const Operand& op : instruction->operands)
     {
         if(!op.isNumeric())
             continue;
 
-        u64 value = op.u_value;
-        const Segment* segment = document->segment(value);
-
-        if(!segment)
-            continue;
-
-        if(op.isRead() && m_disassembler->dereferenceOperand(op, &value))
-        {
-            segment = document->segment(value);
-
-            if(!segment)
-                continue;
-
-            document->symbol(op.u_value, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
-            m_disassembler->pushReference(op.u_value, instruction);
-        }
-
         if(instruction->is(InstructionTypes::Jump) && instruction->isTargetOperand(op))
         {
-            if(!op.is(OperandTypes::Memory))
-            {
-                int dir = BRANCH_DIRECTION(instruction, value);
-
-                if(dir < 0)
-                    instruction->cmt("Possible loop");
-                else if(!dir)
-                    instruction->cmt("Infinite loop");
-
-                instruction->target(value);
-                document->symbol(value, SymbolTypes::Code);
-            }
+            if(op.is(OperandTypes::Memory))
+                ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.u_value, op.index, instruction);
             else
-            {
-                m_disassembler->checkJumpTable(instruction, op.u_value);
-                continue;
-            }
+                ENQUEUE_STATE(DisassemblerAlgorithm::JumpState, op.u_value, op.index, instruction);
         }
         else if(instruction->is(InstructionTypes::Call) && instruction->isTargetOperand(op))
-            document->symbol(value, SymbolTypes::Function);
+        {
+            if(op.is(OperandTypes::Memory))
+                ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.u_value, op.index, instruction);
+            else
+                ENQUEUE_STATE(DisassemblerAlgorithm::CallState, op.u_value, op.index, instruction);
+        }
         else
         {
-            if(segment->is(SegmentTypes::Code))
-                m_disassembler->checkString(instruction, value);   // Create Symbol + XRefs
-            else if(segment->is(SegmentTypes::Data) || segment->is(SegmentTypes::Bss))
-                m_disassembler->checkLocation(instruction, value); // Create Symbol + XRefs
-
-            continue;
+            if(op.is(OperandTypes::Memory))
+                ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.u_value, op.index, instruction);
+            else if(op.is(OperandTypes::Immediate))
+                ENQUEUE_STATE(DisassemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
         }
-
-        m_disassembler->pushReference(value, instruction);
     }
+}
+
+void DisassemblerAlgorithm::onDecodeFailed(const InstructionPtr &instruction) { RE_UNUSED(instruction); }
+
+void DisassemblerAlgorithm::decodeState(const State* state)
+{
+    InstructionPtr instruction = std::make_shared<Instruction>();
+    u32 status = this->disassemble(state->address, instruction);
+
+    if(status == DisassemblerAlgorithm::SKIP)
+    {
+        REDasm::status("Skipped @ " + REDasm::hex(state->address, m_format->bits(), false));
+        return;
+    }
+
+    REDasm::status("Disassembled @ " + REDasm::hex(state->address, m_format->bits(), false));
+    m_document->instruction(instruction);
+}
+
+void DisassemblerAlgorithm::jumpState(const State *state)
+{
+    int dir = BRANCH_DIRECTION(state->instruction, state->address);
+
+    if(dir < 0)
+        state->instruction->cmt("Possible loop");
+    else if(!dir)
+        state->instruction->cmt("Infinite loop");
+
+    m_document->symbol(state->address, SymbolTypes::Code);
+    m_disassembler->pushReference(state->address, state->instruction);
+}
+
+void DisassemblerAlgorithm::callState(const State *state)
+{
+    m_document->symbol(state->address, SymbolTypes::Function);
+    m_disassembler->pushReference(state->address, state->instruction);
+}
+
+void DisassemblerAlgorithm::addressTableState(const State *state)
+{
+    const InstructionPtr& instruction = state->instruction;
+    size_t targetstart = instruction->targets.size();
+    int c = m_disassembler->checkAddressTable(instruction, state->address);
+
+    if(c)
+    {
+        state_t fwdstate = DisassemblerAlgorithm::MemoryState;
+
+        if(instruction->is(InstructionTypes::Call))
+            fwdstate = DisassemblerAlgorithm::CallState;
+        else if(instruction->is(InstructionTypes::Jump))
+            fwdstate = DisassemblerAlgorithm::JumpState;
+
+        size_t i = 0;
+
+        for(address_t target : instruction->targets)
+        {
+            if(i < targetstart)
+                continue; // Skip decoded targets
+
+            FORWARD_STATE_ADDRESS(fwdstate, target, state);
+            i++;
+        }
+    }
+    else
+    {
+        if(instruction->is(InstructionTypes::Jump))
+            FORWARD_STATE(DisassemblerAlgorithm::JumpState, state);
+        else if(instruction->is(InstructionTypes::Call))
+            FORWARD_STATE(DisassemblerAlgorithm::CallState, state);
+        else
+            FORWARD_STATE(DisassemblerAlgorithm::MemoryState, state);
+    }
+
+    m_disassembler->pushReference(state->address, instruction);
+}
+
+void DisassemblerAlgorithm::memoryState(const State *state)
+{
+    const Operand& op = state->operand();
+    u64 value = 0;
+
+    if(op.isRead() && m_disassembler->dereference(state->address, &value))
+    {
+        m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
+        m_disassembler->pushReference(state->address, state->instruction);
+        FORWARD_STATE_ADDRESS(DisassemblerAlgorithm::ImmediateState, value, state);
+    }
+    else
+        FORWARD_STATE(DisassemblerAlgorithm::ImmediateState, state);
+}
+
+void DisassemblerAlgorithm::immediateState(const State *state)
+{
+    const REDasm::Segment* segment = m_document->segment(state->address);
+
+    if(!segment)
+        return;
+
+    if(segment->is(SegmentTypes::Code))
+        m_disassembler->checkString(state->instruction, state->address);   // Create Symbol + XRefs
+    else if(segment->is(SegmentTypes::Data) || segment->is(SegmentTypes::Bss))
+        m_disassembler->checkLocation(state->instruction, state->address); // Create Symbol + XRefs
 }
 
 bool DisassemblerAlgorithm::canBeDisassembled(address_t address)
@@ -172,7 +206,7 @@ bool DisassemblerAlgorithm::canBeDisassembled(address_t address)
     return true;
 }
 
-void DisassemblerAlgorithm::createInvalidInstruction(const InstructionPtr &instruction, const Buffer& buffer)
+void DisassemblerAlgorithm::createInvalidInstruction(const InstructionPtr &instruction)
 {
     if(!instruction->size)
         instruction->size = 1; // Invalid instruction uses at least 1 byte
@@ -183,9 +217,33 @@ void DisassemblerAlgorithm::createInvalidInstruction(const InstructionPtr &instr
     if(!instruction->bytes.empty())
         return;
 
+    Buffer buffer = m_format->buffer() + m_format->offset(instruction->address);
+
     std::stringstream ss;
     ss << std::hex << static_cast<size_t>(*buffer);
     instruction->bytes = ss.str();
 }
+
+u32 DisassemblerAlgorithm::disassemble(address_t address, const InstructionPtr &instruction)
+{
+    auto it = m_disassembled.find(address);
+
+    if(it != m_disassembled.end())
+        return DisassemblerAlgorithm::SKIP;
+
+    m_disassembled.insert(address);
+    u32 result = this->disassembleInstruction(address, instruction);
+
+    if(result == DisassemblerAlgorithm::FAIL)
+    {
+        this->createInvalidInstruction(instruction);
+        this->onDecodeFailed(instruction);
+    }
+    else
+        this->onDecoded(instruction);
+
+    return result;
+}
+
 
 } // namespace REDasm

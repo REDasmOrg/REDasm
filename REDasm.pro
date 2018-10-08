@@ -130,7 +130,8 @@ SOURCES += main.cpp\
     renderer/listinggraphrenderer.cpp \
     widgets/disassemblergraphview/disassemblergraphview.cpp \
     redasm/graph/graph.cpp \
-    widgets/disassemblergraphview/disassemblerwebchannel.cpp
+    widgets/disassemblergraphview/disassemblerwebchannel.cpp \
+    redasm/plugins/disassembler/statemachine.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -252,7 +253,8 @@ HEADERS  += mainwindow.h \
     widgets/disassemblergraphview/disassemblergraphview.h \
     redasm/graph/graph.h \
     widgets/disassemblergraphview/disassemblerwebchannel.h \
-    disassemblerwebchannel.h
+    disassemblerwebchannel.h \
+    redasm/plugins/disassembler/statemachine.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

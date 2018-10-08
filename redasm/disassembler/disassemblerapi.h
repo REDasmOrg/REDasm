@@ -36,8 +36,8 @@ class DisassemblerAPI
         virtual void pushReference(const SymbolPtr& symbol, const InstructionPtr& refby) = 0;
         virtual void pushReference(address_t address, const InstructionPtr& refby) = 0;
         virtual void checkLocation(const InstructionPtr& instruction, address_t address) = 0;
-        virtual bool checkJumpTable(const InstructionPtr& instruction, address_t address) = 0;
         virtual bool checkString(const InstructionPtr& instruction, address_t address) = 0;
+        virtual int checkAddressTable(const InstructionPtr& instruction, address_t address) = 0;
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const = 0;
         virtual std::string readString(const SymbolPtr& symbol) const = 0;
         virtual std::string readString(address_t address) const = 0;
@@ -47,8 +47,7 @@ class DisassemblerAPI
         virtual bool readAddress(address_t address, size_t size, u64 *value) const = 0;
         virtual bool readOffset(offset_t offset, size_t size, u64 *value) const = 0;
         virtual bool getBuffer(address_t address, Buffer& data) const = 0;
-        virtual bool dereferencePointer(address_t address, u64* value) const = 0;
-        virtual bool dereferenceOperand(const Operand& operand, u64* value) const = 0;
+        virtual bool dereference(address_t address, u64* value) const = 0;
         virtual SymbolPtr dereferenceSymbol(const SymbolPtr& symbol, u64* value = NULL) = 0;
         virtual InstructionPtr disassembleInstruction(address_t address) = 0;
         virtual void disassemble(address_t address) = 0;

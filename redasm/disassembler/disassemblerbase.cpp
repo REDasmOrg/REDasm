@@ -66,7 +66,7 @@ void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_
 {
     u64 target = address, stringscount = 0;
 
-    while(this->dereferencePointer(target, &target))
+    while(this->dereference(target, &target))
     {
         if(!this->checkString(instruction, target))
             break;
@@ -108,6 +108,25 @@ bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t 
     return true;
 }
 
+int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, address_t address)
+{
+    int c = 0;
+    u64 target = 0;
+
+    while(this->readAddress(address, m_format->addressWidth(), &target))
+    {
+        const Segment* segment = m_document->segment(target);
+
+        if(!segment || !segment->is(SegmentTypes::Code))
+            break;
+
+        instruction->target(target);
+        address += m_format->addressWidth();
+        c++;
+    }
+
+    return c;
+}
 
 FormatPlugin *DisassemblerBase::format() { return m_format; }
 ListingDocument *DisassemblerBase::document() { return m_document; }
@@ -140,7 +159,7 @@ std::string DisassemblerBase::readString(const SymbolPtr &symbol) const
 {
     address_t memaddress = 0;
 
-    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, &memaddress))
+    if(symbol->is(SymbolTypes::Pointer) && this->dereference(symbol->address, &memaddress))
         return this->readString(memaddress);
 
     return this->readString(symbol->address);
@@ -150,7 +169,7 @@ std::string DisassemblerBase::readWString(const SymbolPtr &symbol) const
 {
     address_t memaddress = 0;
 
-    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, &memaddress))
+    if(symbol->is(SymbolTypes::Pointer) && this->dereference(symbol->address, &memaddress))
         return this->readWString(memaddress);
 
     return this->readWString(symbol->address);
@@ -174,20 +193,12 @@ std::string DisassemblerBase::readHex(address_t address, u32 count) const
     return ss.str();
 }
 
-bool DisassemblerBase::dereferenceOperand(const Operand &operand, u64 *value) const
-{
-    if(!operand.is(OperandTypes::Memory))
-        return false;
-
-    return this->dereferencePointer(operand.u_value, value);
-}
-
 SymbolPtr DisassemblerBase::dereferenceSymbol(const SymbolPtr& symbol, u64* value)
 {
     address_t address = 0;
     SymbolPtr ptrsymbol;
 
-    if(symbol->is(SymbolTypes::Pointer) && this->dereferencePointer(symbol->address, &address))
+    if(symbol->is(SymbolTypes::Pointer) && this->dereference(symbol->address, &address))
         ptrsymbol = m_document->symbol(address);
 
     if(value)
@@ -196,7 +207,7 @@ SymbolPtr DisassemblerBase::dereferenceSymbol(const SymbolPtr& symbol, u64* valu
     return ptrsymbol;
 }
 
-bool DisassemblerBase::dereferencePointer(address_t address, u64 *value) const
+bool DisassemblerBase::dereference(address_t address, u64 *value) const
 {
     if(!value)
         return false;
@@ -214,8 +225,7 @@ bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) c
     if(!segment || segment->is(SegmentTypes::Bss))
         return false;
 
-    offset_t offset = m_format->offset(address);
-    return this->readOffset(offset, size, value);
+    return this->readOffset(m_format->offset(address), size, value);
 }
 
 bool DisassemblerBase::getBuffer(address_t address, Buffer &data) const

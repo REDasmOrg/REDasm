@@ -2,23 +2,17 @@
 
 namespace REDasm {
 
-DisassemblerControlFlow::DisassemblerControlFlow(DisassemblerAPI *disassembler, AssemblerPlugin *assemblerplugin): DisassemblerAlgorithm(disassembler, assemblerplugin)
+DisassemblerControlFlow::DisassemblerControlFlow(DisassemblerAPI *disassembler, AssemblerPlugin *assemblerplugin): DisassemblerAlgorithm(disassembler, assemblerplugin) { }
+
+void DisassemblerControlFlow::onDecoded(const InstructionPtr &instruction)
 {
-
-}
-
-void DisassemblerControlFlow::onDisassembled(const InstructionPtr &instruction, u32 result)
-{
-    DisassemblerAlgorithm::onDisassembled(instruction, result);
-
-    if(result == DisassemblerAlgorithm::FAIL)
-        return;
+    DisassemblerAlgorithm::onDecoded(instruction);
 
     for(address_t target : instruction->targets)
-        this->push(target);
+        this->enqueue(target);
 
     if(!instruction->is(InstructionTypes::Stop))
-        this->push(instruction->endAddress());
+        this->enqueue(instruction->endAddress());
 }
 
 } // namespace REDasm

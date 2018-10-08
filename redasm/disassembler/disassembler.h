@@ -18,7 +18,6 @@ class Disassembler: public DisassemblerBase
 
     public: // Primitive functions
         virtual AssemblerPlugin* assembler();
-        virtual bool checkJumpTable(const InstructionPtr& instruction, address_t address);
         virtual InstructionPtr disassembleInstruction(address_t address);
         virtual void disassemble(address_t address);
         virtual void pause();
@@ -28,7 +27,6 @@ class Disassembler: public DisassemblerBase
 
     private:
         void disassembleStep(DisassemblerAlgorithm *algorithm);
-        size_t walkJumpTable(const InstructionPtr &instruction, address_t address);
 
     private:
         std::unique_ptr<AssemblerPlugin> m_assembler;

@@ -11,7 +11,8 @@ class DisassemblerLinearSweep: public DisassemblerAlgorithm
         DisassemblerLinearSweep(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 
     protected:
-        virtual void onDisassembled(const InstructionPtr& instruction, u32 result);
+        virtual void onDecodeFailed(const InstructionPtr& instruction);
+        virtual void onDecoded(const InstructionPtr& instruction);
 };
 
 } // namespace REDasm

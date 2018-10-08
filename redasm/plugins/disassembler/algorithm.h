@@ -5,14 +5,17 @@
 #include <set>
 #include "../../redasm.h"
 #include "../../redasm/analyzer/analyzer.h"
-#include "../assembler/assembler.h"
+#include "statemachine.h"
+
+#define ENQUEUE_DECODE_STATE(state, address) ENQUEUE_STATE(state, address, -1, NULL)
 
 namespace REDasm {
 
-class DisassemblerAlgorithm
+class DisassemblerAlgorithm: public StateMachine
 {
     public:
         enum: u32 { OK, SKIP, FAIL };
+        enum: state_t { DecodeState, JumpState, CallState, AddressTableState, MemoryState, ImmediateState };
 
     private:
         typedef std::set<address_t> DecodedAddresses;
@@ -21,20 +24,26 @@ class DisassemblerAlgorithm
         DisassemblerAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assembler);
 
     public:
-        u32 disassemble(address_t address, const InstructionPtr& instruction);
-        u32 disassembleSingle(address_t address, const InstructionPtr& instruction);
-        void push(address_t address);
+        u32 disassembleInstruction(address_t address, const InstructionPtr& instruction);
+        void enqueue(address_t address);
         bool analyze();
-        bool hasNext() const;
-        address_t next();
 
     protected:
-        virtual void onDisassembled(const InstructionPtr& instruction, u32 result);
-        virtual void checkOperands(const InstructionPtr& instruction);
+        virtual void onDecoded(const InstructionPtr& instruction);
+        virtual void onDecodeFailed(const InstructionPtr& instruction);
+
+    protected:
+        virtual void decodeState(const State *state);
+        virtual void jumpState(const State* state);
+        virtual void callState(const State* state);
+        virtual void addressTableState(const State* state);
+        virtual void memoryState(const State* state);
+        virtual void immediateState(const State* state);
 
     private:
         bool canBeDisassembled(address_t address);
-        void createInvalidInstruction(const InstructionPtr& instruction, const Buffer &buffer);
+        void createInvalidInstruction(const InstructionPtr& instruction);
+        u32 disassemble(address_t address, const InstructionPtr& instruction);
 
     protected:
         DisassemblerAPI* m_disassembler;
@@ -44,7 +53,6 @@ class DisassemblerAlgorithm
 
     private:
         DecodedAddresses m_disassembled;
-        std::stack<address_t> m_pending;
         std::unique_ptr<Analyzer> m_analyzer;
         const Segment* m_currentsegment;
         bool m_analyzed;

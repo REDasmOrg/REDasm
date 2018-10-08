@@ -3,6 +3,7 @@
 #include <thread>
 
 #define INVALID_MNEMONIC "db"
+#define ENQUEUE_DECODE_STATE(address) ENQUEUE_STATE(DisassemblerAlgorithm::DecodeState, address, -1, NULL)
 
 namespace REDasm {
 
@@ -19,7 +20,7 @@ DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, Asse
     REGISTER_STATE(DisassemblerAlgorithm::ImmediateState, &DisassemblerAlgorithm::immediateState);
 }
 
-void DisassemblerAlgorithm::enqueue(address_t address) { ENQUEUE_DECODE_STATE(DisassemblerAlgorithm::DecodeState, address); }
+void DisassemblerAlgorithm::enqueue(address_t address) { ENQUEUE_DECODE_STATE(address); }
 
 bool DisassemblerAlgorithm::analyze()
 {
@@ -145,10 +146,9 @@ void DisassemblerAlgorithm::addressTableState(const State *state)
 
         for(address_t target : instruction->targets)
         {
-            if(i < targetstart)
-                continue; // Skip decoded targets
+            if(i >= targetstart)  // Skip decoded targets
+                FORWARD_STATE_ADDRESS(fwdstate, target, state);
 
-            FORWARD_STATE_ADDRESS(fwdstate, target, state);
             i++;
         }
     }

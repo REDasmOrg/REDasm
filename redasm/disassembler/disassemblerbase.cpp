@@ -104,14 +104,17 @@ bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t 
         instruction->cmt("STRING: " + REDasm::quoted(this->readString(address)));
     }
 
+    m_document->update(instruction);
     this->pushReference(address, instruction);
     return true;
 }
 
-int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, address_t address)
+int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, address_t startaddress)
 {
     int c = 0;
     u64 target = 0;
+
+    address_t address = startaddress;
 
     while(this->readAddress(address, m_format->addressWidth(), &target))
     {
@@ -123,6 +126,13 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
         instruction->target(target);
         address += m_format->addressWidth();
         c++;
+    }
+
+    if(c)
+    {
+        this->pushReference(startaddress, instruction);
+        m_document->update(instruction);
+        m_document->table(startaddress);
     }
 
     return c;

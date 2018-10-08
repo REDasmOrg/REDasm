@@ -22,6 +22,7 @@ struct State
     int index;
     InstructionPtr instruction;
 
+    bool isFromOperand() const { return index > -1; }
     const Operand& operand() const { return instruction->op(index); }
 };
 

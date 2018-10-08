@@ -7,8 +7,6 @@
 #include "../../redasm/analyzer/analyzer.h"
 #include "statemachine.h"
 
-#define ENQUEUE_DECODE_STATE(state, address) ENQUEUE_STATE(state, address, -1, NULL)
-
 namespace REDasm {
 
 class DisassemblerAlgorithm: public StateMachine

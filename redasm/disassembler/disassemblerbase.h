@@ -26,7 +26,7 @@ class DisassemblerBase: public DisassemblerAPI
         virtual void pushReference(address_t address, const InstructionPtr &refbyinstruction);
         virtual void checkLocation(const InstructionPtr& instruction, address_t address);
         virtual bool checkString(const InstructionPtr& instruction, address_t address);
-        virtual int checkAddressTable(const InstructionPtr& instruction, address_t address);
+        virtual int checkAddressTable(const InstructionPtr& instruction, address_t startaddress);
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
         virtual std::string readString(const SymbolPtr& symbol) const;
         virtual std::string readWString(const SymbolPtr& symbol) const;

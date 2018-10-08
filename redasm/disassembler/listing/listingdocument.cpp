@@ -187,6 +187,7 @@ void ListingDocument::segment(const std::string &name, offset_t offset, address_
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
 void ListingDocument::function(address_t address, u32 tag) { this->symbol(address, ListingDocument::symbolName("sub", address), SymbolTypes::Function, tag); }
+void ListingDocument::table(address_t address, u32 tag) { this->lock(address, ListingDocument::symbolName("tbl", address), SymbolTypes::Table, tag); }
 
 void ListingDocument::entry(address_t address, u32 tag)
 {

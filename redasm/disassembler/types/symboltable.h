@@ -25,6 +25,8 @@ namespace SymbolTypes {
         Pointer            = 0x02000000,
         Locked             = 0x10000000,
 
+        Table              = 0x00010000 | Pointer | Data,
+
         LockedMask         = ~Locked,
         FunctionMask       = Function                      & ~(Code      | Locked),
         ExportMask         = (ExportData | ExportFunction) & ~(Function  | Data | Locked),
@@ -32,6 +34,7 @@ namespace SymbolTypes {
         EntryPointMask     = EntryPoint                    & ~(Function),
         StringMask         = String                        & ~(Pointer),
         WideStringMask     = WideString                    & ~(String    | Pointer),
+        TableMask          = Table                         & ~(Pointer   | Data),
     };
 }
 

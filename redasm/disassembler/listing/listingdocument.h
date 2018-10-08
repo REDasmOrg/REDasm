@@ -170,6 +170,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         void segment(const std::string& name, offset_t offset, address_t address, u64 size, u32 type);
         void function(address_t address, const std::string& name, u32 tag = 0);
         void function(address_t address, u32 tag = 0);
+        void table(address_t address, u32 tag = 0);
         void entry(address_t address, u32 tag = 0);
         void setDocumentEntry(address_t address);
         SymbolPtr documentEntry() const;

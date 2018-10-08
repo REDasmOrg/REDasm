@@ -11,6 +11,7 @@ class DisassemblerControlFlow: public DisassemblerAlgorithm
         DisassemblerControlFlow(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 
     protected:
+        virtual void addressTableState(const State* state);
         virtual void onDecoded(const InstructionPtr& instruction);
 };
 

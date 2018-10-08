@@ -58,10 +58,14 @@ void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)
     m_state = Timer::ActiveState;
     m_timercallback = cb;
     stateChanged(this);
-    m_worker = std::thread(&Timer::work, this);
 
     if(getenv("SYNC_MODE"))
-        m_worker.join();
+    {
+        this->workSync();
+        return;
+    }
+
+    m_worker = std::thread(&Timer::work, this);
 }
 
 void Timer::work()
@@ -74,6 +78,15 @@ void Timer::work()
             m_timercallback();
 
         m_condition.wait_until(m_lock, clock::now() + m_interval);
+    }
+}
+
+void Timer::workSync()
+{
+    while(m_state != Timer::InactiveState)
+    {
+        if(m_state == Timer::ActiveState)
+            m_timercallback();
     }
 }
 

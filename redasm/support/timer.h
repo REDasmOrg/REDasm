@@ -38,6 +38,7 @@ class Timer
 
     private:
         void work();
+        void workSync();
 
     private:
         bool m_running;

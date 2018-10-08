@@ -45,7 +45,7 @@ DisassemblerTest::DisassemblerTest(): m_document(NULL)
     ADD_TEST_PATH("IOLI-crackme/bin-pocketPC/crackme0x01.arm.exe", testIoliARM);
     ADD_TEST_PATH("PE Test/tn12/scrack.exe", testSCrack);
 
-    //ADD_TEST_PATH_NULL("PE Test/CorruptedIT.exe", NULL);
+    ADD_TEST_PATH_NULL("PE Test/CorruptedIT.exe", NULL);
 
     REDasm::setLoggerCallback([](const std::string&) { });
     REDasm::init(QDir::currentPath().toStdString());
@@ -128,7 +128,8 @@ void DisassemblerTest::runCurrentTest(const TestCallback &cb)
     m_disassembler->disassemble();
     cout << TEST_OK << endl;
 
-    cb();
+    if(cb)
+        cb();
 }
 
 void DisassemblerTest::testVBEvents(const std::map<address_t, string> &vbevents)
@@ -187,6 +188,9 @@ void DisassemblerTest::testOllyDump()
 
     symbol = m_document->symbol(instruction->target());
     TEST_SYMBOL("Checking if target a data-pointer", symbol, symbol->is(SymbolTypes::Pointer) && symbol->is(SymbolTypes::Data));
+
+    if(!symbol)
+        return;
 
     symbol = m_disassembler->dereferenceSymbol(symbol);
     TEST_SYMBOL("Checking if dereferenced pointer is a function", symbol, symbol->isFunction());
@@ -287,6 +291,10 @@ void DisassemblerTest::testTn11()
 
     instruction = m_document->instruction(0x00401197);
     TEST("Checking JUMP TABLE @ 0x00401197", instruction);
+
+    if(!instruction)
+        return;
+
     TEST("Checking TARGETS count @ 0x00401197", instruction->targets.size() == 5);
 
     if(instruction->targets.size() != 5)

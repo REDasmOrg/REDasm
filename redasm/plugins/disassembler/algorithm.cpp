@@ -31,11 +31,19 @@ bool DisassemblerAlgorithm::analyze()
     FormatPlugin* format = m_disassembler->format();
     m_analyzer.reset(format->createAnalyzer(m_disassembler, format->signatures()));
 
-    std::thread([&]() {
-        REDasm::status("Analyzing...");
+    if(getenv("SYNC_MODE"))
+    {
         m_analyzer->analyze();
         m_document->moveToEP();
-    }).detach();
+    }
+    else
+    {
+        std::thread([&]() {
+            REDasm::status("Analyzing...");
+            m_analyzer->analyze();
+            m_document->moveToEP();
+        }).detach();
+    }
 
     return true;
 }

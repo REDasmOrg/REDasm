@@ -8,6 +8,11 @@
 
 int main(int argc, char *argv[])
 {
+#ifdef QT_DEBUG
+    if((argc == 2) && !std::strcmp(argv[1], "--testmode"))
+        return UnitTest::run();
+#endif // QT_DEBUG
+
     qRegisterMetaType<address_t>("address_t");
 
     QApplication a(argc, argv);
@@ -15,11 +20,6 @@ int main(int argc, char *argv[])
 
     QtWebEngine::initialize();
     MainWindow w;
-
-#ifdef QT_DEBUG
-    if(a.arguments().contains("--testmode", Qt::CaseInsensitive))
-        return UnitTest::run();
-#endif // QT_DEBUG
 
     w.show();
     return a.exec();

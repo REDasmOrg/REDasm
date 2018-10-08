@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <memory>
 
-#define INSTRUCTION_THRESHOLD  10
 #define DO_TICK_DISASSEMBLY()  m_timer.tick(std::bind(&Disassembler::disassembleStep, this, m_algorithm.get()))
 
 namespace REDasm {

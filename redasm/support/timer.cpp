@@ -10,7 +10,9 @@ Timer::~Timer()
     timer_lock m_lock(m_mutex);
     m_state = Timer::InactiveState;
     m_lock.unlock();
-    m_worker.join();
+
+    if(m_worker.joinable())
+        m_worker.join();
 }
 
 size_t Timer::state() const { return m_state; }
@@ -55,8 +57,11 @@ void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)
     m_interval = interval;
     m_state = Timer::ActiveState;
     m_timercallback = cb;
-    m_worker = std::thread(&Timer::work, this);
     stateChanged(this);
+    m_worker = std::thread(&Timer::work, this);
+
+    if(getenv("SYNC_MODE"))
+        m_worker.join();
 }
 
 void Timer::work()

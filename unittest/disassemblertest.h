@@ -9,9 +9,12 @@
 class DisassemblerTest
 {
     private:
-        typedef std::function<void(REDasm::Disassembler*)> TestCallback;
+        typedef std::function<void()> TestCallback;
         typedef std::map<std::string, TestCallback> TestList;
         typedef std::pair<std::string, TestCallback> TestItem;
+
+    public:
+        REDasm::SimpleEvent done;
 
     public:
         DisassemblerTest();
@@ -20,22 +23,25 @@ class DisassemblerTest
     private:
         static std::string replaceAll(std::string str, const std::string& from, const std::string& to);
         static QByteArray readFile(const QString& file);
-        static void runTest(QByteArray &data, const TestCallback &testcallback);
+        void runCurrentTest(const TestCallback& cb);
 
     private:
-        void testVBEvents(REDasm::Disassembler* disassembler, const std::map<address_t, std::string>& vbevents);
+        void testVBEvents(const std::map<address_t, std::string>& vbevents);
 
     private: // Tests
-        void testCavia(REDasm::Disassembler* disassembler);
-        void testCM01(REDasm::Disassembler* disassembler);
-        void testOllyDump(REDasm::Disassembler* disassembler);
-        void testSCrack(REDasm::Disassembler* disassembler);
-        void testVB5CrackMe(REDasm::Disassembler* disassembler);
-        void testIoliARM(REDasm::Disassembler* disassembler);
-        void testTn11(REDasm::Disassembler* disassembler);
+        void testCavia();
+        void testCM01();
+        void testOllyDump();
+        void testSCrack();
+        void testVB5CrackMe();
+        void testIoliARM();
+        void testTn11();
 
     private:
-        TestList _tests;
+        TestList m_tests;
+        QByteArray m_data;
+        std::unique_ptr<REDasm::Disassembler> m_disassembler;
+        REDasm::ListingDocument* m_document;
 };
 
 #endif // DISASSEMBLERTEST_H

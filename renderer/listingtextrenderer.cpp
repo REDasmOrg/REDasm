@@ -10,7 +10,7 @@
 
 ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_font(font), m_fontmetrics(font), m_cursoractive(false)
 {
-    m_rgxwords.setPattern("[\\w\\.]+");
+    m_rgxwords.setPattern(ListingRendererCommon::wordsPattern());
     m_textoption.setWrapMode(QTextOption::NoWrap);
 }
 

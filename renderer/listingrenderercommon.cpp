@@ -6,7 +6,7 @@
 
 ListingRendererCommon::ListingRendererCommon(QTextDocument *textdocument, REDasm::ListingDocument *document): m_textdocument(textdocument), m_document(document)
 {
-    m_rgxwords.setPattern("([\\w\\.]+)");
+    m_rgxwords.setPattern(ListingRendererCommon::wordsPattern());
     m_textcursor = QTextCursor(textdocument);
 }
 
@@ -69,6 +69,8 @@ void ListingRendererCommon::insertHtmlText(const REDasm::RendererLine &rl)
 
     m_textcursor.insertText(QString("<div style=\"display: inline-block; width: 100%\" data-lineroot=\"1\" data-line=\"%1\">%2</div>").arg(rl.line).arg(content));
 }
+
+QString ListingRendererCommon::wordsPattern() { return "[\\w\\.@]+"; }
 
 QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style, const REDasm::RendererLine& rl) const
 {

@@ -112,9 +112,7 @@ bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t 
 int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, address_t startaddress)
 {
     int c = 0;
-    u64 target = 0;
-
-    address_t address = startaddress;
+    address_t target = 0, address = startaddress;
 
     while(this->readAddress(address, m_format->addressWidth(), &target))
     {
@@ -132,7 +130,11 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
     {
         this->pushReference(startaddress, instruction);
         m_document->update(instruction);
-        m_document->table(startaddress);
+
+        if(c > 1)
+            m_document->table(startaddress, c);
+        else
+            m_document->pointer(startaddress, SymbolTypes::Data);
     }
 
     return c;

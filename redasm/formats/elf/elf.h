@@ -161,7 +161,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
             continue;
         }
 
-        std::string symname = REDasm::demangle(ELF_STRING(&shstr, sym->st_name));
+        std::string symname = ELF_STRING(&shstr, sym->st_name);
 
         if(!isrelocated)
         {

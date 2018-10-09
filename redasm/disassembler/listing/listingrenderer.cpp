@@ -148,7 +148,7 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
         this->renderAddressIndent(item, rl);
         rl.push(symbol->name + ":", "label_fg");
     }
-    else
+    else // Data
     {
         Segment* segment = m_document->segment(item->address);
         this->renderAddress(item, rl);
@@ -156,15 +156,26 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
 
         if(!segment->is(SegmentTypes::Bss))
         {
+            u64 value = 0;
+            FormatPlugin* format = m_disassembler->format();
+
+            if(symbol->is(SymbolTypes::Pointer) && m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
+            {
+                SymbolPtr ptrsymbol = m_document->symbol(value);
+
+                if(ptrsymbol)
+                {
+                    rl.push(ptrsymbol->name, "label_fg");
+                    return;
+                }
+            }
+
             if(symbol->is(SymbolTypes::WideStringMask))
                 rl.push(REDasm::quoted(m_disassembler->readWString(symbol)), "string_fg");
             else if(symbol->is(SymbolTypes::StringMask))
                 rl.push(REDasm::quoted(m_disassembler->readString(symbol)), "string_fg");
             else
             {
-                u64 value = 0;
-                FormatPlugin* format = m_disassembler->format();
-
                 if(m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
                     rl.push(REDasm::hex(value, format->bits(), false), "data_fg");
                 else

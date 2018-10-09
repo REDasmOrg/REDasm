@@ -67,3 +67,9 @@ qmake && make
 - Qt >= 5.6
 - [Capstone](https://github.com/aquynh/capstone) 
 - [JSON](https://github.com/nlohmann/json)
+
+### Graph Rendering
+Graph Rendering is provided by QtWebEngine with the help of:
+- [D3](https://github.com/d3/d3)
+- [Dagre](https://github.com/dagrejs/dagre)
+- [Dagre-D3](https://github.com/dagrejs/dagre-d3)

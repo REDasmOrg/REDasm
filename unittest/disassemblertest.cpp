@@ -186,8 +186,8 @@ void DisassemblerTest::testOllyDump()
 
     TEST("Validating CALL @ 0x00403BEA target", instruction->is(InstructionTypes::Call) && instruction->hasTargets());
 
-    symbol = m_document->symbol(instruction->target());
-    TEST_SYMBOL("Checking if target a data-pointer", symbol, symbol->is(SymbolTypes::Pointer) && symbol->is(SymbolTypes::Data));
+    symbol = m_document->symbol(0x00407730);
+    TEST_SYMBOL("Checking if target an address table", symbol, symbol->isTable());
 
     if(!symbol)
         return;

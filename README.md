@@ -1,5 +1,5 @@
 <p align="center">
-  <img width=256 height=256 src="https://github.com/Dax89/REDasm/blob/master/artwork/logo.png?raw=true"/><br>
+  <img width=256 height=256 src="https://github.com/Dax89/REDasm/blob/next/artwork/logo.png?raw=true"/><br>
   <a href="https://travis-ci.org/REDasmOrg/REDasm">
     <img src="https://img.shields.io/travis/REDasmOrg/REDasm.svg?style=flat-square&logo=travis">
   </a>
@@ -13,7 +13,7 @@
 
 <p align="center">
   <i>A crossplatform, multiarchitecture disassembler.</i>
-  <img height="450" src="https://github.com/REDasmOrg/REDasm/blob/master/artwork/Preview.gif">
+  <img height="450" src="https://github.com/REDasmOrg/REDasm/blob/next/artwork/Preview.gif">
 </p>
 
 ***

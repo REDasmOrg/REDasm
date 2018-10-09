@@ -156,18 +156,15 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
 
         if(!segment->is(SegmentTypes::Bss))
         {
-            u64 value = 0;
-            FormatPlugin* format = m_disassembler->format();
-
-            if(symbol->is(SymbolTypes::Pointer) && m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
+            if(symbol->is(SymbolTypes::Pointer))
             {
-                SymbolPtr ptrsymbol = m_document->symbol(value);
-
-                if(ptrsymbol)
+                if(symbol->is(SymbolTypes::Table))
                 {
-                    rl.push(ptrsymbol->name, "label_fg");
+                    this->renderTable(symbol, rl);
                     return;
                 }
+                else if(this->renderSymbolPointer(symbol, rl))
+                    return;
             }
 
             if(symbol->is(SymbolTypes::WideStringMask))
@@ -176,6 +173,9 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
                 rl.push(REDasm::quoted(m_disassembler->readString(symbol)), "string_fg");
             else
             {
+                u64 value = 0;
+                FormatPlugin* format = m_disassembler->format();
+
                 if(m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
                     rl.push(REDasm::hex(value, format->bits(), false), "data_fg");
                 else
@@ -263,6 +263,53 @@ void ListingRenderer::renderAddressIndent(ListingItem* item, RendererLine &rl)
 }
 
 void ListingRenderer::renderIndent(RendererLine &rl, int n) { rl.push(std::string(n * INDENT_WIDTH, ' ')); }
+
+void ListingRenderer::renderTable(const SymbolPtr &symbol, RendererLine& rl) const
+{
+    u64 value = 0;
+    FormatPlugin* format = m_disassembler->format();
+    address_t address = symbol->address;
+
+    rl.push("[");
+
+    for(size_t i = 0; i < symbol->tag; i++, address += format->addressWidth())
+    {
+        if(i)
+            rl.push(", ");
+
+        if(!m_disassembler->readAddress(address, format->addressWidth(), &value))
+        {
+            rl.push("??", "data_fg");
+            continue;
+        }
+
+        SymbolPtr ptrsymbol = m_document->symbol(value);
+
+        if(!ptrsymbol)
+            rl.push(REDasm::hex(value, format->bits(), false), "data_fg");
+        else
+            rl.push(ptrsymbol->name, "label_fg");
+    }
+
+    rl.push("]");
+}
+
+bool ListingRenderer::renderSymbolPointer(const SymbolPtr &symbol, RendererLine &rl) const
+{
+    u64 value = 0;
+    FormatPlugin* format = m_disassembler->format();
+
+   if(!m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
+       return false;
+
+   SymbolPtr ptrsymbol = m_document->symbol(value);
+
+   if(!ptrsymbol)
+       return false;
+
+   rl.push(ptrsymbol->name, "label_fg");
+   return true;
+}
 
 std::string ListingRenderer::escapeString(const std::string &s)
 {

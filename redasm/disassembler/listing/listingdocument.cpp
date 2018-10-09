@@ -129,7 +129,9 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
 
 void ListingDocument::symbol(address_t address, u32 type, u32 tag)
 {
-    if(type & SymbolTypes::Pointer)
+    if(type & SymbolTypes::TableMask)
+        this->symbol(address, this->symbolName("tbl", address), type, tag);
+    else if(type & SymbolTypes::Pointer)
         this->symbol(address, this->symbolName("ptr", address), type, tag);
     else if(type & SymbolTypes::WideStringMask)
         this->symbol(address, this->symbolName("wstr", address), type, tag);
@@ -163,10 +165,12 @@ void ListingDocument::lock(address_t address, const std::string &name)
     SymbolPtr symbol = m_symboltable.symbol(address);
 
     if(!symbol)
-        this->lock(address, name, SymbolTypes::Data);
+        this->lock(address, name.empty() ? symbol->name : name, SymbolTypes::Data);
     else
-        this->lock(address, name, symbol->type, symbol->tag);
+        this->lock(address, name.empty() ? symbol->name : name, symbol->type, symbol->tag);
 }
+
+void ListingDocument::lock(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Locked, tag); }
 
 void ListingDocument::lock(address_t address, const std::string &name, u32 type, u32 tag)
 {
@@ -186,8 +190,9 @@ void ListingDocument::segment(const std::string &name, offset_t offset, address_
 }
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
-void ListingDocument::function(address_t address, u32 tag) { this->symbol(address, ListingDocument::symbolName("sub", address), SymbolTypes::Function, tag); }
-void ListingDocument::table(address_t address, u32 tag) { this->lock(address, ListingDocument::symbolName("tbl", address), SymbolTypes::Table, tag); }
+void ListingDocument::function(address_t address, u32 tag) { this->symbol(address, SymbolTypes::Function, tag); }
+void ListingDocument::pointer(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Pointer, tag); }
+void ListingDocument::table(address_t address, u32 tag) { this->lock(address, SymbolTypes::Table, tag); }
 
 void ListingDocument::entry(address_t address, u32 tag)
 {

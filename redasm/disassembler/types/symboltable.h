@@ -51,6 +51,7 @@ struct Symbol
 
     bool is(u32 t) const { return type & t; }
     bool isFunction() const { return type & SymbolTypes::FunctionMask; }
+    bool isTable() const { return type & SymbolTypes::TableMask; }
     bool isLocked() const { return type & SymbolTypes::Locked; }
 };
 

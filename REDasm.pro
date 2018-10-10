@@ -133,7 +133,8 @@ SOURCES += main.cpp\
     widgets/disassemblergraphview/disassemblerwebchannel.cpp \
     redasm/plugins/disassembler/statemachine.cpp \
     redasm/emulator/emulatorbase.cpp \
-    redasm/emulator/emulator.cpp
+    redasm/emulator/emulator.cpp \
+    redasm/formats/dex/dex_algorithm.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -257,7 +258,8 @@ HEADERS  += mainwindow.h \
     widgets/disassemblergraphview/disassemblerwebchannel.h \
     redasm/plugins/disassembler/statemachine.h \
     redasm/emulator/emulatorbase.h \
-    redasm/emulator/emulator.h
+    redasm/emulator/emulator.h \
+    redasm/formats/dex/dex_algorithm.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

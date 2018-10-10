@@ -24,32 +24,6 @@ DalvikAssembler::DalvikAssembler(): AssemblerPlugin()
 const char *DalvikAssembler::name() const { return "Dalvik VM"; }
 Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new DalvikPrinter(disassembler); }
 
-void DalvikAssembler::analyzeOperand(DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
-{
-    DEXFormat* dexformat = dynamic_cast<DEXFormat*>(disassembler->format());
-
-    if(!dexformat || !operand.extra_type)
-        return;
-
-    offset_t offset = 0;
-
-    if(operand.extra_type == DalvikOperands::StringIndex)
-    {
-        if(!dexformat->getStringOffset(operand.u_value, offset))
-            return;
-
-        disassembler->document()->symbol(offset, SymbolTypes::String);
-        disassembler->pushReference(offset, instruction);
-    }
-    else if(operand.extra_type == DalvikOperands::MethodIndex)
-    {
-        if(!dexformat->getMethodOffset(operand.u_value, offset))
-            return;
-
-        disassembler->pushReference(offset, instruction);
-    }
-}
-
 bool DalvikAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
 {
     instruction->id = *buffer;

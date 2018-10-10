@@ -13,6 +13,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
 {
     public:
         DEXFormat(const Buffer& buffer);
+        virtual DisassemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin) const;
         virtual const char* name() const;
         virtual const char* assembler() const;
         virtual u32 bits() const;

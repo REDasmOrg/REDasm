@@ -11,9 +11,10 @@ namespace REDasm {
 
 class DisassemblerAlgorithm: public StateMachine
 {
+    DEFINE_STATES(DecodeState, JumpState, CallState, AddressTableState, MemoryState, ImmediateState)
+
     public:
         enum: u32 { OK, SKIP, FAIL };
-        enum: state_t { DecodeState, JumpState, CallState, AddressTableState, MemoryState, ImmediateState };
 
     private:
         typedef std::set<address_t> DecodedAddresses;
@@ -28,6 +29,7 @@ class DisassemblerAlgorithm: public StateMachine
 
     protected:
         virtual void onDecoded(const InstructionPtr& instruction);
+        virtual void onDecodedOperand(const InstructionPtr& instruction, const Operand& op);
         virtual void onDecodeFailed(const InstructionPtr& instruction);
 
     protected:

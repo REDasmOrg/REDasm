@@ -77,7 +77,15 @@ void DisassemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
             ENQUEUE_STATE(DisassemblerAlgorithm::CallState, op.u_value, op.index, instruction);
         else
             ENQUEUE_STATE(DisassemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
+
+        this->onDecodedOperand(instruction, op);
     }
+}
+
+void DisassemblerAlgorithm::onDecodedOperand(const InstructionPtr &instruction, const Operand &op)
+{
+    RE_UNUSED(instruction);
+    RE_UNUSED(op);
 }
 
 void DisassemblerAlgorithm::onDecodeFailed(const InstructionPtr &instruction) { RE_UNUSED(instruction); }

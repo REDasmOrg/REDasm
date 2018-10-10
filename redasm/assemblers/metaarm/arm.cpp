@@ -6,7 +6,7 @@ namespace REDasm {
 
 ARMAssembler::ARMAssembler(): CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_ARM>() { }
 const char *ARMAssembler::name() const { return "ARM"; }
-u32 ARMAssembler::flags() const { return AssemblerFlags::HasEmulator; }
+u32 ARMAssembler::flags() const { return 0; } // AssemblerFlags::HasEmulator; }
 
 bool ARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
 {

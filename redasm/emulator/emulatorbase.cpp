@@ -53,8 +53,8 @@ void EmulatorBase::fail()
 
 void EmulatorBase::unhandled(const InstructionPtr &instruction) const
 {
-    REDasm::log("Unhandled instruction " + instruction->mnemonic +
-                " @ " + REDasm::hex(instruction->address, m_disassembler->format()->bits(), false));
+    REDasm::log("Unhandled instruction '" + instruction->mnemonic +
+                "' @ " + REDasm::hex(instruction->address, m_disassembler->format()->bits(), false));
 }
 
 bool EmulatorBase::computeDisplacement(const DisplacementOperand &dispop, u64 *value)

@@ -12,8 +12,8 @@ class MIPSEmulator: public Emulator
         virtual bool emulate(const InstructionPtr &instruction);
 
     private:
-        void emulateAdd(const InstructionPtr& instruction);
         void emulateMath(const InstructionPtr& instruction);
+        void emulateLui(const InstructionPtr& instruction);
 };
 
 } // namespace REDasm

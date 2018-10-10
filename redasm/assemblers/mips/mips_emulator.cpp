@@ -19,30 +19,29 @@ MIPSEmulator::MIPSEmulator(DisassemblerAPI *disassembler): Emulator(disassembler
     //VMIL_TRANSLATE_OPCODE(MIPS_INS_SW,  Sxx);
     //VMIL_TRANSLATE_OPCODE(MIPS_INS_SWR, Sxx);
 
-    EMULATE_INSTRUCTION(MIPS_INS_ADD, &MIPSEmulator::emulateAdd);
-    EMULATE_INSTRUCTION(MIPS_INS_ADDI,&MIPSEmulator::emulateAdd);
-    EMULATE_INSTRUCTION(MIPS_INS_ADDIU, &MIPSEmulator::emulateAdd);
-    EMULATE_INSTRUCTION(MIPS_INS_ADDU, &MIPSEmulator::emulateAdd);
-    //EMULATE_INSTRUCTION(MIPS_INS_SUB, &MIPSEmulator::emulateMath);
-    //EMULATE_INSTRUCTION(MIPS_INS_SUBU, &MIPSEmulator::emulateMath);
-    //EMULATE_INSTRUCTION(MIPS_INS_MUL, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_ADD, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_ADDI,&MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_ADDIU, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_ADDU, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SUB, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SUBU, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_MUL, &MIPSEmulator::emulateMath);
 
-    ////VMIL_TRANSLATE_OPCODE(MIPS_INS_MULT, Math);
-    ////VMIL_TRANSLATE_OPCODE(MIPS_INS_MULTU, Math);
-    ////VMIL_TRANSLATE_OPCODE(MIPS_INS_DIV, Math);
-    ////VMIL_TRANSLATE_OPCODE(MIPS_INS_DIVU, Math);
+    //EMULATE_INSTRUCTION(MIPS_INS_MULT, &MIPSEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(MIPS_INS_MULTU, &MIPSEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(MIPS_INS_DIV, &MIPSEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(MIPS_INS_DIVU, &MIPSEmulator::emulateMath);
 
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_AND, Bitwise);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_ANDI, Bitwise);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_OR, Bitwise);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_ORI, Bitwise);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_XOR, Bitwise);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_XORI, Bitwise);
+    EMULATE_INSTRUCTION(MIPS_INS_AND, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_ANDI, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_OR, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_ORI, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_XOR, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_XORI, &MIPSEmulator::emulateMath);
 
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LUI, LUI);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_NOP, NOP);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SLL, SLL);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SRL, SRL);
+    EMULATE_INSTRUCTION(MIPS_INS_LUI, &MIPSEmulator::emulateLui);
+    EMULATE_INSTRUCTION(MIPS_INS_SLL, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SRL, &MIPSEmulator::emulateMath);
 }
 
 bool MIPSEmulator::emulate(const InstructionPtr &instruction)
@@ -51,7 +50,17 @@ bool MIPSEmulator::emulate(const InstructionPtr &instruction)
     return Emulator::emulate(instruction);
 }
 
-void MIPSEmulator::emulateAdd(const InstructionPtr &instruction) { this->mathOp(instruction, 0, 1, 2); }
+void MIPSEmulator::emulateMath(const InstructionPtr &instruction) { this->mathOp(instruction, 0, 1, 2); }
+
+void MIPSEmulator::emulateLui(const InstructionPtr &instruction)
+{
+    u64 value = 0;
+
+    if(!this->read(instruction->op(1), &value))
+        return;
+
+    this->write(instruction->op(0), value << 16);
+}
 
 /*
 void MIPSEmulator::translateLxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
@@ -151,132 +160,6 @@ void MIPSEmulator::translateSxx(const InstructionPtr &instruction, VMIL::VMILIns
         default:
             break;
     }
-}
-
-void MIPSEmulator::translateLUI(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
-{
-    vminstruction = VMIL::emitStr(instruction);
-    vminstruction->op(instruction->op(0));
-    vminstruction->op(instruction->op(1));
-    vminstructions.push_back(vminstruction);
-
-    vminstruction = VMIL::emitLsh(instruction, VMIL_INSTRUCTION_I(vminstructions));
-    vminstruction->op(instruction->op(0));
-    vminstruction->op(instruction->op(0));
-    vminstruction->imm(16);
-    vminstructions.push_back(vminstruction);
-}
-
-void MIPSEmulator::translateNOP(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
-{
-    vminstruction = VMIL::emitNop(instruction);
-    vminstructions.push_back(vminstruction);
-}
-
-void MIPSEmulator::translateSLL(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
-{
-    vminstruction = VMIL::emitLsh(instruction);
-    vminstruction->op(instruction->op(0));
-    vminstruction->op(instruction->op(1));
-    vminstruction->op(instruction->op(2));
-    vminstructions.push_back(vminstruction);
-}
-
-void MIPSEmulator::translateSRL(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
-{
-    vminstruction = VMIL::emitRsh(instruction);
-    vminstruction->op(instruction->op(0));
-    vminstruction->op(instruction->op(1));
-    vminstruction->op(instruction->op(2));
-    vminstructions.push_back(vminstruction);
-}
-
-void MIPSEmulator::translateMath(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
-{
-    switch(instruction->id)
-    {
-        case MIPS_INS_ADD:
-        case MIPS_INS_ADDI:
-        case MIPS_INS_ADDU:
-        case MIPS_INS_ADDIU:
-            vminstruction = VMIL::emitAdd(instruction);
-            break;
-
-        case MIPS_INS_SUB:
-        case MIPS_INS_SUBU:
-            vminstruction = VMIL::emitSub(instruction);
-            break;
-
-        case MIPS_INS_MUL:
-        case MIPS_INS_MULT:
-        case MIPS_INS_MULTU:
-            vminstruction = VMIL::emitMul(instruction);
-            break;
-
-        case MIPS_INS_DIV:
-        case MIPS_INS_DIVU:
-            vminstruction = VMIL::emitDiv(instruction);
-            break;
-
-        default:
-            return;
-    }
-
-    if(instruction->operands.size() == 2)
-    {
-        vminstruction->op(instruction->op(0));
-        vminstruction->op(instruction->op(0));
-        vminstruction->op(instruction->op(1));
-    }
-    else
-    {
-
-        vminstruction->op(instruction->op(0));
-        vminstruction->op(instruction->op(1));
-        vminstruction->op(instruction->op(2));
-    }
-
-    vminstructions.push_back(vminstruction);
-}
-
-void MIPSEmulator::translateBitwise(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
-{
-    switch(instruction->id)
-    {
-        case MIPS_INS_AND:
-        case MIPS_INS_ANDI:
-            vminstruction = VMIL::emitAnd(instruction);
-            break;
-
-        case MIPS_INS_OR:
-        case MIPS_INS_ORI:
-            vminstruction = VMIL::emitOr(instruction);
-            break;
-
-        case MIPS_INS_XOR:
-        case MIPS_INS_XORI:
-            vminstruction = VMIL::emitXor(instruction);
-            break;
-
-        default:
-            return;
-    }
-
-    if(instruction->operands.size() == 2)
-    {
-        vminstruction->op(instruction->op(0));
-        vminstruction->op(instruction->op(0));
-        vminstruction->op(instruction->op(1));
-    }
-    else
-    {
-
-        vminstruction->op(instruction->op(0));
-        vminstruction->op(instruction->op(1));
-        vminstruction->op(instruction->op(2));
-    }
-
-    vminstructions.push_back(vminstruction);
 }
 */
 

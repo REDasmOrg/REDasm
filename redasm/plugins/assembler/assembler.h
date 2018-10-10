@@ -8,7 +8,7 @@
 #include "../../disassembler/disassemblerapi.h"
 #include "../../support/endianness.h"
 #include "../../support/utils.h"
-#include "../../vmil/vmil_emulator.h"
+#include "../../emulator/emulator.h"
 #include "../base.h"
 #include "printer.h"
 
@@ -18,8 +18,7 @@
 namespace REDasm {
 
 namespace AssemblerFlags {
-    enum: u32 { None    = 0, DelaySlot = 1,
-                HasVMIL = 0x00010000, EmulateVMIL = 0x00020000 };
+    enum: u32 { None = 0, HasEmulator = 1 };
 }
 
 class AssemblerPlugin: public Plugin
@@ -30,29 +29,18 @@ class AssemblerPlugin: public Plugin
     public:
         AssemblerPlugin();
         virtual u32 flags() const;
-        virtual VMIL::Emulator* createEmulator(DisassemblerAPI* disassembler) const;
+        virtual Emulator* createEmulator(DisassemblerAPI* disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const;
-        virtual void analyzeOperand(DisassemblerAPI* disassembler, const InstructionPtr& instruction, const Operand& operand) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
-        virtual bool done(const InstructionPtr& instruction);
 
     public:
         template<typename T> T read(Buffer& buffer) const;
         bool hasFlag(u32 flag) const;
-        bool hasVMIL() const;
-        bool canEmulateVMIL() const;
         endianness_t endianness() const;
         void setEndianness(endianness_t endianness);
-        void pushState();
-        void popState();
-
-    protected:
-        virtual void analyzeRegister(DisassemblerAPI* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
-        virtual void analyzeRegisterBranch(address_t target, DisassemblerAPI* disassembler, const InstructionPtr& instruction, const Operand &operand) const;
 
     private:
-        std::stack<StateItem> _statestack;
-        endianness_t _endianness;
+        endianness_t m_endianness;
 };
 
 template<typename T> T AssemblerPlugin::read(Buffer& buffer) const

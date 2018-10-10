@@ -64,7 +64,7 @@ class DalvikAssembler : public AssemblerPlugin
         DEX_DECLARE_DECODES(F);
 
     private:
-        std::unordered_map<u8, DecodeCallback> _opcodemap;
+        std::unordered_map<u8, DecodeCallback> m_opcodemap;
 
 };
 

@@ -13,9 +13,9 @@ template<size_t mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARC
     public:
         MIPSAssembler(): CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>() { }
         virtual const char* name() const;
-        virtual u32 flags() const { return AssemblerFlags::DelaySlot | AssemblerFlags::HasVMIL | AssemblerFlags::EmulateVMIL; }
+        virtual u32 flags() const { return AssemblerFlags::HasEmulator; }
         virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
-        virtual VMIL::Emulator* createEmulator(DisassemblerAPI *disassembler) const { return new MIPSEmulator(disassembler); }
+        virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const { return new MIPSEmulator(disassembler); }
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const { return new MIPSPrinter(this->m_cshandle, disassembler); }
 
     private:

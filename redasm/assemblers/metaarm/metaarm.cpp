@@ -28,7 +28,7 @@ bool MetaARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
     return assemblerplugin->decode(buffer, instruction);
 }
 
-VMIL::Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { return new MetaARMEmulator(disassembler); }
+Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { /* return new MetaARMEmulator(disassembler); */ }
 Printer *MetaARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(m_armassembler->handle(), disassembler); }
 
 } // namespace REDasm

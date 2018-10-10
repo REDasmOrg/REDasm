@@ -2,10 +2,7 @@
 
 namespace REDasm {
 
-CILAssembler::CILAssembler()
-{
-
-}
+CILAssembler::CILAssembler() { }
 
 const char *CILAssembler::name() const
 {

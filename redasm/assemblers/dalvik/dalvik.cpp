@@ -4,7 +4,7 @@
 #include "dalvik_opcodes.h"
 #include "dalvik_metadata.h"
 
-#define SET_DECODE_OPCODE_TO(opcode) _opcodemap[0x##opcode] = [this](Buffer& buffer, const InstructionPtr& instruction) -> bool { return decode##opcode(buffer, instruction); }
+#define SET_DECODE_OPCODE_TO(opcode) m_opcodemap[0x##opcode] = [this](Buffer& buffer, const InstructionPtr& instruction) -> bool { return decode##opcode(buffer, instruction); }
 
 #define SET_DECODE_TO(op) SET_DECODE_OPCODE_TO(op##0); SET_DECODE_OPCODE_TO(op##1); SET_DECODE_OPCODE_TO(op##2); SET_DECODE_OPCODE_TO(op##3); \
                           SET_DECODE_OPCODE_TO(op##4); SET_DECODE_OPCODE_TO(op##5); SET_DECODE_OPCODE_TO(op##6); SET_DECODE_OPCODE_TO(op##7); \
@@ -26,8 +26,6 @@ Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler) const { r
 
 void DalvikAssembler::analyzeOperand(DisassemblerAPI *disassembler, const InstructionPtr &instruction, const Operand &operand) const
 {
-    AssemblerPlugin::analyzeOperand(disassembler, instruction, operand);
-
     DEXFormat* dexformat = dynamic_cast<DEXFormat*>(disassembler->format());
 
     if(!dexformat || !operand.extra_type)
@@ -56,9 +54,9 @@ bool DalvikAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
 {
     instruction->id = *buffer;
 
-    auto it = this->_opcodemap.find(instruction->id);
+    auto it = m_opcodemap.find(instruction->id);
 
-    if(it == this->_opcodemap.end())
+    if(it == m_opcodemap.end())
         return false;
 
     Buffer bwords = buffer + 1;

@@ -3,7 +3,7 @@
 #include "chip8_printer.h"
 #include "chip8_emulator.h"
 
-#define SET_DECODE_TO(opmask, cb) _opcodemap[opmask] = [this](u16 opcode, const InstructionPtr& instruction) -> bool { return cb(opcode, instruction); };
+#define SET_DECODE_TO(opmask, cb) m_opcodemap[opmask] = [this](u16 opcode, const InstructionPtr& instruction) -> bool { return cb(opcode, instruction); };
 
 namespace REDasm {
 
@@ -30,20 +30,19 @@ CHIP8Assembler::CHIP8Assembler(): AssemblerPlugin()
 }
 
 const char *CHIP8Assembler::name() const { return "CHIP-8"; }
-u32 CHIP8Assembler::flags() const { return AssemblerFlags::HasVMIL; }
-VMIL::Emulator *CHIP8Assembler::createEmulator(DisassemblerAPI *disassembler) const { return new CHIP8Emulator(disassembler); }
+u32 CHIP8Assembler::flags() const { return AssemblerFlags::HasEmulator; }
+Emulator *CHIP8Assembler::createEmulator(DisassemblerAPI *disassembler) const { /* return new CHIP8Emulator(disassembler); */ }
 Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler) const { return new CHIP8Printer(disassembler); }
 
 bool CHIP8Assembler::decode(Buffer buffer, const InstructionPtr &instruction)
 {
     u16 opcode = this->read<u16>(buffer);
-
     instruction->id = opcode;
     instruction->size = sizeof(u16);
 
-    auto it = this->_opcodemap.find(opcode & 0xF000);
+    auto it = m_opcodemap.find(opcode & 0xF000);
 
-    if((it == this->_opcodemap.end()) || !it->second(opcode, instruction))
+    if((it == m_opcodemap.end()) || !it->second(opcode, instruction))
         return false;
 
     AssemblerPlugin::decode(buffer, instruction);

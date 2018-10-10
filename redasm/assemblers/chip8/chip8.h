@@ -22,7 +22,7 @@ class CHIP8Assembler : public AssemblerPlugin
         CHIP8Assembler();
         virtual const char* name() const;
         virtual u32 flags() const;
-        virtual VMIL::Emulator* createEmulator(DisassemblerAPI* disassembler) const;
+        virtual Emulator* createEmulator(DisassemblerAPI* disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
 
@@ -45,7 +45,7 @@ class CHIP8Assembler : public AssemblerPlugin
         bool decodeFxxx(u16 opcode, const InstructionPtr& instruction) const;
 
     private:
-        std::map<u16, OpCodeCallback> _opcodemap;
+        std::map<u16, OpCodeCallback> m_opcodemap;
 };
 
 DECLARE_ASSEMBLER_PLUGIN(CHIP8Assembler, chip8)

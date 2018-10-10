@@ -6,7 +6,7 @@ namespace REDasm {
 
 ARMAssembler::ARMAssembler(): CapstoneAssemblerPlugin<CS_ARCH_ARM, CS_MODE_ARM>() { }
 const char *ARMAssembler::name() const { return "ARM"; }
-u32 ARMAssembler::flags() const { return AssemblerFlags::HasVMIL | AssemblerFlags::EmulateVMIL; }
+u32 ARMAssembler::flags() const { return AssemblerFlags::HasEmulator; }
 
 bool ARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
 {
@@ -16,7 +16,7 @@ bool ARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
     return ARMCommon::decode(instruction);
 }
 
-VMIL::Emulator *ARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { return new MetaARMEmulator(disassembler); }
+Emulator *ARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { /* return new MetaARMEmulator(disassembler); */ }
 Printer *ARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(this->m_cshandle, disassembler); }
 
 } // namespace REDasm

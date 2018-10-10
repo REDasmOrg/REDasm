@@ -87,16 +87,13 @@ template<cs_arch arch, size_t mode> bool CapstoneAssemblerPlugin<arch, mode>::de
         return false;
 
     if(cs_insn_group(this->m_cshandle, insn, CS_GRP_JUMP))
-        instruction->type |= InstructionTypes::Jump;
-
-    if(cs_insn_group(this->m_cshandle, insn, CS_GRP_CALL))
-        instruction->type |= InstructionTypes::Call;
-
-    if(cs_insn_group(this->m_cshandle, insn, CS_GRP_RET))
-        instruction->type |= InstructionTypes::Stop;
-
-    if(cs_insn_group(this->m_cshandle, insn, CS_GRP_INT) || cs_insn_group(this->m_cshandle, insn, CS_GRP_IRET))
-        instruction->type |= InstructionTypes::Privileged;
+        instruction->type = InstructionTypes::Jump;
+    else if(cs_insn_group(this->m_cshandle, insn, CS_GRP_CALL))
+        instruction->type = InstructionTypes::Call;
+    else if(cs_insn_group(this->m_cshandle, insn, CS_GRP_RET))
+        instruction->type = InstructionTypes::Stop;
+    else if(cs_insn_group(this->m_cshandle, insn, CS_GRP_INT) || cs_insn_group(this->m_cshandle, insn, CS_GRP_IRET))
+        instruction->type = InstructionTypes::Privileged;
 
     instruction->mnemonic = insn->mnemonic;
     instruction->id = insn->id;

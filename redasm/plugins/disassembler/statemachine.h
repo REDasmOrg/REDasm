@@ -7,7 +7,7 @@
 #include "../../redasm.h"
 
 #define REGISTER_STATE(state, cb)                         m_states[state] = std::bind(cb, this, std::placeholders::_1)
-#define ENQUEUE_STATE(state, address, index, instruction) m_pending.push({ state, address, index, instruction })
+#define ENQUEUE_STATE(state, address, index, instruction) m_pending.push({ state, static_cast<address_t>(address), index, instruction })
 #define FORWARD_STATE(newstate, state)                    ENQUEUE_STATE(newstate, state->address, state->index, state->instruction)
 #define FORWARD_STATE_ADDRESS(newstate, address, state)   ENQUEUE_STATE(newstate, address, state->index, state->instruction)
 

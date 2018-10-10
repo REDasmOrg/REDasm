@@ -64,30 +64,19 @@ void DisassemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
 {
     for(const Operand& op : instruction->operands)
     {
-        if(!op.isNumeric())
+        if(!op.isNumeric() && !op.displacementCanBeAddress())
             continue;
 
-        if(instruction->is(InstructionTypes::Jump) && instruction->isTargetOperand(op))
-        {
-            if(op.is(OperandTypes::Memory))
-                ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.u_value, op.index, instruction);
-            else
-                ENQUEUE_STATE(DisassemblerAlgorithm::JumpState, op.u_value, op.index, instruction);
-        }
+        if(op.is(OperandTypes::Displacement))
+            ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.disp.displacement, op.index, instruction);
+        else if(op.is(OperandTypes::Memory))
+            ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.u_value, op.index, instruction);
+        else if(instruction->is(InstructionTypes::Jump) && instruction->isTargetOperand(op))
+            ENQUEUE_STATE(DisassemblerAlgorithm::JumpState, op.u_value, op.index, instruction);
         else if(instruction->is(InstructionTypes::Call) && instruction->isTargetOperand(op))
-        {
-            if(op.is(OperandTypes::Memory))
-                ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.u_value, op.index, instruction);
-            else
-                ENQUEUE_STATE(DisassemblerAlgorithm::CallState, op.u_value, op.index, instruction);
-        }
+            ENQUEUE_STATE(DisassemblerAlgorithm::CallState, op.u_value, op.index, instruction);
         else
-        {
-            if(op.is(OperandTypes::Memory))
-                ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.u_value, op.index, instruction);
-            else if(op.is(OperandTypes::Immediate))
-                ENQUEUE_STATE(DisassemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
-        }
+            ENQUEUE_STATE(DisassemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
     }
 }
 
@@ -135,12 +124,22 @@ void DisassemblerAlgorithm::addressTableState(const State *state)
 
     if(c)
     {
+        REDasm::log("Found address table @ " + REDasm::hex(state->address, m_format->bits(), false));
         state_t fwdstate = DisassemblerAlgorithm::MemoryState;
 
         if(instruction->is(InstructionTypes::Call))
+        {
             fwdstate = DisassemblerAlgorithm::CallState;
+            instruction->cmt("Call Table with " + std::to_string(c) + " cases(s)");
+        }
         else if(instruction->is(InstructionTypes::Jump))
+        {
             fwdstate = DisassemblerAlgorithm::JumpState;
+            instruction->cmt("Jump Table with " + std::to_string(c) + " cases(s)");
+        }
+
+        if(fwdstate != DisassemblerAlgorithm::MemoryState)
+            m_document->update(instruction);
 
         size_t i = 0;
 

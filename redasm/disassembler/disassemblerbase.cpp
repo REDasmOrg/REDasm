@@ -121,11 +121,6 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
         if(!segment || !segment->is(SegmentTypes::Code))
             break;
 
-        SymbolPtr symbol = m_document->symbol(target);
-
-        if(symbol) // Don't overlap symbols
-            break;
-
         instruction->target(target);
         address += m_format->addressWidth();
         c++;

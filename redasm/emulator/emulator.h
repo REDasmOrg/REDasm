@@ -1,26 +1,20 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
-#include <unordered_map>
-#include <stack>
-#include "../redasm.h"
+#include "emulatorbase.h"
 
 namespace REDasm {
 
-class Emulator
+class Emulator: public EmulatorBase
 {
-    private:
-        typedef std::unordered_map<register_t, u64> Registers;
-        typedef std::stack<u64> Stack;
-
     public:
-        Emulator();
-        bool reg(register_t id, u64 *value) const;
-        virtual void emulate(const InstructionPtr& instruction) = 0;
+        Emulator(DisassemblerAPI* disassembler);
 
     protected:
-        Registers m_registers;
-        Stack m_stack;
+        void mathOp(const InstructionPtr& instruction, int opdest, int opsrc1, int opsrc2);
+        void mathOp(const InstructionPtr& instruction, int opdest, int opsrc);
+        bool read(const Operand& op, u64 *value);
+        void write(const Operand& op, u64 value);
 };
 
 } // namespace REDasm

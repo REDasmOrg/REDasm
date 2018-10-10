@@ -3,54 +3,57 @@
 
 namespace REDasm {
 
-MIPSEmulator::MIPSEmulator(DisassemblerAPI *disassembler): VMIL::Emulator(disassembler)
+MIPSEmulator::MIPSEmulator(DisassemblerAPI *disassembler): Emulator(disassembler)
 {
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LB,  Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LH,  Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LWL, Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LW,  Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LBU, Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LHU, Lxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LWR, Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LB,  Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LH,  Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LWL, Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LW,  Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LBU, Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LHU, Lxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LWR, Lxx);
 
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SB,  Sxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SH,  Sxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SWL, Sxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SW,  Sxx);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SWR, Sxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SB,  Sxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SH,  Sxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SWL, Sxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SW,  Sxx);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SWR, Sxx);
 
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_ADD, Math);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_ADDI, Math);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_ADDU, Math);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_ADDIU, Math);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SUB, Math);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SUBU, Math);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_MUL, Math);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_MULT, Math);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_MULTU, Math);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_DIV, Math);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_DIVU, Math);
+    EMULATE_INSTRUCTION(MIPS_INS_ADD, &MIPSEmulator::emulateAdd);
+    EMULATE_INSTRUCTION(MIPS_INS_ADDI,&MIPSEmulator::emulateAdd);
+    EMULATE_INSTRUCTION(MIPS_INS_ADDIU, &MIPSEmulator::emulateAdd);
+    EMULATE_INSTRUCTION(MIPS_INS_ADDU, &MIPSEmulator::emulateAdd);
+    //EMULATE_INSTRUCTION(MIPS_INS_SUB, &MIPSEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(MIPS_INS_SUBU, &MIPSEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(MIPS_INS_MUL, &MIPSEmulator::emulateMath);
 
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_AND, Bitwise);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_ANDI, Bitwise);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_OR, Bitwise);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_ORI, Bitwise);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_XOR, Bitwise);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_XORI, Bitwise);
+    ////VMIL_TRANSLATE_OPCODE(MIPS_INS_MULT, Math);
+    ////VMIL_TRANSLATE_OPCODE(MIPS_INS_MULTU, Math);
+    ////VMIL_TRANSLATE_OPCODE(MIPS_INS_DIV, Math);
+    ////VMIL_TRANSLATE_OPCODE(MIPS_INS_DIVU, Math);
 
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_LUI, LUI);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_NOP, NOP);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SLL, SLL);
-    VMIL_TRANSLATE_OPCODE(MIPS_INS_SRL, SRL);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_AND, Bitwise);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_ANDI, Bitwise);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_OR, Bitwise);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_ORI, Bitwise);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_XOR, Bitwise);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_XORI, Bitwise);
+
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LUI, LUI);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_NOP, NOP);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SLL, SLL);
+    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SRL, SRL);
 }
 
 bool MIPSEmulator::emulate(const InstructionPtr &instruction)
 {
-    this->write(MIPS_REG_ZERO, 0); // Initialize $zero
-
-    return VMIL::Emulator::emulate(instruction);
+    this->regWrite(MIPS_REG_ZERO, 0); // Initialize $zero
+    return Emulator::emulate(instruction);
 }
 
+void MIPSEmulator::emulateAdd(const InstructionPtr &instruction) { this->mathOp(instruction, 0, 1, 2); }
+
+/*
 void MIPSEmulator::translateLxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
 {
     this->emitDisplacement(instruction, 1, vminstructions);
@@ -275,5 +278,6 @@ void MIPSEmulator::translateBitwise(const InstructionPtr &instruction, VMIL::VMI
 
     vminstructions.push_back(vminstruction);
 }
+*/
 
 } // namespace REDasm

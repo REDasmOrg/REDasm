@@ -5,19 +5,17 @@
 
 namespace REDasm {
 
-Printer::Printer(DisassemblerAPI *disassembler): m_disassembler(disassembler)
-{
-
-}
+Printer::Printer(DisassemblerAPI *disassembler): m_disassembler(disassembler) { m_document = m_disassembler->document(); }
 
 void Printer::symbols(const InstructionPtr &instruction, Printer::SymbolCallback symbolfunc)
 {
-    std::for_each(instruction->references.begin(), instruction->references.end(), [this, symbolfunc](address_t ref) {
-        SymbolPtr symbol = m_disassembler->document()->symbol(ref);
+    for(address_t reference : instruction->references)
+    {
+        SymbolPtr symbol = m_document->symbol(reference);
 
         if(symbol)
             this->symbol(symbol, symbolfunc);
-    });
+    }
 }
 
 std::string Printer::symbol(const SymbolPtr &symbol) const
@@ -139,7 +137,7 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
 
         if(opstr.empty()) // Try with default algorithm...
         {
-           if(operand.isNumeric())
+            if(operand.isNumeric())
                opstr = this->imm(operand);
             else if(operand.is(OperandTypes::Displacement))
                opstr = this->disp(operand.disp);
@@ -172,34 +170,47 @@ std::string Printer::disp(const DisplacementOperand &dispop) const
 {
     std::string s;
 
+    if(dispop.displacement)
+    {
+        if(dispop.displacement > 0)
+        {
+            SymbolPtr symbol = m_document->symbol(dispop.displacement);
+
+            if(symbol)
+                s += symbol->name;
+            else
+                s += REDasm::hex(dispop.displacement);
+        }
+        else
+            s += REDasm::hex(dispop.displacement);
+    }
+
     if(dispop.base.isValid())
-        s += this->reg(dispop.base);
+    {
+        if(dispop.displacement >= 0)
+        {
+            if(dispop.displacement > 0)
+                s += " + ";
+
+            s += this->reg(dispop.base);
+        }
+        else
+            s = this->reg(dispop.base) + " - " + s;
+    }
 
     if(dispop.index.isValid())
     {
-        if(!s.empty())
-            s += " + ";
-
-        s += this->reg(dispop.index);
+        s += "[" + this->reg(dispop.index);
 
         if(dispop.scale > 1)
             s += " * " + REDasm::hex(dispop.scale);
+
+        s += "]";
     }
-
-    if(dispop.displacement)
-    {
-        SymbolPtr symbol = m_disassembler->document()->symbol(dispop.displacement);
-
-        if(!s.empty() && ((dispop.displacement > 0) || symbol))
-            s += " + ";
-
-        s += symbol ? symbol->name : REDasm::hex(dispop.displacement);
-    }
-
-    if(!s.empty())
+    else
         return "[" + s + "]";
 
-    return std::string();
+    return s;
 }
 
 std::string Printer::loc(const Operand &operand) const
@@ -218,10 +229,7 @@ std::string Printer::imm(const Operand &operand) const
     return symbol ? symbol->name : REDasm::hex(operand.s_value);
 }
 
-CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerAPI *disassembler): Printer(disassembler), m_cshandle(cshandle)
-{
-
-}
+CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerAPI *disassembler): Printer(disassembler), m_cshandle(cshandle) { }
 
 std::string CapstonePrinter::reg(const RegisterOperand& regop) const
 {

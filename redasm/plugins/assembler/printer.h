@@ -39,6 +39,7 @@ class Printer
 
     protected:
         DisassemblerAPI* m_disassembler;
+        ListingDocument* m_document;
 };
 
 class CapstonePrinter: public Printer

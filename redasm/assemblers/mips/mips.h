@@ -50,6 +50,24 @@ template<size_t mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlu
     SET_INSTRUCTION_TYPE(MIPS_INS_BLTZ, InstructionTypes::Conditional);
     SET_INSTRUCTION_TYPE(MIPS_INS_BNE, InstructionTypes::Conditional);
     SET_INSTRUCTION_TYPE(MIPS_INS_BEQ, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ADD, InstructionTypes::Add);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ADDI, InstructionTypes::Add);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ADDIU, InstructionTypes::Add);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ADDU, InstructionTypes::Add);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SUB, InstructionTypes::Sub);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SUBU, InstructionTypes::Sub);
+    SET_INSTRUCTION_TYPE(MIPS_INS_MUL, InstructionTypes::Mul);
+    SET_INSTRUCTION_TYPE(MIPS_INS_AND, InstructionTypes::And);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ANDI, InstructionTypes::And);
+    SET_INSTRUCTION_TYPE(MIPS_INS_OR, InstructionTypes::Or);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ORI, InstructionTypes::Or);
+    SET_INSTRUCTION_TYPE(MIPS_INS_XOR, InstructionTypes::Xor);
+    SET_INSTRUCTION_TYPE(MIPS_INS_XORI, InstructionTypes::Xor);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SLL, InstructionTypes::Lsh);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SLLV, InstructionTypes::Lsh);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SRL, InstructionTypes::Rsh);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SRLV, InstructionTypes::Rsh);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SRAV, InstructionTypes::Rsh);
 
     REGISTER_INSTRUCTION(MIPS_INS_JR, &MIPSAssembler::checkJr);
     REGISTER_INSTRUCTION(MIPS_INS_J, &MIPSAssembler::setTargetOp0);
@@ -85,7 +103,7 @@ template<size_t mode> const char *MIPSAssembler<mode>::name() const
 
 template<size_t mode> bool MIPSAssembler<mode>::decodeInstruction(Buffer buffer, const InstructionPtr& instruction)
 {
-    if(CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decode(buffer, instruction))
+    if(CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decodeInstruction(buffer, instruction))
         return true;
 
     return MIPSQuirks::decode(buffer, instruction); // Handle COP2 instructions and more

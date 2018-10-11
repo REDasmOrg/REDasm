@@ -114,6 +114,10 @@ template<size_t mode> void MIPSAssembler<mode>::onDecoded(const InstructionPtr& 
     CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::onDecoded(instruction);
 
     cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
+
+    if(!insn)
+        return;
+
     const cs_mips& mips = insn->detail->mips;
 
     for(size_t i = 0; i < mips.op_count; i++)

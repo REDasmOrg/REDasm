@@ -94,6 +94,9 @@ template<cs_arch arch, size_t mode> void CapstoneAssemblerPlugin<arch, mode>::on
 {
     cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
 
+    if(!insn)
+        return;
+
     if(cs_insn_group(m_cshandle, insn, CS_GRP_JUMP))
         instruction->type |= InstructionTypes::Jump;
     else if(cs_insn_group(m_cshandle, insn, CS_GRP_CALL))

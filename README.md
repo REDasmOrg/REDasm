@@ -35,25 +35,21 @@ qmake && make
 ## Nightly Builds
 Nightly builds are produced by AppVeyor (Windows) and TravisCI (Linux) and they can be downloaded from [here](https://github.com/REDasmOrg/REDasm-Builds).
 
-## Supported Formats
-| Format | Notes                                        |
-|-------:|:---------------------------------------------|
-| PE     | VB6 can be decompiled, Delphi support is WIP |
-| ELF    |                                              |
-| PSX    | PsyQ 4.7 signatures available                |
-| Dex    |                                              |
-| XBE    |                                              |
+## Support
+* Loaders
+  * PE: *VB6 can be decompiled, Delphi support is WIP*
+  * ELF
+  * PS1 Executables: *PsyQ 4.7 signatures available*
+  * Android Dalvik Executables (DEX)
+  * XBox1 Executables (XBE)
+* Assemblers
+  *  x86: *With Capstone backend*
+  *  MIPS: *With Capstone backend*
+  *  ARM: *32-bit only*
+  * Dalvik
+  * CHIP-8: *Just for fun :)*
 
-## Supported Assemblers
-| Assembler | Backend   | Notes           |
-|----------:|:---------:|:----------------|
-|  x86      | Capstone  |                 |
-|  MIPS     | Capstone  |                 |
-|  ARM      | Capstone  |32 bit only      |
-|  Dalvik   | REDasm    |                 |
-|  CHIP-8   | REDasm    | Just for fun :) |
-
-#### Your Format/Assembler is not available?
+## Contributing
 Read the [Wiki](https://github.com/REDasmOrg/REDasm/wiki) and send a Pull Request!
 
 ## Requirements
@@ -66,3 +62,6 @@ Read the [Wiki](https://github.com/REDasmOrg/REDasm/wiki) and send a Pull Reques
 - [D3](https://github.com/d3/d3): Used by QtWebEngine for Graph Rendering
 - [Dagre](https://github.com/dagrejs/dagre): Used for Graph Layout
 - [Dagre-D3](https://github.com/dagrejs/dagre-d3): Graph Layout Rendering with D3
+
+## License
+REDasm is release under GNU GPL2 License.

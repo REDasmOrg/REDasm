@@ -10,10 +10,16 @@ void Emulator::mathOp(const InstructionPtr &instruction, int opdest, int opsrc1,
     u64 src1 = 0, src2 = 0;
 
     if(!this->read(instruction->op(opsrc1), &src1))
+    {
+        REDasm::log("Cannot read operand 1 @ " + REDasm::hex(instruction->address, m_disassembler->format()->bits(), false));
         return;
+    }
 
     if(!this->read(instruction->op(opsrc2), &src2))
+    {
+        REDasm::log("Cannot read operand 2 @ " + REDasm::hex(instruction->address, m_disassembler->format()->bits(), false));
         return;
+    }
 
     if(instruction->is(InstructionTypes::Add))
         this->write(instruction->op(opdest), src1 + src2);

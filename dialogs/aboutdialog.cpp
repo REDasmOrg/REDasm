@@ -25,16 +25,20 @@ void AboutDialog::initItems()
     int major = 0, minor = 0;
     cs_version(&major, &minor);
 
-    this->_depends.push_back({ "Capstone", QString("%1.%2").arg(major).arg(minor), "http://www.capstone-engine.org/"});
+    m_depends.push_back({ "Capstone", QString("%1.%2").arg(major).arg(minor), "http://www.capstone-engine.org" });
+    m_depends.push_back({ "JSON",     "---",                                  "https://github.com/nlohmann/json" });
+    m_depends.push_back({ "D3",       "5.0",                                  "https://d3js.org" });
+    m_depends.push_back({ "Dagre",    "0.7.5",                                "https://github.com/dagrejs/dagre" });
+    m_depends.push_back({ "Dagre-D3", "0.3.0",                                "https://github.com/dagrejs/dagre-d3" });
 }
 
 void AboutDialog::initDepends()
 {
-    ui->twDepends->setRowCount(this->_depends.size());
+    ui->twDepends->setRowCount(m_depends.size());
 
-    for(auto it = this->_depends.begin(); it != this->_depends.end(); it++)
+    for(auto it = m_depends.begin(); it != m_depends.end(); it++)
     {
-        int index = std::distance(this->_depends.begin(), it);
+        int index = std::distance(m_depends.begin(), it);
 
         ui->twDepends->setItem(index, 0, new QTableWidgetItem(it->name));
         ui->twDepends->setItem(index, 1, new QTableWidgetItem(it->version));

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>495</width>
-    <height>329</height>
+    <width>515</width>
+    <height>540</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,38 +26,21 @@
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="sizeConstraint">
-    <enum>QLayout::SetFixedSize</enum>
+   <property name="spacing">
+    <number>15</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
+    <widget class="QLabel" name="lblLogo">
+     <property name="text">
+      <string/>
      </property>
-     <item>
-      <widget class="QLabel" name="lblLogo">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../resources.qrc">:/res/logo.png</pixmap>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="lblDescription">
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;REDasm 1.0&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;&lt;br/&gt;&lt;/span&gt;A crossplatform, multiarchitecture Disassembler&lt;br/&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;By Dax&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="textFormat">
-        <enum>Qt::RichText</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
+     <property name="pixmap">
+      <pixmap resource="../resources.qrc">:/res/logo_big.png</pixmap>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QTableWidget" name="twDepends">

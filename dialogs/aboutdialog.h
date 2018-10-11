@@ -25,7 +25,7 @@ class AboutDialog : public QDialog
 
     private:
         Ui::AboutDialog *ui;
-        std::list<DependsInfo> _depends;
+        std::list<DependsInfo> m_depends;
 
 };
 

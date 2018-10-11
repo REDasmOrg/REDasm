@@ -10,6 +10,8 @@ bool EmulatorBase::emulate(const InstructionPtr &instruction)
     if(m_state == EmulatorBase::StateError)
         return false;
 
+    m_currentinstruction = instruction;
+
     auto it = m_dispatcher.find(instruction->id);
 
     if(it != m_dispatcher.end())
@@ -19,17 +21,6 @@ bool EmulatorBase::emulate(const InstructionPtr &instruction)
     }
 
     return false;
-}
-
-bool EmulatorBase::reg(register_t id, u64* value) const
-{
-    auto it = m_registers.find(id);
-
-    if(it == m_registers.end())
-        return false;
-
-    *value = it->second;
-    return true;
 }
 
 void EmulatorBase::reset(bool resetmemory)
@@ -47,8 +38,15 @@ void EmulatorBase::reset(bool resetmemory)
 
 void EmulatorBase::fail()
 {
-    REDasm::log("WARNING: Emulator in FAIL state");
     m_state = EmulatorBase::StateError;
+
+    if(m_currentinstruction)
+    {
+        REDasm::log("WARNING: Emulator in FAIL state, last instruction '" + m_currentinstruction->mnemonic +
+                    "' @ " + REDasm::hex(m_currentinstruction->address, m_disassembler->format()->bits(), false));
+    }
+    else
+        REDasm::log("WARNING: Emulator in FAIL state");
 }
 
 void EmulatorBase::unhandled(const InstructionPtr &instruction) const
@@ -61,20 +59,14 @@ bool EmulatorBase::computeDisplacement(const DisplacementOperand &dispop, u64 *v
 {
     u64 address = 0;
 
-    if(dispop.base.isValid() && !this->reg(dispop.base.r, &address))
-    {
-        this->fail();
-        return false;
-    }
+    if(dispop.base.isValid())
+        address = this->regRead(dispop.base.r);
 
     u64 index = 0;
     address = static_cast<u64>(static_cast<s64>(address) + dispop.displacement);
 
-    if(dispop.index.isValid() && !this->reg(dispop.index.r, &index))
-    {
-        this->fail();
-        return false;
-    }
+    if(dispop.index.isValid())
+        index = this->regRead(dispop.index.r);
 
     *value = address + (index * dispop.scale);
     return true;
@@ -99,6 +91,16 @@ void EmulatorBase::regCreate(register_t id)
 
     if(it == m_registers.end())
         m_registers[id] = 0;
+}
+
+u64 EmulatorBase::regRead(register_t id) const
+{
+    auto it = m_registers.find(id);
+
+    if(it == m_registers.end())
+        return 0;
+
+    return it->second;
 }
 
 void EmulatorBase::regWrite(register_t id, u64 value) { m_registers[id] = value; }

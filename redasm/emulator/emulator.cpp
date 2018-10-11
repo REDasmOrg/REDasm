@@ -51,20 +51,18 @@ bool Emulator::read(const Operand &op, u64* value)
 {
     if(op.is(OperandTypes::Displacement))
     {
-        if(this->computeDisplacement(op.disp, value) && this->readMemory(*value, op.size, value))
+        if(this->computeDisplacement(op.disp, value))
             return true;
 
+        REDasm::log("Error reading displacement operand " + std::to_string(op.index));
         this->fail();
         return false;
     }
 
     if(op.is(OperandTypes::Register))
     {
-        if(this->reg(op.reg.r, value))
-            return true;
-
-        this->fail();
-        return false;
+        *value = this->regRead(op.reg.r);
+        return true;
     }
 
     if(op.is(OperandTypes::Memory))
@@ -72,6 +70,7 @@ bool Emulator::read(const Operand &op, u64* value)
         if(this->readMemory(op.u_value, op.size, value))
             return true;
 
+        REDasm::log("Error reading memory operand " + std::to_string(op.index));
         this->fail();
         return false;
     }
@@ -84,11 +83,7 @@ void Emulator::write(const Operand &op, u64 value)
 {
     if(op.is(OperandTypes::Displacement))
     {
-        u64 disp = 0;
-
-        if(this->computeDisplacement(op.disp, &disp))
-            this->writeMemory(disp, value);
-        else
+        if(!this->computeDisplacement(op.disp, &value))
             this->fail();
     }
     if(op.is(OperandTypes::Memory))

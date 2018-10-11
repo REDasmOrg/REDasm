@@ -28,7 +28,6 @@ class EmulatorBase
         virtual bool emulate(const InstructionPtr& instruction);
 
     public:
-        bool reg(register_t id, u64 *value) const;
         void reset(bool resetmemory = false);
 
     protected:
@@ -38,9 +37,11 @@ class EmulatorBase
         bool readMemory(address_t address, size_t size, u64* value);
         void writeMemory(address_t address, u64 value);
         void regCreate(register_t id);
+        u64 regRead(register_t id) const;
         void regWrite(register_t id, u64 value);
 
     protected:
+        InstructionPtr m_currentinstruction;
         DisassemblerAPI* m_disassembler;
         ListingDocument* m_document;
         Dispatcher m_dispatcher;

@@ -5,39 +5,39 @@ namespace REDasm {
 
 MIPSEmulator::MIPSEmulator(DisassemblerAPI *disassembler): Emulator(disassembler)
 {
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LB,  Lxx);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LH,  Lxx);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LWL, Lxx);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LW,  Lxx);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LBU, Lxx);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LHU, Lxx);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_LWR, Lxx);
+    EMULATE_INSTRUCTION(MIPS_INS_LB,  &MIPSEmulator::emulateLxx);
+    EMULATE_INSTRUCTION(MIPS_INS_LBU, &MIPSEmulator::emulateLxx);
+    EMULATE_INSTRUCTION(MIPS_INS_LH,  &MIPSEmulator::emulateLxx);
+    EMULATE_INSTRUCTION(MIPS_INS_LWR, &MIPSEmulator::emulateLxx);
+    EMULATE_INSTRUCTION(MIPS_INS_LWL, &MIPSEmulator::emulateLxx);
+    EMULATE_INSTRUCTION(MIPS_INS_LW,  &MIPSEmulator::emulateLxx);
+    EMULATE_INSTRUCTION(MIPS_INS_LHU, &MIPSEmulator::emulateLxx);
 
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SB,  Sxx);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SH,  Sxx);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SWL, Sxx);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SW,  Sxx);
-    //VMIL_TRANSLATE_OPCODE(MIPS_INS_SWR, Sxx);
+    EMULATE_INSTRUCTION(MIPS_INS_SB,  &MIPSEmulator::emulateSxx);
+    EMULATE_INSTRUCTION(MIPS_INS_SH,  &MIPSEmulator::emulateSxx);
+    EMULATE_INSTRUCTION(MIPS_INS_SWL, &MIPSEmulator::emulateSxx);
+    EMULATE_INSTRUCTION(MIPS_INS_SW,  &MIPSEmulator::emulateSxx);
+    EMULATE_INSTRUCTION(MIPS_INS_SWR, &MIPSEmulator::emulateSxx);
 
-    EMULATE_INSTRUCTION(MIPS_INS_ADD, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_ADDI,&MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_ADD,   &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_ADDI,  &MIPSEmulator::emulateMath);
     EMULATE_INSTRUCTION(MIPS_INS_ADDIU, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_ADDU, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_SUB, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_SUBU, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_MUL, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_AND, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_ANDI, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_OR, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_ORI, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_XOR, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_XORI, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_SLL, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_SLLV, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_SRL, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_SRLV, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_SRAV, &MIPSEmulator::emulateMath);
-    EMULATE_INSTRUCTION(MIPS_INS_LUI, &MIPSEmulator::emulateLui);
+    EMULATE_INSTRUCTION(MIPS_INS_ADDU,  &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SUB,   &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SUBU,  &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_MUL,   &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_AND,   &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_ANDI,  &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_OR,    &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_ORI,   &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_XOR,   &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_XORI,  &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SLL,   &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SLLV,  &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SRL,   &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SRLV,  &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SRAV,  &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_LUI,   &MIPSEmulator::emulateLui);
 
     //EMULATE_INSTRUCTION(MIPS_INS_MULT, &MIPSEmulator::emulateMath);
     //EMULATE_INSTRUCTION(MIPS_INS_MULTU, &MIPSEmulator::emulateMath);
@@ -63,105 +63,75 @@ void MIPSEmulator::emulateLui(const InstructionPtr &instruction)
     this->write(instruction->op(0), value << 16);
 }
 
-/*
-void MIPSEmulator::translateLxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
+void MIPSEmulator::emulateLxx(const InstructionPtr &instruction)
 {
-    this->emitDisplacement(instruction, 1, vminstructions);
-    vminstruction = VMIL::emitLdm(instruction, VMIL_INSTRUCTION_I(vminstructions));
+    size_t size = 0;
 
-    if((instruction->id == MIPS_INS_LWL) || (instruction->id == MIPS_INS_LWR))
-        vminstruction->reg(VMIL_REGISTER(1)); // Temporary register for HI/LO part management
+    if((instruction->id == MIPS_INS_LB) || (instruction->id == MIPS_INS_LBU))
+        size = sizeof(u8);
+    else if((instruction->id == MIPS_INS_LH) || (instruction->id == MIPS_INS_LHU))
+        size = sizeof(u16);
+    else if((instruction->id == MIPS_INS_LW) || (instruction->id == MIPS_INS_LWL) || (instruction->id == MIPS_INS_LWR))
+        size = sizeof(u32);
     else
-        vminstruction->op(instruction->op(0));
-
-    vminstruction->reg(VMIL_DEFAULT_REGISTER);
-    vminstructions.push_back(vminstruction);
-
-    switch(instruction->id)
     {
-        case MIPS_INS_LB:
-        case MIPS_INS_LBU:
-            vminstruction->op_size(1, OperandSizes::Byte);
-            break;
-
-        case MIPS_INS_LH:
-        case MIPS_INS_LHU:
-            vminstruction->op_size(1, OperandSizes::Word);
-            break;
-
-        case MIPS_INS_LW:
-        case MIPS_INS_LWL:
-        case MIPS_INS_LWR:
-            vminstruction->op_size(1, OperandSizes::Dword);
-            break;
-
-        default:
-            break;
+        this->unhandled(instruction);
+        return;
     }
 
-    if((instruction->id == MIPS_INS_LWL) || (instruction->id == MIPS_INS_LWR))
-    {
-        vminstruction = VMIL::emitAnd(instruction, VMIL_INSTRUCTION_I(vminstructions));
-        vminstruction->reg(VMIL_REGISTER(1));
-        vminstruction->reg(VMIL_REGISTER(1));
-        vminstruction->imm((instruction->id == MIPS_INS_LWL) ? 0x0000FFFF : 0xFFFF0000);
-        vminstructions.push_back(vminstruction);
+    address_t regvalue = 0, value = 0;
+    const Operand &op1 = instruction->op(0), &op2 = instruction->op(1);
 
-        vminstruction = VMIL::emitOr(instruction, VMIL_INSTRUCTION_I(vminstructions));
-        vminstruction->op(instruction->op(0));
-        vminstruction->op(instruction->op(0));
-        vminstruction->reg(VMIL_REGISTER(1));
-        vminstructions.push_back(vminstruction);
-    }
+    if(!this->read(op2, &value))
+        return;
+
+    value += op2.disp.displacement;
+
+    if(!this->readMemory(value, size, &value))
+        return;
+
+    this->read(op1, &regvalue);
+
+    if(instruction->id == MIPS_INS_LWL)
+        regvalue = (regvalue & 0xFFFF) | (value & 0xFFFF0000);
+    else if(instruction->id == MIPS_INS_LWR)
+        regvalue = (regvalue & 0xFFFF) | (value & 0x0000FFFF);
+    else
+        regvalue = value;
+
+    this->write(op1, regvalue);
 }
 
-void MIPSEmulator::translateSxx(const InstructionPtr &instruction, VMIL::VMILInstructionPtr &vminstruction, VMIL::VMILInstructionList &vminstructions) const
+void MIPSEmulator::emulateSxx(const InstructionPtr &instruction)
 {
-    if((instruction->id == MIPS_INS_SWL) || (instruction->id == MIPS_INS_SWR))
-    {
-        vminstruction = VMIL::emitStr(instruction, VMIL_INSTRUCTION_I(vminstructions));
-        vminstruction->reg(VMIL_REGISTER(1));
-        vminstruction->op(instruction->op(0));
-        vminstructions.push_back(vminstruction);
+    size_t size = 0;
 
-        vminstruction = VMIL::emitAnd(instruction, VMIL_INSTRUCTION_I(vminstructions));
-        vminstruction->reg(VMIL_REGISTER(1));
-        vminstruction->reg(VMIL_REGISTER(1));
-        vminstruction->imm((instruction->id == MIPS_INS_LWL) ? 0x0000FFFF : 0xFFFF0000);
-        vminstructions.push_back(vminstruction);
-    }
-
-    this->emitDisplacement(instruction, 1, vminstructions);
-    vminstruction = VMIL::emitStm(instruction, VMIL_INSTRUCTION_I(vminstructions));
-    vminstruction->reg(VMIL_DEFAULT_REGISTER);
-
-    if((instruction->id == MIPS_INS_SWL) || (instruction->id == MIPS_INS_SWR))
-        vminstruction->reg(VMIL_REGISTER(1)); // Temporary register for HI/LO part management
+    if((instruction->id == MIPS_INS_SB))
+        size = sizeof(u8);
+    else if((instruction->id == MIPS_INS_SH))
+        size = sizeof(u16);
+    else if((instruction->id == MIPS_INS_SW) || (instruction->id == MIPS_INS_SWL) || (instruction->id == MIPS_INS_SWR))
+        size = sizeof(u32);
     else
-        vminstruction->op(instruction->op(0));
-
-    vminstructions.push_back(vminstruction);
-
-    switch(instruction->id)
     {
-        case MIPS_INS_SB:
-            vminstruction->op_size(1, OperandSizes::Byte);
-            break;
-
-        case MIPS_INS_SH:
-            vminstruction->op_size(1, OperandSizes::Word);
-            break;
-
-        case MIPS_INS_SW:
-        case MIPS_INS_SWL:
-        case MIPS_INS_SWR:
-            vminstruction->op_size(1, OperandSizes::Dword);
-            break;
-
-        default:
-            break;
+        this->unhandled(instruction);
+        return;
     }
+
+    address_t regvalue = 0, memloc = 0, memvalue = 0;
+    const Operand &op1 = instruction->op(0), &op2 = instruction->op(1);
+
+    if(!this->read(op1, &regvalue) || !this->read(op2, &memloc))
+        return;
+
+    this->readMemory(memloc, size, &memvalue);
+
+    if(instruction->id == MIPS_INS_SWL)
+        regvalue = (regvalue & 0xFFFF) | (memvalue & 0xFFFF0000);
+    else if(instruction->id == MIPS_INS_SWR)
+        regvalue = (regvalue & 0xFFFF) | (memvalue & 0x0000FFFF);
+
+    this->writeMemory(memloc, regvalue);
 }
-*/
 
 } // namespace REDasm

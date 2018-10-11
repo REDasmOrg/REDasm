@@ -14,6 +14,8 @@ class MIPSEmulator: public Emulator
     private:
         void emulateMath(const InstructionPtr& instruction);
         void emulateLui(const InstructionPtr& instruction);
+        void emulateLxx(const InstructionPtr& instruction);
+        void emulateSxx(const InstructionPtr& instruction);
 };
 
 } // namespace REDasm

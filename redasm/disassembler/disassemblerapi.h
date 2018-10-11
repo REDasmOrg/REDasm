@@ -14,10 +14,6 @@ class FormatPlugin;
 class AssemblerPlugin;
 class ListingDocument;
 
-namespace VMIL {
-class Emulator;
-}
-
 class DisassemblerAPI
 {
     public:

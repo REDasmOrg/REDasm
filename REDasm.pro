@@ -80,9 +80,6 @@ SOURCES += main.cpp\
     redasm/formats/binary/binary.cpp \
     redasm/assemblers/chip8/chip8.cpp \
     redasm/support/endianness.cpp \
-    redasm/vmil/vmil_instructions.cpp \
-    redasm/vmil/vmil_emulator.cpp \
-    redasm/vmil/vmil_printer.cpp \
     redasm/assemblers/mips/mips_quirks.cpp \
     redasm/assemblers/mips/mips_printer.cpp \
     redasm/assemblers/x86/x86_printer.cpp \
@@ -191,10 +188,6 @@ HEADERS  += mainwindow.h \
     redasm/formats/binary/binary.h \
     redasm/assemblers/chip8/chip8.h \
     redasm/support/endianness.h \
-    redasm/vmil/vmil_instructions.h \
-    redasm/vmil/vmil_types.h \
-    redasm/vmil/vmil_emulator.h \
-    redasm/vmil/vmil_printer.h \
     redasm/assemblers/mips/mips_printer.h \
     redasm/assemblers/mips/mips_quirks.h \
     redasm/assemblers/x86/x86_printer.h \

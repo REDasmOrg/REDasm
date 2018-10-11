@@ -24,7 +24,7 @@ DalvikAssembler::DalvikAssembler(): AssemblerPlugin()
 const char *DalvikAssembler::name() const { return "Dalvik VM"; }
 Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new DalvikPrinter(disassembler); }
 
-bool DalvikAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
+bool DalvikAssembler::decodeInstruction(Buffer buffer, const InstructionPtr &instruction)
 {
     instruction->id = *buffer;
 
@@ -39,7 +39,6 @@ bool DalvikAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
     if(!res)
         instruction->size = sizeof(u16); // Dalvik uses always 16-bit aligned instructions
 
-    AssemblerPlugin::decode(buffer, instruction);
     return res;
 }
 

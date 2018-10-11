@@ -24,7 +24,10 @@ class CHIP8Assembler : public AssemblerPlugin
         virtual u32 flags() const;
         virtual Emulator* createEmulator(DisassemblerAPI* disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
-        virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
+
+    protected:
+        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
+        virtual void onDecoded(const InstructionPtr& instruction) const;
 
     private:
         bool decode0xxx(u16 opcode, const InstructionPtr& instruction) const;

@@ -110,7 +110,6 @@ SOURCES += main.cpp\
     redasm/assemblers/metaarm/metaarm_printer.cpp \
     redasm/assemblers/metaarm/metaarm_emulator.cpp \
     redasm/assemblers/metaarm/arm.cpp \
-    redasm/assemblers/metaarm/armthumb.cpp \
     redasm/assemblers/metaarm/arm_common.cpp \
     redasm/disassembler/algorithm/controlflow.cpp \
     redasm/plugins/assembler/assembler.cpp \
@@ -134,7 +133,8 @@ SOURCES += main.cpp\
     redasm/plugins/disassembler/statemachine.cpp \
     redasm/emulator/emulatorbase.cpp \
     redasm/emulator/emulator.cpp \
-    redasm/formats/dex/dex_algorithm.cpp
+    redasm/formats/dex/dex_algorithm.cpp \
+    redasm/assemblers/metaarm/arm_thumb.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -234,7 +234,6 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/metaarm/metaarm_printer.h \
     redasm/assemblers/metaarm/metaarm_emulator.h \
     redasm/assemblers/metaarm/arm.h \
-    redasm/assemblers/metaarm/armthumb.h \
     redasm/assemblers/metaarm/arm_common.h \
     redasm/disassembler/algorithm/controlflow.h \
     redasm/plugins/assembler/assembler.h \
@@ -259,7 +258,9 @@ HEADERS  += mainwindow.h \
     redasm/plugins/disassembler/statemachine.h \
     redasm/emulator/emulatorbase.h \
     redasm/emulator/emulator.h \
-    redasm/formats/dex/dex_algorithm.h
+    redasm/formats/dex/dex_algorithm.h \
+    redasm/support/dispatcher.h \
+    redasm/assemblers/metaarm/arm_thumb.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

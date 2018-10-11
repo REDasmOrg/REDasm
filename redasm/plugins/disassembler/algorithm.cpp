@@ -12,6 +12,9 @@ DisassemblerAlgorithm::DisassemblerAlgorithm(DisassemblerAPI *disassembler, Asse
     m_format = m_disassembler->format();
     m_document = m_disassembler->document();
 
+    if(assembler->hasFlag(AssemblerFlags::HasEmulator))
+        m_emulator = std::make_unique<Emulator>(assembler->createEmulator(disassembler));
+
     REGISTER_STATE(DisassemblerAlgorithm::DecodeState, &DisassemblerAlgorithm::decodeState);
     REGISTER_STATE(DisassemblerAlgorithm::JumpState, &DisassemblerAlgorithm::jumpState);
     REGISTER_STATE(DisassemblerAlgorithm::CallState, &DisassemblerAlgorithm::callState);
@@ -255,9 +258,20 @@ u32 DisassemblerAlgorithm::disassemble(address_t address, const InstructionPtr &
         this->onDecodeFailed(instruction);
     }
     else
+    {
+        this->emulate(instruction);
         this->onDecoded(instruction);
+    }
 
     return result;
+}
+
+void DisassemblerAlgorithm::emulate(const InstructionPtr &instruction)
+{
+    if(!m_emulator)
+        return;
+
+    m_emulator->emulate(instruction);
 }
 
 

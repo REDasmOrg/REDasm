@@ -17,8 +17,10 @@ MetaARMAssembler::~MetaARMAssembler()
 
 u32 MetaARMAssembler::flags() const { return m_armassembler->flags(); }
 const char *MetaARMAssembler::name() const { return "Meta ARM"; }
+Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { /* return new MetaARMEmulator(disassembler); */ }
+Printer *MetaARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(m_armassembler->handle(), disassembler); }
 
-bool MetaARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
+bool MetaARMAssembler::decodeInstruction(Buffer buffer, const InstructionPtr &instruction)
 {
     AssemblerPlugin* assemblerplugin = m_armassembler;
 
@@ -27,8 +29,5 @@ bool MetaARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction)
 
     return assemblerplugin->decode(buffer, instruction);
 }
-
-Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { /* return new MetaARMEmulator(disassembler); */ }
-Printer *MetaARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(m_armassembler->handle(), disassembler); }
 
 } // namespace REDasm

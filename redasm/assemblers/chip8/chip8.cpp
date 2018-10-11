@@ -34,7 +34,7 @@ u32 CHIP8Assembler::flags() const { return AssemblerFlags::HasEmulator; }
 Emulator *CHIP8Assembler::createEmulator(DisassemblerAPI *disassembler) const { /* return new CHIP8Emulator(disassembler); */ }
 Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler) const { return new CHIP8Printer(disassembler); }
 
-bool CHIP8Assembler::decode(Buffer buffer, const InstructionPtr &instruction)
+bool CHIP8Assembler::decodeInstruction(Buffer buffer, const InstructionPtr &instruction)
 {
     u16 opcode = this->read<u16>(buffer);
     instruction->id = opcode;
@@ -45,8 +45,35 @@ bool CHIP8Assembler::decode(Buffer buffer, const InstructionPtr &instruction)
     if((it == m_opcodemap.end()) || !it->second(opcode, instruction))
         return false;
 
-    AssemblerPlugin::decode(buffer, instruction);
     return true;
+}
+
+void CHIP8Assembler::onDecoded(const InstructionPtr &instruction) const
+{
+    if(instruction->mnemonic == "rts")
+        instruction->type = InstructionTypes::Stop;
+    else if(instruction->mnemonic == "jmp")
+        instruction->type = InstructionTypes::Jump;
+    else if((instruction->mnemonic == "ske") || (instruction->mnemonic == "skne") || (instruction->mnemonic == "skp") || (instruction->mnemonic == "sknp"))
+        instruction->type = InstructionTypes::ConditionalJump;
+    else if(instruction->mnemonic == "call")
+        instruction->type = InstructionTypes::Call;
+    else if(instruction->mnemonic == "add")
+        instruction->type = InstructionTypes::Add;
+    else if(instruction->mnemonic == "sub")
+        instruction->type = InstructionTypes::Sub;
+    else if(instruction->mnemonic == "and")
+        instruction->type = InstructionTypes::And;
+    else if(instruction->mnemonic == "or")
+        instruction->type = InstructionTypes::Or;
+    else if(instruction->mnemonic == "xor")
+        instruction->type = InstructionTypes::Xor;
+    else if((instruction->mnemonic == "mov") || (instruction->mnemonic == "ldra"))
+        instruction->type = InstructionTypes::Load;
+    else if(instruction->mnemonic == "stra")
+        instruction->type = InstructionTypes::Store;
+    else if(instruction->mnemonic == "sys")
+        instruction->type = InstructionTypes::Privileged;
 }
 
 bool CHIP8Assembler::decode0xxx(u16 opcode, const InstructionPtr &instruction) const
@@ -54,10 +81,7 @@ bool CHIP8Assembler::decode0xxx(u16 opcode, const InstructionPtr &instruction) c
     if(opcode == 0x00E0)
         instruction->mnemonic = "cls";
     else if(opcode == 0x00EE)
-    {
         instruction->mnemonic = "rts";
-        instruction->type = InstructionTypes::Stop;
-    }
     else if(opcode == 0x00FB) // SuperChip only
         instruction->mnemonic = "scright";
     else if(opcode == 0x00FC) // SuperChip only
@@ -74,7 +98,6 @@ bool CHIP8Assembler::decode0xxx(u16 opcode, const InstructionPtr &instruction) c
     else
     {
         instruction->mnemonic = "sys";
-        instruction->type = InstructionTypes::Privileged;
         instruction->imm(opcode & 0x0FFF);
     }
 
@@ -84,7 +107,6 @@ bool CHIP8Assembler::decode0xxx(u16 opcode, const InstructionPtr &instruction) c
 bool CHIP8Assembler::decode1xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "jmp";
-    instruction->type = InstructionTypes::Jump;
     instruction->imm(opcode & 0x0FFF);
     instruction->target_op(0);
     return true;
@@ -93,7 +115,6 @@ bool CHIP8Assembler::decode1xxx(u16 opcode, const InstructionPtr &instruction) c
 bool CHIP8Assembler::decode2xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "call";
-    instruction->type = InstructionTypes::Call;
     instruction->imm(opcode & 0x0FFF);
     instruction->target_op(0);
     return true;
@@ -102,7 +123,6 @@ bool CHIP8Assembler::decode2xxx(u16 opcode, const InstructionPtr &instruction) c
 bool CHIP8Assembler::decode3xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "ske";
-    instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->imm(opcode & 0x00FF);
     instruction->target(instruction->endAddress() + instruction->size);
@@ -112,7 +132,6 @@ bool CHIP8Assembler::decode3xxx(u16 opcode, const InstructionPtr &instruction) c
 bool CHIP8Assembler::decode4xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "skne";
-    instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->imm(opcode & 0x00FF);
     instruction->target(instruction->endAddress() + instruction->size);
@@ -125,7 +144,6 @@ bool CHIP8Assembler::decode5xxx(u16 opcode, const InstructionPtr &instruction) c
         return false;
 
     instruction->mnemonic = "ske";
-    instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->reg((opcode & 0x00F0) >> 4);
     instruction->target(instruction->endAddress() + instruction->size);
@@ -143,7 +161,6 @@ bool CHIP8Assembler::decode6xxx(u16 opcode, const InstructionPtr &instruction) c
 bool CHIP8Assembler::decode7xxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "add";
-    instruction->type = InstructionTypes::Add;
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->imm(opcode & 0x00FF);
     return true;
@@ -156,30 +173,15 @@ bool CHIP8Assembler::decode8xxx(u16 opcode, const InstructionPtr &instruction) c
     if(op == 0x0)
         instruction->mnemonic = "mov";
     else if(op == 0x1)
-    {
         instruction->mnemonic = "or";
-        instruction->type = InstructionTypes::Or;
-    }
     else if(op == 0x2)
-    {
         instruction->mnemonic = "and";
-        instruction->type = InstructionTypes::And;
-    }
     else if(op == 0x3)
-    {
         instruction->mnemonic = "xor";
-        instruction->type = InstructionTypes::Xor;
-    }
     else if(op == 0x4)
-    {
         instruction->mnemonic = "add";
-        instruction->type = InstructionTypes::Add;
-    }
     else if(op == 0x5)
-    {
         instruction->mnemonic = "sub";
-        instruction->type = InstructionTypes::Sub;
-    }
     else if(op == 0x6)
         instruction->mnemonic = "shr";
     else if(op == 0x7)
@@ -203,7 +205,6 @@ bool CHIP8Assembler::decode9xxx(u16 opcode, const InstructionPtr &instruction) c
         return false;
 
     instruction->mnemonic = "skne";
-    instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->reg((opcode & 0x00F0) >> 4);
     instruction->target(instruction->endAddress() + instruction->size);
@@ -213,7 +214,6 @@ bool CHIP8Assembler::decode9xxx(u16 opcode, const InstructionPtr &instruction) c
 bool CHIP8Assembler::decodeAxxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "mov";
-    instruction->type = InstructionTypes::Load;
     instruction->reg(CHIP8_REG_I_ID, CHIP8_REG_I);
     instruction->imm(opcode & 0x0FFF);
     return true;
@@ -222,7 +222,6 @@ bool CHIP8Assembler::decodeAxxx(u16 opcode, const InstructionPtr &instruction) c
 bool CHIP8Assembler::decodeBxxx(u16 opcode, const InstructionPtr &instruction) const
 {
     instruction->mnemonic = "jmp";
-    instruction->type = InstructionTypes::Jump;
     instruction->disp(CHIP8_REG_V0_ID, opcode & 0x0FFF);
     return true;
 }
@@ -253,7 +252,6 @@ bool CHIP8Assembler::decodeExxx(u16 opcode, const InstructionPtr &instruction) c
     else if(op == 0xA1)
         instruction->mnemonic = "sknp";
 
-    instruction->type = InstructionTypes::Conditional | InstructionTypes::Jump;
     instruction->reg((opcode & 0x0F00) >> 8, CHIP8_REG_K);
     instruction->target(instruction->endAddress() + instruction->size);
     return true;
@@ -274,7 +272,6 @@ bool CHIP8Assembler::decodeFxxx(u16 opcode, const InstructionPtr &instruction) c
     else if(op == 0x1E)
     {
         instruction->mnemonic = "add";
-        instruction->type = InstructionTypes::Add;
         instruction->reg(CHIP8_REG_I_ID, CHIP8_REG_I);
     }
     else if(op == 0x29)
@@ -284,15 +281,9 @@ bool CHIP8Assembler::decodeFxxx(u16 opcode, const InstructionPtr &instruction) c
     else if(op == 0x33)
         instruction->mnemonic = "bcd";
     else if(op == 0x55)
-    {
         instruction->mnemonic = "stra";
-        instruction->type = InstructionTypes::Store;
-    }
     else if(op == 0x65)
-    {
         instruction->mnemonic = "ldra";
-        instruction->type = InstructionTypes::Load;
-    }
     else
         return false;
 

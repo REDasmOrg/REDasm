@@ -6,6 +6,7 @@
 #include <stack>
 #include <cstring>
 #include "../../disassembler/disassemblerapi.h"
+#include "../../support/dispatcher.h"
 #include "../../support/endianness.h"
 #include "../../support/utils.h"
 #include "../../emulator/emulator.h"
@@ -13,7 +14,9 @@
 #include "printer.h"
 
 #define DECLARE_ASSEMBLER_PLUGIN(assembler, id) inline AssemblerPlugin* id##_assemblerPlugin() { return new assembler(); }
-#define ASSEMBLER_IS(assembler, arch) (strstr(assembler->name(), arch))
+#define ASSEMBLER_IS(assembler, arch)           (strstr(assembler->name(), arch))
+#define REGISTER_INSTRUCTION(id, cb)            this->m_dispatcher[id] = std::bind(cb, this, std::placeholders::_1)
+#define SET_INSTRUCTION_TYPE(id, type)          this->m_instructiontypes[id] = type
 
 namespace REDasm {
 
@@ -23,21 +26,28 @@ namespace AssemblerFlags {
 
 class AssemblerPlugin: public Plugin
 {
-    private:
-        typedef std::pair<u32, u32> StateItem;
-
     public:
         AssemblerPlugin();
         virtual u32 flags() const;
         virtual Emulator* createEmulator(DisassemblerAPI* disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const;
-        virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
-
-    public:
-        template<typename T> T read(Buffer& buffer) const;
         bool hasFlag(u32 flag) const;
         endianness_t endianness() const;
         void setEndianness(endianness_t endianness);
+        bool decode(Buffer buffer, const InstructionPtr& instruction);
+
+    protected:
+        template<typename T> T read(Buffer& buffer) const;
+        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction) = 0;
+        virtual void onDecoded(const InstructionPtr& instruction);
+
+    private:
+        void setInstructionType(const InstructionPtr& instruction) const;
+        void setBytes(Buffer buffer, const InstructionPtr& instruction) const;
+
+    protected:
+        std::unordered_map<instruction_id_t, u32> m_instructiontypes;
+        Dispatcher<instruction_id_t, const InstructionPtr&> m_dispatcher;
 
     private:
         endianness_t m_endianness;
@@ -57,12 +67,18 @@ template<typename T> T AssemblerPlugin::read(Buffer& buffer) const
 
 template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public AssemblerPlugin
 {
+    protected:
+        typedef CapstoneAssemblerPlugin<arch, mode> AssemblerBase;
+
     public:
         CapstoneAssemblerPlugin();
         ~CapstoneAssemblerPlugin();
         csh handle() const;
-        virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new CapstonePrinter(this->m_cshandle, disassembler); }
+
+    protected:
+        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
+        virtual void onDecoded(const InstructionPtr& instruction);
 
     protected:
         csh m_cshandle;
@@ -74,34 +90,37 @@ template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::Capston
     cs_option(this->m_cshandle, CS_OPT_DETAIL, CS_OPT_ON);
 }
 
+template<cs_arch arch, size_t mode> void CapstoneAssemblerPlugin<arch, mode>::onDecoded(const InstructionPtr& instruction)
+{
+    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
+
+    if(cs_insn_group(m_cshandle, insn, CS_GRP_JUMP))
+        instruction->type |= InstructionTypes::Jump;
+    else if(cs_insn_group(m_cshandle, insn, CS_GRP_CALL))
+        instruction->type |= InstructionTypes::Call;
+    else if(cs_insn_group(m_cshandle, insn, CS_GRP_RET))
+        instruction->type |= InstructionTypes::Stop;
+    else if(cs_insn_group(m_cshandle, insn, CS_GRP_INT) || cs_insn_group(m_cshandle, insn, CS_GRP_IRET))
+        instruction->type |= InstructionTypes::Privileged;
+}
+
 template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::~CapstoneAssemblerPlugin() { cs_close(&this->m_cshandle); }
 template<cs_arch arch, size_t mode> csh CapstoneAssemblerPlugin<arch, mode>::handle() const { return this->m_cshandle; }
 
-template<cs_arch arch, size_t mode> bool CapstoneAssemblerPlugin<arch, mode>::decode(Buffer buffer, const InstructionPtr& instruction)
+template<cs_arch arch, size_t mode> bool CapstoneAssemblerPlugin<arch, mode>::decodeInstruction(Buffer buffer, const InstructionPtr& instruction)
 {
     u64 address = instruction->address;
     const uint8_t* pdata = reinterpret_cast<const uint8_t*>(buffer.data);
-    cs_insn* insn = cs_malloc(this->m_cshandle);
+    cs_insn* insn = cs_malloc(m_cshandle);
 
-    if(!cs_disasm_iter(this->m_cshandle, &pdata, reinterpret_cast<size_t*>(&buffer.length), &address, insn))
+    if(!cs_disasm_iter(m_cshandle, &pdata, reinterpret_cast<size_t*>(&buffer.length), &address, insn))
         return false;
-
-    if(cs_insn_group(this->m_cshandle, insn, CS_GRP_JUMP))
-        instruction->type = InstructionTypes::Jump;
-    else if(cs_insn_group(this->m_cshandle, insn, CS_GRP_CALL))
-        instruction->type = InstructionTypes::Call;
-    else if(cs_insn_group(this->m_cshandle, insn, CS_GRP_RET))
-        instruction->type = InstructionTypes::Stop;
-    else if(cs_insn_group(this->m_cshandle, insn, CS_GRP_INT) || cs_insn_group(this->m_cshandle, insn, CS_GRP_IRET))
-        instruction->type = InstructionTypes::Privileged;
 
     instruction->mnemonic = insn->mnemonic;
     instruction->id = insn->id;
     instruction->size = insn->size;
     instruction->userdata = insn;
     instruction->free = [](void* userdata) { cs_free(reinterpret_cast<cs_insn*>(userdata), 1); };
-
-    AssemblerPlugin::decode(buffer, instruction);
     return true;
 }
 

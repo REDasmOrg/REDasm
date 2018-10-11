@@ -11,16 +11,66 @@ namespace REDasm {
 template<size_t mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>
 {
     public:
-        MIPSAssembler(): CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>() { }
+        MIPSAssembler();
         virtual const char* name() const;
         virtual u32 flags() const { return AssemblerFlags::HasEmulator; }
-        virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const { return new MIPSEmulator(disassembler); }
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const { return new MIPSPrinter(this->m_cshandle, disassembler); }
 
+    protected:
+        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
+        virtual void onDecoded(const InstructionPtr& instruction);
+
     private:
-        void analyzeInstruction(const InstructionPtr &instruction) const;
+        void setTargetOp0(const InstructionPtr& instruction) const { instruction->target_op(0); }
+        void setTargetOp1(const InstructionPtr& instruction) const { instruction->target_op(1); }
+        void setTargetOp2(const InstructionPtr& instruction) const { instruction->target_op(2); }
+        void checkJr(const InstructionPtr& instruction) const;
 };
+
+template<size_t mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>()
+{
+    SET_INSTRUCTION_TYPE(MIPS_INS_NOP, InstructionTypes::Nop);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BREAK, InstructionTypes::Stop);
+    SET_INSTRUCTION_TYPE(MIPS_INS_J, InstructionTypes::Jump);
+    SET_INSTRUCTION_TYPE(MIPS_INS_JAL, InstructionTypes::Call);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BAL, InstructionTypes::Call);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BEQZ, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BNEZ, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BNEL, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BLEZ, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BLEZC, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BLEZL, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGTZ, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZ, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZC, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZL, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZAL, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZALL, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BLTZ, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BNE, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BEQ, InstructionTypes::Conditional);
+
+    REGISTER_INSTRUCTION(MIPS_INS_JR, &MIPSAssembler::checkJr);
+    REGISTER_INSTRUCTION(MIPS_INS_J, &MIPSAssembler::setTargetOp0);
+    REGISTER_INSTRUCTION(MIPS_INS_JAL, &MIPSAssembler::setTargetOp0);
+    REGISTER_INSTRUCTION(MIPS_INS_BAL, &MIPSAssembler::setTargetOp0);
+    REGISTER_INSTRUCTION(MIPS_INS_BEQZ, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BNEZ, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BNEL, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BLEZ, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BLEZC, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BLEZL, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BGTZ, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BGEZ, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BGEZC, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BGEZL, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BGEZAL, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BGEZALL, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BLTZ, &MIPSAssembler::setTargetOp1);
+    REGISTER_INSTRUCTION(MIPS_INS_BNE, &MIPSAssembler::setTargetOp2);
+    REGISTER_INSTRUCTION(MIPS_INS_BEQ, &MIPSAssembler::setTargetOp2);
+}
 
 template<size_t mode> const char *MIPSAssembler<mode>::name() const
 {
@@ -33,10 +83,17 @@ template<size_t mode> const char *MIPSAssembler<mode>::name() const
     return "Unknown MIPS";
 }
 
-template<size_t mode> bool MIPSAssembler<mode>::decode(Buffer buffer, const InstructionPtr& instruction)
+template<size_t mode> bool MIPSAssembler<mode>::decodeInstruction(Buffer buffer, const InstructionPtr& instruction)
 {
-    if(!CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decode(buffer, instruction))
-        return MIPSQuirks::decode(buffer, instruction); // Handle COP2 instructions and more
+    if(CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decode(buffer, instruction))
+        return true;
+
+    return MIPSQuirks::decode(buffer, instruction); // Handle COP2 instructions and more
+}
+
+template<size_t mode> void MIPSAssembler<mode>::onDecoded(const InstructionPtr& instruction)
+{
+    CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::onDecoded(instruction);
 
     cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
     const cs_mips& mips = insn->detail->mips;
@@ -52,87 +109,17 @@ template<size_t mode> bool MIPSAssembler<mode>::decode(Buffer buffer, const Inst
         else if(op.type == MIPS_OP_IMM)
             instruction->imm(op.imm);
     }
-
-    this->analyzeInstruction(instruction);
-    return true;
 }
 
-template<size_t mode> void MIPSAssembler<mode>::analyzeInstruction(const InstructionPtr& instruction) const
+template<size_t mode> void MIPSAssembler<mode>::checkJr(const InstructionPtr& instruction) const
 {
-    switch(instruction->id)
+    if(instruction->op(0).reg.r != MIPS_REG_RA)
     {
-        case MIPS_INS_ADD:
-        case MIPS_INS_ADDI:
-        case MIPS_INS_ADDU:
-        case MIPS_INS_ADDIU:
-        case MIPS_INS_AND:
-        case MIPS_INS_ANDI:
-        case MIPS_INS_MUL:
-        //case MIPS_INS_NOR:
-        case MIPS_INS_OR:
-        case MIPS_INS_ORI:
-        case MIPS_INS_SUB:
-        case MIPS_INS_SUBU:
-        case MIPS_INS_XOR:
-        case MIPS_INS_XORI:
-            instruction->op(0).w();
-            break;
-
-        case MIPS_INS_J:
-            instruction->type = InstructionTypes::Jump;
-            instruction->target_op(0);
-            break;
-
-        case MIPS_INS_JR:
-        {
-            instruction->type = InstructionTypes::Jump;
-
-            if(instruction->op(0).reg.r != MIPS_REG_RA)
-                instruction->target_idx = 0;
-
-            break;
-        }
-
-        case MIPS_INS_JAL:
-        case MIPS_INS_BAL:
-            instruction->type |= InstructionTypes::Call;
-            instruction->target_op(0);
-            break;
-
-        case MIPS_INS_BEQZ:
-        case MIPS_INS_BNEZ:
-        case MIPS_INS_BNEL:
-        case MIPS_INS_BLEZ:
-        case MIPS_INS_BLEZC:
-        case MIPS_INS_BLEZL:
-        case MIPS_INS_BGTZ:
-        case MIPS_INS_BGEZ:
-        case MIPS_INS_BGEZC:
-        case MIPS_INS_BGEZL:
-        case MIPS_INS_BGEZAL:
-        case MIPS_INS_BGEZALL:
-        case MIPS_INS_BLTZ:
-            instruction->type |= InstructionTypes::Conditional;
-            instruction->target_op(1);
-            break;
-
-        case MIPS_INS_BNE:
-        case MIPS_INS_BEQ:
-            instruction->type |= InstructionTypes::Conditional;
-            instruction->target_op(2);
-            break;
-
-        case MIPS_INS_BREAK:
-            instruction->type |= InstructionTypes::Stop;
-            break;
-
-        case MIPS_INS_NOP:
-            instruction->type |= InstructionTypes::Nop;
-            break;
-
-        default:
-            break;
+        instruction->type = InstructionTypes::Jump;
+        instruction->target_idx = 0;
     }
+    else
+        instruction->type = InstructionTypes::Stop;
 }
 
 typedef MIPSAssembler<CS_MODE_MIPS64> MIPS32Assembler;

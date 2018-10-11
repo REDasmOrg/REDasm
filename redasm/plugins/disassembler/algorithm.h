@@ -44,6 +44,7 @@ class DisassemblerAlgorithm: public StateMachine
         bool canBeDisassembled(address_t address);
         void createInvalidInstruction(const InstructionPtr& instruction);
         u32 disassemble(address_t address, const InstructionPtr& instruction);
+        void emulate(const InstructionPtr& instruction);
 
     protected:
         DisassemblerAPI* m_disassembler;
@@ -54,6 +55,7 @@ class DisassemblerAlgorithm: public StateMachine
     private:
         DecodedAddresses m_disassembled;
         std::unique_ptr<Analyzer> m_analyzer;
+        std::unique_ptr<Emulator> m_emulator;
         const Segment* m_currentsegment;
         bool m_analyzed;
 };

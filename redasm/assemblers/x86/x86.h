@@ -11,13 +11,17 @@ namespace REDasm {
 template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARCH_X86, mode>
 {
     public:
-        X86Assembler(): CapstoneAssemblerPlugin<CS_ARCH_X86, mode>(), m_stacksize(0) { }
+        X86Assembler();
         virtual const char* name() const;
-        virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new X86Printer(this->m_cshandle, disassembler); }
 
+    protected:
+        virtual void onDecoded(const InstructionPtr& instruction);
+
     private:
-        void analyzeInstruction(const InstructionPtr& instruction);
+        void resetStackSize(const InstructionPtr&) { m_stacksize = 0; }
+        void initStackSize(const InstructionPtr& instruction);
+        void setBranchTarget(const InstructionPtr& instruction);
         s32 localIndex(s64 disp, u32& type) const;
         s32 stackLocalIndex(s64 disp) const;
         bool isSP(register_t reg) const;
@@ -27,6 +31,70 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
     private:
         s64 m_stacksize;
 };
+
+template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlugin<CS_ARCH_X86, mode>(), m_stacksize(0)
+{
+    SET_INSTRUCTION_TYPE(X86_INS_JA, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JAE, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JB, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JBE, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JCXZ, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JECXZ, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JE, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JG, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JGE, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JL, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JLE, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JNE, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JNO, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JNP, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JNS, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JO, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JP, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JS, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_LOOP, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_LOOPE, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_LOOPNE, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSH, InstructionTypes::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSHAL, InstructionTypes::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSHAW, InstructionTypes::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSHF, InstructionTypes::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSHFD, InstructionTypes::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSHFQ, InstructionTypes::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_POP, InstructionTypes::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_POPAL, InstructionTypes::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_POPAW, InstructionTypes::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_POPF, InstructionTypes::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_POPFD, InstructionTypes::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_POPFQ, InstructionTypes::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_HLT, InstructionTypes::Stop);
+    SET_INSTRUCTION_TYPE(X86_INS_RET, InstructionTypes::Stop);
+    SET_INSTRUCTION_TYPE(X86_INS_NOP, InstructionTypes::Nop);
+
+    REGISTER_INSTRUCTION(X86_INS_JA, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JAE, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JB, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JBE, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JCXZ, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JECXZ, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JE, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JG, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JGE, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JL, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JLE, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JNE, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JNO, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JNP, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JNS, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JO, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JP, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JS, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_JMP, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_CALL, &X86Assembler::setBranchTarget);
+    REGISTER_INSTRUCTION(X86_INS_HLT, &X86Assembler::resetStackSize);
+    REGISTER_INSTRUCTION(X86_INS_RET, &X86Assembler::resetStackSize);
+    REGISTER_INSTRUCTION(X86_INS_SUB, &X86Assembler::initStackSize);
+}
 
 template<cs_mode mode> const char *X86Assembler<mode>::name() const
 {
@@ -39,10 +107,9 @@ template<cs_mode mode> const char *X86Assembler<mode>::name() const
     return "Unknown x86";
 }
 
-template<cs_mode mode> bool X86Assembler<mode>::decode(Buffer buffer, const InstructionPtr &instruction)
+template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &instruction)
 {
-    if(!CapstoneAssemblerPlugin<CS_ARCH_X86, mode>::decode(buffer, instruction))
-        return false;
+    CapstoneAssemblerPlugin<CS_ARCH_X86, mode>::onDecoded(instruction);
 
     cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
     const cs_x86& x86 = insn->detail->x86;
@@ -82,9 +149,6 @@ template<cs_mode mode> bool X86Assembler<mode>::decode(Buffer buffer, const Inst
         else if(op.type == X86_OP_REG)
             instruction->reg(op.reg);
     }
-
-    this->analyzeInstruction(instruction);
-    return true;
 }
 
 template<cs_mode mode> s32 X86Assembler<mode>::localIndex(s64 disp, u32& type) const
@@ -173,91 +237,24 @@ template<cs_mode mode> bool X86Assembler<mode>::isIP(register_t reg) const
     return false;
 }
 
-template<cs_mode mode> void X86Assembler<mode>::analyzeInstruction(const InstructionPtr &instruction)
+template<cs_mode mode> void X86Assembler<mode>::initStackSize(const InstructionPtr& instruction)
 {
-    switch(instruction->id)
-    {
-        case X86_INS_JA:
-        case X86_INS_JAE:
-        case X86_INS_JB:
-        case X86_INS_JBE:
-        case X86_INS_JCXZ:
-        case X86_INS_JECXZ:
-        case X86_INS_JE:
-        case X86_INS_JG:
-        case X86_INS_JGE:
-        case X86_INS_JL:
-        case X86_INS_JLE:
-        case X86_INS_JNE:
-        case X86_INS_JNO:
-        case X86_INS_JNP:
-        case X86_INS_JNS:
-        case X86_INS_JO:
-        case X86_INS_JP:
-        case X86_INS_JS:
-        case X86_INS_LOOP:
-        case X86_INS_LOOPE:
-        case X86_INS_LOOPNE:
-        {
-            instruction->type |= InstructionTypes::Conditional;
-            //break;
-        }
+    if(!this->m_stacksize && this->isSP(instruction->op(0).reg.r))
+        this->m_stacksize = instruction->op(1).u_value;
+}
 
-        case X86_INS_JMP:
-        case X86_INS_CALL:
-        {
-            Operand& op = instruction->op(0);
+template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const InstructionPtr& instruction)
+{
+    Operand& op = instruction->op(0);
 
-            if(!op.isNumeric())
-                break;
+    if(!op.isNumeric())
+        return;
 
-            if(op.is(OperandTypes::Memory))
-                op.r();
+    if(op.is(OperandTypes::Memory))
+        op.r();
 
-            instruction->target(op.u_value);
-            instruction->target_idx = 0;
-            break;
-        }
-
-        case X86_INS_RET:
-        case X86_INS_HLT:
-            instruction->type |= InstructionTypes::Stop;
-            this->m_stacksize = 0;
-            break;
-
-        case X86_INS_NOP:
-            instruction->type |= InstructionTypes::Nop;
-            break;
-
-        case X86_INS_PUSH:
-        case X86_INS_PUSHAL:
-        case X86_INS_PUSHAW:
-        case X86_INS_PUSHF:
-        case X86_INS_PUSHFD:
-        case X86_INS_PUSHFQ:
-            instruction->type |= InstructionTypes::Push;
-            break;
-
-        case X86_INS_POP:
-        case X86_INS_POPAL:
-        case X86_INS_POPAW:
-        case X86_INS_POPF:
-        case X86_INS_POPFD:
-        case X86_INS_POPFQ:
-            instruction->type |= InstructionTypes::Pop;
-            break;
-
-        case X86_INS_SUB:
-        {
-            if(!this->m_stacksize && this->isSP(instruction->op(0).reg.r))
-                this->m_stacksize = instruction->op(1).u_value;
-
-            break;
-        }
-
-        default:
-            return;
-    }
+    instruction->target(op.u_value);
+    instruction->target_idx = 0;
 }
 
 typedef X86Assembler<CS_MODE_16> X86_16Assembler;

@@ -22,7 +22,9 @@ class DalvikAssembler : public AssemblerPlugin
         DalvikAssembler();
         virtual const char* name() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
-        virtual bool decode(Buffer buffer, const InstructionPtr &instruction);
+
+    protected:
+        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr &instruction);
 
     private:
         bool decodeOp0(Buffer& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;

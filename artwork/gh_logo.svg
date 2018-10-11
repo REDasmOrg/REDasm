@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="512"
+   height="512"
+   viewBox="0 0 135.46666 135.46667"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="gh_logo.svg"
+   inkscape:export-filename="/home/davide/redasm.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="0.92.2 2405546, 2018-03-11">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.959798"
+     inkscape:cx="95.559359"
+     inkscape:cy="286.50648"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="2560"
+     inkscape:window-height="983"
+     inkscape:window-x="0"
+     inkscape:window-y="36"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Livello 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-161.53332)">
+    <g
+       id="g4544"
+       inkscape:export-xdpi="381.28"
+       inkscape:export-ydpi="381.28"
+       inkscape:export-filename="/home/davide/gh_logo.png">
+      <flowRoot
+         transform="matrix(0.49454764,0,0,0.49454764,-17.571096,135.83644)"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1;"
+         id="flowRoot18"
+         xml:space="preserve"><flowRegion
+           style="fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1;"
+           id="flowRegion20"><rect
+             style="fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1;"
+             y="132.71428"
+             x="72.14286"
+             height="118.57143"
+             width="192.14285"
+             id="rect22" /></flowRegion><flowPara
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Indie Flower';-inkscape-font-specification:'Indie Flower';fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1;"
+           id="flowPara24">RE</flowPara></flowRoot>      <text
+         id="text28"
+         y="220.04666"
+         x="40.279297"
+         style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#2b2b2b;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Indie Flower';-inkscape-font-specification:'Indie Flower';fill:#2b2b2b;fill-opacity:1;stroke-width:0.26458332"
+           y="220.04666"
+           x="40.279297"
+           id="tspan26"
+           sodipodi:role="line">dasm</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:17.6844902px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.44211227"
+       x="-13.378077"
+       y="238.03726"
+       id="text4548"><tspan
+         sodipodi:role="line"
+         id="tspan4546"
+         x="-13.378077"
+         y="253.68388"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.88055563px;font-family:Reey;-inkscape-font-specification:Reey;stroke-width:0.44211227" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="58.680801"
+       y="235.01189"
+       id="text823"><tspan
+         sodipodi:role="line"
+         id="tspan821"
+         x="58.680801"
+         y="244.37566"
+         style="stroke-width:0.26458332" /></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot825"
+       style="fill:black;fill-opacity:1;stroke:none;font-family:sans-serif;font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;letter-spacing:0px;word-spacing:0px"><flowRegion
+         id="flowRegion827"><rect
+           id="rect829"
+           width="130"
+           height="53.92857"
+           x="44.285713"
+           y="268.78571" /></flowRegion><flowPara
+         id="flowPara831" /></flowRoot>    <flowRoot
+       xml:space="preserve"
+       id="flowRoot833"
+       style="fill:black;fill-opacity:1;stroke:none;font-family:sans-serif;font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;letter-spacing:0px;word-spacing:0px"><flowRegion
+         id="flowRegion835"><rect
+           id="rect837"
+           width="311.07144"
+           height="141.07143"
+           x="21.071428"
+           y="237.35715" /></flowRegion><flowPara
+         id="flowPara839" /></flowRoot>    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="30.616072"
+       y="232.93303"
+       id="text843"><tspan
+         sodipodi:role="line"
+         id="tspan841"
+         x="30.616072"
+         y="242.2968"
+         style="stroke-width:0.26458332" /></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot845"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.66666698px;line-height:1.25;font-family:Reey;-inkscape-font-specification:Reey;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       transform="matrix(0.20138471,0,0,0.20138471,14.854344,174.19231)"
+       inkscape:export-xdpi="381.28"
+       inkscape:export-ydpi="381.28"
+       inkscape:export-filename="/home/davide/gh_logo.png"><flowRegion
+         id="flowRegion847"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.66666698px;font-family:Reey;-inkscape-font-specification:Reey"><rect
+           id="rect849"
+           width="317.5"
+           height="118.57143"
+           x="25.714285"
+           y="238.42857"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.66666698px;font-family:Reey;-inkscape-font-specification:Reey" /></flowRegion><flowPara
+         id="flowPara851"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.66666698px;font-family:Reey;-inkscape-font-specification:Reey"><flowSpan
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.66666698px;font-family:Reey;-inkscape-font-specification:Reey"
+   id="flowSpan855">The OpenSource </flowSpan>Disassembler</flowPara></flowRoot>  </g>
+</svg>

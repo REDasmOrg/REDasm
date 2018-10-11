@@ -26,22 +26,23 @@ MIPSEmulator::MIPSEmulator(DisassemblerAPI *disassembler): Emulator(disassembler
     EMULATE_INSTRUCTION(MIPS_INS_SUB, &MIPSEmulator::emulateMath);
     EMULATE_INSTRUCTION(MIPS_INS_SUBU, &MIPSEmulator::emulateMath);
     EMULATE_INSTRUCTION(MIPS_INS_MUL, &MIPSEmulator::emulateMath);
-
-    //EMULATE_INSTRUCTION(MIPS_INS_MULT, &MIPSEmulator::emulateMath);
-    //EMULATE_INSTRUCTION(MIPS_INS_MULTU, &MIPSEmulator::emulateMath);
-    //EMULATE_INSTRUCTION(MIPS_INS_DIV, &MIPSEmulator::emulateMath);
-    //EMULATE_INSTRUCTION(MIPS_INS_DIVU, &MIPSEmulator::emulateMath);
-
     EMULATE_INSTRUCTION(MIPS_INS_AND, &MIPSEmulator::emulateMath);
     EMULATE_INSTRUCTION(MIPS_INS_ANDI, &MIPSEmulator::emulateMath);
     EMULATE_INSTRUCTION(MIPS_INS_OR, &MIPSEmulator::emulateMath);
     EMULATE_INSTRUCTION(MIPS_INS_ORI, &MIPSEmulator::emulateMath);
     EMULATE_INSTRUCTION(MIPS_INS_XOR, &MIPSEmulator::emulateMath);
     EMULATE_INSTRUCTION(MIPS_INS_XORI, &MIPSEmulator::emulateMath);
-
-    EMULATE_INSTRUCTION(MIPS_INS_LUI, &MIPSEmulator::emulateLui);
     EMULATE_INSTRUCTION(MIPS_INS_SLL, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SLLV, &MIPSEmulator::emulateMath);
     EMULATE_INSTRUCTION(MIPS_INS_SRL, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SRLV, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_SRAV, &MIPSEmulator::emulateMath);
+    EMULATE_INSTRUCTION(MIPS_INS_LUI, &MIPSEmulator::emulateLui);
+
+    //EMULATE_INSTRUCTION(MIPS_INS_MULT, &MIPSEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(MIPS_INS_MULTU, &MIPSEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(MIPS_INS_DIV, &MIPSEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(MIPS_INS_DIVU, &MIPSEmulator::emulateMath);
 }
 
 bool MIPSEmulator::emulate(const InstructionPtr &instruction)

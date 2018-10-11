@@ -236,33 +236,28 @@ struct Operand
 
 struct Instruction
 {
-    Instruction(): address(0), target_idx(-1), type(0), size(0), blocktype(0), id(0), userdata(NULL) { }
+    Instruction(): address(0), target_idx(-1), type(0), size(0), id(0), userdata(NULL) { }
     ~Instruction() { reset(); }
 
     std::function<void(void*)> free;
 
     std::string mnemonic, bytes;
     std::set<address_t> targets;   // Jump/JumpTable/Call destination(s)
-    std::set<address_t> references;
     std::vector<Operand> operands;
     std::list<std::string> comments;
     address_t address;
     s32 target_idx;                 // Target's operand index
-    u32 type, size, blocktype;
+    u32 type, size;
     instruction_id_t id;            // Backend Specific
     void* userdata;                 // It doesn't survive after Assembler::decode() by design
 
     bool is(u32 t) const { return type & t; }
     bool isTargetOperand(const Operand& op) const { return (target_idx == -1) ? false : (target_idx == op.index); }
-    bool blockIs(u32 t) const { return blocktype & t; }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
     bool hasTargets() const { return !targets.empty(); }
-    bool hasReferences() const { return !references.empty(); }
-    void reset() { target_idx = -1, type = blocktype = 0; targets.clear(); operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
-    void foreachTarget(std::function<void(address_t)> cb) { std::for_each(targets.begin(), targets.end(), cb); }
+    void reset() { target_idx = -1, type = 0; targets.clear(); operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
     void target_op(s32 index) { target_idx = index; targets.insert(operands[index].u_value); }
     void target(address_t target) { targets.insert(target); }
-    void reference(address_t ref) { references.insert(ref); }
     void op_size(s32 index, u32 size) { operands[index].size = size; }
     u32 op_size(s32 index) const { return operands[index].size; }
     address_t target() const { return *targets.begin(); }

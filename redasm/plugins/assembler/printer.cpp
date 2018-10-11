@@ -7,17 +7,6 @@ namespace REDasm {
 
 Printer::Printer(DisassemblerAPI *disassembler): m_disassembler(disassembler) { m_document = m_disassembler->document(); }
 
-void Printer::symbols(const InstructionPtr &instruction, Printer::SymbolCallback symbolfunc)
-{
-    for(address_t reference : instruction->references)
-    {
-        SymbolPtr symbol = m_document->symbol(reference);
-
-        if(symbol)
-            this->symbol(symbol, symbolfunc);
-    }
-}
-
 std::string Printer::symbol(const SymbolPtr &symbol) const
 {
     if(symbol->is(SymbolTypes::Pointer))

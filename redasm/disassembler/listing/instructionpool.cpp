@@ -4,20 +4,9 @@
 
 namespace REDasm {
 
-InstructionPool::InstructionPool(): cache_map<address_t, InstructionPtr>("instructions")
-{
-
-}
-
-InstructionPool::~InstructionPool()
-{
-
-}
-
-void InstructionPool::update(const InstructionPtr &instruction)
-{
-    this->commit(instruction->address, instruction);
-}
+InstructionPool::InstructionPool(): cache_map<address_t, InstructionPtr>("instructions") { }
+InstructionPool::~InstructionPool() { }
+void InstructionPool::update(const InstructionPtr &instruction) { this->commit(instruction->address, instruction); }
 
 void InstructionPool::serialize(const InstructionPtr &value, std::fstream &fs)
 {
@@ -25,7 +14,6 @@ void InstructionPool::serialize(const InstructionPtr &value, std::fstream &fs)
     Serializer::serializeScalar(fs, value->target_idx);
     Serializer::serializeScalar(fs, value->type);
     Serializer::serializeScalar(fs, value->size);
-    Serializer::serializeScalar(fs, value->blocktype);
     Serializer::serializeScalar(fs, value->id);
 
     Serializer::serializeString(fs, value->mnemonic);
@@ -33,10 +21,6 @@ void InstructionPool::serialize(const InstructionPtr &value, std::fstream &fs)
 
     Serializer::serializeArray<std::set, address_t>(fs, value->targets, [this, &fs](address_t target) {
         Serializer::serializeScalar(fs, target);
-    });
-
-    Serializer::serializeArray<std::set, address_t>(fs, value->references, [this, &fs](address_t ref) {
-        Serializer::serializeScalar(fs, ref);
     });
 
     Serializer::serializeArray<std::vector, Operand>(fs, value->operands, [this, &fs](const Operand& op) {
@@ -70,7 +54,6 @@ void InstructionPool::deserialize(InstructionPtr &value, std::fstream &fs)
     Serializer::deserializeScalar(fs, &value->target_idx);
     Serializer::deserializeScalar(fs, &value->type);
     Serializer::deserializeScalar(fs, &value->size);
-    Serializer::deserializeScalar(fs, &value->blocktype);
     Serializer::deserializeScalar(fs, &value->id);
 
     Serializer::deserializeString(fs, value->mnemonic);
@@ -78,10 +61,6 @@ void InstructionPool::deserialize(InstructionPtr &value, std::fstream &fs)
 
     Serializer::deserializeArray<std::set, address_t>(fs, value->targets, [this, &fs](address_t& target) {
         Serializer::deserializeScalar(fs, &target);
-    });
-
-    Serializer::deserializeArray<std::set, address_t>(fs, value->references, [this, &fs](address_t& ref) {
-        Serializer::deserializeScalar(fs, &ref);
     });
 
     Serializer::deserializeArray<std::vector, Operand>(fs, value->operands, [this, &fs](Operand& op) {

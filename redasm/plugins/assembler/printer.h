@@ -19,7 +19,6 @@ class Printer
 
     public:
         Printer(DisassemblerAPI* disassembler);
-        void symbols(const InstructionPtr& instruction, SymbolCallback symbolfunc);
         std::string symbol(const SymbolPtr& symbol) const;
         std::string out(const InstructionPtr& instruction) const;
 

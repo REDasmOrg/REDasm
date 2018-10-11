@@ -16,15 +16,17 @@
 
 ## Introduction
 REDasm is an interactive, multiarchitecture disassembler written in C++ using Qt5 as UI Framework.<br>
-Its core is light and simple, it can be extended in order to support new instructions and file formats.<br>
-In the future, Python scripting will be supported.
+Its core is light and simple, it can be extended in order to support new instruction sets and file formats.<br>
+In the future, Python scripting will be supported.<br><br>
+*Runs on Windows and Linux.*<br>
 
 <p align="center">
   <img height="450" src="https://raw.githubusercontent.com/REDasmOrg/REDasm/next/artwork/Preview.gif">
 </p>
 
 ## Why another Disassembler?
-I have created REDasm because I always wanted an human friendly disassembler, like IDA, but free and open source so everyone can use, extend and hack it without any issues/limitations.
+I have designed and programmed REDasm because I always wanted an *easy-to-use* Free and Open Source disassembler that can be compared to IDA.<br>
+You can hack, extend and improve REDasm without any issues and limitations.<br>
 
 ## Compiling from Source
 ```

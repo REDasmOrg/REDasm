@@ -1,19 +1,17 @@
 #ifndef METAARM_EMULATOR_H
 #define METAARM_EMULATOR_H
 
-#include "../../vmil/vmil_emulator.h"
+#include "../../emulator/emulator.h"
 
 namespace REDasm {
 
-class MetaARMEmulator : public VMIL::Emulator
+class MetaARMEmulator : public Emulator
 {
     public:
         MetaARMEmulator(DisassemblerAPI* disassembler);
 
     private:
-        void translateLdr(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMIL::VMILInstructionList& vminstructions) const;
-        void translateBx(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMIL::VMILInstructionList& vminstructions) const;
-        void translateBranch(const InstructionPtr& instruction, VMIL::VMILInstructionPtr& vminstruction, VMIL::VMILInstructionList& vminstructions) const;
+        void emulateLdr(const InstructionPtr& instruction);
 };
 
 } // namespace REDasm

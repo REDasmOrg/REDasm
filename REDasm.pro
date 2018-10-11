@@ -87,7 +87,6 @@ SOURCES += main.cpp\
     redasm/assemblers/mips/mips_printer.cpp \
     redasm/assemblers/x86/x86_printer.cpp \
     redasm/assemblers/chip8/chip8_printer.cpp \
-    redasm/assemblers/chip8/chip8_emulator.cpp \
     redasm/assemblers/mips/mips_emulator.cpp \
     redasm/formats/dex/dex.cpp \
     redasm/assemblers/dalvik/dalvik.cpp \
@@ -199,7 +198,6 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/mips/mips_printer.h \
     redasm/assemblers/mips/mips_quirks.h \
     redasm/assemblers/x86/x86_printer.h \
-    redasm/assemblers/chip8/chip8_emulator.h \
     redasm/assemblers/chip8/chip8_printer.h \
     redasm/assemblers/chip8/chip8_registers.h \
     redasm/assemblers/mips/mips_emulator.h \

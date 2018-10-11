@@ -1,7 +1,6 @@
 #include "chip8.h"
 #include "../../support/endianness.h"
 #include "chip8_printer.h"
-#include "chip8_emulator.h"
 
 #define SET_DECODE_TO(opmask, cb) m_opcodemap[opmask] = [this](u16 opcode, const InstructionPtr& instruction) -> bool { return cb(opcode, instruction); };
 
@@ -30,8 +29,6 @@ CHIP8Assembler::CHIP8Assembler(): AssemblerPlugin()
 }
 
 const char *CHIP8Assembler::name() const { return "CHIP-8"; }
-u32 CHIP8Assembler::flags() const { return AssemblerFlags::HasEmulator; }
-Emulator *CHIP8Assembler::createEmulator(DisassemblerAPI *disassembler) const { /* return new CHIP8Emulator(disassembler); */ }
 Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler) const { return new CHIP8Printer(disassembler); }
 
 bool CHIP8Assembler::decodeInstruction(Buffer buffer, const InstructionPtr &instruction)

@@ -31,6 +31,10 @@ void Emulator::mathOp(const InstructionPtr &instruction, int opdest, int opsrc1,
         this->write(instruction->op(opdest), src1 | src2);
     else if(instruction->is(InstructionTypes::Xor))
         this->write(instruction->op(opdest), src1 ^ src2);
+    else if(instruction->is(InstructionTypes::Lsh))
+        this->write(instruction->op(opdest), src1 << src2);
+    else if(instruction->is(InstructionTypes::Rsh))
+        this->write(instruction->op(opdest), src1 >> src2);
     else
         this->unhandled(instruction);
 }

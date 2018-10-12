@@ -305,9 +305,7 @@ void DisassemblerTest::testTn11()
     for(address_t target : instruction->targets)
     {
         SymbolPtr symbol = m_document->symbol(target);
-        instruction = m_document->instruction(target);
-
-        TEST("Checking CASE #" + std::to_string(i) + " @ " + REDasm::hex(target), symbol && symbol->is(SymbolTypes::Code) && instruction);
+        TEST("Checking CASE #" + std::to_string(i) + " @ " + REDasm::hex(target), symbol && symbol->is(SymbolTypes::Code) && m_document->instruction(target));
         i++;
     }
 }

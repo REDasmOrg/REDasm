@@ -48,37 +48,15 @@ bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
     return m_referencetable.hasReferences(symbol->address);
 }
 
-void DisassemblerBase::pushReference(const SymbolPtr &symbol, const InstructionPtr& refbyinstruction)
-{
-    m_referencetable.push(symbol->address, refbyinstruction->address);
-}
-
-void DisassemblerBase::pushReference(address_t address, const InstructionPtr& refbyinstruction)
-{
-    m_referencetable.push(address, refbyinstruction->address);
-}
+void DisassemblerBase::pushReference(const SymbolPtr &symbol, const InstructionPtr& refbyinstruction) { m_referencetable.push(symbol->address, refbyinstruction->address); }
+void DisassemblerBase::pushReference(address_t address, const InstructionPtr& refbyinstruction) { m_referencetable.push(address, refbyinstruction->address); }
 
 void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_t address)
 {
-    u64 target = address, stringscount = 0;
+    if(this->checkString(instruction, address))
+        return;
 
-    while(this->dereference(target, &target))
-    {
-        if(!this->checkString(instruction, target))
-            break;
-
-        stringscount++;
-        target = address + (stringscount * m_format->addressWidth());
-    }
-
-    if(!stringscount)
-    {
-        if(!this->checkString(instruction, address))
-            m_document->symbol(address, SymbolTypes::Data);
-    }
-    else
-        m_document->symbol(address, SymbolTypes::Data | SymbolTypes::Pointer);
-
+    m_document->symbol(address, SymbolTypes::Data);
     this->pushReference(address, instruction);
 }
 

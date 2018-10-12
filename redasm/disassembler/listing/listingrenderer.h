@@ -25,9 +25,10 @@ struct RendererLine
 
     size_t length() const { return text.length(); }
 
-    void push(const std::string& text, const std::string& style = std::string()) {
+    RendererLine& push(const std::string& text, const std::string& style = std::string()) {
         formats.push_back(RendererFormat(this->text.size(), text.length(), style));
         this->text += text;
+        return *this;
     }
 };
 

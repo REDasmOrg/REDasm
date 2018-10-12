@@ -147,13 +147,17 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
     {
         Segment* segment = m_document->segment(symbol->address);
 
-        this->renderAddressIndent(item, rl);
-        rl.push(symbol->name, "label_fg");
-
         if(segment->is(SegmentTypes::Bss))
+        {
+            this->renderAddress(item, rl);
+            rl.push(symbol->name, "label_fg");
             rl.push(" <").push("Dynamic Branch", "label_fg").push(">");
+        }
         else
-            rl.push(":");
+        {
+            this->renderAddressIndent(item, rl);
+            rl.push(symbol->name, "label_fg").push(":");
+        }
     }
     else // Data
     {

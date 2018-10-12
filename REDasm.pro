@@ -261,10 +261,8 @@ FORMS    += mainwindow.ui \
     dialogs/aboutdialog.ui \
     dialogs/manualloaddialog.ui
 
-RESOURCES += \
-    resources.qrc \
+RESOURCES += resources.qrc \
     themes.qrc
 
 DISTFILES += \
-    themes/application/flat.json \
-    runtime.pri
+    themes/application/flat.json

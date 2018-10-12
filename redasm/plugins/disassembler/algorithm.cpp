@@ -74,15 +74,15 @@ void DisassemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
 {
     for(const Operand& op : instruction->operands)
     {
-        if(!op.isNumeric() && !op.displacementCanBeAddress())
+        if(!op.isNumeric() || op.displacementIsDynamic())
         {
             if(m_emulator && !m_emulator->hasError())
                 this->onEmulatedOperand(instruction, op);
-
-            continue;
+            else if(!op.is(OperandTypes::Displacement)) // Try "displacementCanBeAddress" state
+                continue;
         }
 
-        if(op.is(OperandTypes::Displacement))
+        if(op.is(OperandTypes::Displacement) && op.displacementCanBeAddress())
             ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.disp.displacement, op.index, instruction);
         else if(op.is(OperandTypes::Memory))
             ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.u_value, op.index, instruction);

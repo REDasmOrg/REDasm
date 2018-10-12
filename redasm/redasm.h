@@ -227,6 +227,7 @@ struct Operand
     void nr() { type &= ~OperandTypes::Read;  }
     void nw() { type &= ~OperandTypes::Write; }
     void changeTo(u32 from, u32 to) { type &= ~from; type |= to; }
+    bool displacementIsDynamic() const { return is(OperandTypes::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
     bool displacementCanBeAddress() const { return is(OperandTypes::Displacement) && (disp.displacement > 0); }
     bool isNumeric() const { return is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
     bool is(u32 t) const { return type & t; }

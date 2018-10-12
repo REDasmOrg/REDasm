@@ -28,6 +28,8 @@ class DisassemblerAlgorithm: public StateMachine
         bool analyze();
 
     protected:
+        virtual bool validateState(const State& state) const;
+        virtual void onNewState(const State& state) const;
         virtual void onDecoded(const InstructionPtr& instruction);
         virtual void onDecodedOperand(const InstructionPtr& instruction, const Operand& op);
         virtual void onDecodeFailed(const InstructionPtr& instruction);

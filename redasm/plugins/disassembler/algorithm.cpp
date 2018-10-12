@@ -52,6 +52,13 @@ bool DisassemblerAlgorithm::analyze()
     return true;
 }
 
+bool DisassemblerAlgorithm::validateState(const State &state) const { return m_document->segment(state.address); }
+
+void DisassemblerAlgorithm::onNewState(const State &state) const
+{
+    REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits(), false));
+}
+
 u32 DisassemblerAlgorithm::disassembleInstruction(address_t address, const InstructionPtr& instruction)
 {
     if(!this->canBeDisassembled(address))
@@ -124,12 +131,8 @@ void DisassemblerAlgorithm::decodeState(const State* state)
     u32 status = this->disassemble(state->address, instruction);
 
     if(status == DisassemblerAlgorithm::SKIP)
-    {
-        REDasm::status("Skipped @ " + REDasm::hex(state->address, m_format->bits(), false));
         return;
-    }
 
-    REDasm::status("Disassembled @ " + REDasm::hex(state->address, m_format->bits(), false));
     m_document->instruction(instruction);
 }
 
@@ -158,8 +161,10 @@ void DisassemblerAlgorithm::addressTableState(const State *state)
     size_t targetstart = instruction->targets.size();
     int c = m_disassembler->checkAddressTable(instruction, state->address);
 
-    if(c)
+    if(c > 1)
     {
+        m_disassembler->pushReference(state->address, instruction);
+
         REDasm::log("Found address table @ " + REDasm::hex(state->address, m_format->bits(), false));
         state_t fwdstate = DisassemblerAlgorithm::MemoryState;
 
@@ -186,18 +191,16 @@ void DisassemblerAlgorithm::addressTableState(const State *state)
 
             i++;
         }
-    }
-    else
-    {
-        if(instruction->is(InstructionTypes::Jump))
-            FORWARD_STATE(DisassemblerAlgorithm::JumpState, state);
-        else if(instruction->is(InstructionTypes::Call))
-            FORWARD_STATE(DisassemblerAlgorithm::CallState, state);
-        else
-            FORWARD_STATE(DisassemblerAlgorithm::MemoryState, state);
+
+        return;
     }
 
-    m_disassembler->pushReference(state->address, instruction);
+    if(instruction->is(InstructionTypes::Jump))
+        FORWARD_STATE(DisassemblerAlgorithm::JumpState, state);
+    else if(instruction->is(InstructionTypes::Call))
+        FORWARD_STATE(DisassemblerAlgorithm::CallState, state);
+    else
+        FORWARD_STATE(DisassemblerAlgorithm::MemoryState, state);
 }
 
 void DisassemblerAlgorithm::memoryState(const State *state)
@@ -218,9 +221,6 @@ void DisassemblerAlgorithm::memoryState(const State *state)
 void DisassemblerAlgorithm::immediateState(const State *state)
 {
     const REDasm::Segment* segment = m_document->segment(state->address);
-
-    if(!segment)
-        return;
 
     if(segment->is(SegmentTypes::Code))
         m_disassembler->checkString(state->instruction, state->address);   // Create Symbol + XRefs

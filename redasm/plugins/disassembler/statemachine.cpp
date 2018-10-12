@@ -8,15 +8,30 @@ bool StateMachine::hasNext() const { return !m_pending.empty(); }
 
 void StateMachine::next()
 {
-    State pendingstate = m_pending.top();
+    State currentstate = m_pending.top();
     m_pending.pop();
 
-    auto it = m_states.find(pendingstate.state);
+    if(!this->validateState(currentstate))
+        return;
 
-    if(it == m_states.end())
-        std::cout << "Unknown state: " << pendingstate.state << std::endl;
-    else
-        it->second(&pendingstate);
+    auto it = m_states.find(currentstate.id);
+
+    if(it != m_states.end())
+    {
+        this->onNewState(currentstate);
+        it->second(&currentstate);
+        return;
+    }
+
+    REDasm::log("Unknown state: " + std::to_string(currentstate.id));
 }
+
+bool StateMachine::validateState(const State &state) const
+{
+    RE_UNUSED(state);
+    return true;
+}
+
+void StateMachine::onNewState(const State &state) const { RE_UNUSED(state); }
 
 } // namespace REDasm

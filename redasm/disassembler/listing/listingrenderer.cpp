@@ -164,7 +164,7 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
         {
             if(symbol->is(SymbolTypes::Pointer))
             {
-                if(symbol->is(SymbolTypes::Table))
+                if(symbol->isTable())
                 {
                     this->renderTable(symbol, rl);
                     return;

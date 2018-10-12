@@ -1,7 +1,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#define TIMER_INTERVAL 5
+#define TIMER_INTERVAL 5 // 5ms
 
 #include <condition_variable>
 #include <functional>
@@ -41,7 +41,6 @@ class Timer
         void workSync();
 
     private:
-        bool m_running;
         size_t m_state;
         TimerCallback m_timercallback;
         std::chrono::milliseconds m_interval;

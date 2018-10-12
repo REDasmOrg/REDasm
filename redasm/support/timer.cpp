@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-Timer::Timer(): m_running(false), m_state(Timer::InactiveState) { }
+Timer::Timer(): m_state(Timer::InactiveState) { }
 
 Timer::~Timer()
 {

@@ -107,8 +107,13 @@ bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t 
 
 int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, address_t startaddress)
 {
-    int c = 0;
     address_t target = 0, address = startaddress;
+
+    if(!this->readAddress(address, m_format->addressWidth(), &target))
+        return 0;
+
+    REDasm::status("Checking address table @ " + REDasm::hex(startaddress, m_format->bits(), false));
+    int c = 0;
 
     while(this->readAddress(address, m_format->addressWidth(), &target))
     {

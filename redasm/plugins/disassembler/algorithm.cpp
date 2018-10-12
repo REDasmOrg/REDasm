@@ -202,10 +202,9 @@ void DisassemblerAlgorithm::addressTableState(const State *state)
 
 void DisassemblerAlgorithm::memoryState(const State *state)
 {
-    const Operand& op = state->operand();
     u64 value = 0;
 
-    if(op.isRead() && m_disassembler->dereference(state->address, &value))
+    if(m_disassembler->dereference(state->address, &value))
     {
         m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
         m_disassembler->pushReference(state->address, state->instruction);

@@ -216,12 +216,7 @@ void DisassemblerAlgorithm::memoryState(const State *state)
 
 void DisassemblerAlgorithm::immediateState(const State *state)
 {
-    const REDasm::Segment* segment = m_document->segment(state->address);
-
-    if(segment->is(SegmentTypes::Code))
-        m_disassembler->checkString(state->instruction, state->address);   // Create Symbol + XRefs
-    else if(segment->is(SegmentTypes::Data) || segment->is(SegmentTypes::Bss))
-        m_disassembler->checkLocation(state->instruction, state->address); // Create Symbol + XRefs
+    m_disassembler->checkLocation(state->instruction, state->address); // Create Symbol + XRefs
 }
 
 bool DisassemblerAlgorithm::canBeDisassembled(address_t address)

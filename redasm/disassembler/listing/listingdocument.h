@@ -1,6 +1,7 @@
 #ifndef LISTINGDOCUMENT_H
 #define LISTINGDOCUMENT_H
 
+#include <unordered_set>
 #include <type_traits>
 #include <vector>
 #include <list>
@@ -141,6 +142,8 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         Event<const ListingDocumentChanged*> changed;
 
     private:
+        typedef std::unordered_set<std::string> CommentSet;
+        typedef std::unordered_map<address_t, CommentSet> CommentMap;
         typedef std::vector<ListingItem*> FunctionList;
 
     public:
@@ -162,6 +165,10 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         ListingItem* functionStart(address_t address);
         ListingItem* currentItem();
         SymbolPtr functionStartSymbol(address_t address);
+        std::string comment(const SymbolPtr& symbol) const;
+        std::string comment(const InstructionPtr& instruction) const;
+        void comment(const SymbolPtr& symbol, const std::string& s);
+        void comment(const InstructionPtr& instruction, const std::string& s);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
         void rename(address_t address, const std::string& name);
@@ -202,6 +209,8 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         void pushSorted(address_t address, u32 type);
         void removeSorted(address_t address, u32 type);
         ListingDocument::iterator item(address_t address, u32 type);
+        std::string comment(address_t address) const;
+        void comment(address_t address, const std::string& s);
         int index(address_t address, u32 type);
         static std::string normalized(std::string s);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
@@ -215,6 +224,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         SymbolTable m_symboltable;
         FormatPlugin* m_format;
         SymbolPtr m_documententry;
+        CommentMap m_comments;
 
      friend class FormatPlugin;
 };

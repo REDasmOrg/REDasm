@@ -92,15 +92,14 @@ bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t 
     if(wide)
     {
         m_document->symbol(address, SymbolTypes::WideString);
-        instruction->cmt("WIDE STRING: " + REDasm::quoted(this->readWString(address)));
+        m_document->comment(instruction, "WIDE STRING: " + REDasm::quoted(this->readWString(address)));
     }
     else
     {
         m_document->symbol(address, SymbolTypes::String);
-        instruction->cmt("STRING: " + REDasm::quoted(this->readString(address)));
+        m_document->comment(instruction, "STRING: " + REDasm::quoted(this->readString(address)));
     }
 
-    m_document->update(instruction);
     this->pushReference(address, instruction);
     return true;
 }

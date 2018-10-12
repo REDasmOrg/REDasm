@@ -243,14 +243,13 @@ struct Instruction
     std::function<void(void*)> free;
 
     std::string mnemonic, bytes;
-    std::set<address_t> targets;   // Jump/JumpTable/Call destination(s)
+    std::set<address_t> targets;    // Jump/JumpTable/Call destination(s)
     std::vector<Operand> operands;
-    std::list<std::string> comments;
     address_t address;
     s32 target_idx;                 // Target's operand index
     u32 type, size;
     instruction_id_t id;            // Backend Specific
-    void* userdata;                 // It doesn't survive after Assembler::decode() by design
+    void* userdata;                 // It doesn't survive after AssemblerPlugin::decode() by design
 
     bool is(u32 t) const { return type & t; }
     bool isTargetOperand(const Operand& op) const { return (target_idx == -1) ? false : (target_idx == op.index); }
@@ -265,7 +264,6 @@ struct Instruction
     address_t endAddress() const { return address + size; }
 
     Operand& op(size_t idx) { return operands[idx]; }
-    Instruction& cmt(const std::string& s) { comments.push_back(s); return *this; }
     Instruction& op(Operand op) { op.index = operands.size(); operands.push_back(op); return *this; }
     Instruction& mem(address_t v, u32 extratype = 0) { operands.push_back(Operand(OperandTypes::Memory, extratype, v, operands.size())); return *this; }
     template<typename T> Instruction& imm(T v, u32 extratype = 0) { operands.push_back(Operand(OperandTypes::Immediate, extratype, v, operands.size())); return *this; }

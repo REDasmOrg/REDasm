@@ -131,12 +131,7 @@ void ListingRenderer::renderInstruction(ListingItem *item, RendererLine &rl)
     this->renderAddress(item, rl);
     this->renderMnemonic(instruction, rl);
     this->renderOperands(instruction, rl);
-
-    if(!instruction->comments.empty())
-    {
-        this->renderIndent(rl, INDENT_COMMENT);
-        this->renderComments(instruction, rl);
-    }
+    this->renderComments(instruction, rl);
 }
 
 void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
@@ -258,7 +253,16 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
     });
 }
 
-void ListingRenderer::renderComments(const InstructionPtr &instruction, RendererLine &rl) { rl.push(this->commentString(instruction), "comment_fg"); }
+void ListingRenderer::renderComments(const InstructionPtr &instruction, RendererLine &rl)
+{
+    std::string s = m_document->comment(instruction);
+
+    if(s.empty())
+        return;
+
+    this->renderIndent(rl, INDENT_COMMENT);
+    rl.push("# " + ListingRenderer::escapeString(s), "comment_fg");
+}
 
 void ListingRenderer::renderAddressIndent(ListingItem* item, RendererLine &rl)
 {
@@ -338,6 +342,10 @@ std::string ListingRenderer::escapeString(const std::string &s)
                 res += "\\\r";
                 break;
 
+            case '\t':
+                res += "\\\t";
+                break;
+
             default:
                 res += s[i];
                 break;
@@ -345,23 +353,6 @@ std::string ListingRenderer::escapeString(const std::string &s)
     }
 
     return res;
-}
-
-std::string ListingRenderer::commentString(const InstructionPtr &instruction)
-{
-    std::stringstream ss;
-    ss << "# ";
-
-    for(const std::string& s : instruction->comments)
-    {
-        if(s != instruction->comments.front())
-            ss << " | ";
-
-        ss << s;
-    }
-
-    return ListingRenderer::escapeString(ss.str());
-
 }
 
 } // namespace REDasm

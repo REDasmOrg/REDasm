@@ -101,6 +101,11 @@ SymbolPtr ListingDocument::functionStartSymbol(address_t address)
     return NULL;
 }
 
+std::string ListingDocument::comment(const SymbolPtr &symbol) const { return this->comment(symbol->address); }
+std::string ListingDocument::comment(const InstructionPtr &instruction) const { return this->comment(instruction->address); }
+void ListingDocument::comment(const SymbolPtr &symbol, const std::string &s) { this->comment(symbol->address, s); }
+void ListingDocument::comment(const InstructionPtr &instruction, const std::string &s) { this->comment(instruction->address, s); }
+
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
     SymbolPtr symbol = m_symboltable.symbol(address);
@@ -261,6 +266,41 @@ ListingDocument::iterator ListingDocument::item(address_t address, u32 type)
 {
     document_lock lock(m_mutex);
     return Listing::binarySearch(this, address, type);
+}
+
+std::string ListingDocument::comment(address_t address) const
+{
+    auto it = m_comments.find(address);
+
+    if(it == m_comments.end())
+        return std::string();
+
+    std::string cmt;
+
+    for(const std::string& s : it->second)
+    {
+        if(!cmt.empty())
+            cmt += " | ";
+
+        cmt += s;
+    }
+
+    return cmt;
+}
+
+void ListingDocument::comment(address_t address, const std::string &s)
+{
+    auto it = m_comments.find(address);
+
+    if(it != m_comments.end())
+    {
+        it->second.insert(s);
+        return;
+    }
+
+    CommentSet cs;
+    cs.insert(s);
+    m_comments[address] = cs;
 }
 
 int ListingDocument::index(address_t address, u32 type)

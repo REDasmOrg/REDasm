@@ -62,7 +62,6 @@ class ListingRenderer
     private:
         void renderTable(const SymbolPtr &symbol, RendererLine &rl) const;
         bool renderSymbolPointer(const SymbolPtr& symbol, RendererLine& rl) const;
-        std::string commentString(const InstructionPtr& instruction);
         static std::string escapeString(const std::string& s);
 
     protected:

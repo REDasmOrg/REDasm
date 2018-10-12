@@ -40,10 +40,6 @@ void InstructionPool::serialize(const InstructionPtr &value, std::fstream &fs)
 
         Serializer::serializeScalar(fs, op.u_value);
     });
-
-    Serializer::serializeArray<std::list, std::string>(fs, value->comments, [this, &fs](const std::string& s) {
-        Serializer::serializeString(fs, s);
-    });
 }
 
 void InstructionPool::deserialize(InstructionPtr &value, std::fstream &fs)
@@ -79,10 +75,6 @@ void InstructionPool::deserialize(InstructionPtr &value, std::fstream &fs)
         Serializer::deserializeScalar(fs, &op.disp.displacement);
 
         Serializer::deserializeScalar(fs, &op.u_value);
-    });
-
-    Serializer::deserializeArray<std::list, std::string>(fs, value->comments, [this, &fs](std::string& s) {
-        Serializer::deserializeString(fs, s);
     });
 }
 

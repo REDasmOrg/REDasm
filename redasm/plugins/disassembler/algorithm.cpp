@@ -141,9 +141,9 @@ void DisassemblerAlgorithm::jumpState(const State *state)
     int dir = BRANCH_DIRECTION(state->instruction, state->address);
 
     if(dir < 0)
-        state->instruction->cmt("Possible loop");
+        m_document->comment(state->instruction, "Possible loop");
     else if(!dir)
-        state->instruction->cmt("Infinite loop");
+        m_document->comment(state->instruction, "Infinite loop");
 
     m_document->symbol(state->address, SymbolTypes::Code);
     m_disassembler->pushReference(state->address, state->instruction);
@@ -171,16 +171,13 @@ void DisassemblerAlgorithm::addressTableState(const State *state)
         if(instruction->is(InstructionTypes::Call))
         {
             fwdstate = DisassemblerAlgorithm::CallState;
-            instruction->cmt("Call Table with " + std::to_string(c) + " cases(s)");
+            m_document->comment(instruction, "Call Table with " + std::to_string(c) + " cases(s)");
         }
         else if(instruction->is(InstructionTypes::Jump))
         {
             fwdstate = DisassemblerAlgorithm::JumpState;
-            instruction->cmt("Jump Table with " + std::to_string(c) + " cases(s)");
+            m_document->comment(instruction, "Jump Table with " + std::to_string(c) + " cases(s)");
         }
-
-        if(fwdstate != DisassemblerAlgorithm::MemoryState)
-            m_document->update(instruction);
 
         size_t i = 0;
 

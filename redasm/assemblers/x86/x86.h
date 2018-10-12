@@ -22,6 +22,7 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
         void resetStackSize(const InstructionPtr&) { m_stacksize = 0; }
         void initStackSize(const InstructionPtr& instruction);
         void setBranchTarget(const InstructionPtr& instruction);
+        void checkLea(const InstructionPtr& instruction);
         s32 localIndex(s64 disp, u32& type) const;
         s32 stackLocalIndex(s64 disp) const;
         bool isSP(register_t reg) const;
@@ -94,6 +95,7 @@ template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlug
     REGISTER_INSTRUCTION(X86_INS_HLT, &X86Assembler::resetStackSize);
     REGISTER_INSTRUCTION(X86_INS_RET, &X86Assembler::resetStackSize);
     REGISTER_INSTRUCTION(X86_INS_SUB, &X86Assembler::initStackSize);
+    REGISTER_INSTRUCTION(X86_INS_LEA, &X86Assembler::checkLea);
 }
 
 template<cs_mode mode> const char *X86Assembler<mode>::name() const
@@ -255,6 +257,16 @@ template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const Instructio
 
     instruction->target(op.u_value);
     instruction->target_idx = 0;
+}
+
+template<cs_mode mode> void X86Assembler<mode>::checkLea(const InstructionPtr &instruction)
+{
+    Operand& op2 = instruction->op(1);
+
+    if(!op2.is(OperandTypes::Memory))
+        return;
+
+    op2.type = OperandTypes::Immediate;
 }
 
 typedef X86Assembler<CS_MODE_16> X86_16Assembler;

@@ -287,7 +287,7 @@ void DisassemblerTest::testIoliARM()
 void DisassemblerTest::testTn11()
 {
     InstructionPtr instruction = m_document->instruction(0x004010C0);
-    TEST("Checking DlgProc @ 0x00401197", instruction);
+    TEST("Checking DlgProc @ 0x004010C0", instruction);
 
     instruction = m_document->instruction(0x00401197);
     TEST("Checking JUMP TABLE @ 0x00401197", instruction);

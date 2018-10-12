@@ -144,7 +144,7 @@ template<size_t mode> void MIPSAssembler<mode>::checkJr(const InstructionPtr& in
         instruction->type = InstructionTypes::Stop;
 }
 
-typedef MIPSAssembler<CS_MODE_MIPS64> MIPS32Assembler;
+typedef MIPSAssembler<CS_MODE_MIPS32> MIPS32Assembler;
 typedef MIPSAssembler<CS_MODE_MIPS64> MIPS64Assembler;
 
 DECLARE_ASSEMBLER_PLUGIN(MIPS32Assembler, mips32)

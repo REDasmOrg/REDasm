@@ -68,7 +68,12 @@ void DisassemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
     for(const Operand& op : instruction->operands)
     {
         if(!op.isNumeric() && !op.displacementCanBeAddress())
+        {
+            if(m_emulator && !m_emulator->hasError())
+                this->onEmulatedOperand(instruction, op);
+
             continue;
+        }
 
         if(op.is(OperandTypes::Displacement))
             ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.disp.displacement, op.index, instruction);
@@ -92,6 +97,26 @@ void DisassemblerAlgorithm::onDecodedOperand(const InstructionPtr &instruction, 
 }
 
 void DisassemblerAlgorithm::onDecodeFailed(const InstructionPtr &instruction) { RE_UNUSED(instruction); }
+
+void DisassemblerAlgorithm::onEmulatedOperand(const InstructionPtr &instruction, const Operand &op)
+{
+    u64 value = 0;
+
+    if(op.is(OperandTypes::Register))
+    {
+        if(!m_emulator->read(op, &value))
+            return;
+    }
+    else if(op.is(OperandTypes::Displacement))
+    {
+        if(!m_emulator->computeDisplacement(op, &value))
+            return;
+    }
+    else
+        return;
+
+    ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, value, op.index, instruction);
+}
 
 void DisassemblerAlgorithm::decodeState(const State* state)
 {

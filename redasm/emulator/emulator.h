@@ -9,11 +9,11 @@ class Emulator: public EmulatorBase
 {
     public:
         Emulator(DisassemblerAPI* disassembler);
+        bool read(const Operand& op, u64 *value);
 
     protected:
         void mathOp(const InstructionPtr& instruction, int opdest, int opsrc1, int opsrc2);
         void mathOp(const InstructionPtr& instruction, int opdest, int opsrc);
-        bool read(const Operand& op, u64 *value);
         void write(const Operand& op, u64 value);
 };
 

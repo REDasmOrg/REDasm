@@ -31,6 +31,7 @@ class DisassemblerAlgorithm: public StateMachine
         virtual void onDecoded(const InstructionPtr& instruction);
         virtual void onDecodedOperand(const InstructionPtr& instruction, const Operand& op);
         virtual void onDecodeFailed(const InstructionPtr& instruction);
+        virtual void onEmulatedOperand(const InstructionPtr& instruction, const Operand& op);
 
     protected:
         virtual void decodeState(const State *state);

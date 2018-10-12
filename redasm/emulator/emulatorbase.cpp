@@ -23,6 +23,14 @@ bool EmulatorBase::emulate(const InstructionPtr &instruction)
     return false;
 }
 
+bool EmulatorBase::computeDisplacement(const Operand &op, u64 *value)
+{
+    if(!op.is(OperandTypes::Displacement))
+        return false;
+
+    return this->computeDisplacement(op.disp, value);
+}
+
 void EmulatorBase::reset(bool resetmemory)
 {
     while(!m_stack.empty())
@@ -35,6 +43,8 @@ void EmulatorBase::reset(bool resetmemory)
 
     m_state = EmulatorBase::StateOk;
 }
+
+bool EmulatorBase::hasError() const { return m_state == EmulatorBase::StateError; }
 
 void EmulatorBase::fail()
 {

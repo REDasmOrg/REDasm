@@ -28,7 +28,9 @@ class EmulatorBase
         virtual bool emulate(const InstructionPtr& instruction);
 
     public:
+        bool computeDisplacement(const Operand& op, u64* value);
         void reset(bool resetmemory = false);
+        bool hasError() const;
 
     protected:
         void fail();

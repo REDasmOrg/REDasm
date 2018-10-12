@@ -115,7 +115,7 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
         if(symbol->isLocked() && !(type & SymbolTypes::Locked))
             return;
 
-        if(type & SymbolTypes::FunctionMask)
+        if(symbol->isFunction())
             this->removeSorted(address, ListingItem::FunctionItem);
         else
             this->removeSorted(address, ListingItem::SymbolItem);

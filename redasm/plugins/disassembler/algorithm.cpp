@@ -86,10 +86,6 @@ void DisassemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
             ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.disp.displacement, op.index, instruction);
         else if(op.is(OperandTypes::Memory))
             ENQUEUE_STATE(DisassemblerAlgorithm::AddressTableState, op.u_value, op.index, instruction);
-        else if(instruction->is(InstructionTypes::Jump) && instruction->isTargetOperand(op))
-            ENQUEUE_STATE(DisassemblerAlgorithm::JumpState, op.u_value, op.index, instruction);
-        else if(instruction->is(InstructionTypes::Call) && instruction->isTargetOperand(op))
-            ENQUEUE_STATE(DisassemblerAlgorithm::CallState, op.u_value, op.index, instruction);
         else
             ENQUEUE_STATE(DisassemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
 
@@ -192,12 +188,12 @@ void DisassemblerAlgorithm::addressTableState(const State *state)
         return;
     }
 
-    if(instruction->is(InstructionTypes::Jump))
-        FORWARD_STATE(DisassemblerAlgorithm::JumpState, state);
-    else if(instruction->is(InstructionTypes::Call))
-        FORWARD_STATE(DisassemblerAlgorithm::CallState, state);
-    else
+    const Operand& op = state->operand();
+
+    if(op.is(OperandTypes::Memory))
         FORWARD_STATE(DisassemblerAlgorithm::MemoryState, state);
+    else
+        FORWARD_STATE(DisassemblerAlgorithm::ImmediateState, state);
 }
 
 void DisassemblerAlgorithm::memoryState(const State *state)
@@ -209,14 +205,22 @@ void DisassemblerAlgorithm::memoryState(const State *state)
         m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer); // Create Symbol for pointer
         m_disassembler->pushReference(state->address, state->instruction);
         FORWARD_STATE_ADDRESS(DisassemblerAlgorithm::ImmediateState, value, state);
+        return;
     }
-    else
-        FORWARD_STATE(DisassemblerAlgorithm::ImmediateState, state);
+
+    FORWARD_STATE(DisassemblerAlgorithm::ImmediateState, state);
 }
 
 void DisassemblerAlgorithm::immediateState(const State *state)
 {
-    m_disassembler->checkLocation(state->instruction, state->address); // Create Symbol + XRefs
+    const InstructionPtr instruction = state->instruction;
+
+    if(instruction->is(InstructionTypes::Jump) && instruction->isTargetOperand(state->operand()))
+        FORWARD_STATE(DisassemblerAlgorithm::JumpState, state);
+    else if(instruction->is(InstructionTypes::Call) && instruction->isTargetOperand(state->operand()))
+        FORWARD_STATE(DisassemblerAlgorithm::CallState, state);
+    else
+        m_disassembler->checkLocation(state->instruction, state->address); // Create Symbol + XRefs
 }
 
 bool DisassemblerAlgorithm::canBeDisassembled(address_t address)

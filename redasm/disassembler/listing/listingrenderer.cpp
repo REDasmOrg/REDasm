@@ -143,10 +143,17 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
 {
     SymbolPtr symbol = m_document->symbol(item->address);
 
-    if(symbol->is(SymbolTypes::Code)) // Label
+    if(symbol->is(SymbolTypes::Code)) // Label or Callback
     {
+        Segment* segment = m_document->segment(symbol->address);
+
         this->renderAddressIndent(item, rl);
-        rl.push(symbol->name + ":", "label_fg");
+        rl.push(symbol->name, "label_fg");
+
+        if(segment->is(SegmentTypes::Bss))
+            rl.push(" <").push("Dynamic Branch", "label_fg").push(">");
+        else
+            rl.push(":");
     }
     else // Data
     {

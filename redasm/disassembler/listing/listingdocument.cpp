@@ -1,5 +1,6 @@
 #include "listingdocument.h"
 #include "../../support/utils.h"
+#include "../../plugins/format.h"
 #include <algorithm>
 #include <sstream>
 
@@ -123,7 +124,14 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
         m_symboltable.erase(address);
     }
 
-    if(!this->segment(address) || !m_symboltable.create(address, ListingDocument::normalized(name), type, tag))
+    if(!this->segment(address))
+    {
+        REDasm::log("Segment not found @ " + REDasm::hex(address, m_format->bits(), false) +
+                    "for symbol " + REDasm::quoted(name));
+        return;
+    }
+
+    if(!m_symboltable.create(address, ListingDocument::normalized(name), type, tag))
         return;
 
     if(type & SymbolTypes::FunctionMask)

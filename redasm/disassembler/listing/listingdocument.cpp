@@ -127,7 +127,7 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
     if(!this->segment(address))
     {
         REDasm::log("Segment not found @ " + REDasm::hex(address, m_format->bits(), false) +
-                    "for symbol " + REDasm::quoted(name));
+                    " for symbol " + REDasm::quoted(name));
         return;
     }
 

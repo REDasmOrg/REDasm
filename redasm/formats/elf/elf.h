@@ -33,9 +33,9 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 
     private:
         bool relocate(u64 symidx, u64* value) const;
-        void loadSegment(const SHDR& shdr);
         void loadSymbols(const SHDR& shdr);
-        void parseSections();
+        void loadSegments();
+        void parseSegments();
 
     private:
         SHDR* m_shdr;
@@ -81,7 +81,8 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load()
         return false;
 
     this->m_shdr = POINTER(SHDR, this->m_format->e_shoff);
-    this->parseSections();
+    this->loadSegments();
+    this->parseSegments();
     this->m_document.entry(this->m_format->e_entry);
 
     return true;
@@ -121,23 +122,32 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* v
     return false;
 }
 
-template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegment(const SHDR& shdr)
+template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegments()
 {
     const SHDR& shstr = ELF_STRING_TABLE;
-    u32 type = SegmentTypes::Read;
 
-    if((shdr.sh_type & SHT_PROGBITS) && (shdr.sh_flags & SHF_EXECINSTR))
-        type |= SegmentTypes::Code;
-    else
-        type |= SegmentTypes::Data;
+    for(u64 i = 0; i < this->m_format->e_shnum; i++)
+    {
+        const SHDR& shdr = this->m_shdr[i];
 
-    if(shdr.sh_type & SHT_NOBITS)
-        type |= SegmentTypes::Bss;
+        if(!shdr.sh_addr)
+            continue;
 
-    if(shdr.sh_flags & SHF_WRITE)
-        type |= SegmentTypes::Write;
+        u32 type = SegmentTypes::Read;
 
-    this->m_document.segment(ELF_STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
+        if((shdr.sh_type & SHT_PROGBITS) && (shdr.sh_flags & SHF_EXECINSTR))
+            type |= SegmentTypes::Code;
+        else
+            type |= SegmentTypes::Data;
+
+        if(shdr.sh_type & SHT_NOBITS)
+            type |= SegmentTypes::Bss;
+
+        if(shdr.sh_flags & SHF_WRITE)
+            type |= SegmentTypes::Write;
+
+        this->m_document.segment(ELF_STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
+    }
 }
 
 template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shdr)
@@ -208,7 +218,7 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::validate() const
     return true;
 }
 
-template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSections()
+template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSegments()
 {
     for(u64 i = 0; i < this->m_format->e_shnum; i++)
     {
@@ -222,9 +232,6 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSections()
 
             this->loadSymbols(shdr);
         }
-
-        if(shdr.sh_addr)
-            this->loadSegment(shdr);
     }
 }
 

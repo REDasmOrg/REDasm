@@ -193,7 +193,7 @@ bool DalvikAssembler::decodeIfOp2(Buffer &buffer, const InstructionPtr &instruct
     instruction->size = sizeof(u16) * 2;
     instruction->reg(*buffer++ & 0xF);
     instruction->imm(instruction->address + (sizeof(u16) * this->read<s16>(buffer)));
-    instruction->target_op(1);
+    instruction->targetOp(1);
     return true;
 }
 
@@ -205,7 +205,7 @@ bool DalvikAssembler::decodeIfOp3(Buffer &buffer, const InstructionPtr &instruct
     instruction->reg(*buffer & 0xF);
     instruction->reg((*buffer++ & 0xF0) >> 4);
     instruction->imm(instruction->address + (sizeof(u16) * this->read<s16>(buffer)));
-    instruction->target_op(2);
+    instruction->targetOp(2);
     return true;
 }
 
@@ -359,7 +359,7 @@ bool DalvikAssembler::decode28(Buffer &buffer, const InstructionPtr &instruction
     instruction->type = InstructionTypes::Jump;
     instruction->size = sizeof(u16);
     instruction->imm(instruction->address + (static_cast<s8>(*buffer) * sizeof(u16)));
-    instruction->target_op(0);
+    instruction->targetOp(0);
     return true;
 }
 
@@ -369,7 +369,7 @@ bool DalvikAssembler::decode29(Buffer &buffer, const InstructionPtr &instruction
     instruction->type = InstructionTypes::Jump;
     instruction->size = sizeof(u16) * 2;
     instruction->imm(instruction->address + (this->read<s16>(buffer) * sizeof(u16)));
-    instruction->target_op(0);
+    instruction->targetOp(0);
     return true;
 }
 

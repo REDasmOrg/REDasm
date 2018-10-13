@@ -25,14 +25,10 @@ class DisassemblerAPI
         virtual AssemblerPlugin* assembler() = 0;
         virtual ListingDocument* document() = 0;
         virtual ReferenceVector getReferences(address_t address) = 0;
-        virtual ReferenceVector getReferences(const SymbolPtr &symbol) = 0;
         virtual u64 getReferencesCount(address_t address) = 0;
-        virtual u64 getReferencesCount(const SymbolPtr &symbol) = 0;
-        virtual bool hasReferences(const SymbolPtr &symbol) = 0;
-        virtual void pushReference(const SymbolPtr& symbol, const InstructionPtr& refby) = 0;
-        virtual void pushReference(address_t address, const InstructionPtr& refby) = 0;
-        virtual void checkLocation(const InstructionPtr& instruction, address_t address) = 0;
-        virtual bool checkString(const InstructionPtr& instruction, address_t address) = 0;
+        virtual void pushReference(address_t address, address_t refbyaddress) = 0;
+        virtual void checkLocation(address_t fromaddress, address_t address) = 0;
+        virtual bool checkString(address_t fromaddress, address_t address) = 0;
         virtual int checkAddressTable(const InstructionPtr& instruction, address_t address) = 0;
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const = 0;
         virtual std::string readString(const SymbolPtr& symbol) const = 0;

@@ -6,61 +6,19 @@ namespace REDasm {
 DisassemblerBase::DisassemblerBase(FormatPlugin *format): DisassemblerAPI(), m_format(format) { m_document = format->document(); }
 DisassemblerBase::~DisassemblerBase() { delete m_format; }
 ReferenceVector DisassemblerBase::getReferences(address_t address) { return m_referencetable.referencesToVector(address); }
-
-ReferenceVector DisassemblerBase::getReferences(const SymbolPtr& symbol)
-{
-    if(symbol->is(SymbolTypes::Pointer))
-    {
-        SymbolPtr ptrsymbol = this->dereferenceSymbol(symbol);
-
-        if(ptrsymbol)
-            return m_referencetable.referencesToVector(ptrsymbol->address);
-    }
-
-    return m_referencetable.referencesToVector(symbol->address);
-}
-
 u64 DisassemblerBase::getReferencesCount(address_t address) { return m_referencetable.referencesCount(address); }
+void DisassemblerBase::pushReference(address_t address, address_t refbyaddress) { m_referencetable.push(address, refbyaddress); }
 
-u64 DisassemblerBase::getReferencesCount(const SymbolPtr &symbol)
+void DisassemblerBase::checkLocation(address_t fromaddress, address_t address)
 {
-    if(symbol->is(SymbolTypes::Pointer))
-    {
-        SymbolPtr ptrsymbol = this->dereferenceSymbol(symbol);
-
-        if(ptrsymbol)
-            return m_referencetable.referencesCount(ptrsymbol->address);
-    }
-
-    return m_referencetable.referencesCount(symbol->address);
-}
-
-bool DisassemblerBase::hasReferences(const SymbolPtr& symbol)
-{
-    if(symbol->is(SymbolTypes::Pointer))
-    {
-        SymbolPtr ptrsymbol = this->dereferenceSymbol(symbol);
-
-        if(ptrsymbol)
-            return m_referencetable.hasReferences(ptrsymbol->address);
-    }
-
-    return m_referencetable.hasReferences(symbol->address);
-}
-
-void DisassemblerBase::pushReference(const SymbolPtr &symbol, const InstructionPtr& refbyinstruction) { m_referencetable.push(symbol->address, refbyinstruction->address); }
-void DisassemblerBase::pushReference(address_t address, const InstructionPtr& refbyinstruction) { m_referencetable.push(address, refbyinstruction->address); }
-
-void DisassemblerBase::checkLocation(const InstructionPtr &instruction, address_t address)
-{
-    if(this->checkString(instruction, address))
+    if(this->checkString(fromaddress, address))
         return;
 
     m_document->symbol(address, SymbolTypes::Data);
-    this->pushReference(address, instruction);
+    this->pushReference(address, fromaddress);
 }
 
-bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t address)
+bool DisassemblerBase::checkString(address_t fromaddress, address_t address)
 {
     bool wide = false;
 
@@ -70,15 +28,15 @@ bool DisassemblerBase::checkString(const InstructionPtr &instruction, address_t 
     if(wide)
     {
         m_document->symbol(address, SymbolTypes::WideString);
-        m_document->comment(instruction, "WIDE STRING: " + REDasm::quoted(this->readWString(address)));
+        m_document->comment(fromaddress, "WIDE STRING: " + REDasm::quoted(this->readWString(address)));
     }
     else
     {
         m_document->symbol(address, SymbolTypes::String);
-        m_document->comment(instruction, "STRING: " + REDasm::quoted(this->readString(address)));
+        m_document->comment(fromaddress, "STRING: " + REDasm::quoted(this->readString(address)));
     }
 
-    this->pushReference(address, instruction);
+    this->pushReference(address, fromaddress);
     return true;
 }
 
@@ -106,7 +64,7 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 
     if(c)
     {
-        this->pushReference(startaddress, instruction);
+        this->pushReference(startaddress, instruction->address);
         m_document->update(instruction);
 
         if(c > 1)

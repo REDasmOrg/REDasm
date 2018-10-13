@@ -252,15 +252,14 @@ template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const Instructio
     if(!op.isNumeric())
         return;
 
-    if(op.is(OperandTypes::Memory))
-        op.r();
-
     instruction->target(op.u_value);
     instruction->target_idx = 0;
 }
 
 template<cs_mode mode> void X86Assembler<mode>::checkLea(const InstructionPtr &instruction)
 {
+    instruction->type = InstructionTypes::Load;
+
     Operand& op2 = instruction->op(1);
 
     if(!op2.is(OperandTypes::Memory))

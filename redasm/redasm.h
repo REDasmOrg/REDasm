@@ -92,7 +92,7 @@ namespace InstructionTypes {
         Push            = 0x00008000, Pop  = 0x00010000,
         Compare         = 0x00020000, Load = 0x00040000, Store = 0x00080000,
 
-        Conditional     = 0x01000000, Privileged = 0x02000000, JumpTable = 0x04000000,
+        Conditional     = 0x01000000, Privileged = 0x02000000,
         Invalid         = 0x10000000,
         Branch          = Jump | Call,
         ConditionalJump = Conditional | Jump,
@@ -110,8 +110,6 @@ namespace OperandTypes {
 
         Local         = 0x00010000,  // Local Variable
         Argument      = 0x00020000,  // Function Argument
-        Read          = 0x00100000,  // Read from...
-        Write         = 0x00200000,  // Write to...
     };
 }
 
@@ -222,17 +220,10 @@ struct Operand
 
     union { s64 s_value; u64 u_value; };
 
-    void r() { type |= OperandTypes::Read;  }
-    void w() { type |= OperandTypes::Write; }
-    void nr() { type &= ~OperandTypes::Read;  }
-    void nw() { type &= ~OperandTypes::Write; }
-    void changeTo(u32 from, u32 to) { type &= ~from; type |= to; }
     bool displacementIsDynamic() const { return is(OperandTypes::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
     bool displacementCanBeAddress() const { return is(OperandTypes::Displacement) && (disp.displacement > 0); }
     bool isNumeric() const { return is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
     bool is(u32 t) const { return type & t; }
-    bool isRead() const  { return this->is(OperandTypes::Read);  }
-    bool isWrite() const { return this->is(OperandTypes::Write); }
 };
 
 struct Instruction
@@ -256,13 +247,14 @@ struct Instruction
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
     bool hasTargets() const { return !targets.empty(); }
     void reset() { target_idx = -1, type = 0; targets.clear(); operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
-    void target_op(s32 index) { target_idx = index; targets.insert(operands[index].u_value); }
+    void targetOp(s32 index) { target_idx = index; targets.insert(operands[index].u_value); }
     void target(address_t target) { targets.insert(target); }
     void op_size(s32 index, u32 size) { operands[index].size = size; }
     u32 op_size(s32 index) const { return operands[index].size; }
     address_t target() const { return *targets.begin(); }
     address_t endAddress() const { return address + size; }
 
+    Operand& targetOperand() { return operands[target_idx]; }
     Operand& op(size_t idx) { return operands[idx]; }
     Instruction& op(Operand op) { op.index = operands.size(); operands.push_back(op); return *this; }
     Instruction& mem(address_t v, u32 extratype = 0) { operands.push_back(Operand(OperandTypes::Memory, extratype, v, operands.size())); return *this; }

@@ -93,17 +93,20 @@ void Analyzer::findTrampolines(SymbolPtr symbol)
         return;
 
     m_document->lock(symbol->address, "_" + symimport->name);
-    m_disassembler->pushReference(symimport, m_document->instruction(symbol->address));
+
+    InstructionPtr instruction = m_document->instruction(symbol->address);
+
+    if(!instruction)
+            return;
+
+    m_disassembler->pushReference(symimport->address, instruction->address);
 }
 
 SymbolPtr Analyzer::findTrampolines_x86(ListingDocument::iterator it)
 {
     InstructionPtr instruction = m_disassembler->document()->instruction((*it)->address);
 
-    if(!instruction->is(InstructionTypes::Jump))
-        return NULL;
-
-    if(!instruction->hasTargets())
+    if(!instruction->is(InstructionTypes::Jump) || !instruction->hasTargets())
         return NULL;
 
     return m_disassembler->document()->symbol(instruction->target());

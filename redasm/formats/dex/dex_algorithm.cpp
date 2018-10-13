@@ -31,7 +31,7 @@ void DexAlgorithm::stringIndexState(const State *state)
         return;
 
     m_document->symbol(offset, SymbolTypes::String);
-    m_disassembler->pushReference(offset, state->instruction);
+    m_disassembler->pushReference(offset, state->instruction->address);
 }
 
 void DexAlgorithm::methodIndexState(const State *state)
@@ -47,7 +47,7 @@ void DexAlgorithm::methodIndexState(const State *state)
     if(!dexformat->getMethodOffset(op.u_value, offset))
         return;
 
-    m_disassembler->pushReference(offset, state->instruction);
+    m_disassembler->pushReference(offset, state->instruction->address);
 }
 
 } // namespace REDasm

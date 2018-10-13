@@ -284,7 +284,6 @@ void PeFormat::loadDefault()
     this->checkDebugInfo();
     this->checkResources();
 
-    m_document.lock(m_imagebase, "PE_ImageBase", SymbolTypes::Data);
     m_document.entry(m_entrypoint);
 }
 

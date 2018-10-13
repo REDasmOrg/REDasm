@@ -146,7 +146,7 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
         {
             this->renderAddress(item, rl);
             rl.push(symbol->name, "label_fg");
-            rl.push(" <").push("Dynamic Branch", "label_fg").push(">");
+            rl.push(" <").push("dynamic branch", "label_fg").push(">");
         }
         else
         {
@@ -177,6 +177,8 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
                 rl.push(REDasm::quoted(m_disassembler->readWString(symbol)), "string_fg");
             else if(symbol->is(SymbolTypes::StringMask))
                 rl.push(REDasm::quoted(m_disassembler->readString(symbol)), "string_fg");
+            else if(symbol->is(SymbolTypes::ImportMask))
+                rl.push("<").push("import", "label_fg").push(">");
             else
             {
                 u64 value = 0;
@@ -255,7 +257,7 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
 
 void ListingRenderer::renderComments(const InstructionPtr &instruction, RendererLine &rl)
 {
-    std::string s = m_document->comment(instruction);
+    std::string s = m_document->comment(instruction->address);
 
     if(s.empty())
         return;

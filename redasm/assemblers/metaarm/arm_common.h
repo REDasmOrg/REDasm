@@ -70,7 +70,7 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkB(
     if(arm.cc != ARM_CC_AL)
         instruction->type |= InstructionTypes::Conditional;
 
-    instruction->target_op(0);
+    instruction->targetOp(0);
 }
 
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkStop(const InstructionPtr &instruction) const
@@ -99,17 +99,12 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkLd
         instruction->type = InstructionTypes::Stop;
         return;
     }
-
-    Operand& op = instruction->op(1);
-
-    if(op.is(OperandTypes::Memory))
-        op.r();
 }
 
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkCallT0(const InstructionPtr &instruction) const
 {
     instruction->type = InstructionTypes::Call;
-    instruction->target_op(0);
+    instruction->targetOp(0);
 }
 
 

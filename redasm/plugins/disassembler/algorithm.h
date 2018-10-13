@@ -11,7 +11,7 @@ namespace REDasm {
 
 class DisassemblerAlgorithm: public StateMachine
 {
-    DEFINE_STATES(DecodeState, JumpState, CallState, AddressTableState, MemoryState, ImmediateState)
+    DEFINE_STATES(DecodeState, JumpState, CallState, BranchMemoryState, AddressTableState, MemoryState, ImmediateState)
 
     public:
         enum: u32 { OK, SKIP, FAIL };
@@ -39,6 +39,7 @@ class DisassemblerAlgorithm: public StateMachine
         virtual void decodeState(const State *state);
         virtual void jumpState(const State* state);
         virtual void callState(const State* state);
+        virtual void branchMemoryState(const State* state);
         virtual void addressTableState(const State* state);
         virtual void memoryState(const State* state);
         virtual void immediateState(const State* state);

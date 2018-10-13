@@ -42,7 +42,7 @@ ReferenceVector PEAnalyzer::getAPIReferences(const std::string &library, const s
     if(!symbol)
         return ReferenceVector();
 
-    return m_disassembler->getReferences(symbol);
+    return m_disassembler->getReferences(symbol->address);
 }
 
 void PEAnalyzer::findAllWndProc()

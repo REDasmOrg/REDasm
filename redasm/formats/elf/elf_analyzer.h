@@ -13,8 +13,15 @@ class ElfAnalyzer: public Analyzer
 
     private:
         void findMain_x86(const SymbolPtr &symlibcmain);
-        void findMain_x86_stack(ListingDocument::iterator it);
-        void findMain_x86_reg(ListingDocument::iterator it);
+        void findMain_x86_64(ListingDocument::iterator it);
+        void findMain_x86(ListingDocument::iterator it);
+
+   private:
+        void disassembleLibStartMain();
+        SymbolPtr getLibStartMain();
+
+   protected:
+        std::unordered_map<std::string, address_t> m_libcmain;
 };
 
 } // namespace REDasm

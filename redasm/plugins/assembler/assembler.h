@@ -47,7 +47,7 @@ class AssemblerPlugin: public Plugin
 
     protected:
         std::unordered_map<instruction_id_t, u32> m_instructiontypes;
-        Dispatcher<instruction_id_t, const InstructionPtr&> m_dispatcher;
+        Dispatcher<instruction_id_t, void(const InstructionPtr&)> m_dispatcher;
 
     private:
         endianness_t m_endianness;

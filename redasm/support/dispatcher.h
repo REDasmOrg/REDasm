@@ -4,10 +4,10 @@
 #include <unordered_map>
 #include <functional>
 
-template<typename KEY, typename... ARGS> class Dispatcher: protected std::unordered_map<KEY, std::function<void(ARGS...)> >
+template<typename KEY, typename SIGNATURE> class Dispatcher: protected std::unordered_map<KEY, std::function<SIGNATURE> >
 {
     public:
-        typedef std::function<void(ARGS...)> DispatcherType;
+        typedef std::function<SIGNATURE> DispatcherType;
         typedef std::unordered_map<KEY, DispatcherType> Type;
 
     public:
@@ -18,11 +18,13 @@ template<typename KEY, typename... ARGS> class Dispatcher: protected std::unorde
     public:
         Dispatcher(): Type() { }
 
-        void operator()(KEY key, ARGS... args) {
+        typename DispatcherType::result_type operator()(KEY key, typename DispatcherType::argument_type args) {
             auto it = this->find(key);
 
             if(it != this->end())
-                it->second(std::forward<ARGS>(args)...);
+                return it->second(args);
+
+            return typename DispatcherType::result_type();
         }
 };
 

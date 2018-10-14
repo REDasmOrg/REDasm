@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <memory>
+#include "../support/dispatcher.h"
 #include "../plugins/assembler/assembler.h"
 #include "../disassembler/listing/listingdocument.h"
 #include "../disassembler/types/symboltable.h"
@@ -27,6 +28,7 @@ class Analyzer
         SymbolPtr findTrampolines_arm(ListingDocument::iterator it);
 
     protected:
+        Dispatcher<std::string, void(void*)> m_archdispatcher;
         DisassemblerAPI* m_disassembler;
         ListingDocument* m_document;
         const SignatureFiles& m_signaturefiles;

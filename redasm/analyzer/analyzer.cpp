@@ -92,12 +92,11 @@ void Analyzer::findTrampolines(SymbolPtr symbol)
     if(!symimport || !symimport->is(SymbolTypes::Import))
         return;
 
-    m_document->lock(symbol->address, "_" + symimport->name);
-
+    m_document->lock(symbol->address, REDasm::trampoline(symimport->name));
     InstructionPtr instruction = m_document->instruction(symbol->address);
 
     if(!instruction)
-            return;
+        return;
 
     m_disassembler->pushReference(symimport->address, instruction->address);
 }

@@ -215,7 +215,6 @@ HEADERS  += mainwindow.h \
     redasm/formats/pe/dotnet/dotnet_tables.h \
     redasm/formats/pe/dotnet/dotnet_reader.h \
     redasm/disassembler/graph/functiongraph.h \
-    redasm/support/genetic.h \
     redasm/formats/xbe/xbe.h \
     redasm/formats/xbe/xbe_header.h \
     redasm/support/ordinals.h \

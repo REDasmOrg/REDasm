@@ -45,7 +45,7 @@ MIPSEmulator::MIPSEmulator(DisassemblerAPI *disassembler): Emulator(disassembler
     //EMULATE_INSTRUCTION(MIPS_INS_DIVU, &MIPSEmulator::emulateMath);
 }
 
-bool MIPSEmulator::emulate(const InstructionPtr &instruction)
+void MIPSEmulator::emulate(const InstructionPtr &instruction)
 {
     this->regWrite(MIPS_REG_ZERO, 0); // Initialize $zero
     return Emulator::emulate(instruction);

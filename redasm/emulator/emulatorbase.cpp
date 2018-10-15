@@ -5,22 +5,13 @@ namespace REDasm {
 
 EmulatorBase::EmulatorBase(DisassemblerAPI *disassembler): m_disassembler(disassembler), m_state(EmulatorBase::StateOk) { m_document = disassembler->document(); }
 
-bool EmulatorBase::emulate(const InstructionPtr &instruction)
+void EmulatorBase::emulate(const InstructionPtr &instruction)
 {
     if(m_state == EmulatorBase::StateError)
-        return false;
+        return;
 
     m_currentinstruction = instruction;
-
-    auto it = m_dispatcher.find(instruction->id);
-
-    if(it != m_dispatcher.end())
-    {
-        it->second(instruction);
-        return true;
-    }
-
-    return false;
+    m_dispatcher(instruction->id, instruction);
 }
 
 bool EmulatorBase::computeDisplacement(const Operand &op, u64 *value)

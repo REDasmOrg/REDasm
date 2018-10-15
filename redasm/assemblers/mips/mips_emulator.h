@@ -9,7 +9,7 @@ class MIPSEmulator: public Emulator
 {
     public:
         MIPSEmulator(DisassemblerAPI* disassembler);
-        virtual bool emulate(const InstructionPtr &instruction);
+        virtual void emulate(const InstructionPtr &instruction);
 
     private:
         void emulateMath(const InstructionPtr& instruction);

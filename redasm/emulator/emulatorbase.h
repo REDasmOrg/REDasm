@@ -5,6 +5,7 @@
 #include <functional>
 #include <stack>
 #include "../disassembler/disassemblerapi.h"
+#include "../support/dispatcher.h"
 #include "../redasm.h"
 
 #define EMULATE_INSTRUCTION(id, callback) m_dispatcher[id] = std::bind(callback, this, std::placeholders::_1)
@@ -18,14 +19,13 @@ class EmulatorBase
 
     private:
         typedef std::function<void(const InstructionPtr&)> EmulateCallback;
-        typedef std::unordered_map<instruction_id_t, EmulateCallback> Dispatcher;
         typedef std::unordered_map<address_t, u64> Memory;
         typedef std::unordered_map<register_t, u64> Registers;
         typedef std::stack<u64> Stack;
 
     public:
         EmulatorBase(DisassemblerAPI* disassembler);
-        virtual bool emulate(const InstructionPtr& instruction);
+        virtual void emulate(const InstructionPtr& instruction);
 
     public:
         bool computeDisplacement(const Operand& op, u64* value);
@@ -43,10 +43,10 @@ class EmulatorBase
         void regWrite(register_t id, u64 value);
 
     protected:
+        Dispatcher<instruction_id_t, void(const InstructionPtr&)> m_dispatcher;
         InstructionPtr m_currentinstruction;
         DisassemblerAPI* m_disassembler;
         ListingDocument* m_document;
-        Dispatcher m_dispatcher;
         Memory m_memory;
         Registers m_registers;
         Stack m_stack;

@@ -425,7 +425,7 @@ void DisassemblerTextView::adjustScrollBars()
     if(doc->size() <= static_cast<size_t>(this->visibleLines()))
         vscrollbar->setMaximum(doc->size());
     else
-        vscrollbar->setMaximum(doc->size() - this->visibleLines());
+        vscrollbar->setMaximum(doc->size() - this->visibleLines() + 1);
 }
 
 void DisassemblerTextView::moveToSelection()

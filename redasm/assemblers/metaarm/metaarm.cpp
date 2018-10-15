@@ -23,6 +23,9 @@ Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const 
 Printer *MetaARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(m_armassembler->handle(), disassembler); }
 AssemblerAlgorithm *MetaARMAssembler::createAlgorithm(DisassemblerAPI *disassembler) { return new MetaARMAlgorithm(disassembler, this); }
 bool MetaARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction) { return m_assembler->decode(buffer, instruction); }
+
+bool MetaARMAssembler::isARMMode() const { return m_assembler == m_armassembler; }
+bool MetaARMAssembler::isTHUMBMode() const { return m_assembler == m_thumbassembler; }
 void MetaARMAssembler::switchToARM() { m_assembler = m_armassembler; }
 void MetaARMAssembler::switchToThumb() { m_assembler = m_thumbassembler; }
 

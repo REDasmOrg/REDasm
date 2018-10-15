@@ -9,6 +9,7 @@ class MetaARMEmulator: public Emulator
 {
     public:
         MetaARMEmulator(DisassemblerAPI* disassembler);
+        virtual void emulate(const InstructionPtr& instruction);
 
     private:
         void emulateLdr(const InstructionPtr& instruction);

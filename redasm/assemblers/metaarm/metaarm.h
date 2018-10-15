@@ -16,13 +16,12 @@ class MetaARMAssembler: public AssemblerPlugin
         virtual const char* name() const;
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
-
-    protected:
         virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
 
     private:
         ARMAssembler* m_armassembler;
         ARMThumbAssembler* m_thumbassembler;
+        AssemblerPlugin* m_assembler;
 };
 
 DECLARE_ASSEMBLER_PLUGIN(MetaARMAssembler, metaarm)

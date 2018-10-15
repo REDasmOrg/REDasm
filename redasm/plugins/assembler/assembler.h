@@ -34,11 +34,11 @@ class AssemblerPlugin: public Plugin
         bool hasFlag(u32 flag) const;
         endianness_t endianness() const;
         void setEndianness(endianness_t endianness);
-        bool decode(Buffer buffer, const InstructionPtr& instruction);
+        virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
+        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction) = 0;
 
     protected:
         template<typename T> T read(const Buffer& buffer) const;
-        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction) = 0;
         virtual void onDecoded(const InstructionPtr& instruction);
 
     private:
@@ -71,9 +71,9 @@ template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public Assemb
         ~CapstoneAssemblerPlugin();
         csh handle() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new CapstonePrinter(this->m_cshandle, disassembler); }
+        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
 
     protected:
-        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
         virtual void onDecoded(const InstructionPtr& instruction);
 
     protected:

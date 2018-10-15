@@ -7,6 +7,7 @@ MetaARMAssembler::MetaARMAssembler(): AssemblerPlugin()
 {
     m_armassembler = new ARMAssembler();
     m_thumbassembler = new ARMThumbAssembler();
+    m_assembler = m_armassembler;
 }
 
 MetaARMAssembler::~MetaARMAssembler()
@@ -15,19 +16,10 @@ MetaARMAssembler::~MetaARMAssembler()
     delete m_armassembler;
 }
 
-u32 MetaARMAssembler::flags() const { return m_armassembler->flags(); }
+u32 MetaARMAssembler::flags() const { return AssemblerFlags::HasEmulator; }
 const char *MetaARMAssembler::name() const { return "Meta ARM"; }
-Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { /* return new MetaARMEmulator(disassembler); */ }
+Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { return new MetaARMEmulator(disassembler); }
 Printer *MetaARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(m_armassembler->handle(), disassembler); }
-
-bool MetaARMAssembler::decodeInstruction(Buffer buffer, const InstructionPtr &instruction)
-{
-    AssemblerPlugin* assemblerplugin = m_armassembler;
-
-    if(instruction->address & 0x1)
-        assemblerplugin = m_thumbassembler;
-
-    return assemblerplugin->decode(buffer, instruction);
-}
+bool MetaARMAssembler::decodeInstruction(Buffer buffer, const InstructionPtr &instruction) { return m_assembler->decodeInstruction(buffer, instruction); }
 
 } // namespace REDasm

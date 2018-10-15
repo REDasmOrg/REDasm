@@ -22,9 +22,9 @@ class CHIP8Assembler : public AssemblerPlugin
         CHIP8Assembler();
         virtual const char* name() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
-        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
 
     protected:
+        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
         virtual void onDecoded(const InstructionPtr& instruction) const;
 
     private:

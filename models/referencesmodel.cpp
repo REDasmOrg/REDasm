@@ -77,12 +77,9 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
                 else if(instruction->is(REDasm::InstructionTypes::Call))
                     return THEME_VALUE("instruction_call");
             }
-            else if((*it)->is(REDasm::ListingItem::InstructionItem))
+            else if((*it)->is(REDasm::ListingItem::SymbolItem))
             {
                 REDasm::SymbolPtr symbol = doc->symbol((*it)->address);
-
-                if(symbol->is(REDasm::SymbolTypes::Pointer))
-                    return QVariant();
 
                 if(symbol->is(REDasm::SymbolTypes::Data))
                     return THEME_VALUE("data_fg");

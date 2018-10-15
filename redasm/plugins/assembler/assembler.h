@@ -38,7 +38,7 @@ class AssemblerPlugin: public Plugin
         endianness_t endianness() const;
         void setEndianness(endianness_t endianness);
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
-        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction) = 0;
+        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
 
     protected:
         template<typename T> T read(const Buffer& buffer) const;

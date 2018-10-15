@@ -1,5 +1,6 @@
 #include "metaarm.h"
 #include "metaarm_emulator.h"
+#include "metaarm_algorithm.h"
 
 namespace REDasm {
 
@@ -20,6 +21,9 @@ u32 MetaARMAssembler::flags() const { return AssemblerFlags::HasEmulator; }
 const char *MetaARMAssembler::name() const { return "Meta ARM"; }
 Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { return new MetaARMEmulator(disassembler); }
 Printer *MetaARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(m_armassembler->handle(), disassembler); }
-bool MetaARMAssembler::decodeInstruction(Buffer buffer, const InstructionPtr &instruction) { return m_assembler->decodeInstruction(buffer, instruction); }
+AssemblerAlgorithm *MetaARMAssembler::createAlgorithm(DisassemblerAPI *disassembler) { return new MetaARMAlgorithm(disassembler, this); }
+bool MetaARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction) { return m_assembler->decode(buffer, instruction); }
+void MetaARMAssembler::switchToARM() { m_assembler = m_armassembler; }
+void MetaARMAssembler::switchToThumb() { m_assembler = m_thumbassembler; }
 
 } // namespace REDasm

@@ -21,6 +21,7 @@ template<cs_arch arch, size_t mode> class ARMCommonAssembler: public CapstoneAss
         void checkB(const InstructionPtr& instruction) const;
         void checkStop(const InstructionPtr& instruction) const;
         void checkLdr(const InstructionPtr& instruction) const;
+        void checkJumpT0(const InstructionPtr& instruction) const;
         void checkCallT0(const InstructionPtr& instruction) const;
 };
 
@@ -28,7 +29,7 @@ template<cs_arch arch, size_t mode> ARMCommonAssembler<arch, mode>::ARMCommonAss
 {
     REGISTER_INSTRUCTION(ARM_INS_B, &ARMCommonAssembler::checkB);
     REGISTER_INSTRUCTION(ARM_INS_BL, &ARMCommonAssembler::checkCallT0);
-    REGISTER_INSTRUCTION(ARM_INS_BX, &ARMCommonAssembler::checkCallT0);
+    REGISTER_INSTRUCTION(ARM_INS_BX, &ARMCommonAssembler::checkJumpT0);
 
     REGISTER_INSTRUCTION(ARM_INS_LDM, &ARMCommonAssembler::checkStop);
     REGISTER_INSTRUCTION(ARM_INS_POP, &ARMCommonAssembler::checkStop);
@@ -93,6 +94,7 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkSt
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkLdr(const InstructionPtr &instruction) const
 {
     const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->userdata)->detail->arm;
+    instruction->op(1).size = sizeof(u32);
 
     if((arm.cc == ARM_CC_AL) && this->isPC(instruction->op(0).reg.r))
     {
@@ -101,12 +103,17 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkLd
     }
 }
 
+template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkJumpT0(const InstructionPtr &instruction) const
+{
+    instruction->type = InstructionTypes::Jump;
+    instruction->targetOp(0);
+}
+
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkCallT0(const InstructionPtr &instruction) const
 {
     instruction->type = InstructionTypes::Call;
     instruction->targetOp(0);
 }
-
 
 } // namespace REDasm
 

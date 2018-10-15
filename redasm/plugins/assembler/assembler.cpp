@@ -39,6 +39,11 @@ bool AssemblerPlugin::decode(Buffer buffer, const InstructionPtr &instruction)
     return true;
 }
 
+bool AssemblerPlugin::decodeInstruction(Buffer buffer, const InstructionPtr &instruction)
+{
+    return false;
+}
+
 void AssemblerPlugin::setBytes(Buffer buffer, const InstructionPtr &instruction) const
 {
     std::stringstream ss;

@@ -10,6 +10,8 @@ class CILAssembler : public AssemblerPlugin
     public:
         CILAssembler();
         virtual const char* name() const;
+
+    protected:
         virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
 };
 

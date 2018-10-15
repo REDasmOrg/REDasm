@@ -15,9 +15,6 @@ class ARMAssembler: public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_ARM>
         virtual u32 flags() const;
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
-
-    private:
-        void setOp2_32(const InstructionPtr& instruction) const;
 };
 
 DECLARE_ASSEMBLER_PLUGIN(ARMAssembler, arm)

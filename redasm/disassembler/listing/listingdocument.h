@@ -179,6 +179,7 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         void pointer(address_t address, u32 type, u32 tag = 0);
         void table(address_t address, u32 tag = 0);
         void entry(address_t address, u32 tag = 0);
+        void eraseSymbol(address_t address);
         void setDocumentEntry(address_t address);
         SymbolPtr documentEntry() const;
         size_t segmentsCount() const;

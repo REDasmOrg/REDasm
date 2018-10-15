@@ -207,11 +207,7 @@ void ListingDocument::lock(address_t address, const std::string &name)
 }
 
 void ListingDocument::lock(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Locked, tag); }
-
-void ListingDocument::lock(address_t address, const std::string &name, u32 type, u32 tag)
-{
-    this->symbol(address, name, type | SymbolTypes::Locked, tag);
-}
+void ListingDocument::lock(address_t address, const std::string &name, u32 type, u32 tag) { this->symbol(address, name, type | SymbolTypes::Locked, tag); }
 
 void ListingDocument::segment(const std::string &name, offset_t offset, address_t address, u64 size, u32 type)
 {
@@ -234,6 +230,12 @@ void ListingDocument::entry(address_t address, u32 tag)
 {
     this->lock(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag);
     this->setDocumentEntry(address);
+}
+
+void ListingDocument::eraseSymbol(address_t address)
+{
+    this->removeSorted(address, ListingItem::SymbolItem);
+    m_symboltable.erase(address);
 }
 
 void ListingDocument::setDocumentEntry(address_t address)

@@ -18,10 +18,12 @@ AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerP
     REGISTER_STATE(AssemblerAlgorithm::DecodeState, &AssemblerAlgorithm::decodeState);
     REGISTER_STATE(AssemblerAlgorithm::JumpState, &AssemblerAlgorithm::jumpState);
     REGISTER_STATE(AssemblerAlgorithm::CallState, &AssemblerAlgorithm::callState);
+    REGISTER_STATE(AssemblerAlgorithm::BranchState, &AssemblerAlgorithm::branchState);
     REGISTER_STATE(AssemblerAlgorithm::BranchMemoryState, &AssemblerAlgorithm::branchMemoryState);
     REGISTER_STATE(AssemblerAlgorithm::AddressTableState, &AssemblerAlgorithm::addressTableState);
     REGISTER_STATE(AssemblerAlgorithm::MemoryState, &AssemblerAlgorithm::memoryState);
     REGISTER_STATE(AssemblerAlgorithm::ImmediateState, &AssemblerAlgorithm::immediateState);
+    REGISTER_STATE(AssemblerAlgorithm::EraseSymbolState, &AssemblerAlgorithm::eraseSymbolState);
 }
 
 void AssemblerAlgorithm::enqueue(address_t address) { ENQUEUE_DECODE_STATE(address); }
@@ -54,11 +56,7 @@ bool AssemblerAlgorithm::analyze()
 }
 
 bool AssemblerAlgorithm::validateState(const State &state) const { return m_document->segment(state.address); }
-
-void AssemblerAlgorithm::onNewState(const State &state) const
-{
-    REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits(), false));
-}
+void AssemblerAlgorithm::onNewState(const State &state) const { REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits(), false)); }
 
 u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const InstructionPtr& instruction)
 {
@@ -79,7 +77,8 @@ void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
         {
             if(m_emulator && !m_emulator->hasError())
                 this->onEmulatedOperand(instruction, op);
-            else if(!op.is(OperandTypes::Displacement)) // Try static displacement analysis
+
+            if(!op.is(OperandTypes::Displacement)) // Try static displacement analysis
                 continue;
         }
 
@@ -155,6 +154,20 @@ void AssemblerAlgorithm::callState(const State *state)
 {
     m_document->symbol(state->address, SymbolTypes::Function);
     m_disassembler->pushReference(state->address, state->instruction->address);
+}
+
+void AssemblerAlgorithm::branchState(const State *state)
+{
+    InstructionPtr instruction = state->instruction;
+
+    if(instruction->is(InstructionTypes::Call))
+        FORWARD_STATE(AssemblerAlgorithm::CallState, state);
+    else if(instruction->is(InstructionTypes::Jump))
+        FORWARD_STATE(AssemblerAlgorithm::JumpState, state);
+    else
+        REDasm::log("Invalid branch state for instruction " + REDasm::quoted(instruction->mnemonic) + " @ "
+                                                            + REDasm::hex(instruction->address, m_format->bits(), false));
+
 }
 
 void AssemblerAlgorithm::branchMemoryState(const State *state)
@@ -239,24 +252,27 @@ void AssemblerAlgorithm::memoryState(const State *state)
     {
         FORWARD_STATE(AssemblerAlgorithm::BranchMemoryState, state);
         m_disassembler->pushReference(state->address, instruction->address);
-        return;
+    }
+    else
+    {
+        m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer);
+        m_disassembler->checkLocation(state->address, value); // Create Symbol + XRefs
     }
 
-    m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer);
-    m_disassembler->checkLocation(state->address, value); // Create Symbol + XRefs
+    m_disassembler->pushReference(state->address, instruction->address);
 }
 
 void AssemblerAlgorithm::immediateState(const State *state)
 {
     InstructionPtr instruction = state->instruction;
 
-    if(instruction->is(InstructionTypes::Jump) && instruction->isTargetOperand(state->operand()))
-        FORWARD_STATE(AssemblerAlgorithm::JumpState, state);
-    else if(instruction->is(InstructionTypes::Call) && instruction->isTargetOperand(state->operand()))
-        FORWARD_STATE(AssemblerAlgorithm::CallState, state);
+    if(instruction->is(InstructionTypes::Branch) && instruction->isTargetOperand(state->operand()))
+        FORWARD_STATE(AssemblerAlgorithm::BranchState, state);
     else
         m_disassembler->checkLocation(instruction->address, state->address); // Create Symbol + XRefs
 }
+
+void AssemblerAlgorithm::eraseSymbolState(const State *state) { m_document->eraseSymbol(state->address); }
 
 bool AssemblerAlgorithm::canBeDisassembled(address_t address)
 {

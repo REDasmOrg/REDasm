@@ -130,7 +130,8 @@ SOURCES += main.cpp\
     redasm/plugins/assembler/algorithm/algorithm.cpp \
     redasm/plugins/assembler/algorithm/controlflow.cpp \
     redasm/plugins/assembler/algorithm/linearsweep.cpp \
-    redasm/plugins/assembler/algorithm/statemachine.cpp
+    redasm/plugins/assembler/algorithm/statemachine.cpp \
+    redasm/assemblers/metaarm/metaarm_algorithm.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -250,7 +251,8 @@ HEADERS  += mainwindow.h \
     redasm/plugins/assembler/algorithm/algorithm.h \
     redasm/plugins/assembler/algorithm/controlflow.h \
     redasm/plugins/assembler/algorithm/linearsweep.h \
-    redasm/plugins/assembler/algorithm/statemachine.h
+    redasm/plugins/assembler/algorithm/statemachine.h \
+    redasm/assemblers/metaarm/metaarm_algorithm.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

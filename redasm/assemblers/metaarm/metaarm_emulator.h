@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-class MetaARMEmulator : public Emulator
+class MetaARMEmulator: public Emulator
 {
     public:
         MetaARMEmulator(DisassemblerAPI* disassembler);

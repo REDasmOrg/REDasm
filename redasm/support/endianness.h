@@ -1,7 +1,7 @@
 #ifndef ENDIANNESS_H
 #define ENDIANNESS_H
 
-#define RETURN_IF_PLATFORM_IS(endianness) if(Endianness::current() == endianness) return;
+#define NEEDS_SWAP(endianness) (Endianness::current() != endianness)
 
 #include "../redasm.h"
 
@@ -15,15 +15,19 @@ enum { LittleEndian = 0, BigEndian = 1, };
 
 int current();
 
-template<typename T> void swap(T& v, int valueendian) {
-   RETURN_IF_PLATFORM_IS(valueendian);
+template<typename T> T swap(T v, int valueendian) {
+   if(!NEEDS_SWAP(valueendian))
+       return v;
 
    u8* p = reinterpret_cast<u8*>(&v);
    std::reverse(p, p + sizeof(T));
+   return v;
 }
 
-template<typename T> void cfbe(T& v) { swap(v, Endianness::BigEndian); }    // Convert FROM BigEndian TO PlatformEndian
-template<typename T> void cfle(T& v) { swap(v, Endianness::LittleEndian); } // Convert FROM LittleEndian TO PlatformEndian
+template<typename T> T cfbe(T v) { return swap(v, Endianness::BigEndian); }                // Convert FROM BigEndian TO PlatformEndian
+template<typename T> T cfle(T v) { return swap(v, Endianness::LittleEndian); }             // Convert FROM LittleEndian TO PlatformEndian
+template<typename T> T cfbe(const Buffer& buffer) { return cfbe(static_cast<T>(buffer)); }
+template<typename T> T cfle(const Buffer& buffer) { return cfle(static_cast<T>(buffer)); }
 
 } // namespace Endianness
 } // namespace REDasm

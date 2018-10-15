@@ -37,7 +37,7 @@ class AssemblerPlugin: public Plugin
         bool decode(Buffer buffer, const InstructionPtr& instruction);
 
     protected:
-        template<typename T> T read(Buffer& buffer) const;
+        template<typename T> T read(const Buffer& buffer) const;
         virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction) = 0;
         virtual void onDecoded(const InstructionPtr& instruction);
 
@@ -53,16 +53,12 @@ class AssemblerPlugin: public Plugin
         endianness_t m_endianness;
 };
 
-template<typename T> T AssemblerPlugin::read(Buffer& buffer) const
+template<typename T> T AssemblerPlugin::read(const Buffer& buffer) const
 {
-    T t = *(reinterpret_cast<T*>(buffer.data));
-
     if(this->endianness() == Endianness::BigEndian)
-        Endianness::cfbe(t);
-    else
-        Endianness::cfle(t);
+        return Endianness::cfbe<T>(buffer);
 
-    return t;
+    return Endianness::cfle<T>(buffer);
 }
 
 template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public AssemblerPlugin

@@ -153,6 +153,7 @@ struct Buffer
     u8 operator[](int index) const { return data[index]; }
     u8 operator*() const { return *data; }
     bool eob() const { return length <= 0; }
+    template<typename T> operator T() const { return *reinterpret_cast<T*>(data); }
 
     u8* data;
     s64 length;

@@ -501,9 +501,10 @@ void DisassemblerTextView::adjustContextMenu()
         m_actxrefs->setVisible(false);
         m_actfollow->setVisible(false);
 
-        m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
-        m_actcallgraph->setVisible(segment && segment->is(REDasm::SegmentTypes::Code));
+        if(symbol)
+            m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
 
+        m_actcallgraph->setVisible(symbol && segment && segment->is(REDasm::SegmentTypes::Code));
         m_acthexdump->setVisible(false);
         return;
     }

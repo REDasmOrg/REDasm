@@ -61,27 +61,37 @@ std::string ListingRenderer::getSelectedText()
     const ListingCursor::Position& startpos = cur->startSelection();
     const ListingCursor::Position& endpos = cur->endSelection();
 
-    std::stringstream ss;
-    int line = startpos.first;
+    std::string copied;
 
-    while(line <= endpos.first)
+    if(startpos.first != endpos.first)
+    {
+        int line = startpos.first;
+
+        while(line <= endpos.first)
+        {
+            RendererLine rl;
+            this->getRendererLine(line, rl);
+            std::string s = rl.text;
+
+            if(line == startpos.first)
+                copied += s.substr(startpos.second);
+            else if(line == endpos.first)
+                copied += s.substr(0, endpos.second + 1);
+            else
+                copied += s;
+
+            copied += "\n";
+            line++;
+        }
+    }
+    else
     {
         RendererLine rl;
-        this->getRendererLine(line, rl);
-        std::string s = rl.text;
-
-        if(line == startpos.first)
-            ss << s.substr(startpos.second);
-        else if(line == endpos.first)
-            ss << s.substr(0, endpos.second);
-        else
-            ss << s;
-
-        ss << std::endl;
-        line++;
+        this->getRendererLine(startpos.first, rl);
+        copied = rl.text.substr(startpos.second, endpos.second - startpos.second + 1);
     }
 
-    return ss.str();
+    return copied;
 }
 
 void ListingRenderer::setFlags(u32 flags) { m_flags = flags; }

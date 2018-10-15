@@ -20,7 +20,12 @@ void DisassemblerControlFlow::onDecoded(const InstructionPtr &instruction)
         this->enqueue(target);
 
     if(!instruction->is(InstructionTypes::Stop))
+    {
+        if(instruction->is(InstructionTypes::Jump) && !instruction->is(InstructionTypes::Conditional))
+            return;
+
         this->enqueue(instruction->endAddress());
+    }
 }
 
 } // namespace REDasm

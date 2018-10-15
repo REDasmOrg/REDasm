@@ -1,4 +1,5 @@
 #include "disassembler.h"
+#include "../plugins/assembler/algorithm.h"
 #include <algorithm>
 #include <memory>
 
@@ -12,7 +13,7 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
         assembler->setEndianness(format->endianness());
 
     m_assembler = std::make_unique<AssemblerPlugin>(assembler);
-    m_algorithm = std::make_unique<DisassemblerAlgorithm>(m_format->createAlgorithm(this, assembler));
+    m_algorithm = std::make_unique<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
 
     m_timer.stateChanged += [&](Timer*) { busyChanged(); };
 }
@@ -20,7 +21,7 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
 Disassembler::~Disassembler() { }
 ListingDocument *Disassembler::document() { return m_document; }
 
-void Disassembler::disassembleStep(DisassemblerAlgorithm* algorithm)
+void Disassembler::disassembleStep(AssemblerAlgorithm* algorithm)
 {
     if(!algorithm->hasNext())
     {

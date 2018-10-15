@@ -1,5 +1,6 @@
 #include "assembler.h"
 #include "../format.h"
+#include "../../disassembler/algorithm/controlflow.h"
 #include <iomanip>
 #include <sstream>
 
@@ -9,6 +10,7 @@ AssemblerPlugin::AssemblerPlugin(): Plugin(), m_endianness(Endianness::LittleEnd
 u32 AssemblerPlugin::flags() const { return AssemblerFlags::None; }
 Emulator *AssemblerPlugin::createEmulator(DisassemblerAPI *disassembler) const { RE_UNUSED(disassembler); return NULL; }
 Printer *AssemblerPlugin::createPrinter(DisassemblerAPI *disassembler) const { return new Printer(disassembler); }
+AssemblerAlgorithm *AssemblerPlugin::createAlgorithm(DisassemblerAPI *disassembler) { return new ControlFlowAlgorithm(disassembler, this); }
 void AssemblerPlugin::onDecoded(const InstructionPtr &instruction) { RE_UNUSED(instruction); }
 
 void AssemblerPlugin::setInstructionType(const InstructionPtr &instruction) const

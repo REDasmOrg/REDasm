@@ -1,14 +1,14 @@
 #ifndef CONTROLFLOW_H
 #define CONTROLFLOW_H
 
-#include "../../plugins/disassembler/algorithm.h"
+#include "../../plugins/assembler/algorithm.h"
 
 namespace REDasm {
 
-class DisassemblerControlFlow: public DisassemblerAlgorithm
+class ControlFlowAlgorithm: public AssemblerAlgorithm
 {
     public:
-        DisassemblerControlFlow(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
+        ControlFlowAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 
     protected:
         virtual void addressTableState(const State* state);

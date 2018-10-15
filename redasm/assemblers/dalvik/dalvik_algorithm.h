@@ -1,16 +1,16 @@
-#ifndef DEX_ALGORITHM_H
-#define DEX_ALGORITHM_H
+#ifndef DALVIK_ALGORITHM_H
+#define DALVIK_ALGORITHM_H
 
 #include "../../disassembler/algorithm/controlflow.h"
 
 namespace REDasm {
 
-class DexAlgorithm: public DisassemblerControlFlow
+class DalvikAlgorithm: public ControlFlowAlgorithm
 {
     DEFINE_STATES(StringIndexState = UserState, MethodIndexState)
 
     public:
-        DexAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
+        DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 
     protected:
         virtual void onDecodedOperand(const InstructionPtr& instruction, const Operand& op);
@@ -20,4 +20,4 @@ class DexAlgorithm: public DisassemblerControlFlow
 
 } // namespace REDasm
 
-#endif // DEX_ALGORITHM_H
+#endif // DALVIK_ALGORITHM_H

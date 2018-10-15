@@ -22,7 +22,7 @@ offset_t FormatPlugin::offset(address_t address) const
 }
 
 Analyzer* FormatPlugin::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& signatures) const { return new Analyzer(disassembler, signatures); }
-DisassemblerAlgorithm *FormatPlugin::createAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assemblerplugin) const { return new DisassemblerControlFlow(disassembler, assemblerplugin); }
+AssemblerAlgorithm *FormatPlugin::createAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assemblerplugin) const { return new ControlFlowAlgorithm(disassembler, assemblerplugin); }
 u32 FormatPlugin::flags() const { return FormatFlags::None; }
 endianness_t FormatPlugin::endianness() const { return Endianness::LittleEndian; /* Use LE by default */ }
 bool FormatPlugin::isBinary() const { return this->flags() & FormatFlags::Binary; }

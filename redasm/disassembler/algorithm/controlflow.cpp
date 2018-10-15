@@ -2,19 +2,19 @@
 
 namespace REDasm {
 
-DisassemblerControlFlow::DisassemblerControlFlow(DisassemblerAPI *disassembler, AssemblerPlugin *assemblerplugin): DisassemblerAlgorithm(disassembler, assemblerplugin) { }
+ControlFlowAlgorithm::ControlFlowAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assemblerplugin): AssemblerAlgorithm(disassembler, assemblerplugin) { }
 
-void DisassemblerControlFlow::addressTableState(const State *state)
+void ControlFlowAlgorithm::addressTableState(const State *state)
 {
-    DisassemblerAlgorithm::addressTableState(state);
+    AssemblerAlgorithm::addressTableState(state);
 
     for(address_t target : state->instruction->targets)
         this->enqueue(target);
 }
 
-void DisassemblerControlFlow::onDecoded(const InstructionPtr &instruction)
+void ControlFlowAlgorithm::onDecoded(const InstructionPtr &instruction)
 {
-    DisassemblerAlgorithm::onDecoded(instruction);
+    AssemblerAlgorithm::onDecoded(instruction);
 
     for(address_t target : instruction->targets)
         this->enqueue(target);

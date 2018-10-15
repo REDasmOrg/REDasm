@@ -3,6 +3,7 @@
 #include "dalvik_printer.h"
 #include "dalvik_opcodes.h"
 #include "dalvik_metadata.h"
+#include "dalvik_algorithm.h"
 
 #define SET_DECODE_OPCODE_TO(opcode) m_opcodemap[0x##opcode] = [this](Buffer& buffer, const InstructionPtr& instruction) -> bool { return decode##opcode(buffer, instruction); }
 
@@ -23,6 +24,7 @@ DalvikAssembler::DalvikAssembler(): AssemblerPlugin()
 
 const char *DalvikAssembler::name() const { return "Dalvik VM"; }
 Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new DalvikPrinter(disassembler); }
+AssemblerAlgorithm *DalvikAssembler::createAlgorithm(DisassemblerAPI *disassembler) { return new DalvikAlgorithm(disassembler, this); }
 
 bool DalvikAssembler::decodeInstruction(Buffer buffer, const InstructionPtr &instruction)
 {
@@ -33,8 +35,7 @@ bool DalvikAssembler::decodeInstruction(Buffer buffer, const InstructionPtr &ins
     if(it == m_opcodemap.end())
         return false;
 
-    Buffer bwords = buffer + 1;
-    bool res = it->second(bwords, instruction);
+    bool res = it->second(++buffer, instruction);
 
     if(!res)
         instruction->size = sizeof(u16); // Dalvik uses always 16-bit aligned instructions

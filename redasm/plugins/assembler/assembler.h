@@ -24,6 +24,8 @@ namespace AssemblerFlags {
     enum: u32 { None = 0, HasEmulator = 1 };
 }
 
+class AssemblerAlgorithm;
+
 class AssemblerPlugin: public Plugin
 {
     public:
@@ -31,6 +33,7 @@ class AssemblerPlugin: public Plugin
         virtual u32 flags() const;
         virtual Emulator* createEmulator(DisassemblerAPI* disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const;
+        virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
         bool hasFlag(u32 flag) const;
         endianness_t endianness() const;
         void setEndianness(endianness_t endianness);

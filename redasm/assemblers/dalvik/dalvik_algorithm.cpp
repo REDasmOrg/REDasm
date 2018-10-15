@@ -1,23 +1,23 @@
-#include "dex_algorithm.h"
-#include "dex.h"
+#include "dalvik_algorithm.h"
+#include "../../formats/dex/dex.h"
 
 namespace REDasm {
 
-DexAlgorithm::DexAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin): DisassemblerControlFlow(disassembler, assemblerplugin)
+DalvikAlgorithm::DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin): ControlFlowAlgorithm(disassembler, assemblerplugin)
 {
-    REGISTER_STATE(DexAlgorithm::StringIndexState, &DexAlgorithm::stringIndexState);
-    REGISTER_STATE(DexAlgorithm::MethodIndexState, &DexAlgorithm::methodIndexState);
+    REGISTER_STATE(DalvikAlgorithm::StringIndexState, &DalvikAlgorithm::stringIndexState);
+    REGISTER_STATE(DalvikAlgorithm::MethodIndexState, &DalvikAlgorithm::methodIndexState);
 }
 
-void DexAlgorithm::onDecodedOperand(const InstructionPtr &instruction, const Operand& op)
+void DalvikAlgorithm::onDecodedOperand(const InstructionPtr &instruction, const Operand& op)
 {
     if(op.extra_type == DalvikOperands::StringIndex)
-        ENQUEUE_STATE(DexAlgorithm::StringIndexState, op.extra_type, op.index, instruction);
+        ENQUEUE_STATE(DalvikAlgorithm::StringIndexState, op.extra_type, op.index, instruction);
     else if(op.extra_type == DalvikOperands::MethodIndex)
-        ENQUEUE_STATE(DexAlgorithm::MethodIndexState, op.extra_type, op.index, instruction);
+        ENQUEUE_STATE(DalvikAlgorithm::MethodIndexState, op.extra_type, op.index, instruction);
 }
 
-void DexAlgorithm::stringIndexState(const State *state)
+void DalvikAlgorithm::stringIndexState(const State *state)
 {
     DEXFormat* dexformat = dynamic_cast<DEXFormat*>(m_format);
 
@@ -34,7 +34,7 @@ void DexAlgorithm::stringIndexState(const State *state)
     m_disassembler->pushReference(offset, state->instruction->address);
 }
 
-void DexAlgorithm::methodIndexState(const State *state)
+void DalvikAlgorithm::methodIndexState(const State *state)
 {
     DEXFormat* dexformat = dynamic_cast<DEXFormat*>(m_format);
 

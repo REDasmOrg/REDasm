@@ -109,7 +109,6 @@ SOURCES += main.cpp\
     redasm/assemblers/metaarm/arm_common.cpp \
     redasm/disassembler/algorithm/controlflow.cpp \
     redasm/plugins/assembler/assembler.cpp \
-    redasm/plugins/disassembler/algorithm.cpp \
     redasm/disassembler/algorithm/linearsweep.cpp \
     redasm/disassembler/listing/listingdocument.cpp \
     redasm/disassembler/listing/instructionpool.cpp \
@@ -126,11 +125,12 @@ SOURCES += main.cpp\
     widgets/disassemblergraphview/disassemblergraphview.cpp \
     redasm/graph/graph.cpp \
     widgets/disassemblergraphview/disassemblerwebchannel.cpp \
-    redasm/plugins/disassembler/statemachine.cpp \
     redasm/emulator/emulatorbase.cpp \
     redasm/emulator/emulator.cpp \
-    redasm/formats/dex/dex_algorithm.cpp \
-    redasm/assemblers/metaarm/arm_thumb.cpp
+    redasm/assemblers/metaarm/arm_thumb.cpp \
+    redasm/assemblers/dalvik/dalvik_algorithm.cpp \
+    redasm/plugins/assembler/algorithm.cpp \
+    redasm/plugins/assembler/statemachine.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -227,7 +227,6 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/metaarm/arm_common.h \
     redasm/disassembler/algorithm/controlflow.h \
     redasm/plugins/assembler/assembler.h \
-    redasm/plugins/disassembler/algorithm.h \
     redasm/disassembler/algorithm/linearsweep.h \
     redasm/disassembler/listing/listingdocument.h \
     redasm/disassembler/listing/instructionpool.h \
@@ -245,12 +244,13 @@ HEADERS  += mainwindow.h \
     widgets/disassemblergraphview/disassemblergraphview.h \
     redasm/graph/graph.h \
     widgets/disassemblergraphview/disassemblerwebchannel.h \
-    redasm/plugins/disassembler/statemachine.h \
     redasm/emulator/emulatorbase.h \
     redasm/emulator/emulator.h \
-    redasm/formats/dex/dex_algorithm.h \
     redasm/support/dispatcher.h \
-    redasm/assemblers/metaarm/arm_thumb.h
+    redasm/assemblers/metaarm/arm_thumb.h \
+    redasm/assemblers/dalvik/dalvik_algorithm.h \
+    redasm/plugins/assembler/algorithm.h \
+    redasm/plugins/assembler/statemachine.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

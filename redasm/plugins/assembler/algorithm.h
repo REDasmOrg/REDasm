@@ -1,5 +1,5 @@
-#ifndef DISASSEMBLERALGORITHM_H
-#define DISASSEMBLERALGORITHM_H
+#ifndef ASSEMBLERALGORITHM_H
+#define ASSEMBLERALGORITHM_H
 
 #include <stack>
 #include <set>
@@ -9,7 +9,7 @@
 
 namespace REDasm {
 
-class DisassemblerAlgorithm: public StateMachine
+class AssemblerAlgorithm: public StateMachine
 {
     DEFINE_STATES(DecodeState, JumpState, CallState, BranchMemoryState, AddressTableState, MemoryState, ImmediateState)
 
@@ -20,7 +20,7 @@ class DisassemblerAlgorithm: public StateMachine
         typedef std::set<address_t> DecodedAddresses;
 
     protected:
-        DisassemblerAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assembler);
+        AssemblerAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assembler);
 
     public:
         u32 disassembleInstruction(address_t address, const InstructionPtr& instruction);
@@ -66,4 +66,4 @@ class DisassemblerAlgorithm: public StateMachine
 
 } // namespace REDasm
 
-#endif // DISASSEMBLERALGORITHM_H
+#endif // ASSEMBLERALGORITHM_H

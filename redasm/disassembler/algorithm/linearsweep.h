@@ -1,14 +1,14 @@
 #ifndef LINEARSWEEP_H
 #define LINEARSWEEP_H
 
-#include "../../plugins/disassembler/algorithm.h"
+#include "../../plugins/assembler/algorithm.h"
 
 namespace REDasm {
 
-class DisassemblerLinearSweep: public DisassemblerAlgorithm
+class LinearSweepAlgorithm: public AssemblerAlgorithm
 {
     public:
-        DisassemblerLinearSweep(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
+        LinearSweepAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 
     protected:
         virtual void onDecodeFailed(const InstructionPtr& instruction);

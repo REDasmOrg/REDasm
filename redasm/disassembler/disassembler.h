@@ -26,11 +26,11 @@ class Disassembler: public DisassemblerBase
         virtual bool busy() const;
 
     private:
-        void disassembleStep(DisassemblerAlgorithm *algorithm);
+        void disassembleStep(AssemblerAlgorithm *algorithm);
 
     private:
         std::unique_ptr<AssemblerPlugin> m_assembler;
-        std::unique_ptr<DisassemblerAlgorithm> m_algorithm;
+        std::unique_ptr<AssemblerAlgorithm> m_algorithm;
         Timer m_timer;
 };
 

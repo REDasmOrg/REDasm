@@ -1,7 +1,7 @@
 #ifndef LINEARSWEEP_H
 #define LINEARSWEEP_H
 
-#include "../../plugins/assembler/algorithm.h"
+#include "algorithm.h"
 
 namespace REDasm {
 

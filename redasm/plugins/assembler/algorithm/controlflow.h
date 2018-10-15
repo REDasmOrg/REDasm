@@ -1,7 +1,7 @@
 #ifndef CONTROLFLOW_H
 #define CONTROLFLOW_H
 
-#include "../../plugins/assembler/algorithm.h"
+#include "algorithm.h"
 
 namespace REDasm {
 

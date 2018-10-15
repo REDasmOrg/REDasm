@@ -1,5 +1,5 @@
 #include "algorithm.h"
-#include "../../plugins/format.h"
+#include "../../../plugins/format.h"
 #include <thread>
 
 #define INVALID_MNEMONIC "db"

@@ -3,7 +3,8 @@
 
 #include <stack>
 #include <set>
-#include "../../redasm.h"
+#include "../../../disassembler/disassemblerapi.h"
+#include "../../../redasm.h"
 #include "../../redasm/analyzer/analyzer.h"
 #include "statemachine.h"
 

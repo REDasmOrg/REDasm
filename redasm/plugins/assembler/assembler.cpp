@@ -1,6 +1,6 @@
 #include "assembler.h"
+#include "algorithm/controlflow.h"
 #include "../format.h"
-#include "../../disassembler/algorithm/controlflow.h"
 #include <iomanip>
 #include <sstream>
 

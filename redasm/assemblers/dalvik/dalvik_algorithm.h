@@ -1,7 +1,7 @@
 #ifndef DALVIK_ALGORITHM_H
 #define DALVIK_ALGORITHM_H
 
-#include "../../disassembler/algorithm/controlflow.h"
+#include "../../plugins/assembler/algorithm/controlflow.h"
 
 namespace REDasm {
 

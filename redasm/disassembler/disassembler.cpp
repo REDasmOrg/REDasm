@@ -1,5 +1,5 @@
 #include "disassembler.h"
-#include "../plugins/assembler/algorithm.h"
+#include "../plugins/assembler/algorithm/algorithm.h"
 #include <algorithm>
 #include <memory>
 

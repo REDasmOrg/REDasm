@@ -5,8 +5,7 @@
 #include <unordered_set>
 #include <functional>
 #include <stack>
-#include "../../disassembler/types/symboltable.h"
-#include "../../redasm.h"
+#include "../../../redasm.h"
 
 #define DEFINE_STATES(...)                                      protected: enum: state_t { __VA_ARGS__ };
 #define REGISTER_STATE(state, cb)                               m_states[state] = std::bind(cb, this, std::placeholders::_1)

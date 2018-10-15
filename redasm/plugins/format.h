@@ -43,7 +43,6 @@ class FormatPlugin: public Plugin
     public:
         virtual offset_t offset(address_t address) const;
         virtual Analyzer *createAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures) const;
-        virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin) const;
         virtual const char* assembler() const = 0;
         virtual u32 bits() const = 0;
         virtual u32 flags() const;

@@ -107,9 +107,7 @@ SOURCES += main.cpp\
     redasm/assemblers/metaarm/metaarm_emulator.cpp \
     redasm/assemblers/metaarm/arm.cpp \
     redasm/assemblers/metaarm/arm_common.cpp \
-    redasm/disassembler/algorithm/controlflow.cpp \
     redasm/plugins/assembler/assembler.cpp \
-    redasm/disassembler/algorithm/linearsweep.cpp \
     redasm/disassembler/listing/listingdocument.cpp \
     redasm/disassembler/listing/instructionpool.cpp \
     redasm/disassembler/listing/listingrenderer.cpp \
@@ -129,8 +127,10 @@ SOURCES += main.cpp\
     redasm/emulator/emulator.cpp \
     redasm/assemblers/metaarm/arm_thumb.cpp \
     redasm/assemblers/dalvik/dalvik_algorithm.cpp \
-    redasm/plugins/assembler/algorithm.cpp \
-    redasm/plugins/assembler/statemachine.cpp
+    redasm/plugins/assembler/algorithm/algorithm.cpp \
+    redasm/plugins/assembler/algorithm/controlflow.cpp \
+    redasm/plugins/assembler/algorithm/linearsweep.cpp \
+    redasm/plugins/assembler/algorithm/statemachine.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -225,9 +225,7 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/metaarm/metaarm_emulator.h \
     redasm/assemblers/metaarm/arm.h \
     redasm/assemblers/metaarm/arm_common.h \
-    redasm/disassembler/algorithm/controlflow.h \
     redasm/plugins/assembler/assembler.h \
-    redasm/disassembler/algorithm/linearsweep.h \
     redasm/disassembler/listing/listingdocument.h \
     redasm/disassembler/listing/instructionpool.h \
     redasm/disassembler/listing/listingrenderer.h \
@@ -249,8 +247,10 @@ HEADERS  += mainwindow.h \
     redasm/support/dispatcher.h \
     redasm/assemblers/metaarm/arm_thumb.h \
     redasm/assemblers/dalvik/dalvik_algorithm.h \
-    redasm/plugins/assembler/algorithm.h \
-    redasm/plugins/assembler/statemachine.h
+    redasm/plugins/assembler/algorithm/algorithm.h \
+    redasm/plugins/assembler/algorithm/controlflow.h \
+    redasm/plugins/assembler/algorithm/linearsweep.h \
+    redasm/plugins/assembler/algorithm/statemachine.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

@@ -45,6 +45,7 @@ class GbaRomFormat: public FormatPluginT<GbaRomHeader>
 
     private:
         static bool isUppercaseAscii(const char* s, size_t c);
+        u32 getEP() const;
         u8 calculateChecksum();
         bool validateRom();
 };

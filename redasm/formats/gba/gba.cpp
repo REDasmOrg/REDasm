@@ -4,6 +4,7 @@
 #include <cctype>
 
 // https://www.reinterpretcast.com/writing-a-game-boy-advance-game
+// https://problemkaputt.de/gbatek.htm
 
 #define GBA_EWRAM_START_ADDR   0x02000000
 #define GBA_EWRAM_SIZE         0x00030000
@@ -53,8 +54,7 @@ bool GbaRomFormat::load()
     m_document.segment("VRAM", 0, GBA_SEGMENT_AREA(VRAM), SegmentTypes::Bss);
     m_document.segment("OAM", 0, GBA_SEGMENT_AREA(OAM), SegmentTypes::Bss);
     m_document.segment("ROM", 0, GBA_ROM_START_ADDR, m_buffer.length, SegmentTypes::Code | SegmentTypes::Data);
-
-    m_document.entry(GBA_ROM_START_ADDR); // Let REDasm decode and follow the "EP Field"
+    m_document.entry(this->getEP());
     return true;
 }
 
@@ -72,6 +72,12 @@ bool GbaRomFormat::isUppercaseAscii(const char *s, size_t c)
     }
 
     return true;
+}
+
+u32 GbaRomFormat::getEP() const
+{
+    u32 b = (Endianness::cfle<u32>(m_buffer) & 0x00FFFFFF) << 2;
+    return GBA_ROM_START_ADDR + (b + 8);
 }
 
 u8 GbaRomFormat::calculateChecksum()

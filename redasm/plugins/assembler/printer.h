@@ -35,6 +35,7 @@ class Printer
         virtual std::string disp(const DisplacementOperand& dispop) const;
         virtual std::string loc(const Operand& operand) const;
         virtual std::string imm(const Operand& operand) const;
+        virtual std::string size(const Operand& operand) const;
 
     protected:
         DisassemblerAPI* m_disassembler;

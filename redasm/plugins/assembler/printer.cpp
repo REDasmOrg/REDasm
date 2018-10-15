@@ -136,7 +136,7 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
                 continue;
         }
 
-        std::string opsize = OperandSizes::size(operand.size);
+        std::string opsize = this->size(operand);
 
         if(opfunc)
             opfunc(operand, opsize, opstr);
@@ -217,6 +217,8 @@ std::string Printer::imm(const Operand &operand) const
 
     return symbol ? symbol->name : REDasm::hex(operand.s_value);
 }
+
+std::string Printer::size(const Operand &operand) const { return OperandSizes::size(operand.size); }
 
 CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerAPI *disassembler): Printer(disassembler), m_cshandle(cshandle) { }
 

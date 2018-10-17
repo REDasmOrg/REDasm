@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<address_t>("address_t");
 
     QApplication a(argc, argv);
-    a.setApplicationDisplayName("REDasm 2.0-" + QString::fromUtf8(GIT_VERSION));
+    a.setApplicationDisplayName("REDasm 2.0-" + QString::fromUtf8(GIT_VERSION) + " RC1");
 
     QtWebEngine::initialize();
     MainWindow w;

@@ -1,4 +1,4 @@
-language: cpp
+anguage: cpp
 compiler: gcc
 dist: trusty
 
@@ -11,11 +11,11 @@ before_install:
 
 install:
     # C++14
-    - sudo apt-get install -qq gcc-6 g++-6
-    # Qt 5.6
-    - sudo apt-get install -qq qt56base
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 90
-    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
+    - sudo apt-get install -qq gcc-7 g++-7
+    # Qt 5.11
+    - sudo apt-get install -qq qt511base
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90
+    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
     - source /opt/qt5*/bin/qt5*-env.sh
 
 script:

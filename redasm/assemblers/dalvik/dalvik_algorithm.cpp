@@ -9,7 +9,7 @@ DalvikAlgorithm::DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin*
     REGISTER_STATE(DalvikAlgorithm::MethodIndexState, &DalvikAlgorithm::methodIndexState);
 }
 
-void DalvikAlgorithm::onDecodedOperand(const InstructionPtr &instruction, const Operand& op)
+void DalvikAlgorithm::onDecodedOperand(const Operand& op, const InstructionPtr &instruction)
 {
     if(op.extra_type == DalvikOperands::StringIndex)
         ENQUEUE_STATE(DalvikAlgorithm::StringIndexState, op.extra_type, op.index, instruction);

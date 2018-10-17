@@ -76,7 +76,7 @@ void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
         if(!op.isNumeric() || op.displacementIsDynamic())
         {
             if(m_emulator && !m_emulator->hasError())
-                this->onEmulatedOperand(instruction, op);
+                this->emulateOperand(op, instruction);
 
             if(!op.is(OperandTypes::Displacement)) // Try static displacement analysis
                 continue;
@@ -94,39 +94,24 @@ void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
         else
             ENQUEUE_STATE(AssemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
 
-        this->onDecodedOperand(instruction, op);
+        this->onDecodedOperand(op, instruction);
     }
 }
 
-void AssemblerAlgorithm::onDecodedOperand(const InstructionPtr &instruction, const Operand &op)
+void AssemblerAlgorithm::onDecodeFailed(const InstructionPtr &instruction) { RE_UNUSED(instruction); }
+
+void AssemblerAlgorithm::onDecodedOperand(const Operand &op, const InstructionPtr &instruction)
 {
     RE_UNUSED(instruction);
     RE_UNUSED(op);
 }
 
-void AssemblerAlgorithm::onDecodeFailed(const InstructionPtr &instruction) { RE_UNUSED(instruction); }
-
-void AssemblerAlgorithm::onEmulatedOperand(const InstructionPtr &instruction, const Operand &op)
+void AssemblerAlgorithm::onEmulatedOperand(const Operand &op, const InstructionPtr &instruction, u64 value)
 {
-    u64 value = 0;
-
-    if(op.is(OperandTypes::Register))
-    {
-        if(!m_emulator->read(op, &value))
-            return;
-    }
-    else if(op.is(OperandTypes::Displacement))
-    {
-        if(!m_emulator->computeDisplacement(op, &value))
-            return;
-    }
-    else
-        return;
-
     ENQUEUE_STATE(AssemblerAlgorithm::AddressTableState, value, op.index, instruction);
 }
 
-void AssemblerAlgorithm::decodeState(const State* state)
+void AssemblerAlgorithm::decodeState(State *state)
 {
     InstructionPtr instruction = std::make_shared<Instruction>();
     u32 status = this->disassemble(state->address, instruction);
@@ -137,7 +122,7 @@ void AssemblerAlgorithm::decodeState(const State* state)
     m_document->instruction(instruction);
 }
 
-void AssemblerAlgorithm::jumpState(const State *state)
+void AssemblerAlgorithm::jumpState(State *state)
 {
     int dir = BRANCH_DIRECTION(state->instruction, state->address);
 
@@ -150,13 +135,13 @@ void AssemblerAlgorithm::jumpState(const State *state)
     m_disassembler->pushReference(state->address, state->instruction->address);
 }
 
-void AssemblerAlgorithm::callState(const State *state)
+void AssemblerAlgorithm::callState(State *state)
 {
     m_document->symbol(state->address, SymbolTypes::Function);
     m_disassembler->pushReference(state->address, state->instruction->address);
 }
 
-void AssemblerAlgorithm::branchState(const State *state)
+void AssemblerAlgorithm::branchState(State *state)
 {
     InstructionPtr instruction = state->instruction;
 
@@ -170,7 +155,7 @@ void AssemblerAlgorithm::branchState(const State *state)
 
 }
 
-void AssemblerAlgorithm::branchMemoryState(const State *state)
+void AssemblerAlgorithm::branchMemoryState(State *state)
 {
     SymbolPtr symbol = m_document->symbol(state->address);
 
@@ -191,7 +176,7 @@ void AssemblerAlgorithm::branchMemoryState(const State *state)
     m_disassembler->pushReference(value, state->address);
 }
 
-void AssemblerAlgorithm::addressTableState(const State *state)
+void AssemblerAlgorithm::addressTableState(State *state)
 {
     InstructionPtr instruction = state->instruction;
     size_t targetstart = instruction->targets.size();
@@ -202,18 +187,14 @@ void AssemblerAlgorithm::addressTableState(const State *state)
         m_disassembler->pushReference(state->address, instruction->address);
 
         REDasm::log("Found address table @ " + REDasm::hex(state->address, m_format->bits(), false));
-        state_t fwdstate = AssemblerAlgorithm::MemoryState;
+        state_t fwdstate = AssemblerAlgorithm::BranchState;
 
         if(instruction->is(InstructionTypes::Call))
-        {
-            fwdstate = AssemblerAlgorithm::CallState;
             m_document->comment(instruction->address, "Call Table with " + std::to_string(c) + " cases(s)");
-        }
         else if(instruction->is(InstructionTypes::Jump))
-        {
-            fwdstate = AssemblerAlgorithm::JumpState;
             m_document->comment(instruction->address, "Jump Table with " + std::to_string(c) + " cases(s)");
-        }
+        else
+            fwdstate = AssemblerAlgorithm::MemoryState;
 
         size_t i = 0;
 
@@ -236,7 +217,7 @@ void AssemblerAlgorithm::addressTableState(const State *state)
         FORWARD_STATE(AssemblerAlgorithm::ImmediateState, state);
 }
 
-void AssemblerAlgorithm::memoryState(const State *state)
+void AssemblerAlgorithm::memoryState(State *state)
 {
     u64 value = 0;
 
@@ -262,7 +243,7 @@ void AssemblerAlgorithm::memoryState(const State *state)
     m_disassembler->pushReference(state->address, instruction->address);
 }
 
-void AssemblerAlgorithm::immediateState(const State *state)
+void AssemblerAlgorithm::immediateState(State *state)
 {
     InstructionPtr instruction = state->instruction;
 
@@ -272,7 +253,7 @@ void AssemblerAlgorithm::immediateState(const State *state)
         m_disassembler->checkLocation(instruction->address, state->address); // Create Symbol + XRefs
 }
 
-void AssemblerAlgorithm::eraseSymbolState(const State *state) { m_document->eraseSymbol(state->address); }
+void AssemblerAlgorithm::eraseSymbolState(State *state) { m_document->eraseSymbol(state->address); }
 
 bool AssemblerAlgorithm::canBeDisassembled(address_t address)
 {
@@ -335,6 +316,26 @@ u32 AssemblerAlgorithm::disassemble(address_t address, const InstructionPtr &ins
     }
 
     return result;
+}
+
+void AssemblerAlgorithm::emulateOperand(const Operand &op, const InstructionPtr &instruction)
+{
+    u64 value = 0;
+
+    if(op.is(OperandTypes::Register))
+    {
+        if(!m_emulator->read(op, &value))
+            return;
+    }
+    else if(op.is(OperandTypes::Displacement))
+    {
+        if(!m_emulator->computeDisplacement(op, &value))
+            return;
+    }
+    else
+        return;
+
+    this->onEmulatedOperand(op, instruction, value);
 }
 
 void AssemblerAlgorithm::emulate(const InstructionPtr &instruction)

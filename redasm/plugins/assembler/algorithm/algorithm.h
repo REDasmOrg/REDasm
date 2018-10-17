@@ -35,25 +35,26 @@ class AssemblerAlgorithm: public StateMachine
         virtual bool validateState(const State& state) const;
         virtual void onNewState(const State& state) const;
         virtual void onDecoded(const InstructionPtr& instruction);
-        virtual void onDecodedOperand(const InstructionPtr& instruction, const Operand& op);
         virtual void onDecodeFailed(const InstructionPtr& instruction);
-        virtual void onEmulatedOperand(const InstructionPtr& instruction, const Operand& op);
+        virtual void onDecodedOperand(const Operand& op, const InstructionPtr& instruction);
+        virtual void onEmulatedOperand(const Operand& op, const InstructionPtr& instruction, u64 value);
 
     protected:
-        virtual void decodeState(const State *state);
-        virtual void jumpState(const State* state);
-        virtual void callState(const State* state);
-        virtual void branchState(const State* state);
-        virtual void branchMemoryState(const State* state);
-        virtual void addressTableState(const State* state);
-        virtual void memoryState(const State* state);
-        virtual void immediateState(const State* state);
-        virtual void eraseSymbolState(const State* state);
+        virtual void decodeState(State *state);
+        virtual void jumpState(State* state);
+        virtual void callState(State* state);
+        virtual void branchState(State* state);
+        virtual void branchMemoryState(State* state);
+        virtual void addressTableState(State* state);
+        virtual void memoryState(State* state);
+        virtual void immediateState(State* state);
+        virtual void eraseSymbolState(State* state);
 
     private:
         bool canBeDisassembled(address_t address);
         void createInvalidInstruction(const InstructionPtr& instruction);
         u32 disassemble(address_t address, const InstructionPtr& instruction);
+        void emulateOperand(const Operand& op, const InstructionPtr& instruction);
         void emulate(const InstructionPtr& instruction);
 
     protected:

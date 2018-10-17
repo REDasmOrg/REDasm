@@ -41,7 +41,7 @@ class StateMachine
     DEFINE_STATES(UserState = 0x10000000)
 
     protected:
-        typedef std::function<void(const State*)> StateCallback;
+        typedef std::function<void(State*)> StateCallback;
 
     public:
         StateMachine();

@@ -20,6 +20,7 @@ class MetaARMAssembler: public AssemblerPlugin
         virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
 
     public:
+        bool isPC(const Operand& op) const;
         bool isARMMode() const;
         bool isTHUMBMode() const;
         void switchToARM();

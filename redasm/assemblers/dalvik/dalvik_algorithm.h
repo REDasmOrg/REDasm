@@ -13,7 +13,7 @@ class DalvikAlgorithm: public ControlFlowAlgorithm
         DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 
     protected:
-        virtual void onDecodedOperand(const InstructionPtr& instruction, const Operand& op);
+        virtual void onDecodedOperand(const Operand& op, const InstructionPtr& instruction);
         virtual void stringIndexState(const State* state);
         virtual void methodIndexState(const State* state);
 };

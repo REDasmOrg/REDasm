@@ -12,12 +12,15 @@ template<cs_arch arch, size_t mode> class ARMCommonAssembler: public CapstoneAss
 {
     public:
         ARMCommonAssembler();
+        bool isPC(const Operand& op) const { return op.is(OperandTypes::Register) && this->isPC(op.reg.r); };
+        bool isLR(const Operand& op) const { return op.is(OperandTypes::Register) && this->isLR(op.reg.r); };
 
     protected:
         virtual void onDecoded(const InstructionPtr& instruction);
 
     private:
         bool isPC(register_t reg) const { return reg == ARM_REG_PC; };
+        bool isLR(register_t reg) const { return reg == ARM_REG_LR; };
         void checkB(const InstructionPtr& instruction) const;
         void checkStop(const InstructionPtr& instruction) const;
         void checkLdr(const InstructionPtr& instruction) const;
@@ -96,7 +99,7 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkLd
     const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->userdata)->detail->arm;
     instruction->op(1).size = sizeof(u32);
 
-    if((arm.cc == ARM_CC_AL) && this->isPC(instruction->op(0).reg.r))
+    if((arm.cc == ARM_CC_AL) && this->isPC(instruction->op(0)))
     {
         instruction->type = InstructionTypes::Stop;
         return;

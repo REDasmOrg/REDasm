@@ -17,18 +17,17 @@ max_jobs: 4
 
 install:
   - git submodule update --init --recursive
-  - set QTDIR=C:\Qt\5.11.1\mingw53_32
-  - set PATH=%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin;%PATH%
+  - set QTDIR=C:\Qt\5.11.1\msvc2015
+  - set PATH=%QTDIR%\bin;%PATH%
+  - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
 
 build_script:
-  - g++ --version
-  - mingw32-make --version
   # Get rid of sh.exe
   - del "C:\Program Files\Git\usr\bin\sh.exe"
   - mkdir build
   - xcopy database build\database\ /E
   - cd build
   - qmake CONFIG+=release ..
-  - mingw32-make -j4
+  - nmake -j4
   - ps: ../ci/package.ps1
   - ps: ../ci/deploy.ps1

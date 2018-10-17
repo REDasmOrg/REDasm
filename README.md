@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/REDasmOrg/REDasm/next/artwork/gh_logo.png"/>
+  <img src="https://raw.githubusercontent.com/REDasmOrg/REDasm/master/artwork/gh_logo.png"/>
   <p align="center">
     <a href="https://travis-ci.org/REDasmOrg/REDasm">
       <img src="https://img.shields.io/travis/REDasmOrg/REDasm.svg?style=flat-square&logo=travis">
@@ -21,7 +21,7 @@ In the future, Python scripting will be supported.<br><br>
 *Runs on Windows and Linux.*<br>
 
 <p align="center">
-  <img height="450" src="https://raw.githubusercontent.com/REDasmOrg/REDasm/next/artwork/Preview.gif">
+  <img height="450" src="https://raw.githubusercontent.com/REDasmOrg/REDasm/master/artwork/Preview.gif">
 </p>
 
 ## Why another Disassembler?

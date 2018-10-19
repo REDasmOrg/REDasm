@@ -2,6 +2,7 @@
 #include "dex_statemachine.h"
 #include "dex_constants.h"
 #include "dex_utils.h"
+#include <cctype>
 
 namespace REDasm {
 

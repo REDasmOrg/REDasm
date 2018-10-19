@@ -9,6 +9,7 @@ namespace REDasm {
 
 std::string demangle(const std::string &s)
 {
+#ifdef __GNUC__
     int status = 0;
     char* ret = abi::__cxa_demangle(s.c_str(), NULL, NULL, &status);
 
@@ -18,6 +19,9 @@ std::string demangle(const std::string &s)
     std::string demangled(ret);
     std::free(ret);
     return demangled;
+#else
+    return s;
+#endif
 }
 
 }

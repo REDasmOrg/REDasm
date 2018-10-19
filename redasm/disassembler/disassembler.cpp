@@ -12,8 +12,8 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
     if(!format->isBinary())
         assembler->setEndianness(format->endianness());
 
-    m_assembler = std::make_unique<AssemblerPlugin>(assembler);
-    m_algorithm = std::make_unique<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
+    m_assembler = std::unique_ptr<AssemblerPlugin>(assembler);
+    m_algorithm = std::unique_ptr<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
 
     m_timer.stateChanged += [&](Timer*) { busyChanged(); };
 }

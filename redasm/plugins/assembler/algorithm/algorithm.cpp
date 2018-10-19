@@ -13,7 +13,7 @@ AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerP
     m_document = m_disassembler->document();
 
     if(assembler->hasFlag(AssemblerFlags::HasEmulator))
-        m_emulator = std::make_unique<Emulator>(assembler->createEmulator(disassembler));
+        m_emulator = std::unique_ptr<Emulator>(assembler->createEmulator(disassembler));
 
     REGISTER_STATE(AssemblerAlgorithm::DecodeState, &AssemblerAlgorithm::decodeState);
     REGISTER_STATE(AssemblerAlgorithm::JumpState, &AssemblerAlgorithm::jumpState);

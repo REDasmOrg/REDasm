@@ -5,7 +5,7 @@
 #define PUSH_TABLE(t) m_tables.push_back(CorMetadataTables::t); \
                       m_dispatcher[CorMetadataTables::t] = &PeDotNet::get##t
 
-#define GET_TAGGED_FIELD(S, data, field, tagbits, tables, ...) PeDotNet::getTaggedField<S>(data, field, field##_tag, tagbits, tables, __VA_ARGS__)
+#define GET_TAGGED_FIELD(S, data, field, tagbits, tables, ...) PeDotNet::getTaggedField(data, field, field##_tag, tagbits, tables, __VA_ARGS__)
 
 namespace REDasm {
 
@@ -169,6 +169,40 @@ void PeDotNet::initTables()
     PUSH_TABLE(GenericParamConstraint);
 }
 
+void PeDotNet::getTaggedField(u32 **data, u32 &value, u8 &tag, u8 tagbits, const CorTables &tables, const std::list<u32> &tablerefs)
+{
+    u32 mask = 0;
+
+    for(u32 i = 0 ; i < tagbits; i++)
+        mask |= (1u << i);
+
+    u16 maxvalue = (static_cast<u16>(0xFFFF) & ~static_cast<u16>(mask)) >> tagbits;
+    u32 tagvalue = 0, maxrows = PeDotNet::maxRows(tables, tablerefs);
+
+    if(maxrows > maxvalue) // 32-bit is needed
+        tagvalue = REDasm::readpointer<u32>(data);
+    else
+        tagvalue = REDasm::readpointer<u16>(data);
+
+    value = tagvalue >> tagbits;
+    tag = tagvalue & mask;
+}
+
+u32 PeDotNet::maxRows(const CorTables &tables, const std::list<u32> &tablerefs)
+{
+    u32 res = 0;
+
+    for(u32 table : tablerefs)
+    {
+        auto it = tables.rows.find(table);
+
+        if(it != tables.rows.end())
+            res = std::max(res, it->second);
+    }
+
+    return res;
+}
+
 void PeDotNet::getModule(u32 **data, const CorTables &tables, CorTablePtr &table)
 {
     table->module.generation = REDasm::readpointer<u16>(data);
@@ -181,7 +215,7 @@ void PeDotNet::getModule(u32 **data, const CorTables &tables, CorTablePtr &table
 void PeDotNet::getTypeRef(u32 **data, const CorTables &tables, CorTablePtr &table)
 {
     GET_TAGGED_FIELD(4, data, table->typeRef.resolutionScope, 2, tables,
-                     { CorMetadataTables::Module, CorMetadataTables::ModuleRef, CorMetadataTables::Assembly, CorMetadataTables::AssemblyRef });
+    { CorMetadataTables::Module, CorMetadataTables::ModuleRef, CorMetadataTables::Assembly, CorMetadataTables::AssemblyRef });
 
     table->typeRef.typeName = PeDotNet::getStringIdx(data, tables);
     table->typeRef.typeNamespace = PeDotNet::getStringIdx(data, tables);

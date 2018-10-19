@@ -2,7 +2,7 @@ DEPENDS_ROOT       = $$PWD
 
 # =================== CMake Generators =====================
 win32 {
-    CMAKE_GENERATOR = -G \"MinGW Makefiles\"
+    CMAKE_GENERATOR = -G \"NMake Makefiles\"
 }
 else {
     CMAKE_GENERATOR =
@@ -21,7 +21,7 @@ CAPSTONE_BUILD     = $$shell_path($$OUT_PWD/capstone)
 lib_capstone.commands = @echo "Compiling Capstone..." && \
                         $(MKDIR) $$CAPSTONE_BUILD && \
                         cd $$CAPSTONE_BUILD && \
-                        cmake $$CMAKE_GENERATOR $$CAPSTONE_SRC -DCAPSTONE_BUILD_SHARED=OFF -DCAPSTONE_BUILD_STATIC=ON -DCAPSTONE_BUILD_TESTS=OFF && \
+                        cmake $$CMAKE_GENERATOR $$CAPSTONE_SRC -DCMAKE_BUILD_TYPE=Release -DCAPSTONE_BUILD_SHARED=OFF -DCAPSTONE_BUILD_STATIC=ON -DCAPSTONE_BUILD_TESTS=OFF && \
                         $(MAKE)
 
 INCLUDEPATH += $$shell_path($$CAPSTONE_SRC/include/capstone)

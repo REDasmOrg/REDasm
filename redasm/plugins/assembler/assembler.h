@@ -66,9 +66,6 @@ template<typename T> T AssemblerPlugin::read(const Buffer& buffer) const
 
 template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public AssemblerPlugin
 {
-    protected:
-        typedef CapstoneAssemblerPlugin<arch, mode> AssemblerBase;
-
     public:
         CapstoneAssemblerPlugin();
         ~CapstoneAssemblerPlugin();
@@ -83,7 +80,7 @@ template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public Assemb
         csh m_cshandle;
 };
 
-template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::CapstoneAssemblerPlugin()
+template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::CapstoneAssemblerPlugin(): AssemblerPlugin()
 {
     cs_open(arch, static_cast<cs_mode>(mode), &this->m_cshandle);
     cs_option(this->m_cshandle, CS_OPT_DETAIL, CS_OPT_ON);

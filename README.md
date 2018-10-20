@@ -35,6 +35,18 @@ cd REDasm
 qmake && make
 ```
 
+## Compiling from Source with docker
+```
+cd docker
+# create a docker image
+./build.sh image
+# build REDasm
+./build.sh nightly
+# remove docker image
+./build rm
+```
+after compiling the binary is in the folder release
+
 ## Nightly Builds
 Nightly builds are produced by AppVeyor (Windows) and TravisCI (Linux) and they can be downloaded from [here](https://github.com/REDasmOrg/REDasm-Builds).
 

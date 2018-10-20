@@ -50,7 +50,7 @@ bool DEXFormat::load()
     return true;
 }
 
-bool DEXFormat::getMethodOffset(u32 idx, offset_t &offset) const
+bool DEXFormat::getMethodOffset(u64 idx, offset_t &offset) const
 {
     auto it = m_codeitems.find(idx);
 
@@ -62,7 +62,7 @@ bool DEXFormat::getMethodOffset(u32 idx, offset_t &offset) const
     return true;
 }
 
-bool DEXFormat::getStringOffset(u32 idx, offset_t& offset) const
+bool DEXFormat::getStringOffset(u64 idx, offset_t& offset) const
 {
     if(!m_strings || (idx >= m_format->string_ids_size))
         return false;
@@ -73,7 +73,7 @@ bool DEXFormat::getStringOffset(u32 idx, offset_t& offset) const
     return true;
 }
 
-std::string DEXFormat::getString(u32 idx) const
+std::string DEXFormat::getString(u64 idx) const
 {
     if(!m_strings)
         return std::string();
@@ -84,7 +84,7 @@ std::string DEXFormat::getString(u32 idx) const
     return std::string(reinterpret_cast<const char*>(pstringdata), len);
 }
 
-std::string DEXFormat::getType(u32 idx) const
+std::string DEXFormat::getType(u64 idx) const
 {
     if(idx >= m_format->type_ids_size)
         return "type_" + std::to_string(idx);
@@ -93,7 +93,7 @@ std::string DEXFormat::getType(u32 idx) const
     return this->getNormalizedString(dextype.descriptor_idx);
 }
 
-std::string DEXFormat::getMethod(u32 idx) const
+std::string DEXFormat::getMethod(u64 idx) const
 {
     if(idx >= m_format->method_ids_size)
         return "method_" + std::to_string(idx);
@@ -104,12 +104,12 @@ std::string DEXFormat::getMethod(u32 idx) const
            this->getNormalizedString(dexmethod.name_idx);
 }
 
-std::string DEXFormat::getMethodProto(u32 idx) const
+std::string DEXFormat::getMethodProto(u64 idx) const
 {
     return this->getMethod(idx) + this->getParameters(idx) + ":" + this->getReturnType(idx);
 }
 
-std::string DEXFormat::getField(u32 idx) const
+std::string DEXFormat::getField(u64 idx) const
 {
     if(!m_fields || (idx >= m_format->field_ids_size))
         return "field_" + std::to_string(idx);
@@ -120,7 +120,7 @@ std::string DEXFormat::getField(u32 idx) const
            this->getNormalizedString(dexfield.name_idx) + ":" + this->getType(dexfield.type_idx);
 }
 
-std::string DEXFormat::getReturnType(u32 methodidx) const
+std::string DEXFormat::getReturnType(u64 methodidx) const
 {
     if(methodidx >= m_format->method_ids_size)
         return std::string();
@@ -131,7 +131,7 @@ std::string DEXFormat::getReturnType(u32 methodidx) const
     return this->getNormalizedString(m_types[dexproto.return_type_idx].descriptor_idx);
 }
 
-std::string DEXFormat::getParameters(u32 methodidx) const
+std::string DEXFormat::getParameters(u64 methodidx) const
 {
     if(methodidx >= m_format->method_ids_size)
         return std::string();
@@ -145,7 +145,7 @@ std::string DEXFormat::getParameters(u32 methodidx) const
     return "(" + this->getTypeList(dexproto.parameters_off) + ")";
 }
 
-bool DEXFormat::getMethodInfo(u32 methodidx, DEXEncodedMethod &dexmethod)
+bool DEXFormat::getMethodInfo(u64 methodidx, DEXEncodedMethod &dexmethod)
 {
     auto it = m_encmethods.find(methodidx);
 
@@ -156,7 +156,7 @@ bool DEXFormat::getMethodInfo(u32 methodidx, DEXEncodedMethod &dexmethod)
     return true;
 }
 
-bool DEXFormat::getDebugInfo(u32 methodidx, DEXDebugInfo &debuginfo)
+bool DEXFormat::getDebugInfo(u64 methodidx, DEXDebugInfo &debuginfo)
 {
     auto it = m_codeitems.find(methodidx);
 
@@ -272,9 +272,9 @@ void DEXFormat::loadClass(const DEXClassIdItem &dexclass)
     });
 }
 
-std::string DEXFormat::getNormalizedString(u32 idx) const { return this->normalized(this->getString(idx)); }
+std::string DEXFormat::getNormalizedString(u64 idx) const { return this->normalized(this->getString(idx)); }
 
-std::string DEXFormat::getTypeList(u32 typelistoff) const
+std::string DEXFormat::getTypeList(u64 typelistoff) const
 {
     u32 size = *pointer<u32>(typelistoff);
     DEXTypeItem* dextypeitem = pointer<DEXTypeItem>(typelistoff + sizeof(u32));

@@ -13,7 +13,7 @@ class PatParser
         struct PatName
         {
             u32 type;
-            s16 offset;
+            s64 offset;
             std::string name;
         };
 

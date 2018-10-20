@@ -166,7 +166,7 @@ struct Signature
     u16 asum;
 
     Signature(): alen(0), asum(0) { }
-    u32 length() const { return pattern.size(); }
+    size_t length() const { return pattern.size(); }
 };
 
 struct Segment
@@ -208,14 +208,14 @@ struct DisplacementOperand
 struct Operand
 {
     Operand(): loc_index(-1), type(OperandTypes::None), extra_type(0), size(OperandSizes::Undefined), index(-1), u_value(0) { }
-    Operand(u32 type, u32 extratype, s32 value, s32 pos): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(pos), s_value(value) { }
-    Operand(u32 type, u32 extratype, u32 value, s32 pos): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(pos), u_value(value) { }
-    Operand(u32 type, u32 extratype, s64 value, s32 pos): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(pos), s_value(value) { }
-    Operand(u32 type, u32 extratype, u64 value, s32 pos): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(pos), u_value(value) { }
+    Operand(u32 type, u32 extratype, s32 value, s64 idx): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(idx), s_value(value) { }
+    Operand(u32 type, u32 extratype, u32 value, s64 idx): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(idx), u_value(value) { }
+    Operand(u32 type, u32 extratype, s64 value, s64 idx): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(idx), s_value(value) { }
+    Operand(u32 type, u32 extratype, u64 value, s64 idx): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(idx), u_value(value) { }
 
     s64 loc_index;
     u32 type, extra_type, size;
-    s32 index;
+    s64 index;
     RegisterOperand reg;
     DisplacementOperand disp;
 
@@ -263,8 +263,8 @@ struct Instruction
     template<typename T> Instruction& disp(register_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
     template<typename T> Instruction& disp(register_t base, register_t index, T displacement) { return disp(base, index, 1, displacement); }
     template<typename T> Instruction& disp(register_t base, register_t index, s32 scale, T displacement);
-    template<typename T> Instruction& arg(s32 index, register_t base, T displacement) { return local(index, base, displacement, OperandTypes::Argument); }
-    template<typename T> Instruction& local(s32 index, register_t base, T displacement, u32 type = OperandTypes::Local);
+    template<typename T> Instruction& arg(s64 index, register_t base, T displacement) { return local(index, base, displacement, OperandTypes::Argument); }
+    template<typename T> Instruction& local(s64 index, register_t base, T displacement, u32 type = OperandTypes::Local);
 
     Instruction& reg(register_t r, u64 type = 0)
     {
@@ -298,7 +298,7 @@ template<typename T> Instruction& Instruction::disp(register_t base, register_t 
     return *this;
 }
 
-template<typename T> Instruction& Instruction::local(s32 index, register_t base, T displacement, u32 type)
+template<typename T> Instruction& Instruction::local(s64 index, register_t base, T displacement, u32 type)
 {
     Operand op;
     op.index = operands.size();

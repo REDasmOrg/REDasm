@@ -423,9 +423,9 @@ void DisassemblerTextView::adjustScrollBars()
     REDasm::ListingDocument* doc = m_disassembler->document();
 
     if(doc->size() <= static_cast<size_t>(this->visibleLines()))
-        vscrollbar->setMaximum(doc->size());
+        vscrollbar->setMaximum(static_cast<int>(doc->size()));
     else
-        vscrollbar->setMaximum(doc->size() - this->visibleLines() + 1);
+        vscrollbar->setMaximum(static_cast<int>(doc->size() - this->visibleLines() + 1));
 }
 
 void DisassemblerTextView::moveToSelection()

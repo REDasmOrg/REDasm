@@ -26,8 +26,8 @@ class DalvikPrinter : public Printer
 
     private:
         DEXDebugInfo m_currentdbginfo;
-        std::unordered_map<u16, DEXDebugData> m_regoverrides;
-        std::unordered_map<u16, std::string> m_regnames;
+        std::unordered_map<register_t, DEXDebugData> m_regoverrides;
+        std::unordered_map<register_t, std::string> m_regnames;
 };
 
 } // namespace REDasm

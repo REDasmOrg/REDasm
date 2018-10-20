@@ -15,7 +15,7 @@ class VBAnalyzer : public PEAnalyzer
         virtual void analyze();
 
     private:
-        void disassembleTrampoline(u32 eventva, const std::string &name);
+        void disassembleTrampoline(address_t eventva, const std::string &name);
         void decompileObject(const VBPublicObjectDescriptor& pubobjdescr);
         void decompile( SymbolPtr thunrtdata);
 

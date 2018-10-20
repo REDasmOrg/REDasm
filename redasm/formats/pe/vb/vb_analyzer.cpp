@@ -45,7 +45,7 @@ void VBAnalyzer::analyze()
     PEAnalyzer::analyze();
 }
 
-void VBAnalyzer::disassembleTrampoline(u32 eventva, const std::string& name)
+void VBAnalyzer::disassembleTrampoline(address_t eventva, const std::string& name)
 {
     if(!eventva)
         return;

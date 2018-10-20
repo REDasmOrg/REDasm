@@ -89,7 +89,7 @@ u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
     if(wide)
         *wide = false;
 
-    u64 count = this->locationIsStringT<char>(address, ::isprint, [](u16 b) -> bool { return ::isalnum(b) || ::isspace(b); });
+    u64 count = this->locationIsStringT<u8>(address, ::isprint, [](u16 b) -> bool { return ::isalnum(b) || ::isspace(b); });
 
     if(count == 1) // Try with wide strings
     {
@@ -123,7 +123,7 @@ std::string DisassemblerBase::readWString(const SymbolPtr &symbol) const
     return this->readWString(symbol->address);
 }
 
-std::string DisassemblerBase::readHex(address_t address, u32 count) const
+std::string DisassemblerBase::readHex(address_t address, u64 count) const
 {
     Buffer data;
 

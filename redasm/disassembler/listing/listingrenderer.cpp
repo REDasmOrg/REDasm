@@ -281,7 +281,7 @@ void ListingRenderer::renderAddressIndent(ListingItem* item, RendererLine &rl)
     FormatPlugin* format = m_disassembler->format();
     Segment* segment = m_document->segment(item->address);
 
-    int count = format->bits() / 4;
+    s64 count = format->bits() / 4;
 
     if(segment)
         count += segment->name.length();

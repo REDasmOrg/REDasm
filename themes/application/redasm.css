@@ -42,8 +42,3 @@ QTabBar::tab
 {
     margin-top: 3; /* make non-selected tabs look smaller */
 }
-
-QTabBar::tab::selected
-{
-    font-weight: bold;
-}

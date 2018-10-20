@@ -21,17 +21,17 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         virtual bool load();
 
     public:
-        bool getMethodOffset(u32 idx, offset_t &offset) const;
-        bool getStringOffset(u32 idx, offset_t &offset) const;
-        std::string getString(u32 idx) const;
-        std::string getType(u32 idx) const;
-        std::string getMethod(u32 idx) const;
-        std::string getMethodProto(u32 idx) const;
-        std::string getField(u32 idx) const;
-        std::string getReturnType(u32 methodidx) const;
-        std::string getParameters(u32 methodidx) const;
-        bool getMethodInfo(u32 methodidx, DEXEncodedMethod& dexmethod);
-        bool getDebugInfo(u32 methodidx, DEXDebugInfo& debuginfo);
+        bool getMethodOffset(u64 idx, offset_t &offset) const;
+        bool getStringOffset(u64 idx, offset_t &offset) const;
+        std::string getString(u64 idx) const;
+        std::string getType(u64 idx) const;
+        std::string getMethod(u64 idx) const;
+        std::string getMethodProto(u64 idx) const;
+        std::string getField(u64 idx) const;
+        std::string getReturnType(u64 methodidx) const;
+        std::string getParameters(u64 methodidx) const;
+        bool getMethodInfo(u64 methodidx, DEXEncodedMethod& dexmethod);
+        bool getDebugInfo(u64 methodidx, DEXDebugInfo& debuginfo);
 
     private:
         bool getClassData(const DEXClassIdItem& dexclass, DEXClassData& dexclassdata);
@@ -39,14 +39,14 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         void loadClass(const DEXClassIdItem& dexclass);
 
     private:
-        std::string getNormalizedString(u32 idx) const;
-        std::string getTypeList(u32 typelistoff) const;
+        std::string getNormalizedString(u64 idx) const;
+        std::string getTypeList(u64 typelistoff) const;
         static bool validateSignature(DEXHeader *format);
         static std::string normalized(const std::string& type);
 
     private:
-        std::unordered_map<u16, DEXCodeItem*> m_codeitems;
-        std::unordered_map<u16, DEXEncodedMethod> m_encmethods;
+        std::unordered_map<u64, DEXCodeItem*> m_codeitems;
+        std::unordered_map<u64, DEXEncodedMethod> m_encmethods;
         DEXTypeIdItem* m_types;
         DEXStringIdItem* m_strings;
         DEXMethodIdItem* m_methods;

@@ -124,7 +124,7 @@ void AssemblerAlgorithm::decodeState(State *state)
 
 void AssemblerAlgorithm::jumpState(State *state)
 {
-    int dir = BRANCH_DIRECTION(state->instruction, state->address);
+    s64 dir = BRANCH_DIRECTION(state->instruction, state->address);
 
     if(dir < 0)
         m_document->comment(state->instruction->address, "Possible loop");

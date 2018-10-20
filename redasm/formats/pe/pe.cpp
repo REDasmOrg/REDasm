@@ -292,7 +292,7 @@ void PeFormat::loadSections()
     for(size_t i = 0; i < m_ntheaders->FileHeader.NumberOfSections; i++)
     {
         const ImageSectionHeader& section = m_sectiontable[i];
-        u64 flags = SegmentTypes::None;
+        u32 flags = SegmentTypes::None;
 
         if((section.Characteristics & IMAGE_SCN_CNT_CODE) || (section.Characteristics & IMAGE_SCN_MEM_EXECUTE))
             flags |= SegmentTypes::Code;
@@ -351,7 +351,7 @@ void PeFormat::loadExports()
             continue;
 
         bool namedfunction = false;
-        u32 funcep = this->m_imagebase + functions[i];
+        u64 funcep = m_imagebase + functions[i];
         const Segment* segment = m_document.segment(funcep);
 
         if(!segment)

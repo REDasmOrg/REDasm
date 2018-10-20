@@ -28,7 +28,7 @@ struct State
         address_t address;
     };
 
-    int index;
+    s64 index;
     InstructionPtr instruction;
 
     bool operator ==(const State& rhs) const { return (id == rhs.id) && (address == rhs.address); }

@@ -29,7 +29,13 @@ void ReferencesModel::xref(address_t address)
     this->endResetModel();
 }
 
-QModelIndex ReferencesModel::index(int row, int column, const QModelIndex &) const { return this->createIndex(row, column, m_references[row]); }
+QModelIndex ReferencesModel::index(int row, int column, const QModelIndex &) const
+{
+    if(row >= m_references.size())
+        return QModelIndex();
+
+    return this->createIndex(row, column, m_references[row]);
+}
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 {
@@ -109,7 +115,7 @@ QVariant ReferencesModel::headerData(int section, Qt::Orientation orientation, i
     return QVariant();
 }
 
-int ReferencesModel::rowCount(const QModelIndex &) const { return m_references.size(); }
+int ReferencesModel::rowCount(const QModelIndex &) const { return static_cast<int>(m_references.size()); }
 int ReferencesModel::columnCount(const QModelIndex &) const { return 3; }
 
 QString ReferencesModel::direction(address_t address) const

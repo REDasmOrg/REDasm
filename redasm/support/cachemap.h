@@ -27,22 +27,22 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
     public:
         class iterator: public std::iterator<std::random_access_iterator_tag, T2> {
             public:
-                explicit iterator(type& container, const offset_iterator& offit): _container(container), _offit(offit), key(offit->first) { }
-                iterator& operator++() { _offit++; update(); return *this; }
-                iterator& operator--() { _offit--; update(); return *this; }
-                iterator operator++(int) { iterator copy = *this; _offit++; update(); return copy; }
-                iterator operator--(int) { iterator copy = *this; _offit--; update(); return copy; }
-                bool operator==(const iterator& rhs) const { return _offit == rhs._offit; }
-                bool operator!=(const iterator& rhs) const { return _offit != rhs._offit; }
-                iterator& operator=(const iterator& rhs) { _offit = rhs._offit; update(); return *this; }
-                T2 operator *() { return _container[key]; }
+                explicit iterator(type& container, const offset_iterator& offit): m_container(container), m_offit(offit) { update(); }
+                iterator& operator++() { m_offit++; update(); return *this; }
+                iterator& operator--() { m_offit--; update(); return *this; }
+                iterator operator++(int) { iterator copy = *this; m_offit++; update(); return copy; }
+                iterator operator--(int) { iterator copy = *this; m_offit--; update(); return copy; }
+                bool operator==(const iterator& rhs) const { return m_offit == rhs.m_offit; }
+                bool operator!=(const iterator& rhs) const { return m_offit != rhs.m_offit; }
+                iterator& operator=(const iterator& rhs) { m_offit = rhs.m_offit; update(); return *this; }
+                T2 operator *() { return m_container[key]; }
 
             private:
-                void update() { key = _offit->first; }
+                void update() { if(m_offit != m_container.m_offsets.end()) key = m_offit->first; }
 
             private:
-                type& _container;
-                offset_iterator _offit;
+                type& m_container;
+                offset_iterator m_offit;
 
             public:
                 T1 key;
@@ -54,7 +54,7 @@ template<typename T1, typename T2> class cache_map // Use STL's coding style for
         ~cache_map();
         iterator begin() { return iterator(*this, m_offsets.begin()); }
         iterator end() { return iterator(*this, m_offsets.end()); }
-        iterator find(const T1& key) { auto it = m_offsets.find(key); return iterator(*this, it); }
+        iterator find(const T1& key) { auto it = m_offsets.find(key); return (it != m_offsets.end() ? iterator(*this, it) : this->end()); }
         void commit(const T1& key, const T2& value);
         void erase(const iterator& it);
         T2 operator[](const T1& key);

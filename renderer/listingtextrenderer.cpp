@@ -26,7 +26,7 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     this->getRendererLine(cp.first, rl);
     std::string s = rl.text;
 
-    for(size_t i = 0; i < s.length(); i++)
+    for(int i = 0; i < s.length(); i++)
     {
         QRect r = m_fontmetrics.boundingRect(QString::fromStdString(s.substr(0, i + 1)));
 
@@ -38,7 +38,7 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     }
 
     if(cp.second == -1)
-        cp.second = s.length() - 1;
+        cp.second = static_cast<int>(s.length() - 1);
 
     this->updateWordUnderCursor(s, cp);
     return cp;
@@ -53,7 +53,7 @@ ListingTextRenderer::Range ListingTextRenderer::wordHitTest(const QPointF &pos, 
 
     int p = -1;
     std::string s = rl.text, res = this->findWordUnderCursor(s, cp, &p);
-    return std::make_pair(p, p + res.length() - 1);
+    return std::make_pair(p, static_cast<int>(p + res.length() - 1));
 }
 
 void ListingTextRenderer::updateWordUnderCursor()

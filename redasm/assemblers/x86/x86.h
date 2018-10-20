@@ -23,8 +23,8 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
         void initStackSize(const InstructionPtr& instruction);
         void setBranchTarget(const InstructionPtr& instruction);
         void checkLea(const InstructionPtr& instruction);
-        s32 localIndex(s64 disp, u32& type) const;
-        s32 stackLocalIndex(s64 disp) const;
+        s64 localIndex(s64 disp, u32& type) const;
+        s64 stackLocalIndex(s64 disp) const;
         bool isSP(register_t reg) const;
         bool isBP(register_t reg) const;
         bool isIP(register_t reg) const;
@@ -122,7 +122,7 @@ template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &
 
         if(op.type == X86_OP_MEM) {
             const x86_op_mem& mem = op.mem;
-            s32 locindex = -1;
+            s64 locindex = -1;
 
             if((mem.index == X86_REG_INVALID) && mem.disp && this->isBP(mem.base)) // Check locals/arguments
             {
@@ -153,7 +153,7 @@ template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &
     }
 }
 
-template<cs_mode mode> s32 X86Assembler<mode>::localIndex(s64 disp, u32& type) const
+template<cs_mode mode> s64 X86Assembler<mode>::localIndex(s64 disp, u32& type) const
 {
     if(disp > 0)
         type = OperandTypes::Argument;
@@ -169,7 +169,7 @@ template<cs_mode mode> s32 X86Assembler<mode>::localIndex(s64 disp, u32& type) c
     else if(mode == CS_MODE_64)
         size = 8;
 
-    s32 index = (disp / size);
+    s64 index = (disp / size);
 
     if(disp > 0)
         index--; // disp == size -> return_address
@@ -180,7 +180,7 @@ template<cs_mode mode> s32 X86Assembler<mode>::localIndex(s64 disp, u32& type) c
     return index;
 }
 
-template<cs_mode mode> s32 X86Assembler<mode>::stackLocalIndex(s64 disp) const
+template<cs_mode mode> s64 X86Assembler<mode>::stackLocalIndex(s64 disp) const
 {
     s32 size = 0;
 

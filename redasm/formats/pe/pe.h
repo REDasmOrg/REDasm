@@ -84,7 +84,7 @@ template<typename THUNK, u64 ordinalflag> void PeFormat::readDescriptor(const Im
         }
         else
         {
-            u16 ordinal = (ordinalflag ^ thunk[i]);
+            u16 ordinal = static_cast<u16>(ordinalflag ^ thunk[i]);
 
             if(!PEImports::importName(descriptorname, ordinal, importname))
                 importname = PEUtils::importName(descriptorname, ordinal);

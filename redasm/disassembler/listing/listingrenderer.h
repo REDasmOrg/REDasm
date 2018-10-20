@@ -8,8 +8,8 @@ namespace REDasm {
 
 struct RendererFormat
 {
-    RendererFormat(int start, int length, const std::string& style): start(start), length(length), style(style) { }
-    int start, length;
+    RendererFormat(s64 start, s64 length, const std::string& style): start(start), length(length), style(style) { }
+    s64 start, length;
     std::string style;
 };
 
@@ -18,7 +18,7 @@ struct RendererLine
     RendererLine(): userdata(NULL), line(-1), index(-1), highlighted(false) { }
 
     void* userdata;
-    int line, index;
+    s64 line, index;
     bool highlighted;
     std::list<RendererFormat> formats;
     std::string text;

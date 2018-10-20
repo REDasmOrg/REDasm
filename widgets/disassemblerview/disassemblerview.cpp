@@ -170,7 +170,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 
     ui->stackedWidget->currentWidget()->setFocus();
 
-    disassembler->busyChanged += std::bind(&DisassemblerView::checkDisassemblerStatus, this);
+    disassembler->busyChanged += [&]() { QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection); };
     disassembler->disassemble();
 }
 
@@ -313,9 +313,9 @@ void DisassemblerView::displayAddress(address_t address)
             offs = segment ? S_TO_QS(REDasm::hex(format->offset(address), format->bits(), false)) : "???",
             addr = S_TO_QS(REDasm::hex(address, format->bits(), false));
 
-    QString s = QString("<b>Address: </b>%1\u00A0\u00A0").arg(addr);
-    s += QString("<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
-    s += QString("<b>Segment: </b>%1\u00A0\u00A0").arg(segm);
+    QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
+    s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
+    s += QString::fromWCharArray(L"<b>Segment: </b>%1\u00A0\u00A0").arg(segm);
 
     REDasm::ListingItem* item = doc->currentItem();
 
@@ -332,7 +332,7 @@ void DisassemblerView::displayAddress(address_t address)
                 func += "+" + S_TO_QS(REDasm::hex(offset, 8, false));
         }
 
-        s = QString("<b>Function: </b>%1\u00A0\u00A0").arg(func) + s;
+        s = QString::fromWCharArray(L"<b>Function: </b>%1\u00A0\u00A0").arg(func) + s;
     }
 
     m_lblstatus->setText(s);

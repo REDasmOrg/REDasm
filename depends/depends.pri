@@ -18,11 +18,11 @@ INCLUDEPATH += $$shell_path($$DEPENDS_ROOT/include)
 CAPSTONE_SRC       = $$shell_path($$DEPENDS_ROOT/capstone)
 CAPSTONE_BUILD     = $$shell_path($$OUT_PWD/capstone)
 
-lib_capstone.commands = @echo "Compiling Capstone..." && \
-                        $(MKDIR) $$CAPSTONE_BUILD && \
-                        cd $$CAPSTONE_BUILD && \
-                        cmake $$CMAKE_GENERATOR $$CAPSTONE_SRC -DCMAKE_BUILD_TYPE=Release -DCAPSTONE_BUILD_SHARED=OFF -DCAPSTONE_BUILD_STATIC=ON -DCAPSTONE_BUILD_TESTS=OFF && \
-                        $(MAKE)
+lib_capstone.commands += @echo "Compiling Capstone..." $$escape_expand(\\n\\t)
+lib_capstone.commands += $$sprintf($$QMAKE_MKDIR_CMD, $$CAPSTONE_BUILD) $$escape_expand(\\n\\t)
+lib_capstone.commands += cd $$CAPSTONE_BUILD $$escape_expand(\\n\\t)
+lib_capstone.commands += cmake $$CMAKE_GENERATOR $$CAPSTONE_SRC -DCMAKE_BUILD_TYPE=Release -DCAPSTONE_BUILD_SHARED=OFF -DCAPSTONE_BUILD_STATIC=ON -DCAPSTONE_BUILD_TESTS=OFF $$escape_expand(\\n\\t)
+lib_capstone.commands += $(MAKE) $$escape_expand(\\n\\t)
 
 INCLUDEPATH += $$shell_path($$CAPSTONE_SRC/include/capstone)
 LIBS += -L$$CAPSTONE_BUILD -lcapstone

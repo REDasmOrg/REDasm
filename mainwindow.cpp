@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_pbstatus->setFlat(true);
     m_pbstatus->setFixedWidth(ui->statusBar->height() * 0.8);
     m_pbstatus->setFixedHeight(ui->statusBar->height() * 0.8);
-    m_pbstatus->setText("\u25cf");
+    m_pbstatus->setText(QString::fromWCharArray(L"\u25cf"));
     m_pbstatus->setVisible(false);
 
     ui->statusBar->addPermanentWidget(m_lblstatus, 1);

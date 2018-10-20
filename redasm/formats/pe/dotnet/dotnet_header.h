@@ -69,7 +69,7 @@ struct ImageCor20MetaData
     u32 Signature;
     u16 MajorVersion, MinorVersion;
     u32 Reserved, VersionLength;
-    char VersionString[];
+    char VersionString[1];
 };
 
 struct ImageCor20TablesHeader
@@ -82,7 +82,7 @@ struct ImageCor20TablesHeader
 struct ImageStreamHeader
 {
     u32 Offset, Size;
-    char szAlignedAnsi[];
+    char szAlignedAnsi[1];
 };
 
 } // namespace REDasm

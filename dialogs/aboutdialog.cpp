@@ -34,7 +34,7 @@ void AboutDialog::initItems()
 
 void AboutDialog::initDepends()
 {
-    ui->twDepends->setRowCount(m_depends.size());
+    ui->twDepends->setRowCount(static_cast<int>(m_depends.size()));
 
     for(auto it = m_depends.begin(); it != m_depends.end(); it++)
     {

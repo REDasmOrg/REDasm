@@ -47,7 +47,7 @@ void CallGraphModel::populate(REDasm::ListingItem* parentitem)
     if(parentitem != m_root)
         index = this->createIndex(this->getParentIndex(parentitem), 0, parentitem);
 
-    this->beginInsertRows(index, 0, calls.size());
+    this->beginInsertRows(index, 0, static_cast<int>(calls.size()));
     m_children[parentitem] = calls;
 
     for(REDasm::ListingItem* item : m_children[parentitem])
@@ -218,5 +218,5 @@ int CallGraphModel::rowCount(const QModelIndex &parent) const
     if(!parentitem)
         return 1;
 
-    return m_children[parentitem].size();
+    return static_cast<int>(m_children[parentitem].size());
 }

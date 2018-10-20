@@ -50,7 +50,7 @@ template<typename T> std::string dec(T t)
     return ss.str();
 }
 
-template<typename T> std::string hex(T t, int bits = 0, bool withprefix = true)
+template<typename T> std::string hex(T t, unsigned int bits = 0, bool withprefix = true)
 {
     std::stringstream ss;
 

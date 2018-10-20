@@ -230,7 +230,7 @@ std::string CapstonePrinter::reg(const RegisterOperand& regop) const
         return "unkreg";
     }
 
-    return cs_reg_name(this->m_cshandle, regop.r);
+    return cs_reg_name(m_cshandle, static_cast<unsigned int>(regop.r));
 }
 
 } // namespace REDasm

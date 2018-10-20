@@ -69,7 +69,7 @@ void DalvikPrinter::prologue(const SymbolPtr &symbol, Printer::LineCallback prol
 
     for(auto it = m_currentdbginfo.parameter_names.begin(); it != m_currentdbginfo.parameter_names.end(); it++)
     {
-        u32 argidx = std::distance(m_currentdbginfo.parameter_names.begin(), it) + delta;
+        u64 argidx = std::distance(m_currentdbginfo.parameter_names.begin(), it) + delta;
         prologuefunc(".arg" + std::to_string(argidx) + ": " + *it);
     }
 }

@@ -15,7 +15,7 @@ struct CvInfoPDB20
 {
     CVHeader CvHeader;
     u32 Signature, Age;
-    char PdbFileName[];
+    char PdbFileName[1];
 };
 
 struct CvInfoPDB70
@@ -23,7 +23,7 @@ struct CvInfoPDB70
     u32 CvSignature;
     GUID Signature;
     u32 Age;
-    char PdbFileName[];
+    char PdbFileName[1];
 };
 
 } // namespace REDasm

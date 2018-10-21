@@ -17,6 +17,7 @@ template<typename KEY, typename SIGNATURE> class Dispatcher: protected std::unor
 
     public:
         Dispatcher(): Type() { }
+        bool contains(KEY key) const { return this->find(key) != this->end(); }
 
         typename DispatcherType::result_type operator()(KEY key, typename DispatcherType::argument_type args) {
             auto it = this->find(key);

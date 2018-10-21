@@ -27,6 +27,6 @@ build_script:
   - xcopy database build\database\ /E
   - cd build
   - qmake CONFIG+=release ..
-  - nmake -j4
+  - nmake
   - ps: ../ci/package.ps1
   - ps: ../ci/deploy.ps1

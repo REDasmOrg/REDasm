@@ -5,7 +5,7 @@ branches:
     - master
 
 init:
-- ps: Update-AppveyorBuild -Version "REDasm_Windows_i686_$(Get-Date -format ddMMyyyy)_$env:appveyor_build_number"
+- ps: Update-AppveyorBuild -Version "REDasm_Windows_x86_64_$(Get-Date -format ddMMyyyy)_$env:appveyor_build_number"
 
 environment:
   build_repo: REDasm-Builds
@@ -17,13 +17,11 @@ max_jobs: 4
 
 install:
   - git submodule update --init --recursive
-  - set QTDIR=C:\Qt\5.11.1\msvc2015
+  - set QTDIR=C:\Qt\5.11\msvc2017_64
   - set PATH=%QTDIR%\bin;%PATH%
-  - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 
 build_script:
-  # Get rid of sh.exe
-  - del "C:\Program Files\Git\usr\bin\sh.exe"
   - mkdir build
   - xcopy database build\database\ /E
   - cd build

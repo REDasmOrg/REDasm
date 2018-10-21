@@ -10,6 +10,8 @@ before_install:
     - sudo apt-get update -qq
 
 install:
+    # System Dependencies
+    - sudo apt-get install libmesa-dev
     # C++14
     - sudo apt-get install -qq gcc-7 g++-7
     # Qt 5.11
@@ -21,7 +23,7 @@ install:
 script:
     # show OS/compiler version
     - uname -a
-    - $CXX --version
+    - g++ --version
     # compile...
     - mkdir build
     - cp -r database/ build/database/

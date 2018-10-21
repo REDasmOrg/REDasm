@@ -11,7 +11,7 @@ before_install:
 
 install:
     # System Dependencies
-    - sudo apt-get install libmesa-dev
+    - sudo apt-get install build-essential libgl1-mesa-dev
     # C++14
     - sudo apt-get install -qq gcc-7 g++-7
     # Qt 5.11

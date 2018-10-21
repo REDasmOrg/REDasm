@@ -14,19 +14,17 @@ environment:
     secure: 6L5tNTkn5rK+d7vU1DvsIE2LvLu7KkxPoaq2ja+SjlQn37iEU/YnzjmXU15IDu17
 
 skip_tags: true
-max_jobs: 4
 
 install:
   - git submodule update --init --recursive
   - set QTDIR=C:\Qt\5.11\msvc2017_64
   - set PATH=%QTDIR%\bin;%PATH%
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 build_script:
   - mkdir build
   - xcopy database build\database\ /E
   - cd build
-  - qmake CONFIG+=release ..
-  - nmake
+  - qmake -spec win32-msvc CONFIG+=release ..
+  - jom -j4
   - ps: ../ci/package.ps1
   - ps: ../ci/deploy.ps1

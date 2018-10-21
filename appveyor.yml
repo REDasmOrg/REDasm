@@ -27,6 +27,6 @@ build_script:
   - xcopy database build\database\ /E
   - cd build
   - qmake -spec win32-msvc CONFIG+=release ..
-  - jom -j4
+  - jom qmake_all -j4
   - ps: ../ci/package.ps1
   - ps: ../ci/deploy.ps1

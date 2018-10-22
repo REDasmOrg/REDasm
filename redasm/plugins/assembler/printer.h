@@ -4,7 +4,7 @@
 #include <memory>
 #include <capstone.h>
 #include "../../redasm.h"
-#include "../../disassembler/types/symboltable.h"
+#include "../../disassembler/listing/listingdocument.h"
 #include "../../disassembler/disassemblerapi.h"
 
 namespace REDasm {
@@ -34,6 +34,7 @@ class Printer
         virtual std::string reg(const RegisterOperand& regop) const;
         virtual std::string disp(const DisplacementOperand& dispop) const;
         virtual std::string loc(const Operand& operand) const;
+        virtual std::string mem(const Operand& operand) const;
         virtual std::string imm(const Operand& operand) const;
         virtual std::string size(const Operand& operand) const;
 

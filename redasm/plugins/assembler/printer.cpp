@@ -126,8 +126,10 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
 
         if(opstr.empty()) // Try with default algorithm...
         {
-            if(operand.isNumeric())
+            if(operand.is(OperandTypes::Immediate))
                opstr = this->imm(operand);
+            else if(operand.is(OperandTypes::Memory))
+               opstr = this->mem(operand);
             else if(operand.is(OperandTypes::Displacement))
                opstr = this->disp(operand.disp);
             else if(operand.is(OperandTypes::Register))
@@ -207,6 +209,8 @@ std::string Printer::loc(const Operand &operand) const
     RE_UNUSED(operand);
     return std::string();
 }
+
+std::string Printer::mem(const Operand &operand) const { return this->imm(operand); }
 
 std::string Printer::imm(const Operand &operand) const
 {

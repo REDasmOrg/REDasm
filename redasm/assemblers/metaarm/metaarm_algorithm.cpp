@@ -4,10 +4,7 @@
 
 namespace REDasm {
 
-MetaARMAlgorithm::MetaARMAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): ControlFlowAlgorithm(disassembler, assembler)
-{
-    REGISTER_STATE(MetaARMAlgorithm::SwitchAssemblerState, &MetaARMAlgorithm::switchAssemblerState);
-}
+MetaARMAlgorithm::MetaARMAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): ControlFlowAlgorithm(disassembler, assembler) { }
 
 void MetaARMAlgorithm::onEmulatedOperand(const Operand &op, const InstructionPtr &instruction, u64 value)
 {
@@ -31,18 +28,30 @@ void MetaARMAlgorithm::enqueueTarget(address_t target, const InstructionPtr &ins
         else
             m_document->comment(instruction->address, "@ " + REDasm::hex(ctarget, m_format->bits(), false) + " -> ARM");
 
-        ENQUEUE_VALUE(MetaARMAlgorithm::SwitchAssemblerState, target);
+        m_armstate[ctarget] = static_cast<bool>(target & 1);
+        return;
     }
+
+    // Propagate current state
+    MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
+    m_armstate[ctarget] = metaarm->isTHUMBMode();
 }
 
-void MetaARMAlgorithm::switchAssemblerState(State *state)
+void MetaARMAlgorithm::decodeState(State *state)
 {
-    MetaARMAssembler* metaarmassembler = static_cast<MetaARMAssembler*>(m_assembler);
+    auto it = m_armstate.find(state->address);
 
-    if(state->address & 1)
-        metaarmassembler->switchToThumb();
-    else
-        metaarmassembler->switchToARM();
+    if(it != m_armstate.end())
+    {
+        MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
+
+        if(it->second)
+            metaarm->switchToThumb();
+        else
+            metaarm->switchToARM();
+    }
+
+    ControlFlowAlgorithm::decodeState(state);
 }
 
 } // namespace REDasm

@@ -13,7 +13,7 @@ namespace REDasm {
 class AssemblerAlgorithm: public StateMachine
 {
     DEFINE_STATES(DecodeState,
-                  JumpState,  CallState, BranchState, BranchMemoryState,
+                  JumpState, CallState, BranchState, BranchMemoryState,
                   AddressTableState, MemoryState, ImmediateState,
                   EraseSymbolState)
 
@@ -21,7 +21,7 @@ class AssemblerAlgorithm: public StateMachine
         enum: u32 { OK, SKIP, FAIL };
 
     private:
-        typedef std::set<address_t> DecodedAddresses;
+        typedef std::unordered_set<address_t> DecodedAddresses;
 
     protected:
         AssemblerAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assembler);

@@ -12,6 +12,7 @@ class MetaARMPrinter: public CapstonePrinter
 
     public:
         virtual std::string size(const Operand& operand) const;
+        virtual std::string mem(const Operand& operand) const;
 };
 
 } // namespace REDasm

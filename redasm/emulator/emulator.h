@@ -14,6 +14,7 @@ class Emulator: public EmulatorBase
     protected:
         void mathOp(const InstructionPtr& instruction, int opdest, int opsrc1, int opsrc2);
         void mathOp(const InstructionPtr& instruction, int opdest, int opsrc);
+        void moveOp(const InstructionPtr& instruction, int opdest, int opsrc);
         void write(const Operand& op, u64 value);
 };
 

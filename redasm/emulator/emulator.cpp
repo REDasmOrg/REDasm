@@ -47,6 +47,16 @@ void Emulator::mathOp(const InstructionPtr &instruction, int opdest, int opsrc1,
 
 void Emulator::mathOp(const InstructionPtr &instruction, int opdest, int opsrc) { this->mathOp(instruction, opdest, opdest, opsrc); }
 
+void Emulator::moveOp(const InstructionPtr &instruction, int opdest, int opsrc)
+{
+    u64 value = 0;
+
+    if(!this->read(instruction->op(opsrc), &value))
+        return;
+
+    this->write(instruction->op(opdest), value);
+}
+
 bool Emulator::read(const Operand &op, u64* value)
 {
     if(op.is(OperandTypes::Displacement))
@@ -86,7 +96,7 @@ void Emulator::write(const Operand &op, u64 value)
         if(!this->computeDisplacement(op.disp, &value))
             this->fail();
     }
-    if(op.is(OperandTypes::Memory))
+    else if(op.is(OperandTypes::Memory))
         this->writeMemory(op.u_value, value);
     else if(op.is(OperandTypes::Register))
         this->regWrite(op.reg.r, value);

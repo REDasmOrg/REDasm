@@ -7,8 +7,6 @@ namespace REDasm {
 
 class MetaARMAlgorithm : public ControlFlowAlgorithm
 {
-    DEFINE_STATES(SwitchAssemblerState = AssemblerAlgorithm::UserState)
-
     public:
         MetaARMAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 

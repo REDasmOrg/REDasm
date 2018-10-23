@@ -1,11 +1,11 @@
 #ifndef MIPS_EMULATOR_H
 #define MIPS_EMULATOR_H
 
-#include "../../emulator/emulator.h"
+#include "../../emulator/emulator_type.h"
 
 namespace REDasm {
 
-class MIPSEmulator: public Emulator
+class MIPSEmulator: public EmulatorT<u32>
 {
     public:
         MIPSEmulator(DisassemblerAPI* disassembler);

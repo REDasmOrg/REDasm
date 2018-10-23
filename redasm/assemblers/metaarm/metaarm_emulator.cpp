@@ -4,9 +4,21 @@
 
 namespace REDasm {
 
-MetaARMEmulator::MetaARMEmulator(DisassemblerAPI *disassembler): Emulator(disassembler)
+MetaARMEmulator::MetaARMEmulator(DisassemblerAPI *disassembler): EmulatorT<u32>(disassembler)
 {
+    EMULATE_INSTRUCTION(ARM_INS_ADD, &MetaARMEmulator::emulateMath);
+    EMULATE_INSTRUCTION(ARM_INS_ADC, &MetaARMEmulator::emulateMath);
+    EMULATE_INSTRUCTION(ARM_INS_SUB, &MetaARMEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(ARM_INS_SBC, &MetaARMEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(ARM_INS_RSB, &MetaARMEmulator::emulateMath);
+    //EMULATE_INSTRUCTION(ARM_INS_RSC, &MetaARMEmulator::emulateMath);
+    EMULATE_INSTRUCTION(ARM_INS_LSL, &MetaARMEmulator::emulateMath);
+    EMULATE_INSTRUCTION(ARM_INS_LSR, &MetaARMEmulator::emulateMath);
+    EMULATE_INSTRUCTION(ARM_INS_ASR, &MetaARMEmulator::emulateMath);
+
+    EMULATE_INSTRUCTION(ARM_INS_MOV, &MetaARMEmulator::emulateMov);
     EMULATE_INSTRUCTION(ARM_INS_LDR, &MetaARMEmulator::emulateLdr);
+    EMULATE_INSTRUCTION(ARM_INS_STR, &MetaARMEmulator::emulateStr);
 }
 
 void MetaARMEmulator::emulate(const InstructionPtr &instruction)
@@ -31,25 +43,42 @@ void MetaARMEmulator::emulate(const InstructionPtr &instruction)
     if(metaarm->isTHUMBMode())
     {
         if((instruction->id == ARM_INS_B) || (instruction->id == ARM_INS_BL) || (instruction->id == ARM_INS_CBNZ) || (instruction->id == ARM_INS_CBZ))
-            this->regWrite(ARM_REG_PC, instruction->address + 4);
+            this->writeReg(ARM_REG_PC, instruction->address + 4);
         else
-            this->regWrite(ARM_REG_PC, (instruction->address + 4) & 0xFFFFFFFE);
+            this->writeReg(ARM_REG_PC, (instruction->address + 4) & 0xFFFFFFFE);
     }
     else
-        this->regWrite(ARM_REG_PC, instruction->address + 8);
+        this->writeReg(ARM_REG_PC, instruction->address + 8);
 
     Emulator::emulate(instruction);
 }
 
+void MetaARMEmulator::emulateMath(const InstructionPtr &instruction)
+{
+    this->aluOp(instruction, 0, 1, 2);
+}
+
+void MetaARMEmulator::emulateMov(const InstructionPtr &instruction) { this->moveOp(instruction, 0, 1); }
+
 void MetaARMEmulator::emulateLdr(const InstructionPtr &instruction)
 {
-    u64 memvalue = 0;
+    u32 memvalue = 0;
     const Operand& op2 = instruction->op(1);
 
-    if(!op2.is(OperandTypes::Memory) || !this->read(op2, &memvalue))
+    if(!op2.is(OperandTypes::Memory) || !this->readOp(op2, &memvalue))
         return;
 
-    this->write(instruction->op(0), memvalue);
+    this->writeOp(instruction->op(0), memvalue);
+}
+
+void MetaARMEmulator::emulateStr(const InstructionPtr &instruction)
+{
+    u32 regvalue = 0;
+
+    if(!this->readOp(instruction->op(0), &regvalue))
+        return;
+
+    this->writeOp(instruction->op(1), regvalue);
 }
 
 } // namespace REDasm

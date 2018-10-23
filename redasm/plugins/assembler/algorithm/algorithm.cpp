@@ -329,7 +329,7 @@ void AssemblerAlgorithm::emulateOperand(const Operand &op, const InstructionPtr 
     }
     else if(op.is(OperandTypes::Displacement))
     {
-        if(!m_emulator->computeDisplacement(op, &value))
+        if(!m_emulator->displacement(op, &value))
             return;
     }
     else

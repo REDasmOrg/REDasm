@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-MIPSEmulator::MIPSEmulator(DisassemblerAPI *disassembler): Emulator(disassembler)
+MIPSEmulator::MIPSEmulator(DisassemblerAPI *disassembler): EmulatorT<u32>(disassembler)
 {
     EMULATE_INSTRUCTION(MIPS_INS_LB,  &MIPSEmulator::emulateLxx);
     EMULATE_INSTRUCTION(MIPS_INS_LBU, &MIPSEmulator::emulateLxx);
@@ -47,11 +47,11 @@ MIPSEmulator::MIPSEmulator(DisassemblerAPI *disassembler): Emulator(disassembler
 
 void MIPSEmulator::emulate(const InstructionPtr &instruction)
 {
-    this->regWrite(MIPS_REG_ZERO, 0); // Initialize $zero
+    this->writeReg(MIPS_REG_ZERO, 0); // Initialize $zero
     return Emulator::emulate(instruction);
 }
 
-void MIPSEmulator::emulateMath(const InstructionPtr &instruction) { this->mathOp(instruction, 0, 1, 2); }
+void MIPSEmulator::emulateMath(const InstructionPtr &instruction) { this->aluOp(instruction, 0, 1, 2); }
 
 void MIPSEmulator::emulateLui(const InstructionPtr &instruction)
 {
@@ -60,7 +60,7 @@ void MIPSEmulator::emulateLui(const InstructionPtr &instruction)
     if(!this->read(instruction->op(1), &value))
         return;
 
-    this->write(instruction->op(0), value << 16);
+    this->writeOp(instruction->op(0), value << 16);
 }
 
 void MIPSEmulator::emulateLxx(const InstructionPtr &instruction)
@@ -79,18 +79,18 @@ void MIPSEmulator::emulateLxx(const InstructionPtr &instruction)
         return;
     }
 
-    address_t regvalue = 0, value = 0;
+    u32 regvalue = 0, value = 0;
     const Operand &op1 = instruction->op(0), &op2 = instruction->op(1);
 
-    if(!this->read(op2, &value))
+    if(!this->readOp(op2, &value))
         return;
 
     value += op2.disp.displacement;
 
-    if(!this->readMemory(value, size, &value))
+    if(!this->readMem(value, &value, size))
         return;
 
-    this->read(op1, &regvalue);
+    this->readOp(op1, &regvalue);
 
     if(instruction->id == MIPS_INS_LWL)
         regvalue = (regvalue & 0xFFFF) | (value & 0xFFFF0000);
@@ -99,7 +99,7 @@ void MIPSEmulator::emulateLxx(const InstructionPtr &instruction)
     else
         regvalue = value;
 
-    this->write(op1, regvalue);
+    this->writeOp(op1, regvalue);
 }
 
 void MIPSEmulator::emulateSxx(const InstructionPtr &instruction)
@@ -118,20 +118,20 @@ void MIPSEmulator::emulateSxx(const InstructionPtr &instruction)
         return;
     }
 
-    address_t regvalue = 0, memloc = 0, memvalue = 0;
+    u32 regvalue = 0, memloc = 0, memvalue = 0;
     const Operand &op1 = instruction->op(0), &op2 = instruction->op(1);
 
-    if(!this->read(op1, &regvalue) || !this->read(op2, &memloc))
+    if(!this->readOp(op1, &regvalue) || !this->readOp(op2, &memloc))
         return;
 
-    this->readMemory(memloc, size, &memvalue);
+    this->readMem(memloc, &memvalue, size);
 
     if(instruction->id == MIPS_INS_SWL)
         regvalue = (regvalue & 0xFFFF) | (memvalue & 0xFFFF0000);
     else if(instruction->id == MIPS_INS_SWR)
         regvalue = (regvalue & 0xFFFF) | (memvalue & 0x0000FFFF);
 
-    this->writeMemory(memloc, regvalue);
+    this->writeMem(memloc, regvalue);
 }
 
 } // namespace REDasm

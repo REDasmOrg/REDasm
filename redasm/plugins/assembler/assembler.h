@@ -9,7 +9,7 @@
 #include "../../support/dispatcher.h"
 #include "../../support/endianness.h"
 #include "../../support/utils.h"
-#include "../../emulator/emulator.h"
+#include "../../plugins/emulator.h"
 #include "../base.h"
 #include "printer.h"
 

@@ -123,15 +123,17 @@ SOURCES += main.cpp\
     widgets/disassemblergraphview/disassemblergraphview.cpp \
     redasm/graph/graph.cpp \
     widgets/disassemblergraphview/disassemblerwebchannel.cpp \
-    redasm/emulator/emulatorbase.cpp \
-    redasm/emulator/emulator.cpp \
     redasm/assemblers/metaarm/arm_thumb.cpp \
     redasm/assemblers/dalvik/dalvik_algorithm.cpp \
     redasm/plugins/assembler/algorithm/algorithm.cpp \
     redasm/plugins/assembler/algorithm/controlflow.cpp \
     redasm/plugins/assembler/algorithm/linearsweep.cpp \
     redasm/plugins/assembler/algorithm/statemachine.cpp \
-    redasm/assemblers/metaarm/metaarm_algorithm.cpp
+    redasm/assemblers/metaarm/metaarm_algorithm.cpp \
+    redasm/emulator/emulator_base.cpp \
+    redasm/emulator/emulator_alu.cpp \
+    redasm/plugins/emulator.cpp \
+    redasm/emulator/emulator_type.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -243,8 +245,6 @@ HEADERS  += mainwindow.h \
     widgets/disassemblergraphview/disassemblergraphview.h \
     redasm/graph/graph.h \
     widgets/disassemblergraphview/disassemblerwebchannel.h \
-    redasm/emulator/emulatorbase.h \
-    redasm/emulator/emulator.h \
     redasm/support/dispatcher.h \
     redasm/assemblers/metaarm/arm_thumb.h \
     redasm/assemblers/dalvik/dalvik_algorithm.h \
@@ -252,7 +252,11 @@ HEADERS  += mainwindow.h \
     redasm/plugins/assembler/algorithm/controlflow.h \
     redasm/plugins/assembler/algorithm/linearsweep.h \
     redasm/plugins/assembler/algorithm/statemachine.h \
-    redasm/assemblers/metaarm/metaarm_algorithm.h
+    redasm/assemblers/metaarm/metaarm_algorithm.h \
+    redasm/emulator/emulator_alu.h \
+    redasm/emulator/emulator_base.h \
+    redasm/plugins/emulator.h \
+    redasm/emulator/emulator_type.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

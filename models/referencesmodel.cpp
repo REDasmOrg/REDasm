@@ -31,7 +31,7 @@ void ReferencesModel::xref(address_t address)
 
 QModelIndex ReferencesModel::index(int row, int column, const QModelIndex &) const
 {
-    if(row >= m_references.size())
+    if(row >= static_cast<int>(m_references.size()))
         return QModelIndex();
 
     return this->createIndex(row, column, m_references[row]);

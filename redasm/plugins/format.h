@@ -36,7 +36,6 @@ class FormatPlugin: public Plugin
         bool isBinary() const;
         const Buffer& buffer() const;
         ListingDocument* document();
-        Segment* entryPointSegment();
         const SignatureFiles& signatures() const;
         u64 addressWidth() const;
 

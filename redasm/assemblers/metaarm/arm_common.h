@@ -30,6 +30,16 @@ template<cs_arch arch, size_t mode> class ARMCommonAssembler: public CapstoneAss
 
 template<cs_arch arch, size_t mode> ARMCommonAssembler<arch, mode>::ARMCommonAssembler(): CapstoneAssemblerPlugin<arch, mode>()
 {
+    SET_INSTRUCTION_TYPE(ARM_INS_ADD, InstructionTypes::Add);
+    SET_INSTRUCTION_TYPE(ARM_INS_ADC, InstructionTypes::Add);
+    SET_INSTRUCTION_TYPE(ARM_INS_SUB, InstructionTypes::Sub);
+    SET_INSTRUCTION_TYPE(ARM_INS_SBC, InstructionTypes::Sub);
+    SET_INSTRUCTION_TYPE(ARM_INS_RSB, InstructionTypes::Sub);
+    SET_INSTRUCTION_TYPE(ARM_INS_RSC, InstructionTypes::Sub);
+    SET_INSTRUCTION_TYPE(ARM_INS_LSL, InstructionTypes::Lsh);
+    SET_INSTRUCTION_TYPE(ARM_INS_LSR, InstructionTypes::Rsh);
+    SET_INSTRUCTION_TYPE(ARM_INS_ASR, InstructionTypes::Rsh);
+
     REGISTER_INSTRUCTION(ARM_INS_B, &ARMCommonAssembler::checkB);
     REGISTER_INSTRUCTION(ARM_INS_BL, &ARMCommonAssembler::checkCallT0);
     REGISTER_INSTRUCTION(ARM_INS_BX, &ARMCommonAssembler::checkJumpT0);

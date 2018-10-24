@@ -80,6 +80,22 @@ template<typename T> T EmulatorBase<T>::readReg(T r) const
     return 0;
 }
 
+template<typename T> void EmulatorBase<T>::incReg(const Operand &op, T amount)
+{
+    if(!op.is(OperandTypes::Register) || !amount)
+        return;
+
+    this->writeReg(op.reg.r, this->readReg(op.reg.r) + amount);
+}
+
+template<typename T> void EmulatorBase<T>::decReg(const Operand &op, T amount)
+{
+    if(!op.is(OperandTypes::Register) || !amount)
+        return;
+
+    this->writeReg(op.reg.r, this->readReg(op.reg.r) - amount);
+}
+
 template<typename T> void EmulatorBase<T>::writeMem(T address, T value) { m_memory[address] = value; }
 
 template<typename T> bool EmulatorBase<T>::readMem(T address, T* value, T size) const

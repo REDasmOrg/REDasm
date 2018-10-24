@@ -4,7 +4,7 @@
 #include <QAbstractScrollArea>
 #include <QFontMetrics>
 #include <QMenu>
-#include "../../renderer/listingtextrenderer.h"
+#include "../renderer/listingtextrenderer.h"
 
 class DisassemblerTextView : public QAbstractScrollArea
 {

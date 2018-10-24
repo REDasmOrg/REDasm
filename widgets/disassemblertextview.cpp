@@ -1,5 +1,5 @@
 #include "disassemblertextview.h"
-#include "../../models/disassemblermodel.h"
+#include "../models/disassemblermodel.h"
 #include <QtWidgets>
 #include <QtGui>
 #include <cmath>

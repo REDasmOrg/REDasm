@@ -39,7 +39,6 @@ SOURCES += main.cpp\
     redasm/plugins/plugins.cpp \
     redasm/plugins/format.cpp \
     widgets/disassemblerview/disassemblerview.cpp \
-    widgets/disassemblertextview/disassemblertextview.cpp \
     models/disassemblermodel.cpp \
     models/segmentsmodel.cpp \
     redasm/analyzer/analyzer.cpp \
@@ -133,7 +132,8 @@ SOURCES += main.cpp\
     redasm/emulator/emulator_base.cpp \
     redasm/emulator/emulator_alu.cpp \
     redasm/plugins/emulator.cpp \
-    redasm/emulator/emulator_type.cpp
+    redasm/emulator/emulator_type.cpp \
+    widgets/disassemblertextview.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -141,7 +141,6 @@ HEADERS  += mainwindow.h \
     redasm/plugins/base.h \
     redasm/plugins/plugins.h \
     widgets/disassemblerview/disassemblerview.h \
-    widgets/disassemblertextview/disassemblertextview.h \
     models/disassemblermodel.h \
     models/segmentsmodel.h \
     redasm/analyzer/analyzer.h \
@@ -256,7 +255,8 @@ HEADERS  += mainwindow.h \
     redasm/emulator/emulator_alu.h \
     redasm/emulator/emulator_base.h \
     redasm/plugins/emulator.h \
-    redasm/emulator/emulator_type.h
+    redasm/emulator/emulator_type.h \
+    widgets/disassemblertextview.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

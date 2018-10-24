@@ -9,8 +9,8 @@ MetaARMEmulator::MetaARMEmulator(DisassemblerAPI *disassembler): EmulatorT<u32>(
     EMULATE_INSTRUCTION(ARM_INS_ADD, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_ADC, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_SUB, &MetaARMEmulator::emulateMath);
-    //EMULATE_INSTRUCTION(ARM_INS_SBC, &MetaARMEmulator::emulateMath);
-    //EMULATE_INSTRUCTION(ARM_INS_RSB, &MetaARMEmulator::emulateMath);
+    EMULATE_INSTRUCTION(ARM_INS_SBC, &MetaARMEmulator::emulateMath);
+    EMULATE_INSTRUCTION(ARM_INS_RSB, &MetaARMEmulator::emulateMath);
     //EMULATE_INSTRUCTION(ARM_INS_RSC, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_LSL, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_LSR, &MetaARMEmulator::emulateMath);
@@ -55,7 +55,15 @@ void MetaARMEmulator::emulate(const InstructionPtr &instruction)
 
 void MetaARMEmulator::emulateMath(const InstructionPtr &instruction)
 {
-    this->aluOp(instruction, 0, 1, 2);
+    if(instruction->id != ARM_INS_RSB)
+        this->aluOp(instruction, 0, 1, 2);
+    else
+        this->aluOp(instruction, 0, 2, 1);
+
+    if((instruction->id == ARM_INS_ADC) && this->hasCarry())
+        this->incReg(instruction->op(0));
+    else if((instruction->id == ARM_INS_SBC) && !this->hasCarry())
+        this->decReg(instruction->op(0));
 }
 
 void MetaARMEmulator::emulateMov(const InstructionPtr &instruction) { this->moveOp(instruction, 0, 1); }

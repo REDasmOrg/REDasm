@@ -4,14 +4,15 @@
 #include <QtGui>
 #include <cmath>
 
-#define CURSOR_BLINK_INTERVAL 500 // 500ms
+#define CURSOR_BLINK_INTERVAL 500  // 500ms
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(NULL)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(NULL), m_disassemblerpopup(NULL)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
 
     this->setFont(font);
+    this->setMouseTracking(true);
     this->setCursor(Qt::ArrowCursor);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setFocusPolicy(Qt::StrongFocus);
@@ -62,6 +63,8 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
 
     m_disassembler = disassembler;
     m_renderer = std::make_unique<ListingTextRenderer>(this->font(), disassembler);
+
+    m_disassemblerpopup = new DisassemblerPopup(disassembler, this);
     this->update();
 }
 
@@ -76,16 +79,12 @@ void DisassemblerTextView::copy()
 void DisassemblerTextView::goTo(address_t address)
 {
     REDasm::ListingDocument* doc = m_disassembler->document();
-
-    auto it = doc->instructionItem(address);
-
-    if(it == doc->end())
-        it = doc->symbolItem(address);
+    auto it = doc->item(address);
 
     if(it == doc->end())
         return;
 
-    this->goTo((*it).get());
+    this->goTo(it->get());
 }
 
 void DisassemblerTextView::goTo(REDasm::ListingItem *item)
@@ -170,6 +169,7 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
         e->accept();
         REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos(), this->firstVisibleLine());
         cur->moveTo(cp.first, cp.second);
+        m_renderer->highlightWordUnderCursor();
     }
 
     QAbstractScrollArea::mousePressEvent(e);
@@ -177,6 +177,9 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
 
 void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
 {
+    if(m_disassemblerpopup && m_disassemblerpopup->isVisible())
+        m_disassemblerpopup->hide();
+
     if(e->buttons() == Qt::LeftButton)
     {
         e->accept();
@@ -351,6 +354,18 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     m_blinktimer->start();
 }
 
+bool DisassemblerTextView::event(QEvent *e)
+{
+    if(e->type() == QEvent::ToolTip)
+    {
+        QHelpEvent* helpevent = static_cast<QHelpEvent*>(e);
+        this->showPopup(helpevent->pos());
+        return true;
+    }
+
+    return QAbstractScrollArea::event(e);
+}
+
 void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
@@ -439,7 +454,7 @@ void DisassemblerTextView::moveToSelection()
     if(this->isLineVisible(cur->currentLine()))
     {
         this->update();
-        m_renderer->updateWordUnderCursor();
+        m_renderer->highlightWordUnderCursor();
     }
     else // Center on selection
     {
@@ -560,6 +575,16 @@ void DisassemblerTextView::showCallGraph()
     }
 
     emit callGraphRequested(symbol->address);
+}
+
+void DisassemblerTextView::showPopup(const QPoint& pos)
+{
+    std::string word = m_renderer->getWordUnderCursor(pos, this->firstVisibleLine());
+
+    if(word.empty())
+        m_disassemblerpopup->hide();
+    else
+        m_disassemblerpopup->popup(word);
 }
 
 void DisassemblerTextView::renameCurrentSymbol()

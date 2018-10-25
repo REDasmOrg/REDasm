@@ -1,5 +1,6 @@
 #include "listinggraphrenderer.h"
 #include "listingrenderercommon.h"
+#include <QTextDocument>
 
 ListingGraphRenderer::ListingGraphRenderer(REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler)
 {

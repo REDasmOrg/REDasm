@@ -5,6 +5,7 @@
 #include <QFontMetrics>
 #include <QMenu>
 #include "../renderer/listingtextrenderer.h"
+#include "disassemblerpopup/disassemblerpopup.h"
 
 class DisassemblerTextView : public QAbstractScrollArea
 {
@@ -37,6 +38,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         virtual void mouseReleaseEvent(QMouseEvent* e);
         virtual void mouseDoubleClickEvent(QMouseEvent* e);
         virtual void keyPressEvent(QKeyEvent *e);
+        virtual bool event(QEvent* e);
 
     private:
         void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
@@ -55,6 +57,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void showReferencesUnderCursor();
         bool followUnderCursor();
         void showCallGraph();
+        void showPopup(const QPoint &pos);
         void renameCurrentSymbol();
 
     signals:
@@ -70,6 +73,7 @@ class DisassemblerTextView : public QAbstractScrollArea
     private:
         std::unique_ptr<ListingTextRenderer> m_renderer;
         REDasm::DisassemblerAPI* m_disassembler;
+        DisassemblerPopup* m_disassemblerpopup;
         QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actcallgraph;
         QAction *m_actgoto, *m_acthexdump, *m_actback, *m_actforward, *m_actcopy;
         QMenu* m_contextmenu;

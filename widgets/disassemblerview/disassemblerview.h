@@ -13,8 +13,8 @@
 #include "../../models/segmentsmodel.h"
 #include "../../dialogs/gotodialog.h"
 #include "../../redasm/disassembler/disassembler.h"
-#include "../disassemblertextview/disassemblertextview.h"
 #include "../disassemblergraphview/disassemblergraphview.h"
+#include "../disassemblertextview.h"
 
 namespace Ui {
 class DisassemblerView;

@@ -133,7 +133,10 @@ SOURCES += main.cpp\
     redasm/emulator/emulator_alu.cpp \
     redasm/plugins/emulator.cpp \
     redasm/emulator/emulator_type.cpp \
-    widgets/disassemblertextview.cpp
+    widgets/disassemblertextview.cpp \
+    widgets/disassemblerpopup/disassemblerpopup.cpp \
+    widgets/disassemblerpopup/disassemblerpopupwidget.cpp \
+    renderer/listingpopuprenderer.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -256,7 +259,10 @@ HEADERS  += mainwindow.h \
     redasm/emulator/emulator_base.h \
     redasm/plugins/emulator.h \
     redasm/emulator/emulator_type.h \
-    widgets/disassemblertextview.h
+    widgets/disassemblertextview.h \
+    widgets/disassemblerpopup/disassemblerpopup.h \
+    widgets/disassemblerpopup/disassemblerpopupwidget.h \
+    renderer/listingpopuprenderer.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

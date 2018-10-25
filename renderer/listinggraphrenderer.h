@@ -1,7 +1,6 @@
 #ifndef LISTINGGRAPHRENDERER_H
 #define LISTINGGRAPHRENDERER_H
 
-#include <QTextDocument>
 #include "../../redasm/disassembler/listing/listingrenderer.h"
 
 class ListingGraphRenderer: public REDasm::ListingRenderer

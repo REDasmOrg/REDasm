@@ -14,8 +14,6 @@ ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::Disassembler
     m_textoption.setWrapMode(QTextOption::NoWrap);
 }
 
-ListingTextRenderer::~ListingTextRenderer() { }
-
 REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos, int firstline)
 {
     REDasm::ListingCursor::Position cp;
@@ -26,7 +24,7 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     this->getRendererLine(cp.first, rl);
     std::string s = rl.text;
 
-    for(int i = 0; i < s.length(); i++)
+    for(size_t i = 0; i < s.length(); i++)
     {
         QRect r = m_fontmetrics.boundingRect(QString::fromStdString(s.substr(0, i + 1)));
 
@@ -40,29 +38,33 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     if(cp.second == -1)
         cp.second = static_cast<int>(s.length() - 1);
 
-    this->updateWordUnderCursor(s, cp);
     return cp;
 }
 
-ListingTextRenderer::Range ListingTextRenderer::wordHitTest(const QPointF &pos, int firstline)
+std::string ListingTextRenderer::getWordUnderCursor(const QPointF &pos, int firstline, int *p)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos, firstline);
 
     REDasm::RendererLine rl;
     this->getRendererLine(cp.first, rl);
 
-    int p = -1;
-    std::string s = rl.text, res = this->findWordUnderCursor(s, cp, &p);
-    return std::make_pair(p, static_cast<int>(p + res.length() - 1));
+    return this->findWordUnderCursor(rl.text, cp, p);
 }
 
-void ListingTextRenderer::updateWordUnderCursor()
+ListingTextRenderer::Range ListingTextRenderer::wordHitTest(const QPointF &pos, int firstline)
 {
-    REDasm::ListingCursor* cur = m_document->cursor();
+    int p = -1;
+    std::string word = this->getWordUnderCursor(pos, firstline, &p);
+    m_cursor->setWordUnderCursor(word);
+    return std::make_pair(p, static_cast<int>(p + word.length() - 1));
+}
+
+void ListingTextRenderer::highlightWordUnderCursor()
+{
     REDasm::RendererLine rl;
 
-    this->getRendererLine(cur->currentLine(), rl);
-    this->updateWordUnderCursor(rl.text, cur->currentPosition());
+    this->getRendererLine(m_cursor->currentLine(), rl);
+    m_cursor->setWordUnderCursor(this->findWordUnderCursor(rl.text, m_cursor->currentPosition()));
 }
 
 void ListingTextRenderer::toggleCursor() { m_cursoractive = !m_cursoractive; }
@@ -110,9 +112,4 @@ std::string ListingTextRenderer::findWordUnderCursor(const std::string &s, const
     }
 
     return std::string();
-}
-
-void ListingTextRenderer::updateWordUnderCursor(const std::string &s, const REDasm::ListingCursor::Position &cp)
-{
-    m_document->cursor()->setWordUnderCursor(this->findWordUnderCursor(s, cp));
 }

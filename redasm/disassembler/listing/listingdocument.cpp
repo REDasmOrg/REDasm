@@ -316,6 +316,17 @@ std::string ListingDocument::normalized(std::string s)
 
 ListingDocument::iterator ListingDocument::instructionItem(address_t address) { return this->item(address, ListingItem::InstructionItem); }
 ListingDocument::iterator ListingDocument::symbolItem(address_t address) { return this->item(address, ListingItem::SymbolItem); }
+
+ListingDocument::iterator ListingDocument::item(address_t address)
+{
+    auto it = this->symbolItem(address);
+
+    if(it == this->end())
+        it = this->instructionItem(address);
+
+    return it;
+}
+
 int ListingDocument::functionIndex(address_t address) { return this->index(address, ListingItem::FunctionItem); }
 int ListingDocument::instructionIndex(address_t address) { return this->index(address, ListingItem::InstructionItem); }
 
@@ -335,6 +346,16 @@ int ListingDocument::indexOfInstruction(address_t address)
 {
     document_lock lock(m_mutex);
     return Listing::indexOf(this, address, ListingItem::InstructionItem);
+}
+
+int ListingDocument::indexOf(address_t address)
+{
+    int idx = this->indexOfSymbol(address);
+
+    if(idx == -1)
+        idx = this->indexOfInstruction(address);
+
+    return idx;
 }
 
 int ListingDocument::indexOf(ListingItem *item)

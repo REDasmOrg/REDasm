@@ -39,7 +39,7 @@ class ListingRenderer
 
     public:
         ListingRenderer(DisassemblerAPI* disassembler);
-        void render(size_t start, size_t count, void* userdata = NULL);
+        virtual void render(size_t start, size_t count, void* userdata = NULL);
         int getLastColumn(size_t line);
         std::string getLine(size_t line);
         std::string getSelectedText();
@@ -66,6 +66,7 @@ class ListingRenderer
 
     protected:
         ListingDocument* m_document;
+        ListingCursor* m_cursor;
 
     private:
         u32 m_flags;

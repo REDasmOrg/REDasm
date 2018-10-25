@@ -193,11 +193,13 @@ class ListingDocument: protected std::vector<ListingItemPtr>
         ListingDocument::iterator functionItem(address_t address);
         ListingDocument::iterator instructionItem(address_t address);
         ListingDocument::iterator symbolItem(address_t address);
+        ListingDocument::iterator item(address_t address);
         int functionIndex(address_t address);
         int instructionIndex(address_t address);
         ListingItem* itemAt(size_t i);
         int indexOfSymbol(address_t address);
         int indexOfInstruction(address_t address);
+        int indexOf(address_t address);
         int indexOf(ListingItem *item);
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);

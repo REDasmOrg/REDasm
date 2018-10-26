@@ -28,7 +28,7 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
 void DisassemblerGraphView::goTo(address_t address)
 {
     REDasm::ListingDocument* doc = m_disassembler->document();
-    doc->cursor()->moveTo(doc->indexOfInstruction(address));
+    doc->cursor()->moveTo(doc->instructionIndex(address));
     this->graph();
 }
 

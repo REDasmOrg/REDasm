@@ -329,6 +329,7 @@ ListingDocument::iterator ListingDocument::item(address_t address)
 
 int ListingDocument::functionIndex(address_t address) { return this->index(address, ListingItem::FunctionItem); }
 int ListingDocument::instructionIndex(address_t address) { return this->index(address, ListingItem::InstructionItem); }
+int ListingDocument::symbolIndex(address_t address) { return this->index(address, ListingItem::SymbolItem); }
 
 ListingItem* ListingDocument::itemAt(size_t i)
 {
@@ -336,24 +337,12 @@ ListingItem* ListingDocument::itemAt(size_t i)
     return this->at(i).get();
 }
 
-int ListingDocument::indexOfSymbol(address_t address)
-{
-    document_lock lock(m_mutex);
-    return Listing::indexOf(this, address, ListingItem::SymbolItem);
-}
-
-int ListingDocument::indexOfInstruction(address_t address)
-{
-    document_lock lock(m_mutex);
-    return Listing::indexOf(this, address, ListingItem::InstructionItem);
-}
-
 int ListingDocument::indexOf(address_t address)
 {
-    int idx = this->indexOfSymbol(address);
+    int idx = this->symbolIndex(address);
 
     if(idx == -1)
-        idx = this->indexOfInstruction(address);
+        idx = this->instructionIndex(address);
 
     return idx;
 }

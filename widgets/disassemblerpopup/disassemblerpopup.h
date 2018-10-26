@@ -14,12 +14,19 @@ class DisassemblerPopup : public QWidget
         ~DisassemblerPopup();
         void popup(const std::string& word);
 
+    protected:
+        virtual void mouseMoveEvent(QMouseEvent *e);
+        virtual void wheelEvent(QWheelEvent* e);
+
     private:
         void updateGeometry();
 
     private:
         DisassemblerPopupWidget* m_popupwidget;
         ListingPopupRenderer* m_popuprenderer;
+
+    private:
+        QPoint m_lastpos;
 };
 
 #endif // DISASSEMBLERPOPUP_H

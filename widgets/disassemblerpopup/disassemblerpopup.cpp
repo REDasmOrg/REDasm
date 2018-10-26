@@ -1,5 +1,6 @@
 #include "disassemblerpopup.h"
 #include <QLayout>
+#include <QDebug>
 
 #define POPUP_MARGIN 16
 
@@ -13,9 +14,11 @@ DisassemblerPopup::DisassemblerPopup(REDasm::DisassemblerAPI *disassembler, QWid
     vboxlayout->addWidget(m_popupwidget);
     this->setLayout(vboxlayout);
 
-    this->setFocusPolicy(Qt::NoFocus);
     this->setAttribute(Qt::WA_TranslucentBackground);
-    this->setWindowFlags(Qt::ToolTip);
+    this->setWindowFlags(Qt::Popup);
+    this->setMouseTracking(true);
+    this->setMinimumHeight(0);
+    this->setMinimumWidth(0);
 }
 
 DisassemblerPopup::~DisassemblerPopup() { delete m_popuprenderer; }
@@ -33,14 +36,36 @@ void DisassemblerPopup::popup(const std::string &word)
     pt.ry() += POPUP_MARGIN;
 
     this->move(pt);
-    this->updateGeometry();
     this->show();
+    this->updateGeometry();
+}
+
+void DisassemblerPopup::mouseMoveEvent(QMouseEvent* e)
+{
+    if(m_lastpos != e->globalPos()) // WHEEL -> MOVE ?!?
+        this->hide();
+
+    QWidget::mouseMoveEvent(e);
+}
+
+void DisassemblerPopup::wheelEvent(QWheelEvent* e)
+{
+    m_lastpos = e->globalPos();
+    QPoint delta = e->angleDelta();
+
+    if(delta.y() > 0)
+        m_popupwidget->lessRows();
+    else
+        m_popupwidget->moreRows();
+
+    this->updateGeometry();
+    QWidget::wheelEvent(e);
 }
 
 void DisassemblerPopup::updateGeometry()
 {
     QFontMetrics fm = this->fontMetrics();
-    QTextDocument* document = m_popupwidget->document();
 
-    this->resize(m_popuprenderer->maxWidth() + document->documentMargin(), fm.height() * document->lineCount() );
+    this->setFixedWidth(m_popuprenderer->maxWidth());
+    this->setFixedHeight(m_popupwidget->rows() * fm.lineSpacing());
 }

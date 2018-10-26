@@ -65,7 +65,7 @@ void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
         if(instruction->is(InstructionTypes::Jump))
         {
             for(address_t target : instruction->targets)
-                indexqueue.push(m_document->indexOfSymbol(target));
+                indexqueue.push(m_document->symbolIndex(target));
 
             if(instruction->is(InstructionTypes::Conditional))
                 indexqueue.push(index + 1);
@@ -134,7 +134,7 @@ void FunctionGraph::buildEdges()
 
             for(address_t target : instruction->targets)
             {
-                int tgtindex = m_document->indexOfSymbol(target);
+                int tgtindex = m_document->symbolIndex(target);
                 FunctionBlock* todata = this->vertexFromListingIndex(tgtindex);
 
                 if(!todata)

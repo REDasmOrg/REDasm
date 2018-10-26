@@ -177,9 +177,6 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
 
 void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
 {
-    if(m_disassemblerpopup && m_disassemblerpopup->isVisible())
-        m_disassemblerpopup->hide();
-
     if(e->buttons() == Qt::LeftButton)
     {
         e->accept();
@@ -234,6 +231,14 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
     }
 
     QAbstractScrollArea::mouseReleaseEvent(e);
+}
+
+void DisassemblerTextView::wheelEvent(QWheelEvent *e)
+{
+    if(m_disassemblerpopup && m_disassemblerpopup->isVisible())
+        return;
+
+    QAbstractScrollArea::wheelEvent(e);
 }
 
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)

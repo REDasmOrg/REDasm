@@ -208,15 +208,16 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
 
 void ListingRenderer::renderAddress(ListingItem *item, RendererLine &rl)
 {
-    if(m_flags & ListingRenderer::HideSegmentName)
+    if(m_flags & ListingRenderer::HideSegmentName && !(m_flags & ListingRenderer::HideAddress))
         rl.push(HEX_ADDRESS(item->address), "address_fg");
-    else
+    else if(!(m_flags & ListingRenderer::HideAddress))
     {
         Segment* segment = m_document->segment(item->address);
         rl.push((segment ? segment->name : "unk") + ":" + HEX_ADDRESS(item->address), "address_fg");
     }
 
-    this->renderIndent(rl);
+    if(!rl.text.empty())
+        this->renderIndent(rl);
 }
 
 void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, RendererLine &rl)

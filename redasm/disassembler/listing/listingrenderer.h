@@ -35,7 +35,7 @@ struct RendererLine
 class ListingRenderer
 {
     protected:
-        enum: u32 { Normal = 0, HideSegmentName = 1 };
+        enum: u32 { Normal = 0, HideSegmentName = 1, HideAddress = 2 };
 
     public:
         ListingRenderer(DisassemblerAPI* disassembler);

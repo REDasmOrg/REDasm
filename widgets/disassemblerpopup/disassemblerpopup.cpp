@@ -1,6 +1,8 @@
 #include "disassemblerpopup.h"
 #include <QLayout>
 
+#define POPUP_MARGIN 16
+
 DisassemblerPopup::DisassemblerPopup(REDasm::DisassemblerAPI *disassembler, QWidget *parent): QWidget(parent)
 {
     m_popuprenderer = new ListingPopupRenderer(disassembler);
@@ -26,19 +28,19 @@ void DisassemblerPopup::popup(const std::string &word)
         return;
     }
 
-    this->move(QCursor::pos());
+    QPoint pt = QCursor::pos();
+    pt.rx() += POPUP_MARGIN;
+    pt.ry() += POPUP_MARGIN;
+
+    this->move(pt);
     this->updateGeometry();
     this->show();
-}
-
-void DisassemblerPopup::wheelEvent(QWheelEvent *e)
-{
-    QWidget::wheelEvent(e);
 }
 
 void DisassemblerPopup::updateGeometry()
 {
     QFontMetrics fm = this->fontMetrics();
     QTextDocument* document = m_popupwidget->document();
-    this->resize(m_popuprenderer->maxWidth(), fm.height() * document->lineCount());
+
+    this->resize(m_popuprenderer->maxWidth() + document->documentMargin(), fm.height() * document->lineCount() );
 }

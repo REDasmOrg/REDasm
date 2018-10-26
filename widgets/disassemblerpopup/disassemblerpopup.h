@@ -14,11 +14,7 @@ class DisassemblerPopup : public QWidget
         ~DisassemblerPopup();
         void popup(const std::string& word);
 
-    protected:
-        virtual void wheelEvent(QWheelEvent* e);
-
     private:
-        void scalePopup();
         void updateGeometry();
 
     private:

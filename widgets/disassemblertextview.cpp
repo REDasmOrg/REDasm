@@ -361,7 +361,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 
 bool DisassemblerTextView::event(QEvent *e)
 {
-    if(e->type() == QEvent::ToolTip)
+    if(m_disassembler && !m_disassembler->busy() && (e->type() == QEvent::ToolTip))
     {
         QHelpEvent* helpevent = static_cast<QHelpEvent*>(e);
         this->showPopup(helpevent->pos());

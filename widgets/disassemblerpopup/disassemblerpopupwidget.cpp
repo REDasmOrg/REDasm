@@ -6,22 +6,24 @@
 
 #define DEFAULT_ROW_COUNT 10
 
-DisassemblerPopupWidget::DisassemblerPopupWidget(REDasm::DisassemblerAPI* disassembler, QWidget *parent): QPlainTextEdit(parent), m_disassembler(disassembler), m_index(-1), m_rows(DEFAULT_ROW_COUNT)
+DisassemblerPopupWidget::DisassemblerPopupWidget(ListingPopupRenderer *popuprenderer, REDasm::DisassemblerAPI* disassembler, QWidget *parent): QPlainTextEdit(parent), m_popuprenderer(popuprenderer), m_disassembler(disassembler), m_index(-1), m_rows(DEFAULT_ROW_COUNT)
 {
-    m_popuprenderer = new ListingPopupRenderer(disassembler);
     m_document = disassembler->document();
 
     QPalette palette = this->palette();
-    palette.setColor(QPalette::Background, palette.color(QPalette::ToolTipBase));
+    palette.setColor(QPalette::Base, palette.color(QPalette::ToolTipBase));
     this->setPalette(palette);
 
-    this->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setTextInteractionFlags(Qt::NoTextInteraction);
     this->setCursor(Qt::ArrowCursor);
-    this->setLineWrapMode(QPlainTextEdit::NoWrap);
-    this->setAutoFillBackground(true);
+
+    QTextOption textoption;
+    textoption.setWrapMode(QTextOption::NoWrap);
+    this->document()->setDefaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    this->document()->setDefaultTextOption(textoption);
+    this->document()->setUndoRedoEnabled(false);
 
     QGraphicsDropShadowEffect* dropshadow = new QGraphicsDropShadowEffect(this);
     dropshadow->setBlurRadius(5);

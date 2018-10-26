@@ -11,7 +11,7 @@ class DisassemblerPopupWidget : public QPlainTextEdit
     Q_OBJECT
 
     public:
-        explicit DisassemblerPopupWidget(REDasm::DisassemblerAPI *disassembler, QWidget *parent = NULL);
+        explicit DisassemblerPopupWidget(ListingPopupRenderer* popuprenderer, REDasm::DisassemblerAPI *disassembler, QWidget *parent = NULL);
         bool renderPopup(const std::string& word);
 
     private:

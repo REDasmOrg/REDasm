@@ -1,12 +1,13 @@
 #include "disassemblerpopup.h"
 #include <QLayout>
-#include <QDebug>
 
 DisassemblerPopup::DisassemblerPopup(REDasm::DisassemblerAPI *disassembler, QWidget *parent): QWidget(parent)
 {
-    m_popupwidget = new DisassemblerPopupWidget(disassembler, this);
+    m_popuprenderer = new ListingPopupRenderer(disassembler);
+    m_popupwidget = new DisassemblerPopupWidget(m_popuprenderer, disassembler, this);
 
     QVBoxLayout* vboxlayout = new QVBoxLayout(this);
+    vboxlayout->setContentsMargins(0, 0, 0, 0);
     vboxlayout->addWidget(m_popupwidget);
     this->setLayout(vboxlayout);
 
@@ -25,8 +26,8 @@ void DisassemblerPopup::popup(const std::string &word)
         return;
     }
 
-    this->updateGeometry();
     this->move(QCursor::pos());
+    this->updateGeometry();
     this->show();
 }
 
@@ -39,7 +40,5 @@ void DisassemblerPopup::updateGeometry()
 {
     QFontMetrics fm = this->fontMetrics();
     QTextDocument* document = m_popupwidget->document();
-    QSize sz = document->size().toSize();
-
-    this->resize(sz.width(), fm.height() * document->lineCount());
+    this->resize(m_popuprenderer->maxWidth(), fm.height() * document->lineCount());
 }

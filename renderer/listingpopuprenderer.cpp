@@ -3,7 +3,11 @@
 #include <QTextDocument>
 #include <QFontMetrics>
 
-ListingPopupRenderer::ListingPopupRenderer(REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_maxwidth(0) { }
+ListingPopupRenderer::ListingPopupRenderer(REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_maxwidth(0)
+{
+    this->setFlags(ListingPopupRenderer::HideSegmentName | ListingPopupRenderer::HideAddress);
+}
+
 int ListingPopupRenderer::maxWidth() const { return m_maxwidth; }
 ListingPopupRenderer::~ListingPopupRenderer() { }
 

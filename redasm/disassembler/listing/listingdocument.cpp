@@ -6,7 +6,7 @@
 
 namespace REDasm {
 
-ListingDocument::ListingDocument(): std::vector<ListingItemPtr>(), m_format(NULL) { }
+ListingDocument::ListingDocument(): std::deque<ListingItemPtr>(), m_format(NULL) { }
 ListingCursor *ListingDocument::cursor() { return &m_cursor; }
 
 void ListingDocument::moveToEP()

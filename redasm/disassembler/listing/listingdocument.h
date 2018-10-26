@@ -134,7 +134,7 @@ struct ListingDocumentChanged
     bool removed;
 };
 
-class ListingDocument: protected std::vector<ListingItemPtr>
+class ListingDocument: protected std::deque<ListingItemPtr>
 {
     using document_lock = std::unique_lock<std::mutex>;
 
@@ -144,14 +144,14 @@ class ListingDocument: protected std::vector<ListingItemPtr>
     private:
         typedef std::unordered_set<std::string> CommentSet;
         typedef std::unordered_map<address_t, CommentSet> CommentMap;
-        typedef std::vector<ListingItem*> FunctionList;
+        typedef std::deque<ListingItem*> FunctionList;
 
     public:
-        using std::vector<ListingItemPtr>::const_iterator;
-        using std::vector<ListingItemPtr>::iterator;
-        using std::vector<ListingItemPtr>::begin;
-        using std::vector<ListingItemPtr>::end;
-        using std::vector<ListingItemPtr>::size;
+        using std::deque<ListingItemPtr>::const_iterator;
+        using std::deque<ListingItemPtr>::iterator;
+        using std::deque<ListingItemPtr>::begin;
+        using std::deque<ListingItemPtr>::end;
+        using std::deque<ListingItemPtr>::size;
 
     public:
         ListingDocument();

@@ -26,6 +26,11 @@ void StateMachine::next()
     REDasm::log("Unknown state: " + std::to_string(currentstate.id));
 }
 
+void StateMachine::enqueueState(state_t state, u64 value, s64 index, const InstructionPtr &instruction)
+{
+    m_pending.push({ state, static_cast<u64>(value), index, instruction });
+}
+
 bool StateMachine::validateState(const State &state) const
 {
     RE_UNUSED(state);

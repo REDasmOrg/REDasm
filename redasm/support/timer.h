@@ -1,19 +1,17 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#define TIMER_INTERVAL 5 // 5ms
+#define TIMER_INTERVAL 1 // 1ms
 
 #include <condition_variable>
 #include <functional>
 #include <future>
-#include <mutex>
 #include "event.h"
 
 namespace REDasm {
 
 class Timer
 {
-    using timer_lock = std::unique_lock<std::mutex>;
     using clock = std::chrono::steady_clock;
 
     public:
@@ -45,7 +43,6 @@ class Timer
         TimerCallback m_timercallback;
         std::chrono::milliseconds m_interval;
         std::condition_variable m_condition;
-        std::mutex m_mutex;
         std::future<void> m_future;
 };
 

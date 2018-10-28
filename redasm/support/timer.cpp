@@ -3,13 +3,7 @@
 namespace REDasm {
 
 Timer::Timer(): m_state(Timer::InactiveState) { }
-
-Timer::~Timer()
-{
-    timer_lock m_lock(m_mutex);
-    m_state = Timer::InactiveState;
-    m_lock.unlock();
-}
+Timer::~Timer() { m_state = Timer::InactiveState; }
 
 size_t Timer::state() const { return m_state; }
 bool Timer::active() const { return m_state == Timer::ActiveState; }
@@ -65,12 +59,10 @@ void Timer::work()
 {
     while(m_state != Timer::InactiveState)
     {
-        timer_lock m_lock(m_mutex);
-
         if(m_state == Timer::ActiveState)
             m_timercallback();
 
-        m_condition.wait_until(m_lock, clock::now() + m_interval);
+        std::this_thread::sleep_for(m_interval);
     }
 }
 

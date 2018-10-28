@@ -1,5 +1,4 @@
 #include "timer.h"
-#include <iostream>
 
 namespace REDasm {
 
@@ -10,9 +9,6 @@ Timer::~Timer()
     timer_lock m_lock(m_mutex);
     m_state = Timer::InactiveState;
     m_lock.unlock();
-
-    if(m_worker.joinable())
-        m_worker.join();
 }
 
 size_t Timer::state() const { return m_state; }
@@ -51,9 +47,6 @@ void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)
     if(m_state != Timer::InactiveState)
         return;
 
-    if(m_worker.joinable())
-        m_worker.join();
-
     m_interval = interval;
     m_state = Timer::ActiveState;
     m_timercallback = cb;
@@ -65,7 +58,7 @@ void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)
         return;
     }
 
-    m_worker = std::thread(&Timer::work, this);
+    m_future = std::async(&Timer::work, this);
 }
 
 void Timer::work()

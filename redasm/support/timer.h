@@ -5,7 +5,7 @@
 
 #include <condition_variable>
 #include <functional>
-#include <thread>
+#include <future>
 #include <mutex>
 #include "event.h"
 
@@ -45,8 +45,8 @@ class Timer
         TimerCallback m_timercallback;
         std::chrono::milliseconds m_interval;
         std::condition_variable m_condition;
-        std::thread m_worker;
         std::mutex m_mutex;
+        std::future<void> m_future;
 };
 
 } // namespace REDasm

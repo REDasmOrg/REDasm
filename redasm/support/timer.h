@@ -12,8 +12,6 @@ namespace REDasm {
 
 class Timer
 {
-    using clock = std::chrono::steady_clock;
-
     public:
         Event<Timer*> stateChanged;
 

@@ -23,9 +23,9 @@ DisassemblerPopup::DisassemblerPopup(REDasm::DisassemblerAPI *disassembler, QWid
 
 DisassemblerPopup::~DisassemblerPopup() { delete m_popuprenderer; }
 
-void DisassemblerPopup::popup(const std::string &word)
+void DisassemblerPopup::popup(const std::string &word, int line)
 {
-    if(!m_popupwidget->renderPopup(word))
+    if(!m_popupwidget->renderPopup(word, line))
     {
         this->hide();
         return;

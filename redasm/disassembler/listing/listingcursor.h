@@ -10,7 +10,7 @@ namespace REDasm {
 class ListingCursor
 {
     public:
-        typedef std::pair<int, int> Position;
+        typedef std::pair<int, int> Position;       // [Line, Column]
         typedef std::stack<Position> PositionStack;
 
     public:

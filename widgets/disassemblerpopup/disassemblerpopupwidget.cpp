@@ -32,11 +32,11 @@ DisassemblerPopupWidget::DisassemblerPopupWidget(ListingPopupRenderer *popuprend
     this->setGraphicsEffect(dropshadow);
 }
 
-bool DisassemblerPopupWidget::renderPopup(const std::string &word)
+bool DisassemblerPopupWidget::renderPopup(const std::string &word, int line)
 {
     m_index = this->getIndexOfWord(word);
 
-    if(m_index == -1)
+    if((m_index == -1) || (m_index == line))
         return false;
 
     m_rows = DEFAULT_ROW_COUNT;

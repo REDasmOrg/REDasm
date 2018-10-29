@@ -12,7 +12,6 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     font.setStyleHint(QFont::TypeWriter);
 
     this->setFont(font);
-    this->setMouseTracking(true);
     this->setCursor(Qt::ArrowCursor);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setFocusPolicy(Qt::StrongFocus);
@@ -586,10 +585,14 @@ void DisassemblerTextView::showPopup(const QPoint& pos)
 {
     std::string word = m_renderer->getWordUnderCursor(pos, this->firstVisibleLine());
 
-    if(word.empty())
-        m_disassemblerpopup->hide();
-    else
-        m_disassemblerpopup->popup(word);
+    if(!word.empty())
+    {
+        REDasm::ListingCursor::Position cp = m_renderer->hitTest(pos, this->firstVisibleLine());
+        m_disassemblerpopup->popup(word, cp.first);
+        return;
+    }
+
+    m_disassemblerpopup->hide();
 }
 
 void DisassemblerTextView::renameCurrentSymbol()

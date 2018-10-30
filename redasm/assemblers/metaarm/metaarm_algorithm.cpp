@@ -21,6 +21,9 @@ void MetaARMAlgorithm::enqueueTarget(address_t target, const InstructionPtr &ins
     address_t ctarget = target & 0xFFFFFFFE;
     ControlFlowAlgorithm::enqueueTarget(ctarget, instruction);
 
+    if(!m_document->segment(ctarget)) // Check for valid address
+        return;
+
     if((instruction->id == ARM_INS_BX) || (instruction->id == ARM_INS_BLX))
     {
         if(target & 1)

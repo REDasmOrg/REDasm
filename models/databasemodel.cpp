@@ -4,35 +4,32 @@
 #include <QColor>
 #include "../redasm/signatures/patparser.h"
 
-DatabaseModel::DatabaseModel(QObject *parent) : QAbstractListModel(parent)
-{
-
-}
+DatabaseModel::DatabaseModel(QObject *parent) : QAbstractListModel(parent) { }
 
 void DatabaseModel::loadPats(const QStringList &patfiles)
 {
     REDasm::PatParser patparser;
-    this->_signaturedb.setSignatureType(REDasm::SignatureDB::IDASignature);
+    m_signaturedb.setSignatureType(REDasm::SignatureDB::IDASignature);
     this->beginResetModel();
 
     std::for_each(patfiles.begin(), patfiles.end(), [this, &patparser](const QString& file) {
         patparser.load(file.toStdString());
     });
 
-    this->_signaturedb << patparser.signatures();
+    m_signaturedb << patparser.signatures();
     this->endResetModel();
 }
 
 bool DatabaseModel::save(const QString& name, const QString &file)
 {
-    return this->_signaturedb.write(name.toStdString(), file.toStdString());
+    return m_signaturedb.write(name.toStdString(), file.toStdString());
 }
 
 QVariant DatabaseModel::data(const QModelIndex &index, int role) const
 {
     if(role == Qt::DisplayRole)
     {
-        const REDasm::Signature& signature = this->_signaturedb[index.row()];
+        const REDasm::Signature& signature = m_signaturedb[index.row()];
 
         if(index.column() == 0)
             return QString::fromStdString(signature.name);
@@ -75,7 +72,7 @@ QVariant DatabaseModel::headerData(int section, Qt::Orientation orientation, int
 
 int DatabaseModel::rowCount(const QModelIndex &) const
 {
-    return this->_signaturedb.count();
+    return m_signaturedb.count();
 }
 
 int DatabaseModel::columnCount(const QModelIndex &) const

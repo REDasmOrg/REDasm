@@ -21,7 +21,7 @@ class ThemeProvider
         static QColor dottedColor();
 
     private:
-        static QJsonObject _theme;
+        static QJsonObject m_theme;
 };
 
 #endif // THEMEPROVIDER_H

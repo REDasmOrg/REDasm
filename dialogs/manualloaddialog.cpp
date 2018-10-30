@@ -2,7 +2,7 @@
 #include "ui_manualloaddialog.h"
 #include "../redasm/formats/binary/binary.h"
 
-ManualLoadDialog::ManualLoadDialog(REDasm::FormatPlugin *format, u64 size, QWidget *parent) : QDialog(parent), ui(new Ui::ManualLoadDialog), _format(format), _size(size)
+ManualLoadDialog::ManualLoadDialog(REDasm::FormatPlugin *format, u64 size, QWidget *parent) : QDialog(parent), ui(new Ui::ManualLoadDialog), m_format(format), m_size(size)
 {
     ui->setupUi(this);
     this->loadBits();
@@ -58,11 +58,11 @@ void ManualLoadDialog::updateInputMask()
 
 void ManualLoadDialog::on_buttonBox_accepted()
 {
-    REDasm::BinaryFormat* binaryformat = dynamic_cast<REDasm::BinaryFormat*>(this->_format);
+    REDasm::BinaryFormat* binaryformat = dynamic_cast<REDasm::BinaryFormat*>(m_format);
 
     binaryformat->build(ui->cbAssemblers->currentText().toStdString(),
                         ui->cbBits->currentData().toInt(),
                         ui->leOffset->text().toULongLong(NULL, 16),
                         ui->leBaseAddress->text().toULongLong(NULL, 16),
-                        ui->leEntryPoint->text().toULongLong(NULL, 16), this->_size);
+                        ui->leEntryPoint->text().toULongLong(NULL, 16), m_size);
 }

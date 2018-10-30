@@ -20,7 +20,7 @@ class DatabaseModel : public QAbstractListModel
         virtual int columnCount(const QModelIndex& = QModelIndex()) const;
 
     private:
-        REDasm::SignatureDB _signaturedb;
+        REDasm::SignatureDB m_signaturedb;
 };
 
 #endif // DATABASEMODEL_H

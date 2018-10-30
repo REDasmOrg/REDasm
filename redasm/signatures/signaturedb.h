@@ -53,13 +53,13 @@ class SignatureDB
         void eachHexByte(const std::string& hexstring, std::function<bool(const std::string&, u32)> cb) const;
 
     private:
-        u32 _signaturetype, _longestpattern; // Signature type, Longest pattern length
-        std::string _name;
-        std::set<std::string> _duplicates;   // Signatures
-        CollisionMap _collisions;            // Names
-        GraphMap _graph;                     // Matching Graph
-        EdgeMap _edges;                      // Edges
-        SignatureList _signatures;
+        u32 m_signaturetype, m_longestpattern; // Signature type, Longest pattern length
+        std::string m_name;
+        std::set<std::string> m_duplicates;   // Signatures
+        CollisionMap m_collisions;            // Names
+        GraphMap m_graph;                     // Matching Graph
+        EdgeMap m_edges;                      // Edges
+        SignatureList m_signatures;
 };
 
 } // namespace REDasm

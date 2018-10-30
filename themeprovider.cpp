@@ -3,7 +3,7 @@
 #include <QVariant>
 #include <QFile>
 
-QJsonObject ThemeProvider::_theme;
+QJsonObject ThemeProvider::m_theme;
 
 ThemeProvider::ThemeProvider()
 {
@@ -12,7 +12,7 @@ ThemeProvider::ThemeProvider()
 
 void ThemeProvider::loadTheme(const QString& theme)
 {
-    if(!_theme.isEmpty())
+    if(!m_theme.isEmpty())
         return;
 
     QFile f(QString(":/themes/disassembler/%1.json").arg(theme));
@@ -26,7 +26,7 @@ void ThemeProvider::loadTheme(const QString& theme)
     QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
 
     if(doc.isObject())
-        _theme = doc.object();
+        m_theme = doc.object();
 
     f.close();
 }
@@ -35,8 +35,8 @@ QColor ThemeProvider::themeValue(const QString &name)
 {
     ThemeProvider::loadTheme("light");
 
-    if(_theme.contains(name))
-        return QColor(_theme[name].toString());
+    if(m_theme.contains(name))
+        return QColor(m_theme[name].toString());
 
     return QColor();
 }

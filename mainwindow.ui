@@ -189,7 +189,7 @@
      <x>0</x>
      <y>0</y>
      <width>1118</width>
-     <height>28</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -201,11 +201,12 @@
     <addaction name="separator"/>
     <addaction name="action_Exit"/>
    </widget>
-   <widget class="QMenu" name="menu_REDasm">
+   <widget class="QMenu" name="menu_Settings">
     <property name="title">
      <string>&amp;REDasm</string>
     </property>
     <addaction name="action_Database"/>
+    <addaction name="actionSettings"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -214,7 +215,7 @@
     <addaction name="action_About_REDasm"/>
    </widget>
    <addaction name="menu_File"/>
-   <addaction name="menu_REDasm"/>
+   <addaction name="menu_Settings"/>
    <addaction name="menu"/>
   </widget>
   <action name="action_Open">
@@ -243,6 +244,11 @@
   <action name="action_About_REDasm">
    <property name="text">
     <string>&amp;About REDasm</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
    </property>
   </action>
  </widget>

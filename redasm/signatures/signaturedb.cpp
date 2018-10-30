@@ -9,40 +9,13 @@
 
 namespace REDasm {
 
-SignatureDB::SignatureDB(): _signaturetype(SignatureDB::REDasmSignature), _longestpattern(0)
-{
-
-}
-
-u32 SignatureDB::count() const
-{
-    return this->_signatures.size();
-}
-
-u32 SignatureDB::longestPattern() const
-{
-    return this->_longestpattern;
-}
-
-u32 SignatureDB::signatureType() const
-{
-    return this->_signaturetype;
-}
-
-SignatureList::iterator SignatureDB::begin()
-{
-    return this->_signatures.begin();
-}
-
-SignatureList::iterator SignatureDB::end()
-{
-    return this->_signatures.end();
-}
-
-void SignatureDB::setSignatureType(u32 signaturetype)
-{
-    this->_signaturetype = signaturetype;
-}
+SignatureDB::SignatureDB(): m_signaturetype(SignatureDB::REDasmSignature), m_longestpattern(0) { }
+u32 SignatureDB::count() const { return m_signatures.size(); }
+u32 SignatureDB::longestPattern() const { return m_longestpattern; }
+u32 SignatureDB::signatureType() const { return m_signaturetype; }
+SignatureList::iterator SignatureDB::begin() { return m_signatures.begin(); }
+SignatureList::iterator SignatureDB::end() { return m_signatures.end(); }
+void SignatureDB::setSignatureType(u32 signaturetype) { m_signaturetype = signaturetype; }
 
 bool SignatureDB::match(const std::string &hexbytes, Signature& signature)
 {
@@ -51,14 +24,14 @@ bool SignatureDB::match(const std::string &hexbytes, Signature& signature)
 
     this->eachHexByte(hexbytes, [this, &currentgraph, &failed](const std::string& pattern, u32 i) -> bool {
         if(i == 0) {
-            auto it = this->_graph.find(pattern);
+            auto it = m_graph.find(pattern);
 
-            if(it != this->_graph.end())
+            if(it != m_graph.end())
                 currentgraph = it->second.get();
             else
-                it = this->_graph.find(WILDCARD_BYTE);
+                it = m_graph.find(WILDCARD_BYTE);
 
-            if(it != this->_graph.end())
+            if(it != m_graph.end())
                 currentgraph = it->second.get();
             else
                 return false;
@@ -66,7 +39,7 @@ bool SignatureDB::match(const std::string &hexbytes, Signature& signature)
             return true;
         }
 
-        EdgeList& edges = this->_edges[currentgraph];
+        EdgeList& edges = m_edges[currentgraph];
         auto it = this->findEdge(edges, pattern);
 
         if(it == edges.end()) {
@@ -86,7 +59,7 @@ bool SignatureDB::match(const std::string &hexbytes, Signature& signature)
 
     if(!failed && currentgraph->isleaf && (currentgraph->index > -1))
     {
-        signature = this->_signatures[currentgraph->index];
+        signature = m_signatures[currentgraph->index];
         return true;
     }
 
@@ -95,7 +68,7 @@ bool SignatureDB::match(const std::string &hexbytes, Signature& signature)
 
 bool SignatureDB::write(const std::string &name, const std::string& file)
 {
-    if(this->_signatures.empty())
+    if(m_signatures.empty())
         return false;
 
     std::fstream ofs(file, std::ios::out | std::ios::trunc | std::ios::binary);
@@ -103,15 +76,15 @@ bool SignatureDB::write(const std::string &name, const std::string& file)
     if(!ofs.is_open())
         return false;
 
-    this->_name = name;
+    m_name = name;
 
     ofs.write(RDB_SIGNATURE, 3);
-    Serializer::serializeString(ofs, this->_name);
-    Serializer::serializeScalar(ofs, this->_signatures.size(), sizeof(u32));
-    Serializer::serializeScalar(ofs, this->_signaturetype);
-    Serializer::serializeScalar(ofs, this->_longestpattern);
+    Serializer::serializeString(ofs, m_name);
+    Serializer::serializeScalar(ofs, m_signatures.size(), sizeof(u32));
+    Serializer::serializeScalar(ofs, m_signaturetype);
+    Serializer::serializeScalar(ofs, m_longestpattern);
 
-    std::for_each(this->_signatures.begin(), this->_signatures.end(), [&ofs](const Signature& sig) {
+    std::for_each(m_signatures.begin(), m_signatures.end(), [&ofs](const Signature& sig) {
         Serializer::serializeString(ofs, sig.name);
         Serializer::obfuscateString(ofs, sig.pattern);
         Serializer::serializeScalar(ofs, sig.alen);
@@ -137,10 +110,10 @@ bool SignatureDB::read(const std::string &file)
         return false;
 
     u32 count = 0;
-    Serializer::deserializeString(ifs, this->_name);
+    Serializer::deserializeString(ifs, m_name);
     Serializer::deserializeScalar(ifs, &count);
-    Serializer::deserializeScalar(ifs, &this->_signaturetype);
-    Serializer::deserializeScalar(ifs, &this->_longestpattern);
+    Serializer::deserializeScalar(ifs, &m_signaturetype);
+    Serializer::deserializeScalar(ifs, &m_longestpattern);
 
     for(u32 i = 0; i < count; i++)
     {
@@ -173,31 +146,31 @@ SignatureDB &SignatureDB::operator<<(const SignatureList &signatures)
 
 SignatureDB &SignatureDB::operator<<(Signature signature)
 {
-    if(this->_duplicates.find(signature.pattern) != this->_duplicates.end())
+    if(m_duplicates.find(signature.pattern) != m_duplicates.end())
         return *this;
 
-    this->_longestpattern = std::max(this->_longestpattern, static_cast<u32>(signature.length()));
+    m_longestpattern = std::max(m_longestpattern, static_cast<u32>(signature.length()));
 
     signature.name = this->uncollide(signature.name);
-    this->_duplicates.insert(signature.pattern);
+    m_duplicates.insert(signature.pattern);
 
     Graph* currentgraph = NULL;
 
     this->eachHexByte(signature.pattern, [this, &currentgraph](const std::string& pattern, u32 i) -> bool {
         if(i == 0) {
-            auto it = this->_graph.find(pattern);
+            auto it = m_graph.find(pattern);
 
-            if(it == this->_graph.end())
+            if(it == m_graph.end())
             {
-                this->_graph[pattern] = std::make_unique<Graph>(pattern);
-                currentgraph = this->_graph[pattern].get();
-                this->_edges[currentgraph] = EdgeList(); // Initialize Edges for this Graph
+                m_graph[pattern] = std::make_unique<Graph>(pattern);
+                currentgraph = m_graph[pattern].get();
+                m_edges[currentgraph] = EdgeList(); // Initialize Edges for this Graph
             }
             else
                 currentgraph = it->second.get();
         }
         else {
-            EdgeList& edges = this->_edges[currentgraph];
+            EdgeList& edges = m_edges[currentgraph];
             auto it = this->findEdge(edges, pattern);
 
             if(it == edges.end())
@@ -205,7 +178,7 @@ SignatureDB &SignatureDB::operator<<(Signature signature)
                 edges.push_back(std::make_unique<Graph>(pattern));
                 currentgraph->isleaf = false;
                 currentgraph = edges.back().get();
-                this->_edges[currentgraph] = EdgeList(); // Initialize Edges for this Graph
+                m_edges[currentgraph] = EdgeList(); // Initialize Edges for this Graph
 
             }
             else
@@ -215,24 +188,24 @@ SignatureDB &SignatureDB::operator<<(Signature signature)
         return true;
     });
 
-    currentgraph->index = this->_signatures.size();
-    this->_signatures.push_back(signature);
+    currentgraph->index = m_signatures.size();
+    m_signatures.push_back(signature);
     return *this;
 }
 
 const Signature &SignatureDB::operator[](size_t index) const
 {
-    return this->_signatures[index];
+    return m_signatures[index];
 }
 
 std::string SignatureDB::uncollide(const std::string &name)
 {
-    auto it = this->_collisions.find(name);
+    auto it = m_collisions.find(name);
 
-    if(it != this->_collisions.end())
+    if(it != m_collisions.end())
         return name + "_" + std::to_string(++(it->second));
     else
-        this->_collisions[name] = 0;
+        m_collisions[name] = 0;
 
     return name;
 }

@@ -9,18 +9,18 @@
 namespace REDasm {
 namespace COFF {
 
-SymbolTable::SymbolTable(u8 *symdata, u64 count): _count(count), _symdata(symdata)
+SymbolTable::SymbolTable(u8 *symdata, u64 count): m_count(count), m_symdata(symdata)
 {
-    this->_stringtable = reinterpret_cast<char*>(this->_symdata + (count * COFF_ENTRYSIZE));
+    m_stringtable = reinterpret_cast<char*>(m_symdata + (count * COFF_ENTRYSIZE));
 }
 
 void SymbolTable::read(SymbolCallback symbolcb)
 {
-    COFF_Entry* entry = reinterpret_cast<COFF_Entry*>(this->_symdata);
+    COFF_Entry* entry = reinterpret_cast<COFF_Entry*>(m_symdata);
     std::string name;
 
     // All needed info for disassemblers & symbol tables: http://wiki.osdev.org/COFF#Symbol_Table
-    while(reinterpret_cast<size_t*>(entry) < reinterpret_cast<size_t*>(this->_stringtable))
+    while(reinterpret_cast<size_t*>(entry) < reinterpret_cast<size_t*>(m_stringtable))
     {
         if(entry->e_value && (entry->e_scnum > 0) && ((entry->e_sclass == C_EXT) || (entry->e_sclass == C_STAT)))
         {
@@ -39,7 +39,7 @@ void SymbolTable::read(SymbolCallback symbolcb)
 
 std::string SymbolTable::nameFromTable(u64 offset) const
 {
-    return std::string(reinterpret_cast<const char*>(this->_stringtable + offset));
+    return std::string(reinterpret_cast<const char*>(m_stringtable + offset));
 }
 
 void loadSymbols(SymbolCallback symbolcb, u8 *symdata, u64 count)

@@ -3,51 +3,33 @@
 
 namespace REDasm {
 
-ReferenceTable::ReferenceTable()
-{
-
-}
+ReferenceTable::ReferenceTable() { }
 
 void ReferenceTable::push(address_t address, address_t refbyaddress)
 {
-    auto it = this->_references.find(address);
+    auto it = m_references.find(address);
 
-    if(it == this->_references.end())
+    if(it == m_references.end())
     {
         ReferenceSet rs;
         rs.insert(refbyaddress);
-        this->_references[address] = rs;
+        m_references[address] = rs;
         return;
     }
 
     it->second.insert(refbyaddress);
 }
 
-bool ReferenceTable::hasReferences(address_t address) const
-{
-    return this->references(address) != this->_references.end();
-}
-
-ReferenceTable::ReferenceMap::const_iterator ReferenceTable::begin() const
-{
-    return this->_references.begin();
-}
-
-ReferenceTable::ReferenceMap::const_iterator ReferenceTable::end() const
-{
-    return this->_references.end();
-}
-
-ReferenceTable::ReferenceMap::const_iterator ReferenceTable::references(address_t address) const
-{
-    return this->_references.find(address);
-}
+bool ReferenceTable::hasReferences(address_t address) const { return this->references(address) != m_references.end(); }
+ReferenceTable::ReferenceMap::const_iterator ReferenceTable::begin() const { return m_references.begin(); }
+ReferenceTable::ReferenceMap::const_iterator ReferenceTable::end() const { return m_references.end(); }
+ReferenceTable::ReferenceMap::const_iterator ReferenceTable::references(address_t address) const { return m_references.find(address); }
 
 u64 ReferenceTable::referencesCount(address_t address) const
 {
     auto it = this->references(address);
 
-    if(it != this->_references.end())
+    if(it != m_references.end())
         return it->second.size();
 
     return 0;
@@ -55,9 +37,9 @@ u64 ReferenceTable::referencesCount(address_t address) const
 
 ReferenceVector ReferenceTable::referencesToVector(address_t address) const
 {
-    auto it = this->_references.find(address);
+    auto it = m_references.find(address);
 
-    if(it == this->_references.end())
+    if(it == m_references.end())
         return ReferenceVector();
 
     return ReferenceTable::toVector(it->second);

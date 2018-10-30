@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-DotNetReader::DotNetReader(ImageCor20MetaData *cormetadata): _cormetadata(cormetadata), _cortablesheader(NULL)
+DotNetReader::DotNetReader(ImageCor20MetaData *cormetadata): m_cormetadata(cormetadata), m_cortablesheader(NULL)
 {
     REDasm::log(".NET Version: " + PeDotNet::getVersion(cormetadata));
     ImageStreamHeader* streamheader = PeDotNet::getStream(cormetadata, "#~");
@@ -13,15 +13,15 @@ DotNetReader::DotNetReader(ImageCor20MetaData *cormetadata): _cormetadata(cormet
     if(!IS_STREAM_VALID(streamheader))
         return;
 
-    this->_cortablesheader = REDasm::relpointer<ImageCor20TablesHeader>(cormetadata, streamheader->Offset);
-    PeDotNet::getTables(this->_cortablesheader, this->_cortables);
+    m_cortablesheader = REDasm::relpointer<ImageCor20TablesHeader>(cormetadata, streamheader->Offset);
+    PeDotNet::getTables(m_cortablesheader, m_cortables);
 
     streamheader = PeDotNet::getStream(cormetadata, "#Strings");
 
     if(!IS_STREAM_VALID(streamheader))
         return;
 
-    this->_corstrings = REDasm::relpointer<char>(cormetadata, streamheader->Offset);
+    m_corstrings = REDasm::relpointer<char>(cormetadata, streamheader->Offset);
 }
 
 void DotNetReader::iterateTypes(MethodCallback cbmethods) const
@@ -41,7 +41,7 @@ void DotNetReader::iterateTypes(MethodCallback cbmethods) const
 
 bool DotNetReader::isValid() const
 {
-    ImageStreamHeader* streamheader = PeDotNet::getStream(this->_cormetadata, "#~");
+    ImageStreamHeader* streamheader = PeDotNet::getStream(m_cormetadata, "#~");
 
     if(!streamheader || !streamheader->Offset)
         return false;
@@ -49,7 +49,7 @@ bool DotNetReader::isValid() const
     return true;
 }
 
-const CorTableRows &DotNetReader::getTableRows(u32 cortable) const { return this->_cortables.items.at(cortable); }
+const CorTableRows &DotNetReader::getTableRows(u32 cortable) const { return m_cortables.items.at(cortable); }
 
 void DotNetReader::buildType(std::string &dest, u32 stringidx) const
 {
@@ -100,10 +100,10 @@ std::string DotNetReader::getString(u32 index) const
     if(!index)
         return "string_null";
 
-    if(!this->_corstrings)
+    if(!m_corstrings)
         return "string_" + std::to_string(index);
 
-    return this->_corstrings + index;
+    return m_corstrings + index;
 }
 
 } // namespace REDasm

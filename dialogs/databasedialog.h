@@ -25,7 +25,7 @@ class DatabaseDialog : public QDialog
 
     private:
         Ui::DatabaseDialog *ui;
-        DatabaseModel* _databasemodel;
+        DatabaseModel* m_databasemodel;
 };
 
 #endif // DATABASEDIALOG_H

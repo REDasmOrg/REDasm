@@ -27,8 +27,8 @@ class ManualLoadDialog : public QDialog
 
     private:
         Ui::ManualLoadDialog* ui;
-        REDasm::FormatPlugin* _format;
-        u64 _size;
+        REDasm::FormatPlugin* m_format;
+        u64 m_size;
 };
 
 #endif // MANUALLOADDIALOG_H

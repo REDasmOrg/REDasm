@@ -32,8 +32,8 @@ class MIPSQuirks
         static bool decode(Buffer buffer, const InstructionPtr& instruction);
 
     private:
-        static std::unordered_map<u32, DecodeCallback> _opcodetypes;
-        static std::unordered_map<u32, InstructionCallback> _cop2map;
+        static std::unordered_map<u32, DecodeCallback> m_opcodetypes;
+        static std::unordered_map<u32, InstructionCallback> m_cop2map;
 };
 
 }

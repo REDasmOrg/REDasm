@@ -22,9 +22,9 @@ class SymbolTable
         std::string nameFromTable(u64 offset) const;
 
     private:
-        u64 _count;
-        u8* _symdata;
-        char* _stringtable;
+        u64 m_count;
+        u8* m_symdata;
+        char* m_stringtable;
 };
 
 void loadSymbols(SymbolCallback symbolcb, u8* symdata, u64 count);

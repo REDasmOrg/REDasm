@@ -25,10 +25,10 @@ class DotNetReader
         std::string getString(u32 index) const;
 
     private:
-        ImageCor20MetaData* _cormetadata;
-        ImageCor20TablesHeader* _cortablesheader;
-        CorTables _cortables;
-        char* _corstrings;
+        ImageCor20MetaData* m_cormetadata;
+        ImageCor20TablesHeader* m_cortablesheader;
+        CorTables m_cortables;
+        char* m_corstrings;
 };
 
 } // namespace REDasm

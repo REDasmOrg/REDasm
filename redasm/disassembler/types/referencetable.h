@@ -27,7 +27,7 @@ class ReferenceTable
         static ReferenceVector toVector(const ReferenceSet& refset);
 
     private:
-        ReferenceMap _references;
+        ReferenceMap m_references;
 };
 
 }

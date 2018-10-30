@@ -7,8 +7,8 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Da
 {
     ui->setupUi(this);
 
-    this->_databasemodel = new DatabaseModel(ui->tvDatabase);
-    ui->tvDatabase->setModel(this->_databasemodel);
+    m_databasemodel = new DatabaseModel(ui->tvDatabase);
+    ui->tvDatabase->setModel(m_databasemodel);
     ui->tvDatabase->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvDatabase->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvDatabase->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
@@ -24,7 +24,7 @@ DatabaseDialog::~DatabaseDialog()
 
 void DatabaseDialog::validateDialog()
 {
-    ui->tbSave->setEnabled(!ui->leName->text().isEmpty() && (this->_databasemodel->rowCount() > 0));
+    ui->tbSave->setEnabled(!ui->leName->text().isEmpty() && (m_databasemodel->rowCount() > 0));
 }
 
 void DatabaseDialog::on_tbImport_clicked()
@@ -34,7 +34,7 @@ void DatabaseDialog::on_tbImport_clicked()
     if(files.isEmpty())
         return;
 
-    this->_databasemodel->loadPats(files);
+    m_databasemodel->loadPats(files);
     this->validateDialog();
 }
 
@@ -45,5 +45,5 @@ void DatabaseDialog::on_tbSave_clicked()
     if(s.isEmpty())
         return;
 
-    this->_databasemodel->save(ui->leName->text(), s);
+    m_databasemodel->save(ui->leName->text(), s);
 }

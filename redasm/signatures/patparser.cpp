@@ -4,10 +4,7 @@
 
 namespace REDasm {
 
-PatParser::PatParser()
-{
-
-}
+PatParser::PatParser() { }
 
 bool PatParser::load(const std::string &patfile)
 {
@@ -20,7 +17,7 @@ bool PatParser::load(const std::string &patfile)
     {
         if(!this->parse(fs))
         {
-            this->_signatures.clear();
+            m_signatures.clear();
             return false;
         }
     }
@@ -29,10 +26,7 @@ bool PatParser::load(const std::string &patfile)
     return true;
 }
 
-const SignatureList &PatParser::signatures() const
-{
-    return this->_signatures;
-}
+const SignatureList &PatParser::signatures() const { return m_signatures; }
 
 bool PatParser::parse(std::ifstream &fs)
 {
@@ -97,7 +91,7 @@ bool PatParser::parse(std::ifstream &fs)
     sig.alen = pi.alen;
     sig.asum = pi.asum;
 
-    this->_signatures.push_back(sig);
+    m_signatures.push_back(sig);
     return true;
 }
 

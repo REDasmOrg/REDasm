@@ -11,22 +11,19 @@
 
 namespace REDasm {
 
-std::unordered_map<u32, MIPSQuirks::DecodeCallback> MIPSQuirks::_opcodetypes;
-std::unordered_map<u32, MIPSQuirks::InstructionCallback> MIPSQuirks::_cop2map;
+std::unordered_map<u32, MIPSQuirks::DecodeCallback> MIPSQuirks::m_opcodetypes;
+std::unordered_map<u32, MIPSQuirks::InstructionCallback> MIPSQuirks::m_cop2map;
 
-MIPSQuirks::MIPSQuirks()
-{
-
-}
+MIPSQuirks::MIPSQuirks() { }
 
 bool MIPSQuirks::decode(Buffer buffer, const InstructionPtr &instruction)
 {
     initOpCodes();
 
     u32 data = *reinterpret_cast<u32*>(buffer.data), opcode = data & 0xFC000000;
-    auto cb = _opcodetypes.find(opcode);
+    auto cb = m_opcodetypes.find(opcode);
 
-    if(cb != _opcodetypes.end())
+    if(cb != m_opcodetypes.end())
         return cb->second(data, instruction);
 
     return false;
@@ -42,9 +39,9 @@ bool MIPSQuirks::decodeCop2Opcode(u32 data, const InstructionPtr &instruction)
     }
 
     u32 ins = data & COP2_MASK;
-    auto cb = _cop2map.find(ins);
+    auto cb = m_cop2map.find(ins);
 
-    if(cb != _cop2map.end())
+    if(cb != m_cop2map.end())
     {
         instruction->reset();
         cb->second(data, instruction);
@@ -56,15 +53,15 @@ bool MIPSQuirks::decodeCop2Opcode(u32 data, const InstructionPtr &instruction)
 
 void MIPSQuirks::initOpCodes()
 {
-    if(_opcodetypes.empty())
+    if(m_opcodetypes.empty())
     {
-        _opcodetypes[COP2_OPCODE_TYPE] = &MIPSQuirks::decodeCop2Opcode;
+        m_opcodetypes[COP2_OPCODE_TYPE] = &MIPSQuirks::decodeCop2Opcode;
     }
 
-    if(_cop2map.empty())
+    if(m_cop2map.empty())
     {
-        _cop2map[COP2_INS_CFC2] = &MIPSQuirks::decodeCfc2;
-        _cop2map[COP2_INS_CTC2] = &MIPSQuirks::decodeCtc2;
+        m_cop2map[COP2_INS_CFC2] = &MIPSQuirks::decodeCfc2;
+        m_cop2map[COP2_INS_CTC2] = &MIPSQuirks::decodeCtc2;
     }
 }
 

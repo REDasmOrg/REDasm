@@ -36,8 +36,8 @@ class PatParser
         bool parse(std::ifstream &fs);
 
     private:
-        SignatureList _signatures;
-        std::set<std::string> _duplicates;
+        SignatureList m_signatures;
+        std::set<std::string> m_duplicates;
 };
 
 } // namespace REDasm

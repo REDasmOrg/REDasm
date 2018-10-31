@@ -175,6 +175,7 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
     {
         Segment* segment = m_document->segment(item->address);
         this->renderAddress(item, rl);
+        this->renderIndent(rl);
         rl.push(symbol->name + " ", "label_fg");
 
         if(!segment->is(SegmentTypes::Bss))

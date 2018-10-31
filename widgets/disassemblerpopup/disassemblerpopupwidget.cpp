@@ -15,6 +15,7 @@ DisassemblerPopupWidget::DisassemblerPopupWidget(ListingPopupRenderer *popuprend
     palette.setColor(QPalette::Base, palette.color(QPalette::ToolTipBase));
     this->setPalette(palette);
 
+    this->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setTextInteractionFlags(Qt::NoTextInteraction);
@@ -22,7 +23,6 @@ DisassemblerPopupWidget::DisassemblerPopupWidget(ListingPopupRenderer *popuprend
 
     QTextOption textoption;
     textoption.setWrapMode(QTextOption::NoWrap);
-    this->document()->setDefaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     this->document()->setDefaultTextOption(textoption);
     this->document()->setUndoRedoEnabled(false);
     this->document()->setDocumentMargin(0);

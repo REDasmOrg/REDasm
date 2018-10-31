@@ -74,7 +74,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(symbol->address, m_disassembler->format()->bits(), false));
+            return S_TO_QS(REDasm::hex(symbol->address, m_disassembler->format()->bits()));
 
         if(index.column() == 1)
         {

@@ -43,7 +43,7 @@ std::string ordinal(const OrdinalsMap &ordinals, u64 ordinal, const std::string 
     auto it = ordinals.find(ordinal);
 
     if(it == ordinals.end())
-        return fallbackprefix + "Ordinal__" + REDasm::hex(ordinal, 16, false);
+        return fallbackprefix + "Ordinal__" + REDasm::hex(ordinal, 16);
 
     return it->second;
 }

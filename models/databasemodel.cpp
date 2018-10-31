@@ -36,9 +36,9 @@ QVariant DatabaseModel::data(const QModelIndex &index, int role) const
         else if(index.column() == 1)
             return QString::fromStdString(signature.pattern);
         else if(index.column() == 2)
-            return QString::fromStdString(REDasm::hex(static_cast<u16>(signature.alen), 8, false));
+            return QString::fromStdString(REDasm::hex(static_cast<u16>(signature.alen), 8));
         else if(index.column() == 3)
-            return QString::fromStdString(REDasm::hex(signature.asum, 16, false));
+            return QString::fromStdString(REDasm::hex(signature.asum, 16));
     }
     else if(role == Qt::ForegroundRole)
     {

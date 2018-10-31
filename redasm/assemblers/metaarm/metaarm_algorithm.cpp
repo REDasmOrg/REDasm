@@ -27,9 +27,9 @@ void MetaARMAlgorithm::enqueueTarget(address_t target, const InstructionPtr &ins
     if((instruction->id == ARM_INS_BX) || (instruction->id == ARM_INS_BLX))
     {
         if(target & 1)
-            m_document->comment(instruction->address, "@ " + REDasm::hex(ctarget, m_format->bits(), false) + " -> THUMB");
+            m_document->comment(instruction->address, "@ " + REDasm::hex(ctarget, m_format->bits()) + " -> THUMB");
         else
-            m_document->comment(instruction->address, "@ " + REDasm::hex(ctarget, m_format->bits(), false) + " -> ARM");
+            m_document->comment(instruction->address, "@ " + REDasm::hex(ctarget, m_format->bits()) + " -> ARM");
 
         m_armstate[ctarget] = static_cast<bool>(target & 1);
         return;

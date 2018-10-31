@@ -56,7 +56,7 @@ bool AssemblerAlgorithm::analyze()
 }
 
 bool AssemblerAlgorithm::validateState(const State &state) const { return m_document->segment(state.address); }
-void AssemblerAlgorithm::onNewState(const State &state) const { REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits(), false)); }
+void AssemblerAlgorithm::onNewState(const State &state) const { REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits())); }
 
 u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const InstructionPtr& instruction)
 {
@@ -151,7 +151,7 @@ void AssemblerAlgorithm::branchState(State *state)
         FORWARD_STATE(AssemblerAlgorithm::JumpState, state);
     else
         REDasm::log("Invalid branch state for instruction " + REDasm::quoted(instruction->mnemonic) + " @ "
-                                                            + REDasm::hex(instruction->address, m_format->bits(), false));
+                                                            + REDasm::hex(instruction->address, m_format->bits()));
 
 }
 
@@ -186,7 +186,7 @@ void AssemblerAlgorithm::addressTableState(State *state)
     {
         m_disassembler->pushReference(state->address, instruction->address);
 
-        REDasm::log("Found address table @ " + REDasm::hex(state->address, m_format->bits(), false));
+        REDasm::log("Found address table @ " + REDasm::hex(state->address, m_format->bits()));
         state_t fwdstate = AssemblerAlgorithm::BranchState;
 
         if(instruction->is(InstructionTypes::Call))

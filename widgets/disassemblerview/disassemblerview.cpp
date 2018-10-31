@@ -317,8 +317,8 @@ void DisassemblerView::displayAddress(address_t address)
     REDasm::SymbolPtr functionstart = doc->functionStartSymbol(address);
 
     QString segm = segment ? S_TO_QS(segment->name) : "???",
-            offs = segment ? S_TO_QS(REDasm::hex(format->offset(address), format->bits(), false)) : "???",
-            addr = S_TO_QS(REDasm::hex(address, format->bits(), false));
+            offs = segment ? S_TO_QS(REDasm::hex(format->offset(address), format->bits())) : "???",
+            addr = S_TO_QS(REDasm::hex(address, format->bits()));
 
     QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
@@ -336,7 +336,7 @@ void DisassemblerView::displayAddress(address_t address)
             size_t offset = address - functionstart->address;
 
             if(offset)
-                func += "+" + S_TO_QS(REDasm::hex(offset, 8, false));
+                func += "+" + S_TO_QS(REDasm::hex(offset, 8));
         }
 
         s = QString::fromWCharArray(L"<b>Function: </b>%1\u00A0\u00A0").arg(func) + s;

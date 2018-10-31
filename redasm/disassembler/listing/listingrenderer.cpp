@@ -4,7 +4,7 @@
 
 #define INDENT_WIDTH         2
 #define INDENT_COMMENT       10
-#define HEX_ADDRESS(address) REDasm::hex(address, m_disassembler->format()->bits(), false)
+#define HEX_ADDRESS(address) REDasm::hex(address, m_disassembler->format()->bits())
 
 namespace REDasm {
 
@@ -202,7 +202,7 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
                 FormatPlugin* format = m_disassembler->format();
 
                 if(m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
-                    rl.push(REDasm::hex(value, format->bits(), false), "data_fg");
+                    rl.push(REDasm::hex(value, format->bits()), "data_fg");
                 else
                     rl.push("??", "data_fg");
             }
@@ -318,7 +318,7 @@ void ListingRenderer::renderTable(const SymbolPtr &symbol, RendererLine& rl) con
         SymbolPtr ptrsymbol = m_document->symbol(value);
 
         if(!ptrsymbol)
-            rl.push(REDasm::hex(value, format->bits(), false), "data_fg");
+            rl.push(REDasm::hex(value, format->bits()), "data_fg");
         else
             rl.push(ptrsymbol->name, "label_fg");
     }

@@ -47,7 +47,7 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
     if(!this->readAddress(address, m_format->addressWidth(), &target))
         return 0;
 
-    REDasm::status("Checking address table @ " + REDasm::hex(startaddress, m_format->bits(), false));
+    REDasm::status("Checking address table @ " + REDasm::hex(startaddress, m_format->bits()));
     int c = 0;
 
     while(this->readAddress(address, m_format->addressWidth(), &target))

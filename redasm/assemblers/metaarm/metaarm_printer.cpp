@@ -14,7 +14,7 @@ std::string MetaARMPrinter::mem(const Operand &operand) const
         return CapstonePrinter::mem(operand);
 
     SymbolPtr symbol = m_document->symbol(value);
-    return "=" + (symbol ? symbol->name : REDasm::hex(value, m_disassembler->format()->bits(), false));
+    return "=" + (symbol ? symbol->name : REDasm::hex(value, m_disassembler->format()->bits()));
 }
 
 } // namespace REDasm

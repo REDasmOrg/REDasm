@@ -133,7 +133,7 @@ template<typename T> void EmulatorBase<T>::reset(bool resetmemory)
 
 template<typename T> void EmulatorBase<T>::unhandled(const InstructionPtr &instruction) const
 {
-    REDasm::log("Unhandled instruction '" + instruction->mnemonic + "' @ " + REDasm::hex(instruction->address, 0, false));
+    REDasm::log("Unhandled instruction '" + instruction->mnemonic + "' @ " + REDasm::hex(instruction->address));
 }
 
 template<typename T> void EmulatorBase<T>::fail()
@@ -143,7 +143,7 @@ template<typename T> void EmulatorBase<T>::fail()
     if(m_currentinstruction)
     {
         REDasm::log("WARNING: Emulator in FAIL state, last instruction '" + m_currentinstruction->mnemonic +
-                    "' @ " + REDasm::hex(m_currentinstruction->address, 0, false));
+                    "' @ " + REDasm::hex(m_currentinstruction->address));
     }
     else
         REDasm::log("WARNING: Emulator in FAIL state");

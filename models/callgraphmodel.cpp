@@ -180,7 +180,7 @@ QVariant CallGraphModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return QString::fromStdString(REDasm::hex(item->address, m_disassembler->format()->bits(), false));
+            return QString::fromStdString(REDasm::hex(item->address, m_disassembler->format()->bits()));
         else if(index.column() == 1)
         {
             if(item->is(REDasm::ListingItem::FunctionItem))

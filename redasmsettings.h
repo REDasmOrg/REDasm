@@ -12,6 +12,9 @@ class REDasmSettings : public QSettings
 
     public:
         explicit REDasmSettings(QObject *parent = NULL);
+        bool hasGeometry() const;
+        QByteArray geometry() const;
+        void changeGeometry(const QByteArray& ba);
         bool isDarkTheme() const;
         int currentTheme() const;
         void changeTheme(int theme);

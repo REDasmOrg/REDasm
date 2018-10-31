@@ -19,6 +19,7 @@ class MainWindow : public QMainWindow
         ~MainWindow();
 
     protected:
+        virtual void closeEvent(QCloseEvent* e);
         virtual void dragEnterEvent(QDragEnterEvent* e);
         virtual void dragMoveEvent(QDragMoveEvent* e);
         virtual void dropEvent(QDropEvent* e);
@@ -30,7 +31,7 @@ class MainWindow : public QMainWindow
         void onAboutClicked();
 
     private:
-        void centerWindow();
+        void loadGeometry();
         void applyTheme();
         void load(const QString &s);
         bool checkPlugins(const REDasm::Buffer &buffer, REDasm::FormatPlugin **format, REDasm::AssemblerPlugin ** assembler);

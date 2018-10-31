@@ -5,6 +5,7 @@
 #include "dialogs/databasedialog.h"
 #include "dialogs/settingsdialog.h"
 #include "dialogs/aboutdialog.h"
+#include "redasmsettings.h"
 #include "themeprovider.h"
 #include <QtCore>
 #include <QtGui>
@@ -36,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->statusBar->addPermanentWidget(m_lblstatus, 1);
     ui->statusBar->addPermanentWidget(m_pbstatus);
 
-    this->centerWindow();
+    this->loadGeometry();
     this->setAcceptDrops(true);
 
     connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpenClicked);
@@ -45,9 +46,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
 }
 
-MainWindow::~MainWindow()
+MainWindow::~MainWindow() { delete ui; }
+
+void MainWindow::closeEvent(QCloseEvent *e)
 {
-    delete ui;
+    if(!m_loadeddata.isEmpty())
+    {
+        QMessageBox msgbox(this);
+        msgbox.setWindowTitle("Closing");
+        msgbox.setText("Are you sure?");
+        msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+        if(msgbox.exec() != QMessageBox::Yes)
+        {
+            e->ignore();
+            return;
+        }
+    }
+
+    REDasmSettings settings;
+    settings.changeGeometry(this->saveGeometry());
+    QWidget::closeEvent(e);
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *e)
@@ -100,8 +119,16 @@ void MainWindow::onSettingsClicked()
     sd.exec();
 }
 
-void MainWindow::centerWindow()
+void MainWindow::loadGeometry()
 {
+    REDasmSettings settings;
+
+    if(settings.hasGeometry())
+    {
+        this->restoreGeometry(settings.geometry());
+        return;
+    }
+
     QRect position = this->frameGeometry();
     position.moveCenter(qApp->primaryScreen()->availableGeometry().center());
     this->move(position.topLeft());

@@ -16,8 +16,8 @@
    id="svg8"
    sodipodi:docname="logo.svg"
    inkscape:export-filename="/home/davide/redasm.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
+   inkscape:export-xdpi="48"
+   inkscape:export-ydpi="48"
    inkscape:version="0.92.2 2405546, 2018-03-11">
   <defs
      id="defs2" />
@@ -28,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="242.92579"
-     inkscape:cy="286.08961"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="-0.3471409"
+     inkscape:cy="240.91584"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -57,36 +57,40 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-161.53332)">
-    <flowRoot
-       xml:space="preserve"
-       id="flowRoot18"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1;"
-       transform="matrix(0.49454764,0,0,0.49454764,13.951105,142.36734)"
-       inkscape:export-filename="/home/davide/logo.png"
-       inkscape:export-xdpi="136.47"
-       inkscape:export-ydpi="136.47"><flowRegion
-         id="flowRegion20"
-         style="fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1;"><rect
-           id="rect22"
-           width="192.14285"
-           height="118.57143"
-           x="72.14286"
-           y="132.71428"
-           style="fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1;" /></flowRegion><flowPara
-         id="flowPara24"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Indie Flower';-inkscape-font-specification:'Indie Flower';fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1;">RE</flowPara></flowRoot>    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#2b2b2b;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="47.895168"
-       y="233.70029"
-       id="text28"
-       inkscape:export-filename="/home/davide/logo.png"
-       inkscape:export-xdpi="136.47"
-       inkscape:export-ydpi="136.47"><tspan
-         sodipodi:role="line"
-         id="tspan26"
-         x="47.895168"
+    <g
+       id="g4527"
+       transform="matrix(5.4796003,0,0,5.4796003,-261.05888,-994.38968)">
+      <flowRoot
+         inkscape:export-ydpi="136.47"
+         inkscape:export-xdpi="136.47"
+         inkscape:export-filename="/home/davide/logo.png"
+         transform="matrix(0.49454764,0,0,0.49454764,13.951105,142.36734)"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+         id="flowRoot18"
+         xml:space="preserve"><flowRegion
+           style="fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+           id="flowRegion20"><rect
+             style="fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+             y="132.71428"
+             x="72.14286"
+             height="118.57143"
+             width="192.14285"
+             id="rect22" /></flowRegion><flowPara
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Indie Flower';-inkscape-font-specification:'Indie Flower';fill:#ffcd02;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+           id="flowPara24">RE</flowPara></flowRoot>      <text
+         inkscape:export-ydpi="136.47"
+         inkscape:export-xdpi="136.47"
+         inkscape:export-filename="/home/davide/logo.png"
+         id="text28"
          y="233.70029"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Indie Flower';-inkscape-font-specification:'Indie Flower';fill:#2b2b2b;fill-opacity:1;stroke-width:0.26458332">dasm</tspan></text>
+         x="47.895168"
+         style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#2b2b2b;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Indie Flower';-inkscape-font-specification:'Indie Flower';fill:#2b2b2b;fill-opacity:1;stroke-width:0.26458332"
+           y="233.70029"
+           x="47.895168"
+           id="tspan26"
+           sodipodi:role="line">dasm</tspan></text>
+    </g>
   </g>
 </svg>

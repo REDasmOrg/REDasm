@@ -19,8 +19,6 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setApplicationDisplayName("REDasm 2.0-" + QString::fromUtf8(GIT_VERSION) + " RC1");
 
-    //ThemeProvider::selectDarkTheme();
-
     QtWebEngine::initialize();
     MainWindow w;
 

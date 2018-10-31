@@ -122,7 +122,8 @@ void ListingRenderer::renderSegment(ListingItem *item, RendererLine &rl)
 
 void ListingRenderer::renderFunction(ListingItem *item, RendererLine& rl)
 {
-    this->renderAddressIndent(item, rl);
+    if(!(m_flags & ListingRenderer::HideSegmentAndAddress))
+        this->renderAddressIndent(item, rl);
 
     m_printer->function(m_document->symbol(item->address), [&](const std::string& pre, const std::string& sym, const std::string& post) {
         if(!pre.empty())
@@ -140,6 +141,7 @@ void ListingRenderer::renderInstruction(ListingItem *item, RendererLine &rl)
     InstructionPtr instruction = m_document->instruction(item->address);
 
     this->renderAddress(item, rl);
+    this->renderIndent(rl);
     this->renderMnemonic(instruction, rl);
     this->renderOperands(instruction, rl);
     this->renderComments(instruction, rl);
@@ -161,7 +163,11 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
         }
         else
         {
-            this->renderAddressIndent(item, rl);
+            if(m_flags & ListingRenderer::HideSegmentAndAddress)
+                this->renderIndent(rl, 2);
+            else
+                this->renderAddressIndent(item, rl);
+
             rl.push(symbol->name, "label_fg").push(":");
         }
     }
@@ -215,9 +221,6 @@ void ListingRenderer::renderAddress(ListingItem *item, RendererLine &rl)
         Segment* segment = m_document->segment(item->address);
         rl.push((segment ? segment->name : "unk") + ":" + HEX_ADDRESS(item->address), "address_fg");
     }
-
-    if(!rl.text.empty())
-        this->renderIndent(rl);
 }
 
 void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, RendererLine &rl)

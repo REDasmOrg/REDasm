@@ -57,10 +57,6 @@
          <property name="text">
           <string/>
          </property>
-         <property name="icon">
-          <iconset resource="resources.qrc">
-           <normaloff>:/res/open.png</normaloff>:/res/open.png</iconset>
-         </property>
          <property name="iconSize">
           <size>
            <width>20</width>
@@ -77,10 +73,6 @@
          <property name="text">
           <string/>
          </property>
-         <property name="icon">
-          <iconset resource="resources.qrc">
-           <normaloff>:/res/save.png</normaloff>:/res/save.png</iconset>
-         </property>
          <property name="iconSize">
           <size>
            <width>20</width>
@@ -93,10 +85,6 @@
         <widget class="QToolButton" name="tbDatabase">
          <property name="text">
           <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="resources.qrc">
-           <normaloff>:/res/database.png</normaloff>:/res/database.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -113,10 +101,6 @@
          </property>
          <property name="text">
           <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="resources.qrc">
-           <normaloff>:/res/about.png</normaloff>:/res/about.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -248,7 +232,7 @@
   </action>
   <action name="actionSettings">
    <property name="text">
-    <string>Settings</string>
+    <string>&amp;Settings</string>
    </property>
   </action>
  </widget>

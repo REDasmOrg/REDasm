@@ -1,14 +1,12 @@
 #include "themeprovider.h"
+#include <QApplication>
 #include <QJsonDocument>
+#include <QPalette>
 #include <QVariant>
 #include <QFile>
 
 QJsonObject ThemeProvider::m_theme;
-
-ThemeProvider::ThemeProvider()
-{
-
-}
+bool ThemeProvider::m_darktheme = false;
 
 void ThemeProvider::loadTheme(const QString& theme)
 {
@@ -31,9 +29,14 @@ void ThemeProvider::loadTheme(const QString& theme)
     f.close();
 }
 
+bool ThemeProvider::isDarkTheme() { return m_darktheme; }
+
 QColor ThemeProvider::themeValue(const QString &name)
 {
-    ThemeProvider::loadTheme("light");
+    if(ThemeProvider::isDarkTheme())
+        ThemeProvider::loadTheme("dark");
+    else
+        ThemeProvider::loadTheme("light");
 
     if(m_theme.contains(name))
         return QColor(m_theme[name].toString());
@@ -41,17 +44,33 @@ QColor ThemeProvider::themeValue(const QString &name)
     return QColor();
 }
 
-QColor ThemeProvider::highlightColor()
+QIcon ThemeProvider::icon(const QString &name)
 {
-    return ThemeProvider::themeValue("highlight");
+    return QIcon(QString(":/res/%1/%2.png").arg(m_darktheme ? "dark" : "light")
+                                           .arg(name));
 }
 
-QColor ThemeProvider::seekColor()
-{
-    return ThemeProvider::themeValue("seek");
-}
+QColor ThemeProvider::highlightColor() { return ThemeProvider::themeValue("highlight"); }
+QColor ThemeProvider::seekColor() { return ThemeProvider::themeValue("seek"); }
+QColor ThemeProvider::dottedColor() { return ThemeProvider::themeValue("dotted_fg"); }
 
-QColor ThemeProvider::dottedColor()
+void ThemeProvider::selectDarkTheme()
 {
-    return ThemeProvider::themeValue("dotted_fg");
+    m_darktheme = true;
+
+    QPalette palette = qApp->palette();
+
+    palette.setColor(QPalette::Shadow, "#2b2b2b");
+    palette.setColor(QPalette::Base, "#262626");
+    palette.setColor(QPalette::Text, "#ecf0f1");
+    palette.setColor(QPalette::Window, "#2b2b2b");
+    palette.setColor(QPalette::WindowText, "#ecf0f1");
+    palette.setColor(QPalette::Button, "#2b2b2b");
+    palette.setColor(QPalette::ButtonText, "#ecf0f1");
+    palette.setColor(QPalette::Highlight, "#d95459");
+    palette.setColor(QPalette::HighlightedText, "#ecf0f1");
+    palette.setColor(QPalette::ToolTipBase, "#2b2b2b");
+    palette.setColor(QPalette::ToolTipText, "#ecf0f1");
+
+    qApp->setPalette(palette);
 }

@@ -1,5 +1,6 @@
 #include "segmentsmodel.h"
 #include "../../redasm/plugins/format.h"
+#include "../../themeprovider.h"
 #include <QColor>
 
 #define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
@@ -31,11 +32,11 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
     else if(role == Qt::ForegroundRole)
     {
         if(index.column() == 2)
-            return QColor(Qt::darkGreen);
+            return THEME_VALUE("segment_name_fg");
         else if(index.column() == 3)
-            return QColor(Qt::darkRed);
+            return THEME_VALUE("segment_flags_fg");
 
-        return QColor(Qt::darkBlue);
+        return THEME_VALUE("address_list_fg");
     }
 
     return DisassemblerModel::data(index, role);

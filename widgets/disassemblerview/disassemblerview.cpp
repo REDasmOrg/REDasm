@@ -1,12 +1,19 @@
 ﻿#include "disassemblerview.h"
 #include "ui_disassemblerview.h"
 #include "../../dialogs/referencesdialog.h"
+#include "../../themeprovider.h"
 #include <QMessageBox>
 #include <QPushButton>
 
 DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_lblstatus(lblstatus), m_pbstatus(pbstatus), m_disassembler(NULL)
 {
     ui->setupUi(this);
+
+    ui->tbBack->setIcon(THEME_ICON("back"));
+    ui->tbForward->setIcon(THEME_ICON("forward"));
+    ui->tbGoto->setIcon(THEME_ICON("goto"));
+    ui->tbListingGraph->setIcon(THEME_ICON("graph"));
+
     ui->leFilter->setVisible(false);
 
     ui->vSplitter->setSizes((QList<int>() << this->width() * 0.70
@@ -382,14 +389,14 @@ void DisassemblerView::switchGraphListing()
 {
     if(ui->stackedWidget->currentWidget() == m_disassemblertextview)
     {
-        ui->tbListingGraph->setIcon(QIcon(":/res/listing.png"));
+        ui->tbListingGraph->setIcon(THEME_ICON("listing"));
         ui->stackedWidget->setCurrentWidget(m_disassemblergraphview);
         m_disassemblergraphview->graph();
 
     }
     else
     {
-        ui->tbListingGraph->setIcon(QIcon(":/res/graph.png"));
+        ui->tbListingGraph->setIcon(THEME_ICON("graph"));
         ui->stackedWidget->setCurrentWidget(m_disassemblertextview);
     }
 

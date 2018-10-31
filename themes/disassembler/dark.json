@@ -1,22 +1,22 @@
 {
     "address_fg": "#6a89b4",
-    "segment_fg": "#345f41",
-    "function_fg": "#3f669e",
+    "segment_fg": "#2ecc71",
+    "function_fg": "#3498db",
     "header_fg": "#3f669e",
     "info_fg": "#7f8c8d",
     "comment_fg": "#16a085",
     "string_fg": "#a38671",
     "data_fg": "#9b59b6",
-    "label_fg": "#3f669e",
+    "label_fg": "#b8c9f1",
     "dotted_fg": "#d95459",
 
     "locked_fg": "#d45c9e",
-    "locked_bg": "#e2ffff",
-    "highlight": "#ffffbb",
-    "seek": "#ecf0f1",
+    "locked_bg": "#34495e",
+    "highlight": "#2980b9",
+    "seek": "#2b2b2b",
 
     "register_fg": "#27ae60",
-    "immediate_fg": "#394c81",
+    "immediate_fg": "#bdc3c7",
     "memory_fg": "#d35400",
     "displacement_fg": "#8e725e",
 
@@ -30,7 +30,7 @@
     "text_fg": "#2b2b2b",
     "graph_bg": "azure",
 
-    "address_list_fg": "darkblue",
-    "segment_name_fg": "darkgreen",
-    "segment_flags_fg": "darkred"
+    "address_list_fg": "#ef717a",
+    "segment_name_fg": "#2dcb71",
+    "segment_flags_fg": "#f47cc3"
 }

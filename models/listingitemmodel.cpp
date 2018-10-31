@@ -107,10 +107,10 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     else if(role == Qt::ForegroundRole)
     {
         if((index.column() == 0) || (index.column() == 2))
-            return QColor(Qt::darkBlue);
+            return THEME_VALUE("address_list_fg");
 
         if(symbol->is(REDasm::SymbolTypes::String) && (index.column() == 1))
-            return QColor(Qt::darkGreen);
+            return THEME_VALUE("string_fg");
     }
 
     return DisassemblerModel::data(index, role);

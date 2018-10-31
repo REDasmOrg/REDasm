@@ -4,6 +4,7 @@
 #include "dialogs/manualloaddialog.h"
 #include "dialogs/databasedialog.h"
 #include "dialogs/aboutdialog.h"
+#include "themeprovider.h"
 #include <QtCore>
 #include <QtGui>
 #include <QtWidgets>
@@ -15,9 +16,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
 
     REDasm::init(QDir::currentPath().toStdString());
-
-    this->applyTheme();
     ui->setupUi(this);
+
+    ui->tbAbout->setIcon(THEME_ICON("about"));
+    ui->tbDatabase->setIcon(THEME_ICON("database"));
+    ui->tbOpen->setIcon(THEME_ICON("open"));
+    ui->tbSave->setIcon(THEME_ICON("save"));
 
     m_lblstatus = new QLabel(this);
 
@@ -93,17 +97,6 @@ void MainWindow::centerWindow()
     QRect position = this->frameGeometry();
     position.moveCenter(qApp->primaryScreen()->availableGeometry().center());
     this->move(position.topLeft());
-}
-
-void MainWindow::applyTheme()
-{
-    QFile f(":/themes/application/redasm.css");
-
-    if(!f.open(QFile::ReadOnly))
-        return;
-
-    qApp->setStyleSheet(f.readAll());
-    f.close();
 }
 
 void MainWindow::load(const QString& s)

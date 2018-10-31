@@ -17,7 +17,6 @@ class ThemeProvider
 
     public:
         static void loadTheme(const QString &theme);
-        static bool isDarkTheme();
         static bool contains(const QString& name);
         static QColor themeValue(const QString& name);
         static QIcon icon(const QString& name);
@@ -29,7 +28,6 @@ class ThemeProvider
         static void selectDarkTheme();
 
     private:
-        static bool m_darktheme;
         static QJsonObject m_theme;
 };
 

@@ -3,6 +3,7 @@
 #include "widgets/disassemblerview/disassemblerview.h"
 #include "dialogs/manualloaddialog.h"
 #include "dialogs/databasedialog.h"
+#include "dialogs/settingsdialog.h"
 #include "dialogs/aboutdialog.h"
 #include "themeprovider.h"
 #include <QtCore>
@@ -38,9 +39,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->centerWindow();
     this->setAcceptDrops(true);
 
-    connect(ui->action_Open, &QAction::triggered, this, &MainWindow::on_tbOpen_clicked);
-    connect(ui->action_Database, &QAction::triggered, this, &MainWindow::on_tbDatabase_clicked);
-    connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::on_tbAbout_clicked);
+    connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpenClicked);
+    connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
+    connect(ui->action_Database, &QAction::triggered, this, &MainWindow::onDatabaseClicked);
+    connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
 }
 
 MainWindow::~MainWindow()
@@ -82,7 +84,7 @@ void MainWindow::dropEvent(QDropEvent *e)
       e->acceptProposedAction();
 }
 
-void MainWindow::on_tbOpen_clicked()
+void MainWindow::onOpenClicked()
 {
     QString s = QFileDialog::getOpenFileName(this, "Disassemble file...");
 
@@ -90,6 +92,12 @@ void MainWindow::on_tbOpen_clicked()
         return;
 
     this->load(s);
+}
+
+void MainWindow::onSettingsClicked()
+{
+    SettingsDialog sd(this);
+    sd.exec();
 }
 
 void MainWindow::centerWindow()
@@ -162,13 +170,13 @@ void MainWindow::initDisassembler()
     oldwidget->deleteLater();
 }
 
-void MainWindow::on_tbDatabase_clicked()
+void MainWindow::onDatabaseClicked()
 {
     DatabaseDialog dlgdatabase(this);
     dlgdatabase.exec();
 }
 
-void MainWindow::on_tbAbout_clicked()
+void MainWindow::onAboutClicked()
 {
     AboutDialog dlgabout(this);
     dlgabout.exec();

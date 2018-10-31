@@ -136,7 +136,9 @@ SOURCES += main.cpp\
     widgets/disassemblertextview.cpp \
     widgets/disassemblerpopup/disassemblerpopup.cpp \
     widgets/disassemblerpopup/disassemblerpopupwidget.cpp \
-    renderer/listingpopuprenderer.cpp
+    renderer/listingpopuprenderer.cpp \
+    redasmsettings.cpp \
+    dialogs/settingsdialog.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -262,7 +264,9 @@ HEADERS  += mainwindow.h \
     widgets/disassemblertextview.h \
     widgets/disassemblerpopup/disassemblerpopup.h \
     widgets/disassemblerpopup/disassemblerpopupwidget.h \
-    renderer/listingpopuprenderer.h
+    renderer/listingpopuprenderer.h \
+    redasmsettings.h \
+    dialogs/settingsdialog.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \
@@ -270,7 +274,8 @@ FORMS    += mainwindow.ui \
     dialogs/gotodialog.ui \
     dialogs/databasedialog.ui \
     dialogs/aboutdialog.ui \
-    dialogs/manualloaddialog.ui
+    dialogs/manualloaddialog.ui \
+    dialogs/settingsdialog.ui
 
 RESOURCES += resources.qrc \
     themes.qrc

@@ -4,9 +4,9 @@
 #include <QPalette>
 #include <QVariant>
 #include <QFile>
+#include "redasmsettings.h"
 
 QJsonObject ThemeProvider::m_theme;
-bool ThemeProvider::m_darktheme = false;
 
 void ThemeProvider::loadTheme(const QString& theme)
 {
@@ -29,11 +29,11 @@ void ThemeProvider::loadTheme(const QString& theme)
     f.close();
 }
 
-bool ThemeProvider::isDarkTheme() { return m_darktheme; }
-
 QColor ThemeProvider::themeValue(const QString &name)
 {
-    if(ThemeProvider::isDarkTheme())
+    REDasmSettings settings;
+
+    if(settings.isDarkTheme())
         ThemeProvider::loadTheme("dark");
     else
         ThemeProvider::loadTheme("light");
@@ -46,7 +46,9 @@ QColor ThemeProvider::themeValue(const QString &name)
 
 QIcon ThemeProvider::icon(const QString &name)
 {
-    return QIcon(QString(":/res/%1/%2.png").arg(m_darktheme ? "dark" : "light")
+    REDasmSettings settings;
+
+    return QIcon(QString(":/res/%1/%2.png").arg(settings.isDarkTheme() ? "dark" : "light")
                                            .arg(name));
 }
 
@@ -56,8 +58,6 @@ QColor ThemeProvider::dottedColor() { return ThemeProvider::themeValue("dotted_f
 
 void ThemeProvider::selectDarkTheme()
 {
-    m_darktheme = true;
-
     QPalette palette = qApp->palette();
 
     palette.setColor(QPalette::Shadow, "#2b2b2b");

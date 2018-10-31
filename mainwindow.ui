@@ -190,7 +190,7 @@
      <string>&amp;REDasm</string>
     </property>
     <addaction name="action_Database"/>
-    <addaction name="actionSettings"/>
+    <addaction name="action_Settings"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -230,7 +230,7 @@
     <string>&amp;About REDasm</string>
    </property>
   </action>
-  <action name="actionSettings">
+  <action name="action_Settings">
    <property name="text">
     <string>&amp;Settings</string>
    </property>

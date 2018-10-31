@@ -58,13 +58,13 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
     cur->forwardChanged += [=]() { emit canGoForwardChanged(); };
 
     this->adjustScrollBars();
-    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [&](int) { this->update(); });
+    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [&](int) { this->viewport()->update(); });
 
     m_disassembler = disassembler;
     m_renderer = std::make_unique<ListingTextRenderer>(this->font(), disassembler);
 
     m_disassemblerpopup = new DisassemblerPopup(disassembler, this);
-    this->update();
+    this->viewport()->update();
 }
 
 void DisassemblerTextView::copy()
@@ -110,7 +110,7 @@ void DisassemblerTextView::blinkCursor()
     if(!this->isLineVisible(cur->currentLine()))
         return;
 
-    this->update();
+    this->viewport()->update();
 }
 
 void DisassemblerTextView::scrollContentsBy(int dx, int dy)
@@ -378,7 +378,7 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
     if(!this->isVisible() || (ldc->index < vscrollbar->value()) || (ldc->index > vscrollbar->value() + this->visibleLines()))
         return;
 
-    this->update();
+    this->viewport()->update();
 }
 
 REDasm::SymbolPtr DisassemblerTextView::symbolUnderCursor()
@@ -457,7 +457,7 @@ void DisassemblerTextView::moveToSelection()
 
     if(this->isLineVisible(cur->currentLine()))
     {
-        this->update();
+        this->viewport()->update();
         m_renderer->highlightWordUnderCursor();
     }
     else // Center on selection

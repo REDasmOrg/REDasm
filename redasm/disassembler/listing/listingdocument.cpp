@@ -188,6 +188,9 @@ void ListingDocument::symbol(address_t address, u32 type, u32 tag)
 
 void ListingDocument::rename(address_t address, const std::string &name)
 {
+    if(name.empty())
+        return;
+
     SymbolPtr symbol = this->symbol(address);
 
     if(!symbol)

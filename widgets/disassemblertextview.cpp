@@ -13,6 +13,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 
     this->setFont(font);
     this->setCursor(Qt::ArrowCursor);
+    this->setFrameStyle(QFrame::NoFrame);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setFocusPolicy(Qt::StrongFocus);
     this->verticalScrollBar()->setMinimum(0);

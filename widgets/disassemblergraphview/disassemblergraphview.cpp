@@ -101,7 +101,9 @@ void DisassemblerGraphView::initializePage()
     GraphView::initializePage();
 
     this->appendCSS(QString(".highlight { background-color: %1; }"
-                            ".seek { background-color: %2; }").arg(THEME_VALUE_COLOR("highlight")).arg(THEME_VALUE_COLOR("seek")));
+                            ".seek { color: %2; background-color: %3; }").arg(THEME_VALUE_COLOR("highlight_fg"))
+                                                                         .arg(THEME_VALUE_COLOR("highlight_bg"))
+                                                                         .arg(THEME_VALUE_COLOR("seek")));
 
     this->page()->runJavaScript("document.addEventListener('keydown', function(e) {"
                                     "if(e.code === 'Space')"

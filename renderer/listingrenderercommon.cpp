@@ -91,9 +91,11 @@ void ListingRendererCommon::showCursor()
     m_textcursor.setPosition(cur->currentColumn());
     m_textcursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
 
+    QPalette palette = qApp->palette();
+
     QTextCharFormat charformat;
-    charformat.setBackground(Qt::black);
-    charformat.setForeground(Qt::white);
+    charformat.setBackground(palette.color(QPalette::WindowText));
+    charformat.setForeground(palette.color(QPalette::Window));
     m_textcursor.setCharFormat(charformat);
 }
 
@@ -134,7 +136,8 @@ void ListingRendererCommon::highlightWords(const REDasm::RendererLine &rl)
         return;
 
     QTextCharFormat charformat;
-    charformat.setBackground(THEME_VALUE("highlight"));
+    charformat.setBackground(THEME_VALUE("highlight_bg"));
+    charformat.setForeground(THEME_VALUE("highlight_fg"));
 
     QRegularExpression rgx(QString::fromStdString(m_document->cursor()->wordUnderCursor()));
     QRegularExpressionMatchIterator it = rgx.globalMatch(QString::fromStdString(rl.text));

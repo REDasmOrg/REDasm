@@ -52,7 +52,6 @@ QIcon ThemeProvider::icon(const QString &name)
                                            .arg(name));
 }
 
-QColor ThemeProvider::highlightColor() { return ThemeProvider::themeValue("highlight"); }
 QColor ThemeProvider::seekColor() { return ThemeProvider::themeValue("seek"); }
 QColor ThemeProvider::dottedColor() { return ThemeProvider::themeValue("dotted_fg"); }
 

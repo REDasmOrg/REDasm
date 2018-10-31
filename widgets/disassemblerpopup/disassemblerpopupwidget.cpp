@@ -3,7 +3,6 @@
 #include <QFontDatabase>
 #include <QFontMetrics>
 #include <QPainter>
-#include <QDebug>
 
 #define DEFAULT_ROW_COUNT 10
 

@@ -5,14 +5,15 @@
     "header_fg": "#3f669e",
     "info_fg": "#7f8c8d",
     "comment_fg": "#16a085",
-    "string_fg": "#a38671",
+    "string_fg": "#5e4534",
     "data_fg": "#9b59b6",
     "label_fg": "#3f669e",
     "dotted_fg": "#d95459",
 
     "locked_fg": "#d45c9e",
     "locked_bg": "#e2ffff",
-    "highlight": "#ffffbb",
+    "highlight_fg": "#2b2b2b",
+    "highlight_bg": "#ffffbb",
     "seek": "#ecf0f1",
 
     "register_fg": "#27ae60",

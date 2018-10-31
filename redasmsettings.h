@@ -13,6 +13,7 @@ class REDasmSettings : public QSettings
     public:
         explicit REDasmSettings(QObject *parent = NULL);
         bool isDarkTheme() const;
+        int currentTheme() const;
         void changeTheme(int theme);
 };
 

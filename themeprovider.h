@@ -20,7 +20,6 @@ class ThemeProvider
         static bool contains(const QString& name);
         static QColor themeValue(const QString& name);
         static QIcon icon(const QString& name);
-        static QColor highlightColor();
         static QColor seekColor();
         static QColor dottedColor();
 

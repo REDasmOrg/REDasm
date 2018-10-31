@@ -10,6 +10,9 @@ SettingsDialog::SettingsDialog(QWidget *parent): QDialog(parent), ui(new Ui::Set
     ui->cbTheme->addItem("Light", REDasmSettings::Theme::Light);
     ui->cbTheme->addItem("Dark", REDasmSettings::Theme::Dark);
 
+    REDasmSettings settings;
+    ui->cbTheme->setCurrentIndex(settings.currentTheme());
+
     connect(this, &QDialog::accepted, this, &SettingsDialog::onAccepted);
 }
 

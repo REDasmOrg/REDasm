@@ -68,7 +68,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
     else if(role == Qt::ForegroundRole)
     {
         if(index.column() == 0)
-            return QColor(Qt::darkBlue);
+            return THEME_VALUE("address_fg");
 
         if(index.column() == 2)
         {

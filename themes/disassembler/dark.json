@@ -12,7 +12,8 @@
 
     "locked_fg": "#d45c9e",
     "locked_bg": "#34495e",
-    "highlight": "#2980b9",
+    "highlight_fg": "#2b2b2b",
+    "highlight_bg": "#2ecc71",
     "seek": "#2b2b2b",
 
     "register_fg": "#27ae60",
@@ -24,8 +25,8 @@
     "instruction_stop": "#c0392b",
     "instruction_nop": "#7f8c8d",
     "instruction_call": "#2ecc71",
-    "instruction_jmp": "#394c81",
-    "instruction_jmp_c": "#5b48a2",
+    "instruction_jmp": "#5065a1",
+    "instruction_jmp_c": "#e67e22",
 
     "text_fg": "#2b2b2b",
     "graph_bg": "azure",

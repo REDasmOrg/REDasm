@@ -2,6 +2,7 @@
 #include "themeprovider.h"
 #include <QApplication>
 #include <QtWebEngine>
+#include <QStyleFactory>
 #include "redasmsettings.h"
 
 #ifdef QT_DEBUG
@@ -16,6 +17,7 @@ int main(int argc, char *argv[])
 #endif // QT_DEBUG
 
     qRegisterMetaType<address_t>("address_t");
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
 
     QApplication a(argc, argv);
     a.setOrganizationName("redasmorg");

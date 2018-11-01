@@ -1,6 +1,7 @@
 #include "graphview.h"
 #include <QWebEngineSettings>
 #include <QFontDatabase>
+#include <QApplication>
 #include "../../themeprovider.h"
 
 #define GRAPH_MARGINS 20
@@ -71,6 +72,7 @@ void GraphView::appendCSS(const QString &css)
 void GraphView::initializePage()
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    QPalette palette = qApp->palette();
 
     this->page()->runJavaScript("document.designMode = 'on';"
                                 "window.ondrop = function() { return false; };"                           // Disable text dragging
@@ -80,6 +82,7 @@ void GraphView::initializePage()
                              "cursor: default;"
                              "font-family:" + font.family() + ";" +
                              "font-size:" + QString::number(font.pointSize()) + "pt;" +
+                             "color:" + palette.color(QPalette::WindowText).name() + ";" +
                          "}"
                          "html, body {"
                             "overflow: hidden;"
@@ -88,13 +91,13 @@ void GraphView::initializePage()
     QString blockcss =  ".nodetitle { "
                             "text-align: center;"
                             "margin-bottom: 4px;"
-                            "border: 1px solid " + THEME_VALUE_COLOR("text_fg") + ";"
-                            "background-color: " + THEME_VALUE_COLOR("seek") + ";"
-                            "color: " + THEME_VALUE_COLOR("text_fg") + ";"
+                            "border: 1px solid " + palette.color(QPalette::WindowText).name() + ";"
+                            "background-color: " + palette.color(QPalette::Window).name() + ";"
+                            "color: " + palette.color(QPalette::WindowText).name() + ";"
                         "}"
                          ".node rect {"
-                            "fill: white;"
-                            "stroke: black;"
+                            "fill: " + palette.color(QPalette::Base).name() + ";" +
+                            "stroke: " + palette.color(QPalette::WindowText).name() + ";" +
                             "stroke-width: 3;"
                             "filter: url(#dropshadow);"
                         "}"

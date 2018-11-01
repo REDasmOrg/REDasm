@@ -26,7 +26,7 @@
     "instruction_nop": "#7f8c8d",
     "instruction_call": "#2ecc71",
     "instruction_jmp": "#394c81",
-    "instruction_jmp_c": "#5b48a2",
+    "instruction_jmp_c": "#d95459",
 
     "graph_bg": "azure",
 

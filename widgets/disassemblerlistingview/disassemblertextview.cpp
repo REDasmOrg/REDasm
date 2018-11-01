@@ -1,5 +1,5 @@
 #include "disassemblertextview.h"
-#include "../models/disassemblermodel.h"
+#include "../../models/disassemblermodel.h"
 #include <QtWidgets>
 #include <QtGui>
 #include <cmath>
@@ -40,6 +40,15 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 
 bool DisassemblerTextView::canGoBack() const { return m_disassembler->document()->cursor()->canGoBack(); }
 bool DisassemblerTextView::canGoForward() const { return m_disassembler->document()->cursor()->canGoForward(); }
+
+int DisassemblerTextView::visibleLines() const
+{
+    QFontMetrics fm = this->fontMetrics();
+    return std::ceil(this->height() / fm.height());
+}
+
+int DisassemblerTextView::firstVisibleLine() const { return this->verticalScrollBar()->value(); }
+int DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines() - 1; }
 
 void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
@@ -233,14 +242,6 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
     QAbstractScrollArea::mouseReleaseEvent(e);
 }
 
-void DisassemblerTextView::wheelEvent(QWheelEvent *e)
-{
-    if(m_disassemblerpopup && m_disassemblerpopup->isVisible())
-        return;
-
-    QAbstractScrollArea::wheelEvent(e);
-}
-
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
     REDasm::ListingDocument* doc = m_disassembler->document();
@@ -392,15 +393,6 @@ REDasm::SymbolPtr DisassemblerTextView::symbolUnderCursor()
 
     return doc->symbol(cur->wordUnderCursor());
 }
-
-int DisassemblerTextView::visibleLines() const
-{
-    QFontMetrics fm = this->fontMetrics();
-    return std::ceil(this->height() / fm.height());
-}
-
-int DisassemblerTextView::firstVisibleLine() const { return this->verticalScrollBar()->value(); }
-int DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines() - 1; }
 
 bool DisassemblerTextView::isLineVisible(int line) const
 {

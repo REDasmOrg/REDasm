@@ -126,9 +126,7 @@ void AssemblerAlgorithm::jumpState(State *state)
 {
     s64 dir = BRANCH_DIRECTION(state->instruction, state->address);
 
-    if(dir < 0)
-        m_document->comment(state->instruction->address, "Possible loop");
-    else if(!dir)
+    if(!dir)
         m_document->comment(state->instruction->address, "Infinite loop");
 
     m_document->symbol(state->address, SymbolTypes::Code);

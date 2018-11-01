@@ -4,8 +4,8 @@
 #include <QAbstractScrollArea>
 #include <QFontMetrics>
 #include <QMenu>
-#include "../renderer/listingtextrenderer.h"
-#include "disassemblerpopup/disassemblerpopup.h"
+#include "../../renderer/listingtextrenderer.h"
+#include "../disassemblerpopup/disassemblerpopup.h"
 
 class DisassemblerTextView : public QAbstractScrollArea
 {
@@ -15,6 +15,9 @@ class DisassemblerTextView : public QAbstractScrollArea
         explicit DisassemblerTextView(QWidget *parent = 0);
         bool canGoBack() const;
         bool canGoForward() const;
+        int visibleLines() const;
+        int firstVisibleLine() const;
+        int lastVisibleLine() const;
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
 
     public slots:
@@ -37,7 +40,6 @@ class DisassemblerTextView : public QAbstractScrollArea
         virtual void mouseMoveEvent(QMouseEvent* e);
         virtual void mouseReleaseEvent(QMouseEvent* e);
         virtual void mouseDoubleClickEvent(QMouseEvent* e);
-        virtual void wheelEvent(QWheelEvent* e);
         virtual void keyPressEvent(QKeyEvent *e);
         virtual bool event(QEvent* e);
 
@@ -46,9 +48,6 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     private:
         REDasm::SymbolPtr symbolUnderCursor();
-        int visibleLines() const;
-        int firstVisibleLine() const;
-        int lastVisibleLine() const;
         bool isLineVisible(int line) const;
         bool isColumnVisible(int column, int *xpos);
         void adjustScrollBars();

@@ -25,13 +25,13 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     ui->hSplitter->setSizes((QList<int>() << this->width() * 0.30
                                           << this->width() * 0.70));
 
-    m_disassemblertextview = new DisassemblerTextView(ui->stackedWidget);
+    m_disassemblerlistingview = new DisassemblerListingView(ui->stackedWidget);
     m_disassemblergraphview = new DisassemblerGraphView(ui->stackedWidget);
 
     ui->hexEdit->setReadOnly(true);
     ui->hexEdit->setFrameShape(QFrame::NoFrame);
 
-    ui->stackedWidget->addWidget(m_disassemblertextview);
+    ui->stackedWidget->addWidget(m_disassemblerlistingview);
     ui->stackedWidget->addWidget(m_disassemblergraphview);
 
     ui->tbBack->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
@@ -96,16 +96,16 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     connect(ui->tbListingGraph, &QPushButton::clicked, this, &DisassemblerView::switchGraphListing);
     connect(m_pbstatus, &QPushButton::clicked, this, &DisassemblerView::changeDisassemblerStatus);
 
-    connect(m_disassemblertextview, &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
-    connect(m_disassemblertextview, &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
-    connect(m_disassemblertextview, &DisassemblerTextView::callGraphRequested, this, &DisassemblerView::initializeCallGraph);
-    connect(m_disassemblertextview, &DisassemblerTextView::referencesRequested, this, &DisassemblerView::showReferences);
-    connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
-    connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
-    connect(m_disassemblertextview, &DisassemblerTextView::addressChanged, this, &DisassemblerView::updateCallGraph);
-    connect(m_disassemblertextview, &DisassemblerTextView::switchView, this, &DisassemblerView::switchGraphListing);
-    connect(m_disassemblertextview, &DisassemblerTextView::canGoBackChanged, [=]() { ui->tbBack->setEnabled(m_disassemblertextview->canGoBack()); });
-    connect(m_disassemblertextview, &DisassemblerTextView::canGoForwardChanged, [=]() { ui->tbForward->setEnabled(m_disassemblertextview->canGoForward()); });
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::callGraphRequested, this, &DisassemblerView::initializeCallGraph);
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::referencesRequested, this, &DisassemblerView::showReferences);
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::addressChanged, this, &DisassemblerView::updateCallGraph);
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::switchView, this, &DisassemblerView::switchGraphListing);
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::canGoBackChanged, [=]() { ui->tbBack->setEnabled(m_disassemblerlistingview->textView()->canGoBack()); });
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::canGoForwardChanged, [=]() { ui->tbForward->setEnabled(m_disassemblerlistingview->textView()->canGoForward()); });
 
     connect(m_disassemblergraphview, &DisassemblerGraphView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(m_disassemblergraphview, &DisassemblerGraphView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
@@ -113,8 +113,8 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     connect(m_disassemblergraphview, &DisassemblerGraphView::referencesRequested, this, &DisassemblerView::showReferences);
     connect(m_disassemblergraphview, &DisassemblerGraphView::switchView, this, &DisassemblerView::switchGraphListing);
 
-    connect(ui->tbBack, &QToolButton::clicked, m_disassemblertextview, &DisassemblerTextView::goBack);
-    connect(ui->tbForward, &QToolButton::clicked, m_disassemblertextview, &DisassemblerTextView::goForward);
+    connect(ui->tbBack, &QToolButton::clicked, m_disassemblerlistingview->textView(), &DisassemblerTextView::goBack);
+    connect(ui->tbForward, &QToolButton::clicked, m_disassemblerlistingview->textView(), &DisassemblerTextView::goForward);
     connect(ui->tbGoto, &QToolButton::clicked, this, &DisassemblerView::showGoto);
 
     connect(ui->tvReferences, &QTreeView::doubleClicked, this, &DisassemblerView::gotoXRef);
@@ -172,7 +172,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     ui->bottomTabs->setCurrentWidget(ui->tabOutput);
     ui->disassemblerMap->setDisassembler(disassembler);
 
-    m_disassemblertextview->setDisassembler(disassembler);
+    m_disassemblerlistingview->setDisassembler(disassembler);
     m_disassemblergraphview->setDisassembler(disassembler);
 
     ui->stackedWidget->currentWidget()->setFocus();
@@ -235,7 +235,7 @@ void DisassemblerView::gotoXRef(const QModelIndex &index)
     if(!index.isValid() || !index.internalPointer())
         return;
 
-    m_disassemblertextview->goTo(static_cast<address_t>(index.internalId()));
+    m_disassemblerlistingview->textView()->goTo(static_cast<address_t>(index.internalId()));
 }
 
 void DisassemblerView::goTo(const QModelIndex &index)
@@ -244,7 +244,7 @@ void DisassemblerView::goTo(const QModelIndex &index)
         return;
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
-    m_disassemblertextview->goTo(item);
+    m_disassemblerlistingview->textView()->goTo(item);
 
     if(ui->stackedWidget->currentWidget() == m_disassemblergraphview)
         m_disassemblergraphview->graph();
@@ -303,7 +303,7 @@ void DisassemblerView::showReferences(address_t address)
             this->switchGraphListing();
         }
 
-        m_disassemblertextview->goTo(address);
+        m_disassemblerlistingview->textView()->goTo(address);
     });
 
     dlgreferences.exec();
@@ -387,7 +387,7 @@ void DisassemblerView::log(const QString &s) { ui->pteOutput->insertPlainText(s 
 
 void DisassemblerView::switchGraphListing()
 {
-    if(ui->stackedWidget->currentWidget() == m_disassemblertextview)
+    if(ui->stackedWidget->currentWidget() == m_disassemblerlistingview)
     {
         ui->tbListingGraph->setIcon(THEME_ICON("listing"));
         ui->stackedWidget->setCurrentWidget(m_disassemblergraphview);
@@ -397,7 +397,7 @@ void DisassemblerView::switchGraphListing()
     else
     {
         ui->tbListingGraph->setIcon(THEME_ICON("graph"));
-        ui->stackedWidget->setCurrentWidget(m_disassemblertextview);
+        ui->stackedWidget->setCurrentWidget(m_disassemblerlistingview);
     }
 
     ui->stackedWidget->currentWidget()->setFocus();
@@ -456,7 +456,7 @@ void DisassemblerView::showGoto()
     connect(&dlggoto, &GotoDialog::symbolSelected, this, &DisassemblerView::goTo);
 
     if(dlggoto.exec() == GotoDialog::Accepted)
-        m_disassemblertextview->goTo(dlggoto.address());
+        m_disassemblerlistingview->textView()->goTo(dlggoto.address());
 }
 
 bool DisassemblerView::eventFilter(QObject *obj, QEvent *e)

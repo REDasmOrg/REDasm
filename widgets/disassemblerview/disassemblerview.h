@@ -14,7 +14,7 @@
 #include "../../dialogs/gotodialog.h"
 #include "../../redasm/disassembler/disassembler.h"
 #include "../disassemblergraphview/disassemblergraphview.h"
-#include "../disassemblertextview.h"
+#include "../disassemblerlistingview/disassemblerlistingview.h"
 
 namespace Ui {
 class DisassemblerView;
@@ -61,7 +61,7 @@ class DisassemblerView : public QWidget
     private:
         Ui::DisassemblerView *ui;
         DisassemblerGraphView* m_disassemblergraphview;
-        DisassemblerTextView* m_disassemblertextview;
+        DisassemblerListingView* m_disassemblerlistingview;
         QModelIndex m_currentindex;
         QHexDocument* m_hexdocument;
         QMenu* m_contextmenu;

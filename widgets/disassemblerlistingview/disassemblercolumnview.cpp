@@ -89,11 +89,11 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
     QFontMetrics fm = this->fontMetrics();
     int w = fm.width(" "), h = fm.height(), hl = h / 2, x = this->width() - (w * 2);
 
-    for(auto it = m_paths.begin(); it != m_paths.end(); it++, x -= w)
-    {
-        if(x < 0)
-            break;
+    auto list = m_paths.toList();
+    std::sort(list.begin(), list.end());
 
+    for(auto it = list.begin(); it != list.end(); it++, x -= w)
+    {
         const auto& path = *it;
         int y1 = ((path.first - m_first) * h) + hl;
         int y2 = ((path.second - m_first) * h) + hl;

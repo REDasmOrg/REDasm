@@ -158,6 +158,7 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
         if(segment->is(SegmentTypes::Bss))
         {
             this->renderAddress(item, rl);
+            this->renderIndent(rl);
             rl.push(symbol->name, "label_fg");
             rl.push(" <").push("dynamic branch", "label_fg").push(">");
         }

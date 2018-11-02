@@ -21,6 +21,7 @@ class MetaARMAssembler: public AssemblerPlugin
 
     public:
         bool isPC(const Operand& op) const;
+        bool isLR(const Operand& op) const;
         bool isARMMode() const;
         bool isTHUMBMode() const;
         void switchToARM();

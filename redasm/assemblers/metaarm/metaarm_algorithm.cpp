@@ -10,7 +10,7 @@ void MetaARMAlgorithm::onEmulatedOperand(const Operand &op, const InstructionPtr
 {
     MetaARMAssembler* metaarmassembler = static_cast<MetaARMAssembler*>(m_assembler);
 
-    if(metaarmassembler->isPC(op)) // Don't generate references for PC register
+    if(metaarmassembler->isPC(op) || metaarmassembler->isLR(op)) // Don't generate references for PC/LR registers
         return;
 
     ControlFlowAlgorithm::onEmulatedOperand(op, instruction, value);

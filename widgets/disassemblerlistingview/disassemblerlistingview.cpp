@@ -30,6 +30,12 @@ void DisassemblerListingView::setDisassembler(REDasm::DisassemblerAPI *disassemb
     m_disassemblercolumnview->setDisassembler(disassembler);
     m_disassemblertextview->setDisassembler(disassembler);
 
+    REDasm::ListingDocument* document = m_disassembler->document();
+
+    document->cursor()->positionChanged += [&]() {
+        QMetaObject::invokeMethod(m_disassemblercolumnview, "update", Qt::QueuedConnection);
+    };
+
     m_disassembler->busyChanged += [&]() {
         if(m_disassembler->busy())
             return;

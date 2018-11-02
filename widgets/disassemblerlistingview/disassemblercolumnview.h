@@ -22,11 +22,13 @@ class DisassemblerColumnView : public QWidget
 
     private:
         void fillArrow(QPainter* painter, int y, const QFontMetrics &fm);
+        void applyStyle(const REDasm::InstructionPtr& instruction, int idx);
+        void applyStyle(int idx);
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;
         REDasm::ListingDocument* m_document;
-        QList< QPair<int, int> > m_paths;
+        QSet< QPair<int, int> > m_paths;
         QHash<int, QColor> m_pathstyle;
         int m_first, m_last;
 };

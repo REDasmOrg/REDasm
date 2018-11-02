@@ -1,5 +1,6 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
+#include "../redasmsettings.h"
 #include <capstone.h>
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDialog)
@@ -11,6 +12,13 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
 
     this->initItems();
     this->initDepends();
+
+    REDasmSettings settings;
+
+    if(settings.isDarkTheme())
+        ui->lblLogo->setPixmap(QPixmap(QString::fromUtf8(":/res/logo_big_dark.png")));
+    else
+        ui->lblLogo->setPixmap(QPixmap(QString::fromUtf8(":/res/logo_big.png")));
 
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &AboutDialog::accept);
 }

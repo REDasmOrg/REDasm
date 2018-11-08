@@ -409,7 +409,13 @@ bool DisassemblerTextView::isColumnVisible(int column, int* xpos)
 {
     QScrollBar* hscrollbar = this->horizontalScrollBar();
     int lastxpos = hscrollbar->value() + this->width();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
     int adv = this->fontMetrics().horizontalAdvance(" ");
+#else
+    int adv = this->fontMetrics().width(" ");
+#endif
+
     *xpos = adv * column;
 
     if(*xpos > lastxpos)

@@ -9,6 +9,8 @@ CONFIG   += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webengine webenginewidgets
 
+!versionAtLeast(QT_VERSION, 5.10): error("Qt >= 5.10 required")
+
 TARGET = REDasm
 TEMPLATE = app
 

@@ -69,7 +69,7 @@ Read the [Wiki](https://github.com/REDasmOrg/REDasm/wiki) and send a Pull Reques
 
 ## Requirements
 - C++11 compiler (tested on GCC 6.x)
-- Qt >= 5.6
+- Qt >= 5.11
 
 ## Dependencies
 - [Capstone](https://github.com/aquynh/capstone) : Capstone provides the most common architectures

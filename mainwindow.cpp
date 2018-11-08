@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
     connect(ui->action_Database, &QAction::triggered, this, &MainWindow::onDatabaseClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
+
+    this->checkCommandLine();
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -150,6 +152,27 @@ void MainWindow::load(const QString& s)
 
     if(!m_loadeddata.isEmpty())
         this->initDisassembler();
+}
+
+void MainWindow::checkCommandLine()
+{
+    QStringList args = qApp->arguments();
+
+    if(args.length() <= 1)
+        return;
+
+    args = args.mid(1); // Skip REDasm's path
+
+    for(const QString& arg : args)
+    {
+        QFileInfo fileinfo(arg);
+
+        if(!fileinfo.exists() || !fileinfo.isFile() || !fileinfo.isReadable())
+            continue;
+
+        this->load(arg);
+        break;
+    }
 }
 
 bool MainWindow::checkPlugins(const REDasm::Buffer& buffer, REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)

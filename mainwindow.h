@@ -34,6 +34,7 @@ class MainWindow : public QMainWindow
         void loadGeometry();
         void applyTheme();
         void load(const QString &s);
+        void checkCommandLine();
         bool checkPlugins(const REDasm::Buffer &buffer, REDasm::FormatPlugin **format, REDasm::AssemblerPlugin ** assembler);
         void initDisassembler();
 

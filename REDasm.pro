@@ -142,7 +142,9 @@ SOURCES += main.cpp\
     dialogs/settingsdialog.cpp \
     widgets/disassemblerlistingview/disassemblerlistingview.cpp \
     widgets/disassemblerlistingview/disassemblertextview.cpp \
-    widgets/disassemblerlistingview/disassemblercolumnview.cpp
+    widgets/disassemblerlistingview/disassemblercolumnview.cpp \
+    redasm/redasm_api.cpp \
+    redasm/redasm_runtime.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -272,7 +274,9 @@ HEADERS  += mainwindow.h \
     dialogs/settingsdialog.h \
     widgets/disassemblerlistingview/disassemblerlistingview.h \
     widgets/disassemblerlistingview/disassemblertextview.h \
-    widgets/disassemblerlistingview/disassemblercolumnview.h
+    widgets/disassemblerlistingview/disassemblercolumnview.h \
+    redasm/redasm_api.h \
+    redasm/redasm_runtime.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

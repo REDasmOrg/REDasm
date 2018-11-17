@@ -17,7 +17,7 @@ class MetaARMAssembler: public AssemblerPlugin
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI *disassembler);
-        virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
+        virtual bool decode(BufferRef& buffer, const InstructionPtr& instruction);
 
     public:
         bool isPC(const Operand& op) const;

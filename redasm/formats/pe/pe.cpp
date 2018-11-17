@@ -9,7 +9,7 @@
 
 namespace REDasm {
 
-PeFormat::PeFormat(const Buffer &buffer): FormatPluginT<ImageDosHeader>(buffer), m_dotnetreader(NULL), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL), m_petype(PeType::None), m_imagebase(0), m_sectionalignment(0), m_entrypoint(0)
+PeFormat::PeFormat(Buffer &buffer): FormatPluginT<ImageDosHeader>(buffer), m_dotnetreader(NULL), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL), m_petype(PeType::None), m_imagebase(0), m_sectionalignment(0), m_entrypoint(0)
 {
 
 }
@@ -79,7 +79,7 @@ bool PeFormat::load()
     if(m_dosheader->e_magic != IMAGE_DOS_SIGNATURE)
         return false;
 
-    m_ntheaders = reinterpret_cast<ImageNtHeaders*>(m_buffer.data + m_dosheader->e_lfanew);
+    m_ntheaders = pointer<ImageNtHeaders>(m_dosheader->e_lfanew);
 
     if((m_ntheaders->Signature != IMAGE_NT_SIGNATURE) || ((m_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) &&
                                                           (m_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)))

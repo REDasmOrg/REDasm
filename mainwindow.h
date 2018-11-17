@@ -35,14 +35,14 @@ class MainWindow : public QMainWindow
         void applyTheme();
         void load(const QString &s);
         void checkCommandLine();
-        bool checkPlugins(const REDasm::Buffer &buffer, REDasm::FormatPlugin **format, REDasm::AssemblerPlugin ** assembler);
+        bool checkPlugins(REDasm::FormatPlugin **format, REDasm::AssemblerPlugin ** assembler);
         void initDisassembler();
 
     private:
         Ui::MainWindow *ui;
         QPushButton* m_pbstatus;
         QLabel* m_lblstatus;
-        QByteArray m_loadeddata;
+        REDasm::Buffer m_buffer;
 };
 
 #endif // MAINWINDOW_H

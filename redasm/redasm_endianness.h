@@ -1,9 +1,10 @@
-#ifndef ENDIANNESS_H
-#define ENDIANNESS_H
+#ifndef REDASM_ENDIANNESS_H
+#define REDASM_ENDIANNESS_H
 
 #define NEEDS_SWAP(endianness) (Endianness::current() != endianness)
 
-#include "../redasm.h"
+#include <algorithm>
+#include "redasm_types.h"
 
 namespace REDasm {
 
@@ -26,8 +27,8 @@ template<typename T> T swap(T v, int valueendian) {
 
 template<typename T> T cfbe(T v) { return swap(v, Endianness::BigEndian); }                // Convert FROM BigEndian TO PlatformEndian
 template<typename T> T cfle(T v) { return swap(v, Endianness::LittleEndian); }             // Convert FROM LittleEndian TO PlatformEndian
-template<typename T> T cfbe(const Buffer& buffer) { return cfbe(static_cast<T>(buffer)); }
-template<typename T> T cfle(const Buffer& buffer) { return cfle(static_cast<T>(buffer)); }
+template<typename T> T cfbe(const T* data) { return cfbe(*data); }
+template<typename T> T cfle(const T* data) { return cfle(*data); }
 
 } // namespace Endianness
 } // namespace REDasm

@@ -24,7 +24,7 @@ class CHIP8Assembler : public AssemblerPlugin
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
 
     protected:
-        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
+        virtual bool decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction);
         virtual void onDecoded(const InstructionPtr& instruction) const;
 
     private:

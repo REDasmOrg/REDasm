@@ -6,10 +6,9 @@
 
 namespace REDasm {
 
-DEXFormat::DEXFormat(const Buffer &buffer): FormatPluginT<DEXHeader>(buffer), m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL) { }
+DEXFormat::DEXFormat(Buffer &buffer): FormatPluginT<DEXHeader>(buffer), m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL) { }
 const char *DEXFormat::name() const { return "DEX"; }
 u32 DEXFormat::bits() const { return 32; }
-u32 DEXFormat::flags() const { return FormatFlags::IgnoreUnexploredCode; }
 const char *DEXFormat::assembler() const { return "dalvik"; }
 
 endianness_t DEXFormat::endianness() const

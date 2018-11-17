@@ -32,8 +32,8 @@ template<typename T> class EmulatorBase: public Emulator
         T readReg(T r) const;
         void incReg(const Operand& op, T amount = 1);
         void decReg(const Operand& op, T amount = 1);
-        void writeMem(T address, T value);
-        bool readMem(T address, T* value, T size = sizeof(T)) const;
+        bool writeMem(T address, T value, T size = sizeof(T));
+        bool readMem(T address, T* value, T size = sizeof(T));
 
     public:
         virtual bool hasError() const;
@@ -46,7 +46,6 @@ template<typename T> class EmulatorBase: public Emulator
 
     private:
         MapT m_registers;
-        MapT m_memory;
         Stack m_stack;
         Flags m_flags;
 };

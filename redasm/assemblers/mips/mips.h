@@ -18,7 +18,7 @@ template<size_t mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARC
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const { return new MIPSPrinter(this->m_cshandle, disassembler); }
 
     protected:
-        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
+        virtual bool decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction);
         virtual void onDecoded(const InstructionPtr& instruction);
 
     private:

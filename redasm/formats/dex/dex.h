@@ -12,11 +12,10 @@ namespace REDasm {
 class DEXFormat : public FormatPluginT<DEXHeader>
 {
     public:
-        DEXFormat(const Buffer& buffer);
+        DEXFormat(Buffer& buffer);
         virtual const char* name() const;
         virtual const char* assembler() const;
         virtual u32 bits() const;
-        virtual u32 flags() const;
         virtual endianness_t endianness() const;
         virtual bool load();
 

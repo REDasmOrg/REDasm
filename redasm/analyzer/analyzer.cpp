@@ -28,15 +28,15 @@ bool Analyzer::checkCrc16(const SymbolPtr& symbol, const Signature& signature, c
     if(signaturedb.signatureType() != SignatureDB::IDASignature)
         return true;
 
-    Buffer buffer;
+    BufferRef buffer;
 
     if(!m_disassembler->getBuffer(symbol->address + signature.length(), buffer))
         return false;
 
-    if(buffer.length < signature.alen)
+    if(buffer.size() < signature.alen)
         return false;
 
-    if(Hash::crc16(buffer.data, signature.alen) == signature.asum)
+    if(Hash::crc16(buffer, signature.alen) == signature.asum)
         return true;
 
     return false;

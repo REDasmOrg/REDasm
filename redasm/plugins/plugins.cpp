@@ -57,7 +57,7 @@ void init(const std::string& searchpath)
     REGISTER_ASSEMBLER_PLUGIN(chip8);
 }
 
-FormatPlugin *getFormat(const Buffer& buffer)
+FormatPlugin *getFormat(Buffer& buffer)
 {
     for(auto it = formats.begin(); it != formats.end(); it++)
     {

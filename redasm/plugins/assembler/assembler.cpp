@@ -25,7 +25,7 @@ bool AssemblerPlugin::hasFlag(u32 flag) const { return this->flags() & flag; }
 endianness_t AssemblerPlugin::endianness() const { return m_endianness; }
 void AssemblerPlugin::setEndianness(endianness_t endianness) { m_endianness = endianness; }
 
-bool AssemblerPlugin::decode(Buffer buffer, const InstructionPtr &instruction)
+bool AssemblerPlugin::decode(BufferRef& buffer, const InstructionPtr &instruction)
 {
     bool decoded = this->decodeInstruction(buffer, instruction);
     this->setBytes(buffer, instruction);
@@ -39,12 +39,12 @@ bool AssemblerPlugin::decode(Buffer buffer, const InstructionPtr &instruction)
     return true;
 }
 
-bool AssemblerPlugin::decodeInstruction(Buffer buffer, const InstructionPtr &instruction)
+bool AssemblerPlugin::decodeInstruction(BufferRef& buffer, const InstructionPtr &instruction)
 {
     return false;
 }
 
-void AssemblerPlugin::setBytes(Buffer buffer, const InstructionPtr &instruction) const
+void AssemblerPlugin::setBytes(BufferRef &buffer, const InstructionPtr &instruction) const
 {
     std::stringstream ss;
     ss << std::hex << std::setfill('0');

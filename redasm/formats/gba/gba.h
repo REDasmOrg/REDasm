@@ -35,10 +35,9 @@ struct GbaRomHeader // From: http://problemkaputt.de/gbatek.htm#gbacartridgehead
 class GbaRomFormat: public FormatPluginT<GbaRomHeader>
 {
     public:
-        GbaRomFormat(const Buffer& buffer);
+        GbaRomFormat(Buffer& buffer);
         virtual const char* name() const;
         virtual u32 bits() const;
-        virtual u32 flags() const;
         virtual const char* assembler() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual bool load();

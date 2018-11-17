@@ -12,26 +12,14 @@
 #include <map>
 #include <set>
 #include "redasm_runtime.h"
+#include "redasm_buffer.h"
+#include "redasm_types.h"
 
 #if __cplusplus <= 201103L && __GNUC__
 namespace std {
 template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... args) { return std::unique_ptr<T>(new T(std::forward<Args>(args)...)); }
 }
 #endif
-
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-typedef int8_t  s8;
-typedef int16_t s16;
-typedef int32_t s32;
-typedef int64_t s64;
-
-typedef s64 register_t;
-typedef u64 address_t;
-typedef u64 offset_t;
-typedef u64 instruction_id_t;
 
 #define RE_UNUSED(x)                               (void)x
 #define ENTRYPOINT_FUNCTION                        "entrypoint"
@@ -113,18 +101,7 @@ namespace OperandSizes {
     std::string size(u32 opsize);
 }
 
-namespace ListingItemTypes {
-    enum: u32 {
-        None        = 0x00000000,
-        BlockStart  = 0x00000001,
-        BlockEnd    = 0x00000002,
-        GraphStart  = 0x00000004,
-        GraphEnd    = 0x00000008,
-
-        Ignore      = 0x10000000,
-    };
-}
-
+/*
 struct Buffer
 {
     Buffer(): data(NULL), length(0) { }
@@ -146,6 +123,7 @@ struct Buffer
     u8* data;
     s64 length;
 };
+*/
 
 struct Signature
 {
@@ -161,7 +139,7 @@ struct Segment
 {
     Segment(): offset(0), address(0), endaddress(0), type(0) { }
     Segment(const std::string& name, offset_t offset, address_t address, u64 size, u32 type): name(name), offset(offset), address(address), endaddress(address + size), type(type) { }
-    u64 size() const { return endaddress - address; }
+    s64 size() const { return static_cast<s64>(endaddress - address); }
     bool contains(address_t address) const { return (address >= this->address) && (address < endaddress); }
     bool is(u32 t) const { return type & t; }
 

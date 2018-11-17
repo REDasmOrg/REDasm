@@ -52,7 +52,7 @@ MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {
-    if(!m_loadeddata.isEmpty())
+    if(!m_buffer.empty())
     {
         QMessageBox msgbox(this);
         msgbox.setWindowTitle("Closing");
@@ -138,19 +138,13 @@ void MainWindow::loadGeometry()
 
 void MainWindow::load(const QString& s)
 {
-    QFile f(s);
-
-    if(!f.open(QFile::ReadOnly))
-        return;
-
     QFileInfo fi(s);
     QDir::setCurrent(fi.path());
     this->setWindowTitle(fi.fileName());
 
-    m_loadeddata = f.readAll();
-    f.close();
+    m_buffer = REDasm::Buffer::fromFile(s.toStdString());
 
-    if(!m_loadeddata.isEmpty())
+    if(!m_buffer.empty())
         this->initDisassembler();
 }
 
@@ -175,13 +169,13 @@ void MainWindow::checkCommandLine()
     }
 }
 
-bool MainWindow::checkPlugins(const REDasm::Buffer& buffer, REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
+bool MainWindow::checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
 {
-    *format = REDasm::getFormat(buffer);
+    *format = REDasm::getFormat(m_buffer);
 
     if((*format)->isBinary()) // Use manual loader
     {
-        ManualLoadDialog dlgmanload(*format, m_loadeddata.size(), this);
+        ManualLoadDialog dlgmanload(*format, this);
 
         if(dlgmanload.exec() != ManualLoadDialog::Accepted)
             return false;
@@ -200,12 +194,11 @@ bool MainWindow::checkPlugins(const REDasm::Buffer& buffer, REDasm::FormatPlugin
 
 void MainWindow::initDisassembler()
 {
-    REDasm::Buffer buffer(m_loadeddata.data(), m_loadeddata.length());
     DisassemblerView *dv = new DisassemblerView(m_lblstatus, m_pbstatus, ui->stackView);
     REDasm::FormatPlugin* format = NULL;
     REDasm::AssemblerPlugin* assembler = NULL;
 
-    if(!this->checkPlugins(buffer, &format, &assembler))
+    if(!this->checkPlugins(&format, &assembler))
     {
         dv->deleteLater();
         return;

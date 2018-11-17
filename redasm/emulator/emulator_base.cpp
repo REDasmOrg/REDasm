@@ -6,6 +6,9 @@ template<typename T> EmulatorBase<T>::EmulatorBase(DisassemblerAPI* disassembler
 
 template<typename T> void EmulatorBase<T>::emulate(const InstructionPtr& instruction)
 {
+    if(!this->hasError() && m_memory.empty())
+        this->fail();
+
     if(this->hasError())
         return;
 
@@ -96,23 +99,50 @@ template<typename T> void EmulatorBase<T>::decReg(const Operand &op, T amount)
     this->writeReg(op.reg.r, this->readReg(op.reg.r) - amount);
 }
 
-template<typename T> void EmulatorBase<T>::writeMem(T address, T value) { m_memory[address] = value; }
-
-template<typename T> bool EmulatorBase<T>::readMem(T address, T* value, T size) const
+template<typename T> bool EmulatorBase<T>::writeMem(T address, T value, T size)
 {
-    auto it = m_memory.find(address);
+    BufferRef memory = this->getMemory(address);
 
-    if(it == m_memory.end())
-    {
-        u64 avalue = 0;
+    if(memory.eob())
+        return false;
 
-        if(!m_disassembler->readAddress(static_cast<address_t>(address), static_cast<size_t>(size), &avalue))
-            return false;
-
-        *value = static_cast<T>(avalue);
-    }
+    if(size == sizeof(u8))
+        memory = static_cast<u8>(value);
+    else if(size == sizeof(u16))
+        memory = static_cast<u16>(value);
+    else if(size == sizeof(u32))
+        memory = static_cast<u32>(value);
+    else if(size == sizeof(u64))
+        memory = static_cast<u64>(value);
     else
-        *value = it->second;
+    {
+        REDasm::log("WriteMemory: Invalid size (" + std::to_string(size) + ")");
+        this->fail();
+    }
+
+    return true;
+}
+
+template<typename T> bool EmulatorBase<T>::readMem(T address, T* value, T size)
+{
+    BufferRef memory = this->getMemory(address);
+
+    if(memory.eob())
+        return false;
+
+    if(size == sizeof(u8))
+        *value = static_cast<u8>(memory);
+    else if(size == sizeof(u16))
+        *value = static_cast<u16>(memory);
+    else if(size == sizeof(u32))
+        *value = static_cast<u32>(memory);
+    else if(size == sizeof(u64))
+        *value = static_cast<u64>(memory);
+    else
+    {
+        REDasm::log("ReadMemory: Invalid size (" + std::to_string(size) + ")");
+        this->fail();
+    }
 
     return true;
 }
@@ -125,7 +155,7 @@ template<typename T> void EmulatorBase<T>::reset(bool resetmemory)
         m_stack.pop();
 
     if(resetmemory)
-        m_memory.clear();
+        this->remap();
 
     m_registers.clear();
     m_flags.clear();

@@ -1,4 +1,4 @@
-#include "endianness.h"
+#include "redasm_endianness.h"
 
 namespace REDasm {
 namespace Endianness {

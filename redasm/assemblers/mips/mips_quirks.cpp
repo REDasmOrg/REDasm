@@ -16,11 +16,11 @@ std::unordered_map<u32, MIPSQuirks::InstructionCallback> MIPSQuirks::m_cop2map;
 
 MIPSQuirks::MIPSQuirks() { }
 
-bool MIPSQuirks::decode(Buffer buffer, const InstructionPtr &instruction)
+bool MIPSQuirks::decode(BufferRef& buffer, const InstructionPtr &instruction)
 {
     initOpCodes();
 
-    u32 data = *reinterpret_cast<u32*>(buffer.data), opcode = data & 0xFC000000;
+    u32 data = static_cast<u32>(buffer), opcode = data & 0xFC000000;
     auto cb = m_opcodetypes.find(opcode);
 
     if(cb != m_opcodetypes.end())

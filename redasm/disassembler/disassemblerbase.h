@@ -29,7 +29,7 @@ class DisassemblerBase: public DisassemblerAPI
         virtual std::string readHex(address_t address, u64 count) const;
         virtual SymbolPtr dereferenceSymbol(const SymbolPtr &symbol, u64 *value = NULL);
         virtual bool dereference(address_t address, u64 *value) const;
-        virtual bool getBuffer(address_t address, Buffer& data) const;
+        virtual bool getBuffer(address_t address, BufferRef& data) const;
         virtual bool readAddress(address_t address, size_t size, u64 *value) const;
         virtual bool readOffset(offset_t offset, size_t size, u64 *value) const;
         virtual std::string readString(address_t address) const;
@@ -47,11 +47,11 @@ class DisassemblerBase: public DisassemblerAPI
 
 template<typename T> std::string DisassemblerBase::readStringT(address_t address, std::function<bool(T, std::string&)> fill) const
 {
-    Buffer b = m_format->buffer() + m_format->offset(address);
+    BufferRef b = m_format->buffer(address);
     std::string s;
 
-    while(fill(*reinterpret_cast<T*>(b.data), s) && !b.eob())
-        b += sizeof(T);
+    while(!b.eob() && fill(static_cast<T>(b), s))
+        b.advance(sizeof(T));
 
     return s;
 }
@@ -62,19 +62,19 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
         return 0;
 
     u64 alphacount = 0, count = 0;
-    Buffer b = m_format->buffer() + m_format->offset(address);
+    BufferRef buffer = m_format->buffer(address);
 
-    while(!b.eob() && isp(*reinterpret_cast<T*>(b.data)))
+    while(!buffer.eob() && isp(static_cast<T>(buffer)))
     {
         count++;
 
-        if(isa(*reinterpret_cast<T*>(b.data)))
+        if(isa(static_cast<T>(buffer)))
             alphacount++;
 
         if(count >= MIN_STRING)
             break;
 
-        b += sizeof(T);
+        buffer.advance(sizeof(T));
     }
 
     if(!count || ((static_cast<double>(alphacount) / count) < 0.51)) // ...it might be just data, check alpha ratio...

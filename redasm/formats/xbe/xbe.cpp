@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-XbeFormat::XbeFormat(const Buffer &buffer): FormatPluginT<XbeImageHeader>(buffer) { }
+XbeFormat::XbeFormat(Buffer &buffer): FormatPluginT<XbeImageHeader>(buffer) { }
 const char *XbeFormat::name() const { return "XBox Executable"; }
 u32 XbeFormat::bits() const { return 32; }
 const char *XbeFormat::assembler() const { return "x86_32"; }

@@ -12,7 +12,7 @@ class CILAssembler : public AssemblerPlugin
         virtual const char* name() const;
 
     protected:
-        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
+        virtual bool decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction);
 };
 
 DECLARE_ASSEMBLER_PLUGIN(CILAssembler, cil)

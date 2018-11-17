@@ -125,12 +125,12 @@ std::string DisassemblerBase::readWString(const SymbolPtr &symbol) const
 
 std::string DisassemblerBase::readHex(address_t address, u64 count) const
 {
-    Buffer data;
+    BufferRef data;
 
     if(!this->getBuffer(address, data))
         return std::string();
 
-    count = std::min(static_cast<s64>(count), m_format->buffer().length);
+    count = std::min(static_cast<size_t>(count), data.size());
 
     std::stringstream ss;
     ss << std::hex << std::setfill('0');
@@ -176,14 +176,14 @@ bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) c
     return this->readOffset(m_format->offset(address), size, value);
 }
 
-bool DisassemblerBase::getBuffer(address_t address, Buffer &data) const
+bool DisassemblerBase::getBuffer(address_t address, BufferRef &data) const
 {
     Segment* segment = m_document->segment(address);
 
     if(!segment || segment->is(SegmentTypes::Bss))
         return false;
 
-    data = m_format->buffer() + m_format->offset(address);
+    data = m_format->buffer().slice(m_format->offset(address));
     return true;
 }
 
@@ -192,16 +192,16 @@ bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 *value) cons
     if(!value)
         return false;
 
-    Buffer pdest = m_format->buffer() + offset;
+    BufferRef pdest = m_format->buffer().slice(offset);
 
     if(size == 1)
-        *value = *reinterpret_cast<u8*>(pdest.data);
+        *value = static_cast<u8>(pdest);
     else if(size == 2)
-        *value = *reinterpret_cast<u16*>(pdest.data);
+        *value = static_cast<u16>(pdest);
     else if(size == 4)
-        *value = *reinterpret_cast<u32*>(pdest.data);
+        *value = static_cast<u32>(pdest);
     else if(size == 8)
-        *value = *reinterpret_cast<u64*>(pdest.data);
+        *value = static_cast<u64>(pdest);
     else
     {
         REDasm::log("Invalid size: " + std::to_string(size));

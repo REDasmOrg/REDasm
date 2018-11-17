@@ -22,7 +22,7 @@ struct PsxExeHeader
 class PsxExeFormat: public FormatPluginT<PsxExeHeader>
 {
     public:
-        PsxExeFormat(const Buffer& buffer);
+        PsxExeFormat(Buffer& buffer);
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;

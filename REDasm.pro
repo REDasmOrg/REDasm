@@ -80,7 +80,6 @@ SOURCES += main.cpp\
     dialogs/manualloaddialog.cpp \
     redasm/formats/binary/binary.cpp \
     redasm/assemblers/chip8/chip8.cpp \
-    redasm/support/endianness.cpp \
     redasm/assemblers/mips/mips_quirks.cpp \
     redasm/assemblers/mips/mips_printer.cpp \
     redasm/assemblers/x86/x86_printer.cpp \
@@ -144,7 +143,9 @@ SOURCES += main.cpp\
     widgets/disassemblerlistingview/disassemblertextview.cpp \
     widgets/disassemblerlistingview/disassemblercolumnview.cpp \
     redasm/redasm_api.cpp \
-    redasm/redasm_runtime.cpp
+    redasm/redasm_runtime.cpp \
+    redasm/redasm_buffer.cpp \
+    redasm/redasm_endianness.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -200,7 +201,6 @@ HEADERS  += mainwindow.h \
     dialogs/manualloaddialog.h \
     redasm/formats/binary/binary.h \
     redasm/assemblers/chip8/chip8.h \
-    redasm/support/endianness.h \
     redasm/assemblers/mips/mips_printer.h \
     redasm/assemblers/mips/mips_quirks.h \
     redasm/assemblers/x86/x86_printer.h \
@@ -276,7 +276,10 @@ HEADERS  += mainwindow.h \
     widgets/disassemblerlistingview/disassemblertextview.h \
     widgets/disassemblerlistingview/disassemblercolumnview.h \
     redasm/redasm_api.h \
-    redasm/redasm_runtime.h
+    redasm/redasm_runtime.h \
+    redasm/redasm_types.h \
+    redasm/redasm_buffer.h \
+    redasm/redasm_endianness.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

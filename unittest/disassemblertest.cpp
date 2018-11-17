@@ -65,9 +65,9 @@ void DisassemblerTest::runTests()
         }
 
         TEST_TITLE(qUtf8Printable(fi.fileName()));
-        m_data = DisassemblerTest::readFile(testpath);
+        m_buffer = Buffer::fromFile(testpath.toStdString());
 
-        if(m_data.isEmpty())
+        if(m_buffer.empty())
         {
             cout << "!!! File is empty" << endl << endl;
             return;
@@ -94,22 +94,9 @@ string DisassemblerTest::replaceAll(std::string str, const std::string &from, co
     return str;
 }
 
-QByteArray DisassemblerTest::readFile(const QString &file)
-{
-    QFile f(file);
-
-    if(!f.open(QFile::ReadOnly))
-        return QByteArray();
-
-    QByteArray ba = f.readAll();
-    f.close();
-    return ba;
-}
-
 void DisassemblerTest::runCurrentTest(const TestCallback &cb)
 {
-    Buffer buffer(m_data.data(), m_data.length());
-    FormatPlugin* format = REDasm::getFormat(buffer);
+    FormatPlugin* format = REDasm::getFormat(m_buffer);
     TEST("Format", format);
 
     if(!format)

@@ -22,7 +22,6 @@ class DisassemblerTest
 
     private:
         static std::string replaceAll(std::string str, const std::string& from, const std::string& to);
-        static QByteArray readFile(const QString& file);
         void runCurrentTest(const TestCallback& cb);
 
     private:
@@ -39,9 +38,9 @@ class DisassemblerTest
 
     private:
         TestList m_tests;
-        QByteArray m_data;
         std::unique_ptr<REDasm::Disassembler> m_disassembler;
         REDasm::ListingDocument* m_document;
+        REDasm::Buffer m_buffer;
 };
 
 #endif // DISASSEMBLERTEST_H

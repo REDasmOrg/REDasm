@@ -12,6 +12,7 @@ class Emulator
 {
     private:
         typedef Dispatcher<instruction_id_t, void(const InstructionPtr&)> DispatcherType;
+        typedef std::unordered_map<const Segment*, Buffer> MappedMemory;
 
     public:
         Emulator(DisassemblerAPI* disassembler);
@@ -21,9 +22,17 @@ class Emulator
         virtual bool displacement(const Operand& op, u64* value) = 0;
 
     protected:
+        Buffer& getSegmentMemory(address_t address, offset_t* offset);
+        BufferRef getMemory(address_t address);
+
+    private:
+        void remap();
+
+    protected:
         InstructionPtr m_currentinstruction;
         DisassemblerAPI* m_disassembler;
         DispatcherType m_dispatcher;
+        MappedMemory m_memory;
 };
 
 } // namespace REDasm

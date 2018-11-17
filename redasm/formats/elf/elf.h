@@ -20,7 +20,7 @@ namespace REDasm {
 template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 {
     public:
-        ElfFormat(const Buffer& buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL) { }
+        ElfFormat(Buffer& buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL) { }
         virtual const char* name() const { return "ELF Format"; }
         virtual u32 bits() const;
         virtual const char* assembler() const;
@@ -238,7 +238,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSegments()
 class Elf32Format: public ElfFormat<ELF_PARAMS(32)>
 {
     public:
-        Elf32Format(const Buffer& buffer);
+        Elf32Format(Buffer& buffer);
 
     protected:
         virtual bool validate() const;
@@ -248,7 +248,7 @@ class Elf32Format: public ElfFormat<ELF_PARAMS(32)>
 class Elf64Format: public ElfFormat<ELF_PARAMS(64)>
 {
     public:
-        Elf64Format(const Buffer& buffer);
+        Elf64Format(Buffer& buffer);
 
     protected:
         virtual bool validate() const;

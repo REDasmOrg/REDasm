@@ -65,7 +65,7 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
 
     instruction->address = address;
 
-    Buffer buffer = m_format->buffer() + m_format->offset(address);
+    BufferRef buffer = m_format->buffer().slice(m_format->offset(address));
     return m_assembler->decode(buffer, instruction) ? AssemblerAlgorithm::OK : AssemblerAlgorithm::FAIL;
 }
 
@@ -255,7 +255,7 @@ void AssemblerAlgorithm::eraseSymbolState(State *state) { m_document->eraseSymbo
 
 bool AssemblerAlgorithm::canBeDisassembled(address_t address)
 {
-    Buffer buffer = m_format->buffer() + m_format->offset(address);
+    BufferRef buffer = m_format->buffer(address);
 
     if(buffer.eob())
         return false;
@@ -285,7 +285,7 @@ void AssemblerAlgorithm::createInvalidInstruction(const InstructionPtr &instruct
     if(!instruction->bytes.empty())
         return;
 
-    Buffer buffer = m_format->buffer() + m_format->offset(instruction->address);
+    BufferRef buffer = m_format->buffer(instruction->address);
 
     std::stringstream ss;
     ss << std::hex << static_cast<size_t>(*buffer);

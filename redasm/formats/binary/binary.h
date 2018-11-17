@@ -8,13 +8,13 @@ namespace REDasm {
 class BinaryFormat : public FormatPluginB
 {
     public:
-        BinaryFormat(const Buffer& buffer);
+        BinaryFormat(Buffer& buffer);
         virtual const char* name() const;
         virtual const char* assembler() const;
         virtual u32 bits() const;
         virtual u32 flags() const;
         virtual bool load();
-        void build(const std::string& assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entrypoint, u64 size);
+        void build(const std::string& assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entrypoint);
 
     private:
         std::string m_assembler;

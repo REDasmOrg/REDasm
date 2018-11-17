@@ -22,7 +22,7 @@ const char *MetaARMAssembler::name() const { return "Meta ARM"; }
 Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { return new MetaARMEmulator(disassembler); }
 Printer *MetaARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(m_armassembler->handle(), disassembler); }
 AssemblerAlgorithm *MetaARMAssembler::createAlgorithm(DisassemblerAPI *disassembler) { return new MetaARMAlgorithm(disassembler, this); }
-bool MetaARMAssembler::decode(Buffer buffer, const InstructionPtr &instruction) { return m_assembler->decode(buffer, instruction); }
+bool MetaARMAssembler::decode(BufferRef& buffer, const InstructionPtr &instruction) { return m_assembler->decode(buffer, instruction); }
 bool MetaARMAssembler::isPC(const Operand &op) const { return m_armassembler->isPC(op); }
 bool MetaARMAssembler::isLR(const Operand &op) const { return m_armassembler->isLR(op); }
 bool MetaARMAssembler::isARMMode() const { return m_assembler == m_armassembler; }

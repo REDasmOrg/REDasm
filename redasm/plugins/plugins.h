@@ -12,7 +12,7 @@ namespace REDasm {
 extern std::list<FormatPlugin_Entry> formats;
 extern std::unordered_map<std::string, AssemblerPlugin_Entry> assemblers;
 
-FormatPlugin* getFormat(const Buffer &buffer);
+FormatPlugin* getFormat(Buffer &buffer);
 AssemblerPlugin* getAssembler(const char *id);
 void setLoggerCallback(Runtime::LogCallback logcb);
 void setStatusCallback(Runtime::LogCallback logcb);

@@ -2,7 +2,8 @@
 
 namespace REDasm {
 
-FormatPlugin::FormatPlugin(const Buffer &buffer): Plugin(), m_buffer(buffer) { m_document.m_format = this; }
+FormatPlugin::FormatPlugin(Buffer &buffer): Plugin(), m_buffer(buffer) { m_document.m_format = this; }
+void FormatPlugin::init() { m_buffer.endianness(this->endianness()); }
 ListingDocument *FormatPlugin::document() { return &m_document; }
 const SignatureFiles &FormatPlugin::signatures() const { return m_signatures; }
 u64 FormatPlugin::addressWidth() const { return this->bits() / 8; }
@@ -24,6 +25,7 @@ Analyzer* FormatPlugin::createAnalyzer(DisassemblerAPI *disassembler, const Sign
 u32 FormatPlugin::flags() const { return FormatFlags::None; }
 endianness_t FormatPlugin::endianness() const { return Endianness::LittleEndian; /* Use LE by default */ }
 bool FormatPlugin::isBinary() const { return this->flags() & FormatFlags::Binary; }
-const Buffer &FormatPlugin::buffer() const { return m_buffer; }
+Buffer &FormatPlugin::buffer() const { return m_buffer; }
+BufferRef FormatPlugin::buffer(address_t address) { return m_buffer.slice(this->offset(address)); }
 
 }

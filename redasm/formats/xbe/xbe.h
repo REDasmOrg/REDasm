@@ -11,7 +11,7 @@ namespace REDasm {
 class XbeFormat : public FormatPluginT<XbeImageHeader>
 {
     public:
-        XbeFormat(const Buffer& buffer);
+        XbeFormat(Buffer& buffer);
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;

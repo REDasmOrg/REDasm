@@ -7,7 +7,6 @@
 #include <cstring>
 #include "../../disassembler/disassemblerapi.h"
 #include "../../support/dispatcher.h"
-#include "../../support/endianness.h"
 #include "../../support/utils.h"
 #include "../../plugins/emulator.h"
 #include "../base.h"
@@ -37,16 +36,15 @@ class AssemblerPlugin: public Plugin
         bool hasFlag(u32 flag) const;
         endianness_t endianness() const;
         void setEndianness(endianness_t endianness);
-        virtual bool decode(Buffer buffer, const InstructionPtr& instruction);
-        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
+        virtual bool decode(BufferRef& buffer, const InstructionPtr& instruction);
+        virtual bool decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction);
 
     protected:
-        template<typename T> T read(const Buffer& buffer) const;
         virtual void onDecoded(const InstructionPtr& instruction);
 
     private:
         void setInstructionType(const InstructionPtr& instruction) const;
-        void setBytes(Buffer buffer, const InstructionPtr& instruction) const;
+        void setBytes(BufferRef& buffer, const InstructionPtr& instruction) const;
 
     protected:
         std::unordered_map<instruction_id_t, u32> m_instructiontypes;
@@ -56,14 +54,6 @@ class AssemblerPlugin: public Plugin
         endianness_t m_endianness;
 };
 
-template<typename T> T AssemblerPlugin::read(const Buffer& buffer) const
-{
-    if(this->endianness() == Endianness::BigEndian)
-        return Endianness::cfbe<T>(buffer);
-
-    return Endianness::cfle<T>(buffer);
-}
-
 template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public AssemblerPlugin
 {
     public:
@@ -71,7 +61,7 @@ template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public Assemb
         ~CapstoneAssemblerPlugin();
         csh handle() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new CapstonePrinter(this->m_cshandle, disassembler); }
-        virtual bool decodeInstruction(Buffer buffer, const InstructionPtr& instruction);
+        virtual bool decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction);
 
     protected:
         virtual void onDecoded(const InstructionPtr& instruction);
@@ -106,13 +96,14 @@ template<cs_arch arch, size_t mode> void CapstoneAssemblerPlugin<arch, mode>::on
 template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::~CapstoneAssemblerPlugin() { cs_close(&this->m_cshandle); }
 template<cs_arch arch, size_t mode> csh CapstoneAssemblerPlugin<arch, mode>::handle() const { return this->m_cshandle; }
 
-template<cs_arch arch, size_t mode> bool CapstoneAssemblerPlugin<arch, mode>::decodeInstruction(Buffer buffer, const InstructionPtr& instruction)
+template<cs_arch arch, size_t mode> bool CapstoneAssemblerPlugin<arch, mode>::decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction)
 {
     u64 address = instruction->address;
-    const uint8_t* pdata = reinterpret_cast<const uint8_t*>(buffer.data);
+    const uint8_t* pdata = static_cast<const uint8_t*>(buffer);
+    size_t len = buffer.size();
     cs_insn* insn = cs_malloc(m_cshandle);
 
-    if(!cs_disasm_iter(m_cshandle, &pdata, reinterpret_cast<size_t*>(&buffer.length), &address, insn))
+    if(!cs_disasm_iter(m_cshandle, &pdata, &len, &address, insn))
         return false;
 
     instruction->mnemonic = insn->mnemonic;

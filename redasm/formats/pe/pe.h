@@ -25,13 +25,12 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;
-        virtual offset_t offset(address_t address) const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual bool load();
         const DotNetReader *dotNetReader() const;
 
     private:
-        u64 rvaToOffset(u64 rva, bool* ok = NULL) const;
+        u64 rvaToOffset(u64 rva, bool *ok = NULL) const;
         void checkDelphi(const REDasm::PEResources &peresources);
         void checkResources();
         void checkDebugInfo();

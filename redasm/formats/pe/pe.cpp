@@ -55,15 +55,6 @@ const char *PeFormat::assembler() const
     return NULL;
 }
 
-offset_t PeFormat::offset(address_t address) const
-{
-    u64 imagebase = (m_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) ? m_ntheaders->OptionalHeader64.ImageBase :
-                                                                                          m_ntheaders->OptionalHeader32.ImageBase;
-
-    address -= imagebase;
-    return this->rvaToOffset(address);
-}
-
 Analyzer *PeFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
 {
     if(m_petype == PeType::VisualBasic)

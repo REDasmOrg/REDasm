@@ -183,7 +183,7 @@ bool DisassemblerBase::getBuffer(address_t address, BufferRef &data) const
     if(!segment || segment->is(SegmentTypes::Bss))
         return false;
 
-    data = m_format->buffer().slice(m_format->offset(address));
+    data = m_format->buffer(address);
     return true;
 }
 

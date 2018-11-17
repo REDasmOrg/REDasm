@@ -65,7 +65,7 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
 
     instruction->address = address;
 
-    BufferRef buffer = m_format->buffer().slice(m_format->offset(address));
+    BufferRef buffer = m_format->buffer(address);
     return m_assembler->decode(buffer, instruction) ? AssemblerAlgorithm::OK : AssemblerAlgorithm::FAIL;
 }
 

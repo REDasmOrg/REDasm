@@ -50,7 +50,7 @@ void MetaARMEmulator::emulate(const InstructionPtr &instruction)
     else
         this->writeReg(ARM_REG_PC, instruction->address + 8);
 
-    Emulator::emulate(instruction);
+    EmulatorT<u32>::emulate(instruction);
 }
 
 void MetaARMEmulator::emulateMath(const InstructionPtr &instruction)

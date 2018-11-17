@@ -59,13 +59,14 @@ void Emulator::remap()
         {
             BufferRef segmentbuffer = format->buffer(segment->address);
 
-            if(segment->size() > segmentbuffer.size())
+            if(segment->size() > static_cast<s64>(segmentbuffer.size()))
                 return;
 
             Buffer buffer;
 
             if(!segmentbuffer.copyTo(buffer)) // Mapping failed...
             {
+                REDasm::log("Mapping FAILED @ " + REDasm::quoted(segment->name));
                 m_memory.clear();
                 return;
             }

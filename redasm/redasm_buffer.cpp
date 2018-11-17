@@ -81,7 +81,7 @@ Buffer BufferRef::filled(size_t n, u8 b) const { return m_buffer->filled(n, b); 
 
 bool BufferRef::copyTo(Buffer &buffer)
 {
-    if(this->eob())
+    if(this->empty())
         return false;
 
     buffer.resize(m_size);
@@ -97,7 +97,7 @@ bool BufferRef::copyTo(Buffer &buffer)
 bool BufferRef::eob() const { return !m_data || !m_size || (m_size >= m_buffer->size()); }
 bool BufferRef::empty() const { return !m_data || !m_size; }
 size_t BufferRef::size() const { return m_size; }
-u8 *BufferRef::data() const { const_cast<BufferRef*>(this)->data(); }
+u8 *BufferRef::data() const { return const_cast<BufferRef*>(this)->data(); }
 u8 *BufferRef::data() { return m_data; }
 
 u8 BufferRef::operator[](size_t idx) const

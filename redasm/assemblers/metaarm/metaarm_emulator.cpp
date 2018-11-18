@@ -61,9 +61,9 @@ void MetaARMEmulator::emulateMath(const InstructionPtr &instruction)
         this->aluOp(instruction, 0, 2, 1);
 
     if((instruction->id == ARM_INS_ADC) && this->hasCarry())
-        this->incReg(instruction->op(0));
+        this->changeReg(instruction->op(0), 1);
     else if((instruction->id == ARM_INS_SBC) && !this->hasCarry())
-        this->decReg(instruction->op(0));
+        this->changeReg(instruction->op(0), -1);
 }
 
 void MetaARMEmulator::emulateMov(const InstructionPtr &instruction) { this->moveOp(instruction, 0, 1); }

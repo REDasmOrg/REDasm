@@ -9,7 +9,7 @@ Buffer Buffer::invalid;
 Buffer::Buffer(): std::vector<u8>(), m_endianness(Endianness::current()) { }
 BufferRef Buffer::slice(u64 offset) { return BufferRef(this, offset); }
 
-Buffer Buffer::filled(size_t n, u8 b) const
+Buffer Buffer::createFilled(size_t n, u8 b) const
 {
     Buffer buffer;
     buffer.endianness(m_endianness);
@@ -77,7 +77,7 @@ BufferRef &BufferRef::advance(int offset)
     return *this;
 }
 
-Buffer BufferRef::filled(size_t n, u8 b) const { return m_buffer->filled(n, b); }
+Buffer BufferRef::filled(size_t n, u8 b) const { return m_buffer->createFilled(n, b); }
 
 bool BufferRef::copyTo(Buffer &buffer)
 {

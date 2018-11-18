@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-template<typename T> EmulatorBase<T>::EmulatorBase(DisassemblerAPI* disassembler): Emulator(disassembler) { }
+template<typename T> EmulatorBase<T>::EmulatorBase(DisassemblerAPI* disassembler): Emulator(disassembler), m_sp(0) { }
 
 template<typename T> void EmulatorBase<T>::emulate(const InstructionPtr& instruction)
 {
@@ -83,7 +83,7 @@ template<typename T> T EmulatorBase<T>::readReg(T r) const
     return 0;
 }
 
-template<typename T> void EmulatorBase<T>::incReg(const Operand &op, T amount)
+template<typename T> void EmulatorBase<T>::changeReg(const Operand &op, ST amount)
 {
     if(!op.is(OperandTypes::Register) || !amount)
         return;
@@ -91,12 +91,26 @@ template<typename T> void EmulatorBase<T>::incReg(const Operand &op, T amount)
     this->writeReg(op.reg.r, this->readReg(op.reg.r) + amount);
 }
 
-template<typename T> void EmulatorBase<T>::decReg(const Operand &op, T amount)
+template<typename T> void EmulatorBase<T>::changeSP(ST amount)
 {
-    if(!op.is(OperandTypes::Register) || !amount)
+    if(!amount)
         return;
 
-    this->writeReg(op.reg.r, this->readReg(op.reg.r) - amount);
+    if((amount < 0) && ((m_sp - amount) > STACK_SIZE))
+    {
+        REDasm::log("Stack Overflow: trying to allocate " + std::to_string(std::abs(amount)) + " bytes");
+        this->fail();
+        return;
+    }
+
+    if((amount > m_sp))
+    {
+        REDasm::log("Stack Underflow: trying to claim " + std::to_string(amount) + " bytes, SP is " + std::to_string(m_sp));
+        this->fail();
+        return;
+    }
+
+    m_sp -= amount;
 }
 
 template<typename T> bool EmulatorBase<T>::writeMem(T address, T value, T size)
@@ -151,9 +165,6 @@ template<typename T> bool EmulatorBase<T>::hasError() const { return flag(ErrorF
 
 template<typename T> void EmulatorBase<T>::reset(bool resetmemory)
 {
-    while(!m_stack.empty())
-        m_stack.pop();
-
     if(resetmemory)
         this->remap();
 

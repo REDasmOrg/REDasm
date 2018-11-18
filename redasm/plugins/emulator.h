@@ -5,6 +5,7 @@
 #include "../support/dispatcher.h"
 
 #define EMULATE_INSTRUCTION(id, callback) m_dispatcher[id] = std::bind(callback, this, std::placeholders::_1)
+#define STACK_SIZE                        0xFFFF
 
 namespace REDasm {
 
@@ -24,6 +25,7 @@ class Emulator
     protected:
         Buffer& getSegmentMemory(address_t address, offset_t* offset);
         BufferRef getMemory(address_t address);
+        BufferRef getStack(offset_t sp);
 
     private:
         void remap();
@@ -33,6 +35,7 @@ class Emulator
         DisassemblerAPI* m_disassembler;
         DispatcherType m_dispatcher;
         MappedMemory m_memory;
+        Buffer m_stack;
 };
 
 } // namespace REDasm

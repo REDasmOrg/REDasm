@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
-#include <stack>
+#include <type_traits>
 #include "../plugins/emulator.h"
 #include "../redasm.h"
 
@@ -15,9 +15,9 @@ template<typename T> class EmulatorBase: public Emulator
         enum { ErrorFlag = 0xFF };
 
     private:
+        typedef typename std::make_signed<T>::type ST;
         typedef std::unordered_map<T, T> MapT;
         typedef std::unordered_set<T> Flags;
-        typedef std::stack<T> Stack;
 
     public:
         EmulatorBase(DisassemblerAPI* disassembler);
@@ -30,8 +30,8 @@ template<typename T> class EmulatorBase: public Emulator
         bool flag(T flag) const;
         void writeReg(T r, T value);
         T readReg(T r) const;
-        void incReg(const Operand& op, T amount = 1);
-        void decReg(const Operand& op, T amount = 1);
+        void changeReg(const Operand& op, ST amount = 1);
+        void changeSP(ST amount);
         bool writeMem(T address, T value, T size = sizeof(T));
         bool readMem(T address, T* value, T size = sizeof(T));
 
@@ -46,8 +46,8 @@ template<typename T> class EmulatorBase: public Emulator
 
     private:
         MapT m_registers;
-        Stack m_stack;
         Flags m_flags;
+        T m_sp;
 };
 
 } // namespace REDasm

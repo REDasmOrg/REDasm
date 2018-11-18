@@ -17,7 +17,7 @@ class Buffer: public std::vector<u8>
     public:
         Buffer();
         BufferRef slice(u64 offset);
-        Buffer filled(size_t n, u8 b = 0) const;
+        Buffer createFilled(size_t n, u8 b = 0) const;
         void endianness(endianness_t e);
 
     public:

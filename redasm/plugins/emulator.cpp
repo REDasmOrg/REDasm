@@ -40,10 +40,15 @@ BufferRef Emulator::getMemory(address_t address)
     return buffer.slice(offset);
 }
 
+BufferRef Emulator::getStack(offset_t sp) { return m_stack.slice(sp); }
+
 void Emulator::remap()
 {
     ListingDocument* document = m_disassembler->document();
     FormatPlugin* format = m_disassembler->format();
+
+    REDasm::log("MAPPING 'stack'");
+    m_stack = format->buffer().createFilled(STACK_SIZE);
 
     m_memory.clear();
 
@@ -76,7 +81,7 @@ void Emulator::remap()
         else
         {
             const Buffer& buffer = format->buffer();
-            m_memory[segment] = buffer.filled(segment->size());
+            m_memory[segment] = buffer.createFilled(segment->size());
         }
     }
 }

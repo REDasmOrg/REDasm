@@ -113,9 +113,7 @@ bool SymbolTable::erase(address_t address)
     return true;
 }
 
-void SymbolTable::sort()
-{
-    std::sort(m_addresses.begin(), m_addresses.end(), std::less<address_t>());
-}
+void SymbolTable::serializeTo(std::fstream &fs) { m_byaddress.serializeTo(fs); }
+void SymbolTable::deserializeFrom(std::fstream &fs) { m_byaddress.deserializeFrom(fs); }
 
 }

@@ -150,6 +150,8 @@ DisassemblerView::~DisassemblerView()
         delete m_disassembler;
 }
 
+REDasm::DisassemblerAPI *DisassemblerView::disassembler() { return m_disassembler; }
+
 void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 {
     m_disassembler = disassembler;

@@ -19,11 +19,11 @@ void InstructionPool::serialize(const InstructionPtr &value, std::fstream &fs)
     Serializer::serializeString(fs, value->mnemonic);
     Serializer::serializeString(fs, value->bytes);
 
-    Serializer::serializeArray<std::set, address_t>(fs, value->targets, [this, &fs](address_t target) {
+    Serializer::serializeArray<std::set, address_t>(fs, value->targets, [&](address_t target) {
         Serializer::serializeScalar(fs, target);
     });
 
-    Serializer::serializeArray<std::vector, Operand>(fs, value->operands, [this, &fs](const Operand& op) {
+    Serializer::serializeArray<std::vector, Operand>(fs, value->operands, [&](const Operand& op) {
         Serializer::serializeScalar(fs, op.loc_index);
         Serializer::serializeScalar(fs, op.type);
         Serializer::serializeScalar(fs, op.extra_type);
@@ -55,11 +55,11 @@ void InstructionPool::deserialize(InstructionPtr &value, std::fstream &fs)
     Serializer::deserializeString(fs, value->mnemonic);
     Serializer::deserializeString(fs, value->bytes);
 
-    Serializer::deserializeArray<std::set, address_t>(fs, value->targets, [this, &fs](address_t& target) {
+    Serializer::deserializeArray<std::set, address_t>(fs, value->targets, [&](address_t& target) {
         Serializer::deserializeScalar(fs, &target);
     });
 
-    Serializer::deserializeArray<std::vector, Operand>(fs, value->operands, [this, &fs](Operand& op) {
+    Serializer::deserializeArray<std::vector, Operand>(fs, value->operands, [&](Operand& op) {
         Serializer::deserializeScalar(fs, &op.loc_index);
         Serializer::deserializeScalar(fs, &op.type);
         Serializer::deserializeScalar(fs, &op.extra_type);

@@ -24,6 +24,7 @@ class DisassemblerAPI
         virtual FormatPlugin* format() = 0;
         virtual AssemblerPlugin* assembler() = 0;
         virtual ListingDocument* document() = 0;
+        virtual ReferenceTable* references() = 0;
         virtual ReferenceVector getReferences(address_t address) = 0;
         virtual u64 getReferencesCount(address_t address) = 0;
         virtual void pushReference(address_t address, address_t refbyaddress) = 0;

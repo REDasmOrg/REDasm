@@ -359,6 +359,7 @@ int ListingDocument::indexOf(ListingItem *item)
 SymbolPtr ListingDocument::symbol(address_t address) { return m_symboltable.symbol(address); }
 SymbolPtr ListingDocument::symbol(const std::string &name) { return m_symboltable.symbol(ListingDocument::normalized(name)); }
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
+InstructionPool *ListingDocument::instructions() { return &m_instructions; }
 FormatPlugin *ListingDocument::format() { return m_format; }
 
 void ListingDocument::pushSorted(address_t address, u32 type)

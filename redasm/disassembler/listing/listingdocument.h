@@ -203,6 +203,7 @@ class ListingDocument: protected std::deque<ListingItemPtr>
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);
         SymbolTable* symbols();
+        InstructionPool* instructions();
         FormatPlugin* format();
 
     private:

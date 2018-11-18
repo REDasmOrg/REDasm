@@ -78,6 +78,7 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 
 FormatPlugin *DisassemblerBase::format() { return m_format; }
 ListingDocument *DisassemblerBase::document() { return m_document; }
+ReferenceTable *DisassemblerBase::references() { return &m_referencetable; }
 
 u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
 {

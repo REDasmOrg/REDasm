@@ -5,6 +5,7 @@
 #include "dialogs/databasedialog.h"
 #include "dialogs/settingsdialog.h"
 #include "dialogs/aboutdialog.h"
+#include "redasm/database/database.h"
 #include "redasmsettings.h"
 #include "themeprovider.h"
 #include <QtCore>
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->setAcceptDrops(true);
 
     connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpenClicked);
+    connect(ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
     connect(ui->action_Database, &QAction::triggered, this, &MainWindow::onDatabaseClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
@@ -116,6 +118,21 @@ void MainWindow::onOpenClicked()
     this->load(s);
 }
 
+void MainWindow::onSaveClicked()
+{
+    QString s = QFileDialog::getSaveFileName(this, "Save Database...", m_fileinfo.fileName(), "REDasm Database (*.rdb)");
+
+    if(s.isEmpty())
+        return;
+
+    DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+
+    if(!currdv)
+        return;
+
+    REDasm::Database::save(currdv->disassembler(), s.toStdString());
+}
+
 void MainWindow::onRecentFileClicked()
 {
     QAction* sender = qobject_cast<QAction*>(this->sender());
@@ -174,25 +191,24 @@ void MainWindow::loadRecents()
         action->setData(m_recents[i]);
         connect(action, &QAction::triggered, this, &MainWindow::onRecentFileClicked);
     }
-
 }
 
 void MainWindow::load(const QString& filepath)
 {
-    QFileInfo fi(filepath);
-    QDir::setCurrent(fi.path());
-    this->setWindowTitle(fi.fileName());
+    m_fileinfo = QFileInfo(filepath);
+    QDir::setCurrent(m_fileinfo.path());
+    this->setWindowTitle(m_fileinfo.fileName());
 
     m_buffer = REDasm::Buffer::fromFile(filepath.toStdString());
 
-    if(!m_buffer.empty())
-    {
-        REDasmSettings settings;
-        settings.updateRecentFiles(filepath);
+    if(m_buffer.empty())
+        return;
 
-        this->loadRecents();
-        this->initDisassembler();
-    }
+    REDasmSettings settings;
+    settings.updateRecentFiles(filepath);
+
+    this->loadRecents();
+    this->initDisassembler();
 }
 
 void MainWindow::checkCommandLine()
@@ -252,10 +268,15 @@ void MainWindow::initDisassembler()
     }
 
     REDasm::Disassembler* disassembler = new REDasm::Disassembler(assembler, format);
+
+    disassembler->busyChanged += [&]() {
+        QMetaObject::invokeMethod(this, "checkCommandState", Qt::QueuedConnection);
+    };
+
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 
-    QWidget* oldwidget = static_cast<DisassemblerView*>(ui->stackView->widget(0));
+    QWidget* oldwidget = ui->stackView->widget(0);
     ui->stackView->removeWidget(oldwidget);
     oldwidget->deleteLater();
 }
@@ -270,4 +291,15 @@ void MainWindow::onAboutClicked()
 {
     AboutDialog dlgabout(this);
     dlgabout.exec();
+}
+
+void MainWindow::checkCommandState()
+{
+    DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+
+    if(!currdv)
+        return;
+
+    REDasm::DisassemblerAPI* disassembler = currdv->disassembler();
+    ui->action_Save->setEnabled(!disassembler->busy());
 }

@@ -7,6 +7,13 @@
 namespace REDasm {
 namespace Serializer {
 
+class ISerializable
+{
+    public:
+        virtual void serializeTo(std::fstream& fs) = 0;
+        virtual void deserializeFrom(std::fstream& fs) = 0;
+};
+
 template<typename T> void serializeScalar(std::fstream& fs, T scalar, u64 size = sizeof(T)) { fs.write(reinterpret_cast<const char*>(&scalar), size); }
 template<typename T> void deserializeScalar(std::fstream& fs, T* scalar, u64 size = sizeof(T)) { fs.read(reinterpret_cast<char*>(scalar), size); }
 

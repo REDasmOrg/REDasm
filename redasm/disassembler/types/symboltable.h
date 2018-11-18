@@ -69,7 +69,7 @@ class SymbolCache: public cache_map<address_t, SymbolPtr>
         virtual void deserialize(SymbolPtr& value, std::fstream& fs);
 };
 
-class SymbolTable
+class SymbolTable: public Serializer::ISerializable
 {
     private:
         typedef std::unordered_map<std::string, address_t> SymbolsByName;
@@ -83,7 +83,10 @@ class SymbolTable
         SymbolPtr at(u64 index);
         void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
         bool erase(address_t address);
-        void sort();
+
+    public:
+        virtual void serializeTo(std::fstream& fs);
+        virtual void deserializeFrom(std::fstream& fs);
 
     private:
         AddressList m_addresses;

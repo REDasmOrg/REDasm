@@ -27,6 +27,7 @@ class DisassemblerView : public QWidget
     public:
         explicit DisassemblerView(QLabel* lblstatus, QPushButton* pbstatus, QWidget *parent = 0);
         ~DisassemblerView();
+        REDasm::DisassemblerAPI* disassembler();
         void setDisassembler(REDasm::Disassembler* disassembler);
 
     private slots:

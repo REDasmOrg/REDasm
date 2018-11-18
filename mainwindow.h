@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QPushButton>
+#include <QFileInfo>
 #include <QLabel>
 #include "redasm/plugins/plugins.h"
 
@@ -26,10 +27,12 @@ class MainWindow : public QMainWindow
 
     private slots:
         void onOpenClicked();
+        void onSaveClicked();
         void onRecentFileClicked();
         void onSettingsClicked();
         void onDatabaseClicked();
         void onAboutClicked();
+        void checkCommandState();
 
     private:
         void loadGeometry();
@@ -37,11 +40,12 @@ class MainWindow : public QMainWindow
         void applyTheme();
         void load(const QString &filepath);
         void checkCommandLine();
-        bool checkPlugins(REDasm::FormatPlugin **format, REDasm::AssemblerPlugin ** assembler);
+        bool checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler);
         void initDisassembler();
 
     private:
         Ui::MainWindow *ui;
+        QFileInfo m_fileinfo;
         QStringList m_recents;
         QPushButton* m_pbstatus;
         QLabel* m_lblstatus;

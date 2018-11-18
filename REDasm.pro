@@ -145,7 +145,9 @@ SOURCES += main.cpp\
     redasm/redasm_api.cpp \
     redasm/redasm_runtime.cpp \
     redasm/redasm_buffer.cpp \
-    redasm/redasm_endianness.cpp
+    redasm/redasm_endianness.cpp \
+    redasm/database/database.cpp \
+    redasm/support/cachemap.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -279,7 +281,9 @@ HEADERS  += mainwindow.h \
     redasm/redasm_runtime.h \
     redasm/redasm_types.h \
     redasm/redasm_buffer.h \
-    redasm/redasm_endianness.h
+    redasm/redasm_endianness.h \
+    redasm/database/database.h \
+    redasm/database/database_format.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

@@ -17,6 +17,7 @@ class DisassemblerBase: public DisassemblerAPI
     public: // Primitive functions
         virtual FormatPlugin* format();
         virtual ListingDocument* document();
+        virtual ReferenceTable* references();
         virtual ReferenceVector getReferences(address_t address);
         virtual u64 getReferencesCount(address_t address);
         virtual void pushReference(address_t address, address_t refbyaddress);

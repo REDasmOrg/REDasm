@@ -1,6 +1,8 @@
 #ifndef REDASMSETTINGS_H
 #define REDASMSETTINGS_H
 
+#define MAX_RECENT_FILES 5
+
 #include <QSettings>
 
 class REDasmSettings : public QSettings
@@ -13,6 +15,8 @@ class REDasmSettings : public QSettings
     public:
         explicit REDasmSettings(QObject *parent = NULL);
         bool hasGeometry() const;
+        QStringList recentFiles() const;
+        void updateRecentFiles(const QString& s = QString());
         QByteArray geometry() const;
         void changeGeometry(const QByteArray& ba);
         bool isDarkTheme() const;

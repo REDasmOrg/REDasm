@@ -26,20 +26,23 @@ class MainWindow : public QMainWindow
 
     private slots:
         void onOpenClicked();
+        void onRecentFileClicked();
         void onSettingsClicked();
         void onDatabaseClicked();
         void onAboutClicked();
 
     private:
         void loadGeometry();
+        void loadRecents();
         void applyTheme();
-        void load(const QString &s);
+        void load(const QString &filepath);
         void checkCommandLine();
         bool checkPlugins(REDasm::FormatPlugin **format, REDasm::AssemblerPlugin ** assembler);
         void initDisassembler();
 
     private:
         Ui::MainWindow *ui;
+        QStringList m_recents;
         QPushButton* m_pbstatus;
         QLabel* m_lblstatus;
         REDasm::Buffer m_buffer;

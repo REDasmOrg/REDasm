@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
 
     this->checkCommandLine();
+    this->loadRecents();
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -115,6 +116,14 @@ void MainWindow::onOpenClicked()
     this->load(s);
 }
 
+void MainWindow::onRecentFileClicked()
+{
+    QAction* sender = qobject_cast<QAction*>(this->sender());
+
+    if(sender)
+        this->load(sender->data().toString());
+}
+
 void MainWindow::onSettingsClicked()
 {
     SettingsDialog sd(this);
@@ -136,16 +145,54 @@ void MainWindow::loadGeometry()
     this->move(position.topLeft());
 }
 
-void MainWindow::load(const QString& s)
+void MainWindow::loadRecents()
 {
-    QFileInfo fi(s);
+    REDasmSettings settings;
+    m_recents = settings.recentFiles();
+    ui->action_Recent_Files->setEnabled(!m_recents.empty());
+
+    QMenu* mnurecents = ui->action_Recent_Files->menu();
+
+    if(!mnurecents)
+    {
+        mnurecents = new QMenu(this);
+        ui->action_Recent_Files->setMenu(mnurecents);
+    }
+    else
+        mnurecents->clear();
+
+    for(int i = 0; i < MAX_RECENT_FILES; i++)
+    {
+        if(i >= m_recents.length())
+        {
+            QAction* action = mnurecents->addAction(QString());
+            action->setVisible(false);
+            continue;
+        }
+
+        QAction* action = mnurecents->addAction(QString("%1 - %2").arg(i).arg(m_recents[i]));
+        action->setData(m_recents[i]);
+        connect(action, &QAction::triggered, this, &MainWindow::onRecentFileClicked);
+    }
+
+}
+
+void MainWindow::load(const QString& filepath)
+{
+    QFileInfo fi(filepath);
     QDir::setCurrent(fi.path());
     this->setWindowTitle(fi.fileName());
 
-    m_buffer = REDasm::Buffer::fromFile(s.toStdString());
+    m_buffer = REDasm::Buffer::fromFile(filepath.toStdString());
 
     if(!m_buffer.empty())
+    {
+        REDasmSettings settings;
+        settings.updateRecentFiles(filepath);
+
+        this->loadRecents();
         this->initDisassembler();
+    }
 }
 
 void MainWindow::checkCommandLine()

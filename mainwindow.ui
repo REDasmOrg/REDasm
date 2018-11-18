@@ -182,6 +182,7 @@
     </property>
     <addaction name="action_Open"/>
     <addaction name="action_Save"/>
+    <addaction name="action_Recent_Files"/>
     <addaction name="separator"/>
     <addaction name="action_Exit"/>
    </widget>
@@ -233,6 +234,11 @@
   <action name="action_Settings">
    <property name="text">
     <string>&amp;Settings</string>
+   </property>
+  </action>
+  <action name="action_Recent_Files">
+   <property name="text">
+    <string>&amp;Recent Files</string>
    </property>
   </action>
  </widget>

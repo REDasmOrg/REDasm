@@ -15,6 +15,7 @@ template<typename ...ARGS> struct Event
     Event& operator =(const Event& rhs) = delete;
     Event& operator +=(const HandlerType& handler) { m_handlers.push_back(handler); return *this; }
     void operator()(ARGS... args) const { for(HandlerType handler : m_handlers) handler(std::forward<ARGS>(args)...); }
+    void removeLast() { m_handlers.pop_back(); }
     void disconnect() { m_handlers.clear(); }
 
     private:

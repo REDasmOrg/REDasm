@@ -89,6 +89,13 @@ bool SymbolTable::erase(address_t address)
     return true;
 }
 
+void SymbolTable::deserializeFrom(std::fstream &fs)
+{
+    this->deserialized += std::bind(&SymbolTable::bindName, this, std::placeholders::_1);
+    cache_map<address_t, SymbolPtr>::deserializeFrom(fs);
+    this->deserialized.removeLast();
+}
+
 void SymbolTable::serialize(const SymbolPtr &value, std::fstream &fs)
 {
     Serializer::serializeScalar(fs, value->type);
@@ -109,5 +116,7 @@ void SymbolTable::deserialize(SymbolPtr &value, std::fstream &fs)
     Serializer::deserializeString(fs, value->name);
     Serializer::deserializeString(fs, value->cpu);
 }
+
+void SymbolTable::bindName(const SymbolPtr &symbol) { m_byname[symbol->name] = symbol->address; }
 
 }

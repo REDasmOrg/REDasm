@@ -41,8 +41,8 @@ void ListingDocument::deserializeFrom(std::fstream &fs)
     m_instructions.deserializeFrom(fs);
     m_symboltable.deserializeFrom(fs);
 
-    m_instructions.deserialized.disconnect();
-    m_symboltable.deserialized.disconnect();
+    m_instructions.deserialized.removeLast();
+    m_symboltable.deserialized.removeLast();
 }
 
 ListingItems ListingDocument::getCalls(ListingItem *item)

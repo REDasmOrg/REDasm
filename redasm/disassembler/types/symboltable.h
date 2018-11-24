@@ -7,8 +7,6 @@
 #include "../../support/cachemap.h"
 #include "../../redasm.h"
 
-#define IS_LABEL(symbol)      (symbol && !symbol->isFunction() && symbol->is(REDasm::SymbolTypes::Code))
-
 namespace REDasm {
 
 namespace SymbolTypes {
@@ -74,9 +72,15 @@ class SymbolTable: public cache_map<address_t, SymbolPtr>
         bool erase(address_t address);
         using cache_map<address_t, SymbolPtr>::erase;
 
+    public:
+        virtual void deserializeFrom(std::fstream& fs);
+
     protected:
         virtual void serialize(const SymbolPtr& value, std::fstream& fs);
         virtual void deserialize(SymbolPtr& value, std::fstream& fs);
+
+    private:
+        void bindName(const SymbolPtr& symbol);
 
     private:
         AddressList m_addresses;

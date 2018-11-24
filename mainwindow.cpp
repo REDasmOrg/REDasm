@@ -288,6 +288,8 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
     QWidget* oldwidget = ui->stackView->widget(0);
     ui->stackView->removeWidget(oldwidget);
     oldwidget->deleteLater();
+
+    this->checkCommandState();
 }
 
 void MainWindow::initDisassembler()

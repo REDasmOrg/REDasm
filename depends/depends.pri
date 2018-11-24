@@ -23,7 +23,7 @@ lib_zlib.commands = @echo "Compiling ZLib..." $$escape_expand(\n\t) \
                     cd $$ZLIB_BUILD && cmake $$CMAKE_GENERATOR $$ZLIB_SRC -DCMAKE_BUILD_TYPE=Release $$escape_expand(\n\t) \
                     cd $$ZLIB_BUILD && $(MAKE)
 
-INCLUDEPATH += $$ZLIB_SRC
+INCLUDEPATH += $$ZLIB_SRC $$shell_path($$OUT_PWD/zlib)
 LIBS += -L$$ZLIB_BUILD -lz
 PRE_TARGETDEPS += lib_zlib
 QMAKE_EXTRA_TARGETS += lib_zlib

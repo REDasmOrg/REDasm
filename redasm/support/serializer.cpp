@@ -60,7 +60,7 @@ bool compressBuffer(std::fstream &fs, Buffer &b)
 {
     Buffer cb;
 
-    if(!Compression::inflate(b, cb))
+    if(!Compression::deflate(b, cb))
         return false;
 
     Serializer::serializeBuffer(fs, cb);
@@ -72,7 +72,7 @@ bool decompressBuffer(std::fstream &fs, Buffer &b)
     Buffer cb;
     Serializer::deserializeBuffer(fs, cb);
 
-    if(!Compression::deflate(cb, b))
+    if(!Compression::inflate(cb, b))
         return false;
 
     return true;

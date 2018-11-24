@@ -68,7 +68,7 @@ class DisassemblerView : public QWidget
         QMenu* m_contextmenu;
         QLabel* m_lblstatus;
         QPushButton* m_pbstatus;
-        REDasm::DisassemblerAPI* m_disassembler;
+        std::unique_ptr<REDasm::DisassemblerAPI> m_disassembler;
         ListingFilterModel *m_segmentsmodel, *m_functionsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
         CallGraphModel* m_callgraphmodel;
         ReferencesModel* m_referencesmodel;

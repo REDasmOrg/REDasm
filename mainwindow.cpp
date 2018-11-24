@@ -298,7 +298,9 @@ void MainWindow::initDisassembler()
     if(!this->checkPlugins(&format, &assembler))
         return;
 
-    this->showDisassemblerView(new REDasm::Disassembler(assembler, format)); // Take ownership
+    REDasm::Disassembler* disassembler = new REDasm::Disassembler(assembler, format);
+    this->showDisassemblerView(disassembler); // Take ownership
+    disassembler->disassemble();
 }
 
 void MainWindow::onDatabaseClicked()

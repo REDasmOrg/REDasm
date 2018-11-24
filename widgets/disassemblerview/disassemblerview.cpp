@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_lblstatus(lblstatus), m_pbstatus(pbstatus), m_disassembler(NULL)
+DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_lblstatus(lblstatus), m_pbstatus(pbstatus)
 {
     ui->setupUi(this);
 
@@ -142,19 +142,13 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
     this->createActions();
 }
 
-DisassemblerView::~DisassemblerView()
-{
-    delete ui;
-
-    if(m_disassembler)
-        delete m_disassembler;
-}
-
-REDasm::DisassemblerAPI *DisassemblerView::disassembler() { return m_disassembler; }
+DisassemblerView::~DisassemblerView() { delete ui; }
+REDasm::DisassemblerAPI *DisassemblerView::disassembler() { return m_disassembler.get(); }
 
 void DisassemblerView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
-    m_disassembler = disassembler;
+    m_disassembler = std::unique_ptr<REDasm::DisassemblerAPI>(disassembler);
+
     this->log(QString("Found format '%1' with '%2' instruction set").arg(S_TO_QS(disassembler->format()->name()),
                                                                          S_TO_QS(disassembler->assembler()->name())));
 
@@ -180,7 +174,6 @@ void DisassemblerView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
     ui->stackedWidget->currentWidget()->setFocus();
 
     disassembler->busyChanged += [&]() { QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection); };
-    disassembler->disassemble();
 }
 
 void DisassemblerView::changeDisassemblerStatus()
@@ -291,7 +284,7 @@ void DisassemblerView::showReferences(address_t address)
         return;
     }
 
-    ReferencesDialog dlgreferences(m_disassembler, symbol, this);
+    ReferencesDialog dlgreferences(m_disassembler.get(), symbol, this);
 
     connect(&dlgreferences, &ReferencesDialog::jumpTo, [&](address_t address) {
         if(ui->stackedWidget->currentWidget() == m_disassemblergraphview) {
@@ -454,7 +447,7 @@ void DisassemblerView::showMenu(const QPoint&) { m_contextmenu->exec(QCursor::po
 
 void DisassemblerView::showGoto()
 {
-    GotoDialog dlggoto(m_disassembler, this);
+    GotoDialog dlggoto(m_disassembler.get(), this);
     connect(&dlggoto, &GotoDialog::symbolSelected, this, &DisassemblerView::goTo);
 
     if(dlggoto.exec() == GotoDialog::Accepted)

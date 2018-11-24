@@ -400,6 +400,10 @@ void ListingDocument::pushSorted(address_t address, u32 type)
     }
 
     auto it = Listing::insertionPoint(this, itemptr);
+
+    if((it != this->end()) && (((*it)->address == address) && ((*it)->type == type)))
+        return;
+
     it = this->insert(it, std::move(itemptr));
     ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), false);
     changed(&ldc);

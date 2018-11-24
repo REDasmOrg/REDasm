@@ -6,6 +6,7 @@
 #include <QFileInfo>
 #include <QLabel>
 #include "redasm/plugins/plugins.h"
+#include "redasm/disassembler/disassembler.h"
 
 namespace Ui {
 class MainWindow;
@@ -37,10 +38,12 @@ class MainWindow : public QMainWindow
     private:
         void loadGeometry();
         void loadRecents();
+        bool loadDatabase(const QString& filepath);
         void applyTheme();
         void load(const QString &filepath);
         void checkCommandLine();
         bool checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler);
+        void showDisassemblerView(REDasm::Disassembler *disassembler);
         void initDisassembler();
 
     private:

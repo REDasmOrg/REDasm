@@ -130,7 +130,8 @@ void MainWindow::onSaveClicked()
     if(!currdv)
         return;
 
-    REDasm::Database::save(currdv->disassembler(), s.toStdString());
+    if(!REDasm::Database::save(currdv->disassembler(), s.toStdString()))
+        REDasm::log(REDasm::Database::lastError());
 }
 
 void MainWindow::onRecentFileClicked()
@@ -193,21 +194,40 @@ void MainWindow::loadRecents()
     }
 }
 
+bool MainWindow::loadDatabase(const QString &filepath)
+{
+    REDasm::Disassembler* disassembler = REDasm::Database::load(filepath.toStdString(), m_buffer);
+
+    if(!disassembler)
+    {
+        if(m_fileinfo.suffix() == RDB_SIGNATURE_EXT)
+            REDasm::log(REDasm::Database::lastError());
+
+        return false;
+    }
+
+    this->showDisassemblerView(disassembler);
+    return true;
+}
+
 void MainWindow::load(const QString& filepath)
 {
     m_fileinfo = QFileInfo(filepath);
     QDir::setCurrent(m_fileinfo.path());
     this->setWindowTitle(m_fileinfo.fileName());
 
+    REDasmSettings settings;
+    settings.updateRecentFiles(filepath);
+    this->loadRecents();
+
+    if(this->loadDatabase(filepath))
+        return;
+
     m_buffer = REDasm::Buffer::fromFile(filepath.toStdString());
 
     if(m_buffer.empty())
         return;
 
-    REDasmSettings settings;
-    settings.updateRecentFiles(filepath);
-
-    this->loadRecents();
     this->initDisassembler();
 }
 
@@ -255,30 +275,30 @@ bool MainWindow::checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPl
     return true;
 }
 
-void MainWindow::initDisassembler()
+void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
 {
-    DisassemblerView *dv = new DisassemblerView(m_lblstatus, m_pbstatus, ui->stackView);
-    REDasm::FormatPlugin* format = NULL;
-    REDasm::AssemblerPlugin* assembler = NULL;
-
-    if(!this->checkPlugins(&format, &assembler))
-    {
-        dv->deleteLater();
-        return;
-    }
-
-    REDasm::Disassembler* disassembler = new REDasm::Disassembler(assembler, format);
-
     disassembler->busyChanged += [&]() {
         QMetaObject::invokeMethod(this, "checkCommandState", Qt::QueuedConnection);
     };
 
+    DisassemblerView *dv = new DisassemblerView(m_lblstatus, m_pbstatus, ui->stackView);
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 
     QWidget* oldwidget = ui->stackView->widget(0);
     ui->stackView->removeWidget(oldwidget);
     oldwidget->deleteLater();
+}
+
+void MainWindow::initDisassembler()
+{
+    REDasm::FormatPlugin* format = NULL;
+    REDasm::AssemblerPlugin* assembler = NULL;
+
+    if(!this->checkPlugins(&format, &assembler))
+        return;
+
+    this->showDisassemblerView(new REDasm::Disassembler(assembler, format)); // Take ownership
 }
 
 void MainWindow::onDatabaseClicked()

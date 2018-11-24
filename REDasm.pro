@@ -283,7 +283,6 @@ HEADERS  += mainwindow.h \
     redasm/redasm_buffer.h \
     redasm/redasm_endianness.h \
     redasm/database/database.h \
-    redasm/database/database_format.h \
     redasm/support/compression.h \
     redasm/disassembler/listing/instructioncache.h
 

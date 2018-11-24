@@ -1,7 +1,5 @@
 #include "database.h"
-#include "database_format.h"
 #include "../support/serializer.h"
-#include "../disassembler/disassembler.h"
 #include "../plugins/assembler/assembler.h"
 #include "../plugins/format.h"
 #include "../plugins/plugins.h"
@@ -10,12 +8,18 @@
 
 namespace REDasm {
 
+std::string Database::m_lasterror;
+
 bool Database::save(DisassemblerAPI *disassembler, const std::string &filename)
 {
+    m_lasterror.clear();
     std::fstream ofs(filename, std::ios::out | std::ios::trunc);
 
     if(!ofs.is_open())
+    {
+        m_lasterror = "Cannot save " + REDasm::quoted(filename);
         return false;
+    }
 
     FormatPlugin* format = disassembler->format();
     ListingDocument* document = disassembler->document();
@@ -24,21 +28,26 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &filename)
     ofs.write(RDB_SIGNATURE, RDB_SIGNATURE_LENGTH);
     Serializer::serializeScalar(ofs, RDB_VERSION, sizeof(u32));
     Serializer::serializeString(ofs, format->name());
-    Serializer::compressBuffer(ofs, format->buffer());
+
+    if(!Serializer::compressBuffer(ofs, format->buffer()))
+    {
+        m_lasterror = "Cannot compress database " + REDasm::quoted(filename);
+        return false;
+    }
+
     document->serializeTo(ofs);
     references->serializeTo(ofs);
-
-    ofs.close();
     return true;
 }
 
-DisassemblerAPI *Database::load(const std::string &filename, Buffer &buffer)
+Disassembler *Database::load(const std::string &filename, Buffer &buffer)
 {
+    m_lasterror.clear();
     std::fstream ifs(filename, std::ios::in);
 
     if(!ifs.is_open())
     {
-        REDasm::log("Cannot open " + REDasm::quoted(filename));
+        m_lasterror = "Cannot open " + REDasm::quoted(filename);
         return NULL;
     }
 
@@ -47,7 +56,7 @@ DisassemblerAPI *Database::load(const std::string &filename, Buffer &buffer)
 
     if(std::strncmp(RDB_SIGNATURE, signature.data(), RDB_SIGNATURE_LENGTH))
     {
-        REDasm::log("Signature check failed for " + REDasm::quoted(filename));
+        m_lasterror = "Signature check failed for " + REDasm::quoted(filename);
         return NULL;
     }
 
@@ -56,18 +65,24 @@ DisassemblerAPI *Database::load(const std::string &filename, Buffer &buffer)
 
     if(version != RDB_VERSION)
     {
-        REDasm::log("Invalid version, got " + std::to_string(version) + " " + std::to_string(RDB_VERSION) + " required");
+        m_lasterror = "Invalid version, got " + std::to_string(version) + " " + std::to_string(RDB_VERSION) + " required";
         return NULL;
     }
 
     std::string formatname;
     Serializer::deserializeString(ifs, formatname);
-    Serializer::decompressBuffer(ifs, buffer);
+
+    if(!Serializer::decompressBuffer(ifs, buffer))
+    {
+        m_lasterror = "Cannot decompress database " + REDasm::quoted(filename);
+        return NULL;
+    }
+
     std::unique_ptr<FormatPlugin> format(REDasm::getFormat(buffer));
 
     if(!format)
     {
-        REDasm::log("Unsupported format: " + REDasm::quoted(formatname));
+        m_lasterror = "Unsupported format: " + REDasm::quoted(formatname);
         return NULL;
     }
 
@@ -75,7 +90,7 @@ DisassemblerAPI *Database::load(const std::string &filename, Buffer &buffer)
 
     if(!assembler)
     {
-        REDasm::log("Unsupported assembler: " + REDasm::quoted(format->assembler()));
+        m_lasterror = "Unsupported assembler: " + REDasm::quoted(format->assembler());
         return NULL;
     }
 
@@ -87,5 +102,7 @@ DisassemblerAPI *Database::load(const std::string &filename, Buffer &buffer)
     references->deserializeFrom(ifs);
     return disassembler;
 }
+
+const std::string &Database::lastError() { return m_lasterror; }
 
 } // namespace REDasm

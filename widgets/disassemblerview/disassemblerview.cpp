@@ -152,7 +152,7 @@ DisassemblerView::~DisassemblerView()
 
 REDasm::DisassemblerAPI *DisassemblerView::disassembler() { return m_disassembler; }
 
-void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
+void DisassemblerView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     m_disassembler = disassembler;
     this->log(QString("Found format '%1' with '%2' instruction set").arg(S_TO_QS(disassembler->format()->name()),

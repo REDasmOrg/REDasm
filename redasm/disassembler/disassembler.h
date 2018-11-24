@@ -14,7 +14,7 @@ class Disassembler: public DisassemblerBase
         Disassembler(AssemblerPlugin* assembler, FormatPlugin* format);
         virtual ~Disassembler();
         ListingDocument* document();
-        void disassemble();
+        virtual void disassemble();
 
     public: // Primitive functions
         virtual AssemblerPlugin* assembler();

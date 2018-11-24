@@ -54,8 +54,8 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
         };
 
     public:
-        cache_map(): m_name(CACHE_DEFAULT), m_timestamp(time(NULL)) { m_file.exceptions(std::fstream::failbit); }
-        cache_map(const std::string& name): m_name(name), m_timestamp(time(NULL)) { }
+        cache_map();
+        cache_map(const std::string& name);
         ~cache_map();
         iterator begin() { return iterator(*this, m_offsets.begin()); }
         iterator end() { return iterator(*this, m_offsets.end()); }

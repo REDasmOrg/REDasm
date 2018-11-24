@@ -1,6 +1,17 @@
 #include "cachemap.h"
+#include <ios>
 
 namespace REDasm {
+
+template<typename T1, typename T2> cache_map<T1, T2>::cache_map(): m_name(CACHE_DEFAULT), m_timestamp(time(NULL))
+{
+    m_file.exceptions(std::fstream::failbit);
+}
+
+template<typename T1, typename T2> cache_map<T1, T2>::cache_map(const std::string &name) : m_name(name), m_timestamp(time(NULL))
+{
+    m_file.open(CACHE_FILE, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
+}
 
 template<typename T1, typename T2> cache_map<T1, T2>::~cache_map()
 {
@@ -16,9 +27,6 @@ template<typename T1, typename T2> u64 cache_map<T1, T2>::size() const { return 
 template<typename T1, typename T2> void cache_map<T1, T2>::commit(const T1& key, const T2 &value)
 {
     io_lock lock(m_mutex);
-
-    if(!m_file.is_open())
-        m_file.open(CACHE_FILE, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
 
     m_file.seekp(0, std::ios::end); // Ignore old key -> value reference, if any
     m_offsets[key] = m_file.tellp();

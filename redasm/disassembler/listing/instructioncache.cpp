@@ -5,7 +5,6 @@
 namespace REDasm {
 
 InstructionCache::InstructionCache(): cache_map<address_t, InstructionPtr>("instructions") { }
-InstructionCache::~InstructionCache() { }
 void InstructionCache::update(const InstructionPtr &instruction) { this->commit(instruction->address, instruction); }
 
 void InstructionCache::serialize(const InstructionPtr &value, std::fstream &fs)

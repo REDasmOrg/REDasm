@@ -12,7 +12,6 @@ class InstructionCache: public cache_map<address_t, InstructionPtr>
 {
     public:
         InstructionCache();
-        virtual ~InstructionCache();
         void update(const InstructionPtr &instruction);
 
     protected:

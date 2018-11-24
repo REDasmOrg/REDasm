@@ -143,11 +143,11 @@ DisassemblerView::DisassemblerView(QLabel *lblstatus, QPushButton *pbstatus, QWi
 }
 
 DisassemblerView::~DisassemblerView() { delete ui; }
-REDasm::DisassemblerAPI *DisassemblerView::disassembler() { return m_disassembler.get(); }
+REDasm::Disassembler *DisassemblerView::disassembler() { return m_disassembler.get(); }
 
-void DisassemblerView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
+void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 {
-    m_disassembler = std::unique_ptr<REDasm::DisassemblerAPI>(disassembler);
+    m_disassembler = std::unique_ptr<REDasm::Disassembler>(disassembler);
 
     this->log(QString("Found format '%1' with '%2' instruction set").arg(S_TO_QS(disassembler->format()->name()),
                                                                          S_TO_QS(disassembler->assembler()->name())));

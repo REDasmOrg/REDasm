@@ -56,7 +56,7 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
     public:
         cache_map();
         cache_map(const std::string& name);
-        ~cache_map();
+        virtual ~cache_map();
         iterator begin() { return iterator(*this, m_offsets.begin()); }
         iterator end() { return iterator(*this, m_offsets.end()); }
         iterator find(const T1& key) { auto it = m_offsets.find(key); return (it != m_offsets.end() ? iterator(*this, it) : this->end()); }

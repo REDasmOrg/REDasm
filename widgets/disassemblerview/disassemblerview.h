@@ -27,8 +27,8 @@ class DisassemblerView : public QWidget
     public:
         explicit DisassemblerView(QLabel* lblstatus, QPushButton* pbstatus, QWidget *parent = 0);
         ~DisassemblerView();
-        REDasm::DisassemblerAPI* disassembler();
-        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        REDasm::Disassembler* disassembler();
+        void setDisassembler(REDasm::Disassembler* disassembler);
 
     private slots:
         void changeDisassemblerStatus();
@@ -68,7 +68,7 @@ class DisassemblerView : public QWidget
         QMenu* m_contextmenu;
         QLabel* m_lblstatus;
         QPushButton* m_pbstatus;
-        std::unique_ptr<REDasm::DisassemblerAPI> m_disassembler;
+        std::unique_ptr<REDasm::Disassembler> m_disassembler;
         ListingFilterModel *m_segmentsmodel, *m_functionsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
         CallGraphModel* m_callgraphmodel;
         ReferencesModel* m_referencesmodel;

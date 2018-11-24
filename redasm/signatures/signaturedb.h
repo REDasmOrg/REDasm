@@ -39,7 +39,7 @@ class SignatureDB
         SignatureList::iterator begin();
         SignatureList::iterator end();
         void setSignatureType(u32 signaturetype);
-        bool match(const std::string& hexbytes, Signature &signature);
+        bool match(const std::string& hexstring, Signature &signature);
         bool write(const std::string& name, const std::string &file);
         bool read(const std::string& file);
         bool readPath(const std::string& signame);

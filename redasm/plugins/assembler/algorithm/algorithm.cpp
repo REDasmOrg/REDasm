@@ -281,15 +281,6 @@ void AssemblerAlgorithm::createInvalidInstruction(const InstructionPtr &instruct
 
     instruction->type = InstructionTypes::Invalid;
     instruction->mnemonic = INVALID_MNEMONIC;
-
-    if(!instruction->bytes.empty())
-        return;
-
-    BufferRef buffer = m_format->buffer(instruction->address);
-
-    std::stringstream ss;
-    ss << std::hex << static_cast<size_t>(*buffer);
-    instruction->bytes = ss.str();
 }
 
 u32 AssemblerAlgorithm::disassemble(address_t address, const InstructionPtr &instruction)

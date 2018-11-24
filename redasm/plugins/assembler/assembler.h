@@ -44,7 +44,6 @@ class AssemblerPlugin: public Plugin
 
     private:
         void setInstructionType(const InstructionPtr& instruction) const;
-        void setBytes(BufferRef& buffer, const InstructionPtr& instruction) const;
 
     protected:
         std::unordered_map<instruction_id_t, u32> m_instructiontypes;

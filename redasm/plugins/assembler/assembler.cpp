@@ -28,7 +28,6 @@ void AssemblerPlugin::setEndianness(endianness_t endianness) { m_endianness = en
 bool AssemblerPlugin::decode(BufferRef& buffer, const InstructionPtr &instruction)
 {
     bool decoded = this->decodeInstruction(buffer, instruction);
-    this->setBytes(buffer, instruction);
 
     if(!decoded || instruction->isInvalid())
         return false;
@@ -39,23 +38,6 @@ bool AssemblerPlugin::decode(BufferRef& buffer, const InstructionPtr &instructio
     return true;
 }
 
-bool AssemblerPlugin::decodeInstruction(BufferRef& buffer, const InstructionPtr &instruction)
-{
-    return false;
-}
-
-void AssemblerPlugin::setBytes(BufferRef &buffer, const InstructionPtr &instruction) const
-{
-    std::stringstream ss;
-    ss << std::hex << std::setfill('0');
-
-    for(u64 i = 0; i < instruction->size; i++)
-    {
-        u8 b = buffer[i];
-        ss << std::setw(2) << static_cast<size_t>(b);
-    }
-
-    instruction->bytes = ss.str();
-}
+bool AssemblerPlugin::decodeInstruction(BufferRef& buffer, const InstructionPtr &instruction) { return false; }
 
 }

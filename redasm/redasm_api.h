@@ -200,7 +200,7 @@ struct Instruction
 
     std::function<void(void*)> free;
 
-    std::string mnemonic, bytes;
+    std::string mnemonic;
     std::set<address_t> targets;    // Jump/JumpTable/Call destination(s)
     std::vector<Operand> operands;
     address_t address;

@@ -15,9 +15,7 @@ void InstructionCache::serialize(const InstructionPtr &value, std::fstream &fs)
     Serializer::serializeScalar(fs, value->type);
     Serializer::serializeScalar(fs, value->size);
     Serializer::serializeScalar(fs, value->id);
-
     Serializer::serializeString(fs, value->mnemonic);
-    Serializer::serializeString(fs, value->bytes);
 
     Serializer::serializeArray<std::set, address_t>(fs, value->targets, [&](address_t target) {
         Serializer::serializeScalar(fs, target);
@@ -51,9 +49,7 @@ void InstructionCache::deserialize(InstructionPtr &value, std::fstream &fs)
     Serializer::deserializeScalar(fs, &value->type);
     Serializer::deserializeScalar(fs, &value->size);
     Serializer::deserializeScalar(fs, &value->id);
-
     Serializer::deserializeString(fs, value->mnemonic);
-    Serializer::deserializeString(fs, value->bytes);
 
     Serializer::deserializeArray<std::set, address_t>(fs, value->targets, [&](address_t& target) {
         Serializer::deserializeScalar(fs, &target);

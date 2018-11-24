@@ -3,12 +3,7 @@
 #include <QPainter>
 #include <cmath>
 
-#define SCALE_TO_WIDGET(v, w, s) std::ceil((v * w) / static_cast<double>(s))
-
-ListingMap::ListingMap(QWidget *parent) : QWidget(parent), m_disassembler(NULL), m_totalsize(0)
-{
-
-}
+ListingMap::ListingMap(QWidget *parent) : QWidget(parent), m_disassembler(NULL), m_totalsize(0) { }
 
 void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {

@@ -12,7 +12,6 @@ class DisassemblerBase: public DisassemblerAPI
 {
     public:
         DisassemblerBase(FormatPlugin* format);
-        virtual ~DisassemblerBase();
 
     public: // Primitive functions
         virtual FormatPlugin* format();
@@ -41,9 +40,9 @@ class DisassemblerBase: public DisassemblerAPI
         template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 
    protected:
+        std::unique_ptr<FormatPlugin> m_format;
         ReferenceTable m_referencetable;
         ListingDocument* m_document;
-        FormatPlugin* m_format;
 };
 
 template<typename T> std::string DisassemblerBase::readStringT(address_t address, std::function<bool(T, std::string&)> fill) const

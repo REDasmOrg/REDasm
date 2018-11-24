@@ -1,4 +1,5 @@
 #include "serializer.h"
+#include "compression.h"
 
 namespace REDasm {
 namespace Serializer {
@@ -38,6 +39,43 @@ void deobfuscateString(std::fstream &fs, std::string &s)
 {
     Serializer::deserializeString(fs, s);
     xorify(s);
+}
+
+void serializeBuffer(std::fstream &fs, const Buffer &b)
+{
+    Serializer::serializeScalar(fs, b.size(), sizeof(u64));
+    fs.write(reinterpret_cast<const char*>(b.data()), b.size());
+}
+
+void deserializeBuffer(std::fstream &fs, Buffer &b)
+{
+    u64 size = 0;
+    Serializer::deserializeScalar(fs, &size);
+
+    b.resize(size);
+    fs.read(reinterpret_cast<char*>(b.data()), b.size());
+}
+
+bool compressBuffer(std::fstream &fs, Buffer &b)
+{
+    Buffer cb;
+
+    if(!Compression::inflate(b, cb))
+        return false;
+
+    Serializer::serializeBuffer(fs, cb);
+    return true;
+}
+
+bool decompressBuffer(std::fstream &fs, Buffer &b)
+{
+    Buffer cb;
+    Serializer::deserializeBuffer(fs, cb);
+
+    if(!Compression::deflate(cb, b))
+        return false;
+
+    return true;
 }
 
 } // namespace Serializer

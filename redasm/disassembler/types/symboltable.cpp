@@ -3,37 +3,13 @@
 
 namespace REDasm {
 
-// SymbolCache
-void SymbolCache::serialize(const SymbolPtr &value, std::fstream &fs)
-{
-    Serializer::serializeScalar(fs, value->type);
-    Serializer::serializeScalar(fs, value->tag);
-    Serializer::serializeScalar(fs, value->address);
-    Serializer::serializeScalar(fs, value->size);
-    Serializer::serializeString(fs, value->name);
-    Serializer::serializeString(fs, value->cpu);
-}
-
-void SymbolCache::deserialize(SymbolPtr &value, std::fstream &fs)
-{
-    value = std::make_shared<Symbol>();
-    Serializer::deserializeScalar(fs, &value->type);
-    Serializer::deserializeScalar(fs, &value->tag);
-    Serializer::deserializeScalar(fs, &value->address);
-    Serializer::deserializeScalar(fs, &value->size);
-    Serializer::deserializeString(fs, value->name);
-    Serializer::deserializeString(fs, value->cpu);
-}
-
-// SymbolTable
-SymbolTable::SymbolTable() { }
-u64 SymbolTable::size() const { return m_addresses.size(); }
+SymbolTable::SymbolTable(): cache_map<address_t, SymbolPtr>("symboltable") { }
 
 bool SymbolTable::create(address_t address, const std::string &name, u32 type, u32 tag)
 {
-    auto it = m_byaddress.find(address);
+    auto it = this->find(address);
 
-    if(it != m_byaddress.end())
+    if(it != this->end())
     {
         SymbolPtr symbol = *it;
 
@@ -42,9 +18,9 @@ bool SymbolTable::create(address_t address, const std::string &name, u32 type, u
     }
 
     m_addresses.push_back(address);
-    m_byaddress.commit(address, std::make_shared<Symbol>(type, tag, address, name));
+    this->commit(address, std::make_shared<Symbol>(type, tag, address, name));
     m_byname[name] = address;
-    return it == m_byaddress.end();
+    return it == this->end();
 }
 
 SymbolPtr SymbolTable::symbol(const std::string &name)
@@ -52,16 +28,16 @@ SymbolPtr SymbolTable::symbol(const std::string &name)
     auto it = m_byname.find(name);
 
     if(it != m_byname.end())
-        return m_byaddress[it->second];
+        return this->value(it->second);
 
     return NULL;
 }
 
 SymbolPtr SymbolTable::symbol(address_t address)
 {
-    auto it = m_byaddress.find(address);
+    auto it = this->find(address);
 
-    if(it == m_byaddress.end())
+    if(it == this->end())
         return NULL;
 
     return *it;
@@ -79,7 +55,7 @@ void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)
 {
     std::list<SymbolPtr> symbols;
 
-    for(auto it = m_byaddress.begin(); it != m_byaddress.end(); it++)
+    for(auto it = this->begin(); it != this->end(); it++)
     {
         SymbolPtr symbol = *it;
 
@@ -98,9 +74,9 @@ void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)
 
 bool SymbolTable::erase(address_t address)
 {
-    auto it = m_byaddress.find(address);
+    auto it = this->find(address);
 
-    if(it == m_byaddress.end())
+    if(it == this->end())
         return false;
 
     SymbolPtr symbol = *it;
@@ -108,12 +84,30 @@ bool SymbolTable::erase(address_t address)
     if(!symbol)
         return false;
 
-    m_byaddress.erase(it);
+    this->erase(it);
     m_byname.erase(symbol->name);
     return true;
 }
 
-void SymbolTable::serializeTo(std::fstream &fs) { m_byaddress.serializeTo(fs); }
-void SymbolTable::deserializeFrom(std::fstream &fs) { m_byaddress.deserializeFrom(fs); }
+void SymbolTable::serialize(const SymbolPtr &value, std::fstream &fs)
+{
+    Serializer::serializeScalar(fs, value->type);
+    Serializer::serializeScalar(fs, value->tag);
+    Serializer::serializeScalar(fs, value->address);
+    Serializer::serializeScalar(fs, value->size);
+    Serializer::serializeString(fs, value->name);
+    Serializer::serializeString(fs, value->cpu);
+}
+
+void SymbolTable::deserialize(SymbolPtr &value, std::fstream &fs)
+{
+    value = std::make_shared<Symbol>();
+    Serializer::deserializeScalar(fs, &value->type);
+    Serializer::deserializeScalar(fs, &value->tag);
+    Serializer::deserializeScalar(fs, &value->address);
+    Serializer::deserializeScalar(fs, &value->size);
+    Serializer::deserializeString(fs, value->name);
+    Serializer::deserializeString(fs, value->cpu);
+}
 
 }

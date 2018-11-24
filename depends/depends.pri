@@ -15,6 +15,21 @@ INCLUDEPATH += $$shell_path($$DEPENDS_ROOT/include)
 # ==========================================================
 
 # ======================== Capstone ========================
+ZLIB_SRC       = $$shell_path($$DEPENDS_ROOT/zlib)
+ZLIB_BUILD     = $$shell_path($$OUT_PWD/zlib)
+
+lib_zlib.commands = @echo "Compiling ZLib..." $$escape_expand(\n\t) \
+                    $$sprintf($$QMAKE_MKDIR_CMD, $$ZLIB_BUILD) $$escape_expand(\n\t) \
+                    cd $$ZLIB_BUILD && cmake $$CMAKE_GENERATOR $$ZLIB_SRC -DCMAKE_BUILD_TYPE=Release $$escape_expand(\n\t) \
+                    cd $$ZLIB_BUILD && $(MAKE)
+
+INCLUDEPATH += $$ZLIB_SRC
+LIBS += -L$$ZLIB_BUILD -lz
+PRE_TARGETDEPS += lib_zlib
+QMAKE_EXTRA_TARGETS += lib_zlib
+# ==========================================================
+
+# ======================== Capstone ========================
 CAPSTONE_SRC       = $$shell_path($$DEPENDS_ROOT/capstone)
 CAPSTONE_BUILD     = $$shell_path($$OUT_PWD/capstone)
 

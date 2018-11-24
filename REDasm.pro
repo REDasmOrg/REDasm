@@ -109,7 +109,6 @@ SOURCES += main.cpp\
     redasm/assemblers/metaarm/arm_common.cpp \
     redasm/plugins/assembler/assembler.cpp \
     redasm/disassembler/listing/listingdocument.cpp \
-    redasm/disassembler/listing/instructionpool.cpp \
     redasm/disassembler/listing/listingrenderer.cpp \
     redasm/support/timer.cpp \
     models/listingitemmodel.cpp \
@@ -147,7 +146,9 @@ SOURCES += main.cpp\
     redasm/redasm_buffer.cpp \
     redasm/redasm_endianness.cpp \
     redasm/database/database.cpp \
-    redasm/support/cachemap.cpp
+    redasm/support/cachemap.cpp \
+    redasm/support/compression.cpp \
+    redasm/disassembler/listing/instructioncache.cpp
 
 HEADERS  += mainwindow.h \
     redasm/redasm.h \
@@ -242,7 +243,6 @@ HEADERS  += mainwindow.h \
     redasm/assemblers/metaarm/arm_common.h \
     redasm/plugins/assembler/assembler.h \
     redasm/disassembler/listing/listingdocument.h \
-    redasm/disassembler/listing/instructionpool.h \
     redasm/disassembler/listing/listingrenderer.h \
     redasm/support/timer.h \
     models/listingitemmodel.h \
@@ -283,7 +283,9 @@ HEADERS  += mainwindow.h \
     redasm/redasm_buffer.h \
     redasm/redasm_endianness.h \
     redasm/database/database.h \
-    redasm/database/database_format.h
+    redasm/database/database_format.h \
+    redasm/support/compression.h \
+    redasm/disassembler/listing/instructioncache.h
 
 FORMS    += mainwindow.ui \
     widgets/disassemblerview/disassemblerview.ui \

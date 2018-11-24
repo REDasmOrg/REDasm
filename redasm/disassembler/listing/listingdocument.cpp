@@ -19,6 +19,32 @@ void ListingDocument::moveToEP()
 
 int ListingDocument::lastLine() const { return static_cast<int>(this->size()) - 1; }
 
+void ListingDocument::serializeTo(std::fstream &fs)
+{
+    m_instructions.serializeTo(fs);
+    m_symboltable.serializeTo(fs);
+}
+
+void ListingDocument::deserializeFrom(std::fstream &fs)
+{
+    m_instructions.deserialized += [&](const InstructionPtr& instruction) {
+        this->pushSorted(instruction->address, ListingItem::InstructionItem);
+    };
+
+    m_symboltable.deserialized += [&](const SymbolPtr& symbol) {
+        if(symbol->type & SymbolTypes::FunctionMask)
+            this->pushSorted(symbol->address, ListingItem::FunctionItem);
+        else
+            this->pushSorted(symbol->address, ListingItem::SymbolItem);
+    };
+
+    m_instructions.deserializeFrom(fs);
+    m_symboltable.deserializeFrom(fs);
+
+    m_instructions.deserialized.disconnect();
+    m_symboltable.deserialized.disconnect();
+}
+
 ListingItems ListingDocument::getCalls(ListingItem *item)
 {
     ListingItems calls;
@@ -359,7 +385,7 @@ int ListingDocument::indexOf(ListingItem *item)
 SymbolPtr ListingDocument::symbol(address_t address) { return m_symboltable.symbol(address); }
 SymbolPtr ListingDocument::symbol(const std::string &name) { return m_symboltable.symbol(ListingDocument::normalized(name)); }
 SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
-InstructionPool *ListingDocument::instructions() { return &m_instructions; }
+InstructionCache *ListingDocument::instructions() { return &m_instructions; }
 FormatPlugin *ListingDocument::format() { return m_format; }
 
 void ListingDocument::pushSorted(address_t address, u32 type)

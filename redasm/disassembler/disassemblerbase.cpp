@@ -3,8 +3,12 @@
 
 namespace REDasm {
 
-DisassemblerBase::DisassemblerBase(FormatPlugin *format): DisassemblerAPI(), m_format(format) { m_document = format->document(); }
-DisassemblerBase::~DisassemblerBase() { delete m_format; }
+DisassemblerBase::DisassemblerBase(FormatPlugin *format): DisassemblerAPI()
+{
+    m_format = std::unique_ptr<FormatPlugin>(format);
+    m_document = format->document();
+}
+
 ReferenceVector DisassemblerBase::getReferences(address_t address) { return m_referencetable.referencesToVector(address); }
 u64 DisassemblerBase::getReferencesCount(address_t address) { return m_referencetable.referencesCount(address); }
 void DisassemblerBase::pushReference(address_t address, address_t refbyaddress) { m_referencetable.push(address, refbyaddress); }
@@ -76,7 +80,7 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
     return c;
 }
 
-FormatPlugin *DisassemblerBase::format() { return m_format; }
+FormatPlugin *DisassemblerBase::format() { return m_format.get(); }
 ListingDocument *DisassemblerBase::document() { return m_document; }
 ReferenceTable *DisassemblerBase::references() { return &m_referencetable; }
 

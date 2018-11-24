@@ -22,13 +22,13 @@
 //#include ASSEMBLER_PLUGIN(arm64)
 #include ASSEMBLER_PLUGIN(chip8)
 
-#define REGISTER_FORMAT_PLUGIN(id)    REDasm::formats.push_back(&id##_formatPlugin)
+#define REGISTER_FORMAT_PLUGIN(id)    REDasm::formats[#id] = &id##_formatPlugin
 #define REGISTER_ASSEMBLER_PLUGIN(id) REDasm::assemblers[#id] = &id##_assemblerPlugin
 
 namespace REDasm {
 
-std::list<FormatPlugin_Entry> formats;
-std::unordered_map<std::string, AssemblerPlugin_Entry> assemblers;
+PluginMapT<FormatPlugin_Entry>::Type formats;
+PluginMapT<AssemblerPlugin_Entry>::Type assemblers;
 
 void init(const std::string& searchpath)
 {
@@ -59,9 +59,9 @@ void init(const std::string& searchpath)
 
 FormatPlugin *getFormat(Buffer& buffer)
 {
-    for(auto it = formats.begin(); it != formats.end(); it++)
+    for(auto& item : formats)
     {
-        FormatPlugin* fp = (*it)(buffer);
+        FormatPlugin* fp = item.second(buffer);
 
         if(fp)
             return fp;
@@ -70,17 +70,24 @@ FormatPlugin *getFormat(Buffer& buffer)
     return NULL;
 }
 
+FormatPlugin_Entry getFormatEntry(const char *id)
+{
+    auto it = REDasm::findPluginEntry<FormatPlugin_Entry>(id, formats);
+
+    if(it != formats.end())
+        return it->second;
+
+    return NULL;
+}
+
 AssemblerPlugin *getAssembler(const char* id)
 {
-    if(!id)
-        return NULL;
+    auto it = REDasm::findPluginEntry<AssemblerPlugin_Entry>(id, assemblers);
 
-    auto it = assemblers.find(id);
+    if(it != assemblers.end())
+        return it->second();
 
-    if(it == assemblers.end())
-        return NULL;
-
-    return (it->second)();
+    return NULL;
 }
 
 void setLoggerCallback(Runtime::LogCallback logcb) { Runtime::rntLogCallback = logcb; }

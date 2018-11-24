@@ -9,11 +9,22 @@
 
 namespace REDasm {
 
-extern std::list<FormatPlugin_Entry> formats;
-extern std::unordered_map<std::string, AssemblerPlugin_Entry> assemblers;
+template<typename T> struct PluginMapT { typedef std::unordered_map<std::string, T> Type; };
+
+template<typename T> typename PluginMapT<T>::Type::const_iterator findPluginEntry(const char* id, const typename PluginMapT<T>::Type& pm)
+{
+    if(!id)
+        return pm.end();
+
+    return pm.find(id);
+}
+
+extern PluginMapT<FormatPlugin_Entry>::Type formats;
+extern PluginMapT<AssemblerPlugin_Entry>::Type assemblers;
 
 FormatPlugin* getFormat(Buffer &buffer);
-AssemblerPlugin* getAssembler(const char *id);
+FormatPlugin_Entry getFormat(const char* id);
+AssemblerPlugin* getAssembler(const char* id);
 void setLoggerCallback(Runtime::LogCallback logcb);
 void setStatusCallback(Runtime::LogCallback logcb);
 void init(const std::string &searchpath);

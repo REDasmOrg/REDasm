@@ -8,7 +8,7 @@ namespace REDasm {
 
 typedef std::vector<address_t> ReferenceVector;
 
-class ReferenceTable: public Serializer::ISerializable
+class ReferenceTable: public Serializer::Serializable
 {
     private:
         typedef std::set<address_t> ReferenceSet;

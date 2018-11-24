@@ -18,11 +18,7 @@ template<typename T1, typename T2> void cache_map<T1, T2>::commit(const T1& key,
     io_lock lock(m_mutex);
 
     if(!m_file.is_open())
-    {
-        m_file.open(CACHE_FILE, std::ios::in | std::ios::out |
-                                     std::ios::trunc | std::ios::binary);
-
-    }
+        m_file.open(CACHE_FILE, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
 
     m_file.seekp(0, std::ios::end); // Ignore old key -> value reference, if any
     m_offsets[key] = m_file.tellp();
@@ -40,7 +36,7 @@ template<typename T1, typename T2> void cache_map<T1, T2>::erase(const cache_map
     m_offsets.erase(oit);
 }
 
-template<typename T1, typename T2> T2 cache_map<T1, T2>::operator[](const T1& key)
+template<typename T1, typename T2> T2 cache_map<T1, T2>::value(const T1 &key)
 {
     io_lock lock(m_mutex);
     auto it = m_offsets.find(key);
@@ -55,12 +51,17 @@ template<typename T1, typename T2> T2 cache_map<T1, T2>::operator[](const T1& ke
     return value;
 }
 
+template<typename T1, typename T2> T2 cache_map<T1, T2>::operator[](const T1& key) { return this->value(key); }
+
 template<typename T1, typename T2> void cache_map<T1, T2>::serializeTo(std::fstream &fs)
 {
     Serializer::serializeScalar(fs, static_cast<u64>(this->size()));
 
     for(auto it = this->begin(); it != this->end(); it++)
+    {
+        Serializer::serializeScalar(fs, it.key);
         this->serialize(*it, fs);
+    }
 }
 
 template<typename T1, typename T2> void cache_map<T1, T2>::deserializeFrom(std::fstream &fs)
@@ -70,7 +71,14 @@ template<typename T1, typename T2> void cache_map<T1, T2>::deserializeFrom(std::
 
     for(u64 i = 0; i < count; i++)
     {
+        T1 t1;
+        T2 t2;
 
+        Serializer::deserializeScalar(fs, &t1);
+        this->deserialize(t2, fs);
+        this->commit(t1, t2); // Rebuild cache
+
+        deserialized(t2);
     }
 }
 

@@ -13,10 +13,11 @@
 #include <mutex>
 #include "../support/serializer.h"
 #include "../redasm_types.h"
+#include "event.h"
 
 namespace REDasm {
 
-template<typename T1, typename T2> class cache_map: public Serializer::ISerializable // Use STL's coding style for this type
+template<typename T1, typename T2> class cache_map: public Serializer::Serializable // Use STL's coding style for this type
 {
     using io_lock = std::unique_lock<std::mutex>;
 
@@ -24,6 +25,9 @@ template<typename T1, typename T2> class cache_map: public Serializer::ISerializ
         typedef cache_map<T1, T2> type;
         typedef std::map<T1, offset_t> offset_map;
         typedef typename offset_map::iterator offset_iterator;
+
+    public:
+        Event<const T2&> deserialized;
 
     public:
         class iterator: public std::iterator<std::random_access_iterator_tag, T2> {
@@ -59,6 +63,7 @@ template<typename T1, typename T2> class cache_map: public Serializer::ISerializ
         u64 size() const;
         void commit(const T1& key, const T2& value);
         void erase(const iterator& it);
+        T2 value(const T1& key);
         T2 operator[](const T1& key);
         virtual void serializeTo(std::fstream& fs);
         virtual void deserializeFrom(std::fstream& fs);

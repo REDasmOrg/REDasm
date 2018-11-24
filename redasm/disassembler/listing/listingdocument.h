@@ -7,10 +7,11 @@
 #include <list>
 #include "../../redasm.h"
 #include "../../support/event.h"
+#include "../../support/serializer.h"
 #include "../types/symboltable.h"
 #include "../types/referencetable.h"
 #include "listingcursor.h"
-#include "instructionpool.h"
+#include "instructioncache.h"
 
 namespace REDasm {
 
@@ -134,7 +135,7 @@ struct ListingDocumentChanged
     bool removed;
 };
 
-class ListingDocument: protected std::deque<ListingItemPtr>
+class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::Serializable
 {
     using document_lock = std::unique_lock<std::mutex>;
 
@@ -158,6 +159,10 @@ class ListingDocument: protected std::deque<ListingItemPtr>
         ListingCursor* cursor();
         void moveToEP();
         int lastLine() const;
+
+    public:
+        virtual void serializeTo(std::fstream& fs);
+        virtual void deserializeFrom(std::fstream& fs);
 
     public:
         ListingItems getCalls(ListingItem* item);
@@ -203,7 +208,7 @@ class ListingDocument: protected std::deque<ListingItemPtr>
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);
         SymbolTable* symbols();
-        InstructionPool* instructions();
+        InstructionCache* instructions();
         FormatPlugin* format();
 
     private:
@@ -219,7 +224,7 @@ class ListingDocument: protected std::deque<ListingItemPtr>
         ListingCursor m_cursor;
         SegmentList m_segments;
         FunctionList m_functions;
-        InstructionPool m_instructions;
+        InstructionCache m_instructions;
         SymbolTable m_symboltable;
         FormatPlugin* m_format;
         SymbolPtr m_documententry;

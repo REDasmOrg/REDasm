@@ -7,7 +7,7 @@
 namespace REDasm {
 namespace Serializer {
 
-class ISerializable
+class Serializable
 {
     public:
         virtual void serializeTo(std::fstream& fs) = 0;
@@ -53,7 +53,11 @@ template<template<typename, typename, typename> class V, typename T> void deseri
 
 void obfuscateString(std::fstream& fs, std::string s);
 void deobfuscateString(std::fstream& fs, std::string& s);
+bool compressBuffer(std::fstream& fs, Buffer &b);
+bool decompressBuffer(std::fstream& fs, Buffer& cb);
 
+void serializeBuffer(std::fstream& fs, const Buffer& b);
+void deserializeBuffer(std::fstream& fs, Buffer& b);
 void serializeString(std::fstream& fs, const std::string& s);
 void deserializeString(std::fstream& fs, std::string& s);
 

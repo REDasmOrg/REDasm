@@ -14,7 +14,7 @@ class Database
 
     public:
         static bool save(REDasm::DisassemblerAPI* disassembler, const std::string& filename);
-        static REDasm::DisassemblerAPI* load(const std::string& filename);
+        static REDasm::DisassemblerAPI* load(const std::string& filename, Buffer& buffer);
 };
 
 } // namespace REDasm

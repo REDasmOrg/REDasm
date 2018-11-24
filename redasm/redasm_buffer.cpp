@@ -42,6 +42,13 @@ Buffer Buffer::fromFile(const std::string &file)
     return b;
 }
 
+Buffer Buffer::fill(size_t count, u8 b)
+{
+    Buffer buffer;
+    buffer.resize(count, b);
+    return buffer;
+}
+
 BufferRef::BufferRef(): m_buffer(NULL), m_data(NULL), m_size(0) { }
 
 BufferRef::BufferRef(Buffer *buffer, u64 offset): m_buffer(buffer)

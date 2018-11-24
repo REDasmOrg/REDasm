@@ -1,5 +1,5 @@
-#ifndef INSTRUCTIONPOOL_H
-#define INSTRUCTIONPOOL_H
+#ifndef INSTRUCTIONCACHE_H
+#define INSTRUCTIONCACHE_H
 
 #include "../../support/cachemap.h"
 #include "../../redasm.h"
@@ -8,11 +8,11 @@ namespace REDasm {
 
 class FormatPlugin;
 
-class InstructionPool: public cache_map<address_t, InstructionPtr>
+class InstructionCache: public cache_map<address_t, InstructionPtr>
 {
     public:
-        InstructionPool();
-        virtual ~InstructionPool();
+        InstructionCache();
+        virtual ~InstructionCache();
         void update(const InstructionPtr &instruction);
 
     protected:

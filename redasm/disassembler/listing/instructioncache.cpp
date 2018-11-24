@@ -1,14 +1,14 @@
-#include "instructionpool.h"
+#include "instructioncache.h"
 #include "../../support/serializer.h"
 #include "../../plugins/format.h"
 
 namespace REDasm {
 
-InstructionPool::InstructionPool(): cache_map<address_t, InstructionPtr>("instructions") { }
-InstructionPool::~InstructionPool() { }
-void InstructionPool::update(const InstructionPtr &instruction) { this->commit(instruction->address, instruction); }
+InstructionCache::InstructionCache(): cache_map<address_t, InstructionPtr>("instructions") { }
+InstructionCache::~InstructionCache() { }
+void InstructionCache::update(const InstructionPtr &instruction) { this->commit(instruction->address, instruction); }
 
-void InstructionPool::serialize(const InstructionPtr &value, std::fstream &fs)
+void InstructionCache::serialize(const InstructionPtr &value, std::fstream &fs)
 {
     Serializer::serializeScalar(fs, value->address);
     Serializer::serializeScalar(fs, value->target_idx);
@@ -42,7 +42,7 @@ void InstructionPool::serialize(const InstructionPtr &value, std::fstream &fs)
     });
 }
 
-void InstructionPool::deserialize(InstructionPtr &value, std::fstream &fs)
+void InstructionCache::deserialize(InstructionPtr &value, std::fstream &fs)
 {
     value = std::make_shared<Instruction>();
 

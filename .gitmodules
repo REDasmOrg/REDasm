@@ -5,3 +5,6 @@
 	path = depends/capstone
 	url = https://github.com/aquynh/capstone.git
 	branch = next
+[submodule "depends/zlib"]
+	path = depends/zlib
+	url = https://github.com/madler/zlib.git

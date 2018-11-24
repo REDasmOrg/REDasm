@@ -58,18 +58,7 @@ struct Symbol
 
 typedef std::shared_ptr<Symbol> SymbolPtr;
 
-class SymbolCache: public cache_map<address_t, SymbolPtr>
-{
-    public:
-        SymbolCache(): cache_map<address_t, SymbolPtr>("symboltable") { }
-        virtual ~SymbolCache() { }
-
-    protected:
-        virtual void serialize(const SymbolPtr& value, std::fstream& fs);
-        virtual void deserialize(SymbolPtr& value, std::fstream& fs);
-};
-
-class SymbolTable: public Serializer::ISerializable
+class SymbolTable: public cache_map<address_t, SymbolPtr>
 {
     private:
         typedef std::unordered_map<std::string, address_t> SymbolsByName;
@@ -83,15 +72,15 @@ class SymbolTable: public Serializer::ISerializable
         SymbolPtr at(u64 index);
         void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
         bool erase(address_t address);
+        using cache_map<address_t, SymbolPtr>::erase;
 
-    public:
-        virtual void serializeTo(std::fstream& fs);
-        virtual void deserializeFrom(std::fstream& fs);
+    protected:
+        virtual void serialize(const SymbolPtr& value, std::fstream& fs);
+        virtual void deserialize(SymbolPtr& value, std::fstream& fs);
 
     private:
         AddressList m_addresses;
         SymbolsByName m_byname;
-        SymbolCache m_byaddress;
 };
 
 }

@@ -19,7 +19,16 @@ void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
     for(auto it = doc->begin(); it != doc->end(); it++)
         this->addItem(it->get());
 
+    this->update();
+
     doc->changed += std::bind(&ListingMap::onDocumentChanged, this, std::placeholders::_1);
+
+    m_disassembler->busyChanged += [=]() {
+        if(m_disassembler->busy())
+            return;
+
+        QMetaObject::invokeMethod(this, "update");
+    };
 }
 
 int ListingMap::calculateWidth(u64 sz) const { return (sz * this->width()) / m_totalsize; }
@@ -39,10 +48,6 @@ void ListingMap::addItem(const REDasm::ListingItem *item)
         auto it = REDasm::Listing::insertionPoint(&m_functions, item);
         m_functions.insert(it, item);
     }
-    else
-        return;
-
-    this->update();
 }
 
 void ListingMap::removeItem(const REDasm::ListingItem *item)
@@ -60,10 +65,6 @@ void ListingMap::removeItem(const REDasm::ListingItem *item)
         int idx = REDasm::Listing::indexOf(&m_functions, item);
         m_functions.removeAt(idx);
     }
-    else
-        return;
-
-    this->update();
 }
 
 void ListingMap::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)

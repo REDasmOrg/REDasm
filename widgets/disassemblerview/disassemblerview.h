@@ -45,6 +45,7 @@ class DisassemblerView : public QWidget
         void displayCurrentReferences();
         void log(const QString& s);
         void switchGraphListing();
+        void ensureOutputVisible();
         void showFilter();
         void clearFilter();
         void showHexDump(address_t address);

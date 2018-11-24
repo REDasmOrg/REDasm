@@ -165,13 +165,13 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     m_referencesmodel->setDisassembler(disassembler);
 
     ui->hexEdit->setDocument(m_hexdocument);
-    ui->bottomTabs->setCurrentWidget(ui->tabOutput);
     ui->disassemblerMap->setDisassembler(disassembler);
 
     m_disassemblerlistingview->setDisassembler(disassembler);
     m_disassemblergraphview->setDisassembler(disassembler);
 
     ui->stackedWidget->currentWidget()->setFocus();
+    this->ensureOutputVisible();
 
     disassembler->busyChanged += [&]() { QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection); };
 }
@@ -378,7 +378,13 @@ void DisassemblerView::displayCurrentReferences()
     m_referencesmodel->xref(item->address);
 }
 
-void DisassemblerView::log(const QString &s) { ui->pteOutput->insertPlainText(s + "\n"); }
+void DisassemblerView::log(const QString &s)
+{
+    ui->pteOutput->insertPlainText(s + "\n");
+
+    if(!m_disassembler->busy())
+        this->ensureOutputVisible();
+}
 
 void DisassemblerView::switchGraphListing()
 {
@@ -397,6 +403,8 @@ void DisassemblerView::switchGraphListing()
 
     ui->stackedWidget->currentWidget()->setFocus();
 }
+
+void DisassemblerView::ensureOutputVisible() { ui->bottomTabs->setCurrentWidget(ui->tabOutput); }
 
 void DisassemblerView::filterSymbols()
 {

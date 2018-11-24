@@ -29,6 +29,7 @@ class MainWindow : public QMainWindow
     private slots:
         void onOpenClicked();
         void onSaveClicked();
+        void onSaveAsClicked();
         void onRecentFileClicked();
         void onSettingsClicked();
         void onDatabaseClicked();
@@ -39,7 +40,6 @@ class MainWindow : public QMainWindow
         void loadGeometry();
         void loadRecents();
         bool loadDatabase(const QString& filepath);
-        void applyTheme();
         void load(const QString &filepath);
         void checkCommandLine();
         bool checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler);

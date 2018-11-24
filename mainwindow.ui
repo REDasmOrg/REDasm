@@ -182,6 +182,7 @@
     </property>
     <addaction name="action_Open"/>
     <addaction name="action_Save"/>
+    <addaction name="action_Save_As"/>
     <addaction name="action_Recent_Files"/>
     <addaction name="separator"/>
     <addaction name="action_Exit"/>
@@ -207,6 +208,9 @@
    <property name="text">
     <string>&amp;Open</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="action_Exit">
    <property name="text">
@@ -219,6 +223,9 @@
    </property>
    <property name="text">
     <string>&amp;Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="action_Database">
@@ -239,6 +246,14 @@
   <action name="action_Recent_Files">
    <property name="text">
     <string>&amp;Recent Files</string>
+   </property>
+  </action>
+  <action name="action_Save_As">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save As...</string>
    </property>
   </action>
  </widget>

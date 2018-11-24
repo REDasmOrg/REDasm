@@ -1,21 +1,24 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#define RDB_SIGNATURE        "RDB"
-#define RDB_SIGNATURE_EXT    "rdb"
-#define RDB_SIGNATURE_LENGTH 3
-#define RDB_VERSION          1
-
 // struct RDBHeader
 // {
 //     char signature[3];
 //     u32 version;
-//     std::string format, assembler;
+//     std::string filename;          // XORified
+//     std::string format;
+//     std::string assembler;
 //
-//     // InstructionCache instructions;
-//     // SymbolTable symboltable;
-//     // ReferenceTable references;
+//     Buffer buffer;                 // ZLib compressed stream
+//     InstructionCache instructions;
+//     SymbolTable symboltable;
+//     ReferenceTable references;
 // };
+
+#define RDB_SIGNATURE        "RDB"
+#define RDB_SIGNATURE_EXT    "rdb"
+#define RDB_SIGNATURE_LENGTH 3
+#define RDB_VERSION          1
 
 #include "../disassembler/disassembler.h"
 
@@ -30,8 +33,8 @@ class Database
 
     public:
         static const std::string& lastError();
-        static bool save(REDasm::DisassemblerAPI* disassembler, const std::string& filename);
-        static REDasm::Disassembler* load(const std::string& filename, Buffer& buffer);
+        static bool save(REDasm::DisassemblerAPI* disassembler, const std::string& dbfilename, const std::string& filename);
+        static REDasm::Disassembler* load(const std::string& dbfilename, std::string& filename, Buffer& buffer);
 
     private:
         static std::string m_lasterror;

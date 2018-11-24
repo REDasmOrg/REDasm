@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpenClicked);
     connect(ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveClicked);
+    connect(ui->action_Save_As, &QAction::triggered, this, &MainWindow::onSaveAsClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
     connect(ui->action_Database, &QAction::triggered, this, &MainWindow::onDatabaseClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
@@ -120,7 +121,21 @@ void MainWindow::onOpenClicked()
 
 void MainWindow::onSaveClicked()
 {
-    QString s = QFileDialog::getSaveFileName(this, "Save Database...", m_fileinfo.fileName(), "REDasm Database (*.rdb)");
+    DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+
+    if(!currdv)
+        return;
+
+    std::string rdbfile = QString("%1.%2").arg(m_fileinfo.baseName()).arg(RDB_SIGNATURE_EXT).toStdString();
+    REDasm::log("Saving Database " + REDasm::quoted(rdbfile));
+
+    if(!REDasm::Database::save(currdv->disassembler(), rdbfile, m_fileinfo.fileName().toStdString()))
+        REDasm::log(REDasm::Database::lastError());
+}
+
+void MainWindow::onSaveAsClicked() // TODO: Handle multiple outputs
+{
+    QString s = QFileDialog::getSaveFileName(this, "Save As...", m_fileinfo.fileName(), "REDasm Database (*.rdb)");
 
     if(s.isEmpty())
         return;
@@ -130,7 +145,7 @@ void MainWindow::onSaveClicked()
     if(!currdv)
         return;
 
-    if(!REDasm::Database::save(currdv->disassembler(), s.toStdString()))
+    if(!REDasm::Database::save(currdv->disassembler(), s.toStdString(), m_fileinfo.fileName().toStdString()))
         REDasm::log(REDasm::Database::lastError());
 }
 
@@ -196,7 +211,8 @@ void MainWindow::loadRecents()
 
 bool MainWindow::loadDatabase(const QString &filepath)
 {
-    REDasm::Disassembler* disassembler = REDasm::Database::load(filepath.toStdString(), m_buffer);
+    std::string filename;
+    REDasm::Disassembler* disassembler = REDasm::Database::load(filepath.toStdString(), filename, m_buffer);
 
     if(!disassembler)
     {
@@ -206,6 +222,7 @@ bool MainWindow::loadDatabase(const QString &filepath)
         return false;
     }
 
+    m_fileinfo = QFileInfo(QString::fromStdString(filename));
     this->showDisassemblerView(disassembler);
     return true;
 }
@@ -214,21 +231,22 @@ void MainWindow::load(const QString& filepath)
 {
     m_fileinfo = QFileInfo(filepath);
     QDir::setCurrent(m_fileinfo.path());
-    this->setWindowTitle(m_fileinfo.fileName());
 
     REDasmSettings settings;
     settings.updateRecentFiles(filepath);
     this->loadRecents();
 
-    if(this->loadDatabase(filepath))
-        return;
+    if(!this->loadDatabase(filepath))
+    {
+        m_buffer = REDasm::Buffer::fromFile(filepath.toStdString());
 
-    m_buffer = REDasm::Buffer::fromFile(filepath.toStdString());
+        if(m_buffer.empty())
+            return;
 
-    if(m_buffer.empty())
-        return;
+        this->initDisassembler();
+    }
 
-    this->initDisassembler();
+    this->setWindowTitle(m_fileinfo.fileName());
 }
 
 void MainWindow::checkCommandLine()
@@ -326,4 +344,5 @@ void MainWindow::checkCommandState()
 
     REDasm::DisassemblerAPI* disassembler = currdv->disassembler();
     ui->action_Save->setEnabled(!disassembler->busy());
+    ui->action_Save_As->setEnabled(!disassembler->busy());
 }

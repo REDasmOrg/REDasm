@@ -10,14 +10,14 @@ namespace REDasm {
 
 std::string Database::m_lasterror;
 
-bool Database::save(DisassemblerAPI *disassembler, const std::string &filename)
+bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename, const std::string& filename)
 {
     m_lasterror.clear();
-    std::fstream ofs(filename, std::ios::out | std::ios::trunc);
+    std::fstream ofs(dbfilename, std::ios::out | std::ios::trunc);
 
     if(!ofs.is_open())
     {
-        m_lasterror = "Cannot save " + REDasm::quoted(filename);
+        m_lasterror = "Cannot save " + REDasm::quoted(dbfilename);
         return false;
     }
 
@@ -27,11 +27,12 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &filename)
 
     ofs.write(RDB_SIGNATURE, RDB_SIGNATURE_LENGTH);
     Serializer::serializeScalar(ofs, RDB_VERSION, sizeof(u32));
+    Serializer::obfuscateString(ofs, filename);
     Serializer::serializeString(ofs, format->name());
 
     if(!Serializer::compressBuffer(ofs, format->buffer()))
     {
-        m_lasterror = "Cannot compress database " + REDasm::quoted(filename);
+        m_lasterror = "Cannot compress database " + REDasm::quoted(dbfilename);
         return false;
     }
 
@@ -40,14 +41,14 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &filename)
     return true;
 }
 
-Disassembler *Database::load(const std::string &filename, Buffer &buffer)
+Disassembler *Database::load(const std::string &dbfilename, std::string &filename, Buffer &buffer)
 {
     m_lasterror.clear();
-    std::fstream ifs(filename, std::ios::in);
+    std::fstream ifs(dbfilename, std::ios::in);
 
     if(!ifs.is_open())
     {
-        m_lasterror = "Cannot open " + REDasm::quoted(filename);
+        m_lasterror = "Cannot open " + REDasm::quoted(dbfilename);
         return NULL;
     }
 
@@ -56,7 +57,7 @@ Disassembler *Database::load(const std::string &filename, Buffer &buffer)
 
     if(std::strncmp(RDB_SIGNATURE, signature.data(), RDB_SIGNATURE_LENGTH))
     {
-        m_lasterror = "Signature check failed for " + REDasm::quoted(filename);
+        m_lasterror = "Signature check failed for " + REDasm::quoted(dbfilename);
         return NULL;
     }
 
@@ -70,11 +71,12 @@ Disassembler *Database::load(const std::string &filename, Buffer &buffer)
     }
 
     std::string formatname;
+    Serializer::deobfuscateString(ifs, filename);
     Serializer::deserializeString(ifs, formatname);
 
     if(!Serializer::decompressBuffer(ifs, buffer))
     {
-        m_lasterror = "Cannot decompress database " + REDasm::quoted(filename);
+        m_lasterror = "Cannot decompress database " + REDasm::quoted(dbfilename);
         return NULL;
     }
 

@@ -22,13 +22,13 @@
 //#include ASSEMBLER_PLUGIN(arm64)
 #include ASSEMBLER_PLUGIN(chip8)
 
-#define REGISTER_FORMAT_PLUGIN(id)    REDasm::formats[#id] = &id##_formatPlugin
+#define REGISTER_FORMAT_PLUGIN(id)    REDasm::formats.push_back(&id##_formatPlugin)
 #define REGISTER_ASSEMBLER_PLUGIN(id) REDasm::assemblers[#id] = &id##_assemblerPlugin
 
 namespace REDasm {
 
-PluginMapT<FormatPlugin_Entry>::Type formats;
-PluginMapT<AssemblerPlugin_Entry>::Type assemblers;
+EntryListT<FormatPlugin_Entry>::Type formats;
+EntryMapT<AssemblerPlugin_Entry>::Type assemblers;
 
 void init(const std::string& searchpath)
 {
@@ -59,23 +59,13 @@ void init(const std::string& searchpath)
 
 FormatPlugin *getFormat(Buffer& buffer)
 {
-    for(auto& item : formats)
+    for(FormatPlugin_Entry formatentry : formats)
     {
-        FormatPlugin* fp = item.second(buffer);
+        FormatPlugin* fp = formatentry(buffer);
 
         if(fp)
             return fp;
     }
-
-    return NULL;
-}
-
-FormatPlugin_Entry getFormatEntry(const char *id)
-{
-    auto it = REDasm::findPluginEntry<FormatPlugin_Entry>(id, formats);
-
-    if(it != formats.end())
-        return it->second;
 
     return NULL;
 }

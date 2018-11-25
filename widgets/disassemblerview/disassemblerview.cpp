@@ -174,6 +174,9 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     this->ensureOutputVisible();
 
     disassembler->busyChanged += [&]() { QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection); };
+
+    if(!disassembler->busy())
+        this->checkDisassemblerStatus();
 }
 
 void DisassemblerView::changeDisassemblerStatus()

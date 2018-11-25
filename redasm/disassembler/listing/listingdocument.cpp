@@ -21,12 +21,19 @@ u64 ListingDocument::lastLine() const { return static_cast<u64>(this->size()) - 
 
 void ListingDocument::serializeTo(std::fstream &fs)
 {
+    Serializer::serializeScalar(fs, m_cursor.currentLine());
+    Serializer::serializeScalar(fs, m_cursor.currentColumn());
+
     m_instructions.serializeTo(fs);
     m_symboltable.serializeTo(fs);
 }
 
 void ListingDocument::deserializeFrom(std::fstream &fs)
 {
+    u64 line = 0, column = 0;
+    Serializer::deserializeScalar(fs, &line);
+    Serializer::deserializeScalar(fs, &column);
+
     m_instructions.deserialized += [&](const InstructionPtr& instruction) {
         this->pushSorted(instruction->address, ListingItem::InstructionItem);
     };
@@ -43,6 +50,8 @@ void ListingDocument::deserializeFrom(std::fstream &fs)
 
     m_instructions.deserialized.removeLast();
     m_symboltable.deserialized.removeLast();
+
+    m_cursor.set(line, column);
 }
 
 ListingItems ListingDocument::getCalls(ListingItem *item)

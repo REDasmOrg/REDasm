@@ -5,6 +5,7 @@
 #include <cmath>
 
 #define CURSOR_BLINK_INTERVAL 500  // 500ms
+#define DOCUMENT_IDEAL_SIZE   10
 
 DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(NULL), m_disassemblerpopup(NULL)
 {
@@ -44,7 +45,12 @@ bool DisassemblerTextView::canGoForward() const { return m_disassembler->documen
 u64 DisassemblerTextView::visibleLines() const
 {
     QFontMetrics fm = this->fontMetrics();
-    return std::ceil(this->height() / fm.height());
+    u64 vl = std::ceil(this->height() / fm.height());
+
+    if((vl <= 1) && (m_disassembler->document()->size() >= DOCUMENT_IDEAL_SIZE))
+        return DOCUMENT_IDEAL_SIZE;
+
+    return vl;
 }
 
 u64 DisassemblerTextView::firstVisibleLine() const { return this->verticalScrollBar()->value(); }
@@ -52,10 +58,12 @@ u64 DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLin
 
 void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
-    REDasm::ListingDocument* doc = disassembler->document();
+    m_disassembler = disassembler;
+
+    REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::ListingCursor* cur = doc->cursor();
 
-    disassembler->busyChanged += [&]() {
+    m_disassembler->busyChanged += [&]() {
       if(m_disassembler->busy())
           return;
 
@@ -70,11 +78,11 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
     this->adjustScrollBars();
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [&](int) { this->viewport()->update(); });
 
-    m_disassembler = disassembler;
-    m_renderer = std::make_unique<ListingTextRenderer>(this->font(), disassembler);
+    m_renderer = std::make_unique<ListingTextRenderer>(this->font(), m_disassembler);
+    m_disassemblerpopup = new DisassemblerPopup(m_disassembler, this);
 
-    m_disassemblerpopup = new DisassemblerPopup(disassembler, this);
-    this->viewport()->update();
+    if(!m_disassembler->busy())
+        cur->positionChanged();
 }
 
 void DisassemblerTextView::copy()
@@ -448,9 +456,6 @@ void DisassemblerTextView::adjustScrollBars()
 
 void DisassemblerTextView::moveToSelection()
 {
-    if(!this->isVisible())
-        return;
-
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::ListingCursor* cur = doc->cursor();
 

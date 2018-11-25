@@ -127,11 +127,11 @@ namespace Listing {
 
 struct ListingDocumentChanged
 {
-    ListingDocumentChanged(ListingItem* item, int index, bool removed): item(item), index(index), removed(removed) { }
+    ListingDocumentChanged(ListingItem* item, u64 index, bool removed): item(item), index(index), removed(removed) { }
 
     ListingItem* item;
 
-    int index;
+    u64 index;
     bool removed;
 };
 
@@ -158,7 +158,7 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
         ListingDocument();
         ListingCursor* cursor();
         void moveToEP();
-        int lastLine() const;
+        u64 lastLine() const;
 
     public:
         virtual void serializeTo(std::fstream& fs);

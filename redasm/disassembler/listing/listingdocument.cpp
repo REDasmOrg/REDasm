@@ -17,7 +17,7 @@ void ListingDocument::moveToEP()
     m_cursor.set(this->functionIndex(m_documententry->address));
 }
 
-int ListingDocument::lastLine() const { return static_cast<int>(this->size()) - 1; }
+u64 ListingDocument::lastLine() const { return static_cast<u64>(this->size()) - 1; }
 
 void ListingDocument::serializeTo(std::fstream &fs)
 {
@@ -112,7 +112,7 @@ ListingItem *ListingDocument::functionStart(address_t address)
 
 ListingItem *ListingDocument::currentItem()
 {
-    if((m_cursor.currentLine() < 0) || (m_cursor.currentLine() >= static_cast<int>(this->size())))
+    if(m_cursor.currentLine() >= static_cast<u64>(this->size()))
         return NULL;
 
     return this->itemAt(m_cursor.currentLine());

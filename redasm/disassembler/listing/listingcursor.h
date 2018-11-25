@@ -10,7 +10,7 @@ namespace REDasm {
 class ListingCursor
 {
     public:
-        typedef std::pair<int, int> Position;       // [Line, Column]
+        typedef std::pair<u64, u64> Position;       // [Line, Column]
         typedef std::stack<Position> PositionStack;
 
     public:
@@ -28,22 +28,22 @@ class ListingCursor
         const ListingCursor::Position& currentSelection() const;
         const ListingCursor::Position& startSelection() const;
         const ListingCursor::Position& endSelection() const;
-        int currentLine() const;
-        int currentColumn() const;
-        int selectionLine() const;
-        int selectionColumn() const;
-        bool isLineSelected(int line) const;
+        u64 currentLine() const;
+        u64 currentColumn() const;
+        u64 selectionLine() const;
+        u64 selectionColumn() const;
+        bool isLineSelected(u64 line) const;
         bool hasSelection() const;
         bool canGoBack() const;
         bool canGoForward() const;
-        void set(int line, int column = 0);
-        void moveTo(int line, int column = 0);
-        void select(int line, int column = 0);
+        void set(u64 line, u64 column = 0);
+        void moveTo(u64 line, u64 column = 0);
+        void select(u64 line, u64 column = 0);
         void goBack();
         void goForward();
 
     private:
-        void moveTo(int line, int column, bool save);
+        void moveTo(u64 line, u64 column, bool save);
 
     private:
         Position m_position, m_selection;

@@ -1,17 +1,21 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-// struct RDBHeader
+// struct RDBFile
 // {
 //     char signature[3];
 //     u32 version;
 //     std::string filename;          // XORified
 //     std::string format;
-//     std::string assembler;
 //
 //     Buffer buffer;                 // ZLib compressed stream
-//     InstructionCache instructions;
-//     SymbolTable symboltable;
+
+//     struct {
+//         u64 line, column;
+//         InstructionCache instructions;
+//         SymbolTable symboltable;
+//     } document;
+//
 //     ReferenceTable references;
 // };
 

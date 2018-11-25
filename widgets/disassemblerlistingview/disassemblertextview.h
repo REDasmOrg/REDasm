@@ -15,9 +15,9 @@ class DisassemblerTextView : public QAbstractScrollArea
         explicit DisassemblerTextView(QWidget *parent = 0);
         bool canGoBack() const;
         bool canGoForward() const;
-        int visibleLines() const;
-        int firstVisibleLine() const;
-        int lastVisibleLine() const;
+        u64 visibleLines() const;
+        u64 firstVisibleLine() const;
+        u64 lastVisibleLine() const;
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
 
     public slots:
@@ -48,8 +48,8 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     private:
         REDasm::SymbolPtr symbolUnderCursor();
-        bool isLineVisible(int line) const;
-        bool isColumnVisible(int column, int *xpos);
+        bool isLineVisible(u64 line) const;
+        bool isColumnVisible(u64 column, u64 *xpos);
         void adjustScrollBars();
         void moveToSelection();
         void createContextMenu();

@@ -18,7 +18,7 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
 {
     REDasm::ListingCursor::Position cp;
     cp.first = firstline + std::floor(pos.y() / m_fontmetrics.height());
-    cp.second = -1;
+    cp.second = std::numeric_limits<u64>::max();
 
     REDasm::RendererLine rl;
     this->getRendererLine(cp.first, rl);
@@ -35,8 +35,8 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
         break;
     }
 
-    if(cp.second == -1)
-        cp.second = static_cast<int>(s.length() - 1);
+    if(cp.second == std::numeric_limits<u64>::max())
+        cp.second = static_cast<u64>(s.length() - 1);
 
     return cp;
 }
@@ -102,7 +102,7 @@ std::string ListingTextRenderer::findWordUnderCursor(const std::string &s, const
     {
         QRegularExpressionMatch match = it.next();
 
-        if((cp.second < match.capturedStart()) || (cp.second > match.capturedEnd()))
+        if((cp.second < static_cast<u64>(match.capturedStart())) || (cp.second > static_cast<u64>(match.capturedEnd())))
             continue;
 
         if(pos)

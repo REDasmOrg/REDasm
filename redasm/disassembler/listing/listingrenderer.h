@@ -15,10 +15,10 @@ struct RendererFormat
 
 struct RendererLine
 {
-    RendererLine(): userdata(NULL), line(-1), index(-1), highlighted(false) { }
+    RendererLine(): userdata(NULL), line(0), index(0), highlighted(false) { }
 
     void* userdata;
-    s64 line, index;
+    u64 line, index;
     bool highlighted;
     std::list<RendererFormat> formats;
     std::string text;
@@ -41,9 +41,9 @@ class ListingRenderer
 
     public:
         ListingRenderer(DisassemblerAPI* disassembler);
-        virtual void render(size_t start, size_t count, void* userdata = NULL);
-        int getLastColumn(size_t line);
-        std::string getLine(size_t line);
+        virtual void render(u64 start, u64 count, void* userdata = NULL);
+        u64 getLastColumn(u64 line);
+        std::string getLine(u64 line);
         std::string getSelectedText();
 
     protected:

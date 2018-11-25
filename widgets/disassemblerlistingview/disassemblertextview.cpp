@@ -41,14 +41,14 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 bool DisassemblerTextView::canGoBack() const { return m_disassembler->document()->cursor()->canGoBack(); }
 bool DisassemblerTextView::canGoForward() const { return m_disassembler->document()->cursor()->canGoForward(); }
 
-int DisassemblerTextView::visibleLines() const
+u64 DisassemblerTextView::visibleLines() const
 {
     QFontMetrics fm = this->fontMetrics();
     return std::ceil(this->height() / fm.height());
 }
 
-int DisassemblerTextView::firstVisibleLine() const { return this->verticalScrollBar()->value(); }
-int DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines() - 1; }
+u64 DisassemblerTextView::firstVisibleLine() const { return this->verticalScrollBar()->value(); }
+u64 DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines() - 1; }
 
 void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
@@ -252,7 +252,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 
     if(e->matches(QKeySequence::MoveToNextChar) || e->matches(QKeySequence::SelectNextChar))
     {
-        int len = m_renderer->getLastColumn(cur->currentLine());
+        u64 len = m_renderer->getLastColumn(cur->currentLine());
 
         if(e->matches(QKeySequence::MoveToNextChar))
             cur->moveTo(cur->currentLine(), std::min(len, cur->currentColumn() + 1));
@@ -262,9 +262,9 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     else if(e->matches(QKeySequence::MoveToPreviousChar) || e->matches(QKeySequence::SelectPreviousChar))
     {
         if(e->matches(QKeySequence::MoveToPreviousChar))
-            cur->moveTo(cur->currentLine(), std::max(0, cur->currentColumn() - 1));
+            cur->moveTo(cur->currentLine(), std::max(static_cast<u64>(0), cur->currentColumn() - 1));
         else
-            cur->select(cur->currentLine(), std::max(0, cur->currentColumn() - 1));
+            cur->select(cur->currentLine(), std::max(static_cast<u64>(0), cur->currentColumn() - 1));
     }
     else if(e->matches(QKeySequence::MoveToNextLine) || e->matches(QKeySequence::SelectNextLine))
     {
@@ -307,7 +307,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         if(!cur->currentLine())
             return;
 
-        int pageline = std::max(0, this->firstVisibleLine() - this->visibleLines());
+        u64 pageline = std::max(static_cast<u64>(0), this->firstVisibleLine() - this->visibleLines());
 
         if(e->matches(QKeySequence::MoveToPreviousPage))
             cur->moveTo(pageline, std::min(cur->currentColumn(), m_renderer->getLastColumn(pageline)));
@@ -377,7 +377,7 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
     QScrollBar* vscrollbar = this->verticalScrollBar();
     this->adjustScrollBars();
 
-    if(!this->isVisible() || (ldc->index < vscrollbar->value()) || (ldc->index > vscrollbar->value() + this->visibleLines()))
+    if(!this->isVisible() || (ldc->index < static_cast<u64>(vscrollbar->value())) || (ldc->index > vscrollbar->value() + this->visibleLines()))
         return;
 
     this->viewport()->update();
@@ -394,7 +394,7 @@ REDasm::SymbolPtr DisassemblerTextView::symbolUnderCursor()
     return doc->symbol(cur->wordUnderCursor());
 }
 
-bool DisassemblerTextView::isLineVisible(int line) const
+bool DisassemblerTextView::isLineVisible(u64 line) const
 {
     if(line < this->firstVisibleLine())
         return false;
@@ -405,15 +405,15 @@ bool DisassemblerTextView::isLineVisible(int line) const
     return true;
 }
 
-bool DisassemblerTextView::isColumnVisible(int column, int* xpos)
+bool DisassemblerTextView::isColumnVisible(u64 column, u64 *xpos)
 {
     QScrollBar* hscrollbar = this->horizontalScrollBar();
-    int lastxpos = hscrollbar->value() + this->width();
+    u64 lastxpos = hscrollbar->value() + this->width();
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
-    int adv = this->fontMetrics().horizontalAdvance(" ");
+    u64 adv = this->fontMetrics().horizontalAdvance(" ");
 #else
-    int adv = this->fontMetrics().width(" ");
+    u64 adv = this->fontMetrics().width(" ");
 #endif
 
     *xpos = adv * column;
@@ -423,7 +423,7 @@ bool DisassemblerTextView::isColumnVisible(int column, int* xpos)
         *xpos -= this->width();
         return false;
     }
-    else if(*xpos < hscrollbar->value())
+    else if(*xpos < static_cast<u64>(hscrollbar->value()))
     {
         *xpos = hscrollbar->value() - *xpos;
         return false;
@@ -462,10 +462,10 @@ void DisassemblerTextView::moveToSelection()
     else // Center on selection
     {
         QScrollBar* vscrollbar = this->verticalScrollBar();
-        vscrollbar->setValue(std::max(0, cur->currentLine() - this->visibleLines() / 2));
+        vscrollbar->setValue(std::max(static_cast<u64>(0), cur->currentLine() - this->visibleLines() / 2));
     }
 
-    int xpos = 0;
+    u64 xpos = 0;
 
     if(!this->isColumnVisible(cur->currentColumn(), &xpos))
     {

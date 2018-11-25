@@ -15,29 +15,29 @@ ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_flags(Listing
     m_printer = PrinterPtr(disassembler->assembler()->createPrinter(disassembler));
 }
 
-void ListingRenderer::render(size_t start, size_t count, void *userdata)
+void ListingRenderer::render(u64 start, u64 count, void *userdata)
 {
     ListingCursor* cur = m_document->cursor();
-    size_t end = start + count, line = start;
+    u64 end = start + count, line = start;
 
-    for(size_t i = 0; line < std::min(m_document->size(), end); i++, line++)
+    for(u64 i = 0; line < std::min(m_document->size(), end); i++, line++)
     {
         RendererLine rl;
         rl.userdata = userdata;
         rl.line = line;
         rl.index = i;
-        rl.highlighted = cur->currentLine() == static_cast<int>(line);
+        rl.highlighted = cur->currentLine() == line;
 
         this->getRendererLine(line, rl);
         this->renderLine(rl);
     }
 }
 
-int ListingRenderer::getLastColumn(size_t line)
+u64 ListingRenderer::getLastColumn(u64 line)
 {
     RendererLine rl;
     this->getRendererLine(line, rl);
-    int len = static_cast<int>(rl.length());
+    u64 len = static_cast<u64>(rl.length());
 
     if(!len)
         return 0;
@@ -45,7 +45,7 @@ int ListingRenderer::getLastColumn(size_t line)
     return len - 1;
 }
 
-std::string ListingRenderer::getLine(size_t line)
+std::string ListingRenderer::getLine(u64 line)
 {
     RendererLine rl;
     this->getRendererLine(line, rl);
@@ -66,7 +66,7 @@ std::string ListingRenderer::getSelectedText()
 
     if(startpos.first != endpos.first)
     {
-        int line = startpos.first;
+        u64 line = startpos.first;
 
         while(line <= endpos.first)
         {

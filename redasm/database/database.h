@@ -9,7 +9,7 @@
 //     std::string format;
 //
 //     Buffer buffer;                 // ZLib compressed stream
-
+//
 //     struct {
 //         u64 line, column;
 //         InstructionCache instructions;

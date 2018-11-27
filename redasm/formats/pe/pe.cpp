@@ -403,9 +403,14 @@ void PeFormat::loadSymbolTable()
                       address_t address = segment->address + entry->e_value;
 
                       if(segment->is(SegmentTypes::Code))// && (entry->e_sclass == C_EXT))
+                      {
                           m_document.function(address, name);
-                      else
-                          m_document.lock(address, name, SymbolTypes::Data);
+                          return;
+                      }
+
+                      SymbolPtr symbol = m_document.symbol(address);
+                      m_document.lock(address, name, symbol ? symbol->type : SymbolTypes::Data,
+                                                     symbol ? symbol->tag : 0); // Copy symbol type & tag, if exists
     },
 
     pointer<u8>(m_ntheaders->FileHeader.PointerToSymbolTable),

@@ -344,6 +344,8 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
         QMetaObject::invokeMethod(this, "checkCommandState", Qt::QueuedConnection);
     };
 
+    ui->pteOutput->clear();
+
     DisassemblerView *dv = new DisassemblerView(m_pbstatus, ui->leFilter, ui->stackView);
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
@@ -395,5 +397,9 @@ void MainWindow::checkCommandState()
     ui->action_Save_As->setEnabled(!disassembler->busy());
 }
 
-void MainWindow::log(const QString &s) { ui->pteOutput->insertPlainText(s + "\n"); }
+void MainWindow::log(const QString &s)
+{
+    ui->pteOutput->insertPlainText(s + "\n");
+    ui->pteOutput->ensureCursorVisible();
+}
 

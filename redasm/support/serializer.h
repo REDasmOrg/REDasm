@@ -2,7 +2,9 @@
 #define SERIALIZER_H
 
 #include <fstream>
-#include "../redasm.h"
+#include <algorithm>
+#include <functional>
+#include "../redasm_buffer.h"
 
 namespace REDasm {
 namespace Serializer {

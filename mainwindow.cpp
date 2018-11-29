@@ -138,7 +138,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
         {
             QKeyEvent* keyevent = static_cast<QKeyEvent*>(e);
 
-            if((obj == ui->leFilter) && keyevent->matches(QKeySequence::Cancel))
+            if(ui->leFilter->isVisible() && keyevent->matches(QKeySequence::Cancel))
             {
                 disassemblerview->clearFilter();
                 return true;

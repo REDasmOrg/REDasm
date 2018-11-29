@@ -58,10 +58,11 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
     ui->tvReferences->setModel(m_referencesmodel);
 
     ui->tvFunctions->setColumnHidden(3, true);
-    ui->tvFunctions->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    ui->tvFunctions->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-    ui->tvFunctions->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-    ui->tvFunctions->header()->moveSection(2, 1);
+    ui->tvFunctions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui->tvFunctions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tvFunctions->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    ui->tvFunctions->horizontalHeader()->moveSection(2, 1);
 
     ui->tvCallGraph->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvCallGraph->header()->setSectionResizeMode(1, QHeaderView::Stretch);

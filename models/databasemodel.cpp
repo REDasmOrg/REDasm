@@ -2,7 +2,7 @@
 #include <QMessageBox>
 #include <QFontDatabase>
 #include <QColor>
-#include "../redasm/signatures/patparser.h"
+#include <redasm/signatures/patparser.h>
 
 DatabaseModel::DatabaseModel(QObject *parent) : QAbstractListModel(parent) { }
 

@@ -1,7 +1,7 @@
 #include "listingitemmodel.h"
-#include "../../redasm/disassembler/listing/listingdocument.h"
-#include "../../redasm/plugins/format.h"
-#include "../../themeprovider.h"
+#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/plugins/format.h>
+#include "../themeprovider.h"
 #include <QColor>
 
 ListingItemModel::ListingItemModel(u32 itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }

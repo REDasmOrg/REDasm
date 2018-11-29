@@ -5,8 +5,8 @@
 #include <QPushButton>
 #include <QFileInfo>
 #include <QLabel>
-#include "redasm/plugins/plugins.h"
-#include "redasm/disassembler/disassembler.h"
+#include <redasm/plugins/plugins.h>
+#include <redasm/disassembler/disassembler.h>
 
 namespace Ui {
 class MainWindow;

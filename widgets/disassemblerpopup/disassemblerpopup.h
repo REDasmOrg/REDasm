@@ -2,9 +2,9 @@
 #define DISASSEMBLERPOPUP_H
 
 #include <QWidget>
+#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/disassemblerapi.h>
 #include "../../renderer/listingpopuprenderer.h"
-#include "../../redasm/disassembler/listing/listingdocument.h"
-#include "../../redasm/disassembler/disassemblerapi.h"
 #include "disassemblerpopupwidget.h"
 
 class DisassemblerPopup : public QWidget

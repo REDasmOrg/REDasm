@@ -2,9 +2,9 @@
 #define DISASSEMBLERGRAPHVIEW_H
 
 #include <QtWebChannel>
-#include "../graphview/graphview.h"
-#include "../../redasm/disassembler/disassemblerapi.h"
+#include <redasm/disassembler/disassemblerapi.h>
 #include "disassemblerwebchannel.h"
+#include "../graphview/graphview.h"
 
 class DisassemblerGraphView : public GraphView
 {

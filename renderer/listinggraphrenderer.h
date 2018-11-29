@@ -1,7 +1,7 @@
 #ifndef LISTINGGRAPHRENDERER_H
 #define LISTINGGRAPHRENDERER_H
 
-#include "../../redasm/disassembler/listing/listingrenderer.h"
+#include <redasm/disassembler/listing/listingrenderer.h>
 
 class ListingGraphRenderer: public REDasm::ListingRenderer
 {

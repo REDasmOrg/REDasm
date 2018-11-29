@@ -2,7 +2,7 @@
 #define MANUALLOADDIALOG_H
 
 #include <QDialog>
-#include "../redasm/plugins/plugins.h"
+#include <redasm/plugins/plugins.h>
 
 namespace Ui {
 class ManualLoadDialog;

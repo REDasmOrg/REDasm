@@ -1,6 +1,6 @@
 #include "callgraphmodel.h"
-#include "../../redasm/plugins/format.h"
-#include "../../themeprovider.h"
+#include <redasm/plugins/format.h>
+#include "../themeprovider.h"
 #include <QFontDatabase>
 #include <QColor>
 

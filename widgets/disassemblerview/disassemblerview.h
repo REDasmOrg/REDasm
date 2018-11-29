@@ -5,13 +5,13 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <qhexedit.h>
+#include <redasm/disassembler/disassembler.h>
 #include "../../models/callgraphmodel.h"
 #include "../../models/listingfiltermodel.h"
 #include "../../models/symboltablemodel.h"
 #include "../../models/referencesmodel.h"
 #include "../../models/segmentsmodel.h"
 #include "../../dialogs/gotodialog.h"
-#include "../../redasm/disassembler/disassembler.h"
 #include "../disassemblergraphview/disassemblergraphview.h"
 #include "../disassemblerlistingview/disassemblerlistingview.h"
 

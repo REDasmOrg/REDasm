@@ -2,7 +2,7 @@
 #define LISTINGMAP_H
 
 #include <QWidget>
-#include "../redasm/disassembler/disassembler.h"
+#include <redasm/disassembler/disassembler.h>
 
 class ListingMap : public QWidget
 {

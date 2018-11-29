@@ -1,6 +1,6 @@
 #include "manualloaddialog.h"
 #include "ui_manualloaddialog.h"
-#include "../redasm/formats/binary/binary.h"
+#include <redasm/formats/binary/binary.h>
 
 ManualLoadDialog::ManualLoadDialog(REDasm::FormatPlugin *format, QWidget *parent) : QDialog(parent), ui(new Ui::ManualLoadDialog), m_format(format)
 {

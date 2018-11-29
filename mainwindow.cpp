@@ -5,9 +5,9 @@
 #include "dialogs/databasedialog.h"
 #include "dialogs/settingsdialog.h"
 #include "dialogs/aboutdialog.h"
-#include "redasm/database/database.h"
 #include "redasmsettings.h"
 #include "themeprovider.h"
+#include <redasm/database/database.h>
 #include <QtCore>
 #include <QtGui>
 #include <QtWidgets>

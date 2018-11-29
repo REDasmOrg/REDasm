@@ -1,10 +1,6 @@
-[submodule "widgets/QHexEdit"]
-	path = widgets/QHexEdit
+[submodule "QHexEdit"]
+	path = QHexEdit
 	url = https://github.com/Dax89/QHexEdit.git
-[submodule "depends/capstone"]
-	path = depends/capstone
-	url = https://github.com/aquynh/capstone.git
-	branch = next
-[submodule "depends/zlib"]
-	path = depends/zlib
-	url = https://github.com/madler/zlib.git
+[submodule "LibREDasm"]
+	path = LibREDasm
+	url = https://github.com/REDasmOrg/REDasm-Library.git

@@ -2,8 +2,8 @@
 #define DISASSEMBLERWEBCHANNEL_H
 
 #include <QObject>
-#include "../../redasm/disassembler/disassemblerapi.h"
-#include "../../redasm/disassembler/listing/listingdocument.h"
+#include <redasm/disassembler/disassemblerapi.h>
+#include <redasm/disassembler/listing/listingdocument.h>
 
 class DisassemblerWebChannel : public QObject
 {

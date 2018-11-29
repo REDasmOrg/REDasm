@@ -4,8 +4,8 @@
 #include <QRegularExpression>
 #include <QTextDocument>
 #include <QTextCursor>
-#include "../redasm/disassembler/listing/listingdocument.h"
-#include "../redasm/disassembler/listing/listingrenderer.h"
+#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/listing/listingrenderer.h>
 
 class ListingRendererCommon
 {

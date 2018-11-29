@@ -3,7 +3,7 @@
 
 #include <QTextOption>
 #include <QFont>
-#include "../../redasm/disassembler/listing/listingrenderer.h"
+#include <redasm/disassembler/listing/listingrenderer.h>
 
 class ListingPopupRenderer: public REDasm::ListingRenderer
 {

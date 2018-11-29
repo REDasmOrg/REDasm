@@ -2,7 +2,7 @@
 #define LISTINGITEMMODEL_H
 
 #include "disassemblermodel.h"
-#include "../../redasm/disassembler/listing/listingdocument.h"
+#include <redasm/disassembler/listing/listingdocument.h>
 
 class ListingItemModel : public DisassemblerModel
 {

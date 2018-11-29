@@ -1,7 +1,7 @@
 #include "segmentsmodel.h"
-#include "../../redasm/plugins/format.h"
-#include "../../themeprovider.h"
+#include <redasm/plugins/format.h>
 #include <QColor>
+#include "../themeprovider.h"
 
 #define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 

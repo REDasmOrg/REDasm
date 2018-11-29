@@ -1,6 +1,6 @@
 #include "referencesdialog.h"
 #include "ui_referencesdialog.h"
-#include "../redasm/disassembler/listing/listingdocument.h"
+#include <redasm/disassembler/listing/listingdocument.h>
 
 ReferencesDialog::ReferencesDialog(REDasm::DisassemblerAPI *disassembler, const REDasm::SymbolPtr& symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog)
 {

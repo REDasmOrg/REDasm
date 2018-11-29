@@ -1,5 +1,5 @@
 #include "listingmap.h"
-#include "../../themeprovider.h"
+#include "../themeprovider.h"
 #include <QPainter>
 #include <cmath>
 

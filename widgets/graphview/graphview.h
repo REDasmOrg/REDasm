@@ -2,7 +2,7 @@
 #define GRAPHVIEW_H
 
 #include <QWebEngineView>
-#include "../../redasm/graph/graph.h"
+#include <redasm/graph/graph.h>
 
 class GraphView : public QWebEngineView
 {

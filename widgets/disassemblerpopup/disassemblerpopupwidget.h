@@ -2,8 +2,8 @@
 #define DISASSEMBLERPOPUPWIDGET_H
 
 #include <QPlainTextEdit>
-#include "../../redasm/disassembler/listing/listingdocument.h"
-#include "../../redasm/disassembler/disassemblerapi.h"
+#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/disassemblerapi.h>
 #include "../../renderer/listingpopuprenderer.h"
 
 class DisassemblerPopupWidget : public QPlainTextEdit

@@ -1,7 +1,7 @@
 #include "disassemblergraphview.h"
-#include "../../redasm/disassembler/graph/functiongraph.h"
 #include "../../renderer/listinggraphrenderer.h"
 #include "../../themeprovider.h"
+#include <redasm/disassembler/graph/functiongraph.h>
 #include <QTextDocument>
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_disassembler(NULL), m_currentfunction(NULL)

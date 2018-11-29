@@ -180,6 +180,9 @@
            <property name="itemsExpandable">
             <bool>false</bool>
            </property>
+           <property name="expandsOnDoubleClick">
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
         </layout>

@@ -60,10 +60,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Database, &QAction::triggered, this, &MainWindow::onDatabaseClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
 
-    connect(ui->tbOpen, &QToolButton::triggered, this, &MainWindow::onOpenClicked);
-    connect(ui->tbSave, &QToolButton::triggered, this, &MainWindow::onSaveClicked);
-    connect(ui->tbDatabase, &QToolButton::triggered, this, &MainWindow::onDatabaseClicked);
-    connect(ui->tbAbout, &QToolButton::triggered, this, &MainWindow::onAboutClicked);
+    connect(ui->tbOpen, &QToolButton::clicked, this, &MainWindow::onOpenClicked);
+    connect(ui->tbSave, &QToolButton::clicked, this, &MainWindow::onSaveClicked);
+    connect(ui->tbDatabase, &QToolButton::clicked, this, &MainWindow::onDatabaseClicked);
+    connect(ui->tbAbout, &QToolButton::clicked, this, &MainWindow::onAboutClicked);
 
     this->checkCommandLine();
     this->loadRecents();

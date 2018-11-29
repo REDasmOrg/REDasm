@@ -79,4 +79,4 @@ Read the [Wiki](https://github.com/REDasmOrg/REDasm/wiki) and send a Pull Reques
 - [Dagre-D3](https://github.com/dagrejs/dagre-d3): Graph Layout Rendering with D3
 
 ## License
-REDasm is released under GNU GPL2 License.
+REDasm is released under GNU GPL3 License.

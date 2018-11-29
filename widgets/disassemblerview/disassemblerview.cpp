@@ -17,8 +17,8 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
     ui->vSplitter->setSizes((QList<int>() << this->width() * 0.70
                                            << this->width() * 0.30));
 
-    ui->hSplitter->setSizes((QList<int>() << this->width() * 0.30
-                                          << this->width() * 0.70));
+    ui->hSplitter->setSizes((QList<int>() << this->width() * 0.25
+                                          << this->width() * 0.75));
 
     m_disassemblerlistingview = new DisassemblerListingView(ui->stackedWidget);
     m_disassemblergraphview = new DisassemblerGraphView(ui->stackedWidget);

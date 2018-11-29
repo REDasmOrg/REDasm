@@ -8,7 +8,7 @@ class SegmentsModel : public ListingItemModel
     Q_OBJECT
 
     public:
-        explicit SegmentsModel(QObject *parent = 0);
+        explicit SegmentsModel(QObject *parent = NULL);
 
     public:
         virtual QVariant data(const QModelIndex &index, int role) const;

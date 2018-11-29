@@ -5,15 +5,12 @@
 
 #define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 
-SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(REDasm::ListingItem::SegmentItem, parent)
-{
-
-}
+SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(REDasm::ListingItem::SegmentItem, parent) { }
 
 QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 {
     if(!m_disassembler)
-        return DisassemblerModel::data(index, role);
+        return QVariant();
 
     if(role == Qt::DisplayRole)
     {
@@ -39,7 +36,7 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
         return THEME_VALUE("address_list_fg");
     }
 
-    return DisassemblerModel::data(index, role);
+    return QVariant();
 }
 
 QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int role) const

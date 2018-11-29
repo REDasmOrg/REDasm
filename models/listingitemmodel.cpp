@@ -69,7 +69,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);
 
     if(!symbol)
-        return DisassemblerModel::data(index, role);
+        return QVariant();
 
     if(role == Qt::DisplayRole)
     {
@@ -113,7 +113,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
             return THEME_VALUE("string_fg");
     }
 
-    return DisassemblerModel::data(index, role);
+    return QVariant();
 }
 
 bool ListingItemModel::isItemAllowed(REDasm::ListingItem *item) const

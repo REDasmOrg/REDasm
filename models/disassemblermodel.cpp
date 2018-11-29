@@ -12,13 +12,3 @@ QVariant DisassemblerModel::headerData(int section, Qt::Orientation orientation,
 
     return QVariant();
 }
-
-QVariant DisassemblerModel::data(const QModelIndex &index, int role) const
-{
-    Q_UNUSED(index)
-
-    if(role == Qt::TextAlignmentRole)
-        return Qt::AlignCenter;
-
-    return QVariant();
-}

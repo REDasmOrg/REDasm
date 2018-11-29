@@ -94,8 +94,6 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
             }
         }
     }
-    else if((role == Qt::TextAlignmentRole) && (index.column() > 0))
-        return Qt::AlignCenter;
 
     return QVariant();
 }

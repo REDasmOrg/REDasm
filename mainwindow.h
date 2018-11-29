@@ -25,6 +25,7 @@ class MainWindow : public QMainWindow
         virtual void dragEnterEvent(QDragEnterEvent* e);
         virtual void dragMoveEvent(QDragMoveEvent* e);
         virtual void dropEvent(QDropEvent* e);
+        bool eventFilter(QObject* obj, QEvent* e);
 
     private slots:
         void onOpenClicked();
@@ -35,6 +36,7 @@ class MainWindow : public QMainWindow
         void onDatabaseClicked();
         void onAboutClicked();
         void checkCommandState();
+        void log(const QString &s);
 
     private:
         void loadGeometry();

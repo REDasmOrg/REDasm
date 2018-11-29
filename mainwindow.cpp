@@ -18,8 +18,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
 
+    REDasm::setLoggerCallback([&](const std::string& s) {
+        QMetaObject::invokeMethod(this, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
+    });
+
     REDasm::init(QDir::currentPath().toStdString());
+
+    REDasm::log(QString("REDasm loaded with %1 formats and %2 assemblers").arg(REDasm::formats.size())
+                                                                          .arg(REDasm::assemblers.size()).toStdString());
+
     ui->setupUi(this);
+    ui->leFilter->setVisible(false);
+    ui->pteOutput->setMinimumWidth(0);
+    ui->splitter->setStretchFactor(0, 1);
+    ui->splitter->setStretchFactor(1, 0);
 
     ui->tbAbout->setIcon(THEME_ICON("about"));
     ui->tbDatabase->setIcon(THEME_ICON("database"));
@@ -48,8 +60,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Database, &QAction::triggered, this, &MainWindow::onDatabaseClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
 
+    connect(ui->tbOpen, &QToolButton::triggered, this, &MainWindow::onOpenClicked);
+    connect(ui->tbSave, &QToolButton::triggered, this, &MainWindow::onSaveClicked);
+    connect(ui->tbDatabase, &QToolButton::triggered, this, &MainWindow::onDatabaseClicked);
+    connect(ui->tbAbout, &QToolButton::triggered, this, &MainWindow::onAboutClicked);
+
     this->checkCommandLine();
     this->loadRecents();
+
+    qApp->installEventFilter(this);
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -107,6 +126,32 @@ void MainWindow::dropEvent(QDropEvent *e)
 
       this->load(locfile);
       e->acceptProposedAction();
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *e)
+{
+    DisassemblerView* disassemblerview = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+
+    if(disassemblerview)
+    {
+        if(e->type() == QEvent::KeyPress)
+        {
+            QKeyEvent* keyevent = static_cast<QKeyEvent*>(e);
+
+            if((obj == ui->leFilter) && keyevent->matches(QKeySequence::Cancel))
+            {
+                disassemblerview->clearFilter();
+                return true;
+            }
+            else if(keyevent->key() == Qt::Key_F3)
+            {
+                disassemblerview->toggleFilter();
+                return true;
+            }
+        }
+    }
+
+    return QMainWindow::eventFilter(obj, e);
 }
 
 void MainWindow::onOpenClicked()
@@ -299,9 +344,12 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
         QMetaObject::invokeMethod(this, "checkCommandState", Qt::QueuedConnection);
     };
 
-    DisassemblerView *dv = new DisassemblerView(m_lblstatus, m_pbstatus, ui->stackView);
+    DisassemblerView *dv = new DisassemblerView(m_pbstatus, ui->leFilter, ui->stackView);
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
+
+    ui->splitter->setSizes((QList<int>() << this->height() * 0.9 <<
+                                            this->height() * 0.1));
 
     QWidget* oldwidget = ui->stackView->widget(0);
     ui->stackView->removeWidget(oldwidget);
@@ -346,3 +394,6 @@ void MainWindow::checkCommandState()
     ui->action_Save->setEnabled(!disassembler->busy());
     ui->action_Save_As->setEnabled(!disassembler->busy());
 }
+
+void MainWindow::log(const QString &s) { ui->pteOutput->insertPlainText(s + "\n"); }
+

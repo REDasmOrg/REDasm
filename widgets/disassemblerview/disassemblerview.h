@@ -1,9 +1,8 @@
 #ifndef DISASSEMBLERVIEW_H
 #define DISASSEMBLERVIEW_H
 
-#include <QGraphicsView>
 #include <QWidget>
-#include <QLabel>
+#include <QLineEdit>
 #include <QMenu>
 #include <qhexedit.h>
 #include "../../models/callgraphmodel.h"
@@ -25,10 +24,13 @@ class DisassemblerView : public QWidget
     Q_OBJECT
 
     public:
-        explicit DisassemblerView(QLabel* lblstatus, QPushButton* pbstatus, QWidget *parent = 0);
+        explicit DisassemblerView(QPushButton* pbstatus, QLineEdit* lefilter, QWidget *parent = NULL);
         ~DisassemblerView();
         REDasm::Disassembler* disassembler();
         void setDisassembler(REDasm::Disassembler* disassembler);
+        void toggleFilter();
+        void showFilter();
+        void clearFilter();
 
     private slots:
         void changeDisassemblerStatus();
@@ -43,21 +45,15 @@ class DisassemblerView : public QWidget
         void initializeCallGraph(address_t address);
         void updateCallGraph();
         void displayCurrentReferences();
-        void log(const QString& s);
         void switchGraphListing();
-        void ensureOutputVisible();
-        void showFilter();
-        void clearFilter();
         void showHexDump(address_t address);
         void showMenu(const QPoint&);
         void showGoto();
 
-    protected:
-        bool eventFilter(QObject* obj, QEvent* e);
-
     private:
         void createActions();
         void filterSymbols();
+        void showListingOrGraph();
         ListingFilterModel* getSelectedFilterModel();
 
     private:
@@ -67,8 +63,8 @@ class DisassemblerView : public QWidget
         QModelIndex m_currentindex;
         QHexDocument* m_hexdocument;
         QMenu* m_contextmenu;
-        QLabel* m_lblstatus;
         QPushButton* m_pbstatus;
+        QLineEdit* m_lefilter;
         std::unique_ptr<REDasm::Disassembler> m_disassembler;
         ListingFilterModel *m_segmentsmodel, *m_functionsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
         CallGraphModel* m_callgraphmodel;

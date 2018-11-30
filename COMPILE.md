@@ -5,7 +5,7 @@
 ****
 ### Building REDasm on Windows
 **NOTE:** Visual Studio 2017 is required in order to compile REDasm.
-<br>
+<br><br>
 Open a Command prompt and execute:
 ```
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"

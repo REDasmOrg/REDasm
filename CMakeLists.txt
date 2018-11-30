@@ -145,7 +145,7 @@ set(REDASM_DATABASE_SRC ${CMAKE_SOURCE_DIR}/database)
 set(REDASM_DATABASE_DEST ${CMAKE_BINARY_DIR}/database)
 
 if(WIN32)
-    set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.dll)
+    set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.lib)
 else()
     set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.so)
 endif()

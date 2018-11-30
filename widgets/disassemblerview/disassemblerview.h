@@ -5,6 +5,7 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <qhexedit.h>
+#include <qhexedit.h>
 #include <redasm/disassembler/disassembler.h>
 #include "../../models/callgraphmodel.h"
 #include "../../models/listingfiltermodel.h"

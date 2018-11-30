@@ -31,8 +31,10 @@ You can hack, extend and improve REDasm without any issues and limitations.<br>
 ## Compiling from Source
 ```
 git clone --recursive https://github.com/REDasmOrg/REDasm.git
-cd REDasm
-qmake && make
+mkdir build
+cd build
+cmake ..
+make
 ```
 
 ## Compiling from Source with docker
@@ -68,8 +70,9 @@ Nightly builds are produced by AppVeyor (Windows) and TravisCI (Linux) and they 
 Read the [Wiki](https://github.com/REDasmOrg/REDasm/wiki) and send a Pull Request!
 
 ## Requirements
-- C++11 compiler (tested on GCC 6.x)
-- Qt >= 5.11
+- CMake >= 3.10
+- C++11 compiler (tested on GCC 6.x and MSVC2017)
+- Qt >= 5.10
 
 ## Dependencies
 - [Capstone](https://github.com/aquynh/capstone) : Capstone provides the most common architectures

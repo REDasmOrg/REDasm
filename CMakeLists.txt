@@ -138,6 +138,7 @@ add_executable(${PROJECT_NAME}
                ${CMAKE_SOURCE_DIR}/res/windows/resources.rc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC LibREDasm QHexEdit)
+add_dependencies(${PROJECT_NAME} LibREDasm)
 
 target_link_libraries(${PROJECT_NAME}
     Qt5::Core

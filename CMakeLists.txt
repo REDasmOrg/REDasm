@@ -124,7 +124,13 @@ set(RESOURCES
     resources.qrc
     themes.qrc)
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${FORMS} ${RESOURCES})
+add_executable(${PROJECT_NAME}
+               ${SOURCES}
+               ${HEADERS}
+               ${FORMS}
+               ${RESOURCES}
+               ${CMAKE_SOURCE_DIR}/res/windows/resources.rc)
+
 target_include_directories(${PROJECT_NAME} PUBLIC LibREDasm QHexEdit)
 
 target_link_libraries(${PROJECT_NAME}

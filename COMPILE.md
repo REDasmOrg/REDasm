@@ -1,11 +1,12 @@
 ## Requirements for all platforms
 * CMake >= 3.10
 * Qt >= 5.10
-* C++11 capable compiler (GCC and MSVC are supported)
+* C++11 capable compiler
+  * GCC on Linux
+  * Visual Studio 2017 on Windows
+* git
 ****
 ### Building REDasm on Windows
-**NOTE:** Visual Studio 2017 is required in order to compile REDasm.
-<br><br>
 Open a Command prompt and execute:
 ```
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"

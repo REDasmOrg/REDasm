@@ -29,13 +29,7 @@ I have designed and programmed REDasm because I always wanted an *easy-to-use* F
 You can hack, extend and improve REDasm without any issues and limitations.<br>
 
 ## Compiling from Source
-```
-git clone --recursive https://github.com/REDasmOrg/REDasm.git
-mkdir build
-cd build
-cmake ..
-make
-```
+See [COMPILE.md](COMPILE.md) (for Windows and Linux).
 
 ## Compiling from Source with docker
 ```

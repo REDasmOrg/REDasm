@@ -39,7 +39,7 @@ void ManualLoadDialog::loadBits()
 
 void ManualLoadDialog::loadAssemblers()
 {
-    std::for_each(REDasm::assemblers.begin(), REDasm::assemblers.end(), [this](const std::pair<std::string, REDasm::AssemblerPlugin_Entry>& item) {
+    std::for_each(REDasm::Plugins::assemblers.begin(), REDasm::Plugins::assemblers.end(), [this](const std::pair<std::string, REDasm::AssemblerPlugin_Entry>& item) {
         ui->cbAssemblers->addItem(QString::fromStdString(item.first));
     });
 }

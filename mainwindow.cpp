@@ -24,8 +24,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     REDasm::init(QDir::currentPath().toStdString());
 
-    REDasm::log(QString("REDasm loaded with %1 formats and %2 assemblers").arg(REDasm::formats.size())
-                                                                          .arg(REDasm::assemblers.size()).toStdString());
+    REDasm::log(QString("REDasm loaded with %1 formats and %2 assemblers").arg(REDasm::Plugins::formats.size())
+                                                                          .arg(REDasm::Plugins::assemblers.size()).toStdString());
 
     ui->setupUi(this);
     ui->leFilter->setVisible(false);

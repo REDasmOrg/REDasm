@@ -39,10 +39,15 @@ add_definitions(-DGIT_VERSION="${REDASM_BUILD_VERSION}")
 add_subdirectory(LibREDasm)
 add_subdirectory(QHexEdit)
 
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_subdirectory(unittest)
+endif()
+
 QT5_WRAP_UI(UI_HDRS ${UI_FILES})
 
 SET(SOURCES
     ${QHEXEDIT_SOURCES}
+    ${REDASM_TEST_SOURCES}
     main.cpp
     mainwindow.cpp
     widgets/disassemblerview/disassemblerview.cpp
@@ -78,6 +83,7 @@ SET(SOURCES
 
 SET(HEADERS
     ${QHEXEDIT_HEADERS}
+    ${REDASM_TEST_HEADERS}
     mainwindow.h
     widgets/disassemblerview/disassemblerview.h
     models/disassemblermodel.h
@@ -145,7 +151,7 @@ set(REDASM_DATABASE_SRC ${CMAKE_SOURCE_DIR}/database)
 set(REDASM_DATABASE_DEST ${CMAKE_BINARY_DIR}/database)
 
 if(WIN32)
-    set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.lib)
+    set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.dll)
 else()
     set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.so)
 endif()

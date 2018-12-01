@@ -32,6 +32,7 @@ class MainWindow : public QMainWindow
         void onSaveClicked();
         void onSaveAsClicked();
         void onRecentFileClicked();
+        void onExitClicked();
         void onSettingsClicked();
         void onDatabaseClicked();
         void onAboutClicked();
@@ -46,6 +47,7 @@ class MainWindow : public QMainWindow
         void checkCommandLine();
         bool checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler);
         void showDisassemblerView(REDasm::Disassembler *disassembler);
+        bool canClose();
         void initDisassembler();
 
     private:

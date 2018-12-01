@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpenClicked);
     connect(ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveClicked);
     connect(ui->action_Save_As, &QAction::triggered, this, &MainWindow::onSaveAsClicked);
+    connect(ui->action_Exit, &QAction::triggered, this, &MainWindow::onExitClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
     connect(ui->action_Database, &QAction::triggered, this, &MainWindow::onDatabaseClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
@@ -75,22 +76,12 @@ MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {
-    if(!m_buffer.empty())
+    if(!this->canClose())
     {
-        QMessageBox msgbox(this);
-        msgbox.setWindowTitle("Closing");
-        msgbox.setText("Are you sure?");
-        msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-
-        if(msgbox.exec() != QMessageBox::Yes)
-        {
-            e->ignore();
-            return;
-        }
+        e->ignore();
+        return;
     }
 
-    REDasmSettings settings;
-    settings.changeGeometry(this->saveGeometry());
     QWidget::closeEvent(e);
 }
 
@@ -200,6 +191,14 @@ void MainWindow::onRecentFileClicked()
 
     if(sender)
         this->load(sender->data().toString());
+}
+
+void MainWindow::onExitClicked()
+{
+    if(!this->canClose())
+        return;
+
+    qApp->exit();
 }
 
 void MainWindow::onSettingsClicked()
@@ -358,6 +357,24 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
     oldwidget->deleteLater();
 
     this->checkCommandState();
+}
+
+bool MainWindow::canClose()
+{
+    if(!m_buffer.empty())
+    {
+        QMessageBox msgbox(this);
+        msgbox.setWindowTitle("Closing");
+        msgbox.setText("Are you sure?");
+        msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+        if(msgbox.exec() != QMessageBox::Yes)
+            return false;
+    }
+
+    REDasmSettings settings;
+    settings.changeGeometry(this->saveGeometry());
+    return true;
 }
 
 void MainWindow::initDisassembler()

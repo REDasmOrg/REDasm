@@ -448,13 +448,13 @@ void DisassemblerView::clearFilter()
     m_stringsmodel->clearFilter();
 }
 
-void DisassemblerView::showHexDump(address_t address)
+void DisassemblerView::showHexDump(address_t address, u64 len)
 {
-    ui->tabView->setCurrentWidget(ui->hexEdit);
-
     offset_t offset = m_disassembler->format()->offset(address);
     QHexCursor* cursor = ui->hexEdit->document()->cursor();
-    cursor->setSelectionRange(offset, 1);
+    cursor->setSelectionRange(offset, len);
+
+    ui->tabView->setCurrentWidget(ui->tabHexDump);
 }
 
 void DisassemblerView::showMenu(const QPoint&) { m_contextmenu->exec(QCursor::pos()); }

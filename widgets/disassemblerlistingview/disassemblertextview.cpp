@@ -1,5 +1,6 @@
 #include "disassemblertextview.h"
 #include "../../models/disassemblermodel.h"
+#include <redasm/plugins/format.h>
 #include <QtWidgets>
 #include <QtGui>
 #include <cmath>
@@ -493,8 +494,8 @@ void DisassemblerTextView::createContextMenu()
     m_actxrefs = m_contextmenu->addAction("Cross References", [&]() { this->showReferencesUnderCursor(); });
     m_actfollow = m_contextmenu->addAction("Follow", [&]() { this->followUnderCursor(); });
     m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
-    m_actcallgraph = m_contextmenu->addAction("Call Graph", [this]() { this->showCallGraph(); });
-    m_acthexdump = m_contextmenu->addAction("Hex Dump", [this]() { });
+    m_actcallgraph = m_contextmenu->addAction("Call Graph", [&]() { this->showCallGraph(); });
+    m_acthexdump = m_contextmenu->addAction("Hex Dump", [&]() { this->showHexDump(); });
     m_contextmenu->addSeparator();
     m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
     m_actforward = m_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward);
@@ -583,6 +584,21 @@ void DisassemblerTextView::showCallGraph()
     }
 
     emit callGraphRequested(symbol->address);
+}
+
+void DisassemblerTextView::showHexDump()
+{
+    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+
+    if(!symbol)
+        return;
+
+    u64 len = sizeof(m_disassembler->format()->addressWidth());
+
+    if(symbol->is(REDasm::SymbolTypes::String))
+        len = m_disassembler->readString(symbol).size();
+
+    emit hexDumpRequested(symbol->address, len);
 }
 
 void DisassemblerTextView::showPopup(const QPoint& pos)

@@ -64,9 +64,9 @@ void ListingMap::removeItem(const REDasm::ListingItem *item)
 
 void ListingMap::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
 {
-    if(!ldc->removed)
+    if(ldc->isInserted())
         this->addItem(ldc->item);
-    else
+    else if(ldc->isRemoved())
         this->removeItem(ldc->item);
 }
 

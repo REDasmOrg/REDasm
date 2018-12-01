@@ -129,7 +129,7 @@ void ListingItemModel::onListingChanged(const REDasm::ListingDocumentChanged *ld
     if(!this->isItemAllowed(ldc->item))
         return;
 
-    if(ldc->removed)
+    if(ldc->isRemoved())
     {
         int idx = REDasm::Listing::indexOf(&m_items, ldc->item);
 
@@ -137,7 +137,7 @@ void ListingItemModel::onListingChanged(const REDasm::ListingDocumentChanged *ld
         m_items.removeAt(idx);
         this->endRemoveRows();
     }
-    else
+    else if(ldc->isInserted())
     {
         auto it = REDasm::Listing::insertionPoint(&m_items, ldc->item);
         int idx = std::distance(m_items.begin(), it);

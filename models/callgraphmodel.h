@@ -15,6 +15,7 @@ class CallGraphModel : public QAbstractItemModel
         explicit CallGraphModel(QObject *parent = nullptr);
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
         void initializeGraph(address_t address);
+        void clearGraph();
 
     public slots:
         void populateCallGraph(const QModelIndex& index);

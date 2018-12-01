@@ -350,6 +350,13 @@ void DisassemblerView::updateCallGraph()
 
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::ListingItem* item = doc->functionStart(doc->currentItem()->address);
+
+    if(!item)
+    {
+        m_callgraphmodel->clearGraph();
+        return;
+    }
+
     m_callgraphmodel->initializeGraph(item->address);
     ui->tvCallGraph->expandToDepth(0);
 }

@@ -14,12 +14,7 @@ void CallGraphModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 
 void CallGraphModel::initializeGraph(address_t address)
 {
-    this->beginResetModel();
-    m_root = NULL;
-    m_depths.clear();
-    m_children.clear();
-    m_parents.clear();
-    this->endResetModel();
+    this->clearGraph();
 
     REDasm::ListingDocument* doc = m_disassembler->document();
     auto it = doc->functionItem(address);
@@ -31,6 +26,16 @@ void CallGraphModel::initializeGraph(address_t address)
         m_parents[m_root] = NULL;
         this->populate(m_root);
     }
+}
+
+void CallGraphModel::clearGraph()
+{
+    this->beginResetModel();
+    m_root = NULL;
+    m_depths.clear();
+    m_children.clear();
+    m_parents.clear();
+    this->endResetModel();
 }
 
 void CallGraphModel::populateCallGraph(const QModelIndex &index) { this->populate(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer())); }

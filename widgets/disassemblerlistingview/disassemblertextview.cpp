@@ -115,6 +115,11 @@ void DisassemblerTextView::goTo(REDasm::ListingItem *item)
     doc->cursor()->moveTo(idx);
 }
 
+void DisassemblerTextView::addComment()
+{
+    QString res = QInputDialog::getText(this, QString("Add Comment"), "Comment:", QLineEdit::Normal);
+    m_disassembler->document()->comment(m_disassembler->document()->currentItem()->address, res.toStdString());
+}
 void DisassemblerTextView::goBack() { m_disassembler->document()->cursor()->goBack();  }
 void DisassemblerTextView::goForward() { m_disassembler->document()->cursor()->goForward(); }
 
@@ -495,6 +500,7 @@ void DisassemblerTextView::createContextMenu()
     m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
     m_actcallgraph = m_contextmenu->addAction("Call Graph", [this]() { this->showCallGraph(); });
     m_acthexdump = m_contextmenu->addAction("Hex Dump", [this]() { });
+    m_actcomment = m_contextmenu->addAction("Add Comment", this, &DisassemblerTextView::addComment);
     m_contextmenu->addSeparator();
     m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
     m_actforward = m_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward);
@@ -508,6 +514,7 @@ void DisassemblerTextView::adjustContextMenu()
 {
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+    REDasm::ListingItem* item = doc->currentItem();
     REDasm::Segment* segment = NULL;
 
     m_actback->setVisible(this->canGoBack());
@@ -516,7 +523,6 @@ void DisassemblerTextView::adjustContextMenu()
 
     if(!symbol)
     {
-        REDasm::ListingItem* item = doc->currentItem();
         segment = doc->segment(item->address);
         symbol = doc->functionStartSymbol(item->address);
 
@@ -545,6 +551,8 @@ void DisassemblerTextView::adjustContextMenu()
 
     m_actfollow->setText(QString("Follow %1").arg(S_TO_QS(symbol->name)));
     m_actfollow->setVisible(symbol->is(REDasm::SymbolTypes::Code));
+
+    m_actcomment->setVisible(item->is(REDasm::ListingItem::InstructionItem));
 
     m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
     m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));

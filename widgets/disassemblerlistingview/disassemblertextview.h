@@ -24,6 +24,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void copy();
         void goTo(REDasm::ListingItem *item);
         void goTo(address_t address);
+        void addComment();
         void goBack();
         void goForward();
 
@@ -75,7 +76,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         REDasm::DisassemblerAPI* m_disassembler;
         DisassemblerPopup* m_disassemblerpopup;
         QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actcallgraph;
-        QAction *m_actgoto, *m_acthexdump, *m_actback, *m_actforward, *m_actcopy;
+        QAction *m_actgoto, *m_acthexdump, *m_actcomment, *m_actback, *m_actforward, *m_actcopy;
         QMenu* m_contextmenu;
         QTimer* m_blinktimer;
 };

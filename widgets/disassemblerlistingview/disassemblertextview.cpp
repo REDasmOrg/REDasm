@@ -494,18 +494,14 @@ void DisassemblerTextView::moveToSelection()
 void DisassemblerTextView::createContextMenu()
 {
     m_contextmenu = new QMenu(this);
-    m_actrename = m_contextmenu->addAction("Rename", [=]() { this->renameCurrentSymbol(); } );
-
+    m_actrename = m_contextmenu->addAction("Rename", this, &DisassemblerTextView::renameCurrentSymbol);
     m_contextmenu->addSeparator();
-    m_actxrefs = m_contextmenu->addAction("Cross References", [&]() { this->showReferencesUnderCursor(); });
-    m_actfollow = m_contextmenu->addAction("Follow", [&]() { this->followUnderCursor(); });
+    m_actxrefs = m_contextmenu->addAction("Cross References", this, &DisassemblerTextView::showReferencesUnderCursor);
+    m_actfollow = m_contextmenu->addAction("Follow", this, &DisassemblerTextView::followUnderCursor);
     m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
-    m_actcallgraph = m_contextmenu->addAction("Call Graph", [&]() { this->showCallGraph(); });
-    m_acthexdump = m_contextmenu->addAction("Hex Dump", [&]() { this->showHexDump(); });
-    m_actcallgraph = m_contextmenu->addAction("Call Graph", [this]() { this->showCallGraph(); });
-    m_acthexdump = m_contextmenu->addAction("Hex Dump", [this]() { });
+    m_actcallgraph = m_contextmenu->addAction("Call Graph", this, &DisassemblerTextView::showCallGraph);
+    m_acthexdump = m_contextmenu->addAction("Hex Dump", this, &DisassemblerTextView::showHexDump);
     m_actcomment = m_contextmenu->addAction("Add Comment", this, &DisassemblerTextView::addComment);
-
     m_contextmenu->addSeparator();
     m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
     m_actforward = m_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward);

@@ -24,12 +24,17 @@ class DisassemblerTextView : public QAbstractScrollArea
         void copy();
         void goTo(REDasm::ListingItem *item);
         void goTo(address_t address);
-        void addComment();
         void goBack();
         void goForward();
 
     private slots:
         void blinkCursor();
+        void showReferencesUnderCursor();
+        void renameCurrentSymbol();
+        bool followUnderCursor();
+        void addComment();
+        void showCallGraph();
+        void showHexDump();
 
     protected:
         virtual void scrollContentsBy(int dx, int dy);
@@ -55,12 +60,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void moveToSelection();
         void createContextMenu();
         void adjustContextMenu();
-        void showReferencesUnderCursor();
-        bool followUnderCursor();
-        void showCallGraph();
-        void showHexDump();
         void showPopup(const QPoint &pos);
-        void renameCurrentSymbol();
 
     signals:
         void switchView();

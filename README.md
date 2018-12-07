@@ -7,7 +7,7 @@
     <a href="https://ci.appveyor.com/project/Dax89/redasm">
       <img src="https://img.shields.io/appveyor/ci/Dax89/redasm.svg?style=flat-square&logo=appveyor">
     </a>
-    <img src="https://img.shields.io/badge/license-GPL2-8e725e.svg?style=flat-square">
+    <img src="https://img.shields.io/badge/license-GPL3-8e725e.svg?style=flat-square">
     <a href="https://github.com/ellerbrock/open-source-badges/">
       <img src="https://badges.frapsoft.com/os/v1/open-source.png?v=103">
     </a>

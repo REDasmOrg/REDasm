@@ -57,8 +57,6 @@ SET(SOURCES
     models/referencesmodel.cpp
     dialogs/referencesdialog.cpp
     dialogs/gotodialog.cpp
-    dialogs/databasedialog.cpp
-    models/databasemodel.cpp
     dialogs/aboutdialog.cpp
     dialogs/manualloaddialog.cpp
     themeprovider.cpp
@@ -92,8 +90,6 @@ SET(HEADERS
     models/referencesmodel.h
     dialogs/referencesdialog.h
     dialogs/gotodialog.h
-    dialogs/databasedialog.h
-    models/databasemodel.h
     dialogs/aboutdialog.h
     dialogs/manualloaddialog.h
     themeprovider.h
@@ -121,7 +117,6 @@ set(FORMS
     widgets/disassemblerview/disassemblerview.ui
     dialogs/referencesdialog.ui
     dialogs/gotodialog.ui
-    dialogs/databasedialog.ui
     dialogs/aboutdialog.ui
     dialogs/manualloaddialog.ui
     dialogs/settingsdialog.ui)

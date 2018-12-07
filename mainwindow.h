@@ -33,8 +33,8 @@ class MainWindow : public QMainWindow
         void onSaveAsClicked();
         void onRecentFileClicked();
         void onExitClicked();
+        void onImportSignatureClicked();
         void onSettingsClicked();
-        void onDatabaseClicked();
         void onAboutClicked();
         void checkCommandState();
         void log(const QString &s);

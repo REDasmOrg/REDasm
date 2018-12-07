@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include "widgets/disassemblerview/disassemblerview.h"
 #include "dialogs/manualloaddialog.h"
-#include "dialogs/databasedialog.h"
 #include "dialogs/settingsdialog.h"
 #include "dialogs/aboutdialog.h"
 #include "redasmsettings.h"
@@ -33,10 +32,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->splitter->setStretchFactor(0, 1);
     ui->splitter->setStretchFactor(1, 0);
 
-    ui->tbAbout->setIcon(THEME_ICON("about"));
-    ui->tbDatabase->setIcon(THEME_ICON("database"));
     ui->tbOpen->setIcon(THEME_ICON("open"));
     ui->tbSave->setIcon(THEME_ICON("save"));
+    ui->tbImportSignature->setIcon(THEME_ICON("database_import"));
+    ui->tbAbout->setIcon(THEME_ICON("about"));
 
     m_lblstatus = new QLabel(this);
 
@@ -57,13 +56,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveClicked);
     connect(ui->action_Save_As, &QAction::triggered, this, &MainWindow::onSaveAsClicked);
     connect(ui->action_Exit, &QAction::triggered, this, &MainWindow::onExitClicked);
+    connect(ui->action_Import_Signature, &QAction::triggered, this, &MainWindow::onImportSignatureClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
-    connect(ui->action_Database, &QAction::triggered, this, &MainWindow::onDatabaseClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
 
     connect(ui->tbOpen, &QToolButton::clicked, this, &MainWindow::onOpenClicked);
     connect(ui->tbSave, &QToolButton::clicked, this, &MainWindow::onSaveClicked);
-    connect(ui->tbDatabase, &QToolButton::clicked, this, &MainWindow::onDatabaseClicked);
+    connect(ui->tbImportSignature, &QToolButton::clicked, this, &MainWindow::onImportSignatureClicked);
     connect(ui->tbAbout, &QToolButton::clicked, this, &MainWindow::onAboutClicked);
 
     this->checkCommandLine();
@@ -199,6 +198,29 @@ void MainWindow::onExitClicked()
         return;
 
     qApp->exit();
+}
+
+void MainWindow::onImportSignatureClicked()
+{
+    QString s = QFileDialog::getOpenFileName(this, "Load Signature...", QString(), "REDasm Signature Database (*.sdb)");
+
+    if(s.isEmpty())
+        return;
+
+    DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+
+    if(!currdv)
+        return;
+
+    REDasm::DisassemblerAPI* disassembler = currdv->disassembler();
+
+    if(disassembler->loadSignature(s.toStdString()))
+        return;
+
+    QMessageBox msgbox(this);
+    msgbox.setWindowTitle("Load Error");
+    msgbox.setText(QString("Error loading \"%1\"").arg(QFileInfo(s).fileName()));
+    msgbox.setStandardButtons(QMessageBox::Ok);
 }
 
 void MainWindow::onSettingsClicked()
@@ -390,12 +412,6 @@ void MainWindow::initDisassembler()
     disassembler->disassemble();
 }
 
-void MainWindow::onDatabaseClicked()
-{
-    DatabaseDialog dlgdatabase(this);
-    dlgdatabase.exec();
-}
-
 void MainWindow::onAboutClicked()
 {
     AboutDialog dlgabout(this);
@@ -410,8 +426,13 @@ void MainWindow::checkCommandState()
         return;
 
     REDasm::DisassemblerAPI* disassembler = currdv->disassembler();
+
     ui->action_Save->setEnabled(!disassembler->busy());
     ui->action_Save_As->setEnabled(!disassembler->busy());
+    ui->action_Import_Signature->setEnabled(!disassembler->busy());
+
+    ui->tbSave->setEnabled(!disassembler->busy());
+    ui->tbImportSignature->setEnabled(!disassembler->busy());
 }
 
 void MainWindow::log(const QString &s)

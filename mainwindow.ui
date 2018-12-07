@@ -88,7 +88,10 @@
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="tbDatabase">
+        <widget class="QToolButton" name="tbImportSignature">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -231,7 +234,7 @@
     <property name="title">
      <string>&amp;REDasm</string>
     </property>
-    <addaction name="action_Database"/>
+    <addaction name="action_Import_Signature"/>
     <addaction name="action_Settings"/>
    </widget>
    <widget class="QMenu" name="menu">
@@ -268,11 +271,6 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="action_Database">
-   <property name="text">
-    <string>&amp;Database</string>
-   </property>
-  </action>
   <action name="action_About_REDasm">
    <property name="text">
     <string>&amp;About REDasm</string>
@@ -294,6 +292,17 @@
    </property>
    <property name="text">
     <string>Sa&amp;ve As...</string>
+   </property>
+  </action>
+  <action name="action_Import_Signature">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Import Signature</string>
+   </property>
+   <property name="toolTip">
+    <string>Import Signature</string>
    </property>
   </action>
  </widget>

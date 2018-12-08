@@ -17,7 +17,7 @@ ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::Disassembler
 REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos, int firstline)
 {
     REDasm::ListingCursor::Position cp;
-    cp.first = firstline + std::floor(pos.y() / m_fontmetrics.height());
+    cp.first = std::min(static_cast<u64>(firstline + std::floor(pos.y() / m_fontmetrics.height())), m_document->lastLine());
     cp.second = std::numeric_limits<u64>::max();
 
     REDasm::RendererLine rl;

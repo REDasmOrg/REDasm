@@ -322,7 +322,10 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         if(!cur->currentLine())
             return;
 
-        u64 pageline = std::max(static_cast<u64>(0), this->firstVisibleLine() - this->visibleLines());
+        u64 pageline = 0;
+
+        if(this->firstVisibleLine() > this->visibleLines())
+            pageline = std::max(static_cast<u64>(0), this->firstVisibleLine() - this->visibleLines());
 
         if(e->matches(QKeySequence::MoveToPreviousPage))
             cur->moveTo(pageline, std::min(cur->currentColumn(), m_renderer->getLastColumn(pageline)));

@@ -149,7 +149,13 @@ else()
     set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.so)
 endif()
 
+#set(REDASM_DATABASE_SRC ${CMAKE_SOURCE_DIR}/database)
+set(REDASM_DATABASE_DEST ${CMAKE_BINARY_DIR}/database)
+
 # Post build commands
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${REDASM_DATABASE_DEST})
+
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy ${LIB_REDASM_BIN} ${CMAKE_BINARY_DIR})
 

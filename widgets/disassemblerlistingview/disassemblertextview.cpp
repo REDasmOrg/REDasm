@@ -544,7 +544,7 @@ void DisassemblerTextView::adjustContextMenu()
             m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
 
         m_actcallgraph->setVisible(symbol && segment && segment->is(REDasm::SegmentTypes::Code));
-        m_acthexdump->setVisible(false);
+        m_acthexdump->setVisible(true);
         return;
     }
 
@@ -608,7 +608,10 @@ void DisassemblerTextView::showHexDump()
     REDasm::SymbolPtr symbol = this->symbolUnderCursor();
 
     if(!symbol)
+    {
+        emit switchToHexDump();
         return;
+    }
 
     u64 len = sizeof(m_disassembler->format()->addressWidth());
 

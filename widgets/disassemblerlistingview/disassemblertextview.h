@@ -64,6 +64,7 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     signals:
         void switchView();
+        void switchToHexDump();
         void gotoRequested();
         void canGoBackChanged();
         void canGoForwardChanged();

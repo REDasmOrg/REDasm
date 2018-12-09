@@ -88,13 +88,14 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
     connect(m_pbstatus, &QPushButton::clicked, this, &DisassemblerView::changeDisassemblerStatus);
 
     connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
-    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::showHexDump);
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::selectToHexDump);
     connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::callGraphRequested, this, &DisassemblerView::initializeCallGraph);
     connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::referencesRequested, this, &DisassemblerView::showReferences);
     connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
     connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::addressChanged, this, &DisassemblerView::updateCallGraph);
     connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::switchView, this, &DisassemblerView::switchGraphListing);
+    connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::switchToHexDump, this, &DisassemblerView::switchToHexDump);
     connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::canGoBackChanged, [=]() { ui->tbBack->setEnabled(m_disassemblerlistingview->textView()->canGoBack()); });
     connect(m_disassemblerlistingview->textView(), &DisassemblerTextView::canGoForwardChanged, [=]() { ui->tbForward->setEnabled(m_disassemblerlistingview->textView()->canGoForward()); });
 
@@ -204,36 +205,7 @@ void DisassemblerView::checkHexEdit(int index)
     if(!w || (w != ui->tabHexDump))
         return;
 
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingItem* item = doc->currentItem();
-
-    offset_t offset = 0;
-    u64 len = 0;
-
-    if(item)
-    {
-        offset = m_disassembler->format()->offset(item->address);
-
-        bool canbeinstruction = true;
-        REDasm::SymbolPtr symbol;
-
-        if(item->is(REDasm::ListingItem::SymbolItem))
-        {
-            symbol = doc->symbol(item->address);
-            canbeinstruction = symbol->is(REDasm::SymbolTypes::Code);
-        }
-
-        if(canbeinstruction)
-        {
-            REDasm::InstructionPtr instruction = doc->instruction(item->address);
-            len = instruction->size;
-        }
-        else if(symbol)
-            len = m_disassembler->format()->addressWidth();
-    }
-
-    QHexCursor* cursor = ui->hexEdit->document()->cursor();
-    cursor->setSelectionRange(offset, len);
+    this->syncHexEdit();
 }
 
 void DisassemblerView::updateCurrentFilter(int index)
@@ -435,6 +407,12 @@ void DisassemblerView::switchGraphListing()
     ui->stackedWidget->currentWidget()->setFocus();
 }
 
+void DisassemblerView::switchToHexDump()
+{
+    this->syncHexEdit();
+    ui->tabView->setCurrentWidget(ui->tabHexDump);
+}
+
 void DisassemblerView::toggleFilter()
 {
     if(m_lefilter->isVisible())
@@ -484,12 +462,11 @@ void DisassemblerView::clearFilter()
     m_stringsmodel->clearFilter();
 }
 
-void DisassemblerView::showHexDump(address_t address, u64 len)
+void DisassemblerView::selectToHexDump(address_t address, u64 len)
 {
     offset_t offset = m_disassembler->format()->offset(address);
     QHexCursor* cursor = ui->hexEdit->document()->cursor();
     cursor->setSelectionRange(offset, len);
-
     ui->tabView->setCurrentWidget(ui->tabHexDump);
 }
 
@@ -502,6 +479,40 @@ void DisassemblerView::showGoto()
 
     if(dlggoto.exec() == GotoDialog::Accepted)
         m_disassemblerlistingview->textView()->goTo(dlggoto.address());
+}
+
+void DisassemblerView::syncHexEdit()
+{
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingItem* item = doc->currentItem();
+
+    offset_t offset = 0;
+    u64 len = 0;
+
+    if(item)
+    {
+        offset = m_disassembler->format()->offset(item->address);
+
+        bool canbeinstruction = true;
+        REDasm::SymbolPtr symbol;
+
+        if(item->is(REDasm::ListingItem::SymbolItem))
+        {
+            symbol = doc->symbol(item->address);
+            canbeinstruction = symbol->is(REDasm::SymbolTypes::Code);
+        }
+
+        if(canbeinstruction)
+        {
+            REDasm::InstructionPtr instruction = doc->instruction(item->address);
+            len = instruction->size;
+        }
+        else if(symbol)
+            len = m_disassembler->format()->addressWidth();
+    }
+
+    QHexCursor* cursor = ui->hexEdit->document()->cursor();
+    cursor->setSelectionRange(offset, len);
 }
 
 void DisassemblerView::createActions()

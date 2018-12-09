@@ -21,15 +21,23 @@ install:
     - source /opt/qt5*/bin/qt5*-env.sh
 
 script:
-    # show OS/compiler version
-    - uname -a
-    - g++ --version
-    # compile...
+    # Build
     - mkdir build
-    - cp -r database/ build/database/
     - cd build
-    - qmake PREFIX=/usr ..
+    - cmake -DCMAKE_BUILD_TYPE=Release ..
     - make -j4
+      
+    # Prepare
+    - mkdir deploy
+    - cp LibREDasm.so deploy/
+    - cp REDasm deploy/
+
+    # Database
+    - cd deploy
+    - git clone https://github.com/REDasmOrg/REDasm-Database.git database
+    - rm -rf database/.git
+
+    # Deploy
     - sh ../ci/deploy.sh
 
 notifications:

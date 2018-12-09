@@ -1,10 +1,10 @@
 #include "unittest.h"
 #include "disassemblertest.h"
+#include <redasm/redasm_runtime.h>
 
 int UnitTest::run()
 {
-    putenv("SYNC_MODE=1");
-
+    REDasm::Runtime::syncMode(true);
     DisassemblerTest disasmtest;
     disasmtest.runTests();
     return 0;

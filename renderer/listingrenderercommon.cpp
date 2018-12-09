@@ -31,14 +31,14 @@ void ListingRendererCommon::insertText(const REDasm::RendererLine &rl, bool show
 
     REDasm::ListingCursor* cur = m_document->cursor();
 
-    if(cur->isLineSelected(rl.line))
+    if(cur->isLineSelected(rl.documentindex))
         this->highlightSelection(rl);
     else
         this->highlightWords(rl);
 
     if(rl.highlighted)
     {
-        if(!cur->isLineSelected(rl.line))
+        if(!cur->isLineSelected(rl.documentindex))
             this->highlightLine();
 
         if(showcursor)
@@ -67,7 +67,7 @@ void ListingRendererCommon::insertHtmlText(const REDasm::RendererLine &rl)
            content += this->wordsToSpan(s, rl);
     }
 
-    m_textcursor.insertText(QString("<div style=\"display: inline-block; width: 100%\" data-lineroot=\"1\" data-line=\"%1\">%2</div>").arg(rl.line).arg(content));
+    m_textcursor.insertText(QString("<div style=\"display: inline-block; width: 100%\" data-lineroot=\"1\" data-line=\"%1\">%2</div>").arg(rl.documentindex).arg(content));
 }
 
 QString ListingRendererCommon::wordsPattern() { return "([\\w\\.@]+)"; }
@@ -75,13 +75,13 @@ QString ListingRendererCommon::wordsPattern() { return "([\\w\\.@]+)"; }
 QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style, const REDasm::RendererLine& rl) const
 {
     QColor c = THEME_VALUE(QString::fromStdString(style));
-    return QString("<font data-line=\"%1\" style=\"color: %2\">%3</font>").arg(rl.line).arg(c.name(), this->wordsToSpan(s, rl));
+    return QString("<font data-line=\"%1\" style=\"color: %2\">%3</font>").arg(rl.documentindex).arg(c.name(), this->wordsToSpan(s, rl));
 }
 
 QString ListingRendererCommon::wordsToSpan(const std::string &s, const REDasm::RendererLine& rl) const
 {
     QString spans = QString::fromStdString(s);
-    spans.replace(m_rgxwords, QString("<span data-line=\"%1\">\\1</span>").arg(rl.line));
+    spans.replace(m_rgxwords, QString("<span data-line=\"%1\">\\1</span>").arg(rl.documentindex));
     return spans;
 }
 
@@ -113,12 +113,12 @@ void ListingRendererCommon::highlightSelection(const REDasm::RendererLine &rl)
     }
     else
     {
-        if(rl.line == startsel.first)
+        if(rl.documentindex == startsel.first)
             m_textcursor.setPosition(startsel.second);
         else
             m_textcursor.setPosition(0);
 
-        if(rl.line == endsel.first)
+        if(rl.documentindex == endsel.first)
             m_textcursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, endsel.second + 1);
         else
             m_textcursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);

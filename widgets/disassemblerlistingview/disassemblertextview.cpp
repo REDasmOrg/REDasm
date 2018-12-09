@@ -366,14 +366,10 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         else
             cur->select(cur->currentLine(), m_renderer->getLastColumn(cur->currentLine()));
     }
-    else if(e->matches(QKeySequence::Copy))
-        this->copy();
-    else if(e->key() == Qt::Key_X)
-        this->showReferencesUnderCursor();
-    else if(e->key() == Qt::Key_N)
-        this->renameCurrentSymbol();
     else if(e->key() == Qt::Key_Space)
         emit switchView();
+    else
+        QAbstractScrollArea::keyPressEvent(e);
 
     m_blinktimer->start();
 }
@@ -497,19 +493,29 @@ void DisassemblerTextView::moveToSelection()
 void DisassemblerTextView::createContextMenu()
 {
     m_contextmenu = new QMenu(this);
-    m_actrename = m_contextmenu->addAction("Rename", this, &DisassemblerTextView::renameCurrentSymbol);
+    m_actrename = m_contextmenu->addAction("Rename", this, &DisassemblerTextView::renameCurrentSymbol, QKeySequence(Qt::Key_N));
+    m_actcomment = m_contextmenu->addAction("Comment", this, &DisassemblerTextView::addComment, QKeySequence(Qt::SHIFT + Qt::Key_Semicolon));
     m_contextmenu->addSeparator();
-    m_actxrefs = m_contextmenu->addAction("Cross References", this, &DisassemblerTextView::showReferencesUnderCursor);
+    m_actxrefs = m_contextmenu->addAction("Cross References", this, &DisassemblerTextView::showReferencesUnderCursor, QKeySequence(Qt::Key_X));
     m_actfollow = m_contextmenu->addAction("Follow", this, &DisassemblerTextView::followUnderCursor);
-    m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested);
-    m_actcallgraph = m_contextmenu->addAction("Call Graph", this, &DisassemblerTextView::showCallGraph);
-    m_acthexdump = m_contextmenu->addAction("Hex Dump", this, &DisassemblerTextView::showHexDump);
-    m_actcomment = m_contextmenu->addAction("Add Comment", this, &DisassemblerTextView::addComment);
+    m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested, QKeySequence(Qt::Key_G));
+    m_actcallgraph = m_contextmenu->addAction("Call Graph", this, &DisassemblerTextView::showCallGraph, QKeySequence(Qt::CTRL + Qt::Key_G));
+    m_acthexdump = m_contextmenu->addAction("Hex Dump", this, &DisassemblerTextView::showHexDump, QKeySequence(Qt::CTRL + Qt::Key_H));
     m_contextmenu->addSeparator();
-    m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack);
-    m_actforward = m_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward);
+    m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack, QKeySequence(Qt::CTRL + Qt::Key_Left));
+    m_actforward = m_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward, QKeySequence(Qt::CTRL + Qt::Key_Right));
     m_contextmenu->addSeparator();
-    m_actcopy = m_contextmenu->addAction("Copy", this, &DisassemblerTextView::copy);
+    m_actcopy = m_contextmenu->addAction("Copy", this, &DisassemblerTextView::copy, QKeySequence(QKeySequence::Copy));
+
+    this->addAction(m_actrename);
+    this->addAction(m_actxrefs);
+    this->addAction(m_actcomment);
+    this->addAction(m_actgoto);
+    this->addAction(m_actcallgraph);
+    this->addAction(m_acthexdump);
+    this->addAction(m_actback);
+    this->addAction(m_actforward);
+    this->addAction(m_actcopy);
 
     connect(m_contextmenu, &QMenu::aboutToShow, this, &DisassemblerTextView::adjustContextMenu);
 }

@@ -29,10 +29,6 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
     ui->stackedWidget->addWidget(m_disassemblerlistingview);
     ui->stackedWidget->addWidget(m_disassemblergraphview);
 
-    ui->tbBack->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Left));
-    ui->tbForward->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Right));
-    ui->tbGoto->setShortcut(QKeySequence(Qt::Key_G));
-
     m_functionsmodel = ListingFilterModel::createFilter<ListingItemModel>(REDasm::ListingItem::FunctionItem, ui->tvFunctions);
     ui->tvFunctions->setModel(m_functionsmodel);
 

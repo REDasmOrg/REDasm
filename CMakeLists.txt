@@ -125,7 +125,11 @@ set(RESOURCES
     resources.qrc
     themes.qrc)
 
-add_executable(${PROJECT_NAME}
+if(WIN32)
+    SET(GUI_TYPE WIN32)
+endif()
+
+add_executable(${PROJECT_NAME} ${GUI_TYPE}
                ${SOURCES}
                ${HEADERS}
                ${FORMS}

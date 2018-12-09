@@ -38,7 +38,7 @@ script:
     - rm -rf database/.git
 
     # Deploy
-    - sh ../ci/deploy.sh
+    - sh ../../ci/deploy.sh
 
 notifications:
     email: false

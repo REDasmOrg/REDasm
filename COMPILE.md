@@ -8,7 +8,7 @@
 ****
 ### Building REDasm on Windows
 Open a Command prompt and execute:
-```
+```bash
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 set QTCREATOR=C:\Qt\Tools\QtCreator\bin
 set QTDIR=C:\Qt\5.10\msvc2017_64\bin
@@ -18,31 +18,38 @@ git clone --recursive https://github.com/REDasmOrg/REDasm.git
 cd REDasm
 mkdir build
 cd build
-cmake -G "NMake Makefiles" ..
+cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 jom -jN # Or 'nmake' N=number of cores (-j4, -j8, ...)
 
 # Extra steps for deploying REDasm in a separate folder called 'deploy'
 mkdir deploy
-xcopy database deploy\database\ /E
 xcopy LibREDasm.dll deploy
 xcopy REDasm.exe deploy
 cd deploy
 windeployqt --release .
+
+# Clone REDasm-Database
+git clone https://github.com/REDasmOrg/REDasm-Database.git database
+del /Q database\.git
 ```
 
 ### Building REDasm on Linux
 Open a Terminal window and execute:
-```
+```bash
 git clone --recursive https://github.com/REDasmOrg/REDasm.git
 cd REDasm
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make -jN # N=number of cores (-j4, -j8, ...)
 
 # Extra steps for deploying REDasm in a separate folder called 'deploy'
 mkdir deploy
-cp -r database/ deploy/database/
 cp LibREDasm.so deploy/
 cp REDasm deploy/
+
+# Clone REDasm-Database
+cd deploy
+git clone https://github.com/REDasmOrg/REDasm-Database.git database
+rm -rf database/.git
 ```

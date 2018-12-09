@@ -33,6 +33,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void renameCurrentSymbol();
         bool followUnderCursor();
         void addComment();
+        void printFunctionHexDump();
         void showCallGraph();
         void showHexDump();
 
@@ -78,7 +79,8 @@ class DisassemblerTextView : public QAbstractScrollArea
         REDasm::DisassemblerAPI* m_disassembler;
         DisassemblerPopup* m_disassemblerpopup;
         QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actcallgraph;
-        QAction *m_actgoto, *m_acthexdump, *m_actcomment, *m_actback, *m_actforward, *m_actcopy;
+        QAction *m_actgoto, *m_acthexdumpshow, *m_acthexdumpfunc;
+        QAction *m_actcomment, *m_actback, *m_actforward, *m_actcopy;
         QMenu* m_contextmenu;
         QTimer* m_blinktimer;
 };

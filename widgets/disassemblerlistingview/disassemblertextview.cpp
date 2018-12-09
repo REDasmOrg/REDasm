@@ -122,6 +122,27 @@ void DisassemblerTextView::addComment()
     m_disassembler->document()->comment(m_disassembler->document()->currentItem()->address, res.toStdString());
 }
 
+void DisassemblerTextView::printFunctionHexDump()
+{
+    REDasm::ListingDocument* document = m_disassembler->document();
+    REDasm::ListingItem* item = document->currentItem();
+
+    if(!item)
+        return;
+
+    REDasm::SymbolPtr symbol = document->functionStartSymbol(item->address);
+
+    if(!symbol)
+        return;
+
+    REDasm::BufferRef br = m_disassembler->getFunctionBytes(symbol->address);
+
+    if(br.empty())
+        return;
+
+    REDasm::log(symbol->name + ":" + REDasm::quoted(REDasm::hexstring(br, br.size())));
+}
+
 void DisassemblerTextView::goBack() { m_disassembler->document()->cursor()->goBack();  }
 void DisassemblerTextView::goForward() { m_disassembler->document()->cursor()->goForward(); }
 
@@ -500,7 +521,9 @@ void DisassemblerTextView::createContextMenu()
     m_actfollow = m_contextmenu->addAction("Follow", this, &DisassemblerTextView::followUnderCursor);
     m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested, QKeySequence(Qt::Key_G));
     m_actcallgraph = m_contextmenu->addAction("Call Graph", this, &DisassemblerTextView::showCallGraph, QKeySequence(Qt::CTRL + Qt::Key_G));
-    m_acthexdump = m_contextmenu->addAction("Hex Dump", this, &DisassemblerTextView::showHexDump, QKeySequence(Qt::CTRL + Qt::Key_H));
+    m_contextmenu->addSeparator();
+    m_acthexdumpshow = m_contextmenu->addAction("Show Hex Dump", this, &DisassemblerTextView::showHexDump, QKeySequence(Qt::CTRL + Qt::Key_H));
+    m_acthexdumpfunc = m_contextmenu->addAction("Hex Dump Function", this, &DisassemblerTextView::printFunctionHexDump);
     m_contextmenu->addSeparator();
     m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack, QKeySequence(Qt::CTRL + Qt::Key_Left));
     m_actforward = m_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward, QKeySequence(Qt::CTRL + Qt::Key_Right));
@@ -512,7 +535,7 @@ void DisassemblerTextView::createContextMenu()
     this->addAction(m_actcomment);
     this->addAction(m_actgoto);
     this->addAction(m_actcallgraph);
-    this->addAction(m_acthexdump);
+    this->addAction(m_acthexdumpshow);
     this->addAction(m_actback);
     this->addAction(m_actforward);
     this->addAction(m_actcopy);
@@ -525,15 +548,18 @@ void DisassemblerTextView::adjustContextMenu()
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::SymbolPtr symbol = this->symbolUnderCursor();
     REDasm::ListingItem* item = doc->currentItem();
-    REDasm::Segment* segment = NULL;
 
+    if(!item)
+        return;
+
+    REDasm::Segment *itemsegment = doc->segment(item->address), *symbolsegment = NULL;
     m_actback->setVisible(this->canGoBack());
     m_actforward->setVisible(this->canGoForward());
     m_actcopy->setVisible(doc->cursor()->hasSelection());
 
     if(!symbol)
     {
-        segment = doc->segment(item->address);
+        symbolsegment = doc->segment(item->address);
         symbol = doc->functionStartSymbol(item->address);
 
         m_actrename->setVisible(false);
@@ -543,12 +569,13 @@ void DisassemblerTextView::adjustContextMenu()
         if(symbol)
             m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
 
-        m_actcallgraph->setVisible(symbol && segment && segment->is(REDasm::SegmentTypes::Code));
-        m_acthexdump->setVisible(true);
+        m_actcallgraph->setVisible(symbol && symbolsegment && symbolsegment->is(REDasm::SegmentTypes::Code));
+        m_acthexdumpshow->setVisible(true);
+        m_acthexdumpfunc->setVisible(true);
         return;
     }
 
-    segment = doc->segment(symbol->address);
+    symbolsegment = doc->segment(symbol->address);
 
     m_actxrefs->setVisible(true);
     m_actxrefs->setText(QString("Cross Reference %1").arg(S_TO_QS(symbol->name)));
@@ -564,8 +591,8 @@ void DisassemblerTextView::adjustContextMenu()
 
     m_actcomment->setVisible(item->is(REDasm::ListingItem::InstructionItem));
 
-    m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
-    m_acthexdump->setVisible(segment && !segment->is(REDasm::SegmentTypes::Bss));
+    m_acthexdumpshow->setVisible(symbolsegment && !symbolsegment->is(REDasm::SegmentTypes::Bss));
+    m_acthexdumpfunc->setVisible(itemsegment && !itemsegment->is(REDasm::SegmentTypes::Bss) && itemsegment->is(REDasm::SegmentTypes::Code));
 }
 
 void DisassemblerTextView::showReferencesUnderCursor()

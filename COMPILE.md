@@ -8,7 +8,7 @@
 ****
 ### Building REDasm on Windows
 Open a Command prompt and execute:
-```
+```bash
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 set QTCREATOR=C:\Qt\Tools\QtCreator\bin
 set QTDIR=C:\Qt\5.10\msvc2017_64\bin
@@ -35,7 +35,7 @@ del /Q database\.git
 
 ### Building REDasm on Linux
 Open a Terminal window and execute:
-```
+```bash
 git clone --recursive https://github.com/REDasmOrg/REDasm.git
 cd REDasm
 mkdir build

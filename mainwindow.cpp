@@ -311,8 +311,6 @@ void MainWindow::load(const QString& filepath)
 
         this->initDisassembler();
     }
-
-    this->setWindowTitle(m_fileinfo.fileName());
 }
 
 void MainWindow::checkCommandLine()
@@ -426,6 +424,9 @@ void MainWindow::checkCommandState()
         return;
 
     REDasm::DisassemblerAPI* disassembler = currdv->disassembler();
+
+    this->setWindowTitle(disassembler->busy() ? QString("%1 (Working)").arg(m_fileinfo.fileName()) :
+                                                m_fileinfo.fileName());
 
     ui->action_Save->setEnabled(!disassembler->busy());
     ui->action_Save_As->setEnabled(!disassembler->busy());

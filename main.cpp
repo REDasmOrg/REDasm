@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setOrganizationName("redasmorg");
     a.setApplicationName("redasm");
-    a.setApplicationDisplayName("REDasm 2.0-" + QString::fromUtf8(GIT_VERSION) + " RC2");
+    a.setApplicationDisplayName("REDasm 2.0-" + QString::fromUtf8(GIT_VERSION) + " RC3");
 
     QtWebEngine::initialize();
 

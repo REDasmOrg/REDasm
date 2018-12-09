@@ -37,6 +37,7 @@ class DisassemblerView : public QWidget
         void changeDisassemblerStatus();
         void checkDisassemblerStatus();
         void modelIndexSelected(const QModelIndex& index);
+        void checkHexEdit(int index);
         void updateCurrentFilter(int index);
         void gotoXRef(const QModelIndex &index);
         void goTo(const QModelIndex &index);

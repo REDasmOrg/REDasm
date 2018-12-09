@@ -85,6 +85,7 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     connect(ui->tabModels, &QTabWidget::currentChanged, this, &DisassemblerView::updateCallGraph);
+    connect(ui->tabView, &QTabWidget::currentChanged, this, &DisassemblerView::checkHexEdit);
     connect(ui->tabView, &QTabWidget::currentChanged, this, &DisassemblerView::updateCurrentFilter);
     connect(ui->tbListingGraph, &QPushButton::clicked, this, &DisassemblerView::switchGraphListing);
     connect(m_lefilter, &QLineEdit::textChanged, [&](const QString&) { this->filterSymbols(); });
@@ -198,6 +199,45 @@ void DisassemblerView::modelIndexSelected(const QModelIndex &index)
 {
     m_currentindex = index;
     m_actsetfilter->setVisible(index.isValid() && (index.model() != m_callgraphmodel));
+}
+
+void DisassemblerView::checkHexEdit(int index)
+{
+    QWidget* w = ui->tabView->widget(index);
+
+    if(!w || (w != ui->tabHexDump))
+        return;
+
+    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingItem* item = doc->currentItem();
+
+    offset_t offset = 0;
+    u64 len = 0;
+
+    if(item)
+    {
+        offset = m_disassembler->format()->offset(item->address);
+
+        bool canbeinstruction = true;
+        REDasm::SymbolPtr symbol;
+
+        if(item->is(REDasm::ListingItem::SymbolItem))
+        {
+            symbol = doc->symbol(item->address);
+            canbeinstruction = symbol->is(REDasm::SymbolTypes::Code);
+        }
+
+        if(canbeinstruction)
+        {
+            REDasm::InstructionPtr instruction = doc->instruction(item->address);
+            len = instruction->size;
+        }
+        else if(symbol)
+            len = m_disassembler->format()->addressWidth();
+    }
+
+    QHexCursor* cursor = ui->hexEdit->document()->cursor();
+    cursor->setSelectionRange(offset, len);
 }
 
 void DisassemblerView::updateCurrentFilter(int index)

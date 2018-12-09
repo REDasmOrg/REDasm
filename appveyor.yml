@@ -38,7 +38,7 @@ build_script:
 
   # Database
   - git clone https://github.com/REDasmOrg/REDasm-Database.git database
-  - del /Q database\.git
+  - rmdir /S /Q database\.git
 
   # Deploy
   - ps: ../../ci/deploy.ps1

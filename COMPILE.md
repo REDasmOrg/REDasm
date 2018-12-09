@@ -30,7 +30,7 @@ windeployqt --release .
 
 # Clone REDasm-Database
 git clone https://github.com/REDasmOrg/REDasm-Database.git database
-del /Q database\.git
+rmdir /S /Q database\.git
 ```
 
 ### Building REDasm on Linux

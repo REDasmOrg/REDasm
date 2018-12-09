@@ -23,11 +23,14 @@ jom -jN # Or 'nmake' N=number of cores (-j4, -j8, ...)
 
 # Extra steps for deploying REDasm in a separate folder called 'deploy'
 mkdir deploy
-xcopy database deploy\database\ /E
 xcopy LibREDasm.dll deploy
 xcopy REDasm.exe deploy
 cd deploy
 windeployqt --release .
+
+# Clone REDasm-Database
+git clone https://github.com/REDasmOrg/REDasm-Database.git database
+del /Q database\.git
 ```
 
 ### Building REDasm on Linux
@@ -42,7 +45,11 @@ make -jN # N=number of cores (-j4, -j8, ...)
 
 # Extra steps for deploying REDasm in a separate folder called 'deploy'
 mkdir deploy
-cp -r database/ deploy/database/
 cp LibREDasm.so deploy/
 cp REDasm deploy/
+
+# Clone REDasm-Database
+cd deploy
+git clone https://github.com/REDasmOrg/REDasm-Database.git database
+rm -rf database/.git
 ```

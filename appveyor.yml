@@ -23,11 +23,22 @@ install:
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 build_script:
+  # Build
   - mkdir build
-  - xcopy database build\database\ /E
   - cd build
-  - qmake -spec win32-msvc CONFIG+=release ..
-  - jom qmake_all 
+  - cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
   - jom -j4
-  - ps: ../ci/package.ps1
-  - ps: ../ci/deploy.ps1
+
+  # Prepare
+  - mkdir deploy
+  - xcopy LibREDasm.dll deploy
+  - xcopy REDasm.exe deploy
+  - cd deploy
+  - windeployqt --release .
+
+  # Database
+  - git clone https://github.com/REDasmOrg/REDasm-Database.git database
+  - del /Q database\.git
+
+  # Deploy
+  - ps: ../../ci/deploy.ps1

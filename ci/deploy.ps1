@@ -1,5 +1,7 @@
 $archive = $env:appveyor_build_version + ".zip"
 
+7z a -tzip $archive *
+
 git config core.autocrlf true
 git config --global credential.helper store
 Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_token):x-oauth-basic@github.com`n"

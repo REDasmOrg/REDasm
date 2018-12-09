@@ -18,7 +18,7 @@ git clone --recursive https://github.com/REDasmOrg/REDasm.git
 cd REDasm
 mkdir build
 cd build
-cmake -G "NMake Makefiles" ..
+cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 jom -jN # Or 'nmake' N=number of cores (-j4, -j8, ...)
 
 # Extra steps for deploying REDasm in a separate folder called 'deploy'
@@ -40,7 +40,7 @@ git clone --recursive https://github.com/REDasmOrg/REDasm.git
 cd REDasm
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make -jN # N=number of cores (-j4, -j8, ...)
 
 # Extra steps for deploying REDasm in a separate folder called 'deploy'

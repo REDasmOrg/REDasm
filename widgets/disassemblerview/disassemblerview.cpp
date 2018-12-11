@@ -501,6 +501,8 @@ void DisassemblerView::syncHexEdit()
             symbol = doc->symbol(item->address);
             canbeinstruction = symbol->is(REDasm::SymbolTypes::Code);
         }
+        else if(item->is(REDasm::ListingItem::SegmentItem))
+            canbeinstruction = false;
 
         if(canbeinstruction)
         {

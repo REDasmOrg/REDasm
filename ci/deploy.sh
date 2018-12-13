@@ -18,7 +18,7 @@ rm -rf *$OS_NAME*
 
 if [ -f ../$BUILD_ID.zip ]; then
     mv ../$BUILD_ID.zip .
-    if [ -f $(echo *.AppImage) ]; then
+    if [ -f "$(echo ../*.AppImage)" ]; then
         mv ../*.AppImage .
     fi
     git config user.email "buildbot@none.io"

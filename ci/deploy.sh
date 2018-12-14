@@ -18,8 +18,8 @@ rm -rf *$OS_NAME*
 
 if [ -f ../$BUILD_ID.zip ]; then
     mv ../$BUILD_ID.zip .
-    if [ -f "$(echo ../*.AppImage)" ]; then
-        mv ../*.AppImage .
+    if [ -f "$(echo ../REDasm-*.AppImage)" ]; then
+        mv ../REDasm-*.AppImage .
     fi
     git config user.email "buildbot@none.io"
     git config user.name "Travis Build Bot"

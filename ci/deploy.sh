@@ -14,7 +14,8 @@ cd ..
 rm -rf $BUILD_REPO
 git clone -b nightly https://${GITHUB_TOKEN}@github.com/$BUILD_ORG/$BUILD_REPO.git > /dev/null 2>&1
 cd $BUILD_REPO
-rm -rf *$OS_NAME*
+rm -rf *$OS_NAME* 
+rm -rf REDasm-*.AppImage # Remove old AppImage file
 
 if [ -f ../$BUILD_ID.zip ]; then
     mv ../$BUILD_ID.zip .

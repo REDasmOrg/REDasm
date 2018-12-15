@@ -5,8 +5,11 @@ from deploy_vars import *
 
 LINUXDEPLOYQT_URL = "https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage"
 
-def appdir_path(s):
- return "appdir/" + s
+def appdir_path(s=None):
+ appdir = "appdir/"
+ if s != None:
+  appdir += s
+ return appdir
 
 os.mkdir(appdir_path())
 shutil.copy("REDasm", appdir_path())

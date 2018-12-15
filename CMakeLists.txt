@@ -2,13 +2,15 @@ cmake_minimum_required(VERSION 3.10)
  
 project(REDasm)
 
-set(QT_VERSION_REQ "5.10")
+set(QT_VERSION_REQ "5.9")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(REDASM_BUILD_VERSION "unknown")
+
+string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
+set(REDASM_GIT_VERSION "unknown")
 
 if(UNIX)
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
@@ -27,14 +29,15 @@ find_package(Git)
 if(GIT_FOUND)
     execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    OUTPUT_VARIABLE REDASM_BUILD_VERSION
+                    OUTPUT_VARIABLE REDASM_GIT_VERSION
                     ERROR_QUIET
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
 else()
-    message(STATUS "git not found, setting version to ${REDASM_BUILD_VERSION}")
+    message(STATUS "Git not found, setting version to ${REDASM_GIT_VERSION}")
 endif()
 
-add_definitions(-DGIT_VERSION="${REDASM_BUILD_VERSION}")
+set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
+add_definitions(-DREDASM_VERSION="${REDASM_BUILD_VERSION}")
 
 add_subdirectory(LibREDasm)
 add_subdirectory(QHexEdit)

@@ -11,6 +11,10 @@ def appdir_path(s=None):
   appdir += s
  return appdir
 
+if not os.path.exists("REDasm"):
+ print("Skipping AppImage creation")
+ exit(1)
+
 os.mkdir(appdir_path())
 shutil.copy("REDasm", appdir_path())
 

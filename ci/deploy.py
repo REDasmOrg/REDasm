@@ -3,7 +3,7 @@ import shutil
 import os
 from deploy_vars import *
  
-res = subprocess.run(["git", "clone", "-b", "nightly", BUILD_REPO])
+res = subprocess.run(["git", "clone", "-b", "nightly", BUILD_REPO_URL])
 
 if res.returncode != 0:
     print("Failed to clone repo")

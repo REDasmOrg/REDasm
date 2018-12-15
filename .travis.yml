@@ -31,28 +31,10 @@ script:
     - git clone https://github.com/REDasmOrg/REDasm-Database.git database
     - rm -rf database/.git
     
-     # Generate AppImage
-    - mkdir ./appdir
-    - cp REDasm ./appdir/
-    - mkdir ./appdir/lib
-    - cp LibREDasm.so ./appdir/lib/
-    - cp ../artwork/logo.png ./appdir/
-    - cp -R database/ ./appdir/
-    - |
-      cat >./appdir/redasm.desktop <<EOL
-      [Desktop Entry]
-      Name=REDasm
-      Type=Application
-      Icon=logo
-      Exec=REDasm
-      Categories=Utility;
-      Comment=Crossplatform, interactive, multiarchitecture disassembler
-      EOL
-    - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage"
-    - chmod a+x linuxdeployqt*.AppImage
-    - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+    # Generate AppImage
+    - unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
     - export VERSION=$(git rev-parse --short HEAD)
-    - ./linuxdeployqt*.AppImage ./appdir/REDasm -appimage -bundle-non-qt-libs
+    - python3 ../ci/appimage.py
       
     # Prepare For Deploy
     - mkdir deploy
@@ -62,7 +44,7 @@ script:
 
     # Deploy
     - cd deploy
-    - sh ../../ci/deploy.sh
+    - python3 ../../ci/deploy.py
 
 notifications:
     email: false 

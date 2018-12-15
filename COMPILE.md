@@ -1,6 +1,6 @@
 ## Requirements for all platforms
 * CMake >= 3.10
-* Qt >= 5.10
+* Qt >= 5.9 LTS
 * C++11 capable compiler
   * GCC on Linux
   * Visual Studio 2017 on Windows
@@ -11,7 +11,7 @@ Open a Command prompt and execute:
 ```bash
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 set QTCREATOR=C:\Qt\Tools\QtCreator\bin
-set QTDIR=C:\Qt\5.10\msvc2017_64\bin
+set QTDIR=C:\Qt\5.9\msvc2017_64\bin # Change this to your Qt Version
 set PATH=%QTDIR%;%QTCREATOR%;%PATH%
 
 git clone --recursive https://github.com/REDasmOrg/REDasm.git

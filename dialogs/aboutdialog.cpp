@@ -33,7 +33,8 @@ void AboutDialog::initItems()
     int major = 0, minor = 0;
     cs_version(&major, &minor);
 
-    m_depends.push_back({ "Capstone", QString("%1.%2").arg(major).arg(minor), "http://www.capstone-engine.org" });
+    m_depends.push_back({ "Qt",       QT_VERSION_STR,                         "https://www.qt.io" });
+    m_depends.push_back({ "Capstone", QString("%1.%2").arg(major).arg(minor), "https://www.capstone-engine.org" });
     m_depends.push_back({ "JSON",     "---",                                  "https://github.com/nlohmann/json" });
     m_depends.push_back({ "D3",       "5.0",                                  "https://d3js.org" });
     m_depends.push_back({ "Dagre",    "0.7.5",                                "https://github.com/dagrejs/dagre" });

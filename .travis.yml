@@ -10,15 +10,13 @@ before_install:
     - sudo apt-get update -qq
 
 install:
-    # System Dependencies
-    - sudo apt-get install build-essential libgl1-mesa-dev
     # C++14
     - sudo apt-get install -qq gcc-7 g++-7
     # Qt 5.9
     - sudo apt-get install -qq qt59base qt59webchannel qt59webengine
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
-    - source /opt/qt5*/bin/qt5*-env.sh
+    - source /opt/qt*/bin/qt*-env.sh
 
 script:
     # Build
@@ -32,7 +30,6 @@ script:
     
     # Generate AppImage
     - unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
-    - export VERSION=$(git rev-parse --short HEAD)
     - python3 ../ci/appimage.py
       
     # Deploy

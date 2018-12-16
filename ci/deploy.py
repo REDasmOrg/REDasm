@@ -23,7 +23,7 @@ shutil.move(BUILD_ARCHIVE, BUILD_REPO)
 
 if OS_NAME == "Linux":
  build_repo_delete_all("AppImage")
- shutil.move("REDasm-" + ARCH + ".AppImage", BUILD_REPO)
+ shutil.move("REDasm-" + ARCH + ".AppImage", BUILD_REPO + "/REDasm_" + ARCH  + "_" + BUILD_DATE + ".AppImage")
 
 os.chdir(BUILD_REPO)
 

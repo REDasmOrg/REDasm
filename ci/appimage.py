@@ -3,27 +3,31 @@ import shutil
 import os
 from deploy_vars import *
 
-LINUXDEPLOYQT_URL = "https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage"
+LINUXDEPLOYQT_CMD = "linuxdeployqt-5-" + ARCH + ".AppImage"
+LINUXDEPLOYQT_URL = "https://github.com/probonopd/linuxdeployqt/releases/download/5/" + LINUXDEPLOYQT_CMD
 
-def appdir_path(s=None):
- appdir = "appdir/"
- if s != None:
-  appdir += s
- return appdir
+os.chdir("../deploy")
 
 if not os.path.exists("REDasm"):
  print("Skipping AppImage creation")
  exit(1)
 
-os.mkdir(appdir_path())
-shutil.copy("REDasm", appdir_path())
+shutil.rmtree("lib", ignore_errors=True)
+os.mkdir("lib")
+shutil.move("LibREDasm.so", "lib/")
 
-os.mkdir(appdir_path("lib"))
-shutil.copy("LibREDasm.so", appdir_path("lib"))
-shutil.copy("../artwork/logo.png", appdir_path())
-shutil.copy("../ci/REDasm.desktop", appdir_path())
-shutil.copytree("database", appdir_path())
+shutil.copy("../artwork/logo.png", "./")
+shutil.copy("../ci/REDasm.desktop", "./")
+os.chdir("..")
 
-subprocess.run(["wget", "-c", LINUXDEPLOYQT_URL])
-subprocess.run(["chmod", "[a+x]", "linuxdeployqt*.AppImage"], shell=True)
-subprocess.run(["linuxdeployqt*.AppImage", "appdir/REDasm", "-appimage", "-bundle-non-qt-libs"], shell=True)
+if not os.path.exists(LINUXDEPLOYQT_CMD):
+ subprocess.run(["wget", "-c", LINUXDEPLOYQT_URL])
+
+if os.path.exists(LINUXDEPLOYQT_CMD):
+ subprocess.run(["chmod", "a+x", LINUXDEPLOYQT_CMD])
+ os.chdir("deploy")
+ subprocess.run(["../" + LINUXDEPLOYQT_CMD, "REDasm", "-appimage", "-bundle-non-qt-libs"])
+ shutil.move("REDasm-" + ARCH + ".AppImage", "../")
+else:
+ print("linuxdeployqt not found, skipping AppImage creation")
+

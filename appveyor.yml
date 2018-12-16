@@ -19,7 +19,8 @@ install:
   - git submodule update --init --recursive
   - set QTCREATOR=C:\Qt\Tools\QtCreator\bin
   - set QTDIR=C:\Qt\5.11\msvc2017_64\bin
-  - set PATH=%QTDIR%;%QTCREATOR%;%PATH%
+  - set PYTHONDIR=C:\Python37-x64
+  - set PATH=%QTDIR%;%QTCREATOR%;%PYTHONDIR%;%PATH%
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 build_script:
@@ -29,16 +30,6 @@ build_script:
   - cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
   - jom -j4
 
-  # Prepare
-  - mkdir deploy
-  - xcopy LibREDasm.dll deploy
-  - xcopy REDasm.exe deploy
-  - cd deploy
-  - windeployqt --release .
-
-  # Database
-  - git clone https://github.com/REDasmOrg/REDasm-Database.git database
-  - rmdir /S /Q database\.git
-
-  # Deploy
-  - ps: ../../ci/deploy.ps1
+  # Package & Deploy
+  - python3 ../ci/package.py
+  - python3 ../ci/deploy.py

@@ -30,4 +30,4 @@ shutil.make_archive("../" + BUILD_ID, "zip")
 
 if not os.path.isfile("../" + BUILD_ARCHIVE):
     print("Cannot find " + BUILD_ARCHIVE)
-exit(1)
+    exit(1)

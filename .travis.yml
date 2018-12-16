@@ -31,8 +31,8 @@ script:
     - python3 ../ci/package.py
     
     # Generate AppImage
-    - qmake -v # Display Qt Version
-    - unset LD_LIBRARY_PATH
+    - unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
+      qmake -v
     - python3 ../ci/appimage.py
       
     # Deploy

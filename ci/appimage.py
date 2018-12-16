@@ -3,8 +3,9 @@ import shutil
 import os
 from deploy_vars import *
 
-LINUXDEPLOYQT_CMD = "linuxdeployqt-5-" + ARCH + ".AppImage"
-LINUXDEPLOYQT_URL = "https://github.com/probonopd/linuxdeployqt/releases/download/5/" + LINUXDEPLOYQT_CMD
+LINUXDEPLOYQT_VER = "continuous"
+LINUXDEPLOYQT_CMD = "linuxdeployqt-" + LINUXDEPLOYQT_VER + "-" + ARCH + ".AppImage"
+LINUXDEPLOYQT_URL = "https://github.com/probonopd/linuxdeployqt/releases/download/" + LINUXDEPLOYQT_VER + "/" + LINUXDEPLOYQT_CMD
 
 os.chdir("../deploy")
 
@@ -26,7 +27,7 @@ if not os.path.exists(LINUXDEPLOYQT_CMD):
 if os.path.exists(LINUXDEPLOYQT_CMD):
  subprocess.run(["chmod", "a+x", LINUXDEPLOYQT_CMD])
  os.chdir("deploy")
- subprocess.run(["../" + LINUXDEPLOYQT_CMD, "REDasm", "-appimage", "-bundle-non-qt-libs"], env=os.environ)
+ subprocess.run(["../" + LINUXDEPLOYQT_CMD, "REDasm", "-appimage", "-verbose=2"])
  shutil.move("REDasm-" + ARCH + ".AppImage", "../")
 else:
  print("linuxdeployqt not found, skipping AppImage creation")

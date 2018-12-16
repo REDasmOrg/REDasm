@@ -26,25 +26,17 @@ script:
     - cd build
     - cmake -DCMAKE_BUILD_TYPE=Release ..
     - make -j4
-    
-    # Get Database Directory
-    - git clone https://github.com/REDasmOrg/REDasm-Database.git database
-    - rm -rf database/.git
+
+    # Package
+    - python3 ../ci/package.py
     
     # Generate AppImage
     - unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
     - export VERSION=$(git rev-parse --short HEAD)
     - python3 ../ci/appimage.py
       
-    # Prepare For Deploy
-    - mkdir deploy
-    - cp LibREDasm.so deploy/
-    - cp REDasm deploy/
-    - cp -R database/ deploy/
-
     # Deploy
-    - cd deploy
-    - python3 ../../ci/deploy.py
+    - python3 ../ci/deploy.py
 
 notifications:
     email: false 

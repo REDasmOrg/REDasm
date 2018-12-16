@@ -31,10 +31,10 @@ script:
     - python3 ../ci/package.py
     
     # Generate AppImage
+    - ldd /opt/qt59/lib/libQt5WebEngine.so.5
+    - ldd /opt/qt59/lib/libQt5WebEngineCore.so.5
     - unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
     - qmake -v
-    - ldd /opt/qt510/lib/libQt5WebEngine.so.5
-    - ldd /opt/qt510/lib/libQt5WebEngineCore.so.5
     - python3 ../ci/appimage.py
       
     # Deploy

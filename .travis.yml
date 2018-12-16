@@ -31,7 +31,7 @@ script:
     - python3 ../ci/package.py
     
     # Generate AppImage
-      qmake -v
+    - qmake -v # Display Qt Version
     - unset LD_LIBRARY_PATH
     - python3 ../ci/appimage.py
       

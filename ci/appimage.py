@@ -27,7 +27,7 @@ if not os.path.exists(LINUXDEPLOYQT_CMD):
 if os.path.exists(LINUXDEPLOYQT_CMD):
  subprocess.run(["chmod", "a+x", LINUXDEPLOYQT_CMD])
  os.chdir("deploy")
- subprocess.run(["../" + LINUXDEPLOYQT_CMD, "REDasm", "-appimage", "-exclude-libs=libnss.so,libnssutil3.so"])
+ subprocess.run(["../" + LINUXDEPLOYQT_CMD, "REDasm", "-appimage", "-exclude-libs=libnss.so,libnssutil3.so"], shell=True)
  shutil.move("REDasm-" + ARCH + ".AppImage", "../")
 else:
  print("linuxdeployqt not found, skipping AppImage creation")

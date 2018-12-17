@@ -31,5 +31,5 @@ build_script:
   - jom -j4
 
   # Package & Deploy
-  - python3 ../ci/package.py
-  - python3 ../ci/deploy.py
+  - python ../ci/package.py
+  - python ../ci/deploy.py

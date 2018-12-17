@@ -12,9 +12,9 @@ BUILD_ARCHIVE     = BUILD_ID + ".zip"
 BUILD_REPO        = "REDasm-Builds"
 DATABASE_REPO_URL = "https://github.com/REDasmOrg/REDasm-Database.git"
 
-if sys.platform == "linux":
+if sys.platform.startswith("linux"):
     OS_NAME = "Linux"
-else if sys.platform == "win32":
+elif sys.platform == "win32":
     OS_NAME = "Windows"
 
 if os.getenv("GITHUB_TOKEN") == None:

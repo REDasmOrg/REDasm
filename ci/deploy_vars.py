@@ -4,13 +4,18 @@ import sys
 import os
 from datetime import datetime
 
-OS_NAME           = str.capitalize(sys.platform)
+OS_NAME           = "Unknown"
 ARCH              = platform.machine()
 BUILD_DATE        = datetime.now().strftime("%Y%m%d")
 BUILD_ID          = "REDasm_" + OS_NAME + "_" + ARCH  + "_" + BUILD_DATE
 BUILD_ARCHIVE     = BUILD_ID + ".zip"
 BUILD_REPO        = "REDasm-Builds"
 DATABASE_REPO_URL = "https://github.com/REDasmOrg/REDasm-Database.git"
+
+if sys.platform == "linux":
+    OS_NAME = "Linux"
+else if sys.platform == "win32":
+    OS_NAME = "Windows"
 
 if os.getenv("GITHUB_TOKEN") == None:
     print("WARNING: Invalid GH-Token")

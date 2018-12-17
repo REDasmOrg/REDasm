@@ -33,7 +33,8 @@ script:
     # Generate AppImage
     - unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
     - qmake -v
-    - python3 ../ci/appimage.py
+    - python3 ../ci/prepare_appimage.py
+    - ../ci/build_appimage.sh
       
     # Deploy
     - python3 ../ci/deploy.py

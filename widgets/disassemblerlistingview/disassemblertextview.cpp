@@ -118,8 +118,19 @@ void DisassemblerTextView::goTo(REDasm::ListingItem *item)
 
 void DisassemblerTextView::addComment()
 {
-    QString res = QInputDialog::getText(this, QString("Add Comment"), "Comment:", QLineEdit::Normal);
-    m_disassembler->document()->comment(m_disassembler->document()->currentItem()->address, res.toStdString());
+    REDasm::ListingDocument* document = m_disassembler->document();
+    address_t currentaddress = document->currentItem()->address;
+
+    bool ok = false;
+    QString res = QInputDialog::getMultiLineText(this,
+                                                 "Comment @ " + QString::fromStdString(REDasm::hex(currentaddress)),
+                                                 "Insert a comment (leave blank to remove):",
+                                                 QString::fromStdString(document->comment(currentaddress, true)), &ok);
+
+    if(!ok)
+        return;
+
+    document->comment(currentaddress, res.toStdString());
 }
 
 void DisassemblerTextView::printFunctionHexDump()
@@ -515,7 +526,7 @@ void DisassemblerTextView::createContextMenu()
 {
     m_contextmenu = new QMenu(this);
     m_actrename = m_contextmenu->addAction("Rename", this, &DisassemblerTextView::renameCurrentSymbol, QKeySequence(Qt::Key_N));
-    m_actcomment = m_contextmenu->addAction("Comment", this, &DisassemblerTextView::addComment, QKeySequence(Qt::SHIFT + Qt::Key_Semicolon));
+    m_actcomment = m_contextmenu->addAction("Comment", this, &DisassemblerTextView::addComment, QKeySequence(Qt::Key_Semicolon));
     m_contextmenu->addSeparator();
     m_actxrefs = m_contextmenu->addAction("Cross References", this, &DisassemblerTextView::showReferencesUnderCursor, QKeySequence(Qt::Key_X));
     m_actfollow = m_contextmenu->addAction("Follow", this, &DisassemblerTextView::followUnderCursor);

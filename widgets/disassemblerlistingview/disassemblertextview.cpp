@@ -446,7 +446,16 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
     this->adjustScrollBars();
-    this->renderLine(ldc->index);
+
+    if(ldc->action != REDasm::ListingDocumentChanged::Changed) // Insertion or Deletion
+    {
+        if(ldc->index > this->lastVisibleLine()) // Don't care of bottom Insertion/Deletion
+            return;
+
+        this->viewport()->update();
+    }
+    else
+        this->renderLine(ldc->index);
 }
 
 REDasm::SymbolPtr DisassemblerTextView::symbolUnderCursor()

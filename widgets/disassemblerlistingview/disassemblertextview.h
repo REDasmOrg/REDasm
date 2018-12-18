@@ -58,6 +58,9 @@ class DisassemblerTextView : public QAbstractScrollArea
         REDasm::SymbolPtr symbolUnderCursor();
         bool isLineVisible(u64 line) const;
         bool isColumnVisible(u64 column, u64 *xpos);
+        QRect lineRect(u64 line);
+        void renderLine(u64 line);
+        void renderLines(u64 first, u64 last);
         void adjustScrollBars();
         void moveToSelection();
         void createContextMenu();

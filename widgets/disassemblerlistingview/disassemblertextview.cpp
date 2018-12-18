@@ -164,11 +164,7 @@ void DisassemblerTextView::blinkCursor()
     REDasm::ListingCursor* cur = doc->cursor();
 
     m_renderer->toggleCursor();
-
-    if(!this->isLineVisible(cur->currentLine()))
-        return;
-
-    this->viewport()->update();
+    this->renderLine(cur->currentLine());
 }
 
 void DisassemblerTextView::scrollContentsBy(int dx, int dy)
@@ -206,9 +202,19 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
     if(!m_renderer)
         return;
 
+    QFontMetrics fm = this->fontMetrics();
+    const QRect& r = e->rect();
+
+    u64 firstvisible = this->firstVisibleLine();
+    u64 first = firstvisible + (r.top() / fm.height());
+    u64 last = firstvisible + (r.bottom() / fm.height());
+    u64 count = (last - first) + 1;
+
     QPainter painter(this->viewport());
     painter.setFont(this->font());
-    m_renderer->render(this->firstVisibleLine(), this->visibleLines(), &painter);
+
+    m_renderer->setFirstVisibleLine(firstvisible);
+    m_renderer->render(first, count, &painter);
 }
 
 void DisassemblerTextView::resizeEvent(QResizeEvent *e)
@@ -440,11 +446,7 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
 {
     QScrollBar* vscrollbar = this->verticalScrollBar();
     this->adjustScrollBars();
-
-    if(!this->isVisible() || (ldc->index < static_cast<u64>(vscrollbar->value())) || (ldc->index > vscrollbar->value() + this->visibleLines()))
-        return;
-
-    this->viewport()->update();
+    this->renderLine(ldc->index);
 }
 
 REDasm::SymbolPtr DisassemblerTextView::symbolUnderCursor()
@@ -494,6 +496,36 @@ bool DisassemblerTextView::isColumnVisible(u64 column, u64 *xpos)
     }
 
     return true;
+}
+
+QRect DisassemblerTextView::lineRect(u64 line)
+{
+    if(!this->isLineVisible(line))
+        return QRect();
+
+    QRect vprect = this->viewport()->rect();
+    QFontMetrics fm = this->fontMetrics();
+    u64 offset = line - this->firstVisibleLine();
+    return QRect(vprect.x(), offset * fm.height(), vprect.width(), fm.height());
+}
+
+void DisassemblerTextView::renderLine(u64 line)
+{
+    if(!this->isLineVisible(line))
+        return;
+
+    this->renderLines(line, line);
+}
+
+void DisassemblerTextView::renderLines(u64 first, u64 last)
+{
+    first = std::max(first, this->firstVisibleLine());
+    last = std::min(last, this->lastVisibleLine());
+
+    QRect firstrect = this->lineRect(first);
+    QRect lastrect = this->lineRect(last);
+
+    this->viewport()->update(QRect(firstrect.topLeft(), lastrect.bottomRight()));
 }
 
 void DisassemblerTextView::adjustScrollBars()
@@ -711,4 +743,5 @@ void DisassemblerTextView::renameCurrentSymbol()
     }
 
     doc->rename(symbol->address, res.toStdString());
+    this->viewport()->update();
 }

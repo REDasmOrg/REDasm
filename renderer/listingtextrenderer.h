@@ -14,6 +14,7 @@ class ListingTextRenderer: public REDasm::ListingRenderer
 
     public:
         ListingTextRenderer(const QFont& font, REDasm::DisassemblerAPI* disassembler);
+        void setFirstVisibleLine(u64 line);
 
     public:
         REDasm::ListingCursor::Position hitTest(const QPointF& pos, int firstline);
@@ -35,6 +36,7 @@ class ListingTextRenderer: public REDasm::ListingRenderer
         QFontMetrics m_fontmetrics;
         QTextOption m_textoption;
         QRegularExpression m_rgxwords;
+        u64 m_firstline;
         bool m_cursoractive;
 };
 

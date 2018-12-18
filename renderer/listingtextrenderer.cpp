@@ -8,11 +8,13 @@
 #include <QPalette>
 #include <QPainter>
 
-ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_font(font), m_fontmetrics(font), m_cursoractive(false)
+ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_font(font), m_fontmetrics(font), m_firstline(0), m_cursoractive(false)
 {
     m_rgxwords.setPattern(ListingRendererCommon::wordsPattern());
     m_textoption.setWrapMode(QTextOption::NoWrap);
 }
+
+void ListingTextRenderer::setFirstVisibleLine(u64 line) { m_firstline = line; }
 
 REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos, int firstline)
 {
@@ -84,7 +86,7 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
 
     QPainter* painter = reinterpret_cast<QPainter*>(rl.userdata);
     QRect rvp = painter->viewport();
-    rvp.setY(rl.index * m_fontmetrics.height());
+    rvp.setY((rl.documentindex - m_firstline) * m_fontmetrics.height());
     rvp.setHeight(m_fontmetrics.height());
 
     painter->save();

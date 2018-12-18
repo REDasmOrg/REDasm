@@ -53,11 +53,11 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
     m_referencesmodel = new ReferencesModel(ui->tvReferences);
     ui->tvReferences->setModel(m_referencesmodel);
 
-    ui->tvFunctions->verticalHeader()->setDefaultSectionSize(0);
-    ui->tvSegments->verticalHeader()->setDefaultSectionSize(0);
-    ui->tvImports->verticalHeader()->setDefaultSectionSize(0);
-    ui->tvExports->verticalHeader()->setDefaultSectionSize(0);
-    ui->tvStrings->verticalHeader()->setDefaultSectionSize(0);
+    ui->tvFunctions->verticalHeader()->setDefaultSectionSize(ui->tvFunctions->fontMetrics().lineSpacing());
+    ui->tvSegments->verticalHeader()->setDefaultSectionSize(ui->tvSegments->fontMetrics().lineSpacing());
+    ui->tvImports->verticalHeader()->setDefaultSectionSize(ui->tvImports->fontMetrics().lineSpacing());
+    ui->tvExports->verticalHeader()->setDefaultSectionSize(ui->tvExports->fontMetrics().lineSpacing());
+    ui->tvStrings->verticalHeader()->setDefaultSectionSize(ui->tvStrings->fontMetrics().lineSpacing());
 
     ui->tvFunctions->setColumnHidden(2, true);
     ui->tvFunctions->setColumnHidden(3, true);
@@ -198,6 +198,11 @@ void DisassemblerView::checkDisassemblerStatus()
     ui->tbGoto->setEnabled(!m_disassembler->busy());
     ui->tbListingGraph->setEnabled(!m_disassembler->busy());
     m_lefilter->setEnabled(!m_disassembler->busy());
+
+    if(m_disassembler->busy())
+        return;
+
+    ui->tvFunctions->resizeColumnsToContents();
 }
 
 void DisassemblerView::modelIndexSelected(const QModelIndex &index)

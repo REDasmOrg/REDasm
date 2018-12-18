@@ -21,7 +21,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QMetaObject::invokeMethod(this, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
 
-    REDasm::init(QDir::currentPath().toStdString());
+    REDasm::init(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString(),
+                 QDir::currentPath().toStdString());
 
     REDasm::log(QString("REDasm loaded with %1 formats and %2 assemblers").arg(REDasm::Plugins::formats.size())
                                                                           .arg(REDasm::Plugins::assemblers.size()).toStdString());

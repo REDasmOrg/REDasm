@@ -7,6 +7,7 @@
 
 #define CURSOR_BLINK_INTERVAL 500  // 500ms
 #define DOCUMENT_IDEAL_SIZE   10
+#define DOCUMENT_WHEEL_LINES  3
 
 DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(NULL), m_disassemblerpopup(NULL)
 {
@@ -287,6 +288,23 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
     }
 
     QAbstractScrollArea::mouseReleaseEvent(e);
+}
+
+void DisassemblerTextView::wheelEvent(QWheelEvent *e)
+{
+    if(e->orientation() == Qt::Vertical)
+    {
+        int value = this->verticalScrollBar()->value();
+
+        if(e->delta() < 0) // Scroll Down
+            this->verticalScrollBar()->setValue(value + DOCUMENT_WHEEL_LINES);
+        else if(e->delta() > 0) // Scroll Up
+            this->verticalScrollBar()->setValue(value - DOCUMENT_WHEEL_LINES);
+
+        return;
+    }
+
+    QAbstractScrollArea::wheelEvent(e);
 }
 
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)

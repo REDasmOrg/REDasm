@@ -53,6 +53,7 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
     m_referencesmodel = new ReferencesModel(ui->tvReferences);
     ui->tvReferences->setModel(m_referencesmodel);
 
+    ui->tvFunctions->setColumnHidden(2, true);
     ui->tvFunctions->setColumnHidden(3, true);
     ui->tvFunctions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);

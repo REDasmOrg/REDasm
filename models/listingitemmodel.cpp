@@ -106,7 +106,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::ForegroundRole)
     {
-        if((index.column() == 0) || (index.column() == 2))
+        if(index.column() == 0)
             return THEME_VALUE("address_list_fg");
 
         if(symbol->is(REDasm::SymbolTypes::String) && (index.column() == 1))

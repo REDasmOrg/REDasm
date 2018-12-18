@@ -53,12 +53,15 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
     m_referencesmodel = new ReferencesModel(ui->tvReferences);
     ui->tvReferences->setModel(m_referencesmodel);
 
+    ui->tvFunctions->verticalHeader()->setDefaultSectionSize(0);
+    ui->tvSegments->verticalHeader()->setDefaultSectionSize(0);
+    ui->tvImports->verticalHeader()->setDefaultSectionSize(0);
+    ui->tvExports->verticalHeader()->setDefaultSectionSize(0);
+    ui->tvStrings->verticalHeader()->setDefaultSectionSize(0);
+
     ui->tvFunctions->setColumnHidden(2, true);
     ui->tvFunctions->setColumnHidden(3, true);
-    ui->tvFunctions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    ui->tvFunctions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    ui->tvFunctions->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    ui->tvFunctions->horizontalHeader()->setStretchLastSection(true);
     ui->tvFunctions->horizontalHeader()->moveSection(2, 1);
 
     ui->tvCallGraph->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -161,10 +164,14 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 
     ui->stackedWidget->currentWidget()->setFocus();
 
-    disassembler->busyChanged += [&]() { QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection); };
+    disassembler->busyChanged += [&]() {
+        QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection);
+    };
 
-    if(!disassembler->busy())
-        this->checkDisassemblerStatus();
+    if(disassembler->busy())
+        return;
+
+    this->checkDisassemblerStatus();
 }
 
 void DisassemblerView::changeDisassemblerStatus()

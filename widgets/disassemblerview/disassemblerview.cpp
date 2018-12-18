@@ -357,6 +357,9 @@ void DisassemblerView::displayAddress(address_t address)
 
 void DisassemblerView::initializeCallGraph(address_t address)
 {
+    if(m_disassembler->busy())
+        return;
+
     m_callgraphmodel->initializeGraph(address);
     ui->tvCallGraph->expandToDepth(0);
     ui->tabModels->setCurrentWidget(ui->tabCallGraph);
@@ -364,7 +367,7 @@ void DisassemblerView::initializeCallGraph(address_t address)
 
 void DisassemblerView::updateCallGraph()
 {
-    if(ui->tabModels->currentWidget() != ui->tabCallGraph)
+    if(m_disassembler->busy() || (ui->tabModels->currentWidget() != ui->tabCallGraph))
         return;
 
     REDasm::ListingDocument* doc = m_disassembler->document();

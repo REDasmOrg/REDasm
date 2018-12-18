@@ -310,6 +310,9 @@ void DisassemblerView::showReferences(address_t address)
 
 void DisassemblerView::displayAddress(address_t address)
 {
+    if(m_disassembler->busy())
+        return;
+
     REDasm::ListingDocument* doc = m_disassembler->document();
     REDasm::FormatPlugin* format = doc->format();
     const REDasm::Segment* segment = doc->segment(address);

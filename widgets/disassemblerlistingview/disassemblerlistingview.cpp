@@ -46,5 +46,8 @@ void DisassemblerListingView::setDisassembler(REDasm::DisassemblerAPI *disassemb
 
 void DisassemblerListingView::renderArrows()
 {
+    if(m_disassembler->busy())
+        return;
+
     m_disassemblercolumnview->renderArrows(m_disassemblertextview->firstVisibleLine(), m_disassemblertextview->visibleLines());
 }

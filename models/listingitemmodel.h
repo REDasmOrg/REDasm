@@ -1,6 +1,7 @@
 #ifndef LISTINGITEMMODEL_H
 #define LISTINGITEMMODEL_H
 
+#include <QList>
 #include "disassemblermodel.h"
 #include <redasm/disassembler/listing/listingdocument.h>
 
@@ -26,7 +27,7 @@ class ListingItemModel : public DisassemblerModel
         void onListingChanged(const REDasm::ListingDocumentChanged *ldc);
 
     private:
-        QVector<REDasm::ListingItem*> m_items;
+        QList<REDasm::ListingItem*> m_items;
         u32 m_itemtype;
 
     friend class ListingFilterModel;

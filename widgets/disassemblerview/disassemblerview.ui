@@ -306,7 +306,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QHexEdit" name="hexEdit" native="true"/>
+         <widget class="QHexView" name="hexView" native="true"/>
         </item>
        </layout>
       </widget>
@@ -526,15 +526,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ListingMap</class>
+   <class>QHexView</class>
    <extends>QWidget</extends>
-   <header>widgets/listingmap.h</header>
+   <header>QHexView/qhexview.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>QHexEdit</class>
+   <class>ListingMap</class>
    <extends>QWidget</extends>
-   <header location="global">qhexedit.h</header>
+   <header>widgets/listingmap.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

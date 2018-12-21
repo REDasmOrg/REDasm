@@ -40,7 +40,7 @@ set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
 add_definitions(-DREDASM_VERSION="${REDASM_BUILD_VERSION}")
 
 add_subdirectory(LibREDasm)
-add_subdirectory(QHexEdit)
+add_subdirectory(QHexView)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_subdirectory(unittest)
@@ -49,7 +49,7 @@ endif()
 QT5_WRAP_UI(UI_HDRS ${UI_FILES})
 
 SET(SOURCES
-    ${QHEXEDIT_SOURCES}
+    ${QHEXVIEW_SOURCES}
     ${REDASM_TEST_SOURCES}
     main.cpp
     mainwindow.cpp
@@ -83,7 +83,7 @@ SET(SOURCES
     widgets/disassemblerlistingview/disassemblercolumnview.cpp)
 
 SET(HEADERS
-    ${QHEXEDIT_HEADERS}
+    ${QHEXVIEW_HEADERS}
     ${REDASM_TEST_HEADERS}
     mainwindow.h
     widgets/disassemblerview/disassemblerview.h

@@ -4,9 +4,8 @@
 #include <QWidget>
 #include <QLineEdit>
 #include <QMenu>
-#include <qhexedit.h>
-#include <qhexedit.h>
 #include <redasm/disassembler/disassembler.h>
+#include <QHexView/qhexview.h>
 #include "../../models/callgraphmodel.h"
 #include "../../models/listingfiltermodel.h"
 #include "../../models/symboltablemodel.h"
@@ -15,6 +14,7 @@
 #include "../../dialogs/gotodialog.h"
 #include "../disassemblergraphview/disassemblergraphview.h"
 #include "../disassemblerlistingview/disassemblerlistingview.h"
+#include "themeprovider.h"
 
 namespace Ui {
 class DisassemblerView;

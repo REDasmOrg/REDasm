@@ -2,6 +2,7 @@
 #include "ui_disassemblerview.h"
 #include "../../dialogs/referencesdialog.h"
 #include "../../themeprovider.h"
+#include <QHexView/document/buffer/qmemoryrefbuffer.h>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -23,8 +24,8 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
     m_disassemblerlistingview = new DisassemblerListingView(ui->stackedWidget);
     m_disassemblergraphview = new DisassemblerGraphView(ui->stackedWidget);
 
-    ui->hexEdit->setReadOnly(true);
-    ui->hexEdit->setFrameShape(QFrame::NoFrame);
+    ui->hexView->setReadOnly(true);
+    ui->hexView->setFrameShape(QFrame::NoFrame);
 
     ui->stackedWidget->addWidget(m_disassemblerlistingview);
     ui->stackedWidget->addWidget(m_disassemblergraphview);
@@ -144,10 +145,6 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     REDasm::log(QString("Found format '%1' with '%2' instruction set").arg(S_TO_QS(disassembler->format()->name()),
                                                                            S_TO_QS(disassembler->assembler()->name())).toStdString());
 
-    const REDasm::Buffer& buffer = disassembler->format()->buffer();
-    m_hexdocument = QHexDocument::fromMemory(static_cast<const char*>(buffer), buffer.size());
-    m_hexdocument->setParent(this);
-
     m_functionsmodel->setDisassembler(disassembler);
     m_importsmodel->setDisassembler(disassembler);
     m_exportsmodel->setDisassembler(disassembler);
@@ -156,9 +153,11 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     m_callgraphmodel->setDisassembler(disassembler);
     m_referencesmodel->setDisassembler(disassembler);
 
-    ui->hexEdit->setDocument(m_hexdocument);
-    ui->disassemblerMap->setDisassembler(disassembler);
+    REDasm::Buffer& buffer = disassembler->format()->buffer();
+    m_hexdocument = QHexDocument::fromMemory<QMemoryRefBuffer>(reinterpret_cast<char*>(buffer.data()), buffer.size(), ui->hexView);
+    ui->hexView->setDocument(m_hexdocument);
 
+    ui->disassemblerMap->setDisassembler(disassembler);
     m_disassemblerlistingview->setDisassembler(disassembler);
     m_disassemblergraphview->setDisassembler(disassembler);
 
@@ -484,8 +483,8 @@ void DisassemblerView::clearFilter()
 void DisassemblerView::selectToHexDump(address_t address, u64 len)
 {
     offset_t offset = m_disassembler->format()->offset(address);
-    QHexCursor* cursor = ui->hexEdit->document()->cursor();
-    cursor->setSelectionRange(offset, len);
+    QHexCursor* cursor = ui->hexView->document()->cursor();
+    cursor->selectOffset(offset, len);
     ui->tabView->setCurrentWidget(ui->tabHexDump);
 }
 
@@ -532,8 +531,8 @@ void DisassemblerView::syncHexEdit()
             len = m_disassembler->format()->addressWidth();
     }
 
-    QHexCursor* cursor = ui->hexEdit->document()->cursor();
-    cursor->setSelectionRange(offset, len);
+    QHexCursor* cursor = ui->hexView->document()->cursor();
+    cursor->selectOffset(offset, len);
 }
 
 void DisassemblerView::createActions()

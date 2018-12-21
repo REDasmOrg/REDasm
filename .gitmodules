@@ -1,6 +1,6 @@
-[submodule "QHexEdit"]
-	path = QHexEdit
-	url = https://github.com/Dax89/QHexEdit.git
 [submodule "LibREDasm"]
 	path = LibREDasm
 	url = https://github.com/REDasmOrg/REDasm-Library.git
+[submodule "QHexView"]
+	path = QHexView
+	url = https://github.com/Dax89/QHexView.git

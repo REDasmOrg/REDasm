@@ -81,6 +81,7 @@ void GraphView::initializePage()
                              "font-family:" + font.family() + ";" +
                              "font-size:" + QString::number(font.pointSize()) + "pt;" +
                              "color:" + palette.color(QPalette::WindowText).name() + ";" +
+                             "background-color:" + palette.color(QPalette::Base).name() + ";" +
                          "}"
                          "html, body {"
                             "overflow: hidden;"

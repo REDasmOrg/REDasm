@@ -23,7 +23,10 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     cp.second = std::numeric_limits<u64>::max();
 
     REDasm::RendererLine rl;
-    this->getRendererLine(cp.first, rl);
+
+    if(!this->getRendererLine(cp.first, rl))
+       cp.second = 0;
+
     std::string s = rl.text;
 
     for(size_t i = 0; i < s.length(); i++)

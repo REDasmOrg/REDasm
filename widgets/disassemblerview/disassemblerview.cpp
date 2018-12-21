@@ -62,7 +62,6 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
 
     ui->tvFunctions->setColumnHidden(2, true);
     ui->tvFunctions->setColumnHidden(3, true);
-    ui->tvFunctions->horizontalHeader()->setStretchLastSection(true);
     ui->tvFunctions->horizontalHeader()->moveSection(2, 1);
 
     ui->tvCallGraph->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -197,11 +196,6 @@ void DisassemblerView::checkDisassemblerStatus()
     ui->tbGoto->setEnabled(!m_disassembler->busy());
     ui->tbListingGraph->setEnabled(!m_disassembler->busy());
     m_lefilter->setEnabled(!m_disassembler->busy());
-
-    if(m_disassembler->busy())
-        return;
-
-    ui->tvFunctions->resizeColumnsToContents();
 }
 
 void DisassemblerView::modelIndexSelected(const QModelIndex &index)

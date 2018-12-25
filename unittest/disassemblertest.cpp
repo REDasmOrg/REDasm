@@ -1,5 +1,6 @@
 #include "disassemblertest.h"
 #include <redasm/disassembler/disassembler.h>
+#include <QStandardPaths>
 #include <QApplication>
 #include <iostream>
 #include <QString>
@@ -48,7 +49,9 @@ DisassemblerTest::DisassemblerTest(): m_document(NULL)
     ADD_TEST_PATH_NULL("PE Test/CorruptedIT.exe", NULL);
 
     REDasm::setLoggerCallback([](const std::string&) { });
-    REDasm::init(QDir::currentPath().toStdString());
+
+    REDasm::init(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString(),
+                 QDir::currentPath().toStdString());
 }
 
 void DisassemblerTest::runTests()

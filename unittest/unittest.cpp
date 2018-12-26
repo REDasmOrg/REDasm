@@ -4,7 +4,7 @@
 
 int UnitTest::run()
 {
-    REDasm::Runtime::syncMode(true);
+    REDasm::Runtime::sync(true);
     DisassemblerTest disasmtest;
     disasmtest.runTests();
     return 0;

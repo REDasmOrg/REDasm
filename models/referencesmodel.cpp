@@ -62,7 +62,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
             if((*it)->is(REDasm::ListingItem::InstructionItem))
                 return QString::fromStdString(m_printer->out(doc->instruction((*it)->address)));
             else if((*it)->is(REDasm::ListingItem::SymbolItem))
-                return QString::fromStdString(m_printer->symbol(doc->symbol((*it)->address)));
+                return QString::fromStdString(doc->symbol((*it)->address)->name);
         }
     }
     else if(role == Qt::ForegroundRole)

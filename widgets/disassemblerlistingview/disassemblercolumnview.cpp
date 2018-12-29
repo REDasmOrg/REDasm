@@ -67,10 +67,9 @@ void DisassemblerColumnView::renderArrows(int start, int count)
 
                 int idx = m_document->instructionIndex(ref);
 
-                if(idx == -1)
+                if((idx == -1) || !this->applyStyle(idx))
                     continue;
 
-                this->applyStyle(idx);
                 m_paths.insert(qMakePair(idx, start + 1));
             }
         }
@@ -128,21 +127,27 @@ void DisassemblerColumnView::fillArrow(QPainter* painter, int y, const QFontMetr
     painter->fillPath(path, painter->pen().brush());
 }
 
-void DisassemblerColumnView::applyStyle(const REDasm::InstructionPtr &instruction, int idx)
+bool DisassemblerColumnView::applyStyle(const REDasm::InstructionPtr &instruction, int idx)
 {
-    if(!instruction)
-        return;
+    if(!instruction || !instruction->is(REDasm::InstructionTypes::Jump))
+        return false;
 
     if(instruction->is(REDasm::InstructionTypes::Conditional))
         m_pathstyle[idx] = THEME_VALUE("instruction_jmp_c");
     else if(!m_pathstyle.contains(idx))
         m_pathstyle[idx] = THEME_VALUE("instruction_jmp");
+    else
+        return false;
+
+    return true;
 }
 
-void DisassemblerColumnView::applyStyle(int idx)
+bool DisassemblerColumnView::applyStyle(int idx)
 {
     REDasm::ListingItem* item = m_document->itemAt(idx);
 
     if(item)
-        this->applyStyle(m_document->instruction(item->address), idx);
+        return this->applyStyle(m_document->instruction(item->address), idx);
+
+    return false;
 }

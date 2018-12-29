@@ -26,8 +26,8 @@ class DisassemblerColumnView : public QWidget
     private:
         bool isPathSelected(const ArrowPath& path) const;
         void fillArrow(QPainter* painter, int y, const QFontMetrics &fm);
-        void applyStyle(const REDasm::InstructionPtr& instruction, int idx);
-        void applyStyle(int idx);
+        bool applyStyle(const REDasm::InstructionPtr& instruction, int idx);
+        bool applyStyle(int idx);
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;

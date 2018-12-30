@@ -309,6 +309,7 @@ void DisassemblerView::showReferences(address_t address)
         }
 
         m_disassemblerlistingview->textView()->goTo(address);
+        ui->tabView->setCurrentWidget(ui->tabListing);
     });
 
     dlgreferences.exec();

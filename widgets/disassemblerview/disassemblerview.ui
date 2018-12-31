@@ -350,6 +350,9 @@
           <property name="showGrid">
            <bool>false</bool>
           </property>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
           <attribute name="horizontalHeaderStretchLastSection">
            <bool>false</bool>
           </attribute>
@@ -403,6 +406,9 @@
           <property name="showGrid">
            <bool>false</bool>
           </property>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
           <attribute name="horizontalHeaderStretchLastSection">
            <bool>false</bool>
           </attribute>
@@ -456,6 +462,9 @@
           <property name="showGrid">
            <bool>false</bool>
           </property>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
           <attribute name="horizontalHeaderStretchLastSection">
            <bool>false</bool>
           </attribute>
@@ -509,6 +518,9 @@
           <property name="showGrid">
            <bool>false</bool>
           </property>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
           <attribute name="horizontalHeaderStretchLastSection">
            <bool>false</bool>
           </attribute>

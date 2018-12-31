@@ -14,6 +14,9 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
 
+    int maxwidth = qApp->primaryScreen()->size().width();
+    this->viewport()->setFixedWidth(maxwidth);
+
     this->setFont(font);
     this->setCursor(Qt::ArrowCursor);
     this->setFrameStyle(QFrame::NoFrame);
@@ -24,10 +27,9 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->verticalScrollBar()->setSingleStep(1);
     this->verticalScrollBar()->setPageStep(1);
     this->horizontalScrollBar()->setSingleStep(this->fontMetrics().boundingRect(" ").width());
-
-    int maxwidth = qApp->primaryScreen()->size().width();
+    this->horizontalScrollBar()->setMinimum(0);
+    this->horizontalScrollBar()->setValue(0);
     this->horizontalScrollBar()->setMaximum(maxwidth);
-    this->viewport()->setFixedWidth(maxwidth);
 
     m_blinktimer = new QTimer(this);
     m_blinktimer->setInterval(CURSOR_BLINK_INTERVAL);
@@ -498,6 +500,11 @@ bool DisassemblerTextView::isColumnVisible(u64 column, u64 *xpos)
         *xpos -= this->width();
         return false;
     }
+    else if(*xpos < this->width())
+    {
+        *xpos = 0;
+        return false;
+    }
     else if(*xpos < static_cast<u64>(hscrollbar->value()))
     {
         *xpos = hscrollbar->value() - *xpos;
@@ -549,6 +556,8 @@ void DisassemblerTextView::adjustScrollBars()
         vscrollbar->setMaximum(static_cast<int>(doc->size()));
     else
         vscrollbar->setMaximum(static_cast<int>(doc->size() - this->visibleLines() + 1));
+
+    this->ensureColumnVisible();
 }
 
 void DisassemblerTextView::moveToSelection()
@@ -567,13 +576,7 @@ void DisassemblerTextView::moveToSelection()
         vscrollbar->setValue(std::max(static_cast<u64>(0), cur->currentLine() - this->visibleLines() / 2));
     }
 
-    u64 xpos = 0;
-
-    if(!this->isColumnVisible(cur->currentColumn(), &xpos))
-    {
-        QScrollBar* hscrollbar = this->horizontalScrollBar();
-        hscrollbar->setValue(xpos);
-    }
+    this->ensureColumnVisible();
 
     REDasm::ListingItem* item = doc->itemAt(cur->currentLine());
 
@@ -663,6 +666,21 @@ void DisassemblerTextView::adjustContextMenu()
 
     m_acthexdumpshow->setVisible(symbolsegment && !symbolsegment->is(REDasm::SegmentTypes::Bss));
     m_acthexdumpfunc->setVisible(itemsegment && !itemsegment->is(REDasm::SegmentTypes::Bss) && itemsegment->is(REDasm::SegmentTypes::Code));
+}
+
+void DisassemblerTextView::ensureColumnVisible()
+{
+    if(!m_disassembler)
+        return;
+
+    REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
+    u64 xpos = 0;
+
+    if(this->isColumnVisible(cur->currentColumn(), &xpos))
+        return;
+
+    QScrollBar* hscrollbar = this->horizontalScrollBar();
+    hscrollbar->setValue(xpos);
 }
 
 void DisassemblerTextView::showReferencesUnderCursor()

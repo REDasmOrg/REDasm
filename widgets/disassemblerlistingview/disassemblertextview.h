@@ -65,6 +65,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void moveToSelection();
         void createContextMenu();
         void adjustContextMenu();
+        void ensureColumnVisible();
         void showPopup(const QPoint &pos);
 
     signals:

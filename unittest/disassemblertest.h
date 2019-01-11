@@ -39,7 +39,7 @@ class DisassemblerTest
     private:
         TestList m_tests;
         std::unique_ptr<REDasm::Disassembler> m_disassembler;
-        REDasm::ListingDocument* m_document;
+        REDasm::ListingDocument m_document;
         REDasm::Buffer m_buffer;
 };
 

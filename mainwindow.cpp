@@ -21,6 +21,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QMetaObject::invokeMethod(this, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
 
+    REDasm::setProgressCallback([&](float progress) {
+        QMetaObject::invokeMethod(m_pbprogress, "setValue", Qt::QueuedConnection, Q_ARG(int, progress * 100));
+    });
+
     REDasm::init(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString(),
                  QDir::currentPath().toStdString());
 
@@ -47,7 +51,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_pbstatus->setText(QString::fromWCharArray(L"\u25cf"));
     m_pbstatus->setVisible(false);
 
-    ui->statusBar->addPermanentWidget(m_lblstatus, 1);
+    m_pbprogress = new QProgressBar(this);
+    m_pbprogress->setRange(0, 100);
+    m_pbprogress->setFixedHeight(ui->statusBar->height() * 0.5);
+    m_pbprogress->setVisible(false);
+
+    ui->statusBar->addPermanentWidget(m_lblstatus, 70);
+    ui->statusBar->addPermanentWidget(m_pbprogress, 30);
     ui->statusBar->addPermanentWidget(m_pbstatus);
 
     this->loadGeometry();
@@ -366,7 +376,7 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
 
     ui->pteOutput->clear();
 
-    DisassemblerView *dv = new DisassemblerView(m_pbstatus, ui->leFilter, ui->stackView);
+    DisassemblerView *dv = new DisassemblerView(m_pbstatus, m_pbprogress, ui->leFilter, ui->stackView);
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 

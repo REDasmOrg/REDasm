@@ -27,34 +27,34 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
 
 void DisassemblerGraphView::goTo(address_t address)
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    doc->cursor()->moveTo(doc->instructionIndex(address));
+    auto& document = m_disassembler->document();
+    document->cursor()->moveTo(document->instructionIndex(address));
     this->graph();
 }
 
 void DisassemblerGraphView::graph()
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingItem* currentfunction = doc->functionStart(doc->currentItem());
+    auto& document = m_disassembler->document();
+    REDasm::ListingItem* currentfunction = document->functionStart(document->currentItem());
 
     if(!currentfunction || (m_currentfunction && (m_currentfunction == currentfunction)))
         return;
 
     m_currentfunction = currentfunction;
 
-    REDasm::Graphing::FunctionGraph graph(doc);
-    graph.build(doc->currentItem()->address);
+    REDasm::Graphing::FunctionGraph graph(document);
+    graph.build(document->currentItem()->address);
 
     this->setGraph(graph);
-    this->zoomOn(doc->cursor()->currentLine());
+    this->zoomOn(document->cursor()->currentLine());
 }
 
 QString DisassemblerGraphView::getNodeTitle(const REDasm::Graphing::Node *n) const
 {
     const REDasm::Graphing::FunctionBlock* fb = static_cast<const REDasm::Graphing::FunctionBlock*>(n);
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingItem* item = doc->itemAt(fb->startidx);
-    REDasm::SymbolPtr symbol = doc->symbol(item->address);
+    REDasm::ListingDocument& document = m_disassembler->document();
+    REDasm::ListingItem* item = document->itemAt(fb->startidx);
+    REDasm::SymbolPtr symbol = document->symbol(item->address);
 
     if(!symbol)
         return "Condition FALSE";
@@ -67,7 +67,7 @@ QString DisassemblerGraphView::getNodeTitle(const REDasm::Graphing::Node *n) con
     if(refs.size() > 1)
         return QString("From %1 blocks").arg(refs.size());
 
-    REDasm::InstructionPtr instruction = doc->instruction(refs.front());
+    REDasm::InstructionPtr instruction = document->instruction(refs.front());
 
     if(instruction->is(REDasm::InstructionTypes::Conditional))
     {

@@ -16,10 +16,10 @@ void CallGraphModel::initializeGraph(address_t address)
 {
     this->clearGraph();
 
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    auto it = doc->functionItem(address);
+    REDasm::ListingDocument& document = m_disassembler->document();
+    auto it = document->functionItem(address);
 
-    if(it != doc->end())
+    if(it != document->end())
     {
         m_root = it->get();
         m_depths[m_root] = 0;
@@ -45,7 +45,7 @@ void CallGraphModel::populate(REDasm::ListingItem* parentitem)
     if(m_children.contains(parentitem))
         return;
 
-    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingDocument& doc = m_disassembler->document();
     REDasm::ListingItems calls = doc->getCalls(parentitem);
     QModelIndex index;
 

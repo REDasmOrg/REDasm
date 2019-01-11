@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QProgressBar>
 #include <QPushButton>
 #include <QFileInfo>
 #include <QLabel>
@@ -55,6 +56,7 @@ class MainWindow : public QMainWindow
         QFileInfo m_fileinfo;
         QStringList m_recents;
         QPushButton* m_pbstatus;
+        QProgressBar* m_pbprogress;
         QLabel* m_lblstatus;
         REDasm::Buffer m_buffer;
 };

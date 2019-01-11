@@ -1,8 +1,7 @@
 #include "disassemblerwebchannel.h"
 
-DisassemblerWebChannel::DisassemblerWebChannel(REDasm::DisassemblerAPI *disassembler, QObject *parent) : QObject(parent), m_disassembler(disassembler)
+DisassemblerWebChannel::DisassemblerWebChannel(REDasm::DisassemblerAPI *disassembler, QObject *parent) : QObject(parent), m_document(disassembler->document()), m_disassembler(disassembler)
 {
-    m_document = m_disassembler->document();
     m_cursor = m_document->cursor();
 }
 

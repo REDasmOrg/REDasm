@@ -31,7 +31,7 @@ class DisassemblerColumnView : public QWidget
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;
-        REDasm::ListingDocument* m_document;
+        REDasm::ListingDocument m_document;
         QSet<ArrowPath> m_paths;
         QHash<int, QColor> m_pathstyle;
         int m_first, m_last;

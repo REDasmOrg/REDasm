@@ -30,7 +30,7 @@ void DisassemblerListingView::setDisassembler(REDasm::DisassemblerAPI *disassemb
     m_disassemblercolumnview->setDisassembler(disassembler);
     m_disassemblertextview->setDisassembler(disassembler);
 
-    REDasm::ListingDocument* document = m_disassembler->document();
+    REDasm::ListingDocument& document = m_disassembler->document();
 
     document->cursor()->positionChanged += [&]() {
         if(m_disassembler->busy())

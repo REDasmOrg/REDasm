@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_pbstatus(pbstatus), m_lefilter(lefilter)
+DisassemblerView::DisassemblerView(QPushButton *pbstatus, QProgressBar* pbprogress, QLineEdit *lefilter, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_pbstatus(pbstatus), m_pbprogress(pbprogress), m_lefilter(lefilter)
 {
     ui->setupUi(this);
 
@@ -192,6 +192,7 @@ void DisassemblerView::checkDisassemblerStatus()
         m_pbstatus->setStyleSheet("color: green;");
 
     m_pbstatus->setVisible(true);
+    m_pbprogress->setVisible(m_disassembler->busy());
     m_actsetfilter->setEnabled(!m_disassembler->busy());
     ui->tbGoto->setEnabled(!m_disassembler->busy());
     ui->tbListingGraph->setEnabled(!m_disassembler->busy());
@@ -320,10 +321,10 @@ void DisassemblerView::displayAddress(address_t address)
     if(m_disassembler->busy())
         return;
 
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::FormatPlugin* format = doc->format();
-    const REDasm::Segment* segment = doc->segment(address);
-    REDasm::SymbolPtr functionstart = doc->functionStartSymbol(address);
+    REDasm::ListingDocument& document = m_disassembler->document();
+    REDasm::FormatPlugin* format = document->format();
+    const REDasm::Segment* segment = document->segment(address);
+    REDasm::SymbolPtr functionstart = document->functionStartSymbol(address);
 
     QString segm = segment ? S_TO_QS(segment->name) : "???",
             offs = segment ? S_TO_QS(REDasm::hex(format->offset(address), format->bits())) : "???",
@@ -333,7 +334,7 @@ void DisassemblerView::displayAddress(address_t address)
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
     s += QString::fromWCharArray(L"<b>Segment: </b>%1\u00A0\u00A0").arg(segm);
 
-    REDasm::ListingItem* item = doc->currentItem();
+    REDasm::ListingItem* item = document->currentItem();
 
     if(item && item->is(REDasm::ListingItem::InstructionItem))
     {
@@ -369,8 +370,8 @@ void DisassemblerView::updateCallGraph()
     if(m_disassembler->busy() || (ui->tabModels->currentWidget() != ui->tabCallGraph))
         return;
 
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingItem* item = doc->functionStart(doc->currentItem()->address);
+    REDasm::ListingDocument& document = m_disassembler->document();
+    REDasm::ListingItem* item = document->functionStart(document->currentItem()->address);
 
     if(!item)
     {
@@ -384,12 +385,12 @@ void DisassemblerView::updateCallGraph()
 
 void DisassemblerView::displayCurrentReferences()
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    const std::string& word = doc->cursor()->wordUnderCursor();
+    REDasm::ListingDocument& document = m_disassembler->document();
+    const std::string& word = document->cursor()->wordUnderCursor();
 
     if(!word.empty())
     {
-        REDasm::SymbolPtr symbol = doc->symbol(word);
+        REDasm::SymbolPtr symbol = document->symbol(word);
 
         if(symbol)
         {
@@ -398,7 +399,7 @@ void DisassemblerView::displayCurrentReferences()
         }
     }
 
-    REDasm::ListingItem* item = doc->itemAt(doc->cursor()->currentLine());
+    REDasm::ListingItem* item = document->itemAt(document->cursor()->currentLine());
     m_referencesmodel->xref(item->address);
 }
 
@@ -496,8 +497,8 @@ void DisassemblerView::showGoto()
 
 void DisassemblerView::syncHexEdit()
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingItem* item = doc->currentItem();
+    REDasm::ListingDocument& document = m_disassembler->document();
+    REDasm::ListingItem* item = document->currentItem();
 
     offset_t offset = 0;
     u64 len = 0;
@@ -511,7 +512,7 @@ void DisassemblerView::syncHexEdit()
 
         if(item->is(REDasm::ListingItem::SymbolItem))
         {
-            symbol = doc->symbol(item->address);
+            symbol = document->symbol(item->address);
             canbeinstruction = symbol->is(REDasm::SymbolTypes::Code);
         }
         else if(item->is(REDasm::ListingItem::SegmentItem))
@@ -519,7 +520,7 @@ void DisassemblerView::syncHexEdit()
 
         if(canbeinstruction)
         {
-            REDasm::InstructionPtr instruction = doc->instruction(item->address);
+            REDasm::InstructionPtr instruction = document->instruction(item->address);
             len = instruction->size;
         }
         else if(symbol)

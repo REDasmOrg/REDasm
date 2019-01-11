@@ -64,8 +64,8 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
 {
     m_disassembler = disassembler;
 
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingCursor* cur = doc->cursor();
+    REDasm::ListingDocument& document = m_disassembler->document();
+    REDasm::ListingCursor* cur = document->cursor();
 
     m_disassembler->busyChanged += [&]() {
       if(m_disassembler->busy())
@@ -74,7 +74,7 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
       m_disassembler->document()->moveToEP();
     };
 
-    doc->changed += std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1);
+    document->changed += std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1);
     cur->positionChanged += std::bind(&DisassemblerTextView::moveToSelection, this);
     cur->backChanged += [=]() { emit canGoBackChanged(); };
     cur->forwardChanged += [=]() { emit canGoForwardChanged(); };
@@ -99,10 +99,10 @@ void DisassemblerTextView::copy()
 
 void DisassemblerTextView::goTo(address_t address)
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    auto it = doc->item(address);
+    REDasm::ListingDocument& document = m_disassembler->document();
+    auto it = document->item(address);
 
-    if(it == doc->end())
+    if(it == document->end())
         return;
 
     this->goTo(it->get());
@@ -110,18 +110,18 @@ void DisassemblerTextView::goTo(address_t address)
 
 void DisassemblerTextView::goTo(REDasm::ListingItem *item)
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    int idx = doc->indexOf(item);
+    REDasm::ListingDocument& document = m_disassembler->document();
+    int idx = document->indexOf(item);
 
     if(idx == -1)
         return;
 
-    doc->cursor()->moveTo(idx);
+    document->cursor()->moveTo(idx);
 }
 
 void DisassemblerTextView::addComment()
 {
-    REDasm::ListingDocument* document = m_disassembler->document();
+    REDasm::ListingDocument& document = m_disassembler->document();
     address_t currentaddress = document->currentItem()->address;
 
     bool ok = false;
@@ -138,7 +138,7 @@ void DisassemblerTextView::addComment()
 
 void DisassemblerTextView::printFunctionHexDump()
 {
-    REDasm::ListingDocument* document = m_disassembler->document();
+    REDasm::ListingDocument& document = m_disassembler->document();
     REDasm::ListingItem* item = document->currentItem();
 
     if(!item)
@@ -162,8 +162,8 @@ void DisassemblerTextView::goForward() { m_disassembler->document()->cursor()->g
 
 void DisassemblerTextView::blinkCursor()
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingCursor* cur = doc->cursor();
+    REDasm::ListingDocument& document = m_disassembler->document();
+    REDasm::ListingCursor* cur = document->cursor();
 
     m_renderer->toggleCursor();
     this->renderLine(cur->currentLine());
@@ -317,8 +317,8 @@ void DisassemblerTextView::wheelEvent(QWheelEvent *e)
 
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingCursor* cur = doc->cursor();
+    REDasm::ListingDocument& document = m_disassembler->document();
+    REDasm::ListingCursor* cur = document->cursor();
 
     m_blinktimer->stop();
     m_renderer->enableCursor();
@@ -341,7 +341,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     }
     else if(e->matches(QKeySequence::MoveToNextLine) || e->matches(QKeySequence::SelectNextLine))
     {
-        if(doc->lastLine()  == cur->currentLine())
+        if(document->lastLine()  == cur->currentLine())
             return;
 
         int nextline = cur->currentLine() + 1;
@@ -365,10 +365,10 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     }
     else if(e->matches(QKeySequence::MoveToNextPage) || e->matches(QKeySequence::SelectNextPage))
     {
-        if(doc->lastLine()  == cur->currentLine())
+        if(document->lastLine()  == cur->currentLine())
             return;
 
-        int pageline = std::min(doc->lastLine(), this->firstVisibleLine() + this->visibleLines());
+        int pageline = std::min(document->lastLine(), this->firstVisibleLine() + this->visibleLines());
 
         if(e->matches(QKeySequence::MoveToNextPage))
             cur->moveTo(pageline, std::min(cur->currentColumn(), m_renderer->getLastColumn(pageline)));
@@ -402,13 +402,13 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     }
     else if(e->matches(QKeySequence::MoveToEndOfDocument) || e->matches(QKeySequence::SelectEndOfDocument))
     {
-        if(doc->lastLine() == cur->currentLine())
+        if(document->lastLine() == cur->currentLine())
             return;
 
         if(e->matches(QKeySequence::MoveToEndOfDocument))
-            cur->moveTo(doc->lastLine(), m_renderer->getLastColumn(doc->lastLine()));
+            cur->moveTo(document->lastLine(), m_renderer->getLastColumn(document->lastLine()));
         else
-            cur->select(doc->lastLine(), m_renderer->getLastColumn(doc->lastLine()));
+            cur->select(document->lastLine(), m_renderer->getLastColumn(document->lastLine()));
     }
     else if(e->matches(QKeySequence::MoveToStartOfLine) || e->matches(QKeySequence::SelectStartOfLine))
     {
@@ -462,13 +462,13 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
 
 REDasm::SymbolPtr DisassemblerTextView::symbolUnderCursor()
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingCursor* cur = doc->cursor();
+    REDasm::ListingDocument& document = m_disassembler->document();
+    REDasm::ListingCursor* cur = document->cursor();
 
     if(!cur->hasWordUnderCursor())
         return NULL;
 
-    return doc->symbol(cur->wordUnderCursor());
+    return document->symbol(cur->wordUnderCursor());
 }
 
 bool DisassemblerTextView::isLineVisible(u64 line) const
@@ -550,20 +550,20 @@ void DisassemblerTextView::adjustScrollBars()
         return;
 
     QScrollBar* vscrollbar = this->verticalScrollBar();
-    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingDocument& document = m_disassembler->document();
 
-    if(doc->size() <= static_cast<size_t>(this->visibleLines()))
-        vscrollbar->setMaximum(static_cast<int>(doc->size()));
+    if(document->size() <= static_cast<size_t>(this->visibleLines()))
+        vscrollbar->setMaximum(static_cast<int>(document->size()));
     else
-        vscrollbar->setMaximum(static_cast<int>(doc->size() - this->visibleLines() + 1));
+        vscrollbar->setMaximum(static_cast<int>(document->size() - this->visibleLines() + 1));
 
     this->ensureColumnVisible();
 }
 
 void DisassemblerTextView::moveToSelection()
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    REDasm::ListingCursor* cur = doc->cursor();
+    REDasm::ListingDocument& document = m_disassembler->document();
+    REDasm::ListingCursor* cur = document->cursor();
 
     if(this->isLineVisible(cur->currentLine()))
     {
@@ -578,7 +578,7 @@ void DisassemblerTextView::moveToSelection()
 
     this->ensureColumnVisible();
 
-    REDasm::ListingItem* item = doc->itemAt(cur->currentLine());
+    REDasm::ListingItem* item = document->itemAt(cur->currentLine());
 
     if(item)
         emit addressChanged(item->address);
@@ -618,22 +618,22 @@ void DisassemblerTextView::createContextMenu()
 
 void DisassemblerTextView::adjustContextMenu()
 {
-    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingDocument& document = m_disassembler->document();
     REDasm::SymbolPtr symbol = this->symbolUnderCursor();
-    REDasm::ListingItem* item = doc->currentItem();
+    REDasm::ListingItem* item = document->currentItem();
 
     if(!item)
         return;
 
-    REDasm::Segment *itemsegment = doc->segment(item->address), *symbolsegment = NULL;
+    REDasm::Segment *itemsegment = document->segment(item->address), *symbolsegment = NULL;
     m_actback->setVisible(this->canGoBack());
     m_actforward->setVisible(this->canGoForward());
-    m_actcopy->setVisible(doc->cursor()->hasSelection());
+    m_actcopy->setVisible(document->cursor()->hasSelection());
 
     if(!symbol)
     {
-        symbolsegment = doc->segment(item->address);
-        symbol = doc->functionStartSymbol(item->address);
+        symbolsegment = document->segment(item->address);
+        symbol = document->functionStartSymbol(item->address);
 
         m_actrename->setVisible(false);
         m_actxrefs->setVisible(false);
@@ -648,7 +648,7 @@ void DisassemblerTextView::adjustContextMenu()
         return;
     }
 
-    symbolsegment = doc->segment(symbol->address);
+    symbolsegment = document->segment(symbol->address);
 
     m_actxrefs->setVisible(true);
     m_actxrefs->setText(QString("Cross Reference %1").arg(S_TO_QS(symbol->name)));
@@ -710,9 +710,9 @@ void DisassemblerTextView::showCallGraph()
 
     if(!symbol)
     {
-        REDasm::ListingDocument* doc = m_disassembler->document();
-        REDasm::ListingItem* item = doc->currentItem();
-        symbol = doc->functionStartSymbol(item->address);
+        REDasm::ListingDocument& document = m_disassembler->document();
+        REDasm::ListingItem* item = document->currentItem();
+        symbol = document->functionStartSymbol(item->address);
     }
 
     emit callGraphRequested(symbol->address);
@@ -757,18 +757,18 @@ void DisassemblerTextView::renameCurrentSymbol()
     if(!symbol || symbol->isLocked())
         return;
 
-    REDasm::ListingDocument* doc = m_disassembler->document();
+    REDasm::ListingDocument& document = m_disassembler->document();
 
     QString symbolname = S_TO_QS(symbol->name);
     QString res = QInputDialog::getText(this, QString("Rename %1").arg(symbolname), "Symbol name:", QLineEdit::Normal, symbolname);
 
-    if(doc->symbol(res.toStdString()))
+    if(document->symbol(res.toStdString()))
     {
         QMessageBox::warning(this, "Rename failed", "Duplicate symbol name");
         this->renameCurrentSymbol();
         return;
     }
 
-    doc->rename(symbol->address, res.toStdString());
+    document->rename(symbol->address, res.toStdString());
     this->viewport()->update();
 }

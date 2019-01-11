@@ -10,7 +10,7 @@
 class ListingRendererCommon
 {
     public:
-        ListingRendererCommon(QTextDocument* textdocument, REDasm::ListingDocument* document);
+        ListingRendererCommon(QTextDocument* textdocument, REDasm::ListingDocument& document);
         void insertLine(const REDasm::RendererLine& rl, bool showcursor = false);
         void insertText(const REDasm::RendererLine& rl, bool showcursor = false);
         void insertHtmlLine(const REDasm::RendererLine& rl);
@@ -30,9 +30,9 @@ class ListingRendererCommon
         void highlightLine();
 
     private:
+        REDasm::ListingDocument& m_document;
         QTextDocument* m_textdocument;
         QTextCursor m_textcursor;
-        REDasm::ListingDocument* m_document;
         QRegularExpression m_rgxwords;
 };
 

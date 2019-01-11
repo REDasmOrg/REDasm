@@ -9,11 +9,11 @@ ListingItemModel::ListingItemModel(u32 itemtype, QObject *parent) : Disassembler
 void ListingItemModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
-    REDasm::ListingDocument* doc = m_disassembler->document();
+    auto& document = m_disassembler->document();
 
     this->beginResetModel();
 
-    for(auto it = doc->begin(); it != doc->end(); it++)
+    for(auto it = document->begin(); it != document->end(); it++)
     {
         if(!this->isItemAllowed(it->get()))
             continue;
@@ -24,7 +24,7 @@ void ListingItemModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 
     this->endResetModel();
 
-    doc->changed += std::bind(&ListingItemModel::onListingChanged, this, std::placeholders::_1);
+    document->changed += std::bind(&ListingItemModel::onListingChanged, this, std::placeholders::_1);
 }
 
 QModelIndex ListingItemModel::index(int row, int column, const QModelIndex &parent) const

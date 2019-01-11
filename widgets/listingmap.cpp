@@ -9,14 +9,13 @@ void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     m_disassembler = disassembler;
 
-    REDasm::ListingDocument* doc = m_disassembler->document();
+    auto& document = m_disassembler->document();
 
-    for(auto it = doc->begin(); it != doc->end(); it++)
+    for(auto it = document->begin(); it != document->end(); it++)
         this->addItem(it->get());
 
     this->update();
-
-    doc->changed += std::bind(&ListingMap::onDocumentChanged, this, std::placeholders::_1);
+    document->changed += std::bind(&ListingMap::onDocumentChanged, this, std::placeholders::_1);
 
     m_disassembler->busyChanged += [=]() {
         if(m_disassembler->busy())
@@ -32,8 +31,8 @@ void ListingMap::addItem(const REDasm::ListingItem *item)
 {
     if(item->is(REDasm::ListingItem::SegmentItem))
     {
-        REDasm::ListingDocument* doc = m_disassembler->document();
-        m_totalsize += doc->segment(item->address)->size();
+        auto& document = m_disassembler->document();
+        m_totalsize += document->segment(item->address)->size();
 
         auto it = REDasm::Listing::insertionPoint(&m_segments, item);
         m_segments.insert(it, item);
@@ -49,8 +48,8 @@ void ListingMap::removeItem(const REDasm::ListingItem *item)
 {
     if(item->is(REDasm::ListingItem::SegmentItem))
     {
-        REDasm::ListingDocument* doc = m_disassembler->document();
-        m_totalsize -= doc->segment(item->address)->size();
+        auto& document = m_disassembler->document();
+        m_totalsize -= document->segment(item->address)->size();
 
         int idx = REDasm::Listing::indexOf(&m_segments, item);
         m_segments.removeAt(idx);
@@ -77,7 +76,7 @@ void ListingMap::paintEvent(QPaintEvent *)
 
     QPainter painter(this);
     QHash<REDasm::Segment*, int> origins;
-    REDasm::ListingDocument* doc = m_disassembler->document();
+    auto& document = m_disassembler->document();
     int x = 0, size = 0;
 
     painter.fillRect(this->rect(), Qt::gray);
@@ -85,7 +84,7 @@ void ListingMap::paintEvent(QPaintEvent *)
 
     for(const REDasm::ListingItem* item : m_segments)
     {
-        REDasm::Segment* segment = doc->segment(item->address);
+        REDasm::Segment* segment = document->segment(item->address);
         QRect r(x, 0, this->calculateWidth(segment->size()), this->height());
 
         if(segment->is(REDasm::SegmentTypes::Code))
@@ -102,14 +101,14 @@ void ListingMap::paintEvent(QPaintEvent *)
     for(int i = 0; i < m_functions.size(); i++)
     {
         const REDasm::ListingItem* item = m_functions[i];
-        REDasm::Segment* segment = doc->segment(item->address);
+        REDasm::Segment* segment = document->segment(item->address);
 
         if(item == m_functions.last())
             size = segment->size();
         else
             size = m_functions[i + 1]->address - item->address;
 
-        REDasm::SymbolPtr symbol = doc->symbol(item->address);
+        REDasm::SymbolPtr symbol = document->symbol(item->address);
         QRect r(origins[segment] + x, 0, this->calculateWidth(size), this->height());
 
         if(symbol->isLocked())

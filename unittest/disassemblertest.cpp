@@ -35,7 +35,7 @@
 using namespace std;
 using namespace REDasm;
 
-DisassemblerTest::DisassemblerTest(): m_document(NULL)
+DisassemblerTest::DisassemblerTest()
 {
     ADD_TEST("/home/davide/Programmazione/Cavia.exe", testCavia);
 

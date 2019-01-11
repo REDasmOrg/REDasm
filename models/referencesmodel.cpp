@@ -42,13 +42,13 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
     if(!m_disassembler)
         return QVariant();
 
-    REDasm::ListingDocument* doc = m_disassembler->document();
-    auto it = doc->instructionItem(m_references[index.row()]);
+    auto& document = m_disassembler->document();
+    auto it = document->instructionItem(m_references[index.row()]);
 
-    if(it == doc->end())
-        it = doc->symbolItem(m_references[index.row()]);
+    if(it == document->end())
+        it = document->symbolItem(m_references[index.row()]);
 
-    if(it == doc->end())
+    if(it == document->end())
         return QVariant();
 
     if(role == Qt::DisplayRole)
@@ -60,9 +60,9 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         else if(index.column() == 2)
         {
             if((*it)->is(REDasm::ListingItem::InstructionItem))
-                return QString::fromStdString(m_printer->out(doc->instruction((*it)->address)));
+                return QString::fromStdString(m_printer->out(document->instruction((*it)->address)));
             else if((*it)->is(REDasm::ListingItem::SymbolItem))
-                return QString::fromStdString(doc->symbol((*it)->address)->name);
+                return QString::fromStdString(document->symbol((*it)->address)->name);
         }
     }
     else if(role == Qt::ForegroundRole)
@@ -74,7 +74,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         {
             if((*it)->is(REDasm::ListingItem::InstructionItem))
             {
-                REDasm::InstructionPtr instruction = doc->instruction((*it)->address);
+                REDasm::InstructionPtr instruction = document->instruction((*it)->address);
 
                 if(!instruction->is(REDasm::InstructionTypes::Conditional))
                     return THEME_VALUE("instruction_jmp_c");
@@ -85,7 +85,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
             }
             else if((*it)->is(REDasm::ListingItem::SymbolItem))
             {
-                REDasm::SymbolPtr symbol = doc->symbol((*it)->address);
+                REDasm::SymbolPtr symbol = document->symbol((*it)->address);
 
                 if(symbol->is(REDasm::SymbolTypes::Data))
                     return THEME_VALUE("data_fg");

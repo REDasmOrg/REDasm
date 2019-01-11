@@ -24,8 +24,8 @@ class DisassemblerWebChannel : public QObject
         void switchView();
 
     private:
+        REDasm::ListingDocument& m_document;
         REDasm::DisassemblerAPI* m_disassembler;
-        REDasm::ListingDocument* m_document;
         REDasm::ListingCursor* m_cursor;
 };
 

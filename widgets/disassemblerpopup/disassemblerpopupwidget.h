@@ -22,9 +22,9 @@ class DisassemblerPopupWidget : public QPlainTextEdit
         int getIndexOfWord(const std::string& word) const;
 
     private:
+        REDasm::ListingDocument& m_document;
         ListingPopupRenderer* m_popuprenderer;
         REDasm::DisassemblerAPI* m_disassembler;
-        REDasm::ListingDocument* m_document;
         int m_index, m_rows;
 };
 

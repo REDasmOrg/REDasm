@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
 
     REDasm::setProgressCallback([&](float progress) {
-        QMetaObject::invokeMethod(m_pbprogress, "setValue", Qt::QueuedConnection, Q_ARG(int, progress * 100));
+        QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString::number(std::floor(progress * 100)) + "%"));
     });
 
     REDasm::init(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString(),
@@ -43,6 +43,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->tbAbout->setIcon(THEME_ICON("about"));
 
     m_lblstatus = new QLabel(this);
+    m_lblprogress = new QLabel(this);
+    m_lblprogress->setVisible(false);
+    m_lblprogress->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     m_pbstatus = new QPushButton(this);
     m_pbstatus->setFlat(true);
@@ -51,13 +54,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_pbstatus->setText(QString::fromWCharArray(L"\u25cf"));
     m_pbstatus->setVisible(false);
 
-    m_pbprogress = new QProgressBar(this);
-    m_pbprogress->setRange(0, 100);
-    m_pbprogress->setFixedHeight(ui->statusBar->height() * 0.5);
-    m_pbprogress->setVisible(false);
-
     ui->statusBar->addPermanentWidget(m_lblstatus, 70);
-    ui->statusBar->addPermanentWidget(m_pbprogress, 30);
+    ui->statusBar->addPermanentWidget(m_lblprogress, 30);
     ui->statusBar->addPermanentWidget(m_pbstatus);
 
     this->loadGeometry();
@@ -172,7 +170,7 @@ void MainWindow::onSaveClicked()
     if(!currdv)
         return;
 
-    std::string rdbfile = QString("%1.%2").arg(m_fileinfo.baseName()).arg(RDB_SIGNATURE_EXT).toStdString();
+    std::string rdbfile = QString("%1.%2").arg(m_fileinfo.baseName(), RDB_SIGNATURE_EXT).toStdString();
     REDasm::log("Saving Database " + REDasm::quoted(rdbfile));
 
     if(!REDasm::Database::save(currdv->disassembler(), rdbfile, m_fileinfo.fileName().toStdString()))
@@ -376,7 +374,7 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
 
     ui->pteOutput->clear();
 
-    DisassemblerView *dv = new DisassemblerView(m_pbstatus, m_pbprogress, ui->leFilter, ui->stackView);
+    DisassemblerView *dv = new DisassemblerView(m_pbstatus, ui->leFilter, ui->stackView);
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 
@@ -417,6 +415,14 @@ void MainWindow::initDisassembler()
         return;
 
     REDasm::Disassembler* disassembler = new REDasm::Disassembler(assembler, format);
+
+    disassembler->busyChanged += [&]() {
+        DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+
+        if(currdv)
+            QMetaObject::invokeMethod(m_lblprogress, "setVisible", Qt::QueuedConnection, Q_ARG(bool, currdv->disassembler()->busy()));
+    };
+
     this->showDisassemblerView(disassembler); // Take ownership
     disassembler->disassemble();
 }

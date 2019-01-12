@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-DisassemblerView::DisassemblerView(QPushButton *pbstatus, QProgressBar* pbprogress, QLineEdit *lefilter, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_pbstatus(pbstatus), m_pbprogress(pbprogress), m_lefilter(lefilter)
+DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_pbstatus(pbstatus), m_lefilter(lefilter)
 {
     ui->setupUi(this);
 
@@ -192,7 +192,6 @@ void DisassemblerView::checkDisassemblerStatus()
         m_pbstatus->setStyleSheet("color: green;");
 
     m_pbstatus->setVisible(true);
-    m_pbprogress->setVisible(m_disassembler->busy());
     m_actsetfilter->setEnabled(!m_disassembler->busy());
     ui->tbGoto->setEnabled(!m_disassembler->busy());
     ui->tbListingGraph->setEnabled(!m_disassembler->busy());

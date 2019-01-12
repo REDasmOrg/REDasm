@@ -443,8 +443,8 @@ void MainWindow::closeFile()
 
 void MainWindow::initDisassembler()
 {
-    REDasm::FormatPlugin* format = nullptr;
-    REDasm::AssemblerPlugin* assembler = nullptr;
+    REDasm::FormatPlugin* format = NULL;
+    REDasm::AssemblerPlugin* assembler = NULL;
 
     if(!this->checkPlugins(&format, &assembler))
         return;

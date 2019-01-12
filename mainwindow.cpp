@@ -64,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpenClicked);
     connect(ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveClicked);
     connect(ui->action_Save_As, &QAction::triggered, this, &MainWindow::onSaveAsClicked);
+    connect(ui->action_Close, &QAction::triggered, this, &MainWindow::onCloseClicked);
     connect(ui->action_Exit, &QAction::triggered, this, &MainWindow::onExitClicked);
     connect(ui->action_Import_Signature, &QAction::triggered, this, &MainWindow::onImportSignatureClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
@@ -193,6 +194,12 @@ void MainWindow::onSaveAsClicked() // TODO: Handle multiple outputs
         REDasm::log(REDasm::Database::lastError());
 }
 
+void MainWindow::onCloseClicked()
+{
+    this->closeFile();
+    ui->action_Close->setEnabled(false);
+}
+
 void MainWindow::onRecentFileClicked()
 {
     QAction* sender = qobject_cast<QAction*>(this->sender());
@@ -304,6 +311,8 @@ bool MainWindow::loadDatabase(const QString &filepath)
 
 void MainWindow::load(const QString& filepath)
 {
+    this->closeFile();
+
     m_fileinfo = QFileInfo(filepath);
     QDir::setCurrent(m_fileinfo.path());
 
@@ -374,17 +383,19 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
 
     ui->pteOutput->clear();
 
+    QWidget* oldwidget = ui->stackView->widget(0);
+    if (oldwidget != NULL)
+    {
+        ui->stackView->removeWidget(oldwidget);
+        oldwidget->deleteLater();
+    }
+
     DisassemblerView *dv = new DisassemblerView(m_pbstatus, ui->leFilter, ui->stackView);
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 
     ui->splitter->setSizes((QList<int>() << this->height() * 0.9 <<
                                             this->height() * 0.1));
-
-    QWidget* oldwidget = ui->stackView->widget(0);
-    ui->stackView->removeWidget(oldwidget);
-    oldwidget->deleteLater();
-
     this->checkCommandState();
 }
 
@@ -406,25 +417,49 @@ bool MainWindow::canClose()
     return true;
 }
 
+void MainWindow::closeFile()
+{
+    // TODO: messageBox for confirmation?
+
+    if (m_disassembler != NULL)
+    {
+        m_disassembler->busyChanged.disconnect();
+        m_disassembler->pause();
+        m_disassembler = NULL;
+    }
+
+    QWidget* oldwidget = ui->stackView->widget(0);
+    if (oldwidget != NULL)
+    {
+        ui->stackView->removeWidget(oldwidget);
+        oldwidget->deleteLater();
+    }
+
+    ui->pteOutput->clear();
+    m_lblprogress->setVisible(false);
+    m_lblstatus->clear();
+    m_pbstatus->setVisible(false);
+}
+
 void MainWindow::initDisassembler()
 {
-    REDasm::FormatPlugin* format = NULL;
-    REDasm::AssemblerPlugin* assembler = NULL;
+    REDasm::FormatPlugin* format = nullptr;
+    REDasm::AssemblerPlugin* assembler = nullptr;
 
     if(!this->checkPlugins(&format, &assembler))
         return;
 
-    REDasm::Disassembler* disassembler = new REDasm::Disassembler(assembler, format);
+    m_disassembler = new REDasm::Disassembler(assembler, format);
 
-    disassembler->busyChanged += [&]() {
+    m_disassembler->busyChanged += [&]() {
         DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
 
         if(currdv)
             QMetaObject::invokeMethod(m_lblprogress, "setVisible", Qt::QueuedConnection, Q_ARG(bool, currdv->disassembler()->busy()));
     };
 
-    this->showDisassemblerView(disassembler); // Take ownership
-    disassembler->disassemble();
+    this->showDisassemblerView(m_disassembler); // Take ownership
+    m_disassembler->disassemble();
 }
 
 void MainWindow::onAboutClicked()
@@ -447,6 +482,7 @@ void MainWindow::checkCommandState()
 
     ui->action_Save->setEnabled(!disassembler->busy());
     ui->action_Save_As->setEnabled(!disassembler->busy());
+    ui->action_Close->setEnabled(true);
     ui->action_Import_Signature->setEnabled(!disassembler->busy());
 
     ui->tbSave->setEnabled(!disassembler->busy());

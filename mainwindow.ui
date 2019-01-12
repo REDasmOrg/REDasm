@@ -216,7 +216,7 @@
      <x>0</x>
      <y>0</y>
      <width>1118</width>
-     <height>21</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -226,6 +226,7 @@
     <addaction name="action_Open"/>
     <addaction name="action_Save"/>
     <addaction name="action_Save_As"/>
+    <addaction name="action_Close"/>
     <addaction name="action_Recent_Files"/>
     <addaction name="separator"/>
     <addaction name="action_Exit"/>
@@ -303,6 +304,14 @@
    </property>
    <property name="toolTip">
     <string>Import Signature</string>
+   </property>
+  </action>
+  <action name="action_Close">
+  <property name="enabled">
+   <bool>false</bool>
+  </property>
+   <property name="text">
+    <string>&amp;Close</string>
    </property>
   </action>
  </widget>

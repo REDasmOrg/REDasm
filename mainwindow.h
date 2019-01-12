@@ -31,6 +31,7 @@ class MainWindow : public QMainWindow
         void onOpenClicked();
         void onSaveClicked();
         void onSaveAsClicked();
+        void onCloseClicked();
         void onRecentFileClicked();
         void onExitClicked();
         void onImportSignatureClicked();
@@ -49,6 +50,7 @@ class MainWindow : public QMainWindow
         void showDisassemblerView(REDasm::Disassembler *disassembler);
         bool canClose();
         void initDisassembler();
+        void closeFile();
 
     private:
         Ui::MainWindow *ui;
@@ -57,6 +59,7 @@ class MainWindow : public QMainWindow
         QStringList m_recents;
         QPushButton* m_pbstatus;
         REDasm::Buffer m_buffer;
+        REDasm::Disassembler *m_disassembler = NULL;
 };
 
 #endif // MAINWINDOW_H

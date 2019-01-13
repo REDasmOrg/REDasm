@@ -14,24 +14,16 @@ GraphView::GraphView(QWidget *parent): QWebEngineView(parent)
 
 void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
 {
-    this->page()->runJavaScript("var graph = new dagre.graphlib.Graph();"
-                                "graph.setDefaultEdgeLabel(function() { return { }; });"
-                                "graph.setGraph({ });");
+    this->page()->runJavaScript("GraphView.initGraph();");
 
     this->generateNodes(graph);
     this->generateEdges(graph);
 
-    this->page()->runJavaScript("dagre.layout(graph, { acyclier: 'greedy' });"
-                                "d3.selectAll('svg > :not(defs)').remove();"
-                                "var svg = d3.select('svg');"
-                                "var g = svg.append('g');"
-                                "var zoom = d3.zoom().on('zoom', function() { g.attr('transform', d3.event.transform); });"
-                                "g.call(new dagreD3.render(), graph);" +
-                                QString("var mid = (%1 - graph.graph().width) / 2;").arg(this->width()) +
-                                QString("g.attr('transform', 'translate(' + mid + ', %1)');").arg(GRAPH_MARGINS) +
-                                "svg.call(zoom.filter(function() { return d3.event.ctrlKey; }));" +
-                                QString("svg.attr('height', '%1');").arg(this->height()) +
-                                QString("svg.attr('width', '%1');").arg(this->width()));
+    this->page()->runJavaScript(QString("GraphView.renderGraph(%1, %2, %3);")
+        .arg(this->width())
+        .arg(this->height())
+        .arg(GRAPH_MARGINS)
+    );
 }
 
 QString GraphView::getNodeTitle(const REDasm::Graphing::Node *n) const { Q_UNUSED(n) return QString(); }
@@ -47,24 +39,13 @@ QColor GraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm:
 void GraphView::zoomOn(int line)
 {
     /*
-    this->page()->runJavaScript(QString("var n = d3.select('div[data-lineroot][data-line=\"%1\"]').node();").arg(line) +
-                                QString("console.log('div[data-lineroot][data-line=\"%1\"]');").arg(line) +
-                                "while(n && !n.classList.contains('label'))"
-                                    "n = n.parentElement;"
-                                "if(n) {"
-                                    "var zoomscale = 2.0;"
-                                    "var bb = n.getBBox();"
-                                    "var s = d3.select(n);"
-                                "}");
+    this->page()->runJavaScript(QString("GraphView.zoomOn(%1);").arg(line));
     */
 }
 
 void GraphView::appendCSS(const QString &css)
 {
-    this->page()->runJavaScript("var css = document.createElement('style');"
-                                "css.type = 'text/css';"
-                                "document.head.appendChild(css);"
-                                "css.innerText = '" + css + "';");
+    this->page()->runJavaScript(QString("GraphView.appendCss('%1');").arg(css));
 }
 
 void GraphView::initializePage()
@@ -72,9 +53,7 @@ void GraphView::initializePage()
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     QPalette palette = qApp->palette();
 
-    this->page()->runJavaScript("document.designMode = 'on';"
-                                "window.ondrop = function() { return false; };"                           // Disable text dragging
-                                "window.onkeydown = function(e) { return e.key.startsWith('Arrow'); };"); // Disable character input
+    this->page()->runJavaScript("GraphView.initPage();");
 
     QString generalcss = "html {"
                              "cursor: default;"
@@ -124,8 +103,10 @@ void GraphView::generateNodes(const REDasm::Graphing::Graph &graph)
     {
         QString title = this->nodeTitle(n.get()), content = this->getNodeContent(n.get());
 
-        this->page()->runJavaScript(QString("graph.setNode(%1, { labelType: 'html', "
-                                            "                    label: '%2%3' });").arg(n->id).arg(title, content));
+        this->page()->runJavaScript(QString("GraphView.setNode(%1, '%2', '%3');")
+            .arg(n->id)
+            .arg(title, content)
+        );
     }
 }
 
@@ -138,10 +119,11 @@ void GraphView::generateEdges(const REDasm::Graphing::Graph &graph)
         for(auto& e : edges)
         {
             QColor color = this->getEdgeColor(n.get(), e);
-            this->page()->runJavaScript(QString("graph.setEdge(%1, %2, { style: 'stroke: %3; fill: transparent', "
-                                                                        "arrowheadStyle: 'stroke: %3; fill: %3' });").arg(n->id)
-                                                                                                                   .arg(e->id)
-                                                                                                                   .arg(color.name()));
+            this->page()->runJavaScript(QString("GraphView.setEdge(%1, %2, '%3');")
+                .arg(n->id)
+                .arg(e->id)
+                .arg(color.name())
+            );
         }
     }
 }

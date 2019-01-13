@@ -424,7 +424,7 @@ void MainWindow::closeFile()
     if (m_disassembler != NULL)
     {
         m_disassembler->busyChanged.disconnect();
-        m_disassembler->pause();
+        m_disassembler->stop();
         m_disassembler = NULL;
     }
 

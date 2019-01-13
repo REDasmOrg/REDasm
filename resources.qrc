@@ -31,5 +31,6 @@
         <file alias="dagre-d3.js">web/dagre-d3.min.js</file>
         <file alias="dagre.js">web/dagre.min.js</file>
         <file alias="graph.html">web/graph.html</file>
+        <file>graph.js</file>
     </qresource>
 </RCC>

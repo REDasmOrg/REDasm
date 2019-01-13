@@ -421,7 +421,7 @@ void MainWindow::closeFile()
 {
     // TODO: messageBox for confirmation?
 
-    if (m_disassembler != NULL)
+    if(m_disassembler != NULL)
     {
         m_disassembler->busyChanged.disconnect();
         m_disassembler->stop();
@@ -429,7 +429,8 @@ void MainWindow::closeFile()
     }
 
     QWidget* oldwidget = ui->stackView->widget(0);
-    if (oldwidget != NULL)
+
+    if(oldwidget != NULL)
     {
         ui->stackView->removeWidget(oldwidget);
         oldwidget->deleteLater();

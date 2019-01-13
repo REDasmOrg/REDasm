@@ -174,9 +174,9 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 
 void DisassemblerView::changeDisassemblerStatus()
 {
-    if(m_disassembler->state() == REDasm::Timer::ActiveState)
+    if(m_disassembler->state() == REDasm::Job::ActiveState)
         m_disassembler->pause();
-    else if(m_disassembler->state() == REDasm::Timer::PausedState)
+    else if(m_disassembler->state() == REDasm::Job::PausedState)
         m_disassembler->resume();
 }
 
@@ -184,9 +184,9 @@ void DisassemblerView::checkDisassemblerStatus()
 {
     size_t state = m_disassembler->state();
 
-    if(state == REDasm::Timer::ActiveState)
+    if(state == REDasm::Job::ActiveState)
         m_pbstatus->setStyleSheet("color: red;");
-    else if(state == REDasm::Timer::PausedState)
+    else if(state == REDasm::Job::PausedState)
         m_pbstatus->setStyleSheet("color: goldenrod;");
     else
         m_pbstatus->setStyleSheet("color: green;");

@@ -21,8 +21,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QMetaObject::invokeMethod(this, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
 
-    REDasm::setProgressCallback([&](float progress) {
-        QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString::number(std::floor(progress * 100)) + "%"));
+    REDasm::setProgressCallback([&](size_t pending) {
+        QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending)));
     });
 
     REDasm::init(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString(),

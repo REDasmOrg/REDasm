@@ -58,7 +58,7 @@ class MainWindow : public QMainWindow
         QFileInfo m_fileinfo;
         QStringList m_recents;
         QPushButton* m_pbstatus;
-        REDasm::Disassembler *m_disassembler;
+        REDasm::Disassembler* m_disassembler;
 };
 
 #endif // MAINWINDOW_H

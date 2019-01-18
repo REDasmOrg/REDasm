@@ -132,7 +132,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 {
     DisassemblerView* disassemblerview = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
 
-    if(disassemblerview)
+    if(disassemblerview && !disassemblerview->disassembler()->busy())
     {
         if(e->type() == QEvent::KeyPress)
         {

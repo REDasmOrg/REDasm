@@ -11,7 +11,7 @@
 #include <QtGui>
 #include <QtWidgets>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), m_disassembler(NULL)
 {
     REDasm::setStatusCallback([this](std::string s) {
         QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
@@ -294,7 +294,7 @@ void MainWindow::loadRecents()
 bool MainWindow::loadDatabase(const QString &filepath)
 {
     std::string filename;
-    REDasm::Disassembler* disassembler = REDasm::Database::load(filepath.toStdString(), filename, m_buffer);
+    REDasm::Disassembler* disassembler = REDasm::Database::load(filepath.toStdString(), filename);
 
     if(!disassembler)
     {
@@ -320,15 +320,13 @@ void MainWindow::load(const QString& filepath)
     settings.updateRecentFiles(filepath);
     this->loadRecents();
 
-    if(!this->loadDatabase(filepath))
-    {
-        m_buffer = REDasm::Buffer::fromFile(filepath.toStdString());
+    if(this->loadDatabase(filepath))
+        return;
 
-        if(m_buffer.empty())
-            return;
+    REDasm::Buffer buffer = REDasm::Buffer::fromFile(filepath.toStdString());
 
-        this->initDisassembler();
-    }
+    if(!buffer.empty())
+        this->initDisassembler(buffer);
 }
 
 void MainWindow::checkCommandLine()
@@ -352,9 +350,9 @@ void MainWindow::checkCommandLine()
     }
 }
 
-bool MainWindow::checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
+bool MainWindow::checkPlugins(REDasm::Buffer& buffer, REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
 {
-    *format = REDasm::getFormat(m_buffer);
+    *format = REDasm::getFormat(buffer);
 
     if((*format)->isBinary()) // Use manual loader
     {
@@ -401,7 +399,7 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
 
 bool MainWindow::canClose()
 {
-    if(!m_buffer.empty())
+    if(dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget()))
     {
         QMessageBox msgbox(this);
         msgbox.setWindowTitle("Closing");
@@ -442,12 +440,12 @@ void MainWindow::closeFile()
     m_pbstatus->setVisible(false);
 }
 
-void MainWindow::initDisassembler()
+void MainWindow::initDisassembler(REDasm::Buffer& buffer)
 {
     REDasm::FormatPlugin* format = NULL;
     REDasm::AssemblerPlugin* assembler = NULL;
 
-    if(!this->checkPlugins(&format, &assembler))
+    if(!this->checkPlugins(buffer, &format, &assembler))
         return;
 
     m_disassembler = new REDasm::Disassembler(assembler, format);

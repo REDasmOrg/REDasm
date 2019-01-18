@@ -46,11 +46,11 @@ class MainWindow : public QMainWindow
         bool loadDatabase(const QString& filepath);
         void load(const QString &filepath);
         void checkCommandLine();
-        bool checkPlugins(REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler);
+        bool checkPlugins(REDasm::Buffer &buffer, REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler);
         void showDisassemblerView(REDasm::Disassembler *disassembler);
-        bool canClose();
-        void initDisassembler();
+        void initDisassembler(REDasm::Buffer &buffer);
         void closeFile();
+        bool canClose();
 
     private:
         Ui::MainWindow *ui;
@@ -58,8 +58,7 @@ class MainWindow : public QMainWindow
         QFileInfo m_fileinfo;
         QStringList m_recents;
         QPushButton* m_pbstatus;
-        REDasm::Buffer m_buffer;
-        REDasm::Disassembler *m_disassembler = NULL;
+        REDasm::Disassembler *m_disassembler;
 };
 
 #endif // MAINWINDOW_H

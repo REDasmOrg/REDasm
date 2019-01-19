@@ -366,7 +366,7 @@ bool MainWindow::checkPlugins(REDasm::Buffer& buffer, REDasm::FormatPlugin** for
 
     if(!(*assembler))
     {
-        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromUtf8((*format)->assembler())));
+        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString((*format)->assembler())));
         return false;
     }
 

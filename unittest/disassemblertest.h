@@ -36,6 +36,8 @@ class DisassemblerTest
         void testVB5CrackMe();
         void testIoliARM();
         void testTn11();
+        void testHw32Stripped();
+        void testJmpTable();
 
     private:
         TestList m_tests;

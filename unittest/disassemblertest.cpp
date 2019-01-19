@@ -43,8 +43,10 @@ DisassemblerTest::DisassemblerTest()
     ADD_TEST_PATH("PE Test/VB5CRKME.EXE", testVB5CrackMe);
     ADD_TEST_PATH("PE Test/OllyDump.dll", testOllyDump);
     ADD_TEST_PATH("PE Test/tn_11.exe", testTn11);
-    ADD_TEST_PATH("IOLI-crackme/bin-pocketPC/crackme0x01.arm.exe", testIoliARM);
     ADD_TEST_PATH("PE Test/tn12/scrack.exe", testSCrack);
+    ADD_TEST_PATH("IOLI-crackme/bin-pocketPC/crackme0x01.arm.exe", testIoliARM);
+    ADD_TEST_PATH("ELF Test/helloworld32_stripped", testHw32Stripped);
+    ADD_TEST_PATH("ELF Test/jmptable", testJmpTable);
 
     ADD_TEST_PATH_NULL("PE Test/CorruptedIT.exe", NULL);
 
@@ -320,4 +322,26 @@ void DisassemblerTest::testTn11()
         TEST("Checking CASE #" + std::to_string(i) + " @ " + REDasm::hex(target), symbol && symbol->is(SymbolTypes::Code) && m_document->instruction(target));
         i++;
     }
+}
+
+void DisassemblerTest::testHw32Stripped()
+{
+    TEST("Checking segments", m_document->segmentsCount() > 0);
+
+    SymbolPtr symbol = m_document->symbol("main");
+    TEST_SYMBOL("Checking main", symbol, symbol->isFunction());
+
+    symbol = m_document->symbol("init");
+    TEST_SYMBOL("Checking init", symbol, symbol->isFunction());
+
+    symbol = m_document->symbol("fini");
+    TEST_SYMBOL("Checking init", symbol, symbol->isFunction());
+}
+
+void DisassemblerTest::testJmpTable()
+{
+    TEST("Checking segments", m_document->segmentsCount() > 0);
+
+    SymbolPtr symbol = m_document->symbol("main");
+    TEST_SYMBOL("Checking main", symbol, symbol->isFunction());
 }

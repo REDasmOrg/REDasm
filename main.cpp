@@ -6,7 +6,7 @@
 #include "redasmsettings.h"
 
 #ifdef QT_DEBUG
-#include "unittest/unittest.h"
+    #include "unittest/unittest.h"
 #endif // QT_DEBUG
 
 int main(int argc, char *argv[])

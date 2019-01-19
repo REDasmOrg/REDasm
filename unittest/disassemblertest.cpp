@@ -122,15 +122,23 @@ void DisassemblerTest::runCurrentTest(const TestCallback &cb)
         cb();
 }
 
+void DisassemblerTest::testTrampolines(const std::map<address_t, string> &trampolines)
+{
+    for(auto& trampoline : trampolines)
+    {
+        SymbolPtr symbol = m_document->symbol(trampoline.first);
+        TEST_SYMBOL_NAME("Trampoline " + trampoline.second + " @  " + REDasm::hex(trampoline.first), symbol, symbol->isFunction(), trampoline.second);
+    }
+}
+
 void DisassemblerTest::testVBEvents(const std::map<address_t, string> &vbevents)
 {
-    std::for_each(vbevents.begin(), vbevents.end(), [&](const std::pair<address_t, std::string>& vbevent) {
+    for(auto& vbevent : vbevents)
+    {
         std::string procname = DisassemblerTest::replaceAll(vbevent.second, "::", "_");
         SymbolPtr symbol = m_document->symbol(vbevent.first);
-
-        TEST_SYMBOL_NAME("Event " + vbevent.second + " @ " + REDasm::hex(vbevent.first, 0, false),
-                         symbol, symbol->isFunction(), procname);
-    });
+        TEST_SYMBOL_NAME("Event " + vbevent.second + " @ " + REDasm::hex(vbevent.first), symbol, symbol->isFunction(), procname);
+    }
 }
 
 void DisassemblerTest::testCavia()
@@ -219,6 +227,20 @@ void DisassemblerTest::testVB5CrackMe()
 {
     SymbolPtr symbol = m_document->symbol(0x0040110E);
     TEST_SYMBOL_NAME("Import VB5 ThunRTMain", symbol, symbol->is(SymbolTypes::Function), "_msvbvm50_dll_ThunRTMain");
+
+    std::map<address_t, std::string> trampolines;
+    trampolines[0x004010C0] = "_msvbvm50_dll___vbaExitProc";
+    trampolines[0x004010C6] = "_msvbvm50_dll___vbaFreeVarList";
+    trampolines[0x004010CC] = "_msvbvm50_dll___vbaVarDup";
+    trampolines[0x004010D2] = "_msvbvm50_dll_rtcMsgBox";
+    trampolines[0x004010D8] = "_msvbvm50_dll___vbaFreeObj";
+    trampolines[0x004010DE] = "_msvbvm50_dll___vbaFreeStr";
+    trampolines[0x004010E4] = "_msvbvm50_dll___vbaHresultCheckObj";
+    trampolines[0x004010EA] = "_msvbvm50_dll___vbaObjSet";
+    trampolines[0x004010F0] = "_msvbvm50_dll___vbaR8Str";
+    trampolines[0x004010F6] = "_msvbvm50_dll___vbaOnError";
+
+    this->testTrampolines(trampolines);
 
     symbol = m_document->symbol(0x00401EB8);
     TEST_SYMBOL("Wide String @ 0x00401EB8", symbol, symbol->is(SymbolTypes::WideString));

@@ -25,6 +25,7 @@ class DisassemblerTest
         void runCurrentTest(const TestCallback& cb);
 
     private:
+        void testTrampolines(const std::map<address_t, std::string>& trampolines);
         void testVBEvents(const std::map<address_t, std::string>& vbevents);
 
     private: // Tests

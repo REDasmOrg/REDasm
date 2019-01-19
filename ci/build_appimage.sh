@@ -14,7 +14,7 @@ fi
 if [ -f $LINUXDEPLOYQT_CMD ]; then
     chmod a+x ./$LINUXDEPLOYQT_CMD
     cd deploy
-    ../$LINUXDEPLOYQT_CMD REDasm -appimage -exclude-libs=libnss.so,libnssutil3.so
+    VERSION="" ../$LINUXDEPLOYQT_CMD REDasm -appimage -exclude-libs=libnss.so,libnssutil3.so
     mv REDasm-*.AppImage ../
     cd ..
 else

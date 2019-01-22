@@ -1,4 +1,6 @@
-queries:
-  - exclude: LibREDasm
-  - exclude: web
-  - exclude: res
+path_classifiers:
+  submodules:
+    - LibREDasm
+  resources:
+    - web
+    - res

@@ -11,6 +11,9 @@
     <a href="https://github.com/ellerbrock/open-source-badges/">
       <img src="https://badges.frapsoft.com/os/v1/open-source.png?v=103">
     </a>
+    <a href="https://lgtm.com/projects/g/REDasmOrg/REDasm/context:cpp">
+      <img alt="Language grade: C/C++" src="https://img.shields.io/lgtm/grade/cpp/g/REDasmOrg/REDasm.svg?logo=lgtm&logoWidth=18">
+    </a>
   </p>
 </p>
 

@@ -1,0 +1,4 @@
+queries:
+  - exclude: LibREDasm
+  - exclude: web
+  - exclude: res

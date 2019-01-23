@@ -59,8 +59,8 @@ void GraphView::initializePage()
                              "cursor: default;"
                              "font-family:" + font.family() + ";" +
                              "font-size:" + QString::number(font.pointSize()) + "pt;" +
-                             "color:" + palette.color(QPalette::WindowText).name() + ";" +
-                             "background-color:" + palette.color(QPalette::Base).name() + ";" +
+                             "color:" + palette.color(QPalette::WindowText).name() + ";" //+
+                             "background-color:" + THEME_VALUE_COLOR("graph_bg") + ";" +
                          "}"
                          "html, body {"
                             "overflow: hidden;"

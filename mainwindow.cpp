@@ -37,10 +37,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->splitter->setStretchFactor(0, 1);
     ui->splitter->setStretchFactor(1, 0);
 
-    ui->tbOpen->setIcon(THEME_ICON("open"));
-    ui->tbSave->setIcon(THEME_ICON("save"));
-    ui->tbImportSignature->setIcon(THEME_ICON("database_import"));
-    ui->tbAbout->setIcon(THEME_ICON("about"));
+    ui->action_Open->setIcon(THEME_ICON("open"));
+    ui->action_Save->setIcon(THEME_ICON("save"));
+    ui->action_Import_Signature->setIcon(THEME_ICON("database_import"));
+    ui->action_About_REDasm->setIcon(THEME_ICON("about"));
 
     m_lblstatus = new QLabel(this);
     m_lblprogress = new QLabel(this);
@@ -69,11 +69,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Import_Signature, &QAction::triggered, this, &MainWindow::onImportSignatureClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
-
-    connect(ui->tbOpen, &QToolButton::clicked, this, &MainWindow::onOpenClicked);
-    connect(ui->tbSave, &QToolButton::clicked, this, &MainWindow::onSaveClicked);
-    connect(ui->tbImportSignature, &QToolButton::clicked, this, &MainWindow::onImportSignatureClicked);
-    connect(ui->tbAbout, &QToolButton::clicked, this, &MainWindow::onAboutClicked);
 
     this->checkCommandLine();
     this->loadRecents();
@@ -483,9 +478,6 @@ void MainWindow::checkCommandState()
     ui->action_Save_As->setEnabled(!disassembler->busy());
     ui->action_Close->setEnabled(true);
     ui->action_Import_Signature->setEnabled(!disassembler->busy());
-
-    ui->tbSave->setEnabled(!disassembler->busy());
-    ui->tbImportSignature->setEnabled(!disassembler->busy());
 }
 
 void MainWindow::log(const QString &s)

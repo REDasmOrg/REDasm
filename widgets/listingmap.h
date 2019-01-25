@@ -13,19 +13,23 @@ class ListingMap : public QWidget
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
 
     private:
-        int calculateWidth(u64 sz) const;
+        int calculateSize(u64 sz) const;
+        int itemSize() const;
+        QRect buildRect(int p, int itemsize) const;
+        bool checkOrientation();
         void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
         void addItem(const REDasm::ListingItem* item);
         void removeItem(const REDasm::ListingItem* item);
 
     protected:
-        virtual void paintEvent(QPaintEvent *);
+        virtual void paintEvent(QPaintEvent*);
+        virtual void resizeEvent(QResizeEvent* e);
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;
         QList<const REDasm::ListingItem*> m_segments;
         QVector<const REDasm::ListingItem*> m_functions;
-        s32 m_totalsize;
+        s32 m_orientation, m_totalsize;
 };
 
 #endif // LISTINGMAP_H

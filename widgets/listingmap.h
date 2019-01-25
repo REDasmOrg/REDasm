@@ -11,6 +11,7 @@ class ListingMap : public QWidget
     public:
         explicit ListingMap(QWidget *parent = 0);
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        virtual QSize sizeHint() const;
 
     private:
         int calculateSize(u64 sz) const;

@@ -55,6 +55,8 @@ SET(SOURCES
     mainwindow.cpp
     widgets/outputwidget.cpp
     widgets/disassemblerview/disassemblerview.cpp
+    widgets/disassemblerview/disassemblerviewdocks.cpp
+    widgets/disassemblerview/disassemblerviewactions.cpp
     models/disassemblermodel.cpp
     models/segmentsmodel.cpp
     widgets/listingmap.cpp
@@ -88,6 +90,8 @@ SET(HEADERS
     ${REDASM_TEST_HEADERS}
     mainwindow.h
     widgets/disassemblerview/disassemblerview.h
+    widgets/disassemblerview/disassemblerviewdocks.h
+    widgets/disassemblerview/disassemblerviewactions.h
     widgets/outputwidget.h
     models/disassemblermodel.h
     models/segmentsmodel.h

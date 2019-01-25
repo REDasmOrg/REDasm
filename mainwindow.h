@@ -48,6 +48,7 @@ class MainWindow : public QMainWindow
         bool checkPlugins(REDasm::Buffer &buffer, REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler);
         void showDisassemblerView(REDasm::Disassembler *disassembler);
         void initDisassembler(REDasm::Buffer &buffer);
+        void setViewWidgetsVisible(bool b);
         void closeFile();
         bool canClose();
 

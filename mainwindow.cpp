@@ -19,12 +19,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
 
-    REDasm::setLoggerCallback([&](const std::string& s) {
-        QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
-    });
-
     REDasm::setProgressCallback([&](size_t pending) {
         QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending)));
+    });
+
+    REDasm::setLoggerCallback([&](const std::string& s) {
+        QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
 
     REDasm::init(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString(),
@@ -33,11 +33,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     REDasm::log(QString("REDasm loaded with %1 formats and %2 assemblers").arg(REDasm::Plugins::formats.size())
                                                                           .arg(REDasm::Plugins::assemblers.size()).toStdString());
 
+    this->setViewWidgetsVisible(false);
+    ui->leFilter->setVisible(false);
 
     ui->action_Open->setIcon(THEME_ICON("open"));
     ui->action_Save->setIcon(THEME_ICON("save"));
     ui->action_Import_Signature->setIcon(THEME_ICON("database_import"));
-    ui->action_About_REDasm->setIcon(THEME_ICON("about"));
 
     m_lblstatus = new QLabel(this);
     m_lblprogress = new QLabel(this);
@@ -55,8 +56,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->statusBar->addPermanentWidget(m_lblprogress, 30);
     ui->statusBar->addPermanentWidget(m_pbstatus);
 
-    this->loadGeometry();
     this->setAcceptDrops(true);
+    this->loadGeometry();
+    this->loadRecents();
+    this->checkCommandLine();
 
     connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpenClicked);
     connect(ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveClicked);
@@ -66,9 +69,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Import_Signature, &QAction::triggered, this, &MainWindow::onImportSignatureClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
-
-    this->checkCommandLine();
-    this->loadRecents();
 
     qApp->installEventFilter(this);
 }
@@ -374,7 +374,8 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
     ui->pteOutput->clear();
 
     QWidget* oldwidget = ui->stackView->widget(0);
-    if (oldwidget != NULL)
+
+    if(oldwidget)
     {
         ui->stackView->removeWidget(oldwidget);
         oldwidget->deleteLater();
@@ -384,6 +385,7 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 
+    this->setViewWidgetsVisible(true);
     this->checkCommandState();
 }
 
@@ -425,9 +427,10 @@ void MainWindow::closeFile()
     }
 
     ui->pteOutput->clear();
-    m_lblprogress->setVisible(false);
     m_lblstatus->clear();
+    m_lblprogress->setVisible(false);
     m_pbstatus->setVisible(false);
+    this->setViewWidgetsVisible(false);
 }
 
 void MainWindow::initDisassembler(REDasm::Buffer& buffer)
@@ -449,6 +452,13 @@ void MainWindow::initDisassembler(REDasm::Buffer& buffer)
 
     this->showDisassemblerView(m_disassembler); // Take ownership
     m_disassembler->disassemble();
+}
+
+void MainWindow::setViewWidgetsVisible(bool b)
+{
+    ui->dockSymbols->setVisible(b);
+    ui->dockReferences->setVisible(b);
+    ui->dockListingMap->setVisible(b);
 }
 
 void MainWindow::onAboutClicked()

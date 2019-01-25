@@ -6,15 +6,14 @@
 #include <QMenu>
 #include <redasm/disassembler/disassembler.h>
 #include <QHexView/qhexview.h>
-#include "../../models/callgraphmodel.h"
-#include "../../models/listingfiltermodel.h"
 #include "../../models/symboltablemodel.h"
-#include "../../models/referencesmodel.h"
 #include "../../models/segmentsmodel.h"
 #include "../../dialogs/gotodialog.h"
 #include "../disassemblergraphview/disassemblergraphview.h"
 #include "../disassemblerlistingview/disassemblerlistingview.h"
-#include "themeprovider.h"
+#include "disassemblerviewactions.h"
+#include "disassemblerviewdocks.h"
+#include "../themeprovider.h"
 
 namespace Ui {
 class DisassemblerView;
@@ -44,8 +43,6 @@ class DisassemblerView : public QWidget
         void showModelReferences();
         void showReferences(address_t address);
         void displayAddress(address_t address);
-        void initializeCallGraph(address_t address);
-        void updateCallGraph();
         void displayCurrentReferences();
         void switchGraphListing();
         void switchToHexDump();
@@ -62,17 +59,18 @@ class DisassemblerView : public QWidget
 
     private:
         Ui::DisassemblerView *ui;
-        DisassemblerGraphView* m_disassemblergraphview;
-        DisassemblerListingView* m_disassemblerlistingview;
+        DisassemblerViewActions* m_actions;
+        DisassemblerViewDocks* m_docks;
+        DisassemblerGraphView* m_graphview;
+        DisassemblerListingView* m_listingview;
         QModelIndex m_currentindex;
         QHexDocument* m_hexdocument;
         QMenu* m_contextmenu;
         QPushButton* m_pbstatus;
         QLineEdit* m_lefilter;
         std::unique_ptr<REDasm::Disassembler> m_disassembler;
-        ListingFilterModel *m_segmentsmodel, *m_functionsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
+        ListingFilterModel *m_segmentsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
         CallGraphModel* m_callgraphmodel;
-        ReferencesModel* m_referencesmodel;
         QAction* m_actsetfilter;
         QActionGroup* m_viewactions;
 };

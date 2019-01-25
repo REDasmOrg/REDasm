@@ -27,6 +27,7 @@ void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
     };
 }
 
+QSize ListingMap::sizeHint() const { return QSize(32, 32); }
 int ListingMap::calculateSize(u64 sz) const { return (sz * this->itemSize()) / m_totalsize; }
 
 int ListingMap::itemSize() const

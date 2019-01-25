@@ -38,7 +38,6 @@ class MainWindow : public QMainWindow
         void onSettingsClicked();
         void onAboutClicked();
         void checkCommandState();
-        void log(const QString &s);
 
     private:
         void loadGeometry();

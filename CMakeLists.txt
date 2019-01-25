@@ -53,6 +53,7 @@ SET(SOURCES
     ${REDASM_TEST_SOURCES}
     main.cpp
     mainwindow.cpp
+    widgets/outputwidget.cpp
     widgets/disassemblerview/disassemblerview.cpp
     models/disassemblermodel.cpp
     models/segmentsmodel.cpp
@@ -87,6 +88,7 @@ SET(HEADERS
     ${REDASM_TEST_HEADERS}
     mainwindow.h
     widgets/disassemblerview/disassemblerview.h
+    widgets/outputwidget.h
     models/disassemblermodel.h
     models/segmentsmodel.h
     widgets/listingmap.h

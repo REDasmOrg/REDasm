@@ -13,12 +13,14 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), m_disassembler(NULL)
 {
+    ui->setupUi(this);
+
     REDasm::setStatusCallback([this](std::string s) {
         QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
 
     REDasm::setLoggerCallback([&](const std::string& s) {
-        QMetaObject::invokeMethod(this, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
+        QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
     });
 
     REDasm::setProgressCallback([&](size_t pending) {
@@ -31,11 +33,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     REDasm::log(QString("REDasm loaded with %1 formats and %2 assemblers").arg(REDasm::Plugins::formats.size())
                                                                           .arg(REDasm::Plugins::assemblers.size()).toStdString());
 
-    ui->setupUi(this);
-    ui->leFilter->setVisible(false);
-    ui->pteOutput->setMinimumWidth(0);
-    ui->splitter->setStretchFactor(0, 1);
-    ui->splitter->setStretchFactor(1, 0);
 
     ui->action_Open->setIcon(THEME_ICON("open"));
     ui->action_Save->setIcon(THEME_ICON("save"));
@@ -387,8 +384,6 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 
-    ui->splitter->setSizes((QList<int>() << this->height() * 0.9 <<
-                                            this->height() * 0.1));
     this->checkCommandState();
 }
 
@@ -476,13 +471,6 @@ void MainWindow::checkCommandState()
 
     ui->action_Save->setEnabled(!disassembler->busy());
     ui->action_Save_As->setEnabled(!disassembler->busy());
-    ui->action_Close->setEnabled(true);
     ui->action_Import_Signature->setEnabled(!disassembler->busy());
+    ui->action_Close->setEnabled(true);
 }
-
-void MainWindow::log(const QString &s)
-{
-    ui->pteOutput->insertPlainText(s + "\n");
-    ui->pteOutput->ensureCursorVisible();
-}
-

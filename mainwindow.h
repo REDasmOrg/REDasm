@@ -37,9 +37,11 @@ class MainWindow : public QMainWindow
         void onImportSignatureClicked();
         void onSettingsClicked();
         void onAboutClicked();
-        void checkCommandState();
+        void changeDisassemblerStatus();
+        void checkDisassemblerStatus();
 
     private:
+        REDasm::DisassemblerAPI* currentDisassembler() const;
         void loadGeometry();
         void loadRecents();
         bool loadDatabase(const QString& filepath);

@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_pbstatus(pbstatus), m_lefilter(lefilter)
+DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_lefilter(lefilter)
 {
     ui->setupUi(this);
 
@@ -57,7 +57,6 @@ DisassemblerView::DisassemblerView(QPushButton *pbstatus, QLineEdit *lefilter, Q
     connect(ui->tabView, &QTabWidget::currentChanged, this, &DisassemblerView::checkHexEdit);
     connect(ui->tabView, &QTabWidget::currentChanged, this, &DisassemblerView::updateCurrentFilter);
     connect(m_lefilter, &QLineEdit::textChanged, [&](const QString&) { this->filterSymbols(); });
-    connect(m_pbstatus, &QPushButton::clicked, this, &DisassemblerView::changeDisassemblerStatus);
 
     connect(m_listingview->textView(), &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
     connect(m_listingview->textView(), &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::selectToHexDump);
@@ -153,16 +152,6 @@ void DisassemblerView::changeDisassemblerStatus()
 
 void DisassemblerView::checkDisassemblerStatus()
 {
-    size_t state = m_disassembler->state();
-
-    if(state == REDasm::Job::ActiveState)
-        m_pbstatus->setStyleSheet("color: red;");
-    else if(state == REDasm::Job::PausedState)
-        m_pbstatus->setStyleSheet("color: goldenrod;");
-    else
-        m_pbstatus->setStyleSheet("color: green;");
-
-    m_pbstatus->setVisible(true);
     m_actsetfilter->setEnabled(!m_disassembler->busy());
     m_lefilter->setEnabled(!m_disassembler->busy());
 

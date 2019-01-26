@@ -4,8 +4,8 @@
 #include <QProgressBar>
 #include <QLineEdit>
 #include <QMenu>
-#include <redasm/disassembler/disassembler.h>
 #include <QHexView/qhexview.h>
+#include <redasm/disassembler/disassembler.h>
 #include "../../models/symboltablemodel.h"
 #include "../../models/segmentsmodel.h"
 #include "../../dialogs/gotodialog.h"
@@ -24,7 +24,7 @@ class DisassemblerView : public QWidget
     Q_OBJECT
 
     public:
-        explicit DisassemblerView(QPushButton* pbstatus, QLineEdit* lefilter, QWidget *parent = NULL);
+        explicit DisassemblerView(QLineEdit* lefilter, QWidget *parent = NULL);
         ~DisassemblerView();
         REDasm::Disassembler* disassembler();
         void setDisassembler(REDasm::Disassembler* disassembler);
@@ -66,7 +66,6 @@ class DisassemblerView : public QWidget
         QModelIndex m_currentindex;
         QHexDocument* m_hexdocument;
         QMenu* m_contextmenu;
-        QPushButton* m_pbstatus;
         QLineEdit* m_lefilter;
         std::unique_ptr<REDasm::Disassembler> m_disassembler;
         ListingFilterModel *m_segmentsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;

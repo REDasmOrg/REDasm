@@ -69,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Import_Signature, &QAction::triggered, this, &MainWindow::onImportSignatureClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
+    connect(m_pbstatus, &QPushButton::clicked, this, &MainWindow::changeDisassemblerStatus);
 
     qApp->installEventFilter(this);
 }
@@ -368,7 +369,7 @@ bool MainWindow::checkPlugins(REDasm::Buffer& buffer, REDasm::FormatPlugin** for
 void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
 {
     disassembler->busyChanged += [&]() {
-        QMetaObject::invokeMethod(this, "checkCommandState", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection);
     };
 
     ui->pteOutput->clear();
@@ -381,12 +382,12 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
         oldwidget->deleteLater();
     }
 
-    DisassemblerView *dv = new DisassemblerView(m_pbstatus, ui->leFilter, ui->stackView);
+    DisassemblerView *dv = new DisassemblerView(ui->leFilter, ui->stackView);
     dv->setDisassembler(disassembler);
     ui->stackView->addWidget(dv);
 
     this->setViewWidgetsVisible(true);
-    this->checkCommandState();
+    this->checkDisassemblerStatus();
 }
 
 bool MainWindow::canClose()
@@ -467,20 +468,55 @@ void MainWindow::onAboutClicked()
     dlgabout.exec();
 }
 
-void MainWindow::checkCommandState()
+void MainWindow::changeDisassemblerStatus()
 {
-    DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+    REDasm::DisassemblerAPI* disassembler = this->currentDisassembler();
 
-    if(!currdv)
+    if(!disassembler)
         return;
 
-    REDasm::DisassemblerAPI* disassembler = currdv->disassembler();
+    if(m_disassembler->state() == REDasm::Job::ActiveState)
+        m_disassembler->pause();
+    else if(m_disassembler->state() == REDasm::Job::PausedState)
+        m_disassembler->resume();
+}
 
-    this->setWindowTitle(disassembler->busy() ? QString("%1 (Working)").arg(m_fileinfo.fileName()) :
-                                                m_fileinfo.fileName());
+void MainWindow::checkDisassemblerStatus()
+{
+    REDasm::DisassemblerAPI* disassembler = this->currentDisassembler();
+
+    if(!disassembler)
+    {
+        ui->action_Close->setEnabled(false);
+        m_pbstatus->setVisible(false);
+        return;
+    }
+
+    this->setWindowTitle(disassembler->busy() ? QString("%1 (Working)").arg(m_fileinfo.fileName()) : m_fileinfo.fileName());
+
+    size_t state = m_disassembler->state();
+
+    if(state == REDasm::Job::ActiveState)
+        m_pbstatus->setStyleSheet("color: red;");
+    else if(state == REDasm::Job::PausedState)
+        m_pbstatus->setStyleSheet("color: goldenrod;");
+    else
+        m_pbstatus->setStyleSheet("color: green;");
+
+    m_pbstatus->setVisible(true);
 
     ui->action_Save->setEnabled(!disassembler->busy());
     ui->action_Save_As->setEnabled(!disassembler->busy());
     ui->action_Import_Signature->setEnabled(!disassembler->busy());
     ui->action_Close->setEnabled(true);
+}
+
+REDasm::DisassemblerAPI *MainWindow::currentDisassembler() const
+{
+    DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+
+    if(!currdv)
+        return NULL;
+
+    return currdv->disassembler();
 }

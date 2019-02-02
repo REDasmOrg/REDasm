@@ -43,7 +43,7 @@ class DisassemblerTest
         TestList m_tests;
         std::unique_ptr<REDasm::Disassembler> m_disassembler;
         REDasm::ListingDocument m_document;
-        REDasm::Buffer m_buffer;
+        REDasm::MemoryBuffer* m_buffer;
 };
 
 #endif // DISASSEMBLERTEST_H

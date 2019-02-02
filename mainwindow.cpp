@@ -316,9 +316,9 @@ void MainWindow::load(const QString& filepath)
     if(this->loadDatabase(filepath))
         return;
 
-    REDasm::Buffer buffer = REDasm::Buffer::fromFile(filepath.toStdString());
+    REDasm::MemoryBuffer* buffer = REDasm::MemoryBuffer::fromFile(filepath.toStdString()); // TODO: Deallocate in case of user-cancel?
 
-    if(!buffer.empty())
+    if(!buffer->empty())
         this->initDisassembler(buffer);
 }
 
@@ -343,7 +343,7 @@ void MainWindow::checkCommandLine()
     }
 }
 
-bool MainWindow::checkPlugins(REDasm::Buffer& buffer, REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
+bool MainWindow::checkPlugins(REDasm::AbstractBuffer *buffer, REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
 {
     *format = REDasm::getFormat(buffer);
 
@@ -434,7 +434,7 @@ void MainWindow::closeFile()
     this->setViewWidgetsVisible(false);
 }
 
-void MainWindow::initDisassembler(REDasm::Buffer& buffer)
+void MainWindow::initDisassembler(REDasm::AbstractBuffer *buffer)
 {
     REDasm::FormatPlugin* format = NULL;
     REDasm::AssemblerPlugin* assembler = NULL;

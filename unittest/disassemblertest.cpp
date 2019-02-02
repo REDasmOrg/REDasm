@@ -35,7 +35,7 @@
 using namespace std;
 using namespace REDasm;
 
-DisassemblerTest::DisassemblerTest()
+DisassemblerTest::DisassemblerTest(): m_buffer(NULL)
 {
     ADD_TEST("/home/davide/Programmazione/Cavia.exe", testCavia);
 
@@ -70,9 +70,9 @@ void DisassemblerTest::runTests()
         }
 
         TEST_TITLE(qUtf8Printable(fi.fileName()));
-        m_buffer = Buffer::fromFile(testpath.toStdString());
+        m_buffer = MemoryBuffer::fromFile(testpath.toStdString());
 
-        if(m_buffer.empty())
+        if(m_buffer->empty())
         {
             cout << "!!! File is empty" << endl << endl;
             return;

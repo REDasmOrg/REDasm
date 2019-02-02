@@ -149,9 +149,9 @@ void DisassemblerTextView::printFunctionHexDump()
     if(!symbol)
         return;
 
-    REDasm::BufferRef br = m_disassembler->getFunctionBytes(symbol->address);
+    REDasm::BufferView br = m_disassembler->getFunctionBytes(symbol->address);
 
-    if(br.empty())
+    if(br.eob())
         return;
 
     REDasm::log(symbol->name + ":" + REDasm::quoted(REDasm::hexstring(br, br.size())));

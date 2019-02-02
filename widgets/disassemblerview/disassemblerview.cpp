@@ -123,8 +123,8 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     m_stringsmodel->setDisassembler(disassembler);
     m_segmentsmodel->setDisassembler(disassembler);
 
-    REDasm::Buffer& buffer = disassembler->format()->buffer();
-    m_hexdocument = QHexDocument::fromMemory<QMemoryRefBuffer>(reinterpret_cast<char*>(buffer.data()), buffer.size(), ui->hexView);
+    REDasm::AbstractBuffer* buffer = disassembler->format()->buffer();
+    m_hexdocument = QHexDocument::fromMemory<QMemoryRefBuffer>(reinterpret_cast<char*>(buffer->data()), buffer->size(), ui->hexView);
     ui->hexView->setDocument(m_hexdocument);
 
     m_listingview->setDisassembler(disassembler);

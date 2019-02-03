@@ -10,9 +10,6 @@ class REDasmSettings : public QSettings
     Q_OBJECT
 
     public:
-        enum Theme { Light = 0, Dark };
-
-    public:
         explicit REDasmSettings(QObject *parent = NULL);
         QStringList recentFiles() const;
         QByteArray geometry() const;

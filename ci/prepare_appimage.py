@@ -11,5 +11,5 @@ shutil.rmtree("lib", ignore_errors=True)
 os.mkdir("lib")
 shutil.move("LibREDasm.so", "lib/")
 
-shutil.copy("../artwork/redasm_logo_256.png", "./redasm.png")
+shutil.copy("../artwork/logo_20190203.png", "./redasm.png")
 shutil.copy("../ci/REDasm.desktop", "./")

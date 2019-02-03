@@ -24,7 +24,7 @@ In the future, Python scripting will be supported.<br><br>
 *Runs on Windows and Linux.*<br>
 
 <p align="center">
-  <img height="450" src="https://raw.githubusercontent.com/REDasmOrg/REDasm/master/artwork/Slideshow.gif">
+  <img height="450" src="https://raw.githubusercontent.com/REDasmOrg/REDasm/master/artwork/Slideshow_20190203.gif">
 </p>
 
 ## Why another Disassembler?

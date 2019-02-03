@@ -4,6 +4,7 @@
 #define MAX_RECENT_FILES 5
 
 #include <QSettings>
+#include <QMainWindow>
 
 class REDasmSettings : public QSettings
 {
@@ -12,12 +13,15 @@ class REDasmSettings : public QSettings
     public:
         explicit REDasmSettings(QObject *parent = NULL);
         QStringList recentFiles() const;
-        QByteArray geometry() const;
         QString currentTheme() const;
-        bool hasGeometry() const;
+        bool restoreState(QMainWindow* mainwindow);
+        void defaultState(QMainWindow* mainwindow);
+        void saveState(const QMainWindow* mainwindow);
         void updateRecentFiles(const QString& s = QString());
-        void changeGeometry(const QByteArray& ba);
         void changeTheme(const QString& theme);
+
+    private:
+        static QByteArray m_defaultstate;
 };
 
 #endif // REDASMSETTINGS_H

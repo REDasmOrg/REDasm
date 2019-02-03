@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->statusBar->addPermanentWidget(m_pbstatus);
 
     this->setAcceptDrops(true);
-    this->loadGeometry();
+    this->loadWindowState();
     this->loadRecents();
     this->checkCommandLine();
 
@@ -67,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Close, &QAction::triggered, this, &MainWindow::onCloseClicked);
     connect(ui->action_Exit, &QAction::triggered, this, &MainWindow::onExitClicked);
     connect(ui->action_Import_Signature, &QAction::triggered, this, &MainWindow::onImportSignatureClicked);
+    connect(ui->action_Reset_Layout, &QAction::triggered, this, &MainWindow::onResetLayoutClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
     connect(m_pbstatus, &QPushButton::clicked, this, &MainWindow::changeDisassemblerStatus);
@@ -232,21 +233,25 @@ void MainWindow::onImportSignatureClicked()
     msgbox.setStandardButtons(QMessageBox::Ok);
 }
 
+void MainWindow::onResetLayoutClicked()
+{
+    REDasmSettings settings;
+    settings.defaultState(this);
+    this->setViewWidgetsVisible(this->currentDisassembler());
+}
+
 void MainWindow::onSettingsClicked()
 {
     SettingsDialog sd(this);
     sd.exec();
 }
 
-void MainWindow::loadGeometry()
+void MainWindow::loadWindowState()
 {
     REDasmSettings settings;
 
-    if(settings.hasGeometry())
-    {
-        this->restoreGeometry(settings.geometry());
+    if(settings.restoreState(this))
         return;
-    }
 
     QRect position = this->frameGeometry();
     position.moveCenter(qApp->primaryScreen()->availableGeometry().center());
@@ -403,8 +408,9 @@ bool MainWindow::canClose()
             return false;
     }
 
+    this->setViewWidgetsVisible(false);
     REDasmSettings settings;
-    settings.changeGeometry(this->saveGeometry());
+    settings.saveState(this);
     return true;
 }
 

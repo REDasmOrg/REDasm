@@ -119,8 +119,15 @@
     </property>
     <addaction name="action_About_REDasm"/>
    </widget>
+   <widget class="QMenu" name="menu_Window">
+    <property name="title">
+     <string>&amp;Window</string>
+    </property>
+    <addaction name="action_Reset_Layout"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_REDasm"/>
+   <addaction name="menu_Window"/>
    <addaction name="menu"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
@@ -440,6 +447,11 @@
    </property>
    <property name="text">
     <string>&amp;Close</string>
+   </property>
+  </action>
+  <action name="action_Reset_Layout">
+   <property name="text">
+    <string>&amp;Reset Layout</string>
    </property>
   </action>
  </widget>

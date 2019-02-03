@@ -17,7 +17,6 @@ void REDasmSettings::updateRecentFiles(const QString &s)
 }
 
 QByteArray REDasmSettings::geometry() const { return this->value("geometry").toByteArray(); }
+QString REDasmSettings::currentTheme() const { return this->value("selected_theme", "light").toString(); }
 void REDasmSettings::changeGeometry(const QByteArray &ba) { this->setValue("geometry", ba); }
-bool REDasmSettings::isDarkTheme() const { return this->value("theme") == Theme::Dark; }
-int REDasmSettings::currentTheme() const { return this->value("theme", 0).toInt(); }
-void REDasmSettings::changeTheme(int theme) { this->setValue("theme", theme); }
+void REDasmSettings::changeTheme(const QString& theme) { this->setValue("selected_theme", theme.toLower()); }

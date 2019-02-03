@@ -14,14 +14,13 @@ class REDasmSettings : public QSettings
 
     public:
         explicit REDasmSettings(QObject *parent = NULL);
-        bool hasGeometry() const;
         QStringList recentFiles() const;
-        void updateRecentFiles(const QString& s = QString());
         QByteArray geometry() const;
+        QString currentTheme() const;
+        bool hasGeometry() const;
+        void updateRecentFiles(const QString& s = QString());
         void changeGeometry(const QByteArray& ba);
-        bool isDarkTheme() const;
-        int currentTheme() const;
-        void changeTheme(int theme);
+        void changeTheme(const QString& theme);
 };
 
 #endif // REDASMSETTINGS_H

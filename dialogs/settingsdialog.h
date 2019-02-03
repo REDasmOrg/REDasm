@@ -2,6 +2,7 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QComboBox>
 
 namespace Ui {
 class SettingsDialog;
@@ -14,6 +15,9 @@ class SettingsDialog : public QDialog
     public:
         explicit SettingsDialog(QWidget *parent = nullptr);
         ~SettingsDialog();
+
+    private:
+        void selectCurrentTheme();
 
     private slots:
         void onAccepted();

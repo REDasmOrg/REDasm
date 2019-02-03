@@ -16,15 +16,21 @@ class ThemeProvider
         ThemeProvider(const ThemeProvider&) = delete;
 
     public:
-        static void loadTheme(const QString &theme);
+        static QStringList uiThemes();
+        static QStringList themes();
+        static QString uiTheme(const QString& name);
+        static QString theme(const QString& name);
         static bool contains(const QString& name);
+        static bool isDarkTheme();
         static QColor themeValue(const QString& name);
         static QIcon icon(const QString& name);
         static QColor seekColor();
         static QColor dottedColor();
+        static void applyTheme();
 
-    public:
-        static void selectDarkTheme();
+    private:
+        static bool loadTheme(const QString &theme);
+        static QStringList readThemes(const QString& path);
 
     private:
         static QJsonObject m_theme;

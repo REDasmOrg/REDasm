@@ -27,11 +27,7 @@ int main(int argc, char *argv[])
     QtWebEngine::initialize();
 
     REDasmSettings::setDefaultFormat(REDasmSettings::IniFormat);
-    REDasmSettings settings;
-
-    if(settings.isDarkTheme())
-        ThemeProvider::selectDarkTheme();
-
+    ThemeProvider::applyTheme();
     MainWindow w;
 
     w.show();

@@ -1,4 +1,18 @@
 {
+    "dark": true,
+
+    "Shadow": "#2b2b2b",
+    "Base": "#262626",
+    "Text": "#ecf0f1",
+    "Window": "#2b2b2b",
+    "WindowText": "#ecf0f1",
+    "Button": "#2b2b2b",
+    "ButtonText": "#ecf0f1",
+    "Highlight": "#d95459",
+    "HighlightedText": "#ecf0f1",
+    "ToolTipBase": "#2b2b2b",
+    "ToolTipText": "#ecf0f1",
+
     "address_fg": "#6a89b4",
     "segment_fg": "#2ecc71",
     "function_fg": "#3498db",

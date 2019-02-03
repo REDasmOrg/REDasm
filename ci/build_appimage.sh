@@ -1,7 +1,8 @@
 #! /bin/sh
 
 LINUXDEPLOYQT_ARCH=`uname -m`
-LINUXDEPLOYQT_VER="continuous"
+#LINUXDEPLOYQT_VER="continuous"
+LINUXDEPLOYQT_VER="5"
 LINUXDEPLOYQT_CMD="linuxdeployqt-$LINUXDEPLOYQT_VER-$LINUXDEPLOYQT_ARCH.AppImage"
 LINUXDEPLOYQT_URL="https://github.com/probonopd/linuxdeployqt/releases/download/$LINUXDEPLOYQT_VER/$LINUXDEPLOYQT_CMD"
 

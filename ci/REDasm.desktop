@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=REDasm
 Type=Application
-Icon=logo
+Icon=redasm
 Exec=REDasm
 Categories=Utility;
 Comment=Crossplatform, interactive, multiarchitecture disassembler

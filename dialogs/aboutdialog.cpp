@@ -6,7 +6,7 @@
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDialog)
 {
     ui->setupUi(this);
-    ui->twDepends->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    ui->twDepends->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->twDepends->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->twDepends->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 
@@ -49,6 +49,9 @@ void AboutDialog::initDepends()
 
         ui->twDepends->setItem(index, 0, new QTableWidgetItem(it->name));
         ui->twDepends->setItem(index, 1, new QTableWidgetItem(it->version));
-        ui->twDepends->setItem(index, 2, new QTableWidgetItem(it->url));
+
+        auto urlitem = new QTableWidgetItem(it->url);
+        urlitem->setTextAlignment(Qt::AlignCenter);
+        ui->twDepends->setItem(index, 2, urlitem);
     }
 }

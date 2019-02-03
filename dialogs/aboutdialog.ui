@@ -41,11 +41,20 @@
    </item>
    <item>
     <widget class="QTableWidget" name="twDepends">
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
+     <property name="tabKeyNavigation">
+      <bool>false</bool>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::NoSelection</enum>
+     </property>
+     <property name="showGrid">
+      <bool>false</bool>
      </property>
      <property name="wordWrap">
       <bool>false</bool>
@@ -53,7 +62,16 @@
      <property name="cornerButtonEnabled">
       <bool>false</bool>
      </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderHighlightSections">
+      <bool>false</bool>
+     </attribute>
      <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="verticalHeaderHighlightSections">
       <bool>false</bool>
      </attribute>
      <column>

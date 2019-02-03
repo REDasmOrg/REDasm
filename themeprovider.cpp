@@ -100,7 +100,7 @@ QStringList ThemeProvider::readThemes(const QString &path)
     for(QString& theme : themes)
     {
         theme.remove(".json");
-        theme.front() = theme.front().toUpper();
+        theme[0] = theme[0].toUpper();
     }
 
     return themes;

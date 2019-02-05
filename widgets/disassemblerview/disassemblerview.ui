@@ -127,6 +127,9 @@
          <property name="showGrid">
           <bool>false</bool>
          </property>
+         <property name="wordWrap">
+          <bool>false</bool>
+         </property>
          <attribute name="horizontalHeaderHighlightSections">
           <bool>false</bool>
          </attribute>
@@ -181,6 +184,9 @@
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <property name="showGrid">
+          <bool>false</bool>
+         </property>
+         <property name="wordWrap">
           <bool>false</bool>
          </property>
          <attribute name="horizontalHeaderHighlightSections">
@@ -239,6 +245,9 @@
          <property name="showGrid">
           <bool>false</bool>
          </property>
+         <property name="wordWrap">
+          <bool>false</bool>
+         </property>
          <attribute name="horizontalHeaderHighlightSections">
           <bool>false</bool>
          </attribute>
@@ -293,6 +302,9 @@
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <property name="showGrid">
+          <bool>false</bool>
+         </property>
+         <property name="wordWrap">
           <bool>false</bool>
          </property>
          <attribute name="horizontalHeaderHighlightSections">

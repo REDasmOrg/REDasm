@@ -10,7 +10,7 @@ class DisassemblerViewActions : public QObject
     Q_OBJECT
 
     public:
-        enum { BackAction = 0, ForwardAction, GotoAction, GraphListingAction };
+        enum { BackAction = 0, ForwardAction, EntryPointAction, GotoAction, GraphListingAction };
 
     public:
         explicit DisassemblerViewActions(QObject *parent = NULL);
@@ -26,6 +26,7 @@ class DisassemblerViewActions : public QObject
     signals:
         void backRequested();
         void forwardRequested();
+        void entryPointRequested();
         void gotoRequested();
         void graphListingRequested();
 

@@ -25,6 +25,8 @@
         <file>res/dark/open.png</file>
         <file>res/dark/save.png</file>
         <file>res/logo_big_dark.png</file>
+        <file>res/dark/entry.png</file>
+        <file>res/light/entry.png</file>
     </qresource>
     <qresource prefix="/web">
         <file alias="d3.js">web/d3.v5.min.js</file>

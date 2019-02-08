@@ -1,6 +1,7 @@
 ﻿#include "disassemblerview.h"
 #include "ui_disassemblerview.h"
 #include "../../dialogs/referencesdialog.h"
+#include "../../dialogs/entrypointsdialog.h"
 #include "../../themeprovider.h"
 #include <QHexView/document/buffer/qmemoryrefbuffer.h>
 #include <QMessageBox>
@@ -84,6 +85,7 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     connect(m_actions, &DisassemblerViewActions::backRequested, m_listingview->textView(), &DisassemblerTextView::goBack);
     connect(m_actions, &DisassemblerViewActions::forwardRequested, m_listingview->textView(), &DisassemblerTextView::goForward);
     connect(m_actions, &DisassemblerViewActions::gotoRequested, this, &DisassemblerView::showGoto);
+    connect(m_actions, &DisassemblerViewActions::entryPointRequested, this, &DisassemblerView::showEntryPoints);
     connect(m_actions, &DisassemblerViewActions::graphListingRequested, this, &DisassemblerView::switchGraphListing);
 
     connect(m_docks->referencesView(), &QTreeView::doubleClicked, this, &DisassemblerView::gotoXRef);
@@ -155,6 +157,7 @@ void DisassemblerView::checkDisassemblerStatus()
     m_actsetfilter->setEnabled(!m_disassembler->busy());
     m_lefilter->setEnabled(!m_disassembler->busy());
 
+    m_actions->setEnabled(DisassemblerViewActions::EntryPointAction, !m_disassembler->busy());
     m_actions->setEnabled(DisassemblerViewActions::GotoAction, !m_disassembler->busy());
     m_actions->setEnabled(DisassemblerViewActions::GraphListingAction, !m_disassembler->busy());
 }
@@ -417,6 +420,12 @@ void DisassemblerView::selectToHexDump(address_t address, u64 len)
 }
 
 void DisassemblerView::showMenu(const QPoint&) { m_contextmenu->exec(QCursor::pos()); }
+
+void DisassemblerView::showEntryPoints()
+{
+    EntryPointsDialog dlgentrypoints(m_disassembler.get(), this);
+    dlgentrypoints.exec();
+}
 
 void DisassemblerView::showGoto()
 {

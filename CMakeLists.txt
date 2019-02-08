@@ -65,6 +65,7 @@ SET(SOURCES
     dialogs/gotodialog.cpp
     dialogs/aboutdialog.cpp
     dialogs/manualloaddialog.cpp
+    dialogs/entrypointsdialog.cpp
     themeprovider.cpp
     widgets/graphview/graphview.cpp
     models/listingitemmodel.cpp
@@ -101,6 +102,7 @@ SET(HEADERS
     dialogs/gotodialog.h
     dialogs/aboutdialog.h
     dialogs/manualloaddialog.h
+    dialogs/entrypointsdialog.h
     themeprovider.h
     widgets/graphview/graphview.h
     models/listingitemmodel.h
@@ -128,7 +130,8 @@ set(FORMS
     dialogs/gotodialog.ui
     dialogs/aboutdialog.ui
     dialogs/manualloaddialog.ui
-    dialogs/settingsdialog.ui)
+    dialogs/settingsdialog.ui
+    dialogs/entrypointsdialog.ui)
 
 set(RESOURCES
     resources.qrc

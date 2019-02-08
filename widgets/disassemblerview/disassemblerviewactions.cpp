@@ -50,8 +50,13 @@ void DisassemblerViewActions::addActions()
     m_actions[DisassemblerViewActions::GotoAction] = m_toolbar->addAction(THEME_ICON("goto"), QString(),
                                                                           this, &DisassemblerViewActions::gotoRequested);
 
+    m_actions[DisassemblerViewActions::EntryPointAction] = m_toolbar->addAction(THEME_ICON("entry"), QString(),
+                                                                          this, &DisassemblerViewActions::entryPointRequested);
+
     m_actions[DisassemblerViewActions::GraphListingAction] = m_toolbar->addAction(THEME_ICON("graph"), QString(),
                                                                                   this, &DisassemblerViewActions::graphListingRequested);
+
+    m_actions[DisassemblerViewActions::EntryPointAction]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
 }
 
 void DisassemblerViewActions::removeActions()

@@ -15,6 +15,10 @@ EntryPointsDialog::EntryPointsDialog(REDasm::DisassemblerAPI *disassembler, QWid
     ui->tvEntryPoints->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
     ui->tvEntryPoints->horizontalHeader()->hideSection(2);
     ui->tvEntryPoints->verticalHeader()->setDefaultSectionSize(ui->tvEntryPoints->fontMetrics().lineSpacing());
+
+    connect(ui->leFilter, &QLineEdit::textChanged, m_entrypointsmodel, &ListingFilterModel::setFilter);
+    connect(ui->tvEntryPoints, &QTableView::doubleClicked, this, &EntryPointsDialog::symbolSelected);
+    connect(ui->tvEntryPoints, &QTableView::doubleClicked, this, &EntryPointsDialog::accept);
 }
 
 EntryPointsDialog::~EntryPointsDialog() { delete ui; }

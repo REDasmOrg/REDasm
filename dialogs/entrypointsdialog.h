@@ -18,6 +18,9 @@ class EntryPointsDialog : public QDialog
         explicit EntryPointsDialog(REDasm::DisassemblerAPI* disassembler, QWidget *parent = NULL);
         ~EntryPointsDialog();
 
+    signals:
+        void symbolSelected(const QModelIndex& index);
+
     private:
         Ui::EntryPointsDialog *ui;
         ListingFilterModel* m_entrypointsmodel;

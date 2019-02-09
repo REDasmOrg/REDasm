@@ -424,6 +424,8 @@ void DisassemblerView::showMenu(const QPoint&) { m_contextmenu->exec(QCursor::po
 void DisassemblerView::showEntryPoints()
 {
     EntryPointsDialog dlgentrypoints(m_disassembler.get(), this);
+
+    connect(&dlgentrypoints, &EntryPointsDialog::symbolSelected, this, &DisassemblerView::goTo);
     dlgentrypoints.exec();
 }
 

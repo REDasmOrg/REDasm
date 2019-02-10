@@ -283,6 +283,9 @@ void MainWindow::loadRecents()
             continue;
         }
 
+        if(!QFileInfo(m_recents[i]).exists())
+            continue;
+
         QAction* action = mnurecents->addAction(QString("%1 - %2").arg(i).arg(m_recents[i]));
         action->setData(m_recents[i]);
         connect(action, &QAction::triggered, this, &MainWindow::onRecentFileClicked);

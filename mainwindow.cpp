@@ -323,7 +323,7 @@ void MainWindow::load(const QString& filepath)
 
     REDasm::MemoryBuffer* buffer = REDasm::MemoryBuffer::fromFile(filepath.toStdString()); // TODO: Deallocate in case of user-cancel?
 
-    if(!buffer->empty())
+    if(buffer && !buffer->empty())
         this->initDisassembler(buffer);
 }
 

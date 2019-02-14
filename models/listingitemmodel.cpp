@@ -1,5 +1,6 @@
 #include "listingitemmodel.h"
 #include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/support/demangler.h>
 #include <redasm/plugins/format.h>
 #include "../themeprovider.h"
 #include <QColor>
@@ -83,7 +84,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
             else if(symbol->is(REDasm::SymbolTypes::StringMask))
                 return S_TO_QS(REDasm::quoted(m_disassembler->readString(symbol)));
 
-            return S_TO_QS(symbol->name);
+            return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
         }
 
         if(index.column() == 2)

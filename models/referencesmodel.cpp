@@ -21,7 +21,7 @@ void ReferencesModel::clear()
 
 void ReferencesModel::xref(address_t address)
 {
-    if(!m_disassembler)
+    if(!m_disassembler || m_disassembler->busy())
         return;
 
     this->beginResetModel();
@@ -39,7 +39,7 @@ QModelIndex ReferencesModel::index(int row, int column, const QModelIndex &) con
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 {
-    if(!m_disassembler)
+    if(!m_disassembler || m_disassembler->busy())
         return QVariant();
 
     auto& document = m_disassembler->document();

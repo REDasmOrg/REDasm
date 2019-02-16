@@ -9,6 +9,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
+endif()
+
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
 
@@ -42,7 +46,7 @@ add_definitions(-DREDASM_VERSION="${REDASM_BUILD_VERSION}")
 add_subdirectory(LibREDasm)
 add_subdirectory(QHexView)
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
+if((CMAKE_BUILD_TYPE MATCHES Debug) OR (CMAKE_BUILD_TYPE MATCHES RelWithDebInfo))
     add_subdirectory(unittest)
 endif()
 

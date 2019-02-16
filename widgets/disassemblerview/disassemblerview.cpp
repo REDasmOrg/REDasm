@@ -57,7 +57,7 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
 
     connect(ui->tabView, &QTabWidget::currentChanged, this, &DisassemblerView::checkHexEdit);
     connect(ui->tabView, &QTabWidget::currentChanged, this, &DisassemblerView::updateCurrentFilter);
-    connect(m_lefilter, &QLineEdit::textChanged, [&](const QString&) { this->filterSymbols(); });
+    connect(m_lefilter, &QLineEdit::textChanged, this, [&](const QString&) { this->filterSymbols(); });
 
     connect(m_listingview->textView(), &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
     connect(m_listingview->textView(), &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::selectToHexDump);

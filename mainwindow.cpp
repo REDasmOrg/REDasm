@@ -428,7 +428,7 @@ void MainWindow::closeFile()
         m_disassembler = NULL;
     }
 
-    QWidget* oldwidget = ui->stackView->widget(0);
+    QWidget* oldwidget = ui->stackView->currentWidget();
 
     if(oldwidget != NULL)
     {

@@ -68,11 +68,11 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     connect(m_listingview->textView(), &DisassemblerTextView::switchToHexDump, this, &DisassemblerView::switchToHexDump);
     connect(m_listingview->textView(), &DisassemblerTextView::addressChanged, m_docks, &DisassemblerViewDocks::updateCallGraph);
 
-    connect(m_listingview->textView(), &DisassemblerTextView::canGoBackChanged, [=]() {
+    connect(m_listingview->textView(), &DisassemblerTextView::canGoBackChanged, this, [=]() {
         m_actions->setEnabled(DisassemblerViewActions::BackAction, m_listingview->textView()->canGoBack());
     });
 
-    connect(m_listingview->textView(), &DisassemblerTextView::canGoForwardChanged, [=]() {
+    connect(m_listingview->textView(), &DisassemblerTextView::canGoForwardChanged, this, [=]() {
         m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_listingview->textView()->canGoForward());
     });
 
@@ -260,7 +260,7 @@ void DisassemblerView::showReferences(address_t address)
 
     ReferencesDialog dlgreferences(m_disassembler.get(), symbol, this);
 
-    connect(&dlgreferences, &ReferencesDialog::jumpTo, [&](address_t address) {
+    connect(&dlgreferences, &ReferencesDialog::jumpTo, this, [&](address_t address) {
         if(ui->stackedWidget->currentWidget() == m_graphview) {
             auto it = m_disassembler->document()->instructionItem(address);
 

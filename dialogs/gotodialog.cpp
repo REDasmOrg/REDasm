@@ -12,7 +12,7 @@ GotoDialog::GotoDialog(REDasm::DisassemblerAPI *disassembler, QWidget *parent) :
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 
-    connect(ui->leAddress, &QLineEdit::textChanged, [=](const QString) { this->validateEntry(); });
+    connect(ui->leAddress, &QLineEdit::textChanged, this, [=](const QString) { this->validateEntry(); });
     connect(ui->leAddress, &QLineEdit::returnPressed, this, &GotoDialog::accept);
 
     connect(ui->tvFunctions, &QTableView::doubleClicked, this, &GotoDialog::symbolSelected);

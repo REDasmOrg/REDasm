@@ -9,7 +9,7 @@ ManualLoadDialog::ManualLoadDialog(REDasm::FormatPlugin *format, QWidget *parent
     this->loadAssemblers();
     this->updateInputMask();
 
-    connect(ui->cbBits, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this](int) { this->updateInputMask(); });
+    connect(ui->cbBits, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, [&](int) { this->updateInputMask(); });
 }
 
 ManualLoadDialog::~ManualLoadDialog()

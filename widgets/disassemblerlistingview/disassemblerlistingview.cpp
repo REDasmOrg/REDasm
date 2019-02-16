@@ -11,7 +11,7 @@ DisassemblerListingView::DisassemblerListingView(QWidget *parent): QSplitter(par
     m_disassemblercolumnview = new DisassemblerColumnView(this);
     m_disassemblercolumnview->setFont(m_disassemblertextview->font()); // Apply same font
 
-    connect(m_disassemblertextview->verticalScrollBar(), &QScrollBar::valueChanged, [&](int) { this->renderArrows(); });
+    connect(m_disassemblertextview->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderArrows(); });
 
     this->addWidget(m_disassemblercolumnview);
     this->addWidget(m_disassemblertextview);

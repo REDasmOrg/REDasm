@@ -36,7 +36,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 
     connect(m_blinktimer, &QTimer::timeout, this, &DisassemblerTextView::blinkCursor);
 
-    connect(this, &DisassemblerTextView::customContextMenuRequested, [&](const QPoint&) {
+    connect(this, &DisassemblerTextView::customContextMenuRequested, this, [&](const QPoint&) {
         m_contextmenu->exec(QCursor::pos());
     });
 
@@ -80,7 +80,7 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
     cur->forwardChanged += [=]() { emit canGoForwardChanged(); };
 
     this->adjustScrollBars();
-    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, [&](int) { this->viewport()->update(); });
+    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->viewport()->update(); });
 
     m_renderer = std::make_unique<ListingTextRenderer>(this->font(), m_disassembler);
     m_disassemblerpopup = new DisassemblerPopup(m_disassembler, this);

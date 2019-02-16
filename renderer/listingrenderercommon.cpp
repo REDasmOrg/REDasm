@@ -70,7 +70,7 @@ void ListingRendererCommon::insertHtmlText(const REDasm::RendererLine &rl)
     m_textcursor.insertText(QString("<div style=\"display: inline-block; width: 100%\" data-lineroot=\"1\" data-line=\"%1\">%2</div>").arg(rl.documentindex).arg(content));
 }
 
-QString ListingRendererCommon::wordsPattern() { return "(\\w+[\\w?$@]*)"; }
+QString ListingRendererCommon::wordsPattern() { return "(\\w+[\\w:?$@]*)"; }
 
 QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style, const REDasm::RendererLine& rl) const
 {

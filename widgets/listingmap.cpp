@@ -9,6 +9,9 @@ void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     m_disassembler = disassembler;
 
+    m_totalsize = disassembler->document()->segmentsCount() +
+                  disassembler->document()->functionsCount();
+
     auto& document = m_disassembler->document();
 
     for(auto it = document->begin(); it != document->end(); it++)

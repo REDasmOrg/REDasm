@@ -285,7 +285,7 @@ void DisassemblerView::displayAddress(address_t address)
         return;
 
     REDasm::ListingDocument& document = m_disassembler->document();
-    REDasm::FormatPlugin* format = document->format();
+    REDasm::FormatPlugin* format = m_disassembler->format();
     const REDasm::Segment* segment = document->segment(address);
     REDasm::SymbolPtr functionstart = document->functionStartSymbol(address);
 

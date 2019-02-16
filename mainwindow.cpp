@@ -503,7 +503,7 @@ void MainWindow::checkDisassemblerStatus()
 
     this->setWindowTitle(disassembler->busy() ? QString("%1 (Working)").arg(m_fileinfo.fileName()) : m_fileinfo.fileName());
 
-    size_t state = m_disassembler->state();
+    size_t state = disassembler->state();
 
     if(state == REDasm::Job::ActiveState)
         m_pbstatus->setStyleSheet("color: red;");

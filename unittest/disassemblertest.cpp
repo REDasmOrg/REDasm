@@ -199,7 +199,7 @@ void DisassemblerTest::testOllyDump()
 void DisassemblerTest::testSCrack()
 {
     SymbolPtr symbol = m_document->symbol(0x004013E4);
-    TEST_SYMBOL_NAME("Import VB6 ThunRTMain", symbol, symbol->isFunction(), "_msvbvm60_dll_ThunRTMain");
+    TEST_SYMBOL_NAME("Import VB6 ThunRTMain", symbol, symbol->isFunction(), "_msvbvm60.dll_ThunRTMain");
 
     symbol = m_document->symbol(0x00402B1C);
     TEST_SYMBOL("Wide String @ 0x00402b1c", symbol, symbol->is(SymbolTypes::WideString));
@@ -228,19 +228,19 @@ void DisassemblerTest::testSCrack()
 void DisassemblerTest::testVB5CrackMe()
 {
     SymbolPtr symbol = m_document->symbol(0x0040110E);
-    TEST_SYMBOL_NAME("Import VB5 ThunRTMain", symbol, symbol->is(SymbolTypes::Function), "_msvbvm50_dll_ThunRTMain");
+    TEST_SYMBOL_NAME("Import VB5 ThunRTMain", symbol, symbol->is(SymbolTypes::Function), "_msvbvm50.dll_ThunRTMain");
 
     std::map<address_t, std::string> trampolines;
-    trampolines[0x004010C0] = "_msvbvm50_dll___vbaExitProc";
-    trampolines[0x004010C6] = "_msvbvm50_dll___vbaFreeVarList";
-    trampolines[0x004010CC] = "_msvbvm50_dll___vbaVarDup";
-    trampolines[0x004010D2] = "_msvbvm50_dll_rtcMsgBox";
-    trampolines[0x004010D8] = "_msvbvm50_dll___vbaFreeObj";
-    trampolines[0x004010DE] = "_msvbvm50_dll___vbaFreeStr";
-    trampolines[0x004010E4] = "_msvbvm50_dll___vbaHresultCheckObj";
-    trampolines[0x004010EA] = "_msvbvm50_dll___vbaObjSet";
-    trampolines[0x004010F0] = "_msvbvm50_dll___vbaR8Str";
-    trampolines[0x004010F6] = "_msvbvm50_dll___vbaOnError";
+    trampolines[0x004010C0] = "_msvbvm50.dll___vbaExitProc";
+    trampolines[0x004010C6] = "_msvbvm50.dll___vbaFreeVarList";
+    trampolines[0x004010CC] = "_msvbvm50.dll___vbaVarDup";
+    trampolines[0x004010D2] = "_msvbvm50.dll_rtcMsgBox";
+    trampolines[0x004010D8] = "_msvbvm50.dll___vbaFreeObj";
+    trampolines[0x004010DE] = "_msvbvm50.dll___vbaFreeStr";
+    trampolines[0x004010E4] = "_msvbvm50.dll___vbaHresultCheckObj";
+    trampolines[0x004010EA] = "_msvbvm50.dll___vbaObjSet";
+    trampolines[0x004010F0] = "_msvbvm50.dll___vbaR8Str";
+    trampolines[0x004010F6] = "_msvbvm50.dll___vbaOnError";
 
     this->testTrampolines(trampolines);
 

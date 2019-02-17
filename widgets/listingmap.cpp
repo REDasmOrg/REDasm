@@ -130,6 +130,9 @@ void ListingMap::paintEvent(QPaintEvent *)
         p += m_orientation == Qt::Horizontal ? r.width() : r.height();
     }
 
+    if(m_disassembler->busy()) // Don't render functions when disassembler is busy
+        return;
+
     p = 0;
 
     for(int i = 0; i < m_functions.size(); i++)

@@ -18,18 +18,17 @@
 </p>
 
 ## Introduction
-REDasm is an interactive, multiarchitecture disassembler written in C++ using Qt5 as UI Framework.<br>
-Its core is light and simple, it can be extended in order to support new instruction sets and file formats.<br>
-In the future, Python scripting will be supported.<br><br>
+REDasm is an interactive, multiarchitecture disassembler written in modern C++11 using Qt5 as UI Framework.<br>
+I have designed and programmed REDasm because I always wanted an *easy-to-use* Free and Open Source disassembler that can be compared to IDA Pro.<br>
+<br>
+Its core is modular and it can be extended in order to support new [file formats](https://github.com/REDasmOrg/REDasm/wiki/Writing-a-FormatPlugin) and [instruction sets](https://github.com/REDasmOrg/REDasm/wiki/Writing-an-AssemblerPlugin).<br>
+You can hack, extend and improve REDasm without any issues and limitations.<br>
+<br>
 *Runs on Windows and Linux.*<br>
 
 <p align="center">
   <img height="450" src="https://raw.githubusercontent.com/REDasmOrg/REDasm/master/artwork/Slideshow_20190203.gif">
 </p>
-
-## Why another Disassembler?
-I have designed and programmed REDasm because I always wanted an *easy-to-use* Free and Open Source disassembler that can be compared to IDA.<br>
-You can hack, extend and improve REDasm without any issues and limitations.<br>
 
 ## Formats & Assemblers Support
 <table>
@@ -42,7 +41,7 @@ You can hack, extend and improve REDasm without any issues and limitations.<br>
   </tr>
   <tr>
     <td>ELF Executable</td>
-    <td>32/64 bits, Little/Big Endian</td>
+    <td>32/64 bits, Little/Big endian</td>
   </tr>
   <tr>
     <td>Sony Playstation 1 Executable</td>
@@ -62,7 +61,7 @@ You can hack, extend and improve REDasm without any issues and limitations.<br>
   </tr>
   <tr>
     <td>Nintendo64 ROMS</td>
-    <td><i>In development</i>, Little/Big Endian and "swapped roms" are supported</td>
+    <td>Little/Big endian and "swapped roms" are supported, <i>In development</i></td>
   </tr>
   <tr> <!-- Assemblers -->
     <td align="center" colspan="2"><b>Assemblers</b></d>
@@ -73,7 +72,7 @@ You can hack, extend and improve REDasm without any issues and limitations.<br>
   </tr>
   <tr>
     <td>MIPS</td>
-    <td>Capstone Based, Little/Big Endian mode</td>
+    <td>Capstone Based, Little/Big endian mode</td>
   </tr>
   <tr>
     <td>ARM</td>

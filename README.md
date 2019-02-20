@@ -34,25 +34,13 @@ You can hack, extend and improve REDasm without any issues and limitations.<br>
 ## Compiling from Source
 See [COMPILE.md](COMPILE.md) (for Windows and Linux).
 
-## Compiling from Source with docker
-```
-cd docker
-# create a docker image
-./build.sh image
-# build REDasm
-./build.sh nightly
-# remove docker image
-./build rm
-```
-after compiling the binary is in the folder release
-
 ## Nightly Builds
-Nightly builds are produced by AppVeyor (Windows) and TravisCI (Linux) and they can be downloaded from [here](https://github.com/REDasmOrg/REDasm-Builds).
+* AppVeyor (Windows) and TravisCI (Linux) and they can be downloaded from [here](https://github.com/REDasmOrg/REDasm-Builds).
 
 ## Support
 * Loaders
-  * PE: *VB6 can be decompiled, Delphi support is WIP*
-  * ELF
+  * Portable Executable (32/64 bits)
+  * ELF (32/64 bits, Little/Big Endian)
   * PS1 Executables: *PsyQ 4.7 signatures available*
   * Android Dalvik Executables (DEX)
   * XBox1 Executables (XBE)
@@ -77,6 +65,8 @@ Read the [Wiki](https://github.com/REDasmOrg/REDasm/wiki) and send a Pull Reques
 - [D3](https://github.com/d3/d3): Used by QtWebEngine for Graph Rendering
 - [Dagre](https://github.com/dagrejs/dagre): Used for Graph Layout
 - [Dagre-D3](https://github.com/dagrejs/dagre-d3): Graph Layout Rendering with D3
+- [UndName](https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c): MSVC Demangler
+- [visit_struct](https://github.com/cbeck88/visit_struct): C++ Reflection
 
 ## License
 REDasm is released under GNU GPL3 License.

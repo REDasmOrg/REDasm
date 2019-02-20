@@ -61,6 +61,7 @@ SET(SOURCES
     widgets/disassemblerview/disassemblerview.cpp
     widgets/disassemblerview/disassemblerviewdocks.cpp
     widgets/disassemblerview/disassemblerviewactions.cpp
+    models/gotomodel.cpp
     models/disassemblermodel.cpp
     models/segmentsmodel.cpp
     widgets/listingmap.cpp
@@ -98,6 +99,7 @@ SET(HEADERS
     widgets/disassemblerview/disassemblerviewdocks.h
     widgets/disassemblerview/disassemblerviewactions.h
     widgets/outputwidget.h
+    models/gotomodel.h
     models/disassemblermodel.h
     models/segmentsmodel.h
     widgets/listingmap.h

@@ -1,14 +1,15 @@
 #include "gotodialog.h"
 #include "ui_gotodialog.h"
+#include "../models/gotomodel.h"
 
 GotoDialog::GotoDialog(REDasm::DisassemblerAPI *disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_disassembler(disassembler), m_address(0)
 {
     ui->setupUi(this);
 
-    m_functionsmodel = ListingFilterModel::createFilter<ListingItemModel>(REDasm::ListingItem::FunctionItem, ui->tvFunctions);
-    m_functionsmodel->setDisassembler(disassembler);
+    m_gotomodel = ListingFilterModel::createFilter<GotoModel>(ui->tvFunctions);
+    m_gotomodel->setDisassembler(disassembler);
 
-    ui->tvFunctions->setModel(m_functionsmodel);
+    ui->tvFunctions->setModel(m_gotomodel);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 
@@ -30,11 +31,11 @@ void GotoDialog::validateEntry()
     if(s.isEmpty())
     {
         ui->pbGoto->setEnabled(false);
-        m_functionsmodel->clearFilter();
+        m_gotomodel->clearFilter();
         return;
     }
 
     m_address = s.toULongLong(&ok, 16);
     ui->pbGoto->setEnabled(ok);
-    m_functionsmodel->setFilter(s);
+    m_gotomodel->setFilter(s);
 }

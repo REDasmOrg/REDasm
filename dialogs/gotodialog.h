@@ -28,7 +28,7 @@ class GotoDialog : public QDialog
     private:
         Ui::GotoDialog *ui;
         REDasm::DisassemblerAPI* m_disassembler;
-        ListingFilterModel* m_functionsmodel;
+        ListingFilterModel* m_gotomodel;
         address_t m_address;
 };
 

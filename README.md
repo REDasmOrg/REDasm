@@ -31,25 +31,69 @@ In the future, Python scripting will be supported.<br><br>
 I have designed and programmed REDasm because I always wanted an *easy-to-use* Free and Open Source disassembler that can be compared to IDA.<br>
 You can hack, extend and improve REDasm without any issues and limitations.<br>
 
-## Compiling from Source
-See [COMPILE.md](COMPILE.md) (for Windows and Linux).
+## Formats & Assemblers Support
+<table>
+  <tr> <!-- Loaders -->
+    <td align="center" colspan="2"><b>Loaders</b></d>
+  </tr>
+  <tr>
+    <td>Portable Executable</td>
+    <td>32/64 bits</td>
+  </tr>
+  <tr>
+    <td>ELF Executable</td>
+    <td>32/64 bits, Little/Big Endian</td>
+  </tr>
+  <tr>
+    <td>Sony Playstation 1 Executable</td>
+    <td>PsyQ 4.6/7 signatures available</td>
+  </tr>
+  <tr>
+    <td>Android Dalvik Executable (DEX)</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>XBox1 Executable (XBE)</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>GameBoy Advance ROM</td>
+     <td><i>In development</i></td>
+  </tr>
+  <tr>
+    <td>Nintendo64 ROMS</td>
+    <td><i>In development</i>, Little/Big Endian and "swapped roms" are supported</td>
+  </tr>
+  <tr> <!-- Assemblers -->
+    <td align="center" colspan="2"><b>Assemblers</b></d>
+  </tr>
+  <tr>
+    <td>x86 and x86_64</td>
+    <td>Capstone Based</td>
+  </tr>
+  <tr>
+    <td>MIPS</td>
+    <td>Capstone Based, Little/Big Endian mode</td>
+  </tr>
+  <tr>
+    <td>ARM</td>
+    <td>Capstone Based, 32 bits only</td>
+  </tr>
+  <tr>
+    <td>Dalvik</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>CHIP-8</td>
+    <td>Just for Fun :)</td>
+  </tr>
+</table>
 
 ## Nightly Builds
 * AppVeyor (Windows) and TravisCI (Linux) and they can be downloaded from [here](https://github.com/REDasmOrg/REDasm-Builds).
 
-## Support
-* Loaders
-  * Portable Executable (32/64 bits)
-  * ELF (32/64 bits, Little/Big Endian)
-  * PS1 Executables: *PsyQ 4.7 signatures available*
-  * Android Dalvik Executables (DEX)
-  * XBox1 Executables (XBE)
-* Assemblers
-  *  x86: *With Capstone backend*
-  *  MIPS: *With Capstone backend*
-  *  ARM: *32-bit only*
-  * Dalvik
-  * CHIP-8: *Just for fun :)*
+## Compiling from Source
+See [COMPILE.md](COMPILE.md) (for Windows and Linux).
 
 ## Contributing
 Read the [Wiki](https://github.com/REDasmOrg/REDasm/wiki) and send a Pull Request!
@@ -66,7 +110,7 @@ Read the [Wiki](https://github.com/REDasmOrg/REDasm/wiki) and send a Pull Reques
 - [Dagre](https://github.com/dagrejs/dagre): Used for Graph Layout
 - [Dagre-D3](https://github.com/dagrejs/dagre-d3): Graph Layout Rendering with D3
 - [UndName](https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c): MSVC Demangler
-- [visit_struct](https://github.com/cbeck88/visit_struct): C++ Reflection
+- [Visit-Struct](https://github.com/cbeck88/visit_struct): C++ Reflection
 
 ## License
 REDasm is released under GNU GPL3 License.

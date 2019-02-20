@@ -67,7 +67,8 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
-    REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);
+    auto lock = REDasm::x_lock_safe_ptr(m_disassembler->document());
+    REDasm::SymbolPtr symbol = lock->symbol(item->address);
 
     if(!symbol)
         return QVariant();
@@ -92,7 +93,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
         if(index.column() == 3)
         {
-            REDasm::Segment* segment = m_disassembler->document()->segment(symbol->address);
+            REDasm::Segment* segment = lock->segment(symbol->address);
 
             if(segment)
                 return S_TO_QS(segment->name);

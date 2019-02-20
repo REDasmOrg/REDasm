@@ -52,92 +52,51 @@ endif()
 
 QT5_WRAP_UI(UI_HDRS ${UI_FILES})
 
-SET(SOURCES
-    ${QHEXVIEW_SOURCES}
-    ${REDASM_TEST_SOURCES}
-    main.cpp
-    mainwindow.cpp
-    widgets/outputwidget.cpp
-    widgets/disassemblerview/disassemblerview.cpp
-    widgets/disassemblerview/disassemblerviewdocks.cpp
-    widgets/disassemblerview/disassemblerviewactions.cpp
-    models/gotomodel.cpp
-    models/disassemblermodel.cpp
-    models/segmentsmodel.cpp
-    widgets/listingmap.cpp
-    models/referencesmodel.cpp
-    dialogs/referencesdialog.cpp
-    dialogs/gotodialog.cpp
-    dialogs/aboutdialog.cpp
-    dialogs/manualloaddialog.cpp
-    dialogs/entrypointsdialog.cpp
-    themeprovider.cpp
-    widgets/graphview/graphview.cpp
-    models/listingitemmodel.cpp
-    models/symboltablemodel.cpp
-    models/listingfiltermodel.cpp
-    models/callgraphmodel.cpp
-    renderer/listingtextrenderer.cpp
-    renderer/listingrenderercommon.cpp
-    renderer/listinggraphrenderer.cpp
-    widgets/disassemblergraphview/disassemblergraphview.cpp
-    widgets/disassemblergraphview/disassemblerwebchannel.cpp
-    widgets/disassemblerpopup/disassemblerpopup.cpp
-    widgets/disassemblerpopup/disassemblerpopupwidget.cpp
-    renderer/listingpopuprenderer.cpp
-    redasmsettings.cpp
-    dialogs/settingsdialog.cpp
-    widgets/disassemblerlistingview/disassemblerlistingview.cpp
-    widgets/disassemblerlistingview/disassemblertextview.cpp
-    widgets/disassemblerlistingview/disassemblercolumnview.cpp)
+# Widgets
+file(GLOB_RECURSE WIDGETS_HEADERS widgets/*.h)
+file(GLOB_RECURSE WIDGETS_SOURCES widgets/*.cpp)
+file(GLOB_RECURSE WIDGETS_UIS     widgets/*.ui)
+
+# Dialogs
+file(GLOB_RECURSE DIALOGS_HEADERS dialogs/*.h)
+file(GLOB_RECURSE DIALOGS_SOURCES dialogs/*.cpp)
+file(GLOB_RECURSE DIALOGS_UIS     dialogs/*.ui)
+
+# Models
+file(GLOB_RECURSE MODELS_HEADERS models/*.h)
+file(GLOB_RECURSE MODELS_SOURCES models/*.cpp)
+
+# Renderer
+file(GLOB_RECURSE RENDERER_HEADERS renderer/*.h)
+file(GLOB_RECURSE RENDERER_SOURCES renderer/*.cpp)
 
 SET(HEADERS
     ${QHEXVIEW_HEADERS}
     ${REDASM_TEST_HEADERS}
+    ${WIDGETS_HEADERS}
+    ${DIALOGS_HEADERS}
+    ${MODELS_HEADERS}
+    ${RENDERER_HEADERS}
     mainwindow.h
-    widgets/disassemblerview/disassemblerview.h
-    widgets/disassemblerview/disassemblerviewdocks.h
-    widgets/disassemblerview/disassemblerviewactions.h
-    widgets/outputwidget.h
-    models/gotomodel.h
-    models/disassemblermodel.h
-    models/segmentsmodel.h
-    widgets/listingmap.h
-    models/referencesmodel.h
-    dialogs/referencesdialog.h
-    dialogs/gotodialog.h
-    dialogs/aboutdialog.h
-    dialogs/manualloaddialog.h
-    dialogs/entrypointsdialog.h
     themeprovider.h
-    widgets/graphview/graphview.h
-    models/listingitemmodel.h
-    models/symboltablemodel.h
-    models/listingfiltermodel.h
-    models/callgraphmodel.h
-    renderer/listingtextrenderer.h
-    renderer/listingrenderercommon.h
-    renderer/listinggraphrenderer.h
-    widgets/disassemblergraphview/disassemblergraphview.h
-    widgets/disassemblergraphview/disassemblerwebchannel.h
-    widgets/disassemblerpopup/disassemblerpopup.h
-    widgets/disassemblerpopup/disassemblerpopupwidget.h
-    renderer/listingpopuprenderer.h
-    redasmsettings.h
-    dialogs/settingsdialog.h
-    widgets/disassemblerlistingview/disassemblerlistingview.h
-    widgets/disassemblerlistingview/disassemblertextview.h
-    widgets/disassemblerlistingview/disassemblercolumnview.h)
+    redasmsettings.h)
+
+SET(SOURCES
+    ${QHEXVIEW_SOURCES}
+    ${REDASM_TEST_SOURCES}
+    ${WIDGETS_SOURCES}
+    ${DIALOGS_SOURCES}
+    ${MODELS_SOURCES}
+    ${RENDERER_SOURCES}
+    main.cpp
+    mainwindow.cpp
+    themeprovider.cpp
+    redasmsettings.cpp)
 
 set(FORMS
-    mainwindow.ui
-    widgets/disassemblerview/disassemblerview.ui
-    dialogs/referencesdialog.ui
-    dialogs/gotodialog.ui
-    dialogs/aboutdialog.ui
-    dialogs/manualloaddialog.ui
-    dialogs/settingsdialog.ui
-    dialogs/entrypointsdialog.ui)
+    ${WIDGETS_UIS}
+    ${DIALOGS_UIS}
+    mainwindow.ui)
 
 set(RESOURCES
     resources.qrc

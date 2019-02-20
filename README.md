@@ -57,7 +57,7 @@ You can hack and improve REDasm without any issues and limitations.<br>
      <td><i>In development</i></td>
   </tr>
   <tr>
-    <td>Nintendo64 ROMS</td>
+    <td>Nintendo64 ROM</td>
     <td>Little/Big endian and "swapped roms" are supported, <i>In development</i></td>
   </tr>
   <tr> <!-- Assemblers -->

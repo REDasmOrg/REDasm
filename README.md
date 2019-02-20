@@ -18,8 +18,7 @@
 </p>
 
 ## Introduction
-REDasm is an interactive, multiarchitecture disassembler written in modern C++11 using Qt5 as UI Framework.<br>
-Its core is modular and it can be easily extended in order to support new [file formats](https://github.com/REDasmOrg/REDasm/wiki/Writing-a-FormatPlugin) and [instruction sets](https://github.com/REDasmOrg/REDasm/wiki/Writing-an-AssemblerPlugin).<br>
+REDasm is an interactive, multiarchitecture disassembler written in modern C++11 using Qt5 as UI Framework, its core is modular and it can be easily extended in order to support new [file formats](https://github.com/REDasmOrg/REDasm/wiki/Writing-a-FormatPlugin) and [instruction sets](https://github.com/REDasmOrg/REDasm/wiki/Writing-an-AssemblerPlugin).<br>
 You can hack and improve REDasm without any issues and limitations.<br>
 <br>
 *Runs on Windows and Linux.*<br>

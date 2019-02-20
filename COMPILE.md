@@ -4,7 +4,7 @@
 * C++11 capable compiler
   * GCC on Linux
   * Visual Studio 2017 on Windows
-* git
+* Git
 ****
 ### Building REDasm on Windows
 Open a Command prompt and execute:
@@ -52,4 +52,15 @@ cp REDasm deploy/
 cd deploy
 git clone https://github.com/REDasmOrg/REDasm-Database.git database
 rm -rf database/.git
+```
+
+## Building REDasm with docker
+```
+cd docker
+# create a docker image
+./build.sh image
+# build REDasm
+./build.sh nightly
+# remove docker image
+./build rm
 ```

@@ -29,8 +29,8 @@ You can hack and improve REDasm without any issues and limitations.<br>
 
 ## Formats & Assemblers Support
 <table>
-  <tr> <!-- Loaders -->
-    <td align="center" colspan="2"><b>Loaders</b></d>
+  <tr> <!-- Formats -->
+    <td align="center" colspan="2"><b>Formats</b></d>
   </tr>
   <tr>
     <td>Portable Executable</td>

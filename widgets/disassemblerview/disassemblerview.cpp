@@ -94,15 +94,17 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     connect(m_docks->functionsView(), &QTreeView::doubleClicked, this, &DisassemblerView::goTo);
     connect(m_docks->functionsView(), &QTreeView::customContextMenuRequested, this, &DisassemblerView::showMenu);
 
-    connect(ui->tvExports, &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
-    connect(ui->tvExports, &QTableView::doubleClicked, this, &DisassemblerView::goTo);
-    connect(ui->tvExports, &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
-    connect(ui->tvImports, &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
-    connect(ui->tvImports, &QTableView::doubleClicked, this, &DisassemblerView::goTo);
-    connect(ui->tvImports, &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
-    connect(ui->tvStrings, &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
-    connect(ui->tvStrings, &QTableView::doubleClicked, this, &DisassemblerView::goTo);
-    connect(ui->tvStrings, &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
+    connect(ui->tvSegments, &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
+    connect(ui->tvSegments, &QTableView::doubleClicked, this, &DisassemblerView::goTo);
+    connect(ui->tvExports,  &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
+    connect(ui->tvExports,  &QTableView::doubleClicked, this, &DisassemblerView::goTo);
+    connect(ui->tvExports,  &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
+    connect(ui->tvImports,  &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
+    connect(ui->tvImports,  &QTableView::doubleClicked, this, &DisassemblerView::goTo);
+    connect(ui->tvImports,  &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
+    connect(ui->tvStrings,  &QTableView::pressed, this, &DisassemblerView::modelIndexSelected);
+    connect(ui->tvStrings,  &QTableView::doubleClicked, this, &DisassemblerView::goTo);
+    connect(ui->tvStrings,  &QTableView::customContextMenuRequested, this, &DisassemblerView::showMenu);
 
     this->createActions();
 }

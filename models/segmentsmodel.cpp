@@ -19,21 +19,28 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 
         if(index.column() == 0)
             return S_TO_QS(REDasm::hex(segment->address, format->bits()));
-        else if(index.column() == 1)
+        if(index.column() == 1)
             return S_TO_QS(REDasm::hex(segment->endaddress, format->bits()));
-        else if(index.column() == 2)
+        if(index.column() == 2)
+            return S_TO_QS(REDasm::hex(segment->offset, format->bits()));
+        if(index.column() == 3)
             return S_TO_QS(segment->name);
-        else if(index.column() == 3)
+        if(index.column() == 4)
             return SegmentsModel::segmentFlags(segment);
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() == 2)
+        if(index.column() == 3)
             return THEME_VALUE("segment_name_fg");
-        else if(index.column() == 3)
+        else if(index.column() == 4)
             return THEME_VALUE("segment_flags_fg");
 
         return THEME_VALUE("address_list_fg");
+    }
+    else if(role == Qt::TextAlignmentRole)
+    {
+        if(index.column() > 2)
+            return Qt::AlignCenter;
     }
 
     return QVariant();
@@ -46,20 +53,19 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
 
     if(section == 0)
         return "Start Address";
-
     if(section == 1)
         return "End Address";
-
     if(section == 2)
-        return "Name";
-
+        return "Offset";
     if(section == 3)
+        return "Name";
+    if(section == 4)
         return "Type";
 
     return ListingItemModel::headerData(section, orientation, role);
 }
 
-int SegmentsModel::columnCount(const QModelIndex &) const { return 4; }
+int SegmentsModel::columnCount(const QModelIndex &) const { return 5; }
 
 QString SegmentsModel::segmentFlags(const REDasm::Segment *segment)
 {

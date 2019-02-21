@@ -42,8 +42,11 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     ui->tvExports->verticalHeader()->setDefaultSectionSize(ui->tvExports->fontMetrics().lineSpacing());
     ui->tvStrings->verticalHeader()->setDefaultSectionSize(ui->tvStrings->fontMetrics().lineSpacing());
 
-    ui->tvSegments->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    ui->tvSegments->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui->tvSegments->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    ui->tvSegments->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    ui->tvSegments->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
     ui->tvImports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvImports->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvImports->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);

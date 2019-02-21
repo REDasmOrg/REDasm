@@ -24,22 +24,24 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
         if(index.column() == 2)
             return S_TO_QS(REDasm::hex(segment->offset, format->bits()));
         if(index.column() == 3)
-            return S_TO_QS(segment->name);
+            return S_TO_QS(REDasm::hex(segment->size(), format->bits()));
         if(index.column() == 4)
+            return S_TO_QS(segment->name);
+        if(index.column() == 5)
             return SegmentsModel::segmentFlags(segment);
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() == 3)
+        if(index.column() == 4)
             return THEME_VALUE("segment_name_fg");
-        else if(index.column() == 4)
+        else if(index.column() == 5)
             return THEME_VALUE("segment_flags_fg");
 
         return THEME_VALUE("address_list_fg");
     }
     else if(role == Qt::TextAlignmentRole)
     {
-        if(index.column() > 2)
+        if(index.column() > 3)
             return Qt::AlignCenter;
     }
 
@@ -58,14 +60,16 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
     if(section == 2)
         return "Offset";
     if(section == 3)
-        return "Name";
+        return "Size";
     if(section == 4)
+        return "Name";
+    if(section == 5)
         return "Type";
 
     return ListingItemModel::headerData(section, orientation, role);
 }
 
-int SegmentsModel::columnCount(const QModelIndex &) const { return 5; }
+int SegmentsModel::columnCount(const QModelIndex &) const { return 6; }
 
 QString SegmentsModel::segmentFlags(const REDasm::Segment *segment)
 {

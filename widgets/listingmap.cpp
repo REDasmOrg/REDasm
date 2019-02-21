@@ -155,7 +155,7 @@ void ListingMap::renderFunctions(QPainter *painter)
         if(item == m_functions.last())
         {
             REDasm::Segment* segment = lock->segment(item->address);
-            size = segment->size();
+            size = segment->endaddress - item->address;
         }
         else
             size = m_functions[i + 1]->address - item->address;
@@ -164,6 +164,11 @@ void ListingMap::renderFunctions(QPainter *painter)
 
         QRect r = this->buildRect(this->calculatePosition(format->offset(symbol->address)),
                                   this->calculateSize(size));
+
+        if(m_orientation = Qt::Vertical)
+            r.setX(r.right() - (this->width() / 2));
+        else
+            r.setY(r.bottom() - (this->height() / 2));
 
         if(symbol->isLocked())
             painter->fillRect(r, THEME_VALUE("locked_fg"));

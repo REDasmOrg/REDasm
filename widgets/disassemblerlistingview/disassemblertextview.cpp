@@ -500,12 +500,12 @@ bool DisassemblerTextView::isColumnVisible(u64 column, u64 *xpos)
         *xpos -= this->width();
         return false;
     }
-    else if(*xpos < this->width())
+    if(*xpos < this->width())
     {
         *xpos = 0;
         return false;
     }
-    else if(*xpos < static_cast<u64>(hscrollbar->value()))
+    if(*xpos < static_cast<u64>(hscrollbar->value()))
     {
         *xpos = hscrollbar->value() - *xpos;
         return false;
@@ -592,6 +592,7 @@ void DisassemblerTextView::createContextMenu()
     m_contextmenu->addSeparator();
     m_actxrefs = m_contextmenu->addAction("Cross References", this, &DisassemblerTextView::showReferencesUnderCursor, QKeySequence(Qt::Key_X));
     m_actfollow = m_contextmenu->addAction("Follow", this, &DisassemblerTextView::followUnderCursor);
+    m_actfollowpointer = m_contextmenu->addAction("Follow pointer in Hex Dump", this, &DisassemblerTextView::followPointerHexDump);
     m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested, QKeySequence(Qt::Key_G));
     m_actcallgraph = m_contextmenu->addAction("Call Graph", this, &DisassemblerTextView::showCallGraph, QKeySequence(Qt::CTRL + Qt::Key_G));
     m_contextmenu->addSeparator();
@@ -638,20 +639,24 @@ void DisassemblerTextView::adjustContextMenu()
         m_actrename->setVisible(false);
         m_actxrefs->setVisible(false);
         m_actfollow->setVisible(false);
+        m_actfollowpointer->setVisible(false);
 
         if(symbol)
             m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
 
         m_actcallgraph->setVisible(symbol && symbolsegment && symbolsegment->is(REDasm::SegmentTypes::Code));
+        m_acthexdumpfunc->setVisible((symbol != nullptr));
         m_acthexdumpshow->setVisible(true);
-        m_acthexdumpfunc->setVisible(true);
         return;
     }
 
     symbolsegment = document->segment(symbol->address);
 
-    m_actxrefs->setVisible(true);
+    m_actfollowpointer->setVisible(symbol->is(REDasm::SymbolTypes::Pointer));
+    m_actfollowpointer->setText(QString("Follow %1 pointer in Hex Dump").arg(S_TO_QS(symbol->name)));
+
     m_actxrefs->setText(QString("Cross Reference %1").arg(S_TO_QS(symbol->name)));
+    m_actxrefs->setVisible(true);
 
     m_actrename->setText(QString("Rename %1").arg(S_TO_QS(symbol->name)));
     m_actrename->setVisible(!symbol->isLocked());
@@ -701,6 +706,22 @@ bool DisassemblerTextView::followUnderCursor()
         return false;
 
     this->goTo(symbol->address);
+    return true;
+}
+
+bool DisassemblerTextView::followPointerHexDump()
+{
+    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+
+    if(!symbol || !symbol->is(REDasm::SymbolTypes::Pointer))
+        return false;
+
+    u64 destination = 0;
+
+    if(!m_disassembler->dereference(symbol->address, &destination) || !m_disassembler->document()->segment(destination))
+        return false;
+
+    emit hexDumpRequested(destination, m_disassembler->format()->addressWidth());
     return true;
 }
 

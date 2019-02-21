@@ -32,6 +32,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void showReferencesUnderCursor();
         void renameCurrentSymbol();
         bool followUnderCursor();
+        bool followPointerHexDump();
         void addComment();
         void printFunctionHexDump();
         void showCallGraph();
@@ -83,7 +84,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         std::unique_ptr<ListingTextRenderer> m_renderer;
         REDasm::DisassemblerAPI* m_disassembler;
         DisassemblerPopup* m_disassemblerpopup;
-        QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actcallgraph;
+        QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actfollowpointer, *m_actcallgraph;
         QAction *m_actgoto, *m_acthexdumpshow, *m_acthexdumpfunc;
         QAction *m_actcomment, *m_actback, *m_actforward, *m_actcopy;
         QMenu* m_contextmenu;

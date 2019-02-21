@@ -70,6 +70,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Reset_Layout, &QAction::triggered, this, &MainWindow::onResetLayoutClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
+
+    connect(ui->action_Report_Bug, &QAction::triggered, this, []() {
+        QDesktopServices::openUrl(QUrl("https://github.com/REDasmOrg/REDasm/issues"));
+    });
+
     connect(m_pbstatus, &QPushButton::clicked, this, &MainWindow::changeDisassemblerStatus);
 
     qApp->installEventFilter(this);

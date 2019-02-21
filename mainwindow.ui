@@ -117,6 +117,7 @@
     <property name="title">
      <string>&amp;?</string>
     </property>
+    <addaction name="action_Report_Bug"/>
     <addaction name="action_About_REDasm"/>
    </widget>
    <widget class="QMenu" name="menu_Window">
@@ -452,6 +453,11 @@
   <action name="action_Reset_Layout">
    <property name="text">
     <string>&amp;Reset Layout</string>
+   </property>
+  </action>
+  <action name="action_Report_Bug">
+   <property name="text">
+    <string>&amp;Report Bug</string>
    </property>
   </action>
  </widget>

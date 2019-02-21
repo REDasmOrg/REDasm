@@ -59,6 +59,13 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
 
     connect(ui->tabView, &QTabWidget::currentChanged, this, &DisassemblerView::checkHexEdit);
     connect(ui->tabView, &QTabWidget::currentChanged, this, &DisassemblerView::updateCurrentFilter);
+
+    connect(ui->tabView, &QTabWidget::currentChanged, this, [=](int) {
+        m_actions->setVisible(DisassemblerViewActions::BackAction, (ui->tabView->currentWidget() == ui->tabListing));
+        m_actions->setVisible(DisassemblerViewActions::ForwardAction, (ui->tabView->currentWidget() == ui->tabListing));
+        m_actions->setVisible(DisassemblerViewActions::GraphListingAction, (ui->tabView->currentWidget() == ui->tabListing));
+    });
+
     connect(m_lefilter, &QLineEdit::textChanged, this, [&](const QString&) { this->filterSymbols(); });
 
     connect(m_listingview->textView(), &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
@@ -202,7 +209,7 @@ void DisassemblerView::gotoXRef(const QModelIndex &index)
     if(!index.isValid() || !index.internalPointer())
         return;
 
-    ui->tabView->setCurrentWidget(m_listingview);
+    ui->tabView->setCurrentWidget(ui->tabListing);
     m_listingview->textView()->goTo(static_cast<address_t>(index.internalId()));
     this->showListingOrGraph();
 }

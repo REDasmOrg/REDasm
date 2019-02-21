@@ -31,6 +31,15 @@ void DisassemblerViewActions::setEnabled(int actionid, bool b)
     m_actions[actionid]->setEnabled(b);
 }
 
+void DisassemblerViewActions::setVisible(int actionid, bool b)
+{
+    if(!m_actions.contains(actionid))
+        return;
+
+    m_actions[actionid]->setEnabled(b);
+    m_actions[actionid]->setVisible(b);
+}
+
 DisassemblerViewActions::~DisassemblerViewActions() { this->removeActions(); }
 void DisassemblerViewActions::addSeparator() { m_separators.push_back(m_toolbar->addSeparator()); }
 

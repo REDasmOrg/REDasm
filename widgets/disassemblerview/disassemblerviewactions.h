@@ -17,6 +17,7 @@ class DisassemblerViewActions : public QObject
         virtual ~DisassemblerViewActions();
         void setIcon(int actionid, const QIcon& icon);
         void setEnabled(int actionid, bool b);
+        void setVisible(int actionid, bool b);
 
     private:
         void addSeparator();

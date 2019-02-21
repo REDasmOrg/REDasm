@@ -36,7 +36,7 @@ void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 }
 
 QSize ListingMap::sizeHint() const { return { LISTINGMAP_SIZE, LISTINGMAP_SIZE }; }
-int ListingMap::calculateSize(u64 sz) const { return std::max(1ul, (sz * this->itemSize()) / m_totalsize); }
+int ListingMap::calculateSize(u64 sz) const { return std::max(1, static_cast<int>((sz * this->itemSize()) / m_totalsize)); }
 int ListingMap::calculatePosition(offset_t offset) const { return (offset * this->itemSize()) / m_totalsize; }
 
 int ListingMap::itemSize() const

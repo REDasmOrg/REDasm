@@ -413,9 +413,10 @@ void DisassemblerView::clearFilter()
 void DisassemblerView::selectToHexDump(address_t address, u64 len)
 {
     offset_t offset = m_disassembler->format()->offset(address);
+    ui->tabView->setCurrentWidget(ui->tabHexDump);
+
     QHexCursor* cursor = ui->hexView->document()->cursor();
     cursor->selectOffset(offset, len);
-    ui->tabView->setCurrentWidget(ui->tabHexDump);
 }
 
 void DisassemblerView::showMenu(const QPoint&) { m_contextmenu->exec(QCursor::pos()); }
@@ -425,8 +426,13 @@ void DisassemblerView::showGoto()
     GotoDialog dlggoto(m_disassembler.get(), this);
     connect(&dlggoto, &GotoDialog::symbolSelected, this, &DisassemblerView::goTo);
 
-    if(dlggoto.exec() == GotoDialog::Accepted)
-        m_listingview->textView()->goTo(dlggoto.address());
+    if((dlggoto.exec() != GotoDialog::Accepted) || !dlggoto.hasValidAddress())
+        return;
+
+    if(m_listingview->textView()->goTo(dlggoto.address()))
+        return;
+
+    this->selectToHexDump(dlggoto.address(), m_disassembler->format()->addressWidth());
 }
 
 void DisassemblerView::syncHexEdit()

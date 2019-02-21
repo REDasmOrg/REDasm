@@ -2,7 +2,7 @@
 #include "ui_gotodialog.h"
 #include "../models/gotomodel.h"
 
-GotoDialog::GotoDialog(REDasm::DisassemblerAPI *disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_disassembler(disassembler), m_address(0)
+GotoDialog::GotoDialog(REDasm::DisassemblerAPI *disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_disassembler(disassembler), m_address(0), m_validaddress(false)
 {
     ui->setupUi(this);
 
@@ -16,12 +16,15 @@ GotoDialog::GotoDialog(REDasm::DisassemblerAPI *disassembler, QWidget *parent) :
     connect(ui->leAddress, &QLineEdit::textChanged, this, [=](const QString) { this->validateEntry(); });
     connect(ui->leAddress, &QLineEdit::returnPressed, this, &GotoDialog::accept);
 
-    connect(ui->tvFunctions, &QTableView::doubleClicked, this, &GotoDialog::symbolSelected);
+    connect(ui->tvFunctions, &QTableView::doubleClicked, this, &GotoDialog::onSymbolSelected);
     connect(ui->tvFunctions, &QTableView::doubleClicked, this, &GotoDialog::accept);
+
+    connect(ui->pbGoto, &QPushButton::clicked, this, &GotoDialog::accept);
 }
 
 GotoDialog::~GotoDialog() { delete ui; }
 address_t GotoDialog::address() const { return m_address; }
+bool GotoDialog::hasValidAddress() const { return m_validaddress && m_disassembler->document()->segment(m_address); }
 
 void GotoDialog::validateEntry()
 {
@@ -30,6 +33,7 @@ void GotoDialog::validateEntry()
 
     if(s.isEmpty())
     {
+        m_validaddress = false;
         ui->pbGoto->setEnabled(false);
         m_gotomodel->clearFilter();
         return;
@@ -37,5 +41,12 @@ void GotoDialog::validateEntry()
 
     m_address = s.toULongLong(&ok, 16);
     ui->pbGoto->setEnabled(ok);
+    m_validaddress = ok;
     m_gotomodel->setFilter(s);
+}
+
+void GotoDialog::onSymbolSelected(const QModelIndex &index)
+{
+    m_validaddress = false;
+    emit symbolSelected(index);
 }

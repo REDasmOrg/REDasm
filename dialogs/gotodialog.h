@@ -15,11 +15,15 @@ class GotoDialog : public QDialog
 
     public:
         explicit GotoDialog(REDasm::DisassemblerAPI* disassembler, QWidget *parent = 0);
+        bool hasValidAddress() const;
         address_t address() const;
         ~GotoDialog();
 
     private:
         void validateEntry();
+
+    private slots:
+        void onSymbolSelected(const QModelIndex& index);
 
     signals:
         void gotoAddress(address_t address);
@@ -30,6 +34,7 @@ class GotoDialog : public QDialog
         REDasm::DisassemblerAPI* m_disassembler;
         ListingFilterModel* m_gotomodel;
         address_t m_address;
+        bool m_validaddress;
 };
 
 #endif // GOTODIALOG_H

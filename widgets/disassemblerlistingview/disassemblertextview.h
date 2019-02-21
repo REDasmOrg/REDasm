@@ -23,7 +23,7 @@ class DisassemblerTextView : public QAbstractScrollArea
     public slots:
         void copy();
         void goTo(REDasm::ListingItem *item);
-        void goTo(address_t address);
+        bool goTo(address_t address);
         void goBack();
         void goForward();
 

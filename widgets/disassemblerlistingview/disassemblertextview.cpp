@@ -97,15 +97,16 @@ void DisassemblerTextView::copy()
     qApp->clipboard()->setText(S_TO_QS(m_renderer->getSelectedText()));
 }
 
-void DisassemblerTextView::goTo(address_t address)
+bool DisassemblerTextView::goTo(address_t address)
 {
     REDasm::ListingDocument& document = m_disassembler->document();
     auto it = document->item(address);
 
     if(it == document->end())
-        return;
+        return false;
 
     this->goTo(it->get());
+    return true;
 }
 
 void DisassemblerTextView::goTo(REDasm::ListingItem *item)

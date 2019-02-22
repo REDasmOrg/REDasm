@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "widgets/disassemblerview/disassemblerview.h"
 #include "dialogs/manualloaddialog.h"
 #include "dialogs/settingsdialog.h"
 #include "dialogs/aboutdialog.h"
@@ -525,9 +524,11 @@ void MainWindow::checkDisassemblerStatus()
     ui->action_Close->setEnabled(true);
 }
 
+DisassemblerView *MainWindow::currentDisassemblerView() const { return dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget()); }
+
 REDasm::DisassemblerAPI *MainWindow::currentDisassembler() const
 {
-    DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+    DisassemblerView* currdv = this->currentDisassemblerView();
 
     if(!currdv)
         return NULL;

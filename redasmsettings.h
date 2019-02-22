@@ -14,11 +14,15 @@ class REDasmSettings : public QSettings
         explicit REDasmSettings(QObject *parent = NULL);
         QStringList recentFiles() const;
         QString currentTheme() const;
+        QFont currentFont() const;
+        int currentFontSize() const;
         bool restoreState(QMainWindow* mainwindow);
         void defaultState(QMainWindow* mainwindow);
         void saveState(const QMainWindow* mainwindow);
         void updateRecentFiles(const QString& s = QString());
         void changeTheme(const QString& theme);
+        void changeFont(const QFont &font);
+        void changeFontSize(int size);
 
     private:
         static QByteArray m_defaultstate;

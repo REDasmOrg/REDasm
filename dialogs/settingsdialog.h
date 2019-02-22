@@ -17,9 +17,14 @@ class SettingsDialog : public QDialog
         ~SettingsDialog();
 
     private:
+        void selectSize(int size);
         void selectCurrentTheme();
+        void selectCurrentFont();
+        void selectCurrentSize();
+        void updatePreview();
 
     private slots:
+        void selectDefaultFont();
         void onAccepted();
 
     private:

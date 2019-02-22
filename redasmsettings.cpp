@@ -1,4 +1,6 @@
 #include "redasmsettings.h"
+#include <QFontDatabase>
+#include <QApplication>
 
 QByteArray REDasmSettings::m_defaultstate;
 
@@ -43,4 +45,18 @@ void REDasmSettings::updateRecentFiles(const QString &s)
 }
 
 QString REDasmSettings::currentTheme() const { return this->value("selected_theme", "light").toString(); }
+QFont REDasmSettings::currentFont() const { return this->value("selected_font", QFontDatabase::systemFont(QFontDatabase::FixedFont)).value<QFont>(); }
+
+int REDasmSettings::currentFontSize() const
+{
+    int size = qApp->font().pixelSize();
+
+    if(size == -1)
+        size = qApp->fontMetrics().height();
+
+    return this->value("selected_font_size", size).toInt();
+}
+
 void REDasmSettings::changeTheme(const QString& theme) { this->setValue("selected_theme", theme.toLower()); }
+void REDasmSettings::changeFont(const QFont &font) { this->setValue("selected_font", font);  }
+void REDasmSettings::changeFontSize(int size) { this->setValue("selected_font_size", size); }

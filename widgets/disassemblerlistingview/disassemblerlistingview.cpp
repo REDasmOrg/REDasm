@@ -1,5 +1,6 @@
 #include "disassemblerlistingview.h"
 #include "../../themeprovider.h"
+#include "../../redasmsettings.h"
 #include <QScrollBar>
 
 DisassemblerListingView::DisassemblerListingView(QWidget *parent): QSplitter(parent), m_disassembler(NULL)
@@ -9,6 +10,12 @@ DisassemblerListingView::DisassemblerListingView(QWidget *parent): QSplitter(par
 
     m_disassemblertextview = new DisassemblerTextView(this);
     m_disassemblercolumnview = new DisassemblerColumnView(this);
+
+    REDasmSettings settings;
+    QFont font = settings.currentFont();
+    font.setPointSize(settings.currentFontSize());
+
+    m_disassemblertextview->setFont(font);
     m_disassemblercolumnview->setFont(m_disassemblertextview->font()); // Apply same font
 
     connect(m_disassemblertextview->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderArrows(); });

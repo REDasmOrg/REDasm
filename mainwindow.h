@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <redasm/plugins/plugins.h>
 #include <redasm/disassembler/disassembler.h>
+#include "widgets/disassemblerview/disassemblerview.h"
 
 namespace Ui {
 class MainWindow;
@@ -42,6 +43,7 @@ class MainWindow : public QMainWindow
         void checkDisassemblerStatus();
 
     private:
+        DisassemblerView* currentDisassemblerView() const;
         REDasm::DisassemblerAPI* currentDisassembler() const;
         void loadWindowState();
         void loadRecents();

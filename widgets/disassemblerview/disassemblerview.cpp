@@ -353,6 +353,9 @@ void DisassemblerView::displayCurrentReferences()
 
 void DisassemblerView::switchGraphListing()
 {
+    if(m_disassembler->busy())
+        return;
+
     if(ui->stackedWidget->currentWidget() == m_listingview)
     {
         m_actions->setIcon(DisassemblerViewActions::GraphListingAction, THEME_ICON("listing"));
@@ -441,6 +444,9 @@ void DisassemblerView::showMenu(const QPoint&) { m_contextmenu->exec(QCursor::po
 
 void DisassemblerView::showGoto()
 {
+    if(m_disassembler->busy())
+        return;
+
     GotoDialog dlggoto(m_disassembler.get(), this);
     connect(&dlggoto, &GotoDialog::symbolSelected, this, &DisassemblerView::goTo);
 

@@ -29,9 +29,9 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
             return S_TO_QS(REDasm::hex(segment->endoffset, format->bits()));
         if(index.column() == 5)
             return S_TO_QS(REDasm::hex(segment->rawSize(), format->bits()));
-        if(index.column() == 7)
+        if(index.column() == 6)
             return S_TO_QS(segment->name);
-        if(index.column() == 8)
+        if(index.column() == 7)
             return SegmentsModel::segmentFlags(segment);
     }
     else if(role == Qt::ForegroundRole)

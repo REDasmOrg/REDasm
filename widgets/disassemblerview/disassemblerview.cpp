@@ -46,8 +46,10 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
-    ui->tvSegments->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
-    ui->tvSegments->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
+    ui->tvSegments->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
+    ui->tvSegments->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
+    ui->tvSegments->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Stretch);
+    ui->tvSegments->horizontalHeader()->setSectionResizeMode(7, QHeaderView::Stretch);
     ui->tvImports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvImports->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvImports->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
@@ -298,9 +300,10 @@ void DisassemblerView::displayAddress(address_t address)
     REDasm::FormatPlugin* format = m_disassembler->format();
     const REDasm::Segment* segment = document->segment(address);
     REDasm::SymbolPtr functionstart = document->functionStartSymbol(address);
+    offset_location offset = format->offset(address);
 
-    QString segm = segment ? S_TO_QS(segment->name) : "???",
-            offs = segment ? S_TO_QS(REDasm::hex(format->offset(address), format->bits())) : "???",
+    QString segm = segment ? S_TO_QS(segment->name) : "UNKNOWN",
+            offs = segment && offset.valid ? S_TO_QS(REDasm::hex(offset, format->bits())) : "UNKNOWN",
             addr = S_TO_QS(REDasm::hex(address, format->bits()));
 
     QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
@@ -311,7 +314,7 @@ void DisassemblerView::displayAddress(address_t address)
 
     if(item && item->is(REDasm::ListingItem::InstructionItem))
     {
-        QString func = "???";
+        QString func = "UNKNOWN";
 
         if(functionstart)
         {
@@ -423,7 +426,11 @@ void DisassemblerView::clearFilter()
 
 void DisassemblerView::selectToHexDump(address_t address, u64 len)
 {
-    offset_t offset = m_disassembler->format()->offset(address);
+    offset_location offset = m_disassembler->format()->offset(address);
+
+    if(!offset.valid)
+        return;
+
     ui->tabView->setCurrentWidget(ui->tabHexDump);
 
     QHexCursor* cursor = ui->hexView->document()->cursor();
@@ -451,7 +458,7 @@ void DisassemblerView::syncHexEdit()
     REDasm::ListingDocument& document = m_disassembler->document();
     REDasm::ListingItem* item = document->currentItem();
 
-    offset_t offset = 0;
+    offset_location offset;
     u64 len = 0;
 
     if(item)
@@ -477,6 +484,9 @@ void DisassemblerView::syncHexEdit()
         else if(symbol)
             len = m_disassembler->format()->addressWidth();
     }
+
+    if(!offset.valid)
+        return;
 
     QHexCursor* cursor = ui->hexView->document()->cursor();
     cursor->selectOffset(offset, len);

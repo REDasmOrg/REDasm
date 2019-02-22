@@ -3,6 +3,7 @@
 #include <QFontDatabase>
 #include <QApplication>
 #include "../../themeprovider.h"
+#include "../../redasmsettings.h"
 
 #define GRAPH_MARGINS 20
 
@@ -50,7 +51,8 @@ void GraphView::appendCSS(const QString &css)
 
 void GraphView::initializePage()
 {
-    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    REDasmSettings settings;
+    QFont font = settings.currentFont();
     QPalette palette = qApp->palette();
 
     this->page()->runJavaScript("GraphView.initPage();");
@@ -58,7 +60,7 @@ void GraphView::initializePage()
     QString generalcss = "html {"
                              "cursor: default;"
                              "font-family:" + font.family() + ";" +
-                             "font-size:" + QString::number(font.pointSize()) + "pt;" +
+                             "font-size:" + QString::number(settings.currentFontSize()) + "pt;" +
                              "color:" + palette.color(QPalette::WindowText).name() + ";" //+
                              "background-color:" + THEME_VALUE_COLOR("graph_bg") + ";" +
                          "}"

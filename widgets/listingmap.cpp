@@ -161,14 +161,17 @@ void ListingMap::renderFunctions(QPainter *painter)
             size = m_functions[i + 1]->address - item->address;
 
         REDasm::SymbolPtr symbol = lock->symbol(item->address);
+        offset_location offset = format->offset(symbol->address);
 
-        QRect r = this->buildRect(this->calculatePosition(format->offset(symbol->address)),
-                                  this->calculateSize(size));
+        if(!offset.valid)
+            continue;
+
+        QRect r = this->buildRect(this->calculatePosition(offset), this->calculateSize(size));
 
         if(m_orientation = Qt::Vertical)
-            r.setX(r.right() - (this->width() / 2));
+            r.setX(std::ceil(this->width() / 2));
         else
-            r.setY(r.bottom() - (this->height() / 2));
+            r.setY(std::ceil(this->height() / 2));
 
         if(symbol->isLocked())
             painter->fillRect(r, THEME_VALUE("locked_fg"));

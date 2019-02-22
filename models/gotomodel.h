@@ -9,6 +9,7 @@ class GotoModel : public ListingItemModel
 
     public:
         explicit GotoModel(QObject *parent = nullptr);
+        ~GotoModel();
 
     public:
         virtual QVariant data(const QModelIndex &index, int role) const;

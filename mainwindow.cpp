@@ -380,9 +380,9 @@ bool MainWindow::checkPlugins(REDasm::AbstractBuffer *buffer, REDasm::FormatPlug
 
 void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
 {
-    disassembler->busyChanged += [&]() {
+    EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
         QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection);
-    };
+    });
 
     ui->pteOutput->clear();
 
@@ -457,12 +457,12 @@ void MainWindow::initDisassembler(REDasm::AbstractBuffer *buffer)
 
     m_disassembler = new REDasm::Disassembler(assembler, format);
 
-    m_disassembler->busyChanged += [&]() {
+    EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
         DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
 
         if(currdv)
             QMetaObject::invokeMethod(m_lblprogress, "setVisible", Qt::QueuedConnection, Q_ARG(bool, currdv->disassembler()->busy()));
-    };
+    });
 
     this->showDisassemblerView(m_disassembler); // Take ownership
     m_disassembler->disassemble();

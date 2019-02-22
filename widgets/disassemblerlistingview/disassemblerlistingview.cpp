@@ -39,19 +39,19 @@ void DisassemblerListingView::setDisassembler(REDasm::DisassemblerAPI *disassemb
 
     REDasm::ListingDocument& document = m_disassembler->document();
 
-    document->cursor()->positionChanged += [&]() {
+    EVENT_CONNECT(document->cursor(), positionChanged, this, [&]() {
         if(m_disassembler->busy())
             return;
 
         QMetaObject::invokeMethod(m_disassemblercolumnview, "update", Qt::QueuedConnection);
-    };
+    });
 
-    m_disassembler->busyChanged += [&]() {
+    EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
         if(m_disassembler->busy())
             return;
 
         QMetaObject::invokeMethod(this, "renderArrows", Qt::QueuedConnection);
-    };
+    });
 }
 
 void DisassemblerListingView::renderArrows()

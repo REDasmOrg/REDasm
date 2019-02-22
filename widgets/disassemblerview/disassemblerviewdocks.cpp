@@ -23,12 +23,12 @@ void DisassemblerViewDocks::setDisassembler(REDasm::DisassemblerAPI *disassemble
 {
     m_disassembler = disassembler;
 
-    m_disassembler->busyChanged += [&]() {
+    EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
         if(m_disassembler->busy())
             return;
 
         m_functionsview->resizeColumnToContents(0);
-    };
+    });
 
     if(m_functionsmodel)
         m_functionsmodel->setDisassembler(disassembler);

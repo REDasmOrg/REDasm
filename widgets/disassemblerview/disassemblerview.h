@@ -59,6 +59,7 @@ class DisassemblerView : public QWidget
 
     private:
         Ui::DisassemblerView *ui;
+        std::unique_ptr<REDasm::Disassembler> m_disassembler;
         DisassemblerViewActions* m_actions;
         DisassemblerViewDocks* m_docks;
         DisassemblerGraphView* m_graphview;
@@ -67,7 +68,6 @@ class DisassemblerView : public QWidget
         QHexDocument* m_hexdocument;
         QMenu* m_contextmenu;
         QLineEdit* m_lefilter;
-        std::unique_ptr<REDasm::Disassembler> m_disassembler;
         ListingFilterModel *m_segmentsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
         CallGraphModel* m_callgraphmodel;
         QAction* m_actsetfilter;

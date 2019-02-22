@@ -25,14 +25,14 @@ void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
     this->checkOrientation();
     this->update();
 
-    document->changed += std::bind(&ListingMap::onDocumentChanged, this, std::placeholders::_1);
+    EVENT_CONNECT(document, changed, this, std::bind(&ListingMap::onDocumentChanged, this, std::placeholders::_1));
 
-    m_disassembler->busyChanged += [=]() {
+    EVENT_CONNECT(m_disassembler, busyChanged, this, [=]() {
         if(m_disassembler->busy())
             return;
 
         QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
-    };
+    });
 }
 
 QSize ListingMap::sizeHint() const { return { LISTINGMAP_SIZE, LISTINGMAP_SIZE }; }

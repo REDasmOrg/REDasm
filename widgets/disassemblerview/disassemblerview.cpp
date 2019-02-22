@@ -147,9 +147,9 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 
     ui->stackedWidget->currentWidget()->setFocus();
 
-    disassembler->busyChanged += [&]() {
+    EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
         QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection);
-    };
+    });
 
     if(disassembler->busy())
         return;

@@ -3,6 +3,7 @@
 #include <redasm/plugins/format.h>
 
 GotoModel::GotoModel(QObject *parent) : ListingItemModel(REDasm::ListingItem::AllItems, parent) { }
+GotoModel::~GotoModel() { EVENT_DISCONNECT(m_disassembler->document(), changed, this);  }
 
 QVariant GotoModel::data(const QModelIndex &index, int role) const
 {

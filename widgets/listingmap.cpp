@@ -22,9 +22,7 @@ void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
     for(auto it = document->begin(); it != document->end(); it++)
         this->addItem(it->get());
 
-    this->checkOrientation();
     this->update();
-
     EVENT_CONNECT(document, changed, this, std::bind(&ListingMap::onDocumentChanged, this, std::placeholders::_1));
 
     EVENT_CONNECT(m_disassembler, busyChanged, this, [=]() {
@@ -90,14 +88,14 @@ void ListingMap::drawLabels(QPainter* painter)
 
         if(m_orientation == Qt::Horizontal)
         {
-            painter->drawText(pos, 2, segmentsize, fm.height(),
-                              Qt::AlignLeft | Qt::AlignTop,
+            painter->drawText(pos, 2, segmentsize - (fm.width(' ') * 2), fm.height(),
+                              Qt::AlignLeft | Qt::AlignBottom,
                               QString::fromStdString(segment->name));
         }
         else
         {
-            painter->drawText(2, pos, this->width(), fm.height(),
-                              Qt::AlignLeft | Qt::AlignTop,
+            painter->drawText(2, pos, this->width() - (fm.width(' ') * 2), fm.height(),
+                              Qt::AlignRight | Qt::AlignTop,
                               QString::fromStdString(segment->name));
         }
     }
@@ -105,20 +103,20 @@ void ListingMap::drawLabels(QPainter* painter)
 
 void ListingMap::addItem(const REDasm::ListingItem *item)
 {
-    if(item->is(REDasm::ListingItem::FunctionItem))
-    {
-        auto it = REDasm::Listing::insertionPoint(&m_functions, item);
-        m_functions.insert(it, item);
-    }
+    if(!item->is(REDasm::ListingItem::FunctionItem))
+        return;
+
+    auto it = REDasm::Listing::insertionPoint(&m_functions, item);
+    m_functions.insert(it, item);
 }
 
 void ListingMap::removeItem(const REDasm::ListingItem *item)
 {
-    if(item->is(REDasm::ListingItem::FunctionItem))
-    {
-        int idx = REDasm::Listing::indexOf(&m_functions, item);
-        m_functions.removeAt(idx);
-    }
+    if(!item->is(REDasm::ListingItem::FunctionItem))
+        return;
+
+    int idx = REDasm::Listing::indexOf(&m_functions, item);
+    m_functions.removeAt(idx);
 }
 
 void ListingMap::renderSegments(QPainter* painter)
@@ -146,6 +144,7 @@ void ListingMap::renderFunctions(QPainter *painter)
 {
     const auto* format = m_disassembler->format();
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
+    u64 fsize = (m_orientation == Qt::Horizontal ? this->height() : this->width()) / 2;
     u64 size = 0;
 
     for(int i = 0; i < m_functions.size(); i++)
@@ -168,10 +167,10 @@ void ListingMap::renderFunctions(QPainter *painter)
 
         QRect r = this->buildRect(this->calculatePosition(offset), this->calculateSize(size));
 
-        if(m_orientation = Qt::Vertical)
-            r.setX(std::ceil(this->width() / 2));
+        if(m_orientation == Qt::Horizontal)
+            r.setHeight(fsize);
         else
-            r.setY(std::ceil(this->height() / 2));
+            r.setWidth(fsize);
 
         if(symbol->isLocked())
             painter->fillRect(r, THEME_VALUE("locked_fg"));
@@ -193,6 +192,8 @@ void ListingMap::paintEvent(QPaintEvent *)
     if(!m_disassembler)
         return;
 
+    this->checkOrientation();
+
     QPainter painter(this);
     painter.setPen(Qt::transparent);
     painter.fillRect(this->rect(), Qt::gray);
@@ -208,7 +209,5 @@ void ListingMap::paintEvent(QPaintEvent *)
 void ListingMap::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
-
-    if(this->checkOrientation())
-        this->update();
+    this->update();
 }

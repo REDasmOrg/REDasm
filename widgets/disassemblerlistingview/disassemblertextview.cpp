@@ -442,7 +442,7 @@ bool DisassemblerTextView::event(QEvent *e)
 
 void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
 {
-    QScrollBar* vscrollbar = this->verticalScrollBar();
+    m_disassembler->document()->cursor()->clearSelection();
     this->adjustScrollBars();
 
     if(ldc->action != REDasm::ListingDocumentChanged::Changed) // Insertion or Deletion

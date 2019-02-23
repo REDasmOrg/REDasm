@@ -27,6 +27,7 @@ class ListingMap : public QWidget
         void drawLabels(QPainter *painter);
         void renderSegments(QPainter *painter);
         void renderFunctions(QPainter *painter);
+        void renderSeek(QPainter *painter);
 
     protected:
         virtual void paintEvent(QPaintEvent*);
@@ -36,6 +37,7 @@ class ListingMap : public QWidget
         REDasm::DisassemblerAPI* m_disassembler;
         QList<const REDasm::ListingItem*> m_functions;
         s32 m_orientation, m_totalsize;
+        u64 m_lastseek;
 };
 
 #endif // LISTINGMAP_H

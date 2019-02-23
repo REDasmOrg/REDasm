@@ -6,7 +6,7 @@
 
 #define LISTINGMAP_SIZE 64
 
-ListingMap::ListingMap(QWidget *parent) : QWidget(parent), m_disassembler(NULL), m_totalsize(0), m_orientation(Qt::Vertical)
+ListingMap::ListingMap(QWidget *parent) : QWidget(parent), m_disassembler(NULL), m_totalsize(0), m_orientation(Qt::Vertical), m_lastseek(0)
 {
     this->setBackgroundRole(QPalette::Base);
     this->setAutoFillBackground(true);
@@ -24,6 +24,13 @@ void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 
     this->update();
     EVENT_CONNECT(document, changed, this, std::bind(&ListingMap::onDocumentChanged, this, std::placeholders::_1));
+
+    EVENT_CONNECT(document->cursor(), positionChanged, this, [=]() {
+        if(m_disassembler->busy())
+            return;
+
+        QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+    });
 
     EVENT_CONNECT(m_disassembler, busyChanged, this, [=]() {
         if(m_disassembler->busy())
@@ -179,6 +186,31 @@ void ListingMap::renderFunctions(QPainter *painter)
     }
 }
 
+void ListingMap::renderSeek(QPainter *painter)
+{
+    REDasm::ListingItem* item = m_disassembler->document()->currentItem();
+
+    if(!item)
+        return;
+
+    offset_location offset  = m_disassembler->format()->offset(item->address);
+
+    if(!offset.valid)
+        return;
+
+    QColor seekcolor = THEME_VALUE("seek");
+    seekcolor.setAlphaF(0.4);
+
+    QRect r;
+
+    if(m_orientation == Qt::Horizontal)
+       r = QRect(this->calculatePosition(offset), 0, this->width() * 0.05, this->height());
+    else
+       r = QRect(0, this->calculatePosition(offset), this->width(), this->height() * 0.05);
+
+    painter->fillRect(r, seekcolor);
+}
+
 void ListingMap::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
 {
     if(ldc->isInserted())
@@ -204,6 +236,9 @@ void ListingMap::paintEvent(QPaintEvent *)
         this->renderFunctions(&painter);
 
     this->drawLabels(&painter);
+
+    if(!m_disassembler->busy()) // Don't render seek when disassembler is busy
+        this->renderSeek(&painter);
 }
 
 void ListingMap::resizeEvent(QResizeEvent *e)

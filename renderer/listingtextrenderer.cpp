@@ -72,6 +72,7 @@ void ListingTextRenderer::highlightWordUnderCursor()
     m_cursor->setWordUnderCursor(this->findWordUnderCursor(rl.text, m_cursor->currentPosition()));
 }
 
+bool ListingTextRenderer::cursorActive() const { return m_cursoractive; }
 void ListingTextRenderer::toggleCursor() { m_cursoractive = !m_cursoractive; }
 void ListingTextRenderer::enableCursor() { m_cursoractive = true; }
 void ListingTextRenderer::disableCursor() { m_cursoractive = false; }

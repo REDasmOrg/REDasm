@@ -28,7 +28,6 @@ class DisassemblerTextView : public QAbstractScrollArea
         void goForward();
 
     private slots:
-        void blinkCursor();
         void showReferencesUnderCursor();
         void renameCurrentSymbol();
         bool followUnderCursor();
@@ -40,8 +39,6 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     protected:
         virtual void scrollContentsBy(int dx, int dy);
-        virtual void focusInEvent(QFocusEvent* e);
-        virtual void focusOutEvent(QFocusEvent* e);
         virtual void paintEvent(QPaintEvent* e);
         virtual void resizeEvent(QResizeEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);
@@ -50,6 +47,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         virtual void mouseDoubleClickEvent(QMouseEvent* e);
         virtual void wheelEvent(QWheelEvent *e);
         virtual void keyPressEvent(QKeyEvent *e);
+        virtual void timerEvent(QTimerEvent* e);
         virtual bool event(QEvent* e);
 
     private:
@@ -62,6 +60,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         QRect lineRect(u64 line);
         void renderLine(u64 line);
         void renderLines(u64 first, u64 last);
+        void blinkCursor();
         void adjustScrollBars();
         void moveToSelection();
         void createContextMenu();
@@ -88,7 +87,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         QAction *m_actgoto, *m_acthexdumpshow, *m_acthexdumpfunc;
         QAction *m_actcomment, *m_actback, *m_actforward, *m_actcopy;
         QMenu* m_contextmenu;
-        QTimer* m_blinktimer;
+        int m_blinktimerid;
 };
 
 #endif // DISASSEMBLERTEXTVIEW_H

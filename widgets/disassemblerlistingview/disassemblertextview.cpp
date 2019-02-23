@@ -31,10 +31,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->horizontalScrollBar()->setValue(0);
     this->horizontalScrollBar()->setMaximum(maxwidth);
 
-    m_blinktimer = new QTimer(this);
-    m_blinktimer->setInterval(CURSOR_BLINK_INTERVAL);
-
-    connect(m_blinktimer, &QTimer::timeout, this, &DisassemblerTextView::blinkCursor);
+    m_blinktimerid = this->startTimer(CURSOR_BLINK_INTERVAL);
 
     connect(this, &DisassemblerTextView::customContextMenuRequested, this, [&](const QPoint&) {
         m_contextmenu->exec(QCursor::pos());
@@ -156,8 +153,22 @@ void DisassemblerTextView::goForward() { m_disassembler->document()->cursor()->g
 
 void DisassemblerTextView::blinkCursor()
 {
+    if(!m_disassembler || m_disassembler->busy())
+        return;
+
     REDasm::ListingDocument& document = m_disassembler->document();
     REDasm::ListingCursor* cur = document->cursor();
+
+    if(!this->hasFocus())
+    {
+        if(m_renderer->cursorActive())
+        {
+            m_renderer->disableCursor();
+            this->renderLine(cur->currentLine());
+        }
+
+        return;
+    }
 
     m_renderer->toggleCursor();
     this->renderLine(cur->currentLine());
@@ -173,22 +184,6 @@ void DisassemblerTextView::scrollContentsBy(int dx, int dy)
     }
 
     QAbstractScrollArea::scrollContentsBy(dx, dy);
-}
-
-void DisassemblerTextView::focusInEvent(QFocusEvent *e)
-{
-    m_renderer->enableCursor();
-    m_blinktimer->start();
-
-    QAbstractScrollArea::focusInEvent(e);
-}
-
-void DisassemblerTextView::focusOutEvent(QFocusEvent *e)
-{
-    m_blinktimer->stop();
-    m_renderer->disableCursor();
-
-    QAbstractScrollArea::focusOutEvent(e);
 }
 
 void DisassemblerTextView::paintEvent(QPaintEvent *e)
@@ -239,12 +234,7 @@ void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
     if(e->buttons() == Qt::LeftButton)
     {
         e->accept();
-
-        if(m_blinktimer->isActive())
-        {
-            m_blinktimer->stop();
-            m_renderer->disableCursor();
-        }
+        m_renderer->disableCursor();
 
         auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
         REDasm::ListingCursor* cur = lock->cursor();
@@ -260,12 +250,7 @@ void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
 void DisassemblerTextView::mouseReleaseEvent(QMouseEvent *e)
 {
     if(e->button() == Qt::LeftButton)
-    {
         e->accept();
-
-        if(!m_blinktimer->isActive())
-            m_blinktimer->start();
-    }
 
     QAbstractScrollArea::mouseReleaseEvent(e);
 }
@@ -316,7 +301,6 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
     REDasm::ListingCursor* cur = lock->cursor();
 
-    m_blinktimer->stop();
     m_renderer->enableCursor();
 
     if(e->matches(QKeySequence::MoveToNextChar) || e->matches(QKeySequence::SelectNextChar))
@@ -424,8 +408,14 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         emit switchView();
     else
         QAbstractScrollArea::keyPressEvent(e);
+}
 
-    m_blinktimer->start();
+void DisassemblerTextView::timerEvent(QTimerEvent *e)
+{
+    if(e->timerId() == m_blinktimerid)
+        this->blinkCursor();
+
+    QAbstractScrollArea::timerEvent(e);
 }
 
 bool DisassemblerTextView::event(QEvent *e)

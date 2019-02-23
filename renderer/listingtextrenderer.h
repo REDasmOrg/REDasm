@@ -21,6 +21,7 @@ class ListingTextRenderer: public REDasm::ListingRenderer
         std::string getWordUnderCursor(const QPointF& pos, int firstline, int* p = NULL);
         Range wordHitTest(const QPointF& pos, int firstline);
         void highlightWordUnderCursor();
+        bool cursorActive() const;
         void toggleCursor();
         void enableCursor();
         void disableCursor();

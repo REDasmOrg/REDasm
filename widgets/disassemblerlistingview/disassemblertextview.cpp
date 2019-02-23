@@ -6,6 +6,7 @@
 #include <cmath>
 
 #define CURSOR_BLINK_INTERVAL 500  // 500ms
+#define FALLBACK_REFRESH_RATE 60.0 // 60Hz
 #define DOCUMENT_IDEAL_SIZE   10
 #define DOCUMENT_WHEEL_LINES  3
 
@@ -31,7 +32,13 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->horizontalScrollBar()->setValue(0);
     this->horizontalScrollBar()->setMaximum(maxwidth);
 
-    m_refreshrate = std::ceil((1 / qApp->primaryScreen()->refreshRate()) * 1000);
+    float refreshfreq = qApp->primaryScreen()->refreshRate();
+
+    if(refreshfreq <= 0)
+        refreshfreq = FALLBACK_REFRESH_RATE;
+
+    REDasm::log("Setting refresh rate to " + QString::number(refreshfreq, 'f', 1).toStdString() + "Hz");
+    m_refreshrate = std::ceil((1 / refreshfreq) * 1000);
     m_blinktimerid = this->startTimer(CURSOR_BLINK_INTERVAL);
 
     connect(this, &DisassemblerTextView::customContextMenuRequested, this, [&](const QPoint&) {

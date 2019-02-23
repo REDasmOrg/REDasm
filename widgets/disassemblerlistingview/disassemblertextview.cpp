@@ -9,7 +9,7 @@
 #define DOCUMENT_IDEAL_SIZE   10
 #define DOCUMENT_WHEEL_LINES  3
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(NULL), m_disassemblerpopup(NULL)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(NULL), m_disassemblerpopup(NULL), m_refreshtimerid(-1)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
@@ -31,6 +31,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->horizontalScrollBar()->setValue(0);
     this->horizontalScrollBar()->setMaximum(maxwidth);
 
+    m_refreshrate = std::ceil((1 / qApp->primaryScreen()->refreshRate()) * 1000);
     m_blinktimerid = this->startTimer(CURSOR_BLINK_INTERVAL);
 
     connect(this, &DisassemblerTextView::customContextMenuRequested, this, [&](const QPoint&) {
@@ -38,6 +39,21 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     });
 
     this->createContextMenu();
+}
+
+DisassemblerTextView::~DisassemblerTextView()
+{
+    if(m_blinktimerid != -1)
+    {
+        this->killTimer(m_blinktimerid);
+        m_blinktimerid = -1;
+    }
+
+    if(m_refreshtimerid != -1)
+    {
+        this->killTimer(m_refreshtimerid);
+        m_refreshtimerid = -1;
+    }
 }
 
 bool DisassemblerTextView::canGoBack() const { return m_disassembler->document()->cursor()->canGoBack(); }
@@ -70,7 +86,7 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
     EVENT_CONNECT(cur, forwardChanged, this, [=]() { emit canGoForwardChanged(); });
 
     this->adjustScrollBars();
-    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->viewport()->update(); });
+    connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderListing(); });
 
     m_renderer = std::make_unique<ListingTextRenderer>(this->font(), m_disassembler);
     m_disassemblerpopup = new DisassemblerPopup(m_disassembler, this);
@@ -151,13 +167,32 @@ void DisassemblerTextView::printFunctionHexDump()
 void DisassemblerTextView::goBack() { m_disassembler->document()->cursor()->goBack();  }
 void DisassemblerTextView::goForward() { m_disassembler->document()->cursor()->goForward(); }
 
-void DisassemblerTextView::blinkCursor()
+void DisassemblerTextView::renderListing(const QRect &r)
 {
-    if(!m_disassembler || m_disassembler->busy())
+    if(!m_disassembler || (m_disassembler->busy() && (m_refreshtimerid != -1)))
         return;
 
-    REDasm::ListingDocument& document = m_disassembler->document();
-    REDasm::ListingCursor* cur = document->cursor();
+    if(r.isNull())
+        this->viewport()->update();
+    else
+        this->viewport()->update(r);
+
+    m_refreshtimerid = this->startTimer(m_refreshrate);
+}
+
+void DisassemblerTextView::blinkCursor()
+{
+    if(!m_disassembler)
+        return;
+
+    if(m_disassembler->busy())
+    {
+        m_renderer->toggleCursor();
+        return;
+    }
+
+    auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
+    REDasm::ListingCursor* cur = lock->cursor();
 
     if(!this->hasFocus())
     {
@@ -190,7 +225,7 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e)
 
-    if(!m_renderer)
+    if(!m_disassembler || !m_renderer)
         return;
 
     QFontMetrics fm = this->fontMetrics();
@@ -412,6 +447,12 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 
 void DisassemblerTextView::timerEvent(QTimerEvent *e)
 {
+    if(e->timerId() == m_refreshtimerid)
+    {
+        this->killTimer(m_refreshtimerid);
+        m_refreshtimerid = -1;
+        this->renderListing();
+    }
     if(e->timerId() == m_blinktimerid)
         this->blinkCursor();
 
@@ -440,10 +481,10 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
         if(ldc->index > this->lastVisibleLine()) // Don't care of bottom Insertion/Deletion
             return;
 
-        this->viewport()->update();
+        QMetaObject::invokeMethod(this, "renderListing", Qt::QueuedConnection);
     }
     else
-        this->renderLine(ldc->index);
+        QMetaObject::invokeMethod(this, "renderLine", Qt::QueuedConnection, Q_ARG(u64, ldc->index));
 }
 
 REDasm::SymbolPtr DisassemblerTextView::symbolUnderCursor()
@@ -527,7 +568,7 @@ void DisassemblerTextView::renderLines(u64 first, u64 last)
     QRect firstrect = this->lineRect(first);
     QRect lastrect = this->lineRect(last);
 
-    this->viewport()->update(QRect(firstrect.topLeft(), lastrect.bottomRight()));
+    this->renderListing(QRect(firstrect.topLeft(), lastrect.bottomRight()));
 }
 
 void DisassemblerTextView::adjustScrollBars()
@@ -553,7 +594,7 @@ void DisassemblerTextView::moveToSelection()
 
     if(this->isLineVisible(cur->currentLine()))
     {
-        this->viewport()->update();
+        this->renderListing();
         m_renderer->highlightWordUnderCursor();
     }
     else // Center on selection
@@ -777,5 +818,5 @@ void DisassemblerTextView::renameCurrentSymbol()
     }
 
     document->rename(symbol->address, res.toStdString());
-    this->viewport()->update();
+    this->renderListing();
 }

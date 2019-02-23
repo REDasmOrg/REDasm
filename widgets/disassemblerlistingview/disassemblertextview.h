@@ -13,6 +13,7 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     public:
         explicit DisassemblerTextView(QWidget *parent = 0);
+        virtual ~DisassemblerTextView();
         bool canGoBack() const;
         bool canGoForward() const;
         u64 visibleLines() const;
@@ -28,6 +29,8 @@ class DisassemblerTextView : public QAbstractScrollArea
         void goForward();
 
     private slots:
+        void renderListing(const QRect& r = QRect());
+        void renderLine(u64 line);
         void showReferencesUnderCursor();
         void renameCurrentSymbol();
         bool followUnderCursor();
@@ -58,7 +61,6 @@ class DisassemblerTextView : public QAbstractScrollArea
         bool isLineVisible(u64 line) const;
         bool isColumnVisible(u64 column, u64 *xpos);
         QRect lineRect(u64 line);
-        void renderLine(u64 line);
         void renderLines(u64 first, u64 last);
         void blinkCursor();
         void adjustScrollBars();
@@ -87,7 +89,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         QAction *m_actgoto, *m_acthexdumpshow, *m_acthexdumpfunc;
         QAction *m_actcomment, *m_actback, *m_actforward, *m_actcopy;
         QMenu* m_contextmenu;
-        int m_blinktimerid;
+        int m_refreshrate, m_blinktimerid, m_refreshtimerid;
 };
 
 #endif // DISASSEMBLERTEXTVIEW_H

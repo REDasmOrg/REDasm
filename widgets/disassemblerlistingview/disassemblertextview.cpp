@@ -602,7 +602,9 @@ void DisassemblerTextView::moveToSelection()
     if(this->isLineVisible(cur->currentLine()))
     {
         this->renderListing();
-        m_renderer->highlightWordUnderCursor();
+
+        if(this->isVisible())
+            m_renderer->highlightWordUnderCursor();
     }
     else // Center on selection
     {

@@ -37,8 +37,11 @@ bool DisassemblerGraphView::graph()
     auto& document = m_disassembler->document();
     REDasm::ListingItem* currentfunction = document->functionStart(document->currentItem());
 
-    if(!currentfunction || (m_currentfunction && (m_currentfunction == currentfunction)))
+    if(!currentfunction)
         return false;
+
+    if(m_currentfunction && (m_currentfunction == currentfunction))
+        return true;
 
     m_currentfunction = currentfunction;
 

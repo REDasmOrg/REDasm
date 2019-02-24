@@ -1,6 +1,4 @@
-
 var GraphView = {
-
     domParser: null,
     graph: null,
     svg: null,

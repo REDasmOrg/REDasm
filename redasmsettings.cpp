@@ -10,12 +10,12 @@ bool REDasmSettings::restoreState(QMainWindow *mainwindow)
 {
     m_defaultstate = mainwindow->saveState(); // Keep default state
 
-    if(this->contains("window_state"))
-        mainwindow->restoreState(this->value("window_state").toByteArray());
-
     if(this->contains("window_geometry"))
-    {
         mainwindow->restoreGeometry(this->value("window_geometry").toByteArray());
+
+    if(this->contains("window_state"))
+    {
+        mainwindow->restoreState(this->value("window_state").toByteArray());
         return true;
     }
 
@@ -26,8 +26,8 @@ void REDasmSettings::defaultState(QMainWindow *mainwindow) { mainwindow->restore
 
 void REDasmSettings::saveState(const QMainWindow *mainwindow)
 {
-    this->setValue("window_state", mainwindow->saveState());
     this->setValue("window_geometry", mainwindow->saveGeometry());
+    this->setValue("window_state", mainwindow->saveState());
 }
 
 QStringList REDasmSettings::recentFiles() const { return this->value("recent_files").toStringList(); }

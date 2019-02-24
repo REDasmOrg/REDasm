@@ -6,8 +6,6 @@
 #include "../../themeprovider.h"
 #include "../../redasmsettings.h"
 
-#define GRAPH_MARGINS 20
-
 GraphView::GraphView(QWidget *parent): QWebEngineView(parent)
 {
     connect(this, &GraphView::loadFinished, this, &GraphView::initializePage);
@@ -17,15 +15,9 @@ GraphView::GraphView(QWidget *parent): QWebEngineView(parent)
 void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
 {
     this->page()->runJavaScript("GraphView.initGraph();");
-
     this->generateNodes(graph);
     this->generateEdges(graph);
-
-    this->page()->runJavaScript(QString("GraphView.renderGraph(%1, %2, %3);")
-        .arg(this->width())
-        .arg(this->height())
-        .arg(GRAPH_MARGINS)
-    );
+    this->page()->runJavaScript("GraphView.renderGraph();");
 }
 
 QString GraphView::getNodeTitle(const REDasm::Graphing::Node *n) const { Q_UNUSED(n) return QString(); }

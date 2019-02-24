@@ -6,12 +6,18 @@ var GraphView = {
     svg: null,
     g: null,
     zoom: null,
+    graphMargins: 20,
 
     initPage: function () {
+        window.graphView = this;
         document.designMode = 'on';
         window.ondrop = function() { return false; };                           // Disable text dragging
         window.onkeydown = function(e) { return e.key.startsWith('Arrow'); };   // Disable character input
         this.domParser = new DOMParser();
+
+        window.addEventListener("resize", function() {
+            graphView.renderGraph();
+        });
 
         document.addEventListener('keydown', function(e) {
             if(e.code === 'Space')
@@ -67,10 +73,11 @@ var GraphView = {
         dagre.layout(this.graph, { acyclier: 'greedy' });
     },
 
-    renderGraph: function (width, height, margins) {
-        if (this.g) {
+    renderGraph: function () {
+        if (this.g)
             this.g.remove();
-        }
+
+        let container = document.getElementById('container');
 
         this.svg = d3.select('svg');
         this.g = this.svg.append('g');
@@ -84,19 +91,18 @@ var GraphView = {
         var renderer = new dagreD3.render();
         this.g.call(renderer, this.graph);
         this.svg.selectAll('g.node').on('mousedown', this.nodeMouseDown);
-
-        this.svg.attr('height', height);
-        this.svg.attr('width', width);
+        this.svg.attr('width', container.clientWidth);
+        this.svg.attr('height', container.clientHeight);
 
         var scale = d3.zoomTransform(this.svg.node()).k;
 
         var mainNode = this.svg.select('g.node').node();
-        var cx = this.getNodeCenterX(mainNode, width, scale);
+        var cx = this.getNodeCenterX(mainNode, container.clientWidth, scale);
 
-        this.svg.call(this.zoom.transform, d3.zoomIdentity.translate(cx, margins).scale(scale));
+        this.svg.call(this.zoom.transform, d3.zoomIdentity.translate(cx, this.graphMargins).scale(scale));
     },
 
-    getNodeCenterX: function(node, viewerWidth, scale) {
+    getNodeCenterX: function (node, viewerWidth, scale) {
         var bb = node.getBBox();
         var matrix = this.getTransformMatrix(node);
         var tx = (matrix.e * scale);
@@ -109,8 +115,7 @@ var GraphView = {
         return doc.documentElement.textContent;
     },
 
-    getTransformMatrix: function (el)
-    {
+    getTransformMatrix: function (el) {
         var t = el.transform.baseVal.consolidate();
         return t.matrix;
     },

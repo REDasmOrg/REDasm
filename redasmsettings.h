@@ -1,7 +1,7 @@
 #ifndef REDASMSETTINGS_H
 #define REDASMSETTINGS_H
 
-#define MAX_RECENT_FILES 5
+#define MAX_RECENT_FILES 10
 
 #include <QSettings>
 #include <QMainWindow>

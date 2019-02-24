@@ -112,47 +112,6 @@ void DisassemblerGraphView::initializePage()
                             ".seek { background-color: %3; }").arg(THEME_VALUE_COLOR("highlight_bg"))
                                                               .arg(THEME_VALUE_COLOR("highlight_fg"))
                                                               .arg(THEME_VALUE_COLOR("seek")));
-
-    this->page()->runJavaScript("document.addEventListener('keydown', function(e) {"
-                                    "if(e.code === 'Space')"
-                                        "channelobjects.graphchannel.switchToListing();"
-                                    "else if(e.key === 'x')"
-                                        "channelobjects.graphchannel.showReferencesUnderCursor();"
-                                "});");
-
-    this->page()->runJavaScript("document.addEventListener('dblclick', function(e) {"
-                                    "if(e.button === 0)" // Left button
-                                        "channelobjects.graphchannel.followUnderCursor();"
-                                "});");
-
-    this->page()->runJavaScript("document.addEventListener('click', function(e) {"
-                                    "let line = document.querySelector('.seek');"
-                                    "if(line)"
-                                        "line.classList.remove('seek');"
-                                    "line = e.target;"
-                                    "while(line && !('lineroot' in line.dataset))"
-                                        "line = line.parentElement;"
-                                    "if(line)"
-                                        "line.classList.add('seek');"
-                                "});");
-
-    this->page()->runJavaScript("document.addEventListener('click', function(e) {"
-                                    "if(!('line' in e.target.dataset))"
-                                        "return;"
-                                    "channelobjects.graphchannel.moveTo(e.target.dataset.line, e.target.innerText);"
-                                "});");
-
-    this->page()->runJavaScript("document.addEventListener('click', function(e) {"
-                                    "let oldhighlight = document.querySelectorAll('.highlight');"               // Remove old highlighting (1)
-                                    "oldhighlight.forEach(function(e) { e.classList.remove('highlight'); });"   // Remove old highlighting (2)
-                                    "if(e.target.tagName !== 'SPAN')"
-                                        "return;"
-                                    "let word = e.target.innerText;"
-                                    "let query = '//span[text()=\"' + word + '\"]';"
-                                    "let xhl = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE);" // Find all spans
-                                    "for(let i = 0; i < xhl.snapshotLength; i++)"
-                                        "xhl.snapshotItem(i).classList.add('highlight');"                       // Apply highlighting
-                                "});");
 }
 
 void DisassemblerGraphView::updateGraph()

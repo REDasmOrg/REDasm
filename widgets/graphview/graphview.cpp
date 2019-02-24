@@ -2,6 +2,7 @@
 #include <QWebEngineSettings>
 #include <QFontDatabase>
 #include <QApplication>
+#include <QJsonDocument>
 #include "../../themeprovider.h"
 #include "../../redasmsettings.h"
 
@@ -66,6 +67,7 @@ void GraphView::initializePage()
                          "}"
                          "html, body {"
                             "overflow: hidden;"
+                            "margin: 0px;"
                          "}";
 
     QString blockcss =  ".nodetitle { "
@@ -89,23 +91,14 @@ void GraphView::initializePage()
     this->appendCSS(blockcss);
 }
 
-QString GraphView::nodeTitle(const REDasm::Graphing::Node *n) const
-{
-    QString titlecontent = this->getNodeTitle(n);
-
-    if(titlecontent.isEmpty())
-        return QString();
-
-    return QString("<div contenteditable=\"false\" class=\"nodetitle\">%1</div>").arg(titlecontent);
-}
-
 void GraphView::generateNodes(const REDasm::Graphing::Graph &graph)
 {
     for(auto& n : graph)
     {
-        QString title = this->nodeTitle(n.get()), content = this->getNodeContent(n.get());
+        QString title = this->getNodeTitle(n.get()).toHtmlEscaped(),
+                content = this->getNodeContent(n.get()).toHtmlEscaped();
 
-        this->page()->runJavaScript(QString("GraphView.setNode(%1, '%2', '%3');")
+        this->page()->runJavaScript(QString("GraphView.setNode(%1, \"%2\", \"%3\");")
             .arg(n->id)
             .arg(title, content)
         );

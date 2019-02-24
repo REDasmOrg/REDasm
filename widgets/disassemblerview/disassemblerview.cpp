@@ -372,8 +372,6 @@ void DisassemblerView::switchGraphListing()
         m_actions->setIcon(DisassemblerViewActions::GraphListingAction, THEME_ICON("graph"));
         ui->stackedWidget->setCurrentWidget(m_listingview);
     }
-
-    ui->stackedWidget->currentWidget()->setFocus();
 }
 
 void DisassemblerView::switchToHexDump()

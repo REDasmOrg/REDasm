@@ -38,6 +38,9 @@ class DisassemblerTest
         void testTn11();
         void testHw32Stripped();
         void testJmpTable();
+        void testPwrCtlBE();
+        void testHelloWorldMFC();
+        void testTestRTTI();
 
     private:
         TestList m_tests;

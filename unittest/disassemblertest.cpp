@@ -44,9 +44,12 @@ DisassemblerTest::DisassemblerTest(): m_buffer(NULL)
     ADD_TEST_PATH("PE Test/OllyDump.dll", testOllyDump);
     ADD_TEST_PATH("PE Test/tn_11.exe", testTn11);
     ADD_TEST_PATH("PE Test/tn12/scrack.exe", testSCrack);
+    ADD_TEST_PATH("PE Test/HelloWorldMFC.exe", testHelloWorldMFC);
+    ADD_TEST_PATH("PE Test/TestRTTI.exe", testTestRTTI);
     ADD_TEST_PATH("IOLI-crackme/bin-pocketPC/crackme0x01.arm.exe", testIoliARM);
     ADD_TEST_PATH("ELF Test/helloworld32_stripped", testHw32Stripped);
     ADD_TEST_PATH("ELF Test/jmptable", testJmpTable);
+    ADD_TEST_PATH("ELF Test/pwrctl_be", testPwrCtlBE);
 
     ADD_TEST_PATH_NULL("PE Test/CorruptedIT.exe", NULL);
 
@@ -344,4 +347,41 @@ void DisassemblerTest::testJmpTable()
 
     SymbolPtr symbol = m_document->symbol("main");
     TEST_SYMBOL("Checking main", symbol, symbol->isFunction());
+}
+
+void DisassemblerTest::testPwrCtlBE()
+{
+    TEST("Checking segments", m_document->segmentsCount() > 0);
+
+    SymbolPtr symbol = m_document->symbol("main");
+    TEST_SYMBOL("Checking main", symbol, symbol->isFunction());
+}
+
+void DisassemblerTest::testHelloWorldMFC()
+{
+    std::list<std::string> rttiobjects = { "type_info::ptr_rtti_object",
+                                           "CMyApp::ptr_rtti_object",
+                                           "CMainWindow::ptr_rtti_object" };
+
+    for(const std::string& rttiobject : rttiobjects)
+    {
+        SymbolPtr symbol = m_document->symbol(rttiobject);
+        TEST_SYMBOL("Checking " + rttiobject, symbol, symbol->is(SymbolTypes::Pointer));
+    }
+}
+
+void DisassemblerTest::testTestRTTI()
+{
+    std::list<std::string> rttiobjects = { "type_info::ptr_rtti_object",
+                                           "std::exception::ptr_rtti_object",
+                                           "std::bad_alloc::ptr_rtti_object",
+                                           "std::bad_array_new_length::ptr_rtti_object",
+                                           "BaseClass::ptr_rtti_object",
+                                           "DerivedClass::ptr_rtti_object" };
+
+    for(const std::string& rttiobject : rttiobjects)
+    {
+        SymbolPtr symbol = m_document->symbol(rttiobject);
+        TEST_SYMBOL("Checking " + rttiobject, symbol, symbol->is(SymbolTypes::Pointer));
+    }
 }

@@ -93,7 +93,8 @@ They can be downloaded from [REDasm-Builds](https://github.com/REDasmOrg/REDasm-
 See [COMPILE.md](COMPILE.md) (for Windows and Linux).
 
 ## Contributing
-Read the [Wiki](https://github.com/REDasmOrg/REDasm/wiki) and send a Pull Request!
+- Read the [Wiki](https://github.com/REDasmOrg/REDasm/wiki) and send a Pull Request!
+- Join the community on [Reddit](https://www.reddit.com/r/REDasm)
 
 ## Requirements
 - CMake >= 3.10

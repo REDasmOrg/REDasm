@@ -14,7 +14,7 @@ class DisassemblerGraphView : public GraphView
         explicit DisassemblerGraphView(QWidget *parent = NULL);
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
         void goTo(address_t address);
-        void graph();
+        bool graph();
 
     protected:
         virtual QString getNodeTitle(const REDasm::Graphing::Node* n) const;

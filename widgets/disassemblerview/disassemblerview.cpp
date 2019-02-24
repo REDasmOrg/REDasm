@@ -226,7 +226,10 @@ void DisassemblerView::goTo(const QModelIndex &index)
     m_listingview->textView()->goTo(item);
 
     if(ui->stackedWidget->currentWidget() == m_graphview)
-        m_graphview->graph();
+    {
+        if(!m_graphview->graph())
+            return;
+    }
 
     this->showListingOrGraph();
 }
@@ -358,10 +361,11 @@ void DisassemblerView::switchGraphListing()
 
     if(ui->stackedWidget->currentWidget() == m_listingview)
     {
+        if(!m_graphview->graph())
+            return;
+
         m_actions->setIcon(DisassemblerViewActions::GraphListingAction, THEME_ICON("listing"));
         ui->stackedWidget->setCurrentWidget(m_graphview);
-        m_graphview->graph();
-
     }
     else
     {

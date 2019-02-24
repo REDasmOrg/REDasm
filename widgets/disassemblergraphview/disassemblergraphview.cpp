@@ -32,21 +32,29 @@ void DisassemblerGraphView::goTo(address_t address)
     this->graph();
 }
 
-void DisassemblerGraphView::graph()
+bool DisassemblerGraphView::graph()
 {
     auto& document = m_disassembler->document();
     REDasm::ListingItem* currentfunction = document->functionStart(document->currentItem());
 
     if(!currentfunction || (m_currentfunction && (m_currentfunction == currentfunction)))
-        return;
+        return false;
 
     m_currentfunction = currentfunction;
 
+    REDasm::ListingItem* currentitem = document->currentItem();
     REDasm::Graphing::FunctionGraph graph(document);
-    graph.build(document->currentItem()->address);
+
+    if(!graph.build(currentitem->address))
+    {
+        address_location address = graph.startAddress();
+        REDasm::log("Graph creation failed @ " + REDasm::hex(address.valid ? address : currentitem->address));
+        return false;
+    }
 
     this->setGraph(graph);
     this->zoomOn(document->cursor()->currentLine());
+    return true;
 }
 
 QString DisassemblerGraphView::getNodeTitle(const REDasm::Graphing::Node *n) const

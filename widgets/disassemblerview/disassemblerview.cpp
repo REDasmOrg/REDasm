@@ -80,14 +80,6 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     connect(m_listingview->textView(), &DisassemblerTextView::switchToHexDump, this, &DisassemblerView::switchToHexDump);
     connect(m_listingview->textView(), &DisassemblerTextView::addressChanged, m_docks, &DisassemblerViewDocks::updateCallGraph);
 
-    connect(m_listingview->textView(), &DisassemblerTextView::canGoBackChanged, this, [=]() {
-        m_actions->setEnabled(DisassemblerViewActions::BackAction, m_listingview->textView()->canGoBack());
-    });
-
-    connect(m_listingview->textView(), &DisassemblerTextView::canGoForwardChanged, this, [=]() {
-        m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_listingview->textView()->canGoForward());
-    });
-
     connect(m_graphview, &DisassemblerGraphView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(m_graphview, &DisassemblerGraphView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
     connect(m_graphview, &DisassemblerGraphView::referencesRequested, this, &DisassemblerView::showReferences);
@@ -147,9 +139,20 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 
     ui->stackedWidget->currentWidget()->setFocus();
 
-    EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
+    EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
         QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection);
     });
+
+    EVENT_CONNECT(m_disassembler->document()->cursor(), backChanged, this, [=]() {
+        m_actions->setEnabled(DisassemblerViewActions::BackAction, m_disassembler->document()->cursor()->canGoBack());
+    });
+
+    EVENT_CONNECT(m_disassembler->document()->cursor(), forwardChanged, this, [=]() {
+        m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_disassembler->document()->cursor()->canGoForward());
+    });
+
+    m_actions->setEnabled(DisassemblerViewActions::BackAction, m_disassembler->document()->cursor()->canGoBack());
+    m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_disassembler->document()->cursor()->canGoForward());
 
     if(disassembler->busy())
         return;

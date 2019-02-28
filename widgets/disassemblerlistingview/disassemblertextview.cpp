@@ -89,8 +89,6 @@ void DisassemblerTextView::setDisassembler(REDasm::DisassemblerAPI *disassembler
 
     EVENT_CONNECT(document, changed, this, std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1));
     EVENT_CONNECT(cur, positionChanged, this, std::bind(&DisassemblerTextView::moveToSelection, this));
-    EVENT_CONNECT(cur, backChanged, this, [=]() { emit canGoBackChanged(); });
-    EVENT_CONNECT(cur, forwardChanged, this, [=]() { emit canGoForwardChanged(); });
 
     this->adjustScrollBars();
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderListing(); });

@@ -118,6 +118,8 @@
      <string>&amp;?</string>
     </property>
     <addaction name="action_Report_Bug"/>
+    <addaction name="action_Subscribe_to_r_REDasm"/>
+    <addaction name="separator"/>
     <addaction name="action_About_REDasm"/>
    </widget>
    <widget class="QMenu" name="menu_Window">
@@ -461,6 +463,11 @@
   <action name="action_Report_Bug">
    <property name="text">
     <string>&amp;Report Bug</string>
+   </property>
+  </action>
+  <action name="action_Subscribe_to_r_REDasm">
+   <property name="text">
+    <string>&amp;Subscribe to /r/REDasm</string>
    </property>
   </action>
  </widget>

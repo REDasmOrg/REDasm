@@ -74,6 +74,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         QDesktopServices::openUrl(QUrl("https://github.com/REDasmOrg/REDasm/issues"));
     });
 
+    connect(ui->action_Subscribe_to_r_REDasm, &QAction::triggered, this, []() {
+        QDesktopServices::openUrl(QUrl("https://www.reddit.com/r/REDasm"));
+    });
+
     connect(m_pbstatus, &QPushButton::clicked, this, &MainWindow::changeDisassemblerStatus);
 
     qApp->installEventFilter(this);

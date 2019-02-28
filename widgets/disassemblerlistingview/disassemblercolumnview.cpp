@@ -53,7 +53,7 @@ void DisassemblerColumnView::renderArrows(int start, int count)
         }
         else if(item->is(REDasm::ListingItem::SymbolItem))
         {
-            REDasm::SymbolPtr symbol = m_document->symbol(item->address);
+            const REDasm::Symbol* symbol = m_document->symbol(item->address);
 
             if(!symbol || !symbol->is(REDasm::SymbolTypes::Code))
                 continue;

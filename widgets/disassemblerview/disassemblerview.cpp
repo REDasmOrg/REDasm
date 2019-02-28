@@ -247,7 +247,7 @@ void DisassemblerView::showModelReferences()
     else
         item = reinterpret_cast<REDasm::ListingItem*>(m_currentindex.internalPointer());
 
-    REDasm::SymbolPtr symbol;
+    const REDasm::Symbol* symbol = nullptr;
 
     if(m_currentindex.model() == m_callgraphmodel)
     {
@@ -262,7 +262,7 @@ void DisassemblerView::showModelReferences()
 
 void DisassemblerView::showReferences(address_t address)
 {
-    REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(address);
+    const REDasm::Symbol* symbol = m_disassembler->document()->symbol(address);
 
     if(!symbol)
         return;
@@ -302,7 +302,7 @@ void DisassemblerView::displayAddress(address_t address)
     REDasm::ListingDocument& document = m_disassembler->document();
     REDasm::FormatPlugin* format = m_disassembler->format();
     const REDasm::Segment* segment = document->segment(address);
-    REDasm::SymbolPtr functionstart = document->functionStartSymbol(address);
+    const REDasm::Symbol* functionstart = document->functionStartSymbol(address);
     offset_location offset = format->offset(address);
 
     QString segm = segment ? S_TO_QS(segment->name) : "UNKNOWN",
@@ -341,7 +341,7 @@ void DisassemblerView::displayCurrentReferences()
 
     if(!word.empty())
     {
-        REDasm::SymbolPtr symbol = document->symbol(word);
+        const REDasm::Symbol* symbol = document->symbol(word);
 
         if(symbol)
         {
@@ -474,7 +474,7 @@ void DisassemblerView::syncHexEdit()
         offset = m_disassembler->format()->offset(item->address);
 
         bool canbeinstruction = true;
-        REDasm::SymbolPtr symbol;
+        const REDasm::Symbol* symbol = nullptr;
 
         if(item->is(REDasm::ListingItem::SymbolItem))
         {

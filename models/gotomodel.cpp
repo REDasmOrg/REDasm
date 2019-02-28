@@ -71,7 +71,7 @@ QColor GotoModel::itemColor(const REDasm::ListingItem *item) const
     if(item->type == REDasm::ListingItem::SymbolItem)
     {
         const REDasm::ListingDocument& document = m_disassembler->document();
-        REDasm::SymbolPtr symbol = document->symbol(item->address);
+        const REDasm::Symbol* symbol = document->symbol(item->address);
 
         if(!symbol)
             return QColor();
@@ -98,7 +98,7 @@ QString GotoModel::itemName(const REDasm::ListingItem *item) const
     }
     else if((item->type == REDasm::ListingItem::FunctionItem) || (item->type == REDasm::ListingItem::SymbolItem))
     {
-        REDasm::SymbolPtr symbol = document->symbol(item->address);
+        const REDasm::Symbol* symbol = document->symbol(item->address);
 
         if(symbol)
             return S_TO_QS(REDasm::Demangler::demangled(symbol->name));

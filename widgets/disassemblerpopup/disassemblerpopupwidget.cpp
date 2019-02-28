@@ -69,7 +69,7 @@ void DisassemblerPopupWidget::renderPopup()
 
 int DisassemblerPopupWidget::getIndexOfWord(const std::string &word) const
 {
-    REDasm::SymbolPtr symbol = m_document->symbol(word);
+    const REDasm::Symbol* symbol = m_document->symbol(word);
 
     if(!symbol)
         return -1;

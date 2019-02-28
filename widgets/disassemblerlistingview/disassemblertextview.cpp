@@ -158,7 +158,7 @@ void DisassemblerTextView::printFunctionHexDump()
     if(!item)
         return;
 
-    REDasm::SymbolPtr symbol = document->functionStartSymbol(item->address);
+    const REDasm::Symbol* symbol = document->functionStartSymbol(item->address);
 
     if(!symbol)
         return;
@@ -494,10 +494,10 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
         QMetaObject::invokeMethod(this, "renderLine", Qt::QueuedConnection, Q_ARG(u64, ldc->index));
 }
 
-REDasm::SymbolPtr DisassemblerTextView::symbolUnderCursor()
+const REDasm::Symbol* DisassemblerTextView::symbolUnderCursor()
 {
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
-    REDasm::ListingCursor* cur = lock->cursor();
+    const REDasm::ListingCursor* cur = lock->cursor();
 
     if(!cur->hasWordUnderCursor())
         return NULL;
@@ -655,7 +655,7 @@ void DisassemblerTextView::createContextMenu()
 void DisassemblerTextView::adjustContextMenu()
 {
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
-    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+    const REDasm::Symbol* symbol = this->symbolUnderCursor();
     REDasm::ListingItem* item = lock->currentItem();
 
     if(!item)
@@ -726,7 +726,7 @@ void DisassemblerTextView::ensureColumnVisible()
 
 void DisassemblerTextView::showReferencesUnderCursor()
 {
-    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+    const REDasm::Symbol* symbol = this->symbolUnderCursor();
 
     if(!symbol)
         return;
@@ -736,7 +736,7 @@ void DisassemblerTextView::showReferencesUnderCursor()
 
 bool DisassemblerTextView::followUnderCursor()
 {
-    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+    const REDasm::Symbol* symbol = this->symbolUnderCursor();
 
     if(!symbol)
         return false;
@@ -747,7 +747,7 @@ bool DisassemblerTextView::followUnderCursor()
 
 bool DisassemblerTextView::followPointerHexDump()
 {
-    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+    const REDasm::Symbol* symbol = this->symbolUnderCursor();
 
     if(!symbol || !symbol->is(REDasm::SymbolTypes::Pointer))
         return false;
@@ -763,7 +763,7 @@ bool DisassemblerTextView::followPointerHexDump()
 
 void DisassemblerTextView::showCallGraph()
 {
-    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+    const REDasm::Symbol* symbol = this->symbolUnderCursor();
 
     if(!symbol)
     {
@@ -777,7 +777,7 @@ void DisassemblerTextView::showCallGraph()
 
 void DisassemblerTextView::showHexDump()
 {
-    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+    const REDasm::Symbol* symbol = this->symbolUnderCursor();
 
     if(!symbol)
     {
@@ -809,7 +809,7 @@ void DisassemblerTextView::showPopup(const QPoint& pos)
 
 void DisassemblerTextView::renameCurrentSymbol()
 {
-    REDasm::SymbolPtr symbol = this->symbolUnderCursor();
+    const REDasm::Symbol* symbol = this->symbolUnderCursor();
 
     if(!symbol || symbol->isLocked())
         return;

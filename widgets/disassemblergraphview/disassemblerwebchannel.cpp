@@ -7,7 +7,7 @@ DisassemblerWebChannel::DisassemblerWebChannel(REDasm::DisassemblerAPI *disassem
 
 void DisassemblerWebChannel::followUnderCursor()
 {
-    REDasm::SymbolPtr symbol = m_document->symbol(m_cursor->wordUnderCursor());
+    const REDasm::Symbol* symbol = m_document->symbol(m_cursor->wordUnderCursor());
 
     if(!symbol || (!symbol->isFunction() && !symbol->is(REDasm::SymbolTypes::Code)))
         return;
@@ -22,7 +22,7 @@ void DisassemblerWebChannel::followUnderCursor()
 
 void DisassemblerWebChannel::showReferencesUnderCursor()
 {
-    REDasm::SymbolPtr symbol = m_document->symbol(m_cursor->wordUnderCursor());
+    const REDasm::Symbol* symbol = m_document->symbol(m_cursor->wordUnderCursor());
 
     if(!symbol)
         return;

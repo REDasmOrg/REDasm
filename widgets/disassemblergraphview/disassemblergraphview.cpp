@@ -65,7 +65,7 @@ QString DisassemblerGraphView::getNodeTitle(const REDasm::Graphing::Node *n) con
     const REDasm::Graphing::FunctionBlock* fb = static_cast<const REDasm::Graphing::FunctionBlock*>(n);
     REDasm::ListingDocument& document = m_disassembler->document();
     REDasm::ListingItem* item = document->itemAt(fb->startidx);
-    REDasm::SymbolPtr symbol = document->symbol(item->address);
+    const REDasm::Symbol* symbol = document->symbol(item->address);
 
     if(!symbol)
         return "Condition FALSE";

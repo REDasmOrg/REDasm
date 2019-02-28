@@ -57,7 +57,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
 
     private:
-        REDasm::SymbolPtr symbolUnderCursor();
+        const REDasm::Symbol *symbolUnderCursor();
         bool isLineVisible(u64 line) const;
         bool isColumnVisible(u64 column, u64 *xpos);
         QRect lineRect(u64 line);

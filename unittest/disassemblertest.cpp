@@ -131,7 +131,7 @@ void DisassemblerTest::testTrampolines(const std::map<address_t, string> &trampo
 {
     for(auto& trampoline : trampolines)
     {
-        SymbolPtr symbol = m_document->symbol(trampoline.first);
+        const Symbol* symbol = m_document->symbol(trampoline.first);
         TEST_SYMBOL_NAME("Trampoline " + trampoline.second + " @  " + REDasm::hex(trampoline.first), symbol, symbol->isFunction(), trampoline.second);
     }
 }
@@ -141,14 +141,14 @@ void DisassemblerTest::testVBEvents(const std::map<address_t, string> &vbevents)
     for(auto& vbevent : vbevents)
     {
         std::string procname = DisassemblerTest::replaceAll(vbevent.second, "::", "_");
-        SymbolPtr symbol = m_document->symbol(vbevent.first);
+        const Symbol* symbol = m_document->symbol(vbevent.first);
         TEST_SYMBOL_NAME("Event " + vbevent.second + " @ " + REDasm::hex(vbevent.first), symbol, symbol->isFunction(), procname);
     }
 }
 
 void DisassemblerTest::testCavia()
 {
-    SymbolPtr symbol = m_document->symbol(0x00401000);
+    const Symbol* symbol = m_document->symbol(0x00401000);
     TEST_SYMBOL("EntryPoint", symbol, symbol->isFunction());
 
     symbol = m_document->symbol(0x00401029);
@@ -157,7 +157,7 @@ void DisassemblerTest::testCavia()
 
 void DisassemblerTest::testCM01()
 {
-    SymbolPtr symbol = m_document->symbol(0x00401128);
+    const Symbol* symbol = m_document->symbol(0x00401128);
     TEST_SYMBOL_NAME("Exported WndProc", symbol, symbol->isFunction() && symbol->is(SymbolTypes::ExportFunction), "WndProc");
 
     symbol = m_document->symbol(0x00401253);
@@ -178,7 +178,7 @@ void DisassemblerTest::testCM01()
 
 void DisassemblerTest::testOllyDump()
 {
-    SymbolPtr symbol = m_document->symbol(0x00403BDC);
+    const Symbol* symbol = m_document->symbol(0x00403BDC);
     TEST_SYMBOL("Checking Function @ 00403bdc", symbol, symbol->isFunction());
 
     InstructionPtr instruction = m_document->instruction(0x00403BEA);
@@ -201,7 +201,7 @@ void DisassemblerTest::testOllyDump()
 
 void DisassemblerTest::testSCrack()
 {
-    SymbolPtr symbol = m_document->symbol(0x004013E4);
+    const Symbol* symbol = m_document->symbol(0x004013E4);
     TEST_SYMBOL_NAME("Import VB6 ThunRTMain", symbol, symbol->isFunction(), "_msvbvm60.dll_ThunRTMain");
 
     symbol = m_document->symbol(0x00402B1C);
@@ -230,7 +230,7 @@ void DisassemblerTest::testSCrack()
 
 void DisassemblerTest::testVB5CrackMe()
 {
-    SymbolPtr symbol = m_document->symbol(0x0040110E);
+    const Symbol* symbol = m_document->symbol(0x0040110E);
     TEST_SYMBOL_NAME("Import VB5 ThunRTMain", symbol, symbol->is(SymbolTypes::Function), "_msvbvm50.dll_ThunRTMain");
 
     std::map<address_t, std::string> trampolines;
@@ -278,7 +278,7 @@ void DisassemblerTest::testIoliARM()
     Operand op = instruction->operands[1];
     TEST("Checking LDR's operand 2", op.is(OperandTypes::Memory));
 
-    SymbolPtr symbol = m_document->symbol(op.u_value);
+    const Symbol* symbol = m_document->symbol(op.u_value);
     TEST_SYMBOL("Checking LDR's operand 2 symbol", symbol, symbol->is(SymbolTypes::Data) && symbol->is(SymbolTypes::Pointer));
 
     symbol = m_disassembler->dereferenceSymbol(symbol);
@@ -321,7 +321,7 @@ void DisassemblerTest::testTn11()
 
     for(address_t target : instruction->targets)
     {
-        SymbolPtr symbol = m_document->symbol(target);
+        const Symbol* symbol = m_document->symbol(target);
         TEST("Checking CASE #" + std::to_string(i) + " @ " + REDasm::hex(target), symbol && symbol->is(SymbolTypes::Code) && m_document->instruction(target));
         i++;
     }
@@ -331,7 +331,7 @@ void DisassemblerTest::testHw32Stripped()
 {
     TEST("Checking segments", m_document->segmentsCount() > 0);
 
-    SymbolPtr symbol = m_document->symbol("main");
+    const Symbol* symbol = m_document->symbol("main");
     TEST_SYMBOL("Checking main", symbol, symbol->isFunction());
 
     symbol = m_document->symbol("init");
@@ -345,7 +345,7 @@ void DisassemblerTest::testJmpTable()
 {
     TEST("Checking segments", m_document->segmentsCount() > 0);
 
-    SymbolPtr symbol = m_document->symbol("main");
+    const Symbol* symbol = m_document->symbol("main");
     TEST_SYMBOL("Checking main", symbol, symbol->isFunction());
 }
 
@@ -353,7 +353,7 @@ void DisassemblerTest::testPwrCtlBE()
 {
     TEST("Checking segments", m_document->segmentsCount() > 0);
 
-    SymbolPtr symbol = m_document->symbol("main");
+    const Symbol* symbol = m_document->symbol("main");
     TEST_SYMBOL("Checking main", symbol, symbol->isFunction());
 }
 
@@ -365,7 +365,7 @@ void DisassemblerTest::testHelloWorldMFC()
 
     for(const std::string& rttiobject : rttiobjects)
     {
-        SymbolPtr symbol = m_document->symbol(rttiobject);
+        const Symbol* symbol = m_document->symbol(rttiobject);
         TEST_SYMBOL("Checking " + rttiobject, symbol, symbol->is(SymbolTypes::Pointer));
     }
 }
@@ -381,7 +381,7 @@ void DisassemblerTest::testTestRTTI()
 
     for(const std::string& rttiobject : rttiobjects)
     {
-        SymbolPtr symbol = m_document->symbol(rttiobject);
+        const Symbol* symbol = m_document->symbol(rttiobject);
         TEST_SYMBOL("Checking " + rttiobject, symbol, symbol->is(SymbolTypes::Pointer));
     }
 }

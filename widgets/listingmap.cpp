@@ -166,7 +166,7 @@ void ListingMap::renderFunctions(QPainter *painter)
         else
             size = m_functions[i + 1]->address - item->address;
 
-        REDasm::SymbolPtr symbol = lock->symbol(item->address);
+        const REDasm::Symbol* symbol = lock->symbol(item->address);
         offset_location offset = format->offset(symbol->address);
 
         if(!offset.valid)

@@ -68,7 +68,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
     auto lock = REDasm::x_lock_safe_ptr(m_disassembler->document());
-    REDasm::SymbolPtr symbol = lock->symbol(item->address);
+    const REDasm::Symbol* symbol = lock->symbol(item->address);
 
     if(!symbol)
         return QVariant();

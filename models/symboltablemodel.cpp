@@ -8,6 +8,6 @@ bool SymbolTableModel::isItemAllowed(REDasm::ListingItem *item) const
     if(!ListingItemModel::isItemAllowed(item) || (!item->is(REDasm::ListingItem::FunctionItem) && !item->is(REDasm::ListingItem::SymbolItem)))
         return false;
 
-    REDasm::SymbolPtr symbol = m_disassembler->document()->symbol(item->address);
+    const REDasm::Symbol* symbol = m_disassembler->document()->symbol(item->address);
     return symbol && symbol->is(m_symbolflags);
 }

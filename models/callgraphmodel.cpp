@@ -172,7 +172,7 @@ QVariant CallGraphModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
-    REDasm::SymbolPtr symbol;
+    const REDasm::Symbol* symbol = nullptr;
 
     if(item->is(REDasm::ListingItem::InstructionItem))
     {

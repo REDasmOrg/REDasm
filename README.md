@@ -102,6 +102,7 @@ See [COMPILE.md](COMPILE.md) (for Windows and Linux).
 - Qt >= 5.9 LTS
 
 ## Dependencies
+- [MiniZ](https://github.com/richgel999/miniz) : ZLib's drop in replacement
 - [Capstone](https://github.com/aquynh/capstone) : Capstone provides the most common architectures
 - [JSON](https://github.com/nlohmann/json): A single header library for JSON
 - [D3](https://github.com/d3/d3): Used by QtWebEngine for Graph Rendering

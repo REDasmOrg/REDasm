@@ -25,10 +25,10 @@ class DisassemblerTextView : public QAbstractScrollArea
         void copy();
         void goTo(REDasm::ListingItem *item);
         bool goTo(address_t address);
-        void goBack();
-        void goForward();
 
     private slots:
+        void goBack();
+        void goForward();
         void renderListing(const QRect& r = QRect());
         void renderLine(u64 line);
         void showReferencesUnderCursor();

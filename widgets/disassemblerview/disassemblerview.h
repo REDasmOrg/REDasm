@@ -49,6 +49,8 @@ class DisassemblerView : public QWidget
         void selectToHexDump(address_t address, u64 len);
         void showMenu(const QPoint&);
         void showGoto();
+        void goForward();
+        void goBack();
 
     private:
         void syncHexEdit();

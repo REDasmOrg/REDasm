@@ -16,6 +16,8 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
 {
     m_disassembler = disassembler;
 
+    EVENT_CONNECT(m_disassembler->document()->cursor(), positionChanged, this, [&]() { this->updateGraph(); });
+
     m_graphwebchannel = new DisassemblerWebChannel(disassembler, this);
     m_webchannel->registerObject("graphchannel", m_graphwebchannel);
 

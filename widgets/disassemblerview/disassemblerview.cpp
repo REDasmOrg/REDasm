@@ -94,8 +94,8 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     connect(m_graphview, &DisassemblerGraphView::switchView, this, &DisassemblerView::switchGraphListing);
     connect(m_graphview, &DisassemblerGraphView::addressChanged, m_docks, &DisassemblerViewDocks::updateCallGraph);
 
-    connect(m_actions, &DisassemblerViewActions::backRequested, m_listingview->textView(), &DisassemblerTextView::goBack);
-    connect(m_actions, &DisassemblerViewActions::forwardRequested, m_listingview->textView(), &DisassemblerTextView::goForward);
+    connect(m_actions, &DisassemblerViewActions::backRequested, this, &DisassemblerView::goBack);
+    connect(m_actions, &DisassemblerViewActions::forwardRequested, this, &DisassemblerView::goForward);
     connect(m_actions, &DisassemblerViewActions::gotoRequested, this, &DisassemblerView::showGoto);
     connect(m_actions, &DisassemblerViewActions::graphListingRequested, this, &DisassemblerView::switchGraphListing);
 
@@ -460,6 +460,9 @@ void DisassemblerView::showGoto()
 
     this->selectToHexDump(dlggoto.address(), m_disassembler->format()->addressWidth());
 }
+
+void DisassemblerView::goForward() { m_disassembler->document()->cursor()->goForward(); }
+void DisassemblerView::goBack() { m_disassembler->document()->cursor()->goBack(); }
 
 void DisassemblerView::syncHexEdit()
 {

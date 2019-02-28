@@ -101,7 +101,7 @@ void GraphView::generateEdges(const REDasm::Graphing::Graph &graph)
 {
     for(auto& n : graph)
     {
-        const REDasm::Graphing::AdjacencyList& edges = graph.edges(n);
+        const REDasm::Graphing::Graph::AdjacencyList& edges = graph.edges(n);
 
         for(auto& e : edges)
         {

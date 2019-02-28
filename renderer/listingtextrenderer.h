@@ -14,6 +14,7 @@ class ListingTextRenderer: public REDasm::ListingRenderer
 
     public:
         ListingTextRenderer(const QFont& font, REDasm::DisassemblerAPI* disassembler);
+        virtual ~ListingTextRenderer() = default;
         void setFirstVisibleLine(u64 line);
 
     public:

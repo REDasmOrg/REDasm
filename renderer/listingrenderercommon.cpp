@@ -4,7 +4,7 @@
 #include <QTextCharFormat>
 #include <QPalette>
 
-ListingRendererCommon::ListingRendererCommon(QTextDocument *textdocument, REDasm::ListingDocument& document): m_textdocument(textdocument), m_document(document)
+ListingRendererCommon::ListingRendererCommon(QTextDocument *textdocument, REDasm::ListingDocument& document): m_document(document)
 {
     m_rgxwords.setPattern(ListingRendererCommon::wordsPattern());
     m_textcursor = QTextCursor(textdocument);

@@ -1,5 +1,5 @@
 #ifndef UNITTEST_H
-#define UNITTEST_h
+#define UNITTEST_H
 
 class UnitTest
 {

@@ -31,7 +31,6 @@ class ListingRendererCommon
 
     private:
         REDasm::ListingDocument& m_document;
-        QTextDocument* m_textdocument;
         QTextCursor m_textcursor;
         QRegularExpression m_rgxwords;
 };

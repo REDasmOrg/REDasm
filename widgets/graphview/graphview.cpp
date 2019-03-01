@@ -23,6 +23,7 @@ void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
     this->page()->runJavaScript("GraphView.renderGraph();");
 }
 
+void GraphView::focusOnLine(int line) { this->page()->runJavaScript("GraphView.focusOnLine(" + QString::number(line) + ");"); }
 void GraphView::dragEnterEvent(QDragEnterEvent *e) { e->ignore(); }
 QString GraphView::getNodeTitle(const REDasm::Graphing::Node *n) const { Q_UNUSED(n) return QString(); }
 QColor GraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to) const { Q_UNUSED(from) Q_UNUSED(to) return QColor(Qt::black); }

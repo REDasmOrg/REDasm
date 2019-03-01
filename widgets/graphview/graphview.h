@@ -13,6 +13,7 @@ class GraphView : public QWebEngineView
         void setGraph(const REDasm::Graphing::Graph &graph);
 
     protected:
+        virtual void focusOnLine(int line);
         virtual void dragEnterEvent(QDragEnterEvent* e);
         virtual QString getNodeTitle(const REDasm::Graphing::Node* n) const;
         virtual QString getNodeContent(const REDasm::Graphing::Node* n) const = 0;

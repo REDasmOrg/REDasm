@@ -87,36 +87,78 @@ var GraphView = {
         this.svg.call(this.zoom).on('wheel', this.wheelHandler.bind(this))
             .on('dblclick.zoom', null);
 
-        var renderer = new dagreD3.render();
+        let renderer = new dagreD3.render();
         this.g.call(renderer, this.graph);
 
         this.svg.selectAll('g.node').on('mousedown', this.nodeMouseDown);
         this.svg.attr('width', container.clientWidth);
         this.svg.attr('height', container.clientHeight);
 
-        var scale = d3.zoomTransform(this.svg.node()).k;
+        let mainnode = this.svg.select('g.node').node();
+        this.focusOnNode(mainnode);
+    },
 
-        var mainNode = this.svg.select('g.node').node();
-        var cx = this.getNodeCenterX(mainNode, container.clientWidth, scale);
+    isNodeInViewport: function (node) {
+        let r = el.getBoundingClientRect();
+        let wh = (window.innerHeight || document.documentElement.clientHeight);
+        let ww = (window.innerWidth || document.documentElement.clientWidth);
+        return ((r.left >= 0) && (r.top >= 0) && ((r.left + r.width) <= ww) && ((r.top + r.height) <= wh));
+    },
 
+    isNodePartiallyInViewport: function (node) {
+        let r = node.getBoundingClientRect();
+        let wh = (window.innerHeight || document.documentElement.clientHeight);
+        let ww = (window.innerWidth || document.documentElement.clientWidth);
+        let vertinview = (r.top <= wh) && ((r.top + r.height) >= 0);
+        let horinview = (r.left <= ww) && ((r.left + r.width) >= 0);
+        return vertinview && horinview;
+    },
+
+    focusOnLine: function(line) {
+        let n = this.nodeFromLine(line)
+
+        if(!n)
+            return;
+
+        if(!this.isNodePartiallyInViewport(n.firstElementChild)) // node ->  rect
+            this.focusOnNode(n);
+    },
+
+    focusOnNode: function(node) {
+        let scale = d3.zoomTransform(this.svg.node()).k;
+        let container = document.getElementById('container');
+        let cx = this.getNodeCenterX(node, container.clientWidth, scale);
         this.svg.call(this.zoom.transform, d3.zoomIdentity.translate(cx, this.graphMargins).scale(scale));
     },
 
+    nodeFromLine: function(line) {
+        let n = document.querySelector("div[data-line='" + line + "']");
+
+        while(n) {
+            if((n.tagName === 'g') && n.classList.contains("node"))
+                break;
+
+            n = n.parentElement;
+        }
+
+        return n;
+    },
+
     getNodeCenterX: function (node, viewerWidth, scale) {
-        var bb = node.getBBox();
-        var matrix = this.getTransformMatrix(node);
-        var tx = (matrix.e * scale);
-        var x = ((viewerWidth - bb.width) / 2) - bb.x - tx;
+        let bb = node.getBBox();
+        let matrix = this.getTransformMatrix(node);
+        let tx = (matrix.e * scale);
+        let x = ((viewerWidth - bb.width) / 2) - bb.x - tx;
         return x;
     },
 
     htmlDecode: function (content) {
-        var doc = this.domParser.parseFromString(content, 'text/html');
+        let doc = this.domParser.parseFromString(content, 'text/html');
         return doc.documentElement.textContent;
     },
 
     getTransformMatrix: function (el) {
-        var t = el.transform.baseVal.consolidate();
+        let t = el.transform.baseVal.consolidate();
         return t.matrix;
     },
 
@@ -143,21 +185,21 @@ var GraphView = {
     },
 
     zoomOn: function (line) {
-        var n = d3.select('div[data-lineroot][data-line="' + line + '"]').node();
+        let n = d3.select('div[data-lineroot][data-line="' + line + '"]').node();
         console.log('div[data-lineroot][data-line="' + line + '"]');
 
         while(n && !n.classList.contains('label'))
             n = n.parentElement;
 
         if(n) {
-            var zoomscale = 2.0;
-            var bb = n.getBBox();
-            var s = d3.select(n);
+            let zoomscale = 2.0;
+            let bb = n.getBBox();
+            let s = d3.select(n);
         }
     },
 
     appendCss: function (content) {
-        var css = document.createElement('style');
+        let css = document.createElement('style');
         css.type = 'text/css';
         css.innerText = content;
         document.head.appendChild(css);

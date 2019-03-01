@@ -121,8 +121,8 @@ void DisassemblerGraphView::initializePage()
 
 void DisassemblerGraphView::updateGraph()
 {
-    if(!this->isVisible())
+    if(!m_disassembler || m_disassembler->busy() || !this->isVisible())
         return;
 
-    this->graph();
+    this->focusOnLine(m_disassembler->document()->cursor()->currentLine());
 }

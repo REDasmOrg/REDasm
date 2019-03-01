@@ -67,14 +67,15 @@ var GraphView = {
     initGraph: function () {
         this.graph = new dagre.graphlib.Graph();
         this.graph.setDefaultEdgeLabel(function() { return { }; });
-        this.graph.setGraph({ });
+        this.graph.setGraph({ ranker: "longest-path",
+                              nodesep: 100,
+                              ranksep: 75 });
     },
 
     renderGraph: function () {
         if (this.g)
             this.g.remove();
 
-        dagre.layout(this.graph, { edgesep: 2500 });
         let container = document.getElementById('container');
 
         this.svg = d3.select('svg');
@@ -88,6 +89,7 @@ var GraphView = {
 
         var renderer = new dagreD3.render();
         this.g.call(renderer, this.graph);
+
         this.svg.selectAll('g.node').on('mousedown', this.nodeMouseDown);
         this.svg.attr('width', container.clientWidth);
         this.svg.attr('height', container.clientHeight);

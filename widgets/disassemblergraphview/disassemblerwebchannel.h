@@ -19,7 +19,6 @@ class DisassemblerWebChannel : public QObject
         void moveTo(int line, const QString& word = QString());
 
     signals:
-        void addressChanged(address_t address);
         void referencesRequested(address_t address);
         void switchView();
 

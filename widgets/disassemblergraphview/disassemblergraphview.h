@@ -26,7 +26,6 @@ class DisassemblerGraphView : public GraphView
         void updateGraph();
 
     signals:
-        void addressChanged(address_t address);
         void referencesRequested(address_t address);
         void switchView();
 

@@ -25,22 +25,10 @@ var GraphView = {
         });
 
         document.addEventListener('dblclick', function(e) {
-            if(e.button === 0) // Left button
+            if(e.button === 0) { // Left button
                 channelobjects.graphchannel.followUnderCursor();
-        });
-
-        document.addEventListener('click', function(e) {
-            let line = document.querySelector('.seek');
-            if(line)
-                line.classList.remove('seek');
-
-            line = e.target;
-
-            while(line && !('lineroot' in line.dataset))
-                line = line.parentElement;
-
-            if(line)
-                line.classList.add('seek');
+                graphView.unselectAll();
+            }
         });
 
         document.addEventListener('click', function(e) {
@@ -98,15 +86,15 @@ var GraphView = {
         this.focusOnNode(mainnode);
     },
 
-    isNodeInViewport: function (node) {
-        let r = el.getBoundingClientRect();
+    isElementInViewport: function (e) {
+        let r = e.getBoundingClientRect();
         let wh = (window.innerHeight || document.documentElement.clientHeight);
         let ww = (window.innerWidth || document.documentElement.clientWidth);
         return ((r.left >= 0) && (r.top >= 0) && ((r.left + r.width) <= ww) && ((r.top + r.height) <= wh));
     },
 
-    isNodePartiallyInViewport: function (node) {
-        let r = node.getBoundingClientRect();
+    isElementPartiallyInViewport: function (e) {
+        let r = e.getBoundingClientRect();
         let wh = (window.innerHeight || document.documentElement.clientHeight);
         let ww = (window.innerWidth || document.documentElement.clientWidth);
         let vertinview = (r.top <= wh) && ((r.top + r.height) >= 0);
@@ -114,25 +102,53 @@ var GraphView = {
         return vertinview && horinview;
     },
 
+    unselectAll: function() {
+        if(window.getSelection)
+            window.getSelection().removeAllRanges();
+        else if(document.selection)
+            document.selection.empty();
+    },
+
+    highlightSeek: function(line) {
+        let lineobj = document.querySelector('.seek');
+
+        if(lineobj)
+            lineobj.classList.remove('seek');
+
+        lineobj = this.lineElement(line);
+
+        while(lineobj && !('lineroot' in lineobj.dataset))
+            lineobj = lineobj.parentElement;
+
+        if(lineobj)
+            lineobj.classList.add('seek');
+    },
+
     focusOnLine: function(line) {
-        let n = this.nodeFromLine(line)
+        this.highlightSeek(line);
+        //let n = this.nodeFromLine(line)
 
-        if(!n)
-            return;
+        //if(!n)
+        //    return;
 
-        if(!this.isNodePartiallyInViewport(n.firstElementChild)) // node ->  rect
-            this.focusOnNode(n);
+        //var r = n.firstElementChild; // node ->  rect
+
+        //if(!this.isElementPartiallyInViewport(r))
+        //    r.scrollIntoView();
     },
 
     focusOnNode: function(node) {
         let scale = d3.zoomTransform(this.svg.node()).k;
-        let container = document.getElementById('container');
-        let cx = this.getNodeCenterX(node, container.clientWidth, scale);
+        let cx = this.getNodeCenterX(node, scale);
         this.svg.call(this.zoom.transform, d3.zoomIdentity.translate(cx, this.graphMargins).scale(scale));
     },
 
+    lineElement: function(line) {
+        return document.querySelector("div[data-line='" + line + "']");
+    },
+
     nodeFromLine: function(line) {
-        let n = document.querySelector("div[data-line='" + line + "']");
+        let n = this.lineElement(line);
 
         while(n) {
             if((n.tagName === 'g') && n.classList.contains("node"))
@@ -144,12 +160,22 @@ var GraphView = {
         return n;
     },
 
-    getNodeCenterX: function (node, viewerWidth, scale) {
+    getNodeCenterX: function (node, scale) {
+        let container = document.getElementById('container');
         let bb = node.getBBox();
         let matrix = this.getTransformMatrix(node);
         let tx = (matrix.e * scale);
-        let x = ((viewerWidth - bb.width) / 2) - bb.x - tx;
+        let x = ((container.clientWidth - bb.width) / 2) - bb.x - tx;
         return x;
+    },
+
+    getNodeCenterY: function (node, scale) {
+        let container = document.getElementById('container');
+        let bb = node.getBBox();
+        let matrix = this.getTransformMatrix(node);
+        let ty = (matrix.e * scale);
+        let y = ((container.clientHeight - bb.height) / 2) - bb.y - ty;
+        return y;
     },
 
     htmlDecode: function (content) {
@@ -186,7 +212,6 @@ var GraphView = {
 
     zoomOn: function (line) {
         let n = d3.select('div[data-lineroot][data-line="' + line + '"]').node();
-        console.log('div[data-lineroot][data-line="' + line + '"]');
 
         while(n && !n.classList.contains('label'))
             n = n.parentElement;

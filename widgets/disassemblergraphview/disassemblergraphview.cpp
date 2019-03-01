@@ -21,8 +21,6 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
     m_graphwebchannel = new DisassemblerWebChannel(disassembler, this);
     m_webchannel->registerObject("graphchannel", m_graphwebchannel);
 
-    connect(m_graphwebchannel, &DisassemblerWebChannel::addressChanged, this, &DisassemblerGraphView::updateGraph);
-    connect(m_graphwebchannel, &DisassemblerWebChannel::addressChanged, this, &DisassemblerGraphView::addressChanged);
     connect(m_graphwebchannel, &DisassemblerWebChannel::referencesRequested, this, &DisassemblerGraphView::referencesRequested);
     connect(m_graphwebchannel, &DisassemblerWebChannel::switchView, this, &DisassemblerGraphView::switchView);
 }
@@ -124,7 +122,7 @@ void DisassemblerGraphView::updateGraph()
     if(!m_disassembler || m_disassembler->busy() || !this->isVisible())
         return;
 
-    if(m_currentfunction == m_disassembler->document()->currentItem())
+    if(m_currentfunction == m_disassembler->document()->currentFunction())
         this->focusOnLine(m_disassembler->document()->cursor()->currentLine());
     else
         this->graph();

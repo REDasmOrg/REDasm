@@ -39,8 +39,8 @@ void DisassemblerWebChannel::moveTo(int line, const QString &word)
     else
         m_cursor->setWordUnderCursor(word.toStdString());
 
-    m_cursor->moveTo(line);
+    if(line == m_cursor->currentLine()) // Don't flood web channel
+        return;
 
-    REDasm::ListingItem* item = m_document->itemAt(line);
-    emit addressChanged(item->address);
+    m_cursor->moveTo(line);
 }

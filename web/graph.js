@@ -180,5 +180,4 @@ var GraphView = {
             arrowheadStyle: 'stroke: ' + color + '; fill: ' + color
         });
     }
-
 };

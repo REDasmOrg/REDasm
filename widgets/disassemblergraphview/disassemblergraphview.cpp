@@ -78,7 +78,7 @@ QString DisassemblerGraphView::getNodeTitle(const REDasm::Graphing::Node *n) con
     REDasm::ReferenceVector refs = m_disassembler->getReferences(symbol->address);
 
     if(refs.size() > 1)
-        return QString("From %1 blocks").arg(refs.size());
+        return QString("Jump From %1 blocks").arg(refs.size());
 
     REDasm::InstructionPtr instruction = document->instruction(refs.front());
 

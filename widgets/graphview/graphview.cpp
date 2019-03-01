@@ -62,8 +62,12 @@ void GraphView::initializePage()
                             "stroke-width: 3;"
                             "filter: url(#dropshadow);"
                         "}"
-                        ".edgePath path {"
+                        ".edgepath path {"
                             "stroke-width: 1.5;"
+                        "}"
+                        ".edgepath path:hover {"
+                            "stroke-width: 2.5;"
+                            //"stroke: " + palette.color(QPalette::Highlight).name() + " !important;"
                         "}";
 
     this->appendCSS(generalcss);
@@ -94,10 +98,9 @@ void GraphView::generateEdges(const REDasm::Graphing::Graph &graph)
         {
             QColor color = this->getEdgeColor(n.get(), e);
             this->page()->runJavaScript(QString("GraphView.setEdge(%1, %2, '%3');")
-                .arg(n->id)
-                .arg(e->id)
-                .arg(color.name())
-            );
+                                        .arg(n->id)
+                                        .arg(e->id)
+                                        .arg(color.name()));
         }
     }
 }

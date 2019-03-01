@@ -54,6 +54,7 @@ class DisassemblerView : public QWidget
 
     private:
         void syncHexEdit();
+        void checkSyncGraph();
         void createActions();
         void filterSymbols();
         void showListingOrGraph();

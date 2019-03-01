@@ -217,7 +217,6 @@ void DisassemblerView::gotoXRef(const QModelIndex &index)
 
     ui->tabView->setCurrentWidget(ui->tabListing);
     m_listingview->textView()->goTo(static_cast<address_t>(index.internalId()));
-    this->showListingOrGraph();
 }
 
 void DisassemblerView::goTo(const QModelIndex &index)
@@ -227,14 +226,7 @@ void DisassemblerView::goTo(const QModelIndex &index)
 
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
     m_listingview->textView()->goTo(item);
-
-    if(ui->stackedWidget->currentWidget() == m_graphview)
-    {
-        if(!m_graphview->graph())
-            return;
-    }
-
-    this->showListingOrGraph();
+    this->checkSyncGraph();
 }
 
 void DisassemblerView::showModelReferences()
@@ -504,6 +496,15 @@ void DisassemblerView::syncHexEdit()
 
     QHexCursor* cursor = ui->hexView->document()->cursor();
     cursor->selectOffset(offset, len);
+}
+
+void DisassemblerView::checkSyncGraph()
+{
+    if(ui->stackedWidget->currentWidget() != m_graphview)
+        return;
+
+    if(m_graphview->graph())
+        this->showListingOrGraph();
 }
 
 void DisassemblerView::createActions()

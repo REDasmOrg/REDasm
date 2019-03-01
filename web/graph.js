@@ -68,13 +68,13 @@ var GraphView = {
         this.graph = new dagre.graphlib.Graph();
         this.graph.setDefaultEdgeLabel(function() { return { }; });
         this.graph.setGraph({ });
-        dagre.layout(this.graph, { acyclier: 'greedy' });
     },
 
     renderGraph: function () {
         if (this.g)
             this.g.remove();
 
+        dagre.layout(this.graph, { edgesep: 2500 });
         let container = document.getElementById('container');
 
         this.svg = d3.select('svg');
@@ -119,13 +119,11 @@ var GraphView = {
     },
 
     zoomFilter: function () {
-        if (d3.event.button) {
+        if (d3.event.button)
             return false;
-        }
 
-        if (d3.event.type === 'wheel') {
+        if (d3.event.type === 'wheel')
             return d3.event.ctrlKey;
-        }
 
         return true;
     },

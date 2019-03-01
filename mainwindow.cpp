@@ -6,13 +6,16 @@
 #include "redasmsettings.h"
 #include "themeprovider.h"
 #include <redasm/database/database.h>
+#include <QWebEngineSettings>
+#include <QWebEngineProfile>
+#include <QtWidgets>
 #include <QtCore>
 #include <QtGui>
-#include <QtWidgets>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), m_disassembler(NULL)
 {
     ui->setupUi(this);
+    this->configureWebEngine();
 
     REDasm::setStatusCallback([this](std::string s) {
         QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
@@ -477,6 +480,20 @@ void MainWindow::setViewWidgetsVisible(bool b)
     ui->dockSymbols->setVisible(b);
     ui->dockReferences->setVisible(b);
     ui->dockListingMap->setVisible(b);
+}
+
+void MainWindow::configureWebEngine()
+{
+    QWebEngineProfile* profile = QWebEngineProfile::defaultProfile();
+    profile->setPersistentCookiesPolicy(QWebEngineProfile::NoPersistentCookies);
+    profile->setHttpCacheType(QWebEngineProfile::NoCache);
+
+    QWebEngineSettings* settings = profile->settings();
+    settings->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows, false);
+    settings->setAttribute(QWebEngineSettings::LocalStorageEnabled, false);
+    settings->setAttribute(QWebEngineSettings::XSSAuditingEnabled, false);
+    settings->setAttribute(QWebEngineSettings::ErrorPageEnabled, false);
+    settings->setAttribute(QWebEngineSettings::AutoLoadIconsForPage, false);
 }
 
 void MainWindow::onAboutClicked()

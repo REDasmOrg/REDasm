@@ -13,11 +13,12 @@ class GraphView : public QWebEngineView
         void setGraph(const REDasm::Graphing::Graph &graph);
 
     protected:
+        virtual void dragEnterEvent(QDragEnterEvent* e);
         virtual QString getNodeTitle(const REDasm::Graphing::Node* n) const;
         virtual QString getNodeContent(const REDasm::Graphing::Node* n) const = 0;
         virtual QColor getEdgeColor(const REDasm::Graphing::Node* from, const REDasm::Graphing::Node* to) const;
-        void zoomOn(int line);
         void appendCSS(const QString& css);
+        void zoomOn(int line);
 
     protected slots:
         virtual void initializePage();
@@ -26,6 +27,7 @@ class GraphView : public QWebEngineView
         QString nodeTitle(const REDasm::Graphing::Node *n) const;
         void generateNodes(const REDasm::Graphing::Graph& graph);
         void generateEdges(const REDasm::Graphing::Graph& graph);
+        void configureActions();
 };
 
 #endif // GRAPHVIEW_H

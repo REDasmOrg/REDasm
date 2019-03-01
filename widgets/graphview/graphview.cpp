@@ -1,14 +1,17 @@
 #include "graphview.h"
-#include <QWebEngineSettings>
+#include <QDragEnterEvent>
 #include <QFontDatabase>
 #include <QApplication>
 #include <QJsonDocument>
+#include <QAction>
 #include "../../themeprovider.h"
 #include "../../redasmsettings.h"
 
 GraphView::GraphView(QWidget *parent): QWebEngineView(parent)
 {
     connect(this, &GraphView::loadFinished, this, &GraphView::initializePage);
+
+    this->configureActions();
     this->load(QUrl("qrc:/web/graph.html"));
 }
 
@@ -20,27 +23,11 @@ void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
     this->page()->runJavaScript("GraphView.renderGraph();");
 }
 
+void GraphView::dragEnterEvent(QDragEnterEvent *e) { e->ignore(); }
 QString GraphView::getNodeTitle(const REDasm::Graphing::Node *n) const { Q_UNUSED(n) return QString(); }
-
-QColor GraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to) const
-{
-    Q_UNUSED(from)
-    Q_UNUSED(to)
-
-    return QColor(Qt::black);
-}
-
-void GraphView::zoomOn(int line)
-{
-    /*
-    this->page()->runJavaScript(QString("GraphView.zoomOn(%1);").arg(line));
-    */
-}
-
-void GraphView::appendCSS(const QString &css)
-{
-    this->page()->runJavaScript(QString("GraphView.appendCss('%1');").arg(css));
-}
+QColor GraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to) const { Q_UNUSED(from) Q_UNUSED(to) return QColor(Qt::black); }
+void GraphView::zoomOn(int line) { /* this->page()->runJavaScript(QString("GraphView.zoomOn(%1);").arg(line)); */ }
+void GraphView::appendCSS(const QString &css) { this->page()->runJavaScript(QString("GraphView.appendCss('%1');").arg(css)); }
 
 void GraphView::initializePage()
 {
@@ -113,4 +100,10 @@ void GraphView::generateEdges(const REDasm::Graphing::Graph &graph)
             );
         }
     }
+}
+
+void GraphView::configureActions()
+{
+    this->setContextMenuPolicy(Qt::ActionsContextMenu);
+    this->addAction(this->pageAction(QWebEnginePage::Copy));
 }

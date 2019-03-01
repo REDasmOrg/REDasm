@@ -54,6 +54,7 @@ class MainWindow : public QMainWindow
         void showDisassemblerView(REDasm::Disassembler *disassembler);
         void initDisassembler(REDasm::AbstractBuffer *buffer);
         void setViewWidgetsVisible(bool b);
+        void configureWebEngine();
         void closeFile();
         bool canClose();
 

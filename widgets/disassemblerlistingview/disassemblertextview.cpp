@@ -150,23 +150,13 @@ void DisassemblerTextView::addComment()
 
 void DisassemblerTextView::printFunctionHexDump()
 {
-    REDasm::ListingDocument& document = m_disassembler->document();
-    REDasm::ListingItem* item = document->currentItem();
+    const REDasm::Symbol* symbol = nullptr;
+    std::string s = m_disassembler->getHexDump(m_disassembler->document()->currentItem()->address, &symbol);
 
-    if(!item)
+    if(s.empty())
         return;
 
-    const REDasm::Symbol* symbol = document->functionStartSymbol(item->address);
-
-    if(!symbol)
-        return;
-
-    REDasm::BufferView br = m_disassembler->getFunctionBytes(symbol->address);
-
-    if(br.eob())
-        return;
-
-    REDasm::log(symbol->name + ":" + REDasm::quoted(REDasm::hexstring(br, br.size())));
+    REDasm::log(symbol->name + ":" + REDasm::quoted(s));
 }
 
 void DisassemblerTextView::goBack() { m_disassembler->document()->cursor()->goBack();  }
@@ -653,12 +643,12 @@ void DisassemblerTextView::createContextMenu()
 void DisassemblerTextView::adjustContextMenu()
 {
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
-    const REDasm::Symbol* symbol = this->symbolUnderCursor();
     REDasm::ListingItem* item = lock->currentItem();
 
     if(!item)
         return;
 
+    const REDasm::Symbol* symbol = this->symbolUnderCursor();
     REDasm::Segment *itemsegment = lock->segment(item->address), *symbolsegment = NULL;
     m_actback->setVisible(this->canGoBack());
     m_actforward->setVisible(this->canGoForward());

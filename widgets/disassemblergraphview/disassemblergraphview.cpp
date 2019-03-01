@@ -1,8 +1,11 @@
 #include "disassemblergraphview.h"
 #include "../../renderer/listinggraphrenderer.h"
+#include "../../models/disassemblermodel.h"
 #include "../../themeprovider.h"
 #include <redasm/disassembler/graph/functiongraph.h>
 #include <QTextDocument>
+#include <QKeySequence>
+#include <QAction>
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_disassembler(NULL), m_currentfunction(NULL)
 {
@@ -10,6 +13,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent)
 
     this->page()->setWebChannel(m_webchannel);
     this->page()->setBackgroundColor(THEME_VALUE("graph_bg"));
+
 }
 
 void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
@@ -21,8 +25,15 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
     m_graphwebchannel = new DisassemblerWebChannel(disassembler, this);
     m_webchannel->registerObject("graphchannel", m_graphwebchannel);
 
+    connect(m_contextmenu, &QMenu::aboutToShow, this, &DisassemblerGraphView::adjustActions);
+
     connect(m_graphwebchannel, &DisassemblerWebChannel::referencesRequested, this, &DisassemblerGraphView::referencesRequested);
     connect(m_graphwebchannel, &DisassemblerWebChannel::switchView, this, &DisassemblerGraphView::switchView);
+
+    connect(m_graphwebchannel, &DisassemblerWebChannel::redrawGraph, this, [&]() {
+        m_currentfunction = nullptr;
+        this->graph();
+    });
 }
 
 void DisassemblerGraphView::goTo(address_t address)
@@ -117,6 +128,23 @@ void DisassemblerGraphView::initializePage()
                                                               .arg(THEME_VALUE_COLOR("seek")));
 }
 
+void DisassemblerGraphView::configureActions()
+{
+    m_actrename = m_contextmenu->addAction("Rename", m_graphwebchannel, &DisassemblerWebChannel::renameUnderCursor, QKeySequence(Qt::Key_N));
+    m_contextmenu->addSeparator();
+    m_actxrefs = m_contextmenu->addAction("Cross References", m_graphwebchannel, &DisassemblerWebChannel::showReferencesUnderCursor, QKeySequence(Qt::Key_X));
+    m_actfollow = m_contextmenu->addAction("Follow", m_graphwebchannel, &DisassemblerWebChannel::followUnderCursor);
+    m_actcallgraph = m_contextmenu->addAction("Call Graph", this, &DisassemblerGraphView::showCallGraph);
+    m_contextmenu->addSeparator();
+    m_acthexdump = m_contextmenu->addAction("Hex Dump Function", this, &DisassemblerGraphView::printFunctionHexDump);
+    m_contextmenu->addSeparator();
+    m_actback = m_contextmenu->addAction("Back", this, &DisassemblerGraphView::goBack, QKeySequence(Qt::CTRL + Qt::Key_Left));
+    m_actforward = m_contextmenu->addAction("Forward", this, &DisassemblerGraphView::goForward, QKeySequence(Qt::CTRL + Qt::Key_Right));
+    m_contextmenu->addSeparator();
+
+    GraphView::configureActions();
+}
+
 void DisassemblerGraphView::updateGraph()
 {
     if(!m_disassembler || m_disassembler->busy() || !this->isVisible())
@@ -127,3 +155,72 @@ void DisassemblerGraphView::updateGraph()
     else
         this->graph();
 }
+
+void DisassemblerGraphView::adjustActions()
+{
+    REDasm::ListingDocument& document = m_disassembler->document();
+    REDasm::ListingItem* item = document->currentItem();
+
+    if(!item)
+        return;
+
+    const REDasm::Symbol* symbol = document->symbol(document->cursor()->wordUnderCursor());
+
+    if(!symbol)
+    {
+        const REDasm::Segment* symbolsegment = document->segment(item->address);
+
+        m_actfollow->setVisible(false);
+        m_actxrefs->setVisible(false);
+        m_actrename->setVisible(false);
+
+        symbol = document->functionStartSymbol(document->currentItem()->address);
+
+        if(symbol)
+            m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
+
+        m_actcallgraph->setVisible(symbol && symbolsegment && symbolsegment->is(REDasm::SegmentTypes::Code));
+        m_acthexdump->setVisible((symbol != nullptr));
+        return;
+    }
+
+    m_actfollow->setText(QString("Follow %1").arg(S_TO_QS(symbol->name)));
+    m_actfollow->setVisible(symbol->is(REDasm::SymbolTypes::Code));
+
+    m_actxrefs->setText(QString("Cross Reference %1").arg(S_TO_QS(symbol->name)));
+    m_actxrefs->setVisible(true);
+
+    m_actrename->setText(QString("Rename %1").arg(S_TO_QS(symbol->name)));
+    m_actrename->setVisible(!symbol->isLocked());
+
+    m_actcallgraph->setVisible(symbol->isFunction());
+    m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
+}
+
+void DisassemblerGraphView::showCallGraph()
+{
+    REDasm::ListingDocument& document = m_disassembler->document();
+    const REDasm::Symbol* symbol = document->symbol(document->cursor()->wordUnderCursor());
+
+    if(!symbol)
+    {
+        REDasm::ListingItem* item = document->currentItem();
+        symbol = document->functionStartSymbol(item->address);
+    }
+
+    emit callGraphRequested(symbol->address);
+}
+
+void DisassemblerGraphView::printFunctionHexDump()
+{
+    const REDasm::Symbol* symbol = nullptr;
+    std::string s = m_disassembler->getHexDump(m_disassembler->document()->currentItem()->address, &symbol);
+
+    if(s.empty())
+        return;
+
+    REDasm::log(symbol->name + ":" + REDasm::quoted(s));
+}
+
+void DisassemblerGraphView::goBack() { m_disassembler->document()->cursor()->goBack(); }
+void DisassemblerGraphView::goForward() { m_disassembler->document()->cursor()->goForward(); }

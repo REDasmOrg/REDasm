@@ -22,6 +22,8 @@ var GraphView = {
                 channelobjects.graphchannel.switchToListing();
             else if(e.key === 'x')
                 channelobjects.graphchannel.showReferencesUnderCursor();
+            else if(e.key === 'n')
+                channelobjects.graphchannel.renameUnderCursor();
         });
 
         document.addEventListener('dblclick', function(e) {

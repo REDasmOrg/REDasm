@@ -11,8 +11,14 @@ GraphView::GraphView(QWidget *parent): QWebEngineView(parent)
 {
     connect(this, &GraphView::loadFinished, this, &GraphView::initializePage);
 
-    this->configureActions();
+    m_contextmenu = new QMenu(this);
+
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->load(QUrl("qrc:/web/graph.html"));
+
+    connect(this, &GraphView::customContextMenuRequested, this, [&](const QPoint&) {
+        m_contextmenu->exec(QCursor::pos());
+    });
 }
 
 void GraphView::setGraph(const REDasm::Graphing::Graph &graph)
@@ -36,6 +42,8 @@ void GraphView::initializePage()
     QFont font = settings.currentFont();
     QPalette palette = qApp->palette();
 
+    m_contextmenu->clear();
+    this->configureActions();
     this->page()->runJavaScript("GraphView.initPage();");
 
     QString generalcss = "html {"
@@ -108,6 +116,5 @@ void GraphView::generateEdges(const REDasm::Graphing::Graph &graph)
 
 void GraphView::configureActions()
 {
-    this->setContextMenuPolicy(Qt::ActionsContextMenu);
-    this->addAction(this->pageAction(QWebEnginePage::Copy));
+    m_contextmenu->addAction(this->pageAction(QWebEnginePage::Copy));
 }

@@ -55,9 +55,9 @@ void DisassemblerViewDocks::initializeCallGraph(address_t address)
     if(m_disassembler->busy())
         return;
 
+    m_tabsmodel->setCurrentWidget(m_callgraphview->parentWidget());
     m_callgraphmodel->initializeGraph(address);
     m_callgraphview->expandToDepth(0);
-    m_tabsmodel->setCurrentWidget(m_callgraphview);
 }
 
 void DisassemblerViewDocks::updateCallGraph()

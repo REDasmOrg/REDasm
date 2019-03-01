@@ -79,9 +79,11 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     connect(m_listingview->textView(), &DisassemblerTextView::switchView, this, &DisassemblerView::switchGraphListing);
     connect(m_listingview->textView(), &DisassemblerTextView::switchToHexDump, this, &DisassemblerView::switchToHexDump);
     connect(m_listingview->textView(), &DisassemblerTextView::addressChanged, m_docks, &DisassemblerViewDocks::updateCallGraph);
+    connect(m_listingview->textView(), &DisassemblerTextView::callGraphRequested, m_docks, &DisassemblerViewDocks::initializeCallGraph);
 
     connect(m_graphview, &DisassemblerGraphView::referencesRequested, this, &DisassemblerView::showReferences);
     connect(m_graphview, &DisassemblerGraphView::switchView, this, &DisassemblerView::switchGraphListing);
+    connect(m_graphview, &DisassemblerGraphView::callGraphRequested, m_docks, &DisassemblerViewDocks::initializeCallGraph);
 
     connect(m_actions, &DisassemblerViewActions::backRequested, this, &DisassemblerView::goBack);
     connect(m_actions, &DisassemblerViewActions::forwardRequested, this, &DisassemblerView::goForward);

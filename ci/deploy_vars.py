@@ -21,6 +21,7 @@ BUILD_ARCHIVE     = BUILD_ID + ".zip"
 BUILD_REPO        = "REDasm-Builds"
 DATABASE_REPO_URL = "https://github.com/REDasmOrg/REDasm-Database.git"
 
+
 if os.getenv("GITHUB_TOKEN") == None:
     print("WARNING: Invalid GH-Token")
     BUILD_REPO_URL = "https://github.com/REDasmOrg/" + BUILD_REPO + ".git"

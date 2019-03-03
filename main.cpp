@@ -20,9 +20,9 @@ int main(int argc, char *argv[])
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
     QApplication a(argc, argv);
-    a.setOrganizationName("redasmorg");
+    a.setOrganizationName("redasm.io");
     a.setApplicationName("redasm");
-    a.setApplicationDisplayName("REDasm 2.0-" + QString::fromUtf8(REDASM_VERSION) + " RC3");
+    a.setApplicationDisplayName("REDasm 2.0-" + QString::fromUtf8(REDASM_VERSION));
 
     QtWebEngine::initialize();
 

@@ -14,9 +14,9 @@ def do_deploy(filename):
 
 os.chdir("..")
 
-if OS_NAME == "Linux":
- appimagename = str("REDasm_" + ARCH  + "_" + BUILD_DATE + ".AppImage")
- shutil.move("REDasm--" + ARCH + ".AppImage", appimagename)
- do_deploy(appimagename)
+# if OS_NAME == "Linux":
+#  appimagename = "REDasm_" + ARCH  + "_" + BUILD_DATE + ".AppImage"
+#  shutil.move("REDasm--" + ARCH + ".AppImage", appimagename)
+#  do_deploy(appimagename)
 
 do_deploy(BUILD_ARCHIVE)

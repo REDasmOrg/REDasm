@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 from deploy_vars import *
 
 def do_deploy(filename):
- fp = NamedTemporaryFile()
+ fp = NamedTemporaryFile(mode="rw")
  fp.write(os.getenv("DEPLOY_TOKEN"))
  subprocess.run(["sftp", filename, "-i", [fp.name], os.getenv("DEPLOY_DESTINATION")])
  fp.close();

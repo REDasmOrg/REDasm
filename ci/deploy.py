@@ -1,12 +1,13 @@
 import subprocess
 import shutil
+import base64
 import os
 from tempfile import NamedTemporaryFile
 from deploy_vars import *
 
 def do_deploy(filename):
  fp = NamedTemporaryFile(mode="w", delete=False)
- fp.write(os.getenv("DEPLOY_TOKEN"))
+ fp.write(base64.b64decode(os.getenv("DEPLOY_TOKEN")))
  fp.close();
  subprocess.run(["scp", "-oStrictHostKeyChecking=no", "-i", [fp.name], filename, os.getenv("DEPLOY_DESTINATION")])
  os.remove(fp.name)

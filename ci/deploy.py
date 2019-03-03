@@ -8,7 +8,7 @@ def do_deploy(filename):
  fp = NamedTemporaryFile(mode="w", delete=False)
  fp.write(os.getenv("DEPLOY_TOKEN"))
  fp.close();
- subprocess.run(["scp", "-i", [fp.name], filename, os.getenv("DEPLOY_DESTINATION")], shell=True)
+ subprocess.run(["scp", "-i", [fp.name], filename, os.getenv("DEPLOY_DESTINATION")], stdout=subprocess.PIPE, universal_newlines=True)
  os.remove(fp.name)
 
 os.chdir("..")

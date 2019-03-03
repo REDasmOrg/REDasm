@@ -7,7 +7,7 @@ from deploy_vars import *
 def do_deploy(filename):
  fp = NamedTemporaryFile()
  fp.write(os.getenv("DEPLOY_TOKEN"))
- subprocess.run(["sftp", filename, "-i", [fp.name], os.getenv("DEPLOY_DESTINATION"))
+ subprocess.run(["sftp", filename, "-i", [fp.name], os.getenv("DEPLOY_DESTINATION")])
  fp.close();
 
 os.chdir("..")

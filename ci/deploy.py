@@ -9,7 +9,7 @@ def do_deploy(filename):
  fp = NamedTemporaryFile(delete=False)
  fp.write(base64.b64decode(os.getenv("DEPLOY_TOKEN")))
  fp.close();
- subprocess.run(["scp", "-oStrictHostKeyChecking=no", "-i", [fp.name], filename, os.getenv("DEPLOY_DESTINATION") + "/" + filename], shell=True)
+ subprocess.run(["scp", "-oStrictHostKeyChecking=no", "-i", fp.name, filename, os.getenv("DEPLOY_DESTINATION") + "/" + filename])
  os.remove(fp.name)
 
 os.chdir("..")

@@ -9,6 +9,8 @@ ARCH              = platform.machine()
 
 if OS_NAME.startswith("linux"):
     OS_NAME = "Linux"
+elif OS_NAME.startswith("darwin"):
+    OS_NAME = "Darwin"
 elif (OS_NAME == "win32") or (OS_NAME == "cygwin"):
     OS_NAME = "Windows"
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
- 
+
 project(REDasm)
 
 set(QT_VERSION_REQ "5.9")
@@ -128,6 +128,8 @@ target_link_libraries(${PROJECT_NAME}
 
 if(WIN32)
     set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.dll)
+elseif(APPLE)
+    set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.dylib)
 else()
     set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.so)
 endif()

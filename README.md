@@ -108,6 +108,7 @@ See [COMPILE.md](COMPILE.md) (for Windows and Linux).
 - [Dagre](https://github.com/dagrejs/dagre): Used for Graph Layout
 - [Dagre-D3](https://github.com/dagrejs/dagre-d3): Graph Layout Rendering with D3
 - [UndName](https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c): MSVC Demangler
+- [Libiberty](https://github.com/bminor/binutils-gdb/tree/master/libiberty): Binutils Demangler
 - [Visit-Struct](https://github.com/cbeck88/visit_struct): C++ Reflection
 
 ## License

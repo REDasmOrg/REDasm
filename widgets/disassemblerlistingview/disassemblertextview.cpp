@@ -653,6 +653,7 @@ void DisassemblerTextView::adjustContextMenu()
     m_actback->setVisible(this->canGoBack());
     m_actforward->setVisible(this->canGoForward());
     m_actcopy->setVisible(lock->cursor()->hasSelection());
+    m_actgoto->setVisible(!m_disassembler->busy());
 
     if(!symbol)
     {
@@ -679,18 +680,18 @@ void DisassemblerTextView::adjustContextMenu()
     m_actfollowpointer->setText(QString("Follow %1 pointer in Hex Dump").arg(S_TO_QS(symbol->name)));
 
     m_actxrefs->setText(QString("Cross Reference %1").arg(S_TO_QS(symbol->name)));
-    m_actxrefs->setVisible(true);
+    m_actxrefs->setVisible(!m_disassembler->busy());
 
     m_actrename->setText(QString("Rename %1").arg(S_TO_QS(symbol->name)));
-    m_actrename->setVisible(!symbol->isLocked());
+    m_actrename->setVisible(!m_disassembler->busy() && !symbol->isLocked());
 
-    m_actcallgraph->setVisible(symbol->isFunction());
+    m_actcallgraph->setVisible(!m_disassembler->busy() && symbol->isFunction());
     m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
 
     m_actfollow->setText(QString("Follow %1").arg(S_TO_QS(symbol->name)));
     m_actfollow->setVisible(symbol->is(REDasm::SymbolTypes::Code));
 
-    m_actcomment->setVisible(item->is(REDasm::ListingItem::InstructionItem));
+    m_actcomment->setVisible(!m_disassembler->busy() && item->is(REDasm::ListingItem::InstructionItem));
 
     m_acthexdumpshow->setVisible(symbolsegment && !symbolsegment->is(REDasm::SegmentTypes::Bss));
     m_acthexdumpfunc->setVisible(itemsegment && !itemsegment->is(REDasm::SegmentTypes::Bss) && itemsegment->is(REDasm::SegmentTypes::Code));

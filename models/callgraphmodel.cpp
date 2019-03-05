@@ -168,19 +168,20 @@ QVariant CallGraphModel::headerData(int section, Qt::Orientation orientation, in
 
 QVariant CallGraphModel::data(const QModelIndex &index, int role) const
 {
-    if(!m_disassembler || !m_root)
+    if(!m_disassembler || m_disassembler->busy() || !m_root)
         return QVariant();
 
+    auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
     const REDasm::Symbol* symbol = nullptr;
 
     if(item->is(REDasm::ListingItem::InstructionItem))
     {
-        REDasm::InstructionPtr instruction = m_disassembler->document()->instruction(item->address);
-        symbol = m_disassembler->document()->symbol(instruction->target());
+        REDasm::InstructionPtr instruction = lock->instruction(item->address);
+        symbol = lock->symbol(instruction->target());
     }
     else
-        symbol = m_disassembler->document()->symbol(item->address);
+        symbol = lock->symbol(item->address);
 
     if(role == Qt::DisplayRole)
     {
@@ -191,7 +192,7 @@ QVariant CallGraphModel::data(const QModelIndex &index, int role) const
             if(item->is(REDasm::ListingItem::FunctionItem))
                 return QString::fromStdString(symbol->name);
 
-            return QString::fromStdString(m_printer->out(m_disassembler->document()->instruction(item->address)));
+            return QString::fromStdString(m_printer->out(lock->instruction(item->address)));
         }
         else if(index.column() == 2)
             return item == m_root ? "---" : QString::number(m_disassembler->getReferencesCount(item->address));
@@ -215,7 +216,7 @@ int CallGraphModel::columnCount(const QModelIndex &parent) const { Q_UNUSED(pare
 
 int CallGraphModel::rowCount(const QModelIndex &parent) const
 {
-    if(!m_disassembler || !m_root || m_children.empty())
+    if(!m_disassembler || m_disassembler->busy() || !m_root || m_children.empty())
         return 0;
 
     REDasm::ListingItem* parentitem = reinterpret_cast<REDasm::ListingItem*>(parent.internalPointer());

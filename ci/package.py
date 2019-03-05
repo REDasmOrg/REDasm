@@ -10,10 +10,10 @@ os.mkdir("../deploy")
 if OS_NAME == "Windows":
     shutil.copy("LibREDasm.dll", "../deploy")
     shutil.copy("REDasm.exe", "../deploy")
-else if OS_NAME == "Linux":
+elif OS_NAME == "Linux":
     shutil.copy("LibREDasm.so", "../deploy")
     shutil.copy("REDasm", "../deploy")
-else if OS_NAME == "Darwin":
+elif OS_NAME == "Darwin":
     shutil.copy("LibREDasm.dylib", "../deploy")
     shutil.copy("REDasm", "../deploy")
 

@@ -499,11 +499,10 @@ void DisassemblerView::syncHexEdit()
 
 void DisassemblerView::checkSyncGraph()
 {
-    if(ui->stackedWidget->currentWidget() != m_graphview)
-        return;
+    if(ui->stackedWidget->currentWidget() == m_graphview)
+        m_graphview->graph();
 
-    if(m_graphview->graph())
-        this->showListingOrGraph();
+    this->showListingOrGraph();
 }
 
 void DisassemblerView::createActions()

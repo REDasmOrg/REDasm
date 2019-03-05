@@ -173,15 +173,15 @@ QVariant CallGraphModel::data(const QModelIndex &index, int role) const
 
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
-    const REDasm::Symbol* symbol = nullptr;
+    const REDasm::Symbol* symbol = lock->symbol(item->address);
 
     if(item->is(REDasm::ListingItem::InstructionItem))
     {
         REDasm::InstructionPtr instruction = lock->instruction(item->address);
-        symbol = lock->symbol(instruction->target());
+
+        if(instruction->hasTargets())
+            symbol = lock->symbol(instruction->target());
     }
-    else
-        symbol = lock->symbol(item->address);
 
     if(role == Qt::DisplayRole)
     {

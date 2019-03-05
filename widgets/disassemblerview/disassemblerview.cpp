@@ -243,7 +243,7 @@ void DisassemblerView::showModelReferences()
 
     const REDasm::Symbol* symbol = nullptr;
 
-    if(m_currentindex.model() == m_callgraphmodel)
+    if(m_currentindex.model() == m_docks->callGraphModel())
     {
         REDasm::InstructionPtr instruction = m_disassembler->document()->instruction(item->address);
         symbol = m_disassembler->document()->symbol(instruction->target());

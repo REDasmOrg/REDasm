@@ -72,7 +72,6 @@ class DisassemblerView : public QWidget
         QMenu* m_contextmenu;
         QLineEdit* m_lefilter;
         ListingFilterModel *m_segmentsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
-        CallGraphModel* m_callgraphmodel;
         QAction* m_actsetfilter;
         QActionGroup* m_viewactions;
 };

@@ -31,9 +31,6 @@ class ListingTextRenderer: public REDasm::ListingRenderer
         virtual void renderLine(const REDasm::RendererLine& rl);
 
     private:
-        std::string findWordUnderCursor(const std::string &s, const REDasm::ListingCursor::Position& cp, int *pos = NULL);
-
-    private:
         QFont m_font;
         QFontMetrics m_fontmetrics;
         QTextOption m_textoption;

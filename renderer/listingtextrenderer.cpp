@@ -10,7 +10,7 @@
 
 ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_font(font), m_fontmetrics(font), m_firstline(0), m_cursoractive(false)
 {
-    m_rgxwords.setPattern(ListingRendererCommon::wordsPattern());
+    m_rgxwords.setPattern(REDASM_WORD_REGEX);
     m_textoption.setWrapMode(QTextOption::NoWrap);
 }
 
@@ -49,11 +49,7 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
 std::string ListingTextRenderer::getWordUnderCursor(const QPointF &pos, int firstline, int *p)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos, firstline);
-
-    REDasm::RendererLine rl;
-    this->getRendererLine(cp.first, rl);
-
-    return this->findWordUnderCursor(rl.text, cp, p);
+    return this->wordFromPosition(cp);
 }
 
 ListingTextRenderer::Range ListingTextRenderer::wordHitTest(const QPointF &pos, int firstline)
@@ -64,14 +60,7 @@ ListingTextRenderer::Range ListingTextRenderer::wordHitTest(const QPointF &pos, 
     return std::make_pair(p, static_cast<int>(p + word.length() - 1));
 }
 
-void ListingTextRenderer::highlightWordUnderCursor()
-{
-    REDasm::RendererLine rl;
-
-    this->getRendererLine(m_cursor->currentLine(), rl);
-    m_cursor->setWordUnderCursor(this->findWordUnderCursor(rl.text, m_cursor->currentPosition()));
-}
-
+void ListingTextRenderer::highlightWordUnderCursor() { m_cursor->setWordUnderCursor(this->wordFromPosition(m_cursor->currentPosition())); }
 bool ListingTextRenderer::cursorActive() const { return m_cursoractive; }
 void ListingTextRenderer::toggleCursor() { m_cursoractive = !m_cursoractive; }
 void ListingTextRenderer::enableCursor() { m_cursoractive = true; }
@@ -98,24 +87,4 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
         textdocument.setTextWidth(rvp.width());
         textdocument.drawContents(painter);
     painter->restore();
-}
-
-std::string ListingTextRenderer::findWordUnderCursor(const std::string &s, const REDasm::ListingCursor::Position &cp, int* pos)
-{
-    QRegularExpressionMatchIterator it = m_rgxwords.globalMatch(QString::fromStdString(s));
-
-    while(it.hasNext())
-    {
-        QRegularExpressionMatch match = it.next();
-
-        if((cp.second < static_cast<u64>(match.capturedStart())) || (cp.second > static_cast<u64>(match.capturedEnd())))
-            continue;
-
-        if(pos)
-            *pos = match.capturedStart();
-
-        return match.captured().toStdString();
-    }
-
-    return std::string();
 }

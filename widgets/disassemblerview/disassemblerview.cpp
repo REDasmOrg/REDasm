@@ -436,7 +436,12 @@ void DisassemblerView::selectToHexDump(address_t address, u64 len)
     cursor->selectOffset(offset, len);
 }
 
-void DisassemblerView::showMenu(const QPoint&) { m_contextmenu->exec(QCursor::pos()); }
+void DisassemblerView::showMenu(const QPoint&) {
+    if(m_disassembler->busy())
+        return;
+
+    m_contextmenu->exec(QCursor::pos());
+}
 
 void DisassemblerView::showGoto()
 {

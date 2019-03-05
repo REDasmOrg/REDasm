@@ -24,7 +24,7 @@ void DisassemblerColumnView::renderArrows(int start, int count)
 
     for(int i = 0; i < count; i++, start++)
     {
-        if(start >= static_cast<int>(m_document->size()))
+        if(start >= static_cast<int>(m_document->length()))
             break;
 
         REDasm::ListingItem* item = m_document->itemAt(start);

@@ -43,7 +43,7 @@ bool DisassemblerPopupWidget::renderPopup(const std::string &word, int line)
 
 void DisassemblerPopupWidget::moreRows()
 {
-    if(m_index + m_rows > static_cast<int>(m_document->size()))
+    if(m_index + m_rows > static_cast<int>(m_document->length()))
         return;
 
     m_rows++;

@@ -71,7 +71,7 @@ u64 DisassemblerTextView::visibleLines() const
     QFontMetrics fm = this->fontMetrics();
     u64 vl = std::ceil(this->height() / fm.height());
 
-    if((vl <= 1) && (m_disassembler->document()->size() >= DOCUMENT_IDEAL_SIZE))
+    if((vl <= 1) && (m_disassembler->document()->length() >= DOCUMENT_IDEAL_SIZE))
         return DOCUMENT_IDEAL_SIZE;
 
     return vl;
@@ -574,10 +574,10 @@ void DisassemblerTextView::adjustScrollBars()
     QScrollBar* vscrollbar = this->verticalScrollBar();
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
 
-    if(lock->size() <= static_cast<size_t>(this->visibleLines()))
-        vscrollbar->setMaximum(static_cast<int>(lock->size()));
+    if(lock->length() <= this->visibleLines())
+        vscrollbar->setMaximum(static_cast<int>(lock->length()));
     else
-        vscrollbar->setMaximum(static_cast<int>(lock->size() - this->visibleLines() + 1));
+        vscrollbar->setMaximum(static_cast<int>(lock->length() - this->visibleLines() + 1));
 
     this->ensureColumnVisible();
 }

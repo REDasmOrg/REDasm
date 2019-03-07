@@ -115,7 +115,7 @@ QString DisassemblerGraphView::getNodeContent(const REDasm::Graphing::Node *n) c
 QColor DisassemblerGraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to) const
 {
     const REDasm::Graphing::FunctionBlock* fb = static_cast<const REDasm::Graphing::FunctionBlock*>(from);
-    return QColor(QString::fromStdString(fb->color(static_cast<const REDasm::Graphing::FunctionBlock*>(to))));
+    return THEME_VALUE(QString::fromStdString(fb->style(static_cast<const REDasm::Graphing::FunctionBlock*>(to))));
 }
 
 void DisassemblerGraphView::initializePage()

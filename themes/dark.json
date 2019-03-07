@@ -43,6 +43,11 @@
     "instruction_jmp_c": "#e67e22",
 
     "graph_bg": "#262626",
+    "graph_edge": "#3498db",
+    "graph_edge_true": "#2ecc71",
+    "graph_edge_false": "#e74c3c",
+    "graph_edge_loop": "#1abc9c",
+    "graph_edge_loop_c": "#f47cc3",
 
     "address_list_fg": "#ef717a",
     "segment_name_fg": "#2dcb71",

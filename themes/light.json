@@ -29,6 +29,11 @@
     "instruction_jmp_c": "#d95459",
 
     "graph_bg": "azure",
+    "graph_edge": "#297fb9",
+    "graph_edge_true": "#27ae60",
+    "graph_edge_false": "#c0392b",
+    "graph_edge_loop": "#2d5036",
+    "graph_edge_loop_c": "#8e44ad",
 
     "address_list_fg": "darkblue",
     "segment_name_fg": "darkgreen",

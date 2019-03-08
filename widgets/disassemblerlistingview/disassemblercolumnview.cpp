@@ -98,7 +98,7 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
         points.push_back(QLine(x, y1, x, y2));
         points.push_back(QLine(x, y2, this->width(), y2));
 
-        int penwidth = this->isPathSelected(path) ? 2 : 1;
+        int penwidth = this->isPathSelected(path) ? 3 : 2;
         Qt::PenStyle penstyle = ((path.startidx < m_first) || (path.endidx > m_last)) ? Qt::DotLine : Qt::SolidLine;
 
         painter.setPen(QPen(path.color, penwidth, penstyle));

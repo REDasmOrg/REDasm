@@ -32,7 +32,7 @@ class DisassemblerColumnView : public QWidget
         REDasm::DisassemblerAPI* m_disassembler;
         QList<ArrowPath> m_paths;
         QSet< QPair<u64, u64> > m_done;
-        s64 m_first, m_last;
+        u64 m_first, m_last;
 };
 
 #endif // DISASSEMBLERCOLUMNVIEW_H

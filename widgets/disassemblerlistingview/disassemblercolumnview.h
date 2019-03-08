@@ -13,12 +13,12 @@ class DisassemblerColumnView : public QWidget
     Q_OBJECT
 
     private:
-        typedef QPair<int, int> ArrowPath;
+        struct ArrowPath{ u64 startidx, endidx; QColor color; };
 
     public:
         explicit DisassemblerColumnView(QWidget *parent = nullptr);
         void setDisassembler(REDasm::DisassemblerAPI* disassembler);
-        void renderArrows(int start, int count);
+        void renderArrows(u64 start, u64 count);
 
     protected:
         virtual void paintEvent(QPaintEvent*);
@@ -26,15 +26,13 @@ class DisassemblerColumnView : public QWidget
     private:
         bool isPathSelected(const ArrowPath& path) const;
         void fillArrow(QPainter* painter, int y, const QFontMetrics &fm);
-        bool applyStyle(const REDasm::InstructionPtr& instruction, int idx);
-        bool applyStyle(int idx);
+        void insertPath(REDasm::ListingItem *fromitem, u64 fromidx, u64 toidx);
 
     private:
         REDasm::DisassemblerAPI* m_disassembler;
-        REDasm::ListingDocument m_document;
-        QSet<ArrowPath> m_paths;
-        QHash<int, QColor> m_pathstyle;
-        int m_first, m_last;
+        QList<ArrowPath> m_paths;
+        QSet< QPair<u64, u64> > m_done;
+        s64 m_first, m_last;
 };
 
 #endif // DISASSEMBLERCOLUMNVIEW_H

@@ -255,6 +255,10 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
         cur->moveTo(cp.first, cp.second);
         m_renderer->highlightWordUnderCursor();
     }
+    else if (e->button() == Qt::BackButton)
+        this->goBack();
+    else if (e->button() == Qt::ForwardButton)
+        this->goForward();
 
     QAbstractScrollArea::mousePressEvent(e);
 }

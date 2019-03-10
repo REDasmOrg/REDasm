@@ -17,15 +17,6 @@ var GraphView = {
             graphView.renderGraph();
         });
 
-        document.addEventListener('keydown', function(e) {
-            if(e.code === 'Space')
-                channelobjects.graphchannel.switchToListing();
-            else if(e.key === 'x')
-                channelobjects.graphchannel.showReferencesUnderCursor();
-            else if(e.key === 'n')
-                channelobjects.graphchannel.renameUnderCursor();
-        });
-
         document.addEventListener('dblclick', function(e) {
             if(e.button === 0) { // Left button
                 channelobjects.graphchannel.followUnderCursor();

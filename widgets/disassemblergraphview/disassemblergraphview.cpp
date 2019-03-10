@@ -6,6 +6,7 @@
 #include <QTextDocument>
 #include <QKeySequence>
 #include <QAction>
+#include <QHelpEvent>
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_disassembler(NULL), m_currentfunction(NULL)
 {
@@ -13,7 +14,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent)
 
     this->page()->setWebChannel(m_webchannel);
     this->page()->setBackgroundColor(THEME_VALUE("graph_bg"));
-
+    this->focusProxy()->installEventFilter(this);
 }
 
 void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
@@ -34,6 +35,40 @@ void DisassemblerGraphView::setDisassembler(REDasm::DisassemblerAPI *disassemble
         m_currentfunction = nullptr;
         this->graph();
     });
+}
+
+bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *e)
+{
+    if (e->type() == QEvent::KeyPress)
+    {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(e);
+        this->keyPressEvent(keyEvent);
+    }
+    else if (e->type() == QEvent::MouseButtonPress)
+    {
+        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(e);
+        this->mousePressEvent(mouseEvent);
+    }
+
+    return QWebEngineView::eventFilter(obj, e);
+}
+
+void DisassemblerGraphView::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Space)
+        m_graphwebchannel->switchToListing();
+    else if (e->key() == Qt::Key_X)
+        m_graphwebchannel->showReferencesUnderCursor();
+    else if (e->key() == Qt::Key_N)
+        m_graphwebchannel->renameUnderCursor();
+}
+
+void DisassemblerGraphView::mousePressEvent(QMouseEvent *e)
+{
+    if (e->buttons() == Qt::BackButton)
+        this->goBack();
+    else if (e->buttons() == Qt::ForwardButton)
+        this->goForward();
 }
 
 void DisassemblerGraphView::goTo(address_t address)

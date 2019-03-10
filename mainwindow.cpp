@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "dialogs/formatloaderdialog/formatloaderdialog.h"
 #include "dialogs/manualloaddialog/manualloaddialog.h"
 #include "dialogs/settingsdialog/settingsdialog.h"
 #include "dialogs/aboutdialog/aboutdialog.h"
@@ -364,7 +365,25 @@ void MainWindow::checkCommandLine()
 
 bool MainWindow::checkPlugins(REDasm::AbstractBuffer *buffer, REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
 {
-    *format = REDasm::getFormat(buffer);
+    REDasm::FormatEntryListByExt* formatentries = nullptr;
+    QString ext = m_fileinfo.suffix();
+
+    if(REDasm::getFormatsByExt(ext.toStdString(), &formatentries))
+    {
+        FormatLoaderDialog dlgformatloader(ext, formatentries, this);
+        int res = dlgformatloader.exec();
+
+        if(res == FormatLoaderDialog::Accepted)
+        {
+            if(!dlgformatloader.discarded())
+                *format = dlgformatloader.loadSelectedFormat(buffer);
+        }
+        else if(res == FormatLoaderDialog::Rejected)
+            return false;
+    }
+
+    if(!(*format))
+        *format = REDasm::getFormat(buffer);
 
     if((*format)->isBinary()) // Use manual loader
     {

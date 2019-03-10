@@ -92,13 +92,19 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
         const ArrowPath& path = *it;
         int y1 = ((path.startidx - m_first) * h) + (h / 4);
         int y2 = ((path.endidx - m_first) * h) + ((h * 3) / 4);
+        int y = ((path.endidx - m_first) * h);
+        int penwidth = this->isPathSelected(path) ? 3 : 2;
+
+        if(y2 > (y + (h / 2)))
+            y2 -= penwidth;
+        else if(y2 < (y + (h / 2)))
+            y2 += penwidth;
 
         QVector<QLine> points;
         points.push_back(QLine(this->width(), y1, x, y1));
         points.push_back(QLine(x, y1, x, y2));
         points.push_back(QLine(x, y2, this->width(), y2));
 
-        int penwidth = this->isPathSelected(path) ? 3 : 2;
         Qt::PenStyle penstyle = ((path.startidx < m_first) || (path.endidx > m_last)) ? Qt::DotLine : Qt::SolidLine;
 
         painter.setPen(QPen(path.color, penwidth, penstyle));

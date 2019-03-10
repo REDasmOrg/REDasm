@@ -12,7 +12,7 @@ FormatLoaderDialog::FormatLoaderDialog(const QString &ext, REDasm::FormatEntryLi
 
     ui->lblInfo->setText(QString("REDasm detected valid loaders for the extension '%1', in this case you can:\n"
                                  "- Select 'Discard' to continue the classic loading procedure.\n"
-                                 "- Select a format from the list below").arg(ext));
+                                 "- Select a format from the list below.").arg(ext));
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 

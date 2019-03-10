@@ -1,8 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "dialogs/manualloaddialog.h"
-#include "dialogs/settingsdialog.h"
-#include "dialogs/aboutdialog.h"
+#include "dialogs/manualloaddialog/manualloaddialog.h"
+#include "dialogs/settingsdialog/settingsdialog.h"
+#include "dialogs/aboutdialog/aboutdialog.h"
 #include "redasmsettings.h"
 #include "themeprovider.h"
 #include <redasm/database/database.h>
@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     REDasm::init(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString(),
                  QDir::currentPath().toStdString());
 
-    REDasm::log(QString("REDasm loaded with %1 formats and %2 assemblers").arg(REDasm::Plugins::formats.size())
+    REDasm::log(QString("REDasm loaded with %1 formats and %2 assemblers").arg(REDasm::Plugins::formatsCount)
                                                                           .arg(REDasm::Plugins::assemblers.size()).toStdString());
 
     this->setViewWidgetsVisible(false);

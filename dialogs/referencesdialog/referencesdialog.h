@@ -2,7 +2,7 @@
 #define REFERENCESDIALOG_H
 
 #include <QDialog>
-#include "../models/referencesmodel.h"
+#include "../../models/referencesmodel.h"
 
 namespace Ui {
 class ReferencesDialog;

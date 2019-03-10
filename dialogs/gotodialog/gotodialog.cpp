@@ -1,6 +1,6 @@
 #include "gotodialog.h"
 #include "ui_gotodialog.h"
-#include "../models/gotomodel.h"
+#include "../../models/gotomodel.h"
 
 GotoDialog::GotoDialog(REDasm::DisassemblerAPI *disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_disassembler(disassembler), m_address(0), m_validaddress(false)
 {

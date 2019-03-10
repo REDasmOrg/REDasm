@@ -8,7 +8,7 @@
 #include <redasm/disassembler/disassembler.h>
 #include "../../models/symboltablemodel.h"
 #include "../../models/segmentsmodel.h"
-#include "../../dialogs/gotodialog.h"
+#include "../../dialogs/gotodialog/gotodialog.h"
 #include "../disassemblergraphview/disassemblergraphview.h"
 #include "../disassemblerlistingview/disassemblerlistingview.h"
 #include "disassemblerviewactions.h"

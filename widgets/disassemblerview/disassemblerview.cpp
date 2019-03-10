@@ -1,6 +1,6 @@
 ﻿#include "disassemblerview.h"
 #include "ui_disassemblerview.h"
-#include "../../dialogs/referencesdialog.h"
+#include "../../dialogs/referencesdialog/referencesdialog.h"
 #include "../../themeprovider.h"
 #include <QHexView/document/buffer/qmemoryrefbuffer.h>
 #include <QMessageBox>

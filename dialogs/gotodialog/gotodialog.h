@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <redasm/disassembler/disassemblerapi.h>
-#include "../models/listingfiltermodel.h"
+#include "../../models/listingfiltermodel.h"
 
 namespace Ui {
 class GotoDialog;

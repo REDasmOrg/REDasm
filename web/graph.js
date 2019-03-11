@@ -47,7 +47,7 @@ var GraphView = {
 
     initGraph: function () {
         this.graph = new dagre.graphlib.Graph();
-        this.graph.setDefaultEdgeLabel("test"); //function() { return { }; });
+        this.graph.setDefaultEdgeLabel(function() { return { }; });
         this.graph.setGraph({ ranker: "longest-path",
                               nodesep: 100,
                               ranksep: 75 });

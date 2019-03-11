@@ -18,9 +18,9 @@ class DisassemblerGraphView : public GraphView
 
     protected:
         virtual void configureActions();
-        virtual QString getNodeTitle(const REDasm::Graphing::Node* n) const;
         virtual QString getNodeContent(const REDasm::Graphing::Node* n) const;
         virtual QColor getEdgeColor(const REDasm::Graphing::Node* from, const REDasm::Graphing::Node* to) const;
+        virtual QString getEdgeLabel(const REDasm::Graphing::Node* from, const REDasm::Graphing::Node* to) const;
         virtual bool eventFilter(QObject* obj, QEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);
         virtual void keyPressEvent(QKeyEvent* e);

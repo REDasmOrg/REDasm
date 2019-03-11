@@ -33,6 +33,7 @@ void GraphView::focusOnLine(int line) { this->page()->runJavaScript("GraphView.f
 void GraphView::dragEnterEvent(QDragEnterEvent *e) { e->ignore(); }
 QString GraphView::getNodeTitle(const REDasm::Graphing::Node *n) const { Q_UNUSED(n) return QString(); }
 QColor GraphView::getEdgeColor(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to) const { Q_UNUSED(from) Q_UNUSED(to) return QColor(Qt::black); }
+QString GraphView::getEdgeLabel(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to) const { Q_UNUSED(from) Q_UNUSED(to) return QString(); }
 void GraphView::zoomOn(int line) { /* this->page()->runJavaScript(QString("GraphView.zoomOn(%1);").arg(line)); */ }
 void GraphView::appendCSS(const QString &css) { this->page()->runJavaScript(QString("GraphView.appendCss('%1');").arg(css)); }
 
@@ -106,9 +107,11 @@ void GraphView::generateEdges(const REDasm::Graphing::Graph &graph)
         for(auto& e : edges)
         {
             QColor color = this->getEdgeColor(n.get(), e);
-            this->page()->runJavaScript(QString("GraphView.setEdge(%1, %2, '%3');")
+            QString label = this->getEdgeLabel(n.get(), e);
+            this->page()->runJavaScript(QString("GraphView.setEdge(%1, %2, '%3', '%4');")
                                         .arg(n->id)
                                         .arg(e->id)
+                                        .arg(label)
                                         .arg(color.name()));
         }
     }

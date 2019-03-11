@@ -47,7 +47,7 @@ var GraphView = {
 
     initGraph: function () {
         this.graph = new dagre.graphlib.Graph();
-        this.graph.setDefaultEdgeLabel(function() { return { }; });
+        this.graph.setDefaultEdgeLabel("test"); //function() { return { }; });
         this.graph.setGraph({ ranker: "longest-path",
                               nodesep: 100,
                               ranksep: 75 });
@@ -224,9 +224,12 @@ var GraphView = {
     },
 
     setNode: function (nodeId, title, content) {
-        title = this.htmlDecode(title);
+        if(title.length > 0) {
+            title = this.htmlDecode(title);
+            title = '<div contenteditable="false" class="nodetitle">' + title + '</div>';
+        }
+
         content = this.htmlDecode(content);
-        title = '<div contenteditable="false" class="nodetitle">' + title + '</div>';
 
         this.graph.setNode(nodeId, {
             labelType: 'html',
@@ -234,8 +237,10 @@ var GraphView = {
         });
     },
 
-    setEdge: function (nodeId, edgeId, color) {
+    setEdge: function (nodeId, edgeId, label, color) {
         this.graph.setEdge(nodeId, edgeId, {
+            label: label,
+            labelStyle: 'stroke: ' + color + "; fill: " + color,
             style: 'stroke: ' + color + '; fill: transparent',
             arrowheadStyle: 'stroke: ' + color + '; fill: ' + color
         });

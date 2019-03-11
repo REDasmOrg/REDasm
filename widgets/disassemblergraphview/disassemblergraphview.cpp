@@ -106,37 +106,6 @@ bool DisassemblerGraphView::graph()
     return true;
 }
 
-QString DisassemblerGraphView::getNodeTitle(const REDasm::Graphing::Node *n) const
-{
-    const REDasm::Graphing::FunctionBlock* fb = static_cast<const REDasm::Graphing::FunctionBlock*>(n);
-    REDasm::ListingDocument& document = m_disassembler->document();
-    REDasm::ListingItem* item = document->itemAt(fb->startidx);
-    const REDasm::Symbol* symbol = document->symbol(item->address);
-
-    if(!symbol)
-        return "Condition FALSE";
-
-    if(symbol->isFunction())
-        return QString::fromStdString(symbol->name);
-
-    REDasm::ReferenceVector refs = m_disassembler->getReferences(symbol->address);
-
-    if(refs.size() > 1)
-        return QString("Jump From %1 blocks").arg(refs.size());
-
-    REDasm::InstructionPtr instruction = document->instruction(refs.front());
-
-    if(instruction->is(REDasm::InstructionTypes::Conditional))
-    {
-        if(instruction->target() == item->address)
-            return "Condition TRUE";
-
-        return "Condition FALSE";
-    }
-
-    return "Unconditional";
-}
-
 QString DisassemblerGraphView::getNodeContent(const REDasm::Graphing::Node *n) const
 {
     const REDasm::Graphing::FunctionBlock* fb = static_cast<const REDasm::Graphing::FunctionBlock*>(n);
@@ -151,6 +120,31 @@ QColor DisassemblerGraphView::getEdgeColor(const REDasm::Graphing::Node *from, c
 {
     const REDasm::Graphing::FunctionBlock* fb = static_cast<const REDasm::Graphing::FunctionBlock*>(from);
     return THEME_VALUE(QString::fromStdString(fb->style(static_cast<const REDasm::Graphing::FunctionBlock*>(to))));
+}
+
+QString DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Node *from, const REDasm::Graphing::Node *to) const
+{
+    const REDasm::Graphing::FunctionBlock* fromfb = static_cast<const REDasm::Graphing::FunctionBlock*>(from);
+    const REDasm::Graphing::FunctionBlock* tofb = static_cast<const REDasm::Graphing::FunctionBlock*>(to);
+    REDasm::ListingDocument& document = m_disassembler->document();
+    const REDasm::ListingItem* fromitem = document->itemAt(fromfb->endidx);
+    REDasm::InstructionPtr instruction = document->instruction(fromitem->address);
+    QString label;
+
+    if(instruction && instruction->is(REDasm::InstructionTypes::Conditional))
+    {
+        const REDasm::ListingItem* toitem = document->itemAt(tofb->startidx);
+
+        if(instruction->target() == toitem->address)
+            label = "TRUE";
+        else
+            label = "FALSE";
+    }
+
+    if(tofb->startidx <= fromfb->startidx)
+        label += !label.isEmpty() ? " (LOOP)" : "LOOP";
+
+    return label;
 }
 
 void DisassemblerGraphView::initializePage()

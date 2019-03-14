@@ -13,7 +13,7 @@ class ManualLoadDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit ManualLoadDialog(REDasm::FormatPlugin* format, QWidget *parent = 0);
+        explicit ManualLoadDialog(REDasm::LoaderPlugin* loader, QWidget *parent = 0);
         ~ManualLoadDialog();
 
     private:
@@ -27,7 +27,7 @@ class ManualLoadDialog : public QDialog
 
     private:
         Ui::ManualLoadDialog* ui;
-        REDasm::FormatPlugin* m_format;
+        REDasm::LoaderPlugin* m_loader;
 };
 
 #endif // MANUALLOADDIALOG_H

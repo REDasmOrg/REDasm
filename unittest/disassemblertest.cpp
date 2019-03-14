@@ -104,19 +104,19 @@ string DisassemblerTest::replaceAll(std::string str, const std::string &from, co
 
 void DisassemblerTest::runCurrentTest(const TestCallback &cb)
 {
-    FormatPlugin* format = REDasm::getFormat(m_buffer);
-    TEST("Format", format);
+    LoaderPlugin* loader = REDasm::getLoader(m_buffer);
+    TEST("Loader", loader);
 
-    if(!format)
+    if(!loader)
         return;
 
-    AssemblerPlugin* assembler = REDasm::getAssembler(format->assembler());
+    AssemblerPlugin* assembler = REDasm::getAssembler(loader->assembler());
     TEST("Assembler", assembler);
 
     if(!assembler)
         return;
 
-    m_disassembler = std::make_unique<Disassembler>(assembler, format);
+    m_disassembler = std::make_unique<Disassembler>(assembler, loader);
     m_document = m_disassembler->document();
 
     cout << "->> Disassembler...";

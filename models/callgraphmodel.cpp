@@ -1,5 +1,5 @@
 #include "callgraphmodel.h"
-#include <redasm/plugins/format.h>
+#include <redasm/plugins/loader.h>
 #include "../themeprovider.h"
 #include <QFontDatabase>
 #include <QColor>
@@ -186,7 +186,7 @@ QVariant CallGraphModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return QString::fromStdString(REDasm::hex(item->address, m_disassembler->format()->bits()));
+            return QString::fromStdString(REDasm::hex(item->address, m_disassembler->loader()->bits()));
         else if(index.column() == 1)
         {
             if(item->is(REDasm::ListingItem::FunctionItem))

@@ -1,7 +1,7 @@
 #include "referencesmodel.h"
 #include <redasm/disassembler/types/referencetable.h>
 #include <redasm/disassembler/listing/listingdocument.h>
-#include <redasm/plugins/format.h>
+#include <redasm/plugins/loader.h>
 #include "../themeprovider.h"
 
 ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent) { }
@@ -54,7 +54,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex((*it)->address, m_disassembler->format()->bits()));
+            return S_TO_QS(REDasm::hex((*it)->address, m_disassembler->loader()->bits()));
         else if(index.column() == 1)
             return this->direction((*it)->address);
         else if(index.column() == 2)

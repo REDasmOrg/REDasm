@@ -33,8 +33,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     REDasm::init(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString(),
                  QDir::currentPath().toStdString());
 
-    REDasm::log(QString("REDasm loaded with %1 formats and %2 assemblers").arg(REDasm::Plugins::formatsCount)
-                                                                          .arg(REDasm::Plugins::assemblers.size()).toStdString());
+    REDasm::log(QString("Found %1 loader and %2 assemblers").arg(REDasm::Plugins::loadersCount)
+                                                            .arg(REDasm::Plugins::assemblers.size()).toStdString());
 
     this->setViewWidgetsVisible(false);
     ui->leFilter->setVisible(false);
@@ -363,12 +363,12 @@ void MainWindow::checkCommandLine()
     }
 }
 
-bool MainWindow::checkPlugins(REDasm::AbstractBuffer *buffer, REDasm::FormatPlugin** format, REDasm::AssemblerPlugin** assembler)
+bool MainWindow::checkPlugins(REDasm::AbstractBuffer *buffer, REDasm::LoaderPlugin** loader, REDasm::AssemblerPlugin** assembler)
 {
-    REDasm::FormatEntryListByExt* formatentries = nullptr;
+    REDasm::LoaderEntryListByExt* formatentries = nullptr;
     QString ext = m_fileinfo.suffix();
 
-    if(REDasm::getFormatsByExt(ext.toStdString(), &formatentries))
+    if(REDasm::getLoaderByExt(ext.toStdString(), &formatentries))
     {
         FormatLoaderDialog dlgformatloader(ext, formatentries, this);
         int res = dlgformatloader.exec();
@@ -376,28 +376,28 @@ bool MainWindow::checkPlugins(REDasm::AbstractBuffer *buffer, REDasm::FormatPlug
         if(res == FormatLoaderDialog::Accepted)
         {
             if(!dlgformatloader.discarded())
-                *format = dlgformatloader.loadSelectedFormat(buffer);
+                *loader = dlgformatloader.loadSelectedLoader(buffer);
         }
         else if(res == FormatLoaderDialog::Rejected)
             return false;
     }
 
-    if(!(*format))
-        *format = REDasm::getFormat(buffer);
+    if(!(*loader))
+        *loader = REDasm::getLoader(buffer);
 
-    if((*format)->isBinary()) // Use manual loader
+    if((*loader)->isBinary()) // Use manual loader
     {
-        ManualLoadDialog dlgmanload(*format, this);
+        ManualLoadDialog dlgmanload(*loader, this);
 
         if(dlgmanload.exec() != ManualLoadDialog::Accepted)
             return false;
     }
 
-    *assembler = REDasm::getAssembler((*format)->assembler());
+    *assembler = REDasm::getAssembler((*loader)->assembler());
 
     if(!(*assembler))
     {
-        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString((*format)->assembler())));
+        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString((*loader)->assembler())));
         return false;
     }
 
@@ -475,13 +475,13 @@ void MainWindow::closeFile()
 
 void MainWindow::initDisassembler(REDasm::AbstractBuffer *buffer)
 {
-    REDasm::FormatPlugin* format = NULL;
+    REDasm::LoaderPlugin* loader = NULL;
     REDasm::AssemblerPlugin* assembler = NULL;
 
-    if(!this->checkPlugins(buffer, &format, &assembler))
+    if(!this->checkPlugins(buffer, &loader, &assembler))
         return;
 
-    m_disassembler = new REDasm::Disassembler(assembler, format);
+    m_disassembler = new REDasm::Disassembler(assembler, loader);
 
     EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
         DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());

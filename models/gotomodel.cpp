@@ -1,6 +1,6 @@
 #include "gotomodel.h"
 #include "../themeprovider.h"
-#include <redasm/plugins/format.h>
+#include <redasm/plugins/loader.h>
 
 GotoModel::GotoModel(QObject *parent) : ListingItemModel(REDasm::ListingItem::AllItems, parent) { }
 GotoModel::~GotoModel() { EVENT_DISCONNECT(m_disassembler->document(), changed, this);  }
@@ -11,12 +11,12 @@ QVariant GotoModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     const REDasm::ListingItem* item = reinterpret_cast<const REDasm::ListingItem*>(index.internalPointer());
-    const REDasm::FormatPlugin* format = m_disassembler->format();
+    const REDasm::LoaderPlugin* loader = m_disassembler->loader();
 
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(item->address, format->bits()));
+            return S_TO_QS(REDasm::hex(item->address, loader->bits()));
         if(index.column() == 1)
             return this->itemName(item);
         if(index.column() == 2)

@@ -1,7 +1,7 @@
 #include "listingitemmodel.h"
 #include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/support/demangler.h>
-#include <redasm/plugins/format.h>
+#include <redasm/plugins/loader.h>
 #include "../themeprovider.h"
 #include <QColor>
 
@@ -76,7 +76,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(symbol->address, m_disassembler->format()->bits()));
+            return S_TO_QS(REDasm::hex(symbol->address, m_disassembler->loader()->bits()));
 
         if(index.column() == 1)
         {

@@ -3,16 +3,16 @@
 #include <QPushButton>
 #include <QListView>
 
-FormatLoaderDialog::FormatLoaderDialog(const QString &ext, REDasm::FormatEntryListByExt *formats, QWidget *parent) : QDialog(parent), ui(new Ui::FormatLoaderDialog), m_formats(formats), m_discarded(false)
+FormatLoaderDialog::FormatLoaderDialog(const QString &ext, REDasm::LoaderEntryListByExt *loaders, QWidget *parent) : QDialog(parent), ui(new Ui::FormatLoaderDialog), m_loaders(loaders), m_discarded(false)
 {
     ui->setupUi(this);
 
-    m_formatsmodel = new QStandardItemModel(ui->lvFormats);
-    ui->lvFormats->setModel(m_formatsmodel);
+    m_loadersmodel = new QStandardItemModel(ui->lvFormats);
+    ui->lvFormats->setModel(m_loadersmodel);
 
     ui->lblInfo->setText(QString("REDasm detected valid loaders for the extension '%1', in this case you can:\n"
                                  "- Select 'Discard' to continue the classic loading procedure.\n"
-                                 "- Select a format from the list below.").arg(ext));
+                                 "- Select a loader from the list below.").arg(ext));
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
@@ -34,7 +34,7 @@ FormatLoaderDialog::FormatLoaderDialog(const QString &ext, REDasm::FormatEntryLi
 FormatLoaderDialog::~FormatLoaderDialog() { delete ui; }
 bool FormatLoaderDialog::discarded() const { return m_discarded; }
 
-REDasm::FormatPlugin *FormatLoaderDialog::loadSelectedFormat(REDasm::AbstractBuffer *buffer)
+REDasm::LoaderPlugin *FormatLoaderDialog::loadSelectedLoader(REDasm::AbstractBuffer *buffer)
 {
     QItemSelectionModel* selectionmodel = ui->lvFormats->selectionModel();
 
@@ -43,14 +43,14 @@ REDasm::FormatPlugin *FormatLoaderDialog::loadSelectedFormat(REDasm::AbstractBuf
 
     QModelIndex index = selectionmodel->currentIndex();
 
-    if(!index.isValid() || (index.row() >= m_formats->size()))
+    if(!index.isValid() || (index.row() >= m_loaders->size()))
         return nullptr;
 
-    return m_formats->at(index.row()).first(buffer);
+    return m_loaders->at(index.row()).first(buffer);
 }
 
 void FormatLoaderDialog::loadFormats()
 {
-    for(auto it = m_formats->begin(); it != m_formats->end(); it++)
-        m_formatsmodel->appendRow(new QStandardItem(QString::fromStdString(it->second)));
+    for(auto it = m_loaders->begin(); it != m_loaders->end(); it++)
+        m_loadersmodel->appendRow(new QStandardItem(QString::fromStdString(it->second)));
 }

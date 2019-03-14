@@ -120,7 +120,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 {
     m_disassembler = std::unique_ptr<REDasm::Disassembler>(disassembler); // Take ownership
 
-    REDasm::log(QString("Found format '%1' with '%2' instruction set").arg(S_TO_QS(disassembler->format()->name()),
+    REDasm::log(QString("Found loader '%1' with '%2' instruction set").arg(S_TO_QS(disassembler->loader()->name()),
                                                                            S_TO_QS(disassembler->assembler()->name())).toStdString());
 
     m_docks->setDisassembler(disassembler);
@@ -129,7 +129,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     m_stringsmodel->setDisassembler(disassembler);
     m_segmentsmodel->setDisassembler(disassembler);
 
-    REDasm::AbstractBuffer* buffer = disassembler->format()->buffer();
+    REDasm::AbstractBuffer* buffer = disassembler->loader()->buffer();
     m_hexdocument = QHexDocument::fromMemory<QMemoryRefBuffer>(reinterpret_cast<char*>(buffer->data()), buffer->size(), ui->hexView);
     ui->hexView->setDocument(m_hexdocument);
 
@@ -294,14 +294,14 @@ void DisassemblerView::displayAddress(address_t address)
         return;
 
     REDasm::ListingDocument& document = m_disassembler->document();
-    REDasm::FormatPlugin* format = m_disassembler->format();
+    REDasm::LoaderPlugin* loader = m_disassembler->loader();
     const REDasm::Segment* segment = document->segment(address);
     const REDasm::Symbol* functionstart = document->functionStartSymbol(address);
-    offset_location offset = format->offset(address);
+    offset_location offset = loader->offset(address);
 
     QString segm = segment ? S_TO_QS(segment->name) : "UNKNOWN",
-            offs = segment && offset.valid ? S_TO_QS(REDasm::hex(offset, format->bits())) : "UNKNOWN",
-            addr = S_TO_QS(REDasm::hex(address, format->bits()));
+            offs = segment && offset.valid ? S_TO_QS(REDasm::hex(offset, loader->bits())) : "UNKNOWN",
+            addr = S_TO_QS(REDasm::hex(address, loader->bits()));
 
     QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
@@ -425,7 +425,7 @@ void DisassemblerView::clearFilter()
 
 void DisassemblerView::selectToHexDump(address_t address, u64 len)
 {
-    offset_location offset = m_disassembler->format()->offset(address);
+    offset_location offset = m_disassembler->loader()->offset(address);
 
     if(!offset.valid)
         return;
@@ -457,7 +457,7 @@ void DisassemblerView::showGoto()
     if(m_listingview->textView()->goTo(dlggoto.address()))
         return;
 
-    this->selectToHexDump(dlggoto.address(), m_disassembler->format()->addressWidth());
+    this->selectToHexDump(dlggoto.address(), m_disassembler->loader()->addressWidth());
 }
 
 void DisassemblerView::goForward() { m_disassembler->document()->cursor()->goForward(); }
@@ -473,7 +473,7 @@ void DisassemblerView::syncHexEdit()
 
     if(item)
     {
-        offset = m_disassembler->format()->offset(item->address);
+        offset = m_disassembler->loader()->offset(item->address);
 
         bool canbeinstruction = true;
         const REDasm::Symbol* symbol = nullptr;
@@ -492,7 +492,7 @@ void DisassemblerView::syncHexEdit()
             len = instruction->size;
         }
         else if(symbol)
-            len = m_disassembler->format()->addressWidth();
+            len = m_disassembler->loader()->addressWidth();
     }
 
     if(!offset.valid)

@@ -1,6 +1,6 @@
 #include "listingmap.h"
 #include "../themeprovider.h"
-#include <redasm/plugins/format.h>
+#include <redasm/plugins/loader.h>
 #include <QPainter>
 #include <cmath>
 
@@ -15,7 +15,7 @@ ListingMap::ListingMap(QWidget *parent) : QWidget(parent), m_disassembler(NULL),
 void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
     m_disassembler = disassembler;
-    m_totalsize = disassembler->format()->buffer()->size();
+    m_totalsize = disassembler->loader()->buffer()->size();
 
     auto& document = m_disassembler->document();
 
@@ -149,7 +149,7 @@ void ListingMap::renderSegments(QPainter* painter)
 
 void ListingMap::renderFunctions(QPainter *painter)
 {
-    const auto* format = m_disassembler->format();
+    const auto* loader = m_disassembler->loader();
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
     u64 fsize = (m_orientation == Qt::Horizontal ? this->height() : this->width()) / 2;
     u64 size = 0;
@@ -167,7 +167,7 @@ void ListingMap::renderFunctions(QPainter *painter)
             size = m_functions[i + 1]->address - item->address;
 
         const REDasm::Symbol* symbol = lock->symbol(item->address);
-        offset_location offset = format->offset(symbol->address);
+        offset_location offset = loader->offset(symbol->address);
 
         if(!offset.valid)
             continue;
@@ -193,7 +193,7 @@ void ListingMap::renderSeek(QPainter *painter)
     if(!item)
         return;
 
-    offset_location offset  = m_disassembler->format()->offset(item->address);
+    offset_location offset  = m_disassembler->loader()->offset(item->address);
 
     if(!offset.valid)
         return;

@@ -1,6 +1,6 @@
 #include "disassemblertextview.h"
 #include "../../models/disassemblermodel.h"
-#include <redasm/plugins/format.h>
+#include <redasm/plugins/loader.h>
 #include <QtWidgets>
 #include <QtGui>
 #include <cmath>
@@ -750,7 +750,7 @@ bool DisassemblerTextView::followPointerHexDump()
     if(!m_disassembler->dereference(symbol->address, &destination) || !m_disassembler->document()->segment(destination))
         return false;
 
-    emit hexDumpRequested(destination, m_disassembler->format()->addressWidth());
+    emit hexDumpRequested(destination, m_disassembler->loader()->addressWidth());
     return true;
 }
 
@@ -778,7 +778,7 @@ void DisassemblerTextView::showHexDump()
         return;
     }
 
-    u64 len = sizeof(m_disassembler->format()->addressWidth());
+    u64 len = sizeof(m_disassembler->loader()->addressWidth());
 
     if(symbol->is(REDasm::SymbolTypes::String))
         len = m_disassembler->readString(symbol).size();

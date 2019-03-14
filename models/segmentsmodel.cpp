@@ -1,5 +1,5 @@
 #include "segmentsmodel.h"
-#include <redasm/plugins/format.h>
+#include <redasm/plugins/loader.h>
 #include <QColor>
 #include "../themeprovider.h"
 
@@ -14,21 +14,21 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 
     if(role == Qt::DisplayRole)
     {
-        const REDasm::FormatPlugin* format = m_disassembler->format();
+        const REDasm::LoaderPlugin* loader = m_disassembler->loader();
         const REDasm::Segment* segment = m_disassembler->document()->segmentAt(index.row());
 
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(segment->address, format->bits()));
+            return S_TO_QS(REDasm::hex(segment->address, loader->bits()));
         if(index.column() == 1)
-            return S_TO_QS(REDasm::hex(segment->endaddress, format->bits()));
+            return S_TO_QS(REDasm::hex(segment->endaddress, loader->bits()));
         if(index.column() == 2)
-            return S_TO_QS(REDasm::hex(segment->size(), format->bits()));
+            return S_TO_QS(REDasm::hex(segment->size(), loader->bits()));
         if(index.column() == 3)
-            return S_TO_QS(REDasm::hex(segment->offset, format->bits()));
+            return S_TO_QS(REDasm::hex(segment->offset, loader->bits()));
         if(index.column() == 4)
-            return S_TO_QS(REDasm::hex(segment->endoffset, format->bits()));
+            return S_TO_QS(REDasm::hex(segment->endoffset, loader->bits()));
         if(index.column() == 5)
-            return S_TO_QS(REDasm::hex(segment->rawSize(), format->bits()));
+            return S_TO_QS(REDasm::hex(segment->rawSize(), loader->bits()));
         if(index.column() == 6)
             return S_TO_QS(segment->name);
         if(index.column() == 7)

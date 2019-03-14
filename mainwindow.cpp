@@ -1,8 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "dialogs/formatloaderdialog/formatloaderdialog.h"
-#include "dialogs/manualloaddialog/manualloaddialog.h"
 #include "dialogs/settingsdialog/settingsdialog.h"
+#include "dialogs/loaderdialog/loaderdialog.h"
 #include "dialogs/aboutdialog/aboutdialog.h"
 #include "redasmsettings.h"
 #include "themeprovider.h"
@@ -339,7 +338,10 @@ void MainWindow::load(const QString& filepath)
     REDasm::MemoryBuffer* buffer = REDasm::MemoryBuffer::fromFile(filepath.toStdString()); // TODO: Deallocate in case of user-cancel?
 
     if(buffer && !buffer->empty())
-        this->initDisassembler(buffer);
+    {
+        REDasm::LoadRequest request(filepath.toStdString(), buffer);
+        this->selectLoader(request);
+    }
 }
 
 void MainWindow::checkCommandLine()
@@ -361,47 +363,6 @@ void MainWindow::checkCommandLine()
         this->load(arg);
         break;
     }
-}
-
-bool MainWindow::checkPlugins(REDasm::AbstractBuffer *buffer, REDasm::LoaderPlugin** loader, REDasm::AssemblerPlugin** assembler)
-{
-    REDasm::LoaderEntryListByExt* formatentries = nullptr;
-    QString ext = m_fileinfo.suffix();
-
-    if(REDasm::getLoaderByExt(ext.toStdString(), &formatentries))
-    {
-        FormatLoaderDialog dlgformatloader(ext, formatentries, this);
-        int res = dlgformatloader.exec();
-
-        if(res == FormatLoaderDialog::Accepted)
-        {
-            if(!dlgformatloader.discarded())
-                *loader = dlgformatloader.loadSelectedLoader(buffer);
-        }
-        else if(res == FormatLoaderDialog::Rejected)
-            return false;
-    }
-
-    if(!(*loader))
-        *loader = REDasm::getLoader(buffer);
-
-    if((*loader)->isBinary()) // Use manual loader
-    {
-        ManualLoadDialog dlgmanload(*loader, this);
-
-        if(dlgmanload.exec() != ManualLoadDialog::Accepted)
-            return false;
-    }
-
-    *assembler = REDasm::getAssembler((*loader)->assembler());
-
-    if(!(*assembler))
-    {
-        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString((*loader)->assembler())));
-        return false;
-    }
-
-    return true;
 }
 
 void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
@@ -473,15 +434,32 @@ void MainWindow::closeFile()
     this->setViewWidgetsVisible(false);
 }
 
-void MainWindow::initDisassembler(REDasm::AbstractBuffer *buffer)
+void MainWindow::selectLoader(const REDasm::LoadRequest &request)
 {
-    REDasm::LoaderPlugin* loader = NULL;
-    REDasm::AssemblerPlugin* assembler = NULL;
+    REDasm::LoaderList loaders = REDasm::getLoaders(request);
 
-    if(!this->checkPlugins(buffer, &loader, &assembler))
+    LoaderDialog dlgloader(loaders, this);
+
+    if(dlgloader.exec() != LoaderDialog::Accepted)
         return;
 
-    m_disassembler = new REDasm::Disassembler(assembler, loader);
+    const REDasm::AssemblerPlugin_Entry* assemblerentry = nullptr;
+    const REDasm::LoaderPlugin_Entry* loaderentry = dlgloader.selectedLoader();
+    std::unique_ptr<REDasm::LoaderPlugin> loader(loaderentry->init(request));
+
+    if(loaderentry->flags() & REDasm::LoaderFlags::CustomAssembler)
+        assemblerentry = dlgloader.selectedAssembler();
+    else
+        assemblerentry = REDasm::getAssembler(loader->assembler());
+
+    if(!assemblerentry)
+    {
+        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString(loader->assembler())));
+        return;
+    }
+
+    REDasm::log("Selected loader " + REDasm::quoted(loaderentry->name()) + " with " + REDasm::quoted(assemblerentry->name()) + " instruction set");
+    m_disassembler = new REDasm::Disassembler(assemblerentry->init(), loader.release()); // Take ownership
 
     EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
         DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());

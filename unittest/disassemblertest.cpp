@@ -81,7 +81,7 @@ void DisassemblerTest::runTests()
             return;
         }
 
-        this->runCurrentTest(test.second);
+        this->runCurrentTest(test.first, test.second);
         cout << REPEATED('-') << REPEATED('-') << REPEATED('-') << endl << endl;
     }
 }
@@ -102,21 +102,25 @@ string DisassemblerTest::replaceAll(std::string str, const std::string &from, co
     return str;
 }
 
-void DisassemblerTest::runCurrentTest(const TestCallback &cb)
+void DisassemblerTest::runCurrentTest(const std::string& filepath, const TestCallback &cb)
 {
-    LoaderPlugin* loader = REDasm::getLoader(m_buffer);
-    TEST("Loader", loader);
+    LoadRequest request(filepath, m_buffer);
+    LoaderList loaders = REDasm::getLoaders(request, true);
+    TEST("Loader", !loaders.empty());
 
-    if(!loader)
+    if(loaders.empty())
         return;
 
-    AssemblerPlugin* assembler = REDasm::getAssembler(loader->assembler());
-    TEST("Assembler", assembler);
+    const LoaderPlugin_Entry* loaderentry = loaders.front();
+    std::unique_ptr<LoaderPlugin> loader(loaderentry->init(request));
 
-    if(!assembler)
+    const AssemblerPlugin_Entry* assemblerentry = REDasm::getAssembler(loader->assembler());
+    TEST("Assembler", assemblerentry);
+
+    if(!assemblerentry)
         return;
 
-    m_disassembler = std::make_unique<Disassembler>(assembler, loader);
+    m_disassembler = std::make_unique<Disassembler>(assemblerentry->init(), loader.release()); // Takes ownership
     m_document = m_disassembler->document();
 
     cout << "->> Disassembler...";

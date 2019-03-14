@@ -50,9 +50,8 @@ class MainWindow : public QMainWindow
         bool loadDatabase(const QString& filepath);
         void load(const QString &filepath);
         void checkCommandLine();
-        bool checkPlugins(REDasm::AbstractBuffer* buffer, REDasm::LoaderPlugin** loader, REDasm::AssemblerPlugin** assembler);
         void showDisassemblerView(REDasm::Disassembler *disassembler);
-        void initDisassembler(REDasm::AbstractBuffer *buffer);
+        void selectLoader(const REDasm::LoadRequest& request);
         void setViewWidgetsVisible(bool b);
         void configureWebEngine();
         void closeFile();

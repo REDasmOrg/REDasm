@@ -22,7 +22,7 @@ class DisassemblerTest
 
     private:
         static std::string replaceAll(std::string str, const std::string& from, const std::string& to);
-        void runCurrentTest(const TestCallback& cb);
+        void runCurrentTest(const std::string &filepath, const TestCallback& cb);
 
     private:
         void testTrampolines(const std::map<address_t, std::string>& trampolines);

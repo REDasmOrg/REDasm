@@ -120,9 +120,6 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
 {
     m_disassembler = std::unique_ptr<REDasm::Disassembler>(disassembler); // Take ownership
 
-    REDasm::log(QString("Found loader '%1' with '%2' instruction set").arg(S_TO_QS(disassembler->loader()->name()),
-                                                                           S_TO_QS(disassembler->assembler()->name())).toStdString());
-
     m_docks->setDisassembler(disassembler);
     m_importsmodel->setDisassembler(disassembler);
     m_exportsmodel->setDisassembler(disassembler);

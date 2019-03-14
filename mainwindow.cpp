@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "dialogs/settingsdialog/settingsdialog.h"
-#include "dialogs/loaderdialog/loaderdialog.h"
 #include "dialogs/aboutdialog/aboutdialog.h"
 #include "redasmsettings.h"
 #include "themeprovider.h"
@@ -316,6 +315,9 @@ bool MainWindow::loadDatabase(const QString &filepath)
         return false;
     }
 
+    REDasm::log("Selected loader " + REDasm::quoted(disassembler->loader()->name()) + " with " +
+                                     REDasm::quoted(disassembler->assembler()->name()) + " instruction set");
+
     m_fileinfo = QFileInfo(QString::fromStdString(filename));
     this->showDisassemblerView(disassembler);
     return true;
@@ -436,9 +438,7 @@ void MainWindow::closeFile()
 
 void MainWindow::selectLoader(const REDasm::LoadRequest &request)
 {
-    REDasm::LoaderList loaders = REDasm::getLoaders(request);
-
-    LoaderDialog dlgloader(loaders, this);
+    LoaderDialog dlgloader(request, this);
 
     if(dlgloader.exec() != LoaderDialog::Accepted)
         return;
@@ -457,6 +457,9 @@ void MainWindow::selectLoader(const REDasm::LoadRequest &request)
         QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString(loader->assembler())));
         return;
     }
+
+    if(loaderentry->flags() & REDasm::LoaderFlags::CustomAddressing)
+        loader->build(assemblerentry->name(), dlgloader.offset(), dlgloader.baseAddress(), dlgloader.entryPoint());
 
     REDasm::log("Selected loader " + REDasm::quoted(loaderentry->name()) + " with " + REDasm::quoted(assemblerentry->name()) + " instruction set");
     m_disassembler = new REDasm::Disassembler(assemblerentry->init(), loader.release()); // Take ownership

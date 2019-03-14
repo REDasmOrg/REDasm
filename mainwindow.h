@@ -8,6 +8,7 @@
 #include <redasm/plugins/plugins.h>
 #include <redasm/disassembler/disassembler.h>
 #include "widgets/disassemblerview/disassemblerview.h"
+#include "dialogs/loaderdialog/loaderdialog.h"
 
 namespace Ui {
 class MainWindow;

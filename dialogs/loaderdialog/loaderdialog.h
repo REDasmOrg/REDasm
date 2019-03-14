@@ -14,7 +14,7 @@ class LoaderDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit LoaderDialog(const REDasm::LoaderList& loaders, QWidget *parent = nullptr);
+        explicit LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent = nullptr);
         const REDasm::LoaderPlugin_Entry *selectedLoader() const;
         const REDasm::AssemblerPlugin_Entry *selectedAssembler() const;
         address_t baseAddress() const;
@@ -25,13 +25,15 @@ class LoaderDialog : public QDialog
 
     private:
         void checkFlags();
+        void validateInput();
         void updateInputMask();
         void populateAssemblers();
 
     private:
         Ui::LoaderDialog *ui;
         QStandardItemModel* m_loadersmodel;
-        const REDasm::LoaderList& m_loaders;
+        REDasm::LoaderList m_loaders;
+        const REDasm::LoadRequest& m_request;
 };
 
 #endif // LOADERDIALOG_H

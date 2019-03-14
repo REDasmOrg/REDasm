@@ -2,9 +2,11 @@
 #include "ui_loaderdialog.h"
 #include <QPushButton>
 
-LoaderDialog::LoaderDialog(const REDasm::LoaderList &loaders, QWidget *parent) : QDialog(parent), m_loaders(loaders), ui(new Ui::LoaderDialog)
+LoaderDialog::LoaderDialog(const REDasm::LoadRequest &request, QWidget *parent) : QDialog(parent), m_request(request), ui(new Ui::LoaderDialog)
 {
     ui->setupUi(this);
+
+    m_loaders = REDasm::getLoaders(request);
     m_loadersmodel = new QStandardItemModel(ui->lvLoaders);
 
     for(const auto& entry : m_loaders)
@@ -17,8 +19,21 @@ LoaderDialog::LoaderDialog(const REDasm::LoaderList &loaders, QWidget *parent) :
     this->checkFlags();
     this->updateInputMask();
 
+    connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&)  {
+        this->validateInput();
+    });
+
+    connect(ui->leEntryPoint, &QLineEdit::textEdited, this, [&](const QString&)  {
+        this->validateInput();
+    });
+
+    connect(ui->leOffset, &QLineEdit::textEdited, this, [&](const QString&)  {
+        this->validateInput();
+    });
+
     connect(ui->lvLoaders, &QListView::clicked, this, [&](const QModelIndex& index) {
         this->checkFlags();
+        this->validateInput();
     });
 }
 
@@ -42,9 +57,9 @@ const REDasm::AssemblerPlugin_Entry* LoaderDialog::selectedAssembler() const
     return nullptr;
 }
 
-address_t LoaderDialog::baseAddress() const { return ui->leBaseAddress->text().toULongLong(); }
-address_t LoaderDialog::entryPoint() const { return ui->leEntryPoint->text().toULongLong(); }
-offset_t LoaderDialog::offset() const { return ui->leOffset->text().toULongLong(); }
+address_t LoaderDialog::baseAddress() const { return ui->leBaseAddress->text().toULongLong(nullptr, 16); }
+address_t LoaderDialog::entryPoint() const { return ui->leEntryPoint->text().toULongLong(nullptr, 16); }
+offset_t LoaderDialog::offset() const { return ui->leOffset->text().toULongLong(nullptr, 16); }
 LoaderDialog::~LoaderDialog() { delete ui; }
 
 u32 LoaderDialog::selectedLoaderFlags() const
@@ -74,6 +89,22 @@ void LoaderDialog::checkFlags()
     ui->cbAssembler->setEnabled(flags & REDasm::LoaderFlags::CustomAssembler);
     ui->groupBox->setEnabled(flags & REDasm::LoaderFlags::CustomAddressing);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+}
+
+void LoaderDialog::validateInput()
+{
+    bool okenabled = true;
+    u32 flags = this->selectedLoaderFlags();
+
+    if(flags & REDasm::LoaderFlags::CustomAddressing)
+    {
+        if(ui->leOffset->text().isEmpty() || (this->offset() >= m_request.buffer->size()))
+            okenabled = false;
+        if((ui->leEntryPoint->text().isEmpty() || ui->leBaseAddress->text().isEmpty()) || (this->entryPoint() > this->baseAddress()))
+            okenabled = false;
+    }
+
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(okenabled);
 }
 
 void LoaderDialog::updateInputMask()

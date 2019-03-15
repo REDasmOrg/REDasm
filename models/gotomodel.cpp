@@ -11,12 +11,11 @@ QVariant GotoModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     const REDasm::ListingItem* item = reinterpret_cast<const REDasm::ListingItem*>(index.internalPointer());
-    const REDasm::LoaderPlugin* loader = m_disassembler->loader();
 
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(item->address, loader->bits()));
+            return S_TO_QS(REDasm::hex(item->address, m_disassembler->assembler()->bits()));
         if(index.column() == 1)
             return this->itemName(item);
         if(index.column() == 2)

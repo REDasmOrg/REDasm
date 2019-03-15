@@ -54,7 +54,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex((*it)->address, m_disassembler->loader()->bits()));
+            return S_TO_QS(REDasm::hex((*it)->address, m_disassembler->assembler()->bits()));
         else if(index.column() == 1)
             return this->direction((*it)->address);
         else if(index.column() == 2)

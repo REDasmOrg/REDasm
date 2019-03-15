@@ -14,21 +14,21 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 
     if(role == Qt::DisplayRole)
     {
-        const REDasm::LoaderPlugin* loader = m_disassembler->loader();
+        const REDasm::AssemblerPlugin* assembler = m_disassembler->assembler();
         const REDasm::Segment* segment = m_disassembler->document()->segmentAt(index.row());
 
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(segment->address, loader->bits()));
+            return S_TO_QS(REDasm::hex(segment->address, assembler->bits()));
         if(index.column() == 1)
-            return S_TO_QS(REDasm::hex(segment->endaddress, loader->bits()));
+            return S_TO_QS(REDasm::hex(segment->endaddress, assembler->bits()));
         if(index.column() == 2)
-            return S_TO_QS(REDasm::hex(segment->size(), loader->bits()));
+            return S_TO_QS(REDasm::hex(segment->size(), assembler->bits()));
         if(index.column() == 3)
-            return S_TO_QS(REDasm::hex(segment->offset, loader->bits()));
+            return S_TO_QS(REDasm::hex(segment->offset, assembler->bits()));
         if(index.column() == 4)
-            return S_TO_QS(REDasm::hex(segment->endoffset, loader->bits()));
+            return S_TO_QS(REDasm::hex(segment->endoffset, assembler->bits()));
         if(index.column() == 5)
-            return S_TO_QS(REDasm::hex(segment->rawSize(), loader->bits()));
+            return S_TO_QS(REDasm::hex(segment->rawSize(), assembler->bits()));
         if(index.column() == 6)
             return S_TO_QS(segment->name);
         if(index.column() == 7)

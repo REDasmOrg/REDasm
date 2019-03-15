@@ -292,13 +292,14 @@ void DisassemblerView::displayAddress(address_t address)
 
     REDasm::ListingDocument& document = m_disassembler->document();
     REDasm::LoaderPlugin* loader = m_disassembler->loader();
+    REDasm::AssemblerPlugin* assembler = m_disassembler->assembler();
     const REDasm::Segment* segment = document->segment(address);
     const REDasm::Symbol* functionstart = document->functionStartSymbol(address);
     offset_location offset = loader->offset(address);
 
     QString segm = segment ? S_TO_QS(segment->name) : "UNKNOWN",
-            offs = segment && offset.valid ? S_TO_QS(REDasm::hex(offset, loader->bits())) : "UNKNOWN",
-            addr = S_TO_QS(REDasm::hex(address, loader->bits()));
+            offs = segment && offset.valid ? S_TO_QS(REDasm::hex(offset, assembler->bits())) : "UNKNOWN",
+            addr = S_TO_QS(REDasm::hex(address, assembler->bits()));
 
     QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
@@ -454,7 +455,7 @@ void DisassemblerView::showGoto()
     if(m_listingview->textView()->goTo(dlggoto.address()))
         return;
 
-    this->selectToHexDump(dlggoto.address(), m_disassembler->loader()->addressWidth());
+    this->selectToHexDump(dlggoto.address(), m_disassembler->assembler()->addressWidth());
 }
 
 void DisassemblerView::goForward() { m_disassembler->document()->cursor()->goForward(); }
@@ -489,7 +490,7 @@ void DisassemblerView::syncHexEdit()
             len = instruction->size;
         }
         else if(symbol)
-            len = m_disassembler->loader()->addressWidth();
+            len = m_disassembler->assembler()->addressWidth();
     }
 
     if(!offset.valid)

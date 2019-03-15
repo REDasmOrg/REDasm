@@ -750,7 +750,7 @@ bool DisassemblerTextView::followPointerHexDump()
     if(!m_disassembler->dereference(symbol->address, &destination) || !m_disassembler->document()->segment(destination))
         return false;
 
-    emit hexDumpRequested(destination, m_disassembler->loader()->addressWidth());
+    emit hexDumpRequested(destination, m_disassembler->assembler()->addressWidth());
     return true;
 }
 
@@ -778,7 +778,7 @@ void DisassemblerTextView::showHexDump()
         return;
     }
 
-    u64 len = sizeof(m_disassembler->loader()->addressWidth());
+    u64 len = sizeof(m_disassembler->assembler()->addressWidth());
 
     if(symbol->is(REDasm::SymbolTypes::String))
         len = m_disassembler->readString(symbol).size();

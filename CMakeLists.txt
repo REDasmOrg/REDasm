@@ -80,6 +80,7 @@ SET(HEADERS
     ${MODELS_HEADERS}
     ${RENDERER_HEADERS}
     mainwindow.h
+    redasmui.h
     themeprovider.h
     redasmsettings.h)
 
@@ -92,6 +93,7 @@ SET(SOURCES
     ${RENDERER_SOURCES}
     main.cpp
     mainwindow.cpp
+    redasmui.cpp
     themeprovider.cpp
     redasmsettings.cpp)
 

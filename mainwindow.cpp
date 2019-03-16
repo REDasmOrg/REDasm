@@ -3,6 +3,7 @@
 #include "dialogs/settingsdialog/settingsdialog.h"
 #include "dialogs/aboutdialog/aboutdialog.h"
 #include "redasmsettings.h"
+#include "redasmui.h"
 #include "themeprovider.h"
 #include <redasm/database/database.h>
 #include <QWebEngineSettings>
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ctxsettings.statusCallback = [&](const std::string& s) { QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
     ctxsettings.progressCallback = [&](size_t pending) { QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending))); };
     ctxsettings.logCallback = [&](const std::string& s) { QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
+    ctxsettings.ui = std::make_shared<REDasmUI>(this);
 
     REDasm::init(ctxsettings);
     REDasm::log(QString("Found %1 loader and %2 assemblers").arg(REDasm::Plugins::loadersCount).arg(REDasm::Plugins::assemblers.size()).toStdString());

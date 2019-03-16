@@ -16,23 +16,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
     this->configureWebEngine();
 
-    REDasm::setStatusCallback([this](std::string s) {
-        QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
-    });
+    REDasm::ContextSettings ctxsettings;
+    ctxsettings.tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
+    ctxsettings.searchPath = QDir::currentPath().toStdString();
+    ctxsettings.statusCallback = [&](const std::string& s) { QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
+    ctxsettings.progressCallback = [&](size_t pending) { QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending))); };
+    ctxsettings.logCallback = [&](const std::string& s) { QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
 
-    REDasm::setProgressCallback([&](size_t pending) {
-        QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending)));
-    });
-
-    REDasm::setLoggerCallback([&](const std::string& s) {
-        QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s)));
-    });
-
-    REDasm::init(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString(),
-                 QDir::currentPath().toStdString());
-
-    REDasm::log(QString("Found %1 loader and %2 assemblers").arg(REDasm::Plugins::loadersCount)
-                                                            .arg(REDasm::Plugins::assemblers.size()).toStdString());
+    REDasm::init(ctxsettings);
+    REDasm::log(QString("Found %1 loader and %2 assemblers").arg(REDasm::Plugins::loadersCount).arg(REDasm::Plugins::assemblers.size()).toStdString());
 
     this->setViewWidgetsVisible(false);
     ui->leFilter->setVisible(false);

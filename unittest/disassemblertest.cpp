@@ -53,10 +53,11 @@ DisassemblerTest::DisassemblerTest(): m_buffer(NULL)
 
     ADD_TEST_PATH_NULL("PE Test/CorruptedIT.exe", NULL);
 
-    REDasm::setLoggerCallback([](const std::string&) { });
-
-    REDasm::init(QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString(),
-                 QDir::currentPath().toStdString());
+    ContextSettings ctxsettings;
+    ctxsettings.tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
+    ctxsettings.searchPath = QDir::currentPath().toStdString();
+    ctxsettings.logCallback =[](const std::string&) { };
+    REDasm::init(ctxsettings);
 }
 
 void DisassemblerTest::runTests()

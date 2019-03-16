@@ -27,7 +27,7 @@ class ListingFilterModel : public QIdentityProxyModel
 
     public:
         template<typename T> static ListingFilterModel* createFilter(QObject* parent);
-        template<typename T> static ListingFilterModel* createFilter(u32 filter, QObject* parent);
+        template<typename T> static ListingFilterModel* createFilter(size_t filter, QObject* parent);
 
     private:
         QVector<REDasm::ListingItem*> m_filtereditems;
@@ -41,7 +41,7 @@ template<typename T> ListingFilterModel *ListingFilterModel::createFilter(QObjec
     return filtermodel;
 }
 
-template<typename T> ListingFilterModel* ListingFilterModel::createFilter(u32 filter, QObject* parent)
+template<typename T> ListingFilterModel* ListingFilterModel::createFilter(size_t filter, QObject* parent)
 {
     ListingFilterModel* filtermodel = new ListingFilterModel(parent);
     filtermodel->setSourceModel(new T(filter, filtermodel));

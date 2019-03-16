@@ -10,7 +10,7 @@ class ListingItemModel : public DisassemblerModel
     Q_OBJECT
 
     public:
-        explicit ListingItemModel(u32 itemtype, QObject *parent = NULL);
+        explicit ListingItemModel(size_t itemtype, QObject *parent = NULL);
         virtual void setDisassembler(REDasm::DisassemblerAPI* disassembler);
 
     public:
@@ -28,7 +28,7 @@ class ListingItemModel : public DisassemblerModel
 
     private:
         QList<REDasm::ListingItem*> m_items;
-        u32 m_itemtype;
+        size_t m_itemtype;
 
     friend class ListingFilterModel;
 };

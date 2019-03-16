@@ -5,7 +5,7 @@
 #include "../themeprovider.h"
 #include <QColor>
 
-ListingItemModel::ListingItemModel(u32 itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
+ListingItemModel::ListingItemModel(size_t itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
 
 void ListingItemModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {

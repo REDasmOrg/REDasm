@@ -1,6 +1,6 @@
 #include "symboltablemodel.h"
 
-SymbolTableModel::SymbolTableModel(u32 itemtype, QObject *parent) : ListingItemModel(itemtype, parent), m_symbolflags(REDasm::SymbolTypes::None) { }
+SymbolTableModel::SymbolTableModel(size_t itemtype, QObject *parent) : ListingItemModel(itemtype, parent), m_symbolflags(REDasm::SymbolTypes::None) { }
 void SymbolTableModel::setSymbolFlags(u32 symbolflags) { m_symbolflags = symbolflags; }
 
 bool SymbolTableModel::isItemAllowed(REDasm::ListingItem *item) const

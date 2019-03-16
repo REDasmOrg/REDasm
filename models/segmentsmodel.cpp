@@ -47,6 +47,8 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
     {
         if(index.column() > 5)
             return Qt::AlignCenter;
+        else
+            return Qt::AlignRight;
     }
 
     return QVariant();

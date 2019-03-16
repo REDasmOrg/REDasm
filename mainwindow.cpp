@@ -2,8 +2,8 @@
 #include "ui_mainwindow.h"
 #include "dialogs/settingsdialog/settingsdialog.h"
 #include "dialogs/aboutdialog/aboutdialog.h"
+#include "ui/redasmui.h"
 #include "redasmsettings.h"
-#include "redasmui.h"
 #include "themeprovider.h"
 #include <redasm/database/database.h>
 #include <QWebEngineSettings>

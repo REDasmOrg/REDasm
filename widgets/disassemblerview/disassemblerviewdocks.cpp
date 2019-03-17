@@ -113,7 +113,7 @@ void DisassemblerViewDocks::createFunctionsModel()
     m_functionsview = m_docksymbols->widget()->findChild<QTableView*>("tvFunctions");
     m_functionsview->setModel(m_functionsmodel);
 
-    m_functionsview->verticalHeader()->setDefaultSectionSize(m_functionsview->fontMetrics().lineSpacing());
+    m_functionsview->verticalHeader()->setDefaultSectionSize(m_functionsview->verticalHeader()->minimumSectionSize());
     m_functionsview->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     m_functionsview->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     m_functionsview->setColumnHidden(2, true);

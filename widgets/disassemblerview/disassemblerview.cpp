@@ -2,6 +2,7 @@
 #include "ui_disassemblerview.h"
 #include "../../dialogs/referencesdialog/referencesdialog.h"
 #include "../../themeprovider.h"
+#include "../../redasmsettings.h"
 #include <QHexView/document/buffer/qmemoryrefbuffer.h>
 #include <QMessageBox>
 #include <QPushButton>
@@ -16,6 +17,11 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     m_listingview = new DisassemblerListingView(ui->stackedWidget);
     m_graphview = new DisassemblerGraphView(ui->stackedWidget);
 
+    REDasmSettings settings;
+    QFont font = settings.currentFont();
+    font.setPointSize(settings.currentFontSize());
+
+    ui->hexView->setFont(font);
     ui->hexView->setReadOnly(true);
     ui->hexView->setFrameShape(QFrame::NoFrame);
 

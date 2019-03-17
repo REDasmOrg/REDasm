@@ -37,10 +37,10 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     m_segmentsmodel = ListingFilterModel::createFilter<SegmentsModel>(ui->tvSegments);
     ui->tvSegments->setModel(m_segmentsmodel);
 
-    ui->tvSegments->verticalHeader()->setDefaultSectionSize(ui->tvSegments->fontMetrics().lineSpacing());
-    ui->tvImports->verticalHeader()->setDefaultSectionSize(ui->tvImports->fontMetrics().lineSpacing());
-    ui->tvExports->verticalHeader()->setDefaultSectionSize(ui->tvExports->fontMetrics().lineSpacing());
-    ui->tvStrings->verticalHeader()->setDefaultSectionSize(ui->tvStrings->fontMetrics().lineSpacing());
+    ui->tvSegments->verticalHeader()->setDefaultSectionSize(ui->tvSegments->verticalHeader()->minimumSectionSize());
+    ui->tvImports->verticalHeader()->setDefaultSectionSize(ui->tvImports->verticalHeader()->minimumSectionSize());
+    ui->tvExports->verticalHeader()->setDefaultSectionSize(ui->tvExports->verticalHeader()->minimumSectionSize());
+    ui->tvStrings->verticalHeader()->setDefaultSectionSize(ui->tvStrings->verticalHeader()->minimumSectionSize());
 
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvSegments->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);

@@ -20,7 +20,7 @@
     "string_fg": "#a38671",
     "data_fg": "#9b59b6",
     "label_fg": "#b8c9f1",
-    "dotted_fg": "#d95459",
+    "meta_fg": "#d95459",
     "pointer_fg": "#d95459",
     "type_fg": "#d95459",
 

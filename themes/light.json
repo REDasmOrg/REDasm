@@ -29,7 +29,7 @@
     "instruction_jmp_c": "#d95459",
 
     "graph_bg": "azure",
-    "graph_edge": "#27ae60",
+    "graph_edge": "#3a6f81",
     "graph_edge_true": "#27ae60",
     "graph_edge_false": "#c0392b",
     "graph_edge_loop": "#297fb9",

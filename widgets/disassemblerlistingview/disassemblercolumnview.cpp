@@ -41,7 +41,7 @@ void DisassemblerColumnView::renderArrows(u64 start, u64 count)
 
                 u64 idx = static_cast<u64>(document->instructionIndex(target));
 
-                if(idx == -1)
+                if(idx >= document->length())
                     continue;
 
                 this->insertPath(item, start, idx);
@@ -55,6 +55,10 @@ void DisassemblerColumnView::renderArrows(u64 start, u64 count)
                 continue;
 
             REDasm::ReferenceVector refs = m_disassembler->getReferences(item->address);
+            u64 toidx = static_cast<u64>(document->instructionIndex(item->address));
+
+            if(toidx >= document->length())
+                continue;
 
             for(address_t ref : refs)
             {
@@ -63,10 +67,10 @@ void DisassemblerColumnView::renderArrows(u64 start, u64 count)
 
                 u64 idx = static_cast<u64>(document->instructionIndex(ref));
 
-                if(idx == -1)
+                if(idx >= document->length())
                     continue;
 
-                this->insertPath(document->itemAt(idx), idx, start + 1);
+                this->insertPath(document->itemAt(idx), idx, toidx);
             }
         }
     }

@@ -24,6 +24,7 @@
     "instruction_invalid": "#bdc3c7",
     "instruction_stop": "#c0392b",
     "instruction_nop": "#7f8c8d",
+    "instruction_compare": "#d45c9e",
     "instruction_call": "#2ecc71",
     "instruction_jmp": "#394c81",
     "instruction_jmp_c": "#d95459",

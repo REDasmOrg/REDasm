@@ -38,6 +38,7 @@
     "instruction_invalid": "#bdc3c7",
     "instruction_stop": "#c0392b",
     "instruction_nop": "#7f8c8d",
+    "instruction_compare": "#f47cc3",
     "instruction_call": "#2ecc71",
     "instruction_jmp": "#5065a1",
     "instruction_jmp_c": "#e67e22",

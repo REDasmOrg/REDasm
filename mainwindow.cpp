@@ -216,7 +216,9 @@ void MainWindow::onExitClicked()
 
 void MainWindow::onImportSignatureClicked()
 {
-    QString s = QFileDialog::getOpenFileName(this, "Load Signature...", QString(), "REDasm Signature Database (*.sdb)");
+    QString s = QFileDialog::getOpenFileName(this, "Load Signature...",
+                                             QString::fromStdString(REDasm::makeSignaturePath(std::string())),
+                                             "REDasm Signature (*.json)");
 
     if(s.isEmpty())
         return;

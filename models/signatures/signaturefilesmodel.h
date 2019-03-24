@@ -1,0 +1,36 @@
+#ifndef SIGNATUREFILESMODEL_H
+#define SIGNATUREFILESMODEL_H
+
+#include <QAbstractListModel>
+#include <redasm/disassembler/disassemblerapi.h>
+#include <redasm/database/signaturedb.h>
+#include <redasm/plugins/loader.h>
+#include <json.hpp>
+
+class SignatureFilesModel : public QAbstractListModel
+{
+    Q_OBJECT
+
+    public:
+        explicit SignatureFilesModel(REDasm::DisassemblerAPI* disassembler, QObject *parent = nullptr);
+        const REDasm::SignatureDB* load(const QModelIndex& index);
+        const std::string& signatureId(const QModelIndex& index) const;
+        const std::string& signaturePath(const QModelIndex& index) const;
+        bool isLoaded(const QModelIndex& index) const;
+        bool contains(const std::string& sigid) const;
+        void add(const std::string& sigid, const std::string& sigpath);
+        void mark(const QModelIndex& index);
+
+    public:
+        virtual QVariant data(const QModelIndex &index, int role) const;
+        virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+        virtual int rowCount(const QModelIndex& = QModelIndex()) const;
+        virtual int columnCount(const QModelIndex& = QModelIndex()) const;
+
+    private:
+        QList< QPair<std::string, std::string> > m_signaturefiles;
+        QHash<int, REDasm::SignatureDB> m_loadedsignatures;
+        REDasm::DisassemblerAPI* m_disassembler;
+};
+
+#endif // SIGNATUREFILESMODEL_H

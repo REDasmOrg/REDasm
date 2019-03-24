@@ -36,7 +36,7 @@ class MainWindow : public QMainWindow
         void onCloseClicked();
         void onRecentFileClicked();
         void onExitClicked();
-        void onImportSignatureClicked();
+        void onSignaturesClicked();
         void onResetLayoutClicked();
         void onSettingsClicked();
         void onAboutClicked();

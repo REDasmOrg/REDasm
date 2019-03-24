@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "dialogs/signaturesdialog/signaturesdialog.h"
 #include "dialogs/settingsdialog/settingsdialog.h"
 #include "dialogs/aboutdialog/aboutdialog.h"
 #include "ui/redasmui.h"
@@ -33,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     ui->action_Open->setIcon(THEME_ICON("open"));
     ui->action_Save->setIcon(THEME_ICON("save"));
-    ui->action_Import_Signature->setIcon(THEME_ICON("database_import"));
+    ui->action_Signatures->setIcon(THEME_ICON("database"));
 
     m_lblstatus = new QLabel(this);
     m_lblprogress = new QLabel(this);
@@ -61,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Save_As, &QAction::triggered, this, &MainWindow::onSaveAsClicked);
     connect(ui->action_Close, &QAction::triggered, this, &MainWindow::onCloseClicked);
     connect(ui->action_Exit, &QAction::triggered, this, &MainWindow::onExitClicked);
-    connect(ui->action_Import_Signature, &QAction::triggered, this, &MainWindow::onImportSignatureClicked);
+    connect(ui->action_Signatures, &QAction::triggered, this, &MainWindow::onSignaturesClicked);
     connect(ui->action_Reset_Layout, &QAction::triggered, this, &MainWindow::onResetLayoutClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
@@ -214,29 +215,10 @@ void MainWindow::onExitClicked()
     qApp->exit();
 }
 
-void MainWindow::onImportSignatureClicked()
+void MainWindow::onSignaturesClicked()
 {
-    QString s = QFileDialog::getOpenFileName(this, "Load Signature...",
-                                             QString::fromStdString(REDasm::makeSignaturePath(std::string())),
-                                             "REDasm Signature (*.json)");
-
-    if(s.isEmpty())
-        return;
-
-    DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
-
-    if(!currdv)
-        return;
-
-    REDasm::DisassemblerAPI* disassembler = currdv->disassembler();
-
-    if(disassembler->loadSignature(s.toStdString()))
-        return;
-
-    QMessageBox msgbox(this);
-    msgbox.setWindowTitle("Load Error");
-    msgbox.setText(QString("Error loading \"%1\"").arg(QFileInfo(s).fileName()));
-    msgbox.setStandardButtons(QMessageBox::Ok);
+    SignaturesDialog dlgsignatures(this->currentDisassembler(), this);
+    dlgsignatures.exec();
 }
 
 void MainWindow::onResetLayoutClicked()
@@ -523,7 +505,6 @@ void MainWindow::checkDisassemblerStatus()
     }
 
     this->setWindowTitle(disassembler->busy() ? QString("%1 (Working)").arg(m_fileinfo.fileName()) : m_fileinfo.fileName());
-
     size_t state = disassembler->state();
 
     if(state == REDasm::Job::ActiveState)
@@ -537,7 +518,7 @@ void MainWindow::checkDisassemblerStatus()
 
     ui->action_Save->setEnabled(!disassembler->busy());
     ui->action_Save_As->setEnabled(!disassembler->busy());
-    ui->action_Import_Signature->setEnabled(!disassembler->busy());
+    ui->action_Signatures->setEnabled(!disassembler->busy());
     ui->action_Close->setEnabled(true);
 }
 

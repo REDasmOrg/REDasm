@@ -110,7 +110,7 @@
     <property name="title">
      <string>&amp;REDasm</string>
     </property>
-    <addaction name="action_Import_Signature"/>
+    <addaction name="action_Signatures"/>
     <addaction name="action_Settings"/>
    </widget>
    <widget class="QMenu" name="menu">
@@ -145,7 +145,7 @@
    </attribute>
    <addaction name="action_Open"/>
    <addaction name="action_Save"/>
-   <addaction name="action_Import_Signature"/>
+   <addaction name="action_Signatures"/>
   </widget>
   <widget class="QDockWidget" name="dockOutput">
    <property name="sizePolicy">
@@ -436,15 +436,15 @@
     <string>Sa&amp;ve As...</string>
    </property>
   </action>
-  <action name="action_Import_Signature">
+  <action name="action_Signatures">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Import Signature</string>
+    <string>&amp;Signatures</string>
    </property>
    <property name="toolTip">
-    <string>Import Signature</string>
+    <string>Signatures</string>
    </property>
   </action>
   <action name="action_Close">

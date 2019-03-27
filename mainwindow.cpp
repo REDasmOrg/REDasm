@@ -13,7 +13,7 @@
 #include <QtCore>
 #include <QtGui>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), m_disassembler(NULL)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     this->configureWebEngine();
@@ -362,7 +362,7 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
     }
 
     DisassemblerView *dv = new DisassemblerView(ui->leFilter, ui->stackView);
-    dv->setDisassembler(disassembler);
+    dv->setDisassembler(disassembler); // Take ownership
     ui->stackView->addWidget(dv);
 
     this->setViewWidgetsVisible(true);
@@ -390,13 +390,13 @@ bool MainWindow::canClose()
 
 void MainWindow::closeFile()
 {
-    // TODO: messageBox for confirmation?
+    REDasm::DisassemblerAPI* disassembler = this->currentDisassembler();
 
-    if(m_disassembler != NULL)
+    // TODO: messageBox for confirmation?
+    if(disassembler)
     {
-        m_disassembler->busyChanged.disconnect();
-        m_disassembler->stop();
-        m_disassembler = NULL;
+        disassembler->busyChanged.disconnect();
+        disassembler->stop();
     }
 
     QWidget* oldwidget = ui->stackView->currentWidget();
@@ -414,12 +414,15 @@ void MainWindow::closeFile()
     this->setViewWidgetsVisible(false);
 }
 
-void MainWindow::selectLoader(const REDasm::LoadRequest &request)
+void MainWindow::selectLoader(REDasm::LoadRequest &request)
 {
     LoaderDialog dlgloader(request, this);
 
     if(dlgloader.exec() != LoaderDialog::Accepted)
         return;
+
+    auto disassembler = std::make_unique<REDasm::Disassembler>();
+    request.disassembler = disassembler.get();
 
     const REDasm::AssemblerPlugin_Entry* assemblerentry = nullptr;
     const REDasm::LoaderPlugin_Entry* loaderentry = dlgloader.selectedLoader();
@@ -440,17 +443,17 @@ void MainWindow::selectLoader(const REDasm::LoadRequest &request)
         loader->build(assemblerentry->name(), dlgloader.offset(), dlgloader.baseAddress(), dlgloader.entryPoint());
 
     REDasm::log("Selected loader " + REDasm::quoted(loaderentry->name()) + " with " + REDasm::quoted(assemblerentry->name()) + " instruction set");
-    m_disassembler = new REDasm::Disassembler(assemblerentry->init(), loader.release()); // Take ownership
+    REDasm::Disassembler* disassembler = new REDasm::Disassembler(assemblerentry->init(), loader.release()); // Take ownership
 
-    EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
+    EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
         DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
 
         if(currdv)
             QMetaObject::invokeMethod(m_lblprogress, "setVisible", Qt::QueuedConnection, Q_ARG(bool, currdv->disassembler()->busy()));
     });
 
-    this->showDisassemblerView(m_disassembler); // Take ownership
-    m_disassembler->disassemble();
+    this->showDisassemblerView(disassembler); // Take ownership
+    disassembler->disassemble();
 }
 
 void MainWindow::setViewWidgetsVisible(bool b)
@@ -487,10 +490,10 @@ void MainWindow::changeDisassemblerStatus()
     if(!disassembler)
         return;
 
-    if(m_disassembler->state() == REDasm::Job::ActiveState)
-        m_disassembler->pause();
-    else if(m_disassembler->state() == REDasm::Job::PausedState)
-        m_disassembler->resume();
+    if(disassembler->state() == REDasm::Job::ActiveState)
+        disassembler->pause();
+    else if(disassembler->state() == REDasm::Job::PausedState)
+        disassembler->resume();
 }
 
 void MainWindow::checkDisassemblerStatus()

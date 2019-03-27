@@ -52,7 +52,7 @@ class MainWindow : public QMainWindow
         void load(const QString &filepath);
         void checkCommandLine();
         void showDisassemblerView(REDasm::Disassembler *disassembler);
-        void selectLoader(const REDasm::LoadRequest& request);
+        void selectLoader(REDasm::LoadRequest &request);
         void setViewWidgetsVisible(bool b);
         void configureWebEngine();
         void closeFile();
@@ -64,7 +64,6 @@ class MainWindow : public QMainWindow
         QFileInfo m_fileinfo;
         QStringList m_recents;
         QPushButton* m_pbstatus;
-        REDasm::Disassembler* m_disassembler;
 };
 
 #endif // MAINWINDOW_H

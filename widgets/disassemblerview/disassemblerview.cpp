@@ -493,6 +493,10 @@ void DisassemblerView::syncHexEdit()
         if(canbeinstruction)
         {
             REDasm::InstructionPtr instruction = document->instruction(item->address);
+
+            if(!instruction)
+                return;
+
             len = instruction->size;
         }
         else if(symbol)

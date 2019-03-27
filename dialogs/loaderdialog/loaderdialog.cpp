@@ -2,7 +2,7 @@
 #include "ui_loaderdialog.h"
 #include <QPushButton>
 
-LoaderDialog::LoaderDialog(const REDasm::LoadRequest &request, QWidget *parent) : QDialog(parent), m_request(request), ui(new Ui::LoaderDialog)
+LoaderDialog::LoaderDialog(const REDasm::LoadRequest &request, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(request)
 {
     ui->setupUi(this);
 

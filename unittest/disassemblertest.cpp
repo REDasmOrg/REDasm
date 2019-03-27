@@ -192,7 +192,7 @@ void DisassemblerTest::testOllyDump()
     if(!instruction)
         return;
 
-    TEST("Validating CALL @ 0x00403BEA target", instruction->is(InstructionTypes::Call) && instruction->hasTargets());
+    TEST("Validating CALL @ 0x00403BEA target", instruction->is(InstructionTypes::Call) && m_disassembler->getTargetsCount(instruction->address));
 
     symbol = m_document->symbol(0x00407730);
     TEST_SYMBOL("Checking if target is pointer", symbol, symbol->is(SymbolTypes::Pointer));
@@ -317,14 +317,14 @@ void DisassemblerTest::testTn11()
     if(!instruction)
         return;
 
-    TEST("Checking TARGETS count @ 0x00401197", instruction->targets.size() == 5);
+    TEST("Checking TARGETS count @ 0x00401197", m_disassembler->getTargetsCount(instruction->address) == 5);
 
-    if(instruction->targets.size() != 5)
+    if(m_disassembler->getTargetsCount(instruction->address) != 5)
         return;
 
     size_t i = 0;
 
-    for(address_t target : instruction->targets)
+    for(address_t target : m_disassembler->getTargets(instruction->address))
     {
         const Symbol* symbol = m_document->symbol(target);
         TEST("Checking CASE #" + std::to_string(i) + " @ " + REDasm::hex(target), symbol && symbol->is(SymbolTypes::Code) && m_document->instruction(target));

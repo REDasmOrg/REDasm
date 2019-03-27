@@ -421,9 +421,6 @@ void MainWindow::selectLoader(REDasm::LoadRequest &request)
     if(dlgloader.exec() != LoaderDialog::Accepted)
         return;
 
-    auto disassembler = std::make_unique<REDasm::Disassembler>();
-    request.disassembler = disassembler.get();
-
     const REDasm::AssemblerPlugin_Entry* assemblerentry = nullptr;
     const REDasm::LoaderPlugin_Entry* loaderentry = dlgloader.selectedLoader();
     std::unique_ptr<REDasm::LoaderPlugin> loader(loaderentry->init(request));
@@ -443,7 +440,7 @@ void MainWindow::selectLoader(REDasm::LoadRequest &request)
         loader->build(assemblerentry->name(), dlgloader.offset(), dlgloader.baseAddress(), dlgloader.entryPoint());
 
     REDasm::log("Selected loader " + REDasm::quoted(loaderentry->name()) + " with " + REDasm::quoted(assemblerentry->name()) + " instruction set");
-    REDasm::Disassembler* disassembler = new REDasm::Disassembler(assemblerentry->init(), loader.release()); // Take ownership
+    REDasm::Disassembler* disassembler = new REDasm::Disassembler(assemblerentry->init(), loader.release());
 
     EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
         DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
@@ -453,7 +450,6 @@ void MainWindow::selectLoader(REDasm::LoadRequest &request)
     });
 
     this->showDisassemblerView(disassembler); // Take ownership
-    disassembler->disassemble();
 }
 
 void MainWindow::setViewWidgetsVisible(bool b)

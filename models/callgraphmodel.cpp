@@ -45,8 +45,7 @@ void CallGraphModel::populate(REDasm::ListingItem* parentitem)
     if(m_children.contains(parentitem))
         return;
 
-    REDasm::ListingDocument& doc = m_disassembler->document();
-    REDasm::ListingItems calls = doc->getCalls(parentitem);
+    REDasm::ListingItems calls = m_disassembler->getCalls(parentitem->address);
     QModelIndex index;
 
     if(parentitem != m_root)
@@ -177,10 +176,10 @@ QVariant CallGraphModel::data(const QModelIndex &index, int role) const
 
     if(item->is(REDasm::ListingItem::InstructionItem))
     {
-        REDasm::InstructionPtr instruction = lock->instruction(item->address);
+        REDasm::ReferenceSet refs = m_disassembler->getTargets(item->address);
 
-        if(instruction->hasTargets())
-            symbol = lock->symbol(instruction->target());
+        if(!refs.empty())
+            symbol = lock->symbol(*refs.begin());
     }
 
     if(role == Qt::DisplayRole)

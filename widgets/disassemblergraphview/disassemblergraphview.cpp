@@ -92,7 +92,7 @@ bool DisassemblerGraphView::graph()
     m_currentfunction = currentfunction;
 
     REDasm::ListingItem* currentitem = document->currentItem();
-    REDasm::Graphing::FunctionGraph graph(document);
+    REDasm::Graphing::FunctionGraph graph(m_disassembler);
 
     if(!graph.build(currentitem->address))
     {
@@ -135,7 +135,7 @@ QString DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Node *from, 
     {
         const REDasm::ListingItem* toitem = document->itemAt(tofbb->startidx);
 
-        if(instruction->target() == toitem->address)
+        if(m_disassembler->getTarget(instruction->address) == toitem->address)
             label = "TRUE";
         else
             label = "FALSE";

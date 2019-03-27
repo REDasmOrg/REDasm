@@ -156,10 +156,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     m_actions->setEnabled(DisassemblerViewActions::BackAction, m_disassembler->document()->cursor()->canGoBack());
     m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_disassembler->document()->cursor()->canGoForward());
 
-    if(disassembler->busy())
-        return;
-
-    this->checkDisassemblerStatus();
+    disassembler->disassemble();
 }
 
 void DisassemblerView::changeDisassemblerStatus()
@@ -249,7 +246,7 @@ void DisassemblerView::showModelReferences()
     if(m_currentindex.model() == m_docks->callGraphModel())
     {
         REDasm::InstructionPtr instruction = m_disassembler->document()->instruction(item->address);
-        symbol = m_disassembler->document()->symbol(instruction->target());
+        symbol = m_disassembler->document()->symbol(m_disassembler->getTarget(instruction->address));
     }
     else
         symbol = m_disassembler->document()->symbol(item->address);

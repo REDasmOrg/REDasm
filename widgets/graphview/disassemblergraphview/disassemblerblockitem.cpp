@@ -4,7 +4,6 @@
 #include <QApplication>
 #include <QFontMetrics>
 #include <QPainter>
-#include <QDebug>
 
 #define BLOCK_MARGIN 4
 #define BLOCK_MARGINS -BLOCK_MARGIN, 0, BLOCK_MARGIN, BLOCK_MARGIN
@@ -41,8 +40,12 @@ void DisassemblerBlockItem::render(QPainter *painter)
     QRect r(QPoint(0, 0), this->documentSize());
     r.adjust(BLOCK_MARGINS);
 
+    QColor shadow = painter->pen().color();
+    shadow.setAlpha(180);
+
     painter->save();
         painter->translate(this->position());
+        painter->fillRect(r.adjusted(0, 0, BLOCK_MARGIN, BLOCK_MARGIN), shadow);
         painter->fillRect(r, qApp->palette().base());
         m_document.drawContents(painter);
         painter->drawRect(r);

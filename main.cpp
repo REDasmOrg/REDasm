@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "themeprovider.h"
 #include <QApplication>
-#include <QtWebEngine>
 #include <QStyleFactory>
 #include "redasmsettings.h"
 
@@ -23,8 +22,6 @@ int main(int argc, char *argv[])
     a.setOrganizationName("redasm.io");
     a.setApplicationName("redasm");
     a.setApplicationDisplayName("REDasm 2.1-" + QString::fromUtf8(REDASM_VERSION));
-
-    QtWebEngine::initialize();
 
     REDasmSettings::setDefaultFormat(REDasmSettings::IniFormat);
     ThemeProvider::applyTheme();

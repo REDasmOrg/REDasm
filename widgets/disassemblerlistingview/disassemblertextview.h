@@ -53,6 +53,9 @@ class DisassemblerTextView : public QAbstractScrollArea
         virtual void timerEvent(QTimerEvent* e);
         virtual bool event(QEvent* e);
 
+    protected:
+        virtual void paintLines(QPainter* painter, u64 first, u64 last);
+
     private:
         void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
 
@@ -61,7 +64,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         bool isLineVisible(u64 line) const;
         bool isColumnVisible(u64 column, u64 *xpos);
         QRect lineRect(u64 line);
-        void renderLines(u64 first, u64 last);
+        void paintLines(u64 first, u64 last);
         void blinkCursor();
         void adjustScrollBars();
         void moveToSelection();
@@ -81,8 +84,10 @@ class DisassemblerTextView : public QAbstractScrollArea
         void addressChanged(address_t address);
         void referencesRequested(address_t address);
 
-    private:
+    protected:
         std::unique_ptr<ListingTextRenderer> m_renderer;
+
+    private:
         REDasm::DisassemblerAPI* m_disassembler;
         DisassemblerPopup* m_disassemblerpopup;
         QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actfollowpointer, *m_actcallgraph;

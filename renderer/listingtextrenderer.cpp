@@ -10,10 +10,12 @@
 
 ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_font(font), m_fontmetrics(font), m_firstline(0), m_cursoractive(false)
 {
+    m_maxwidth = 0;
     m_rgxwords.setPattern(REDASM_WORD_REGEX);
     m_textoption.setWrapMode(QTextOption::NoWrap);
 }
 
+int ListingTextRenderer::maxWidth() const { return m_maxwidth; }
 void ListingTextRenderer::setFirstVisibleLine(u64 line) { m_firstline = line; }
 
 REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos, int firstline)
@@ -25,7 +27,7 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     REDasm::RendererLine rl;
 
     if(!this->getRendererLine(cp.first, rl))
-       cp.second = 0;
+        cp.second = 0;
 
     std::string s = rl.text;
 
@@ -73,6 +75,13 @@ void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
     textdocument.setUndoRedoEnabled(false);
     textdocument.setDefaultTextOption(m_textoption);
     textdocument.setDefaultFont(m_font);
+
+    QFontMetrics fm(textdocument.defaultFont());
+
+    if(rl.index > 0)
+        m_maxwidth = std::max(m_maxwidth, fm.boundingRect(QString::fromStdString(rl.text)).width());
+    else
+        m_maxwidth = fm.boundingRect(QString::fromStdString(rl.text)).width();
 
     ListingRendererCommon lrc(&textdocument, m_document);
     lrc.insertText(rl, m_cursoractive);

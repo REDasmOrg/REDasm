@@ -356,7 +356,7 @@ void DisassemblerView::switchGraphListing()
 
     if(ui->stackedWidget->currentWidget() == m_listingview)
     {
-        if(!m_graphview->graph())
+        if(!m_graphview->renderGraph())
             return;
 
         m_actions->setIcon(DisassemblerViewActions::GraphListingAction, THEME_ICON("listing"));
@@ -510,7 +510,7 @@ void DisassemblerView::syncHexEdit()
 void DisassemblerView::checkSyncGraph()
 {
     if(ui->stackedWidget->currentWidget() == m_graphview)
-        m_graphview->graph();
+        m_graphview->renderGraph();
 
     this->showListingOrGraph();
 }

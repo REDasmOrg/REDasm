@@ -28,8 +28,6 @@ endif()
 find_package(Qt5Core CONFIG REQUIRED)
 find_package(Qt5Gui CONFIG REQUIRED)
 find_package(Qt5Widgets CONFIG REQUIRED)
-find_package(Qt5WebEngine CONFIG REQUIRED)
-find_package(Qt5WebEngineWidgets CONFIG REQUIRED)
 find_package(Git)
 
 if(GIT_FOUND)
@@ -44,6 +42,7 @@ endif()
 
 set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
 add_definitions(-DREDASM_VERSION="${REDASM_BUILD_VERSION}")
+
 
 add_subdirectory(LibREDasm)
 add_subdirectory(QHexView)
@@ -130,8 +129,6 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
-    Qt5::WebEngine
-    Qt5::WebEngineWidgets
     LibREDasm)
 
 if(WIN32)

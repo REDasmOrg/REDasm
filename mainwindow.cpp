@@ -7,8 +7,6 @@
 #include "redasmsettings.h"
 #include "themeprovider.h"
 #include <redasm/database/database.h>
-#include <QWebEngineSettings>
-#include <QWebEngineProfile>
 #include <QtWidgets>
 #include <QtCore>
 #include <QtGui>
@@ -16,7 +14,6 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->configureWebEngine();
 
     REDasm::ContextSettings ctxsettings;
     ctxsettings.tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
@@ -457,20 +454,6 @@ void MainWindow::setViewWidgetsVisible(bool b)
     ui->dockSymbols->setVisible(b);
     ui->dockReferences->setVisible(b);
     ui->dockListingMap->setVisible(b);
-}
-
-void MainWindow::configureWebEngine()
-{
-    QWebEngineProfile* profile = QWebEngineProfile::defaultProfile();
-    profile->setPersistentCookiesPolicy(QWebEngineProfile::NoPersistentCookies);
-    profile->setHttpCacheType(QWebEngineProfile::NoCache);
-
-    QWebEngineSettings* settings = profile->settings();
-    settings->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows, false);
-    settings->setAttribute(QWebEngineSettings::LocalStorageEnabled, false);
-    settings->setAttribute(QWebEngineSettings::XSSAuditingEnabled, false);
-    settings->setAttribute(QWebEngineSettings::ErrorPageEnabled, false);
-    settings->setAttribute(QWebEngineSettings::AutoLoadIconsForPage, false);
 }
 
 void MainWindow::onAboutClicked()

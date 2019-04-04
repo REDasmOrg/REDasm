@@ -17,6 +17,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 
     int maxwidth = qApp->primaryScreen()->size().width();
     this->viewport()->setFixedWidth(maxwidth);
+    this->setPalette(qApp->palette()); // Don't inherit palette
 
     this->setFont(font);
     this->setCursor(Qt::ArrowCursor);
@@ -229,13 +230,11 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
     u64 firstvisible = this->firstVisibleLine();
     u64 first = firstvisible + (r.top() / fm.height());
     u64 last = firstvisible + (r.bottom() / fm.height());
-    u64 count = (last - first) + 1;
 
     QPainter painter(this->viewport());
     painter.setFont(this->font());
-
     m_renderer->setFirstVisibleLine(firstvisible);
-    m_renderer->render(first, count, &painter);
+    this->paintLines(&painter, first, last);
 }
 
 void DisassemblerTextView::resizeEvent(QResizeEvent *e)
@@ -470,6 +469,12 @@ bool DisassemblerTextView::event(QEvent *e)
     return QAbstractScrollArea::event(e);
 }
 
+void DisassemblerTextView::paintLines(QPainter *painter, u64 first, u64 last)
+{
+    u64 count = (last - first) + 1;
+    m_renderer->render(first, count, painter);
+}
+
 void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
 {
     m_disassembler->document()->cursor()->clearSelection();
@@ -556,10 +561,10 @@ void DisassemblerTextView::renderLine(u64 line)
     if(!this->isLineVisible(line))
         return;
 
-    this->renderLines(line, line);
+    this->paintLines(line, line);
 }
 
-void DisassemblerTextView::renderLines(u64 first, u64 last)
+void DisassemblerTextView::paintLines(u64 first, u64 last)
 {
     first = std::max(first, this->firstVisibleLine());
     last = std::min(last, this->lastVisibleLine());

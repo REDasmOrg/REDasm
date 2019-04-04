@@ -104,9 +104,6 @@ See [COMPILE.md](COMPILE.md) (for Windows and Linux).
 - [MiniZ](https://github.com/richgel999/miniz) : ZLib's drop in replacement
 - [Capstone](https://github.com/aquynh/capstone) : Capstone provides the most common architectures
 - [JSON](https://github.com/nlohmann/json): A single header library for JSON
-- [D3](https://github.com/d3/d3): Used by QtWebEngine for Graph Rendering
-- [Dagre](https://github.com/dagrejs/dagre): Used for Graph Layout
-- [Dagre-D3](https://github.com/dagrejs/dagre-d3): Graph Layout Rendering with D3
 - [UndName](https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c): MSVC Demangler
 - [Libiberty](https://github.com/bminor/binutils-gdb/tree/master/libiberty): Binutils Demangler
 - [Visit-Struct](https://github.com/cbeck88/visit_struct): C++ Reflection

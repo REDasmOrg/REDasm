@@ -26,11 +26,4 @@
         <file>res/dark/save.png</file>
         <file>res/logo_big_dark.png</file>
     </qresource>
-    <qresource prefix="/web">
-        <file alias="d3.js">web/d3.v5.min.js</file>
-        <file alias="dagre-d3.js">web/dagre-d3.min.js</file>
-        <file alias="dagre.js">web/dagre.min.js</file>
-        <file alias="graph.html">web/graph.html</file>
-        <file alias="graph.js">web/graph.js</file>
-    </qresource>
 </RCC>

@@ -6,9 +6,12 @@
 GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(NULL)
 {
     m_prevscalefactor = m_scaledirection = 0;
+    m_scalemax = 5.0;
     m_scalefactor = m_scaleboost = 1.0;
     m_scalestep = 0.1;
+    m_viewportready = false;
     m_scrollmode = true;
+    m_scalemin = 0;
 
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, THEME_VALUE("graph_bg"));
@@ -131,13 +134,18 @@ void GraphView::paintEvent(QPaintEvent *e)
         item->render(&painter);
 }
 
+void GraphView::showEvent(QShowEvent *e)
+{
+    if(!m_viewportready)
+        m_viewportready = true;
+
+    e->ignore();
+}
+
 void GraphView::computeLayout()
 {
     for(const auto& n : m_graph->nodes())
-    {
-        m_items[n]->move(QPoint(m_graph->x(n),
-                                m_graph->y(n)));
-    }
+        m_items[n]->move(QPoint(m_graph->x(n), m_graph->y(n)));
 
     for(const auto& e : m_graph->edges())
     {
@@ -145,32 +153,58 @@ void GraphView::computeLayout()
         this->precomputeArrow(e);
     }
 
-    this->update();
+    QSize areasize;
+
+    if(m_viewportready)
+        areasize = this->viewport()->size();
+    else
+        areasize = this->parentWidget()->size() - QSize(20, 20);
+
+    float sx = static_cast<float>(areasize.width()) / static_cast<float>(this->width());
+    float sy = static_cast<float>(areasize.height()) / static_cast<float>(this->height());
+    m_scalemin = std::min(static_cast<double>(std::min(sx, sy) * (1 - m_scalestep)), 0.05); // if graph is very lagre
+
+    this->adjustSize(areasize.width(), areasize.height());
+    this->viewport()->update();
 }
 
 void GraphView::zoomOut(const QPoint &cursorpos)
 {
     m_prevscalefactor = m_scalefactor;
+
+    if(m_scalefactor <= m_scalemin)
+        return;
+
     m_scalefactor *= (1 - m_scalestep * m_scaleboost);
+
+    if(m_scalefactor < m_scalemin)
+        m_scalefactor = m_scalemin;
 
     QSize vpsize = this->viewport()->size();
     this->adjustSize(vpsize.width(), vpsize.height(), cursorpos);
-    this->update();
+    this->viewport()->update();
 }
 
 void GraphView::zoomIn(const QPoint &cursorpos)
 {
     m_prevscalefactor = m_scalefactor;
+
+    if(m_scalefactor >= m_scalemax)
+        return;
+
     m_scalefactor /= (1 - m_scalestep * m_scaleboost);
+
+    if(m_scalefactor > m_scalemax)
+        m_scalefactor = m_scalemax;
 
     QSize vpsize = this->viewport()->size();
     this->adjustSize(vpsize.width(), vpsize.height(), cursorpos);
-    this->update();
+    this->viewport()->update();
 }
 
 void GraphView::adjustSize(int vpw, int vph, const QPoint &cursorpos, bool fit)
 {
-    m_rendersize = QSize(this->width() * m_scalefactor, this->height() * m_scalefactor);
+    m_rendersize = QSize(m_graph->areaWidth() * m_scalefactor, m_graph->areaHeight() * m_scalefactor);
     m_renderoffset = QPoint(vpw, vph);
 
     QSize scrollrange = { m_rendersize.width() + vpw, m_rendersize.height() + vph };
@@ -187,9 +221,9 @@ void GraphView::adjustSize(int vpw, int vph, const QPoint &cursorpos, bool fit)
     QPoint deltaoffset(m_renderoffset.x() * scalestepreal * m_scaledirection, m_renderoffset.y() * scalestepreal * m_scaledirection);
     QPoint oldscrollpos(this->horizontalScrollBar()->value(), this->verticalScrollBar()->value());
 
-    this->horizontalScrollBar()->setPageStep(this->width());
+    this->horizontalScrollBar()->setPageStep(vpw);
     this->horizontalScrollBar()->setRange(0, scrollrange.width());
-    this->verticalScrollBar()->setPageStep(this->height());
+    this->verticalScrollBar()->setPageStep(vph);
     this->verticalScrollBar()->setRange(0, scrollrange.height());
 
     if(!cursorpos.isNull())

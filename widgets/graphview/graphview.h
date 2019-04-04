@@ -53,6 +53,7 @@ class GraphView : public QAbstractScrollArea
         virtual void wheelEvent(QWheelEvent* e);
         virtual void resizeEvent(QResizeEvent* e);
         virtual void paintEvent(QPaintEvent* e);
+        virtual void showEvent(QShowEvent* e);
         virtual void computeLayout();
 
     private:
@@ -73,8 +74,9 @@ class GraphView : public QAbstractScrollArea
         QPoint m_renderoffset, m_scrollbase;
         QSize m_rendersize;
         float m_scalefactor, m_scalestep, m_prevscalefactor;
+        float m_scalemin, m_scalemax;
         int m_scaledirection, m_scaleboost;
-        bool m_scrollmode;
+        bool m_viewportready, m_scrollmode;
 };
 
 #endif // GRAPHVIEW_H

@@ -1,9 +1,9 @@
 #ifndef DISASSEMBLERBLOCKITEM_H
 #define DISASSEMBLERBLOCKITEM_H
 
-#include <QPlainTextEdit>
+#include <QTextDocument>
 #include <redasm/graph/functiongraph.h>
-#include "../graphview.h"
+#include "../graphviewitem.h"
 
 class DisassemblerBlockItem : public GraphViewItem
 {

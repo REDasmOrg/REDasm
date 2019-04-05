@@ -11,27 +11,7 @@
 #include <redasm/disassembler/disassemblerapi.h>
 #include <redasm/graph/graph.h>
 #include "../../../themeprovider.h"
-
-class GraphViewItem: public QObject
-{
-    Q_OBJECT
-
-    public:
-        explicit GraphViewItem(QObject* parent = nullptr): QObject(parent) { }
-        int x() const { return this->position().x(); }
-        int y() const { return this->position().y(); }
-        int width() const { return this->size().width(); }
-        int height() const { return this->size().height(); }
-        const QPoint& position() const { return m_pos; }
-        void move(const QPoint &pos) { m_pos = pos; };
-
-    public:
-        virtual void render(QPainter* painter) = 0;
-        virtual QSize size() const = 0;
-
-    private:
-        QPoint m_pos;
-};
+#include "graphviewitem.h"
 
 class GraphView : public QAbstractScrollArea
 {

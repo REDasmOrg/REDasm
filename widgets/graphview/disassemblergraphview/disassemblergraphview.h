@@ -13,6 +13,7 @@ class DisassemblerGraphView : public GraphView
 
     public:
         explicit DisassemblerGraphView(QWidget *parent = nullptr);
+        virtual ~DisassemblerGraphView();
         void goTo(address_t address);
         void focusCurrentBlock();
         bool renderGraph();

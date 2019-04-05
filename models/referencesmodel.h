@@ -11,7 +11,7 @@ class ReferencesModel : public DisassemblerModel
 
     public:
         explicit ReferencesModel(QObject *parent = 0);
-        virtual void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        virtual void setDisassembler(const REDasm::DisassemblerPtr& disassembler);
         void xref(address_t address);
 
     public:

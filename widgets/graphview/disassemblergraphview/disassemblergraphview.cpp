@@ -10,6 +10,12 @@
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_currentfunction(nullptr) { }
 
+DisassemblerGraphView::~DisassemblerGraphView()
+{
+    int zzz = 0;
+    zzz++;
+}
+
 void DisassemblerGraphView::computeLayout()
 {
     for(const auto& n : this->graph()->nodes())
@@ -69,7 +75,7 @@ bool DisassemblerGraphView::renderGraph()
     m_currentfunction = currentfunction;
 
     const REDasm::ListingItem* currentitem = document->currentItem();
-    auto graph = std::make_unique<REDasm::Graphing::FunctionGraph>(m_disassembler);
+    auto graph = std::make_unique<REDasm::Graphing::FunctionGraph>(m_disassembler.get());
 
     if(!graph->build(currentitem->address))
     {

@@ -11,7 +11,7 @@ class ListingItemModel : public DisassemblerModel
 
     public:
         explicit ListingItemModel(size_t itemtype, QObject *parent = NULL);
-        virtual void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        virtual void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
 
     public:
         virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;

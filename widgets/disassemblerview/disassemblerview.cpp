@@ -6,16 +6,17 @@
 #include <QHexView/document/buffer/qmemoryrefbuffer.h>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QDebug>
 
-DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_hexdocument(NULL), m_lefilter(lefilter)
+DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidget(parent), ui(new Ui::DisassemblerView), m_disassembler(nullptr), m_hexdocument(nullptr), m_lefilter(lefilter)
 {
     ui->setupUi(this);
 
     m_actions = new DisassemblerViewActions(this);
     m_docks = new DisassemblerViewDocks(this);
 
-    m_listingview = new DisassemblerListingView(ui->stackedWidget);
-    m_graphview = new DisassemblerGraphView(ui->stackedWidget);
+    m_listingview = new DisassemblerListingView(this);
+    m_graphview = new DisassemblerGraphView(this);
 
     REDasmSettings settings;
     QFont font = settings.currentFont();
@@ -120,24 +121,24 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
 }
 
 DisassemblerView::~DisassemblerView() { delete ui; }
-REDasm::Disassembler *DisassemblerView::disassembler() { return m_disassembler.get(); }
+REDasm::DisassemblerAPI *DisassemblerView::disassembler() { return m_disassembler.get(); }
 
-void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
+void DisassemblerView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
 {
-    m_disassembler = std::unique_ptr<REDasm::Disassembler>(disassembler); // Take ownership
+    m_disassembler = REDasm::DisassemblerPtr(disassembler); // Take ownership
 
-    m_docks->setDisassembler(disassembler);
-    m_importsmodel->setDisassembler(disassembler);
-    m_exportsmodel->setDisassembler(disassembler);
-    m_stringsmodel->setDisassembler(disassembler);
-    m_segmentsmodel->setDisassembler(disassembler);
+    m_docks->setDisassembler(m_disassembler);
+    m_importsmodel->setDisassembler(m_disassembler);
+    m_exportsmodel->setDisassembler(m_disassembler);
+    m_stringsmodel->setDisassembler(m_disassembler);
+    m_segmentsmodel->setDisassembler(m_disassembler);
 
-    REDasm::AbstractBuffer* buffer = disassembler->loader()->buffer();
+    REDasm::AbstractBuffer* buffer = m_disassembler->loader()->buffer();
     m_hexdocument = QHexDocument::fromMemory<QMemoryRefBuffer>(reinterpret_cast<char*>(buffer->data()), buffer->size(), ui->hexView);
     ui->hexView->setDocument(m_hexdocument);
 
-    m_listingview->setDisassembler(disassembler);
-    m_graphview->setDisassembler(disassembler);
+    m_listingview->setDisassembler(m_disassembler);
+    m_graphview->setDisassembler(m_disassembler);
 
     ui->stackedWidget->currentWidget()->setFocus();
 
@@ -156,7 +157,7 @@ void DisassemblerView::setDisassembler(REDasm::Disassembler *disassembler)
     m_actions->setEnabled(DisassemblerViewActions::BackAction, m_disassembler->document()->cursor()->canGoBack());
     m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_disassembler->document()->cursor()->canGoForward());
 
-    disassembler->disassemble();
+    m_disassembler->disassemble();
 }
 
 void DisassemblerView::changeDisassemblerStatus()
@@ -267,7 +268,7 @@ void DisassemblerView::showReferences(address_t address)
         return;
     }
 
-    ReferencesDialog dlgreferences(m_disassembler.get(), symbol, this);
+    ReferencesDialog dlgreferences(m_disassembler, symbol, this);
 
     connect(&dlgreferences, &ReferencesDialog::jumpTo, this, [&](address_t address) {
         if(ui->stackedWidget->currentWidget() == m_graphview) {
@@ -449,7 +450,7 @@ void DisassemblerView::showGoto()
     if(m_disassembler->busy())
         return;
 
-    GotoDialog dlggoto(m_disassembler.get(), this);
+    GotoDialog dlggoto(m_disassembler, this);
     connect(&dlggoto, &GotoDialog::symbolSelected, this, &DisassemblerView::goTo);
 
     if((dlggoto.exec() != GotoDialog::Accepted) || !dlggoto.hasValidAddress())

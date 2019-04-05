@@ -4,9 +4,9 @@
 
 #define POPUP_MARGIN 16
 
-DisassemblerPopup::DisassemblerPopup(REDasm::DisassemblerAPI *disassembler, QWidget *parent): QWidget(parent)
+DisassemblerPopup::DisassemblerPopup(const REDasm::DisassemblerPtr &disassembler, QWidget *parent): QWidget(parent)
 {
-    m_popuprenderer = new ListingPopupRenderer(disassembler);
+    m_popuprenderer = new ListingPopupRenderer(disassembler.get());
     m_popupwidget = new DisassemblerPopupWidget(m_popuprenderer, disassembler, this);
 
     QVBoxLayout* vboxlayout = new QVBoxLayout(this);

@@ -14,13 +14,13 @@ class DisassemblerListingView : public QSplitter
         explicit DisassemblerListingView(QWidget *parent = nullptr);
         DisassemblerColumnView* columnView();
         DisassemblerTextView* textView();
-        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
 
     private slots:
         void renderArrows();
 
     private:
-        REDasm::DisassemblerAPI* m_disassembler;
+        REDasm::DisassemblerPtr m_disassembler;
         DisassemblerColumnView* m_disassemblercolumnview;
         DisassemblerTextView* m_disassemblertextview;
 };

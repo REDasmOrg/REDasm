@@ -10,7 +10,7 @@
 class DisassemblerPopup : public QWidget
 {
     public:
-        explicit DisassemblerPopup(REDasm::DisassemblerAPI* disassembler, QWidget* parent = 0);
+        explicit DisassemblerPopup(const REDasm::DisassemblerPtr& disassembler, QWidget* parent = nullptr);
         ~DisassemblerPopup();
         void popup(const std::string& word, int line);
 

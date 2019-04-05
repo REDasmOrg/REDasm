@@ -8,7 +8,7 @@ DisassemblerColumnView::DisassemblerColumnView(QWidget *parent) : QWidget(parent
     this->setAutoFillBackground(true);
 }
 
-void DisassemblerColumnView::setDisassembler(REDasm::DisassemblerAPI *disassembler) { m_disassembler = disassembler; }
+void DisassemblerColumnView::setDisassembler(const REDasm::DisassemblerPtr& disassembler) { m_disassembler = disassembler; }
 
 void DisassemblerColumnView::renderArrows(u64 start, u64 count)
 {

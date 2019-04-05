@@ -12,7 +12,7 @@ ListingMap::ListingMap(QWidget *parent) : QWidget(parent), m_disassembler(NULL),
     this->setAutoFillBackground(true);
 }
 
-void ListingMap::setDisassembler(REDasm::DisassemblerAPI *disassembler)
+void ListingMap::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
     m_disassembler = disassembler;
     m_totalsize = disassembler->loader()->buffer()->size();

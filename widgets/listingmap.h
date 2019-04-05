@@ -12,7 +12,7 @@ class ListingMap : public QWidget
 
     public:
         explicit ListingMap(QWidget *parent = 0);
-        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
         virtual QSize sizeHint() const;
 
     private:
@@ -34,7 +34,7 @@ class ListingMap : public QWidget
         virtual void resizeEvent(QResizeEvent* e);
 
     private:
-        REDasm::DisassemblerAPI* m_disassembler;
+        REDasm::DisassemblerPtr m_disassembler;
         QList<const REDasm::ListingItem*> m_functions;
         s32 m_orientation, m_totalsize;
         u64 m_lastseek;

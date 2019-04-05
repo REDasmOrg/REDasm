@@ -19,7 +19,7 @@ class GraphView : public QAbstractScrollArea
 
     public:
         explicit GraphView(QWidget *parent = nullptr);
-        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
         void setGraph(REDasm::Graphing::Graph* graph);
         REDasm::Graphing::Graph* graph() const;
 
@@ -37,6 +37,7 @@ class GraphView : public QAbstractScrollArea
         virtual void computeLayout();
 
     private:
+        GraphViewItem* itemFromMouseEvent(QMouseEvent *e) const;
         void zoomOut(const QPoint& cursorpos);
         void zoomIn(const QPoint& cursorpos);
         void adjustSize(int vpw, int vph, const QPoint& cursorpos = QPoint(), bool fit = false);
@@ -44,7 +45,7 @@ class GraphView : public QAbstractScrollArea
         void precomputeLine(const REDasm::Graphing::Edge& e);
 
     protected:
-        REDasm::DisassemblerAPI* m_disassembler;
+        REDasm::DisassemblerPtr m_disassembler;
         QHash<REDasm::Graphing::Node, GraphViewItem*> m_items;
 
     private:

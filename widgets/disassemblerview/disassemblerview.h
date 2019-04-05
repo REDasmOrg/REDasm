@@ -25,9 +25,9 @@ class DisassemblerView : public QWidget
 
     public:
         explicit DisassemblerView(QLineEdit* lefilter, QWidget *parent = NULL);
-        ~DisassemblerView();
-        REDasm::Disassembler* disassembler();
-        void setDisassembler(REDasm::Disassembler* disassembler);
+        virtual ~DisassemblerView();
+        REDasm::DisassemblerAPI *disassembler();
+        void setDisassembler(REDasm::DisassemblerAPI *disassembler);
         void toggleFilter();
         void showFilter();
         void clearFilter();
@@ -62,7 +62,7 @@ class DisassemblerView : public QWidget
 
     private:
         Ui::DisassemblerView *ui;
-        std::unique_ptr<REDasm::Disassembler> m_disassembler;
+        REDasm::DisassemblerPtr m_disassembler;
         DisassemblerViewActions* m_actions;
         DisassemblerViewDocks* m_docks;
         DisassemblerGraphView* m_graphview;

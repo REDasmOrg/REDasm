@@ -11,7 +11,7 @@ class DisassemblerPopupWidget : public QPlainTextEdit
     Q_OBJECT
 
     public:
-        explicit DisassemblerPopupWidget(ListingPopupRenderer* popuprenderer, REDasm::DisassemblerAPI *disassembler, QWidget *parent = NULL);
+        explicit DisassemblerPopupWidget(ListingPopupRenderer* popuprenderer, const REDasm::DisassemblerPtr& disassembler, QWidget *parent = nullptr);
         bool renderPopup(const std::string& word, int line);
         void moreRows();
         void lessRows();
@@ -22,9 +22,9 @@ class DisassemblerPopupWidget : public QPlainTextEdit
         int getIndexOfWord(const std::string& word) const;
 
     private:
+        REDasm::DisassemblerPtr m_disassembler;
         REDasm::ListingDocument& m_document;
         ListingPopupRenderer* m_popuprenderer;
-        REDasm::DisassemblerAPI* m_disassembler;
         int m_index, m_rows;
 };
 

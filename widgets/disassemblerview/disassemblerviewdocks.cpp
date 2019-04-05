@@ -19,7 +19,7 @@ DisassemblerViewDocks::~DisassemblerViewDocks()
         m_listingmap->deleteLater();
 }
 
-void DisassemblerViewDocks::setDisassembler(REDasm::DisassemblerAPI *disassembler)
+void DisassemblerViewDocks::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
     m_disassembler = disassembler;
 

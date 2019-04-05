@@ -6,7 +6,7 @@
 
 #define DEFAULT_ROW_COUNT 10
 
-DisassemblerPopupWidget::DisassemblerPopupWidget(ListingPopupRenderer *popuprenderer, REDasm::DisassemblerAPI* disassembler, QWidget *parent): QPlainTextEdit(parent), m_document(disassembler->document()), m_popuprenderer(popuprenderer), m_disassembler(disassembler), m_index(-1), m_rows(DEFAULT_ROW_COUNT)
+DisassemblerPopupWidget::DisassemblerPopupWidget(ListingPopupRenderer *popuprenderer, const REDasm::DisassemblerPtr &disassembler, QWidget *parent): QPlainTextEdit(parent), m_document(disassembler->document()), m_popuprenderer(popuprenderer), m_disassembler(disassembler), m_index(-1), m_rows(DEFAULT_ROW_COUNT)
 {
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, palette.color(QPalette::ToolTipBase));

@@ -1,24 +1,32 @@
 #include "disassemblerblockitem.h"
-#include "../../../renderer/listinggraphrenderer.h"
 #include "../../../redasmsettings.h"
 #include <QApplication>
 #include <QFontMetrics>
 #include <QPainter>
+#include <QDebug>
 
 #define BLOCK_MARGIN 4
 #define BLOCK_MARGINS -BLOCK_MARGIN, 0, BLOCK_MARGIN, BLOCK_MARGIN
 
-DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock *fbb, REDasm::DisassemblerAPI *disassembler, QWidget *parent) : GraphViewItem(parent), m_basicblock(fbb), m_disassembler(disassembler)
+DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock *fbb, const REDasm::DisassemblerPtr &disassembler, QWidget *parent) : GraphViewItem(parent), m_basicblock(fbb), m_disassembler(disassembler)
 {
     this->setupDocument();
-    ListingGraphRenderer renderer(disassembler);
-    renderer.render(fbb->startidx, fbb->count(), &m_document);
-    m_document.adjustSize();
+
+    m_renderer = std::make_unique<ListingGraphRenderer>(disassembler.get());
+    this->invalidate(false);
 
     QFontMetrics fm(m_document.defaultFont());
     m_charheight = fm.height();
+
+    EVENT_CONNECT(m_disassembler->document()->cursor(), positionChanged, this, [&]() {
+        if(!this->m_basicblock->contains(m_disassembler->document()->cursor()->currentLine()))
+            return;
+
+        this->invalidate();
+    });
 }
 
+DisassemblerBlockItem::~DisassemblerBlockItem() { EVENT_DISCONNECT(m_disassembler->document()->cursor(), positionChanged, this); }
 bool DisassemblerBlockItem::hasIndex(s64 index) const { return m_basicblock->contains(index); }
 
 QSize DisassemblerBlockItem::size() const
@@ -27,6 +35,22 @@ QSize DisassemblerBlockItem::size() const
     dsz.rwidth() += (BLOCK_MARGIN * 2);
     dsz.rheight() += (BLOCK_MARGIN * 2);
     return dsz;
+}
+
+void DisassemblerBlockItem::mousePressEvent(QMouseEvent *e)
+{
+    int line = m_basicblock->startidx + std::floor(e->localPos().y() / m_charheight);
+    REDasm::ListingCursor* cursor = m_disassembler->document()->cursor();
+    cursor->set(line);
+}
+
+void DisassemblerBlockItem::invalidate(bool notify)
+{
+    m_document.clear();
+    m_renderer->render(m_basicblock->startidx, m_basicblock->count(), &m_document);
+    m_document.adjustSize();
+
+    GraphViewItem::invalidate(notify);
 }
 
 QSize DisassemblerBlockItem::documentSize() const

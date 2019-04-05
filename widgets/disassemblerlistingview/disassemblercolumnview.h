@@ -17,7 +17,7 @@ class DisassemblerColumnView : public QWidget
 
     public:
         explicit DisassemblerColumnView(QWidget *parent = nullptr);
-        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
         void renderArrows(u64 start, u64 count);
 
     protected:
@@ -29,7 +29,7 @@ class DisassemblerColumnView : public QWidget
         void insertPath(REDasm::ListingItem *fromitem, u64 fromidx, u64 toidx);
 
     private:
-        REDasm::DisassemblerAPI* m_disassembler;
+        REDasm::DisassemblerPtr m_disassembler;
         QList<ArrowPath> m_paths;
         QSet< QPair<u64, u64> > m_done;
         u64 m_first, m_last;

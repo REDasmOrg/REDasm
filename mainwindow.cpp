@@ -358,7 +358,7 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
         oldwidget->deleteLater();
     }
 
-    DisassemblerView *dv = new DisassemblerView(ui->leFilter, ui->stackView);
+    DisassemblerView *dv = new DisassemblerView(ui->leFilter);
     dv->setDisassembler(disassembler); // Take ownership
     ui->stackView->addWidget(dv);
 

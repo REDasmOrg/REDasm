@@ -20,7 +20,7 @@ GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembl
     this->setAutoFillBackground(true);
 }
 
-void GraphView::setDisassembler(REDasm::DisassemblerAPI *disassembler) { m_disassembler = disassembler; }
+void GraphView::setDisassembler(const REDasm::DisassemblerPtr& disassembler) { m_disassembler = disassembler; }
 
 void GraphView::setGraph(REDasm::Graphing::Graph *graph)
 {
@@ -45,6 +45,14 @@ void GraphView::focusBlock(const GraphViewItem *item)
 
 void GraphView::mousePressEvent(QMouseEvent *e)
 {
+    GraphViewItem* item = this->itemFromMouseEvent(e);
+
+    if(item)
+    {
+        item->mousePressEvent(e);
+        return;
+    }
+
     if(e->button() == Qt::LeftButton)
     {
         m_scrollmode = true;
@@ -156,8 +164,8 @@ void GraphView::computeLayout()
 {
     for(const auto& n : m_graph->nodes())
     {
-        this->installEventFilter(m_items[n]);
         m_items[n]->move(QPoint(m_graph->x(n), m_graph->y(n)));
+        connect(m_items[n], &GraphViewItem::invalidated, this->viewport(), [&]() { this->viewport()->update(); });
     }
 
     for(const auto& e : m_graph->edges())
@@ -179,6 +187,27 @@ void GraphView::computeLayout()
 
     this->adjustSize(areasize.width(), areasize.height());
     this->viewport()->update();
+}
+
+GraphViewItem *GraphView::itemFromMouseEvent(QMouseEvent *e) const
+{
+    //Convert coordinates to system used in blocks
+    int xofs = this->horizontalScrollBar()->value();
+    int yofs = this->verticalScrollBar()->value();
+
+    QPoint pos = { static_cast<int>(std::floor((e->x() + xofs - m_renderoffset.x()) / m_scalefactor)),
+                   static_cast<int>(std::floor((e->y() + yofs - m_renderoffset.y()) / m_scalefactor)) };
+
+    for(GraphViewItem* item : m_items)
+    {
+        if(!item->contains(pos))
+            continue;
+
+        e->setLocalPos(item->mapToItem(pos));
+        return item;
+    }
+
+    return nullptr;
 }
 
 void GraphView::zoomOut(const QPoint &cursorpos)

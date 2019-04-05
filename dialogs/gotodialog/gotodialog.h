@@ -14,7 +14,7 @@ class GotoDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit GotoDialog(REDasm::DisassemblerAPI* disassembler, QWidget *parent = 0);
+        explicit GotoDialog(const REDasm::DisassemblerPtr &disassembler, QWidget *parent = nullptr);
         bool hasValidAddress() const;
         address_t address() const;
         ~GotoDialog();
@@ -31,7 +31,7 @@ class GotoDialog : public QDialog
 
     private:
         Ui::GotoDialog *ui;
-        REDasm::DisassemblerAPI* m_disassembler;
+        REDasm::DisassemblerPtr m_disassembler;
         ListingFilterModel* m_gotomodel;
         address_t m_address;
         bool m_validaddress;

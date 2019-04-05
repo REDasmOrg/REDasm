@@ -11,7 +11,7 @@ class ListingFilterModel : public QIdentityProxyModel
     public:
         explicit ListingFilterModel(QObject *parent = nullptr);
         const QString& filter() const;
-        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
         void setFilter(const QString& filter);
         void clearFilter();
 

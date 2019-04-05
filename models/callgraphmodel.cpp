@@ -6,10 +6,10 @@
 
 CallGraphModel::CallGraphModel(QObject *parent) : QAbstractItemModel(parent), m_disassembler(NULL), m_root(NULL) { }
 
-void CallGraphModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
+void CallGraphModel::setDisassembler(const REDasm::DisassemblerPtr &disassembler)
 {
     m_disassembler = disassembler;
-    m_printer = REDasm::PrinterPtr(m_disassembler->assembler()->createPrinter(m_disassembler));
+    m_printer = REDasm::PrinterPtr(m_disassembler->assembler()->createPrinter(m_disassembler.get()));
 }
 
 void CallGraphModel::initializeGraph(address_t address)

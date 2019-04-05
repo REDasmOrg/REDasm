@@ -19,7 +19,7 @@ class DisassemblerViewDocks : public QObject
     public:
         explicit DisassemblerViewDocks(QObject *parent = NULL);
         virtual ~DisassemblerViewDocks();
-        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
 
     public:
         ListingFilterModel* functionsModel() const;
@@ -42,7 +42,7 @@ class DisassemblerViewDocks : public QObject
         void createListingMap();
 
     private:
-        REDasm::DisassemblerAPI* m_disassembler;
+        std::shared_ptr<REDasm::DisassemblerAPI> m_disassembler;
         QDockWidget *m_docksymbols, *m_dockreferences, *m_docklistingmap;
         QTreeView *m_referencesview, *m_callgraphview;
         QTableView* m_functionsview;

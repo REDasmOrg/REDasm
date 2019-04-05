@@ -7,7 +7,7 @@
 
 ListingItemModel::ListingItemModel(size_t itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
 
-void ListingItemModel::setDisassembler(REDasm::DisassemblerAPI *disassembler)
+void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
     auto& document = m_disassembler->document();

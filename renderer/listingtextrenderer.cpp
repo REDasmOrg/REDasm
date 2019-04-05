@@ -15,6 +15,7 @@ ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::Disassembler
     m_textoption.setWrapMode(QTextOption::NoWrap);
 }
 
+int ListingTextRenderer::lineHeight() const { return m_fontmetrics.height(); }
 int ListingTextRenderer::maxWidth() const { return m_maxwidth; }
 void ListingTextRenderer::setFirstVisibleLine(u64 line) { m_firstline = line; }
 

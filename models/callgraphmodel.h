@@ -13,7 +13,7 @@ class CallGraphModel : public QAbstractItemModel
 
     public:
         explicit CallGraphModel(QObject *parent = nullptr);
-        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        void setDisassembler(const REDasm::DisassemblerPtr& disassembler);
         void initializeGraph(address_t address);
         void clearGraph();
 
@@ -37,7 +37,7 @@ class CallGraphModel : public QAbstractItemModel
 
     private:
         REDasm::PrinterPtr m_printer;
-        REDasm::DisassemblerAPI* m_disassembler;
+        REDasm::DisassemblerPtr m_disassembler;
         REDasm::ListingItem* m_root;
         QHash<REDasm::ListingItem*, s32> m_depths;
         QHash<REDasm::ListingItem*, REDasm::ListingItems> m_children;

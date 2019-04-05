@@ -1,7 +1,7 @@
 #include "disassemblermodel.h"
 
 DisassemblerModel::DisassemblerModel(QObject *parent) : QAbstractListModel(parent), m_disassembler(NULL) { }
-void DisassemblerModel::setDisassembler(REDasm::DisassemblerAPI *disassembler) { m_disassembler = disassembler; }
+void DisassemblerModel::setDisassembler(const REDasm::DisassemblerPtr &disassembler) { m_disassembler = disassembler; }
 
 QVariant DisassemblerModel::headerData(int section, Qt::Orientation orientation, int role) const
 {

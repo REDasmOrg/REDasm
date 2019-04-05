@@ -19,7 +19,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         u64 visibleLines() const;
         u64 firstVisibleLine() const;
         u64 lastVisibleLine() const;
-        void setDisassembler(REDasm::DisassemblerAPI* disassembler);
+        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
 
     public slots:
         void copy();
@@ -88,7 +88,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         std::unique_ptr<ListingTextRenderer> m_renderer;
 
     private:
-        REDasm::DisassemblerAPI* m_disassembler;
+        REDasm::DisassemblerPtr m_disassembler;
         DisassemblerPopup* m_disassemblerpopup;
         QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actfollowpointer, *m_actcallgraph;
         QAction *m_actgoto, *m_acthexdumpshow, *m_acthexdumpfunc;

@@ -2,10 +2,9 @@
 #define GRAPHVIEWITEM_H
 
 #include <QObject>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QRect>
-#include <QSize>
-#include <QSize>
 
 class GraphViewItem: public QObject
 {
@@ -13,6 +12,7 @@ class GraphViewItem: public QObject
 
     public:
         explicit GraphViewItem(QObject* parent = nullptr);
+        virtual ~GraphViewItem() = default;
         int x() const;
         int y() const;
         int width() const;
@@ -23,14 +23,21 @@ class GraphViewItem: public QObject
         void move(const QPoint &pos);
 
     protected:
-        QPoint mapToItem(const QPoint& p) const;
+        virtual void mousePressEvent(QMouseEvent *e);
+        virtual void invalidate(bool notify = true);
 
     public:
+        QPoint mapToItem(const QPoint& p) const;
         virtual void render(QPainter* painter) = 0;
         virtual QSize size() const = 0;
 
+    signals:
+        void invalidated();
+
     private:
         QPoint m_pos;
+
+    friend class GraphView;
 };
 
 #endif // GRAPHVIEWITEM_H

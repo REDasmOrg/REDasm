@@ -31,11 +31,11 @@ DisassemblerListingView::DisassemblerListingView(QWidget *parent): QSplitter(par
 DisassemblerColumnView *DisassemblerListingView::columnView() { return m_disassemblercolumnview; }
 DisassemblerTextView *DisassemblerListingView::textView() { return m_disassemblertextview; }
 
-void DisassemblerListingView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
+void DisassemblerListingView::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
     m_disassembler = disassembler;
-    m_disassemblercolumnview->setDisassembler(disassembler);
-    m_disassemblertextview->setDisassembler(disassembler);
+    m_disassemblercolumnview->setDisassembler(m_disassembler);
+    m_disassemblertextview->setDisassembler(m_disassembler);
 
     REDasm::ListingDocument& document = m_disassembler->document();
 

@@ -58,6 +58,8 @@ void GraphView::mousePressEvent(QMouseEvent *e)
 
 void GraphView::mouseReleaseEvent(QMouseEvent *e)
 {
+    this->viewport()->update();
+
     if(e->button() == Qt::LeftButton && m_scrollmode)
     {
         m_scrollmode = false;
@@ -110,12 +112,12 @@ void GraphView::resizeEvent(QResizeEvent *e) { this->adjustSize(e->size().width(
 
 void GraphView::paintEvent(QPaintEvent *e)
 {
+    QPoint translation = { m_renderoffset.x() - this->horizontalScrollBar()->value(),
+                           m_renderoffset.y() - this->verticalScrollBar()->value() };
+
     QPainter painter(this->viewport());
     painter.setRenderHint(QPainter::Antialiasing);
-
-    painter.translate(m_renderoffset.x() - this->horizontalScrollBar()->value(),
-                      m_renderoffset.y() - this->verticalScrollBar()->value());
-
+    painter.translate(translation);
     painter.scale(m_scalefactor, m_scalefactor);
     painter.save();
 
@@ -130,8 +132,16 @@ void GraphView::paintEvent(QPaintEvent *e)
 
     painter.restore();
 
+    QRect vpr(this->viewport()->rect().topLeft(), this->viewport()->rect().bottomRight() - QPoint(1, 1));
+    vpr.translate(-translation.x(), -translation.y());
+
     for(auto* item : m_items)
+    {
+        if(!vpr.intersects(item->rect())) // Ignore blocks that are not in view
+            continue;
+
         item->render(&painter);
+    }
 }
 
 void GraphView::showEvent(QShowEvent *e)
@@ -145,7 +155,10 @@ void GraphView::showEvent(QShowEvent *e)
 void GraphView::computeLayout()
 {
     for(const auto& n : m_graph->nodes())
+    {
+        this->installEventFilter(m_items[n]);
         m_items[n]->move(QPoint(m_graph->x(n), m_graph->y(n)));
+    }
 
     for(const auto& e : m_graph->edges())
     {

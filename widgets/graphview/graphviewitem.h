@@ -17,6 +17,7 @@ class GraphViewItem: public QObject
         int y() const;
         int width() const;
         int height() const;
+        QRect rect() const;
         bool contains(const QPoint& p) const;
         const QPoint& position() const;
         void move(const QPoint &pos);

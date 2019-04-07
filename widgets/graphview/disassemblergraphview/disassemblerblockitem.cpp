@@ -19,7 +19,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
     m_charheight = fm.height();
 
     EVENT_CONNECT(m_disassembler->document()->cursor(), positionChanged, this, [&]() {
-        if(!this->m_basicblock->contains(m_disassembler->document()->cursor()->currentLine()))
+        if(!m_basicblock->contains(m_disassembler->document()->cursor()->currentLine()))
             return;
 
         this->invalidate();

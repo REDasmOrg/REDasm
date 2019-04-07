@@ -24,22 +24,14 @@ class ListingTextRenderer: public REDasm::ListingRenderer
         std::string getWordUnderCursor(const QPointF& pos, int firstline, int* p = NULL);
         Range wordHitTest(const QPointF& pos, int firstline);
         void highlightWordUnderCursor();
-        bool cursorActive() const;
-        void toggleCursor();
-        void enableCursor();
-        void disableCursor();
 
     protected:
         virtual void renderLine(const REDasm::RendererLine& rl);
 
     private:
-        QFont m_font;
-        QFontMetrics m_fontmetrics;
-        QTextOption m_textoption;
-        QRegularExpression m_rgxwords;
+        QFontMetricsF m_fontmetrics;
         u64 m_firstline;
-        int m_maxwidth;
-        bool m_cursoractive;
+        qreal m_maxwidth;
 };
 
 #endif // LISTINGTEXTRENDERER_H

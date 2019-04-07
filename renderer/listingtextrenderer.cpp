@@ -8,13 +8,7 @@
 #include <QPalette>
 #include <QPainter>
 
-ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_font(font), m_fontmetrics(font), m_firstline(0), m_cursoractive(false)
-{
-    m_maxwidth = 0;
-    m_rgxwords.setPattern(REDASM_WORD_REGEX);
-    m_textoption.setWrapMode(QTextOption::NoWrap);
-}
-
+ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font), m_firstline(0) { m_maxwidth = 0; }
 int ListingTextRenderer::lineHeight() const { return m_fontmetrics.height(); }
 int ListingTextRenderer::maxWidth() const { return m_maxwidth; }
 void ListingTextRenderer::setFirstVisibleLine(u64 line) { m_firstline = line; }
@@ -31,16 +25,19 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
         cp.second = 0;
 
     std::string s = rl.text;
+    qreal x = 0;
 
     for(size_t i = 0; i < s.length(); i++)
     {
-        QRect r = m_fontmetrics.boundingRect(QString::fromStdString(s.substr(0, i + 1)));
+        qreal w = m_fontmetrics.width(s[i]);
 
-        if(!r.contains(QPoint(pos.x(), r.y())))
-            continue;
+        if(x >= pos.x())
+        {
+            cp.second = i - 1;
+            break;
+        }
 
-        cp.second = i;
-        break;
+        x += w;
     }
 
     if(cp.second == std::numeric_limits<u64>::max())
@@ -64,37 +61,14 @@ ListingTextRenderer::Range ListingTextRenderer::wordHitTest(const QPointF &pos, 
 }
 
 void ListingTextRenderer::highlightWordUnderCursor() { m_cursor->setWordUnderCursor(this->wordFromPosition(m_cursor->currentPosition())); }
-bool ListingTextRenderer::cursorActive() const { return m_cursoractive; }
-void ListingTextRenderer::toggleCursor() { m_cursoractive = !m_cursoractive; }
-void ListingTextRenderer::enableCursor() { m_cursoractive = true; }
-void ListingTextRenderer::disableCursor() { m_cursoractive = false; }
 
 void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
 {
-    QTextDocument textdocument;
-    textdocument.setDocumentMargin(0);
-    textdocument.setUndoRedoEnabled(false);
-    textdocument.setDefaultTextOption(m_textoption);
-    textdocument.setDefaultFont(m_font);
-
-    QFontMetrics fm(textdocument.defaultFont());
-
     if(rl.index > 0)
-        m_maxwidth = std::max(m_maxwidth, fm.boundingRect(QString::fromStdString(rl.text)).width());
+        m_maxwidth = std::max(m_maxwidth, m_fontmetrics.boundingRect(QString::fromStdString(rl.text)).width());
     else
-        m_maxwidth = fm.boundingRect(QString::fromStdString(rl.text)).width();
+        m_maxwidth = m_fontmetrics.boundingRect(QString::fromStdString(rl.text)).width();
 
-    ListingRendererCommon lrc(&textdocument, m_document);
-    lrc.insertText(rl, m_cursoractive);
-
-    QPainter* painter = reinterpret_cast<QPainter*>(rl.userdata);
-    QRect rvp = painter->viewport();
-    rvp.setY((rl.documentindex - m_firstline) * m_fontmetrics.height());
-    rvp.setHeight(m_fontmetrics.height());
-
-    painter->save();
-        painter->translate(rvp.topLeft());
-        textdocument.setTextWidth(rvp.width());
-        textdocument.drawContents(painter);
-    painter->restore();
+    int y = (rl.documentindex - m_firstline) * m_fontmetrics.height();
+    ListingRendererCommon::renderText(rl, 0, y, m_fontmetrics);
 }

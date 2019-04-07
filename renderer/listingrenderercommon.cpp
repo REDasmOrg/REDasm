@@ -3,8 +3,9 @@
 #include <QGuiApplication>
 #include <QTextCharFormat>
 #include <QPalette>
+#include <QPainter>
 
-ListingRendererCommon::ListingRendererCommon(QTextDocument *textdocument, REDasm::ListingDocument& document): m_document(document)
+ListingRendererCommon::ListingRendererCommon(QTextDocument *textdocument, REDasm::ListingDocument& document): m_textdocument(textdocument), m_document(document)
 {
     m_rgxwords.setPattern(REDASM_WORD_REGEX);
     m_textcursor = QTextCursor(textdocument);
@@ -23,10 +24,10 @@ void ListingRendererCommon::insertText(const REDasm::RendererLine &rl, bool show
     {
         QTextCharFormat charformat;
 
-        if(!rf.style.empty())
-            charformat.setForeground(THEME_VALUE(QString::fromStdString(rf.style)));
+        if(!rf.fgstyle.empty())
+            charformat.setForeground(THEME_VALUE(QString::fromStdString(rf.fgstyle)));
 
-        m_textcursor.insertText(QString::fromStdString(rl.text.substr(rf.start, rf.length)), charformat);
+        m_textcursor.insertText(QString::fromStdString(rl.formatText(rf)), charformat);
     }
 
     REDasm::ListingCursor* cur = m_document->cursor();
@@ -39,35 +40,51 @@ void ListingRendererCommon::insertText(const REDasm::RendererLine &rl, bool show
     if(rl.highlighted)
     {
         if(!cur->isLineSelected(rl.documentindex))
-            this->highlightLine();
+            this->highlightLine(rl);
 
         if(showcursor)
             this->showCursor();
     }
 }
 
-void ListingRendererCommon::insertHtmlLine(const REDasm::RendererLine &rl)
+void ListingRendererCommon::renderText(const REDasm::RendererLine &rl, float x, float y, const QFontMetricsF& fm)
 {
-    m_textcursor.movePosition(QTextCursor::End);
-    m_textcursor.insertText("<br>");
-    this->insertHtmlText(rl);
-}
+    QPainter* painter = reinterpret_cast<QPainter*>(rl.userdata);
 
-void ListingRendererCommon::insertHtmlText(const REDasm::RendererLine &rl)
-{
-    QString content;
+    if(rl.highlighted)
+    {
+        QRect vpr = painter->viewport();
+        painter->fillRect(0, y, vpr.width(), fm.height(), THEME_VALUE("seek"));
+    }
 
     for(const REDasm::RendererFormat& rf : rl.formats)
     {
-       std::string s = rl.text.substr(rf.start, rf.length);
+        if(!rf.fgstyle.empty())
+        {
+            if((rf.fgstyle == "cursor_fg") || (rf.fgstyle == "selection_fg"))
+                painter->setPen(qApp->palette().color(QPalette::HighlightedText));
+            else
+                painter->setPen(THEME_VALUE(QString::fromStdString(rf.fgstyle)));
+        }
+        else
+            painter->setPen(qApp->palette().color(QPalette::WindowText));
 
-       if(!rf.style.empty())
-           content += this->foregroundHtml(s, rf.style, rl);
-       else
-           content += this->wordsToSpan(s, rl);
+        QString chunk = QString::fromStdString(rl.formatText(rf));
+        QRectF chunkrect = painter->boundingRect(QRectF(x, y, fm.width(chunk), fm.height()), Qt::TextIncludeTrailingSpaces, chunk);
+
+        if(!rf.bgstyle.empty())
+        {
+            if(rf.bgstyle == "cursor_bg")
+                painter->fillRect(chunkrect, qApp->palette().color(QPalette::WindowText));
+            else if(rf.bgstyle == "selection_bg")
+                painter->fillRect(chunkrect, qApp->palette().color(QPalette::Highlight));
+            else
+                painter->fillRect(chunkrect, THEME_VALUE(QString::fromStdString(rf.bgstyle)));
+        }
+
+        painter->drawText(chunkrect, Qt::TextSingleLine, chunk);
+        x += chunkrect.width();
     }
-
-    m_textcursor.insertText(QString("<div style=\"display: inline-block; width: 100%\" data-lineroot=\"1\" data-line=\"%1\">%2</div>").arg(rl.documentindex).arg(content));
 }
 
 QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style, const REDasm::RendererLine& rl) const
@@ -150,7 +167,7 @@ void ListingRendererCommon::highlightWords(const REDasm::RendererLine &rl)
     }
 }
 
-void ListingRendererCommon::highlightLine()
+void ListingRendererCommon::highlightLine(const REDasm::RendererLine &rl)
 {
     QTextBlockFormat blockformat;
     blockformat.setBackground(THEME_VALUE("seek"));

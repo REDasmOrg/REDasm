@@ -2,6 +2,7 @@
 #define LISTINGRENDERERCOMMON_H
 
 #include <QRegularExpression>
+#include <QFontMetricsF>
 #include <QTextDocument>
 #include <QTextCursor>
 #include <redasm/disassembler/listing/listingdocument.h>
@@ -13,8 +14,9 @@ class ListingRendererCommon
         ListingRendererCommon(QTextDocument* textdocument, REDasm::ListingDocument& document);
         void insertLine(const REDasm::RendererLine& rl, bool showcursor = false);
         void insertText(const REDasm::RendererLine& rl, bool showcursor = false);
-        void insertHtmlLine(const REDasm::RendererLine& rl);
-        void insertHtmlText(const REDasm::RendererLine& rl);
+
+    public:
+        static void renderText(const REDasm::RendererLine& rl, float x, float y, const QFontMetricsF &fm);
 
     private:
         QString foregroundHtml(const std::string& s, const std::string& style, const REDasm::RendererLine &rl) const;
@@ -24,9 +26,10 @@ class ListingRendererCommon
         void showCursor();
         void highlightSelection(const REDasm::RendererLine& rl);
         void highlightWords(const REDasm::RendererLine& rl);
-        void highlightLine();
+        void highlightLine(const REDasm::RendererLine& rl);
 
     private:
+        QTextDocument* m_textdocument;
         REDasm::ListingDocument& m_document;
         QTextCursor m_textcursor;
         QRegularExpression m_rgxwords;

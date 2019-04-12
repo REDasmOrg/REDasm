@@ -6,7 +6,7 @@
 
 #define DEFAULT_ROW_COUNT 10
 
-DisassemblerPopupWidget::DisassemblerPopupWidget(ListingPopupRenderer *popuprenderer, const REDasm::DisassemblerPtr &disassembler, QWidget *parent): QPlainTextEdit(parent), m_document(disassembler->document()), m_popuprenderer(popuprenderer), m_disassembler(disassembler), m_index(-1), m_rows(DEFAULT_ROW_COUNT)
+DisassemblerPopupWidget::DisassemblerPopupWidget(ListingDocumentRenderer *documentrenderer, const REDasm::DisassemblerPtr &disassembler, QWidget *parent): QPlainTextEdit(parent), m_document(disassembler->document()), m_documentrenderer(documentrenderer), m_disassembler(disassembler), m_index(-1), m_rows(DEFAULT_ROW_COUNT)
 {
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, palette.color(QPalette::ToolTipBase));
@@ -43,7 +43,7 @@ bool DisassemblerPopupWidget::renderPopup(const std::string &word, int line)
 
 void DisassemblerPopupWidget::moreRows()
 {
-    if(m_index + m_rows > static_cast<int>(m_document->length()))
+    if((m_index + m_rows) > static_cast<int>(m_document->length()))
         return;
 
     m_rows++;
@@ -64,7 +64,7 @@ int DisassemblerPopupWidget::rows() const { return m_rows; }
 void DisassemblerPopupWidget::renderPopup()
 {
     this->clear();
-    m_popuprenderer->render(m_index, m_rows, this->document());
+    m_documentrenderer->render(m_index, m_rows, this->document());
 }
 
 int DisassemblerPopupWidget::getIndexOfWord(const std::string &word) const

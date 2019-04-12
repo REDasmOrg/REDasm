@@ -6,8 +6,8 @@
 
 DisassemblerPopup::DisassemblerPopup(const REDasm::DisassemblerPtr &disassembler, QWidget *parent): QWidget(parent)
 {
-    m_popuprenderer = new ListingPopupRenderer(disassembler.get());
-    m_popupwidget = new DisassemblerPopupWidget(m_popuprenderer, disassembler, this);
+    m_documentrenderer = new ListingDocumentRenderer(disassembler.get());
+    m_popupwidget = new DisassemblerPopupWidget(m_documentrenderer, disassembler, this);
 
     QVBoxLayout* vboxlayout = new QVBoxLayout(this);
     vboxlayout->setContentsMargins(0, 0, 0, 0);
@@ -21,7 +21,7 @@ DisassemblerPopup::DisassemblerPopup(const REDasm::DisassemblerPtr &disassembler
     this->setMinimumWidth(0);
 }
 
-DisassemblerPopup::~DisassemblerPopup() { delete m_popuprenderer; }
+DisassemblerPopup::~DisassemblerPopup() { delete m_documentrenderer; }
 
 void DisassemblerPopup::popup(const std::string &word, int line)
 {
@@ -64,8 +64,8 @@ void DisassemblerPopup::wheelEvent(QWheelEvent* e)
 
 void DisassemblerPopup::updateGeometry()
 {
-    QFontMetrics fm = this->fontMetrics();
+    QFontMetricsF fm = this->fontMetrics();
 
-    this->setFixedWidth(m_popuprenderer->maxWidth());
-    this->setFixedHeight(m_popupwidget->rows() * fm.lineSpacing());
+    this->setFixedWidth(m_documentrenderer->maxWidth());
+    this->setFixedHeight(m_popupwidget->rows() * std::ceil(fm.height()));
 }

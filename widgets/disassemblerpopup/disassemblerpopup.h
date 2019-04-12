@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/disassembler/disassemblerapi.h>
-#include "../../renderer/listingpopuprenderer.h"
+#include "../../renderer/listingdocumentrenderer.h"
 #include "disassemblerpopupwidget.h"
 
 class DisassemblerPopup : public QWidget
@@ -23,7 +23,7 @@ class DisassemblerPopup : public QWidget
 
     private:
         DisassemblerPopupWidget* m_popupwidget;
-        ListingPopupRenderer* m_popuprenderer;
+        ListingDocumentRenderer* m_documentrenderer;
 
     private:
         QPoint m_lastpos;

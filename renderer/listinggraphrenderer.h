@@ -1,9 +1,9 @@
 #ifndef LISTINGGRAPHRENDERER_H
 #define LISTINGGRAPHRENDERER_H
 
-#include "listingpopuprenderer.h"
+#include "listingdocumentrenderer.h"
 
-class ListingGraphRenderer: public ListingPopupRenderer
+class ListingGraphRenderer: public ListingDocumentRenderer
 {
     public:
         ListingGraphRenderer(REDasm::DisassemblerAPI* disassembler);

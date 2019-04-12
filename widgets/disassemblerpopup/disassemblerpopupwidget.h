@@ -4,14 +4,14 @@
 #include <QPlainTextEdit>
 #include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/disassembler/disassemblerapi.h>
-#include "../../renderer/listingpopuprenderer.h"
+#include "../../renderer/listingdocumentrenderer.h"
 
 class DisassemblerPopupWidget : public QPlainTextEdit
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerPopupWidget(ListingPopupRenderer* popuprenderer, const REDasm::DisassemblerPtr& disassembler, QWidget *parent = nullptr);
+        explicit DisassemblerPopupWidget(ListingDocumentRenderer* documentrenderer, const REDasm::DisassemblerPtr& disassembler, QWidget *parent = nullptr);
         bool renderPopup(const std::string& word, int line);
         void moreRows();
         void lessRows();
@@ -24,7 +24,7 @@ class DisassemblerPopupWidget : public QPlainTextEdit
     private:
         REDasm::DisassemblerPtr m_disassembler;
         REDasm::ListingDocument& m_document;
-        ListingPopupRenderer* m_popuprenderer;
+        ListingDocumentRenderer* m_documentrenderer;
         int m_index, m_rows;
 };
 

@@ -10,20 +10,17 @@
 class ListingTextRenderer: public REDasm::ListingRenderer
 {
     public:
-        typedef std::pair<int, int> Range;
 
     public:
         ListingTextRenderer(const QFont& font, REDasm::DisassemblerAPI* disassembler);
         virtual ~ListingTextRenderer() = default;
-        int lineHeight() const;
         int maxWidth() const;
         void setFirstVisibleLine(u64 line);
 
     public:
-        REDasm::ListingCursor::Position hitTest(const QPointF& pos, int firstline);
-        std::string getWordUnderCursor(const QPointF& pos, int firstline, int* p = NULL);
-        Range wordHitTest(const QPointF& pos, int firstline);
-        void highlightWordUnderCursor();
+        REDasm::ListingCursor::Position hitTest(const QPointF& pos);
+        REDasm::ListingRenderer::Range wordHitTest(const QPointF& pos);
+        std::string getWordFromPos(const QPointF& pos, Range *wordpos = nullptr);
 
     protected:
         virtual void renderLine(const REDasm::RendererLine& rl);

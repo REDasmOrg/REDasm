@@ -9,14 +9,13 @@
 #include <QPainter>
 
 ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font), m_firstline(0) { m_maxwidth = 0; }
-int ListingTextRenderer::lineHeight() const { return m_fontmetrics.height(); }
-int ListingTextRenderer::maxWidth() const { return m_maxwidth; }
+int ListingTextRenderer::maxWidth() const { return static_cast<int>(m_maxwidth); }
 void ListingTextRenderer::setFirstVisibleLine(u64 line) { m_firstline = line; }
 
-REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos, int firstline)
+REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp;
-    cp.first = std::min(static_cast<u64>(firstline + std::floor(pos.y() / m_fontmetrics.height())), m_document->lastLine());
+    cp.first = std::min(static_cast<u64>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), m_document->lastLine());
     cp.second = std::numeric_limits<u64>::max();
 
     REDasm::RendererLine rl;
@@ -46,21 +45,18 @@ REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos,
     return cp;
 }
 
-std::string ListingTextRenderer::getWordUnderCursor(const QPointF &pos, int firstline, int *p)
+std::string ListingTextRenderer::getWordFromPos(const QPointF &pos, REDasm::ListingRenderer::Range* wordpos)
 {
-    REDasm::ListingCursor::Position cp = this->hitTest(pos, firstline);
-    return this->wordFromPosition(cp);
+    REDasm::ListingCursor::Position cp = this->hitTest(pos);
+    return this->wordFromPosition(cp, wordpos);
 }
 
-ListingTextRenderer::Range ListingTextRenderer::wordHitTest(const QPointF &pos, int firstline)
+REDasm::ListingRenderer::Range ListingTextRenderer::wordHitTest(const QPointF &pos)
 {
-    int p = -1;
-    std::string word = this->getWordUnderCursor(pos, firstline, &p);
-    m_cursor->setWordUnderCursor(word);
-    return std::make_pair(p, static_cast<int>(p + word.length() - 1));
+    REDasm::ListingRenderer::Range wordpos;
+    this->getWordFromPos(pos, &wordpos);
+    return wordpos;
 }
-
-void ListingTextRenderer::highlightWordUnderCursor() { m_cursor->setWordUnderCursor(this->wordFromPosition(m_cursor->currentPosition())); }
 
 void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
 {

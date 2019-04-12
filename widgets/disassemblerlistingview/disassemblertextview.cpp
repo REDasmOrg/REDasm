@@ -246,9 +246,8 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
     if((e->button() == Qt::LeftButton) || (!cur->hasSelection() && (e->button() == Qt::RightButton)))
     {
         e->accept();
-        REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos(), this->firstVisibleLine());
+        REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos());
         cur->moveTo(cp.first, cp.second);
-        m_renderer->highlightWordUnderCursor();
     }
     else if (e->button() == Qt::BackButton)
         this->goBack();
@@ -267,7 +266,7 @@ void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
 
         auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
         REDasm::ListingCursor* cur = lock->cursor();
-        REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos(), this->firstVisibleLine());
+        REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos());
         cur->select(cp.first, cp.second);
         e->accept();
         return;
@@ -295,9 +294,9 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
 
         auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
         REDasm::ListingCursor* cur = lock->cursor();
-        ListingTextRenderer::Range r = m_renderer->wordHitTest(e->pos(), this->firstVisibleLine());
+        ListingTextRenderer::Range r = m_renderer->wordHitTest(e->pos());
 
-        if(r.first == -1)
+        if(r.first > r.second)
             return;
 
         cur->moveTo(cur->currentLine(), r.first);
@@ -594,18 +593,13 @@ void DisassemblerTextView::moveToSelection()
     auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
     REDasm::ListingCursor* cur = lock->cursor();
 
-    if(this->isLineVisible(cur->currentLine()))
-    {
-        this->renderListing();
-
-        if(this->isVisible())
-            m_renderer->highlightWordUnderCursor();
-    }
-    else // Center on selection
+    if(!this->isLineVisible(cur->currentLine())) // Center on selection
     {
         QScrollBar* vscrollbar = this->verticalScrollBar();
         vscrollbar->setValue(std::max(static_cast<s64>(0), static_cast<s64>(cur->currentLine() - this->visibleLines() / 2)));
     }
+    else
+        this->renderListing();
 
     this->ensureColumnVisible();
     REDasm::ListingItem* item = lock->itemAt(cur->currentLine());
@@ -791,11 +785,11 @@ void DisassemblerTextView::showHexDump()
 
 void DisassemblerTextView::showPopup(const QPoint& pos)
 {
-    std::string word = m_renderer->getWordUnderCursor(pos, this->firstVisibleLine());
+    std::string word = m_renderer->getWordFromPos(pos);
 
     if(!word.empty())
     {
-        REDasm::ListingCursor::Position cp = m_renderer->hitTest(pos, this->firstVisibleLine());
+        REDasm::ListingCursor::Position cp = m_renderer->hitTest(pos);
         m_disassemblerpopup->popup(word, cp.first);
         return;
     }

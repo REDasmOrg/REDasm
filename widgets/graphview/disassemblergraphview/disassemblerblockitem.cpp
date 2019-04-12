@@ -1,7 +1,7 @@
 #include "disassemblerblockitem.h"
 #include "../../../redasmsettings.h"
 #include <QApplication>
-#include <QFontMetrics>
+#include <QFontMetricsF>
 #include <QPainter>
 #include <QDebug>
 
@@ -12,10 +12,11 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
 {
     this->setupDocument();
 
-    m_renderer = std::make_unique<ListingGraphRenderer>(disassembler.get());
+    m_renderer = std::make_unique<ListingDocumentRenderer>(disassembler.get());
+    m_renderer->setFlags(ListingDocumentRenderer::HideSegmentName);
     this->invalidate(false);
 
-    QFontMetrics fm(m_document.defaultFont());
+    QFontMetricsF fm(m_document.defaultFont());
     m_charheight = fm.height();
 
     EVENT_CONNECT(m_disassembler->document()->cursor(), positionChanged, this, [&]() {
@@ -56,7 +57,7 @@ void DisassemblerBlockItem::invalidate(bool notify)
 QSize DisassemblerBlockItem::documentSize() const
 {
     return { static_cast<int>(m_document.size().width()),
-             static_cast<int>(m_charheight * m_basicblock->count()) };
+             static_cast<int>(std::ceil(m_charheight * m_basicblock->count())) };
 }
 
 void DisassemblerBlockItem::render(QPainter *painter)

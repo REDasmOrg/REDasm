@@ -3,7 +3,7 @@
 
 #include <QTextDocument>
 #include <redasm/graph/functiongraph.h>
-#include "../../../renderer/listinggraphrenderer.h"
+#include "../../../renderer/listingdocumentrenderer.h"
 #include "../graphviewitem.h"
 
 class DisassemblerBlockItem : public GraphViewItem
@@ -29,11 +29,11 @@ class DisassemblerBlockItem : public GraphViewItem
 
     private:
         const REDasm::Graphing::FunctionBasicBlock* m_basicblock;
-        std::unique_ptr<ListingGraphRenderer> m_renderer;
+        std::unique_ptr<ListingDocumentRenderer> m_renderer;
         REDasm::DisassemblerPtr m_disassembler;
         QTextDocument m_document;
+        qreal m_charheight;
         QFont m_font;
-        float m_charheight;
 };
 
 #endif // DISASSEMBLERBLOCKITEM_H

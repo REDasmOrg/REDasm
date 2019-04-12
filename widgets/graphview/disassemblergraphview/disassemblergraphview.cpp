@@ -9,12 +9,7 @@
 #include <QAction>
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_currentfunction(nullptr) { }
-
-DisassemblerGraphView::~DisassemblerGraphView()
-{
-    int zzz = 0;
-    zzz++;
-}
+DisassemblerGraphView::~DisassemblerGraphView() { }
 
 void DisassemblerGraphView::computeLayout()
 {

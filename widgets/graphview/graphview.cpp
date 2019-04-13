@@ -127,21 +127,13 @@ void GraphView::paintEvent(QPaintEvent *e)
     painter.setRenderHint(QPainter::Antialiasing);
     painter.translate(translation);
     painter.scale(m_scalefactor, m_scalefactor);
-    painter.save();
-
-    for(auto it = m_lines.begin(); it != m_lines.end(); it++)
-    {
-        QColor c(QString::fromStdString(m_graph->color(it->first)));
-        painter.setPen(QPen(c, 2.0));
-        painter.setBrush(c);
-        painter.drawLines(it->second);
-        painter.drawConvexPolygon(m_arrows[it->first]);
-    }
-
-    painter.restore();
 
     QRect vpr(this->viewport()->rect().topLeft(), this->viewport()->rect().bottomRight() - QPoint(1, 1));
-    vpr.translate(-translation.x(), -translation.y());
+
+    //Adjust imaginary viewport rect at new zoom level
+    vpr.setWidth(vpr.width() / m_scalefactor);
+    vpr.setHeight(vpr.height() / m_scalefactor);
+    vpr.translate(-translation.x() / m_scalefactor, -translation.y() / m_scalefactor);
 
     for(auto* item : m_items)
     {
@@ -150,6 +142,19 @@ void GraphView::paintEvent(QPaintEvent *e)
 
         item->render(&painter);
     }
+
+    painter.save();
+
+    for(auto it = m_lines.begin(); it != m_lines.end(); it++)
+    {
+        QColor c(QString::fromStdString(m_graph->color(it->first)));
+        painter.setPen(QPen(c, 2.0 / m_scalefactor));
+        painter.setBrush(c);
+        painter.drawLines(it->second);
+        painter.drawConvexPolygon(m_arrows[it->first]);
+    }
+
+    painter.restore();
 }
 
 void GraphView::showEvent(QShowEvent *e)

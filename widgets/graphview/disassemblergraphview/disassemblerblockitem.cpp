@@ -29,14 +29,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
 
 DisassemblerBlockItem::~DisassemblerBlockItem() { EVENT_DISCONNECT(m_disassembler->document()->cursor(), positionChanged, this); }
 bool DisassemblerBlockItem::hasIndex(s64 index) const { return m_basicblock->contains(index); }
-
-QSize DisassemblerBlockItem::size() const
-{
-    QSize dsz = this->documentSize();
-    dsz.rwidth() += (BLOCK_MARGIN * 2);
-    dsz.rheight() += (BLOCK_MARGIN * 2);
-    return dsz;
-}
+QSize DisassemblerBlockItem::size() const { return this->documentSize(); }
 
 void DisassemblerBlockItem::mousePressEvent(QMouseEvent *e)
 {

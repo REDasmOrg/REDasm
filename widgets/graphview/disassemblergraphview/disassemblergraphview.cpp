@@ -16,7 +16,7 @@ void DisassemblerGraphView::computeLayout()
     for(const auto& n : this->graph()->nodes())
     {
         const auto* fbb = static_cast<REDasm::Graphing::FunctionGraph*>(this->graph())->data(n);
-        auto* dbi = new DisassemblerBlockItem(fbb, m_disassembler, this->viewport());
+        auto* dbi = new DisassemblerBlockItem(fbb, m_disassembler, n, this->viewport());
 
         m_items[n] = dbi;
         this->graph()->width(n, dbi->width());

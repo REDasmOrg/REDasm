@@ -5,14 +5,16 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QRect>
+#include <redasm/graph/graph.h>
 
 class GraphViewItem: public QObject
 {
     Q_OBJECT
 
     public:
-        explicit GraphViewItem(QObject* parent = nullptr);
+        explicit GraphViewItem(const REDasm::Graphing::Node& node, QObject* parent = nullptr);
         virtual ~GraphViewItem() = default;
+        const REDasm::Graphing::Node& node() const;
         int x() const;
         int y() const;
         int width() const;
@@ -36,6 +38,7 @@ class GraphViewItem: public QObject
 
     private:
         QPoint m_pos;
+        const REDasm::Graphing::Node& m_node;
 
     friend class GraphView;
 };

@@ -3,7 +3,7 @@
 #include <QScrollBar>
 #include <QPainter>
 
-GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(NULL)
+GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(nullptr), m_selecteditem(nullptr)
 {
     m_prevscalefactor = m_scaledirection = 0;
     m_scalemax = 5.0;
@@ -46,6 +46,7 @@ void GraphView::focusBlock(const GraphViewItem *item)
 void GraphView::mousePressEvent(QMouseEvent *e)
 {
     GraphViewItem* item = this->itemFromMouseEvent(e);
+    m_selecteditem = item;
 
     if(item)
     {
@@ -124,17 +125,44 @@ void GraphView::paintEvent(QPaintEvent *e)
                            m_renderoffset.y() - this->verticalScrollBar()->value() };
 
     QPainter painter(this->viewport());
-    painter.setRenderHint(QPainter::Antialiasing);
     painter.translate(translation);
     painter.scale(m_scalefactor, m_scalefactor);
 
     QRect vpr(this->viewport()->rect().topLeft(), this->viewport()->rect().bottomRight() - QPoint(1, 1));
 
-    //Adjust imaginary viewport rect at new zoom level
+    // Adjust imaginary viewport rect at new zoom level
     vpr.setWidth(vpr.width() / m_scalefactor);
     vpr.setHeight(vpr.height() / m_scalefactor);
     vpr.translate(-translation.x() / m_scalefactor, -translation.y() / m_scalefactor);
 
+    // Render edges
+    painter.save();
+
+    for(auto it = m_lines.begin(); it != m_lines.end(); it++)
+    {
+        QColor c(QString::fromStdString(m_graph->color(it->first)));
+        QPen pen(c);
+
+        if(m_selecteditem && ((it->first.source == m_selecteditem->node()) || (it->first.target == m_selecteditem->node())))
+            pen.setWidthF(2.0 / m_scalefactor);
+        else
+        {
+            pen.setWidthF(1.0 / m_scalefactor);
+            pen.setStyle(m_selecteditem ? Qt::DashLine : Qt::SolidLine);
+        }
+
+        painter.setPen(pen);
+        painter.setBrush(c);
+        painter.drawLines(it->second);
+
+        pen.setStyle(Qt::SolidLine);
+        painter.setPen(pen);
+        painter.drawConvexPolygon(m_arrows[it->first]);
+    }
+
+    painter.restore();
+
+    // Render nodes
     for(auto* item : m_items)
     {
         if(!vpr.intersects(item->rect())) // Ignore blocks that are not in view
@@ -142,19 +170,6 @@ void GraphView::paintEvent(QPaintEvent *e)
 
         item->render(&painter);
     }
-
-    painter.save();
-
-    for(auto it = m_lines.begin(); it != m_lines.end(); it++)
-    {
-        QColor c(QString::fromStdString(m_graph->color(it->first)));
-        painter.setPen(QPen(c, 2.0 / m_scalefactor));
-        painter.setBrush(c);
-        painter.drawLines(it->second);
-        painter.drawConvexPolygon(m_arrows[it->first]);
-    }
-
-    painter.restore();
 }
 
 void GraphView::showEvent(QShowEvent *e)

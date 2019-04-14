@@ -11,7 +11,7 @@ class DisassemblerBlockItem : public GraphViewItem
     Q_OBJECT
 
     public:
-        explicit DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock* fbb, const REDasm::DisassemblerPtr& disassembler, QWidget *parent = nullptr);
+        explicit DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock* fbb, const REDasm::DisassemblerPtr& disassembler, const REDasm::Graphing::Node& node, QWidget *parent = nullptr);
         virtual ~DisassemblerBlockItem();
         bool hasIndex(s64 index) const;
 

@@ -8,7 +8,7 @@
 #define BLOCK_MARGIN 4
 #define BLOCK_MARGINS -BLOCK_MARGIN, 0, BLOCK_MARGIN, BLOCK_MARGIN
 
-DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock *fbb, const REDasm::DisassemblerPtr &disassembler, QWidget *parent) : GraphViewItem(parent), m_basicblock(fbb), m_disassembler(disassembler)
+DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock *fbb, const REDasm::DisassemblerPtr &disassembler, const REDasm::Graphing::Node &node, QWidget *parent) : GraphViewItem(node, parent), m_basicblock(fbb), m_disassembler(disassembler)
 {
     this->setupDocument();
 

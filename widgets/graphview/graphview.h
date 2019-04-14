@@ -49,6 +49,7 @@ class GraphView : public QAbstractScrollArea
         QHash<REDasm::Graphing::Node, GraphViewItem*> m_items;
 
     private:
+        GraphViewItem* m_selecteditem;
         std::unique_ptr<REDasm::Graphing::Graph> m_graph;
         std::unordered_map< REDasm::Graphing::Edge, QVector<QLine> > m_lines;
         std::unordered_map<REDasm::Graphing::Edge, QPolygon> m_arrows;

@@ -16,8 +16,10 @@ GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembl
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, THEME_VALUE("graph_bg"));
 
-    this->setPalette(palette);
+    this->horizontalScrollBar()->setSingleStep(this->fontMetrics().height());
+    this->verticalScrollBar()->setSingleStep(this->fontMetrics().height());
     this->setAutoFillBackground(true);
+    this->setPalette(palette);
 }
 
 void GraphView::setDisassembler(const REDasm::DisassemblerPtr& disassembler) { m_disassembler = disassembler; }

@@ -333,7 +333,7 @@ void DisassemblerView::displayAddress(address_t address)
 void DisassemblerView::displayCurrentReferences()
 {
     REDasm::ListingDocument& document = m_disassembler->document();
-    const std::string& word = document->cursor()->wordUnderCursor();
+    const std::string& word = m_listingview->textView()->wordUnderCursor();
 
     if(!word.empty())
     {

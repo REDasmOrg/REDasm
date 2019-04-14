@@ -139,6 +139,7 @@ std::string DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Edge &e)
 
 void DisassemblerGraphView::adjustActions()
 {
+    /*
     REDasm::ListingDocument& document = m_disassembler->document();
     REDasm::ListingItem* item = document->currentItem();
 
@@ -176,10 +177,12 @@ void DisassemblerGraphView::adjustActions()
 
     m_actcallgraph->setVisible(symbol->isFunction());
     m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
+    */
 }
 
 void DisassemblerGraphView::showCallGraph()
 {
+    /*
     REDasm::ListingDocument& document = m_disassembler->document();
     const REDasm::Symbol* symbol = document->symbol(document->cursor()->wordUnderCursor());
 
@@ -190,6 +193,7 @@ void DisassemblerGraphView::showCallGraph()
     }
 
     emit callGraphRequested(symbol->address);
+    */
 }
 
 void DisassemblerGraphView::printFunctionHexDump()

@@ -64,6 +64,14 @@ DisassemblerTextView::~DisassemblerTextView()
     }
 }
 
+std::string DisassemblerTextView::wordUnderCursor() const
+{
+    if(!m_renderer)
+        return std::string();
+
+    return m_renderer->getCurrentWord();
+}
+
 bool DisassemblerTextView::canGoBack() const { return this->currentDocument()->cursor()->canGoBack(); }
 bool DisassemblerTextView::canGoForward() const { return this->currentDocument()->cursor()->canGoForward(); }
 
@@ -493,10 +501,7 @@ const REDasm::Symbol* DisassemblerTextView::symbolUnderCursor()
     auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
     const REDasm::ListingCursor* cur = lock->cursor();
 
-    if(!cur->hasWordUnderCursor())
-        return NULL;
-
-    return lock->symbol(cur->wordUnderCursor());
+    return lock->symbol(m_renderer->getCurrentWord());
 }
 
 bool DisassemblerTextView::isLineVisible(u64 line) const

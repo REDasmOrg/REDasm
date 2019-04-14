@@ -497,6 +497,7 @@ void MainWindow::checkDisassemblerStatus()
         m_pbstatus->setStyleSheet("color: green;");
 
     m_pbstatus->setVisible(true);
+    m_lblprogress->setVisible(disassembler->busy());
 
     ui->action_Save->setEnabled(!disassembler->busy());
     ui->action_Save_As->setEnabled(!disassembler->busy());

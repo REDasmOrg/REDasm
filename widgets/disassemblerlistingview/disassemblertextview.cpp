@@ -99,7 +99,7 @@ void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disass
     this->adjustScrollBars();
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderListing(); });
 
-    m_renderer = std::make_unique<ListingTextRenderer>(this->font(), m_disassembler.get());
+    m_renderer = std::make_unique<ListingTextRenderer>(m_disassembler.get());
     m_disassemblerpopup = new DisassemblerPopup(m_disassembler, this);
 
     if(!m_disassembler->busy())

@@ -60,3 +60,18 @@ int REDasmSettings::currentFontSize() const
 void REDasmSettings::changeTheme(const QString& theme) { this->setValue("selected_theme", theme.toLower()); }
 void REDasmSettings::changeFont(const QFont &font) { this->setValue("selected_font", font);  }
 void REDasmSettings::changeFontSize(int size) { this->setValue("selected_font_size", size); }
+
+QFont REDasmSettings::font()
+{
+    REDasmSettings settings;
+    QFont f = settings.currentFont();
+
+    if(!(f.styleHint() & QFont::Monospace))
+    {
+        f.setFamily("Monospace"); // Force Monospaced font
+        f.setStyleHint(QFont::TypeWriter);
+    }
+
+    f.setPointSize(settings.currentFontSize());
+    return f;
+}

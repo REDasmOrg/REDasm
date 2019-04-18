@@ -64,8 +64,6 @@ void DisassemblerPopup::wheelEvent(QWheelEvent* e)
 
 void DisassemblerPopup::updateGeometry()
 {
-    QFontMetricsF fm = this->fontMetrics();
-
     this->setFixedWidth(m_documentrenderer->maxWidth());
-    this->setFixedHeight(m_popupwidget->rows() * std::ceil(fm.height()));
+    this->setFixedHeight(m_popupwidget->rows() * std::ceil(m_documentrenderer->fontMetrics().height()));
 }

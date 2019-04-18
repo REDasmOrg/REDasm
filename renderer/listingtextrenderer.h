@@ -6,16 +6,14 @@
 #include <QFontMetrics>
 #include <QFont>
 #include <redasm/disassembler/listing/listingrenderer.h>
+#include "listingrenderercommon.h"
 
-class ListingTextRenderer: public REDasm::ListingRenderer
+class ListingTextRenderer: public ListingRendererCommon
 {
     public:
 
     public:
-        ListingTextRenderer(const QFont& font, REDasm::DisassemblerAPI* disassembler);
-        virtual ~ListingTextRenderer() = default;
-        int maxWidth() const;
-        void setFirstVisibleLine(u64 line);
+        ListingTextRenderer(REDasm::DisassemblerAPI* disassembler);
 
     public:
         REDasm::ListingCursor::Position hitTest(const QPointF& pos);
@@ -24,11 +22,6 @@ class ListingTextRenderer: public REDasm::ListingRenderer
 
     protected:
         virtual void renderLine(const REDasm::RendererLine& rl);
-
-    private:
-        QFontMetricsF m_fontmetrics;
-        u64 m_firstline;
-        qreal m_maxwidth;
 };
 
 #endif // LISTINGTEXTRENDERER_H

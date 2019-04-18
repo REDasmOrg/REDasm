@@ -72,14 +72,10 @@ void DisassemblerBlockItem::render(QPainter *painter)
 
 void DisassemblerBlockItem::setupDocument()
 {
-    REDasmSettings settings;
-    QFont font = settings.currentFont();
-    font.setPointSize(settings.currentFontSize());
-
     QTextOption textoption;
     textoption.setWrapMode(QTextOption::NoWrap);
 
-    m_document.setDefaultFont(font);
+    m_document.setDefaultFont(REDasmSettings::font());
     m_document.setDefaultTextOption(textoption);
     m_document.setUndoRedoEnabled(false);
 }

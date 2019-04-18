@@ -18,13 +18,9 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     m_listingview = new DisassemblerListingView(this);
     m_graphview = new DisassemblerGraphView(this);
 
-    REDasmSettings settings;
-    QFont font = settings.currentFont();
-    font.setPointSize(settings.currentFontSize());
-
-    ui->hexView->setFont(font);
-    ui->hexView->setReadOnly(true);
+    ui->hexView->setFont(REDasmSettings::font());
     ui->hexView->setFrameShape(QFrame::NoFrame);
+    ui->hexView->setReadOnly(true);
 
     ui->stackedWidget->addWidget(m_listingview);
     ui->stackedWidget->addWidget(m_graphview);

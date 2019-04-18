@@ -1,4 +1,5 @@
 ﻿#include "listingrenderercommon.h"
+#include "../redasmsettings.h"
 #include "../themeprovider.h"
 #include <QApplication>
 #include <QRegularExpression>
@@ -6,6 +7,11 @@
 #include <QTextDocument>
 #include <QPalette>
 #include <QPainter>
+
+ListingRendererCommon::ListingRendererCommon(REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(REDasmSettings::font()), m_maxwidth(0), m_firstline(0) { }
+void ListingRendererCommon::setFirstVisibleLine(u64 line) { m_firstline = line; }
+const QFontMetricsF ListingRendererCommon::fontMetrics() const { return m_fontmetrics; }
+qreal ListingRendererCommon::maxWidth() const { return m_maxwidth; }
 
 void ListingRendererCommon::insertText(const REDasm::RendererLine &rl, QTextCursor *textcursor)
 {
@@ -86,17 +92,4 @@ void ListingRendererCommon::renderText(const REDasm::RendererLine &rl, float x, 
         painter->drawText(chunkrect, Qt::TextSingleLine, chunk);
         x += chunkrect.width();
     }
-}
-
-QString ListingRendererCommon::foregroundHtml(const std::string &s, const std::string& style, const REDasm::RendererLine& rl) const
-{
-    QColor c = THEME_VALUE(QString::fromStdString(style));
-    return QString("<font data-line=\"%1\" style=\"color: %2\">%3</font>").arg(rl.documentindex).arg(c.name(), this->wordsToSpan(s, rl));
-}
-
-QString ListingRendererCommon::wordsToSpan(const std::string &s, const REDasm::RendererLine& rl) const
-{
-    QString spans = QString::fromStdString(s);
-    spans.replace(QRegularExpression(REDASM_WORD_REGEX), QString("<span data-line=\"%1\">\\1</span>").arg(rl.documentindex));
-    return spans;
 }

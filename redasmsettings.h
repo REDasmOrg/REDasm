@@ -24,6 +24,9 @@ class REDasmSettings : public QSettings
         void changeFont(const QFont &font);
         void changeFontSize(int size);
 
+    public:
+        static QFont font();
+
     private:
         static QByteArray m_defaultstate;
 };

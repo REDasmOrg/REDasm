@@ -1,4 +1,5 @@
 #include "disassemblerpopupwidget.h"
+#include "../../redasmsettings.h"
 #include <QGraphicsDropShadowEffect>
 #include <QFontDatabase>
 #include <QFontMetrics>
@@ -12,7 +13,7 @@ DisassemblerPopupWidget::DisassemblerPopupWidget(ListingDocumentRenderer *docume
     palette.setColor(QPalette::Base, palette.color(QPalette::ToolTipBase));
     this->setPalette(palette);
 
-    this->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    this->setFont(REDasmSettings::font());
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setTextInteractionFlags(Qt::NoTextInteraction);

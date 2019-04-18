@@ -1,5 +1,4 @@
 #include "listingtextrenderer.h"
-#include "listingrenderercommon.h"
 #include "../themeprovider.h"
 #include <cmath>
 #include <QApplication>
@@ -8,9 +7,7 @@
 #include <QPalette>
 #include <QPainter>
 
-ListingTextRenderer::ListingTextRenderer(const QFont &font, REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(font), m_firstline(0) { m_maxwidth = 0; }
-int ListingTextRenderer::maxWidth() const { return static_cast<int>(m_maxwidth); }
-void ListingTextRenderer::setFirstVisibleLine(u64 line) { m_firstline = line; }
+ListingTextRenderer::ListingTextRenderer(REDasm::DisassemblerAPI *disassembler): ListingRendererCommon(disassembler) { }
 
 REDasm::ListingCursor::Position ListingTextRenderer::hitTest(const QPointF &pos)
 {

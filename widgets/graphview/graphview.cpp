@@ -179,7 +179,12 @@ void GraphView::paintEvent(QPaintEvent *e)
         if(!vpr.intersects(item->rect())) // Ignore blocks that are not in view
             continue;
 
-        item->render(&painter);
+        size_t itemstate = GraphViewItem::None;
+
+        if(m_selecteditem == item)
+            itemstate |= GraphViewItem::Selected;
+
+        item->render(&painter, itemstate);
     }
 }
 

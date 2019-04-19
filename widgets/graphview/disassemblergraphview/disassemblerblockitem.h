@@ -16,7 +16,7 @@ class DisassemblerBlockItem : public GraphViewItem
         bool hasIndex(s64 index) const;
 
     public:
-        virtual void render(QPainter* painter);
+        virtual void render(QPainter* painter, size_t state);
         virtual QSize size() const;
 
     protected:

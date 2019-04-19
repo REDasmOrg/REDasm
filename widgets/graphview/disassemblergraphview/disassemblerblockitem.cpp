@@ -6,6 +6,7 @@
 #include <QDebug>
 
 #define BLOCK_MARGIN 4
+#define DROP_SHADOW_SIZE  10
 #define BLOCK_MARGINS -BLOCK_MARGIN, 0, BLOCK_MARGIN, BLOCK_MARGIN
 
 DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock *fbb, const REDasm::DisassemblerPtr &disassembler, const REDasm::Graphing::Node &node, QWidget *parent) : GraphViewItem(node, parent), m_basicblock(fbb), m_disassembler(disassembler)
@@ -65,19 +66,30 @@ QSize DisassemblerBlockItem::documentSize() const
              static_cast<int>(std::ceil(m_charheight * m_basicblock->count())) };
 }
 
-void DisassemblerBlockItem::render(QPainter *painter)
+void DisassemblerBlockItem::render(QPainter *painter, size_t state)
 {
     QRect r(QPoint(0, 0), this->documentSize());
     r.adjust(BLOCK_MARGINS);
 
     QColor shadow = painter->pen().color();
-    shadow.setAlpha(180);
+    shadow.setAlpha(127);
 
     painter->save();
         painter->translate(this->position());
-        painter->fillRect(r.adjusted(0, 0, BLOCK_MARGIN, BLOCK_MARGIN), shadow);
+
+        if(state & DisassemblerBlockItem::Selected) // Thicker shadow
+            painter->fillRect(r.adjusted(DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE + 2, DROP_SHADOW_SIZE + 2), shadow);
+        else
+            painter->fillRect(r.adjusted(DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE), shadow);
+
         painter->fillRect(r, qApp->palette().base());
         m_document.drawContents(painter);
+
+        if(state & DisassemblerBlockItem::Selected)
+            painter->setPen(QPen(qApp->palette().color(QPalette::Highlight), 2.0));
+        else
+            painter->setPen(QPen(qApp->palette().color(QPalette::WindowText), 1.5));
+
         painter->drawRect(r);
     painter->restore();
 }

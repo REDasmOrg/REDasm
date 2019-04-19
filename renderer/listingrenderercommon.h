@@ -11,6 +11,11 @@ class ListingRendererCommon: public REDasm::ListingRenderer
 {
     public:
         ListingRendererCommon(REDasm::DisassemblerAPI* disassembler);
+        void moveTo(const QPointF& pos);
+        void select(const QPointF& pos);
+        REDasm::ListingCursor::Position hitTest(const QPointF& pos);
+        REDasm::ListingRenderer::Range wordHitTest(const QPointF& pos);
+        std::string getWordFromPos(const QPointF& pos, Range *wordpos = nullptr);
         void setFirstVisibleLine(u64 line);
         const QFontMetricsF fontMetrics() const;
         qreal maxWidth() const;

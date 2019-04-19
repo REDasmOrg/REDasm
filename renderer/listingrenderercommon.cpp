@@ -9,6 +9,65 @@
 #include <QPainter>
 
 ListingRendererCommon::ListingRendererCommon(REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(REDasmSettings::font()), m_maxwidth(0), m_firstline(0) { }
+
+void ListingRendererCommon::moveTo(const QPointF &pos)
+{
+    REDasm::ListingCursor::Position cp = this->hitTest(pos);
+    m_cursor->moveTo(cp.first, cp.second);
+}
+
+void ListingRendererCommon::select(const QPointF &pos)
+{
+    REDasm::ListingCursor::Position cp = this->hitTest(pos);
+    m_cursor->select(cp.first, cp.second);
+}
+
+REDasm::ListingCursor::Position ListingRendererCommon::hitTest(const QPointF &pos)
+{
+    REDasm::ListingCursor::Position cp;
+    cp.first = std::min(static_cast<u64>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), m_document->lastLine());
+    cp.second = std::numeric_limits<u64>::max();
+
+    REDasm::RendererLine rl(true);
+
+    if(!this->getRendererLine(cp.first, rl))
+        cp.second = 0;
+
+    std::string s = rl.text;
+    qreal x = 0;
+
+    for(size_t i = 0; i < s.length(); i++)
+    {
+        qreal w = m_fontmetrics.width(s[i]);
+
+        if(x >= pos.x())
+        {
+            cp.second = i - 1;
+            break;
+        }
+
+        x += w;
+    }
+
+    if(cp.second == std::numeric_limits<u64>::max())
+        cp.second = static_cast<u64>(s.length() - 1);
+
+    return cp;
+}
+
+std::string ListingRendererCommon::getWordFromPos(const QPointF &pos, REDasm::ListingRenderer::Range* wordpos)
+{
+    REDasm::ListingCursor::Position cp = this->hitTest(pos);
+    return this->wordFromPosition(cp, wordpos);
+}
+
+REDasm::ListingRenderer::Range ListingRendererCommon::wordHitTest(const QPointF &pos)
+{
+    REDasm::ListingRenderer::Range wordpos;
+    this->getWordFromPos(pos, &wordpos);
+    return wordpos;
+}
+
 void ListingRendererCommon::setFirstVisibleLine(u64 line) { m_firstline = line; }
 const QFontMetricsF ListingRendererCommon::fontMetrics() const { return m_fontmetrics; }
 qreal ListingRendererCommon::maxWidth() const { return m_maxwidth; }

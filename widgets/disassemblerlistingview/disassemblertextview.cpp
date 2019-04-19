@@ -254,8 +254,7 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
     if((e->button() == Qt::LeftButton) || (!cur->hasSelection() && (e->button() == Qt::RightButton)))
     {
         e->accept();
-        REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos());
-        cur->moveTo(cp.first, cp.second);
+        m_renderer->moveTo(e->pos());
     }
     else if (e->button() == Qt::BackButton)
         this->goBack();
@@ -271,12 +270,7 @@ void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
     {
         e->accept();
         this->currentDocument()->cursor()->disable();
-
-        auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
-        REDasm::ListingCursor* cur = lock->cursor();
-        REDasm::ListingCursor::Position cp = m_renderer->hitTest(e->pos());
-        cur->select(cp.first, cp.second);
-        e->accept();
+        m_renderer->select(e->pos());
         return;
     }
 

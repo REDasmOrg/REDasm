@@ -13,6 +13,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
     this->setupDocument();
 
     m_renderer = std::make_unique<ListingDocumentRenderer>(disassembler.get());
+    m_renderer->setFirstVisibleLine(fbb->startidx);
     m_renderer->setFlags(ListingDocumentRenderer::HideSegmentName);
     this->invalidate(false);
 

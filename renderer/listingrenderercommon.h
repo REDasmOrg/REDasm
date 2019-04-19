@@ -7,6 +7,8 @@
 #include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/disassembler/listing/listingrenderer.h>
 
+#define CURSOR_BLINK_INTERVAL 500  // 500ms
+
 class ListingRendererCommon: public REDasm::ListingRenderer
 {
     public:

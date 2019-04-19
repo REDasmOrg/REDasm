@@ -5,7 +5,6 @@
 #include <QtGui>
 #include <cmath>
 
-#define CURSOR_BLINK_INTERVAL 500  // 500ms
 #define FALLBACK_REFRESH_RATE 60.0 // 60Hz
 #define DOCUMENT_IDEAL_SIZE   10
 #define DOCUMENT_WHEEL_LINES  3
@@ -191,22 +190,17 @@ void DisassemblerTextView::blinkCursor()
         return;
     }
 
-    auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
-    REDasm::ListingCursor* cur = lock->cursor();
+    auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
 
     if(!this->hasFocus())
     {
-        if(this->currentDocument()->cursor()->active())
-        {
-            this->currentDocument()->cursor()->disable();
-            this->renderLine(cur->currentLine());
-        }
-
-        return;
+        if(lock->cursor()->active())
+            lock->cursor()->disable();
     }
+    else
+        lock->cursor()->toggle();
 
-    this->currentDocument()->cursor()->toggle();
-    this->renderLine(cur->currentLine());
+    this->renderLine(lock->cursor()->currentLine());
 }
 
 void DisassemblerTextView::scrollContentsBy(int dx, int dy)

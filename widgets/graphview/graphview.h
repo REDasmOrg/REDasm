@@ -21,6 +21,7 @@ class GraphView : public QAbstractScrollArea
         explicit GraphView(QWidget *parent = nullptr);
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
         void setGraph(REDasm::Graphing::Graph* graph);
+        GraphViewItem* selectedItem() const;
         REDasm::Graphing::Graph* graph() const;
 
     protected:

@@ -21,9 +21,12 @@ class DisassemblerGraphView : public GraphView
     protected:
         virtual QColor getEdgeColor(const REDasm::Graphing::Edge &e) const;
         virtual std::string getEdgeLabel(const REDasm::Graphing::Edge &e) const;
+        virtual void mousePressEvent(QMouseEvent *e);
+        virtual void mouseMoveEvent(QMouseEvent *e);
         virtual void mouseReleaseEvent(QMouseEvent* e);
         virtual void keyPressEvent(QKeyEvent *e);
         virtual void showEvent(QShowEvent* e);
+        virtual void timerEvent(QTimerEvent* e);
 
     private:
         virtual void computeLayout();
@@ -43,6 +46,7 @@ class DisassemblerGraphView : public GraphView
     private:
         QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actcallgraph, *m_acthexdump, *m_actback, *m_actforward;
         const REDasm::ListingItem* m_currentfunction;
+        int m_blinktimer;
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

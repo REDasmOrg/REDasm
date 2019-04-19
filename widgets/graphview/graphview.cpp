@@ -35,6 +35,7 @@ void GraphView::setGraph(REDasm::Graphing::Graph *graph)
     this->computeLayout();
 }
 
+GraphViewItem *GraphView::selectedItem() const { return m_selecteditem; }
 REDasm::Graphing::Graph *GraphView::graph() const { return m_graph.get(); }
 
 void GraphView::focusBlock(const GraphViewItem *item)
@@ -47,12 +48,15 @@ void GraphView::focusBlock(const GraphViewItem *item)
 
 void GraphView::mousePressEvent(QMouseEvent *e)
 {
-    GraphViewItem* item = this->itemFromMouseEvent(e);
-    m_selecteditem = item;
+    GraphViewItem* olditem = m_selecteditem;
+    m_selecteditem = this->itemFromMouseEvent(e);
 
-    if(item)
+    if(olditem)
+        olditem->invalidate();
+
+    if(m_selecteditem)
     {
-        item->mousePressEvent(e);
+        m_selecteditem->mousePressEvent(e);
         return;
     }
 

@@ -8,8 +8,17 @@
 #include <QDebug>
 #include <QAction>
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_currentfunction(nullptr) { }
-DisassemblerGraphView::~DisassemblerGraphView() { }
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_currentfunction(nullptr)
+{
+    this->setFocusPolicy(Qt::StrongFocus);
+    m_blinktimer = this->startTimer(CURSOR_BLINK_INTERVAL);
+}
+
+DisassemblerGraphView::~DisassemblerGraphView()
+{
+    this->killTimer(m_blinktimer);
+    m_blinktimer = -1;
+}
 
 void DisassemblerGraphView::computeLayout()
 {
@@ -106,6 +115,24 @@ void DisassemblerGraphView::showEvent(QShowEvent *e)
     this->focusCurrentBlock();
 }
 
+void DisassemblerGraphView::timerEvent(QTimerEvent *e)
+{
+    if(!m_disassembler->busy() && this->isVisible() && (e->timerId() == m_blinktimer))
+    {
+        GraphViewItem* item = this->selectedItem();
+
+        if(!this->viewport()->hasFocus() || !item)
+            m_disassembler->document()->cursor()->disable();
+        else
+            m_disassembler->document()->cursor()->toggle();
+
+        if(item)
+            item->invalidate();
+    }
+
+    GraphView::timerEvent(e);
+}
+
 QColor DisassemblerGraphView::getEdgeColor(const REDasm::Graphing::Edge &e) const
 {
     const REDasm::Graphing::FunctionBasicBlock* fbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(e.source);
@@ -135,6 +162,21 @@ std::string DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Edge &e)
         label += !label.empty() ? " (LOOP)" : "LOOP";
 
     return label;
+}
+
+void DisassemblerGraphView::mousePressEvent(QMouseEvent *e)
+{
+    m_disassembler->document()->cursor()->disable();
+    GraphView::mousePressEvent(e);
+}
+
+void DisassemblerGraphView::mouseMoveEvent(QMouseEvent *e)
+{
+    GraphView::mouseMoveEvent(e);
+    GraphViewItem* item = this->selectedItem();
+
+    if(item)
+        m_disassembler->document()->cursor()->enable();
 }
 
 void DisassemblerGraphView::adjustActions()

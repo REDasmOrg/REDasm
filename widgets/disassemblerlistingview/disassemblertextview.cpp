@@ -181,7 +181,7 @@ void DisassemblerTextView::renderListing(const QRect &r)
 
 void DisassemblerTextView::blinkCursor()
 {
-    if(!m_disassembler)
+    if(!m_disassembler || !this->isVisible())
         return;
 
     if(m_disassembler->busy())
@@ -193,10 +193,7 @@ void DisassemblerTextView::blinkCursor()
     auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
 
     if(!this->hasFocus())
-    {
-        if(lock->cursor()->active())
-            lock->cursor()->disable();
-    }
+        lock->cursor()->disable();
     else
         lock->cursor()->toggle();
 

@@ -17,6 +17,7 @@ class GraphViewItem: public QObject
     public:
         explicit GraphViewItem(const REDasm::Graphing::Node& node, QObject* parent = nullptr);
         virtual ~GraphViewItem() = default;
+        virtual void invalidate(bool notify = true);
         const REDasm::Graphing::Node& node() const;
         int x() const;
         int y() const;
@@ -30,7 +31,6 @@ class GraphViewItem: public QObject
     protected:
         virtual void mousePressEvent(QMouseEvent *e);
         virtual void mouseMoveEvent(QMouseEvent *e);
-        virtual void invalidate(bool notify = true);
 
     public:
         QPoint mapToItem(const QPoint& p) const;

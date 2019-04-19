@@ -26,6 +26,7 @@ class GraphViewItem: public QObject
 
     protected:
         virtual void mousePressEvent(QMouseEvent *e);
+        virtual void mouseMoveEvent(QMouseEvent *e);
         virtual void invalidate(bool notify = true);
 
     public:

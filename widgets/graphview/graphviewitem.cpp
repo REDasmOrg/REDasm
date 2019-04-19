@@ -13,6 +13,7 @@ const QPoint &GraphViewItem::position() const { return m_pos; }
 void GraphViewItem::move(const QPoint &pos) { m_pos = pos; }
 QPoint GraphViewItem::mapToItem(const QPoint &p) const { return QPoint(p.x() - m_pos.x(), p.y() - m_pos.y()); }
 void GraphViewItem::mousePressEvent(QMouseEvent* e) { }
+void GraphViewItem::mouseMoveEvent(QMouseEvent *e) { }
 
 void GraphViewItem::invalidate(bool notify)
 {

@@ -271,10 +271,9 @@ void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
         e->accept();
         this->currentDocument()->cursor()->disable();
         m_renderer->select(e->pos());
-        return;
     }
-
-    QAbstractScrollArea::mouseMoveEvent(e);
+    else
+        QAbstractScrollArea::mouseMoveEvent(e);
 }
 
 void DisassemblerTextView::mouseReleaseEvent(QMouseEvent *e)

@@ -83,6 +83,15 @@ void GraphView::mouseReleaseEvent(QMouseEvent *e)
 
 void GraphView::mouseMoveEvent(QMouseEvent *e)
 {
+    GraphViewItem* item = this->itemFromMouseEvent(e);
+    m_selecteditem = item;
+
+    if(item)
+    {
+        item->mouseMoveEvent(e);
+        return;
+    }
+
     if(m_scrollmode)
     {
         QPoint delta(m_scrollbase.x() - e->x(), m_scrollbase.y() - e->y());

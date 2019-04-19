@@ -34,9 +34,20 @@ QSize DisassemblerBlockItem::size() const { return this->documentSize(); }
 
 void DisassemblerBlockItem::mousePressEvent(QMouseEvent *e)
 {
-    int line = m_basicblock->startidx + std::floor(e->localPos().y() / m_charheight);
-    REDasm::ListingCursor* cursor = m_disassembler->document()->cursor();
-    cursor->set(line);
+    if(e->buttons() == Qt::LeftButton)
+    {
+        e->accept();
+        m_renderer->moveTo(e->localPos());
+    }
+}
+
+void DisassemblerBlockItem::mouseMoveEvent(QMouseEvent *e)
+{
+    if(e->buttons() == Qt::LeftButton)
+    {
+        e->accept();
+        m_renderer->select(e->localPos());
+    }
 }
 
 void DisassemblerBlockItem::invalidate(bool notify)

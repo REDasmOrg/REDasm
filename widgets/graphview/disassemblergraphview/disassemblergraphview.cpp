@@ -27,6 +27,12 @@ void DisassemblerGraphView::computeLayout()
         const auto* fbb = static_cast<REDasm::Graphing::FunctionGraph*>(this->graph())->data(n);
         auto* dbi = new DisassemblerBlockItem(fbb, m_disassembler, n, this->viewport());
 
+        connect(dbi->disassemblerActions(), &DisassemblerActions::gotoDialogRequested, this, &DisassemblerGraphView::gotoDialogRequested);
+        connect(dbi->disassemblerActions(), &DisassemblerActions::hexDumpRequested, this, &DisassemblerGraphView::hexDumpRequested);
+        connect(dbi->disassemblerActions(), &DisassemblerActions::referencesRequested, this, &DisassemblerGraphView::referencesRequested);
+        connect(dbi->disassemblerActions(), &DisassemblerActions::switchToHexDump, this, &DisassemblerGraphView::switchToHexDump);
+        connect(dbi->disassemblerActions(), &DisassemblerActions::callGraphRequested, this, &DisassemblerGraphView::callGraphRequested);
+
         m_items[n] = dbi;
         this->graph()->width(n, dbi->width());
         this->graph()->height(n, dbi->height());
@@ -94,9 +100,9 @@ bool DisassemblerGraphView::renderGraph()
 void DisassemblerGraphView::mouseReleaseEvent(QMouseEvent *e)
 {
     if(e->button() == Qt::BackButton)
-        this->goBack();
+        m_disassembler->document()->cursor()->goBack();
     else if(e->button() == Qt::ForwardButton)
-        this->goForward();
+        m_disassembler->document()->cursor()->goForward();
 
     GraphView::mouseReleaseEvent(e);
 }
@@ -178,76 +184,3 @@ void DisassemblerGraphView::mouseMoveEvent(QMouseEvent *e)
     if(item)
         m_disassembler->document()->cursor()->enable();
 }
-
-void DisassemblerGraphView::adjustActions()
-{
-    /*
-    REDasm::ListingDocument& document = m_disassembler->document();
-    REDasm::ListingItem* item = document->currentItem();
-
-    if(!item)
-        return;
-
-    const REDasm::Symbol* symbol = document->symbol(document->cursor()->wordUnderCursor());
-
-    if(!symbol)
-    {
-        const REDasm::Segment* symbolsegment = document->segment(item->address);
-
-        m_actfollow->setVisible(false);
-        m_actxrefs->setVisible(false);
-        m_actrename->setVisible(false);
-
-        symbol = document->functionStartSymbol(document->currentItem()->address);
-
-        if(symbol)
-            m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
-
-        m_actcallgraph->setVisible(symbol && symbolsegment && symbolsegment->is(REDasm::SegmentTypes::Code));
-        m_acthexdump->setVisible((symbol != nullptr));
-        return;
-    }
-
-    m_actfollow->setText(QString("Follow %1").arg(S_TO_QS(symbol->name)));
-    m_actfollow->setVisible(symbol->is(REDasm::SymbolTypes::Code));
-
-    m_actxrefs->setText(QString("Cross Reference %1").arg(S_TO_QS(symbol->name)));
-    m_actxrefs->setVisible(true);
-
-    m_actrename->setText(QString("Rename %1").arg(S_TO_QS(symbol->name)));
-    m_actrename->setVisible(!symbol->isLocked());
-
-    m_actcallgraph->setVisible(symbol->isFunction());
-    m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
-    */
-}
-
-void DisassemblerGraphView::showCallGraph()
-{
-    /*
-    REDasm::ListingDocument& document = m_disassembler->document();
-    const REDasm::Symbol* symbol = document->symbol(document->cursor()->wordUnderCursor());
-
-    if(!symbol)
-    {
-        REDasm::ListingItem* item = document->currentItem();
-        symbol = document->functionStartSymbol(item->address);
-    }
-
-    emit callGraphRequested(symbol->address);
-    */
-}
-
-void DisassemblerGraphView::printFunctionHexDump()
-{
-    const REDasm::Symbol* symbol = nullptr;
-    std::string s = m_disassembler->getHexDump(m_disassembler->document()->currentItem()->address, &symbol);
-
-    if(s.empty())
-        return;
-
-    REDasm::log(symbol->name + ":" + REDasm::quoted(s));
-}
-
-void DisassemblerGraphView::goBack() { m_disassembler->document()->cursor()->goBack(); }
-void DisassemblerGraphView::goForward() { m_disassembler->document()->cursor()->goForward(); }

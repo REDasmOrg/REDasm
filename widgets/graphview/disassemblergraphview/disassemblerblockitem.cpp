@@ -16,6 +16,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
     m_renderer = std::make_unique<ListingDocumentRenderer>(disassembler.get());
     m_renderer->setFirstVisibleLine(fbb->startidx);
     m_renderer->setFlags(ListingDocumentRenderer::HideSegmentName);
+    m_actions = new DisassemblerActions(m_renderer.get(), parent);
     this->invalidate(false);
 
     QFontMetricsF fm(m_document.defaultFont());
@@ -30,16 +31,20 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
 }
 
 DisassemblerBlockItem::~DisassemblerBlockItem() { EVENT_DISCONNECT(m_disassembler->document()->cursor(), positionChanged, this); }
+DisassemblerActions *DisassemblerBlockItem::disassemblerActions() const { return m_actions; }
 bool DisassemblerBlockItem::hasIndex(s64 index) const { return m_basicblock->contains(index); }
 QSize DisassemblerBlockItem::size() const { return this->documentSize(); }
 
 void DisassemblerBlockItem::mousePressEvent(QMouseEvent *e)
 {
     if(e->buttons() == Qt::LeftButton)
-    {
-        e->accept();
         m_renderer->moveTo(e->localPos());
-    }
+    else if(e->buttons() == Qt::RightButton)
+        m_actions->popup(QCursor::pos());
+    else
+        return;
+
+    e->accept();
 }
 
 void DisassemblerBlockItem::mouseMoveEvent(QMouseEvent *e)

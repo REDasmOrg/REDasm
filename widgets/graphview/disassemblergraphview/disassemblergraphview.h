@@ -31,20 +31,15 @@ class DisassemblerGraphView : public GraphView
     private:
         virtual void computeLayout();
 
-    private slots:
-        void adjustActions();
-        void showCallGraph();
-        void printFunctionHexDump();
-        void goBack();
-        void goForward();
-
     signals:
-        void callGraphRequested(address_t address);
-        void referencesRequested(address_t address);
         void switchView();
+        void hexDumpRequested(address_t address, u64 len);
+        void referencesRequested(address_t address);
+        void callGraphRequested(address_t address);
+        void gotoDialogRequested();
+        void switchToHexDump();
 
     private:
-        QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actcallgraph, *m_acthexdump, *m_actback, *m_actforward;
         const REDasm::ListingItem* m_currentfunction;
         int m_blinktimer;
 };

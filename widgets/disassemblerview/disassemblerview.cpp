@@ -79,8 +79,11 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     connect(m_listingview->textView(), &DisassemblerTextView::switchView, this, &DisassemblerView::switchGraphListing);
     connect(m_listingview->textView(), &DisassemblerTextView::addressChanged, m_docks, &DisassemblerViewDocks::updateCallGraph);
 
-    connect(m_graphview, &DisassemblerGraphView::referencesRequested, this, &DisassemblerView::showReferences);
     connect(m_graphview, &DisassemblerGraphView::switchView, this, &DisassemblerView::switchGraphListing);
+    connect(m_graphview, &DisassemblerGraphView::gotoDialogRequested, this, &DisassemblerView::showGoto);
+    connect(m_graphview, &DisassemblerGraphView::hexDumpRequested, this, &DisassemblerView::selectToHexDump);
+    connect(m_graphview, &DisassemblerGraphView::referencesRequested, this, &DisassemblerView::showReferences);
+    connect(m_graphview, &DisassemblerGraphView::switchToHexDump, this, &DisassemblerView::switchToHexDump);
     connect(m_graphview, &DisassemblerGraphView::callGraphRequested, m_docks, &DisassemblerViewDocks::initializeCallGraph);
 
     connect(m_actions, &DisassemblerViewActions::backRequested, this, &DisassemblerView::goBack);
@@ -145,7 +148,11 @@ void DisassemblerView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
         m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_disassembler->document()->cursor()->canGoForward());
     });
 
-    this->connectActions(m_listingview->textView()->disassemblerActions());
+    connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::gotoDialogRequested, this, &DisassemblerView::showGoto);
+    connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::hexDumpRequested, this, &DisassemblerView::selectToHexDump);
+    connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::referencesRequested, this, &DisassemblerView::showReferences);
+    connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::switchToHexDump, this, &DisassemblerView::switchToHexDump);
+    connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::callGraphRequested, m_docks, &DisassemblerViewDocks::initializeCallGraph);
 
     m_actions->setEnabled(DisassemblerViewActions::BackAction, m_disassembler->document()->cursor()->canGoBack());
     m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_disassembler->document()->cursor()->canGoForward());
@@ -226,7 +233,7 @@ void DisassemblerView::showModelReferences()
     if(!m_currentindex.isValid() || !m_currentindex.internalPointer())
         return;
 
-    REDasm::ListingItem* item = NULL;
+    REDasm::ListingItem* item = nullptr;
     const QAbstractProxyModel* proxymodel = dynamic_cast<const QAbstractProxyModel*>(m_currentindex.model());
 
     if(proxymodel)
@@ -392,15 +399,6 @@ void DisassemblerView::showListingOrGraph()
         return;
 
     ui->tabView->setCurrentIndex(0);
-}
-
-void DisassemblerView::connectActions(DisassemblerActions *disassembleractions)
-{
-    connect(disassembleractions, &DisassemblerActions::gotoDialogRequested, this, &DisassemblerView::showGoto);
-    connect(disassembleractions, &DisassemblerActions::hexDumpRequested, this, &DisassemblerView::selectToHexDump);
-    connect(disassembleractions, &DisassemblerActions::referencesRequested, this, &DisassemblerView::showReferences);
-    connect(disassembleractions, &DisassemblerActions::switchToHexDump, this, &DisassemblerView::switchToHexDump);
-    connect(disassembleractions, &DisassemblerActions::callGraphRequested, m_docks, &DisassemblerViewDocks::initializeCallGraph);
 }
 
 void DisassemblerView::showFilter()

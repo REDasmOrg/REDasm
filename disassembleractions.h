@@ -46,7 +46,6 @@ class DisassemblerActions : public QObject
         void callGraphRequested(address_t address);
         void gotoDialogRequested();
         void switchToHexDump();
-        void listingUpdated();
 
     private:
         REDasm::ListingRenderer* m_renderer;

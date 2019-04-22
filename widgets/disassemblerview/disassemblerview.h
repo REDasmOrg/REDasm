@@ -53,13 +53,12 @@ class DisassemblerView : public QWidget
         void goBack();
 
     private:
-        void syncHexEdit();
+        ListingFilterModel* getSelectedFilterModel();
+        void showListingOrGraph();
         void checkSyncGraph();
         void createActions();
         void filterSymbols();
-        void showListingOrGraph();
-        void connectActions(DisassemblerActions* disassembleractions);
-        ListingFilterModel* getSelectedFilterModel();
+        void syncHexEdit();
 
     private:
         Ui::DisassemblerView *ui;

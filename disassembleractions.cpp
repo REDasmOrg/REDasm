@@ -121,7 +121,6 @@ void DisassemblerActions::renameSymbolUnderCursor()
     }
 
     m_renderer->document()->rename(symbol->address, res.toStdString());
-    emit listingUpdated();
 }
 
 bool DisassemblerActions::followUnderCursor()

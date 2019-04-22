@@ -58,6 +58,7 @@ class DisassemblerView : public QWidget
         void createActions();
         void filterSymbols();
         void showListingOrGraph();
+        void connectActions(DisassemblerActions* disassembleractions);
         ListingFilterModel* getSelectedFilterModel();
 
     private:

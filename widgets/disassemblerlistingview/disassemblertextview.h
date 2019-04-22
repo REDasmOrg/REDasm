@@ -6,14 +6,16 @@
 #include <QMenu>
 #include "../../renderer/listingtextrenderer.h"
 #include "../disassemblerpopup/disassemblerpopup.h"
+#include "../disassembleractions.h"
 
 class DisassemblerTextView : public QAbstractScrollArea
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerTextView(QWidget *parent = 0);
+        explicit DisassemblerTextView(QWidget *parent = nullptr);
         virtual ~DisassemblerTextView();
+        DisassemblerActions* disassemblerActions() const;
         std::string wordUnderCursor() const;
         bool canGoBack() const;
         bool canGoForward() const;
@@ -24,22 +26,10 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     public slots:
         void copy();
-        void goTo(REDasm::ListingItem *item);
-        bool goTo(address_t address);
 
     private slots:
-        void goBack();
-        void goForward();
         void renderListing(const QRect& r = QRect());
         void renderLine(u64 line);
-        void showReferencesUnderCursor();
-        void renameCurrentSymbol();
-        bool followUnderCursor();
-        bool followPointerHexDump();
-        void addComment();
-        void printFunctionHexDump();
-        void showCallGraph();
-        void showHexDump();
 
     protected:
         virtual void scrollContentsBy(int dx, int dy);
@@ -69,32 +59,20 @@ class DisassemblerTextView : public QAbstractScrollArea
         void blinkCursor();
         void adjustScrollBars();
         void moveToSelection();
-        void createContextMenu();
-        void adjustContextMenu();
         void ensureColumnVisible();
         void showPopup(const QPoint &pos);
 
     signals:
         void switchView();
-        void switchToHexDump();
-        void gotoRequested();
         void canGoBackChanged();
         void canGoForwardChanged();
-        void callGraphRequested(address_t address);
-        void hexDumpRequested(address_t address, u64 len);
         void addressChanged(address_t address);
-        void referencesRequested(address_t address);
-
-    protected:
-        std::unique_ptr<ListingTextRenderer> m_renderer;
 
     private:
+        std::unique_ptr<ListingTextRenderer> m_renderer;
         REDasm::DisassemblerPtr m_disassembler;
         DisassemblerPopup* m_disassemblerpopup;
-        QAction *m_actrename, *m_actxrefs, *m_actfollow, *m_actfollowpointer, *m_actcallgraph;
-        QAction *m_actgoto, *m_acthexdumpshow, *m_acthexdumpfunc;
-        QAction *m_actcomment, *m_actback, *m_actforward, *m_actcopy;
-        QMenu* m_contextmenu;
+        DisassemblerActions* m_actions;
         int m_refreshrate, m_blinktimerid, m_refreshtimerid;
 };
 

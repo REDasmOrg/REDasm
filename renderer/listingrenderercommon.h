@@ -3,6 +3,7 @@
 
 #include <QFontMetricsF>
 #include <QTextCursor>
+#include <QHash>
 #include <QFont>
 #include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/disassembler/listing/listingrenderer.h>
@@ -18,6 +19,7 @@ class ListingRendererCommon: public REDasm::ListingRenderer
         REDasm::ListingCursor::Position hitTest(const QPointF& pos);
         REDasm::ListingRenderer::Range wordHitTest(const QPointF& pos);
         std::string getWordFromPos(const QPointF& pos, Range *wordpos = nullptr);
+        void selectWordAt(const QPointF &pos);
         void setFirstVisibleLine(u64 line);
         const QFontMetricsF fontMetrics() const;
         qreal maxWidth() const;

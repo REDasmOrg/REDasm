@@ -9,7 +9,7 @@
 #define DOCUMENT_IDEAL_SIZE   10
 #define DOCUMENT_WHEEL_LINES  3
 
-DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(NULL), m_disassemblerpopup(NULL), m_refreshtimerid(-1)
+DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(nullptr), m_disassemblerpopup(nullptr), m_actions(nullptr), m_refreshtimerid(-1)
 {
     QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     font.setStyleHint(QFont::TypeWriter);
@@ -40,12 +40,6 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     REDasm::log("Setting refresh rate to " + QString::number(refreshfreq, 'f', 1).toStdString() + "Hz");
     m_refreshrate = std::ceil((1 / refreshfreq) * 1000);
     m_blinktimerid = this->startTimer(CURSOR_BLINK_INTERVAL);
-
-    connect(this, &DisassemblerTextView::customContextMenuRequested, this, [&](const QPoint&) {
-        m_contextmenu->exec(QCursor::pos());
-    });
-
-    this->createContextMenu();
 }
 
 DisassemblerTextView::~DisassemblerTextView()
@@ -63,14 +57,8 @@ DisassemblerTextView::~DisassemblerTextView()
     }
 }
 
-std::string DisassemblerTextView::wordUnderCursor() const
-{
-    if(!m_renderer)
-        return std::string();
-
-    return m_renderer->getCurrentWord();
-}
-
+DisassemblerActions *DisassemblerTextView::disassemblerActions() const { return m_actions; }
+std::string DisassemblerTextView::wordUnderCursor() const { return m_renderer ? m_renderer->getCurrentWord() : std::string(); }
 bool DisassemblerTextView::canGoBack() const { return this->currentDocument()->cursor()->canGoBack(); }
 bool DisassemblerTextView::canGoForward() const { return this->currentDocument()->cursor()->canGoForward(); }
 
@@ -99,6 +87,19 @@ void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disass
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderListing(); });
 
     m_renderer = std::make_unique<ListingTextRenderer>(m_disassembler.get());
+
+    if(m_actions)
+    {
+        disconnect(this, &DisassemblerTextView::customContextMenuRequested, this, nullptr);
+        m_actions->deleteLater();
+    }
+
+    m_actions = new DisassemblerActions(m_renderer.get(), this);
+
+    connect(this, &DisassemblerTextView::customContextMenuRequested, this, [&](const QPoint&) {
+        m_actions->popup(QCursor::pos());
+    });
+
     m_disassemblerpopup = new DisassemblerPopup(m_disassembler, this);
 
     if(!m_disassembler->busy())
@@ -107,64 +108,11 @@ void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disass
 
 void DisassemblerTextView::copy()
 {
-    if(!this->currentDocument()->cursor()->hasSelection())
+    if(!m_actions)
         return;
 
-    qApp->clipboard()->setText(S_TO_QS(m_renderer->getSelectedText()));
+    m_actions->copy();
 }
-
-bool DisassemblerTextView::goTo(address_t address)
-{
-    auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
-    auto it = lock->item(address);
-
-    if(it == lock->end())
-        return false;
-
-    this->goTo(it->get());
-    return true;
-}
-
-void DisassemblerTextView::goTo(REDasm::ListingItem *item)
-{
-    auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
-    int idx = lock->indexOf(item);
-
-    if(idx == -1)
-        return;
-
-    lock->cursor()->moveTo(idx);
-}
-
-void DisassemblerTextView::addComment()
-{
-    address_t currentaddress = this->currentDocument()->currentItem()->address;
-
-    bool ok = false;
-    QString res = QInputDialog::getMultiLineText(this,
-                                                 "Comment @ " + QString::fromStdString(REDasm::hex(currentaddress)),
-                                                 "Insert a comment (leave blank to remove):",
-                                                 QString::fromStdString(this->currentDocument()->comment(currentaddress, true)), &ok);
-
-    if(!ok)
-        return;
-
-    this->currentDocument()->comment(currentaddress, res.toStdString());
-}
-
-void DisassemblerTextView::printFunctionHexDump()
-{
-    const REDasm::Symbol* symbol = nullptr;
-    std::string s = m_disassembler->getHexDump(this->currentDocument()->currentItem()->address, &symbol);
-
-    if(s.empty())
-        return;
-
-    REDasm::log(symbol->name + ":" + REDasm::quoted(s));
-}
-
-void DisassemblerTextView::goBack() { this->currentDocument()->cursor()->goBack();  }
-void DisassemblerTextView::goForward() { this->currentDocument()->cursor()->goForward(); }
 
 void DisassemblerTextView::renderListing(const QRect &r)
 {
@@ -240,17 +188,17 @@ void DisassemblerTextView::resizeEvent(QResizeEvent *e)
 
 void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
 {
-    REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
+    REDasm::ListingCursor* cur = this->currentDocument()->cursor();
 
     if((e->button() == Qt::LeftButton) || (!cur->hasSelection() && (e->button() == Qt::RightButton)))
     {
         e->accept();
         m_renderer->moveTo(e->pos());
     }
-    else if (e->button() == Qt::BackButton)
-        this->goBack();
-    else if (e->button() == Qt::ForwardButton)
-        this->goForward();
+    else if(e->button() == Qt::BackButton)
+        this->currentDocument()->cursor()->goBack();
+    else if(e->button() == Qt::ForwardButton)
+        this->currentDocument()->cursor()->goForward();
 
     QAbstractScrollArea::mousePressEvent(e);
 }
@@ -279,20 +227,10 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     if(e->button() == Qt::LeftButton)
     {
+        if(!m_actions->followUnderCursor())
+            m_renderer->selectWordAt(e->pos());
+
         e->accept();
-
-        if(this->followUnderCursor())
-            return;
-
-        auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
-        REDasm::ListingCursor* cur = lock->cursor();
-        ListingTextRenderer::Range r = m_renderer->wordHitTest(e->pos());
-
-        if(r.first > r.second)
-            return;
-
-        cur->moveTo(cur->currentLine(), r.first);
-        cur->select(cur->currentLine(), r.second);
         return;
     }
 
@@ -483,8 +421,6 @@ const REDasm::ListingDocument &DisassemblerTextView::currentDocument() const { r
 const REDasm::Symbol* DisassemblerTextView::symbolUnderCursor()
 {
     auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
-    const REDasm::ListingCursor* cur = lock->cursor();
-
     return lock->symbol(m_renderer->getCurrentWord());
 }
 
@@ -597,96 +533,6 @@ void DisassemblerTextView::moveToSelection()
         emit addressChanged(item->address);
 }
 
-void DisassemblerTextView::createContextMenu()
-{
-    m_contextmenu = new QMenu(this);
-    m_actrename = m_contextmenu->addAction("Rename", this, &DisassemblerTextView::renameCurrentSymbol, QKeySequence(Qt::Key_N));
-    m_actcomment = m_contextmenu->addAction("Comment", this, &DisassemblerTextView::addComment, QKeySequence(Qt::Key_Semicolon));
-    m_contextmenu->addSeparator();
-    m_actxrefs = m_contextmenu->addAction("Cross References", this, &DisassemblerTextView::showReferencesUnderCursor, QKeySequence(Qt::Key_X));
-    m_actfollow = m_contextmenu->addAction("Follow", this, &DisassemblerTextView::followUnderCursor);
-    m_actfollowpointer = m_contextmenu->addAction("Follow pointer in Hex Dump", this, &DisassemblerTextView::followPointerHexDump);
-    m_actgoto = m_contextmenu->addAction("Goto...", this, &DisassemblerTextView::gotoRequested, QKeySequence(Qt::Key_G));
-    m_actcallgraph = m_contextmenu->addAction("Call Graph", this, &DisassemblerTextView::showCallGraph, QKeySequence(Qt::CTRL + Qt::Key_G));
-    m_contextmenu->addSeparator();
-    m_acthexdumpshow = m_contextmenu->addAction("Show Hex Dump", this, &DisassemblerTextView::showHexDump, QKeySequence(Qt::CTRL + Qt::Key_H));
-    m_acthexdumpfunc = m_contextmenu->addAction("Hex Dump Function", this, &DisassemblerTextView::printFunctionHexDump);
-    m_contextmenu->addSeparator();
-    m_actback = m_contextmenu->addAction("Back", this, &DisassemblerTextView::goBack, QKeySequence(Qt::CTRL + Qt::Key_Left));
-    m_actforward = m_contextmenu->addAction("Forward", this, &DisassemblerTextView::goForward, QKeySequence(Qt::CTRL + Qt::Key_Right));
-    m_contextmenu->addSeparator();
-    m_actcopy = m_contextmenu->addAction("Copy", this, &DisassemblerTextView::copy, QKeySequence(QKeySequence::Copy));
-
-    this->addAction(m_actrename);
-    this->addAction(m_actxrefs);
-    this->addAction(m_actcomment);
-    this->addAction(m_actgoto);
-    this->addAction(m_actcallgraph);
-    this->addAction(m_acthexdumpshow);
-    this->addAction(m_actback);
-    this->addAction(m_actforward);
-    this->addAction(m_actcopy);
-
-    connect(m_contextmenu, &QMenu::aboutToShow, this, &DisassemblerTextView::adjustContextMenu);
-}
-
-void DisassemblerTextView::adjustContextMenu()
-{
-    auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
-    REDasm::ListingItem* item = lock->currentItem();
-
-    if(!item)
-        return;
-
-    const REDasm::Symbol* symbol = this->symbolUnderCursor();
-    REDasm::Segment *itemsegment = lock->segment(item->address), *symbolsegment = NULL;
-    m_actback->setVisible(this->canGoBack());
-    m_actforward->setVisible(this->canGoForward());
-    m_actcopy->setVisible(lock->cursor()->hasSelection());
-    m_actgoto->setVisible(!m_disassembler->busy());
-
-    if(!symbol)
-    {
-        symbolsegment = lock->segment(item->address);
-        symbol = lock->functionStartSymbol(item->address);
-
-        m_actrename->setVisible(false);
-        m_actxrefs->setVisible(false);
-        m_actfollow->setVisible(false);
-        m_actfollowpointer->setVisible(false);
-
-        if(symbol)
-            m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
-
-        m_actcallgraph->setVisible(symbol && symbolsegment && symbolsegment->is(REDasm::SegmentTypes::Code));
-        m_acthexdumpfunc->setVisible((symbol != nullptr));
-        m_acthexdumpshow->setVisible(true);
-        return;
-    }
-
-    symbolsegment = lock->segment(symbol->address);
-
-    m_actfollowpointer->setVisible(symbol->is(REDasm::SymbolTypes::Pointer));
-    m_actfollowpointer->setText(QString("Follow %1 pointer in Hex Dump").arg(S_TO_QS(symbol->name)));
-
-    m_actxrefs->setText(QString("Cross Reference %1").arg(S_TO_QS(symbol->name)));
-    m_actxrefs->setVisible(!m_disassembler->busy());
-
-    m_actrename->setText(QString("Rename %1").arg(S_TO_QS(symbol->name)));
-    m_actrename->setVisible(!m_disassembler->busy() && !symbol->isLocked());
-
-    m_actcallgraph->setVisible(!m_disassembler->busy() && symbol->isFunction());
-    m_actcallgraph->setText(QString("Callgraph %1").arg(S_TO_QS(symbol->name)));
-
-    m_actfollow->setText(QString("Follow %1").arg(S_TO_QS(symbol->name)));
-    m_actfollow->setVisible(symbol->is(REDasm::SymbolTypes::Code));
-
-    m_actcomment->setVisible(!m_disassembler->busy() && item->is(REDasm::ListingItem::InstructionItem));
-
-    m_acthexdumpshow->setVisible(symbolsegment && !symbolsegment->is(REDasm::SegmentTypes::Bss));
-    m_acthexdumpfunc->setVisible(itemsegment && !itemsegment->is(REDasm::SegmentTypes::Bss) && itemsegment->is(REDasm::SegmentTypes::Code));
-}
-
 void DisassemblerTextView::ensureColumnVisible()
 {
     if(!m_disassembler)
@@ -703,75 +549,6 @@ void DisassemblerTextView::ensureColumnVisible()
     hscrollbar->setValue(xpos);
 }
 
-void DisassemblerTextView::showReferencesUnderCursor()
-{
-    const REDasm::Symbol* symbol = this->symbolUnderCursor();
-
-    if(!symbol)
-        return;
-
-    emit referencesRequested(symbol->address);
-}
-
-bool DisassemblerTextView::followUnderCursor()
-{
-    const REDasm::Symbol* symbol = this->symbolUnderCursor();
-
-    if(!symbol)
-        return false;
-
-    this->goTo(symbol->address);
-    return true;
-}
-
-bool DisassemblerTextView::followPointerHexDump()
-{
-    const REDasm::Symbol* symbol = this->symbolUnderCursor();
-
-    if(!symbol || !symbol->is(REDasm::SymbolTypes::Pointer))
-        return false;
-
-    u64 destination = 0;
-
-    if(!m_disassembler->dereference(symbol->address, &destination) || !this->currentDocument()->segment(destination))
-        return false;
-
-    emit hexDumpRequested(destination, m_disassembler->assembler()->addressWidth());
-    return true;
-}
-
-void DisassemblerTextView::showCallGraph()
-{
-    const REDasm::Symbol* symbol = this->symbolUnderCursor();
-
-    if(!symbol)
-    {
-        REDasm::ListingDocument& document = m_disassembler->document();
-        REDasm::ListingItem* item = document->currentItem();
-        symbol = document->functionStartSymbol(item->address);
-    }
-
-    emit callGraphRequested(symbol->address);
-}
-
-void DisassemblerTextView::showHexDump()
-{
-    const REDasm::Symbol* symbol = this->symbolUnderCursor();
-
-    if(!symbol)
-    {
-        emit switchToHexDump();
-        return;
-    }
-
-    u64 len = sizeof(m_disassembler->assembler()->addressWidth());
-
-    if(symbol->is(REDasm::SymbolTypes::String))
-        len = m_disassembler->readString(symbol).size();
-
-    emit hexDumpRequested(symbol->address, len);
-}
-
 void DisassemblerTextView::showPopup(const QPoint& pos)
 {
     std::string word = m_renderer->getWordFromPos(pos);
@@ -784,25 +561,4 @@ void DisassemblerTextView::showPopup(const QPoint& pos)
     }
 
     m_disassemblerpopup->hide();
-}
-
-void DisassemblerTextView::renameCurrentSymbol()
-{
-    const REDasm::Symbol* symbol = this->symbolUnderCursor();
-
-    if(!symbol || symbol->isLocked())
-        return;
-
-    QString symbolname = S_TO_QS(symbol->name);
-    QString res = QInputDialog::getText(this, QString("Rename %1").arg(symbolname), "Symbol name:", QLineEdit::Normal, symbolname);
-
-    if(this->currentDocument()->symbol(res.toStdString()))
-    {
-        QMessageBox::warning(this, "Rename failed", "Duplicate symbol name");
-        this->renameCurrentSymbol();
-        return;
-    }
-
-    this->currentDocument()->rename(symbol->address, res.toStdString());
-    this->renderListing();
 }

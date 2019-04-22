@@ -74,15 +74,10 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
 
     connect(m_lefilter, &QLineEdit::textChanged, this, [&](const QString&) { this->filterSymbols(); });
 
-    connect(m_listingview->textView(), &DisassemblerTextView::gotoRequested, this, &DisassemblerView::showGoto);
-    connect(m_listingview->textView(), &DisassemblerTextView::hexDumpRequested, this, &DisassemblerView::selectToHexDump);
-    connect(m_listingview->textView(), &DisassemblerTextView::referencesRequested, this, &DisassemblerView::showReferences);
     connect(m_listingview->textView(), &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayAddress);
     connect(m_listingview->textView(), &DisassemblerTextView::addressChanged, this, &DisassemblerView::displayCurrentReferences);
     connect(m_listingview->textView(), &DisassemblerTextView::switchView, this, &DisassemblerView::switchGraphListing);
-    connect(m_listingview->textView(), &DisassemblerTextView::switchToHexDump, this, &DisassemblerView::switchToHexDump);
     connect(m_listingview->textView(), &DisassemblerTextView::addressChanged, m_docks, &DisassemblerViewDocks::updateCallGraph);
-    connect(m_listingview->textView(), &DisassemblerTextView::callGraphRequested, m_docks, &DisassemblerViewDocks::initializeCallGraph);
 
     connect(m_graphview, &DisassemblerGraphView::referencesRequested, this, &DisassemblerView::showReferences);
     connect(m_graphview, &DisassemblerGraphView::switchView, this, &DisassemblerView::switchGraphListing);
@@ -150,6 +145,8 @@ void DisassemblerView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
         m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_disassembler->document()->cursor()->canGoForward());
     });
 
+    this->connectActions(m_listingview->textView()->disassemblerActions());
+
     m_actions->setEnabled(DisassemblerViewActions::BackAction, m_disassembler->document()->cursor()->canGoBack());
     m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_disassembler->document()->cursor()->canGoForward());
 
@@ -212,7 +209,7 @@ void DisassemblerView::gotoXRef(const QModelIndex &index)
         return;
 
     ui->tabView->setCurrentWidget(ui->tabListing);
-    m_listingview->textView()->goTo(static_cast<address_t>(index.internalId()));
+    m_disassembler->document()->goTo(static_cast<address_t>(index.internalId()));
 }
 
 void DisassemblerView::goTo(const QModelIndex &index)
@@ -220,8 +217,7 @@ void DisassemblerView::goTo(const QModelIndex &index)
     if(!index.isValid() || !index.internalPointer())
         return;
 
-    REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
-    m_listingview->textView()->goTo(item);
+    m_disassembler->document()->goTo(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer()));
     this->checkSyncGraph();
 }
 
@@ -278,7 +274,7 @@ void DisassemblerView::showReferences(address_t address)
             this->switchGraphListing();
         }
 
-        m_listingview->textView()->goTo(address);
+        m_disassembler->document()->goTo(address);
         ui->tabView->setCurrentWidget(ui->tabListing);
     });
 
@@ -398,6 +394,15 @@ void DisassemblerView::showListingOrGraph()
     ui->tabView->setCurrentIndex(0);
 }
 
+void DisassemblerView::connectActions(DisassemblerActions *disassembleractions)
+{
+    connect(disassembleractions, &DisassemblerActions::gotoDialogRequested, this, &DisassemblerView::showGoto);
+    connect(disassembleractions, &DisassemblerActions::hexDumpRequested, this, &DisassemblerView::selectToHexDump);
+    connect(disassembleractions, &DisassemblerActions::referencesRequested, this, &DisassemblerView::showReferences);
+    connect(disassembleractions, &DisassemblerActions::switchToHexDump, this, &DisassemblerView::switchToHexDump);
+    connect(disassembleractions, &DisassemblerActions::callGraphRequested, m_docks, &DisassemblerViewDocks::initializeCallGraph);
+}
+
 void DisassemblerView::showFilter()
 {
     ListingFilterModel* filtermodel = this->getSelectedFilterModel();
@@ -452,7 +457,7 @@ void DisassemblerView::showGoto()
     if((dlggoto.exec() != GotoDialog::Accepted) || !dlggoto.hasValidAddress())
         return;
 
-    if(m_listingview->textView()->goTo(dlggoto.address()))
+    if(m_disassembler->document()->goTo(dlggoto.address()))
         return;
 
     this->selectToHexDump(dlggoto.address(), m_disassembler->assembler()->addressWidth());

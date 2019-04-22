@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ctxsettings.ui = std::make_shared<REDasmUI>(this);
 
     REDasm::init(ctxsettings);
-    REDasm::log(QString("Found %1 loader and %2 assemblers").arg(REDasm::Plugins::loadersCount).arg(REDasm::Plugins::assemblers.size()).toStdString());
+    REDasm::log(QString("Found %1 loaders and %2 assemblers").arg(REDasm::Plugins::loadersCount).arg(REDasm::Plugins::assemblers.size()).toStdString());
 
     this->setViewWidgetsVisible(false);
     ui->leFilter->setVisible(false);

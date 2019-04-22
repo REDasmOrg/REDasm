@@ -86,7 +86,8 @@ SET(HEADERS
     ${UI_HEADERS}
     mainwindow.h
     themeprovider.h
-    redasmsettings.h)
+    redasmsettings.h
+    disassembleractions.h)
 
 SET(SOURCES
     ${QHEXVIEW_SOURCES}
@@ -99,7 +100,8 @@ SET(SOURCES
     main.cpp
     mainwindow.cpp
     themeprovider.cpp
-    redasmsettings.cpp)
+    redasmsettings.cpp
+    disassembleractions.cpp)
 
 set(FORMS
     ${WIDGETS_UIS}

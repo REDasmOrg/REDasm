@@ -57,8 +57,8 @@ class GraphView : public QAbstractScrollArea
         std::unordered_map<REDasm::Graphing::Edge, QPolygon> m_arrows;
         QPoint m_renderoffset, m_scrollbase;
         QSize m_rendersize;
-        float m_scalefactor, m_scalestep, m_prevscalefactor;
-        float m_scalemin, m_scalemax;
+        qreal m_scalefactor, m_scalestep, m_prevscalefactor;
+        qreal m_scalemin, m_scalemax;
         int m_scaledirection, m_scaleboost;
         bool m_viewportready, m_scrollmode;
 };

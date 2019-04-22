@@ -240,9 +240,9 @@ void GraphView::computeLayout()
     else
         areasize = this->parentWidget()->size() - QSize(20, 20);
 
-    float sx = static_cast<float>(areasize.width()) / static_cast<float>(this->width());
-    float sy = static_cast<float>(areasize.height()) / static_cast<float>(this->height());
-    m_scalemin = std::min(static_cast<double>(std::min(sx, sy) * (1 - m_scalestep)), 0.05); // if graph is very lagre
+    qreal sx = static_cast<qreal>(areasize.width()) / static_cast<qreal>(this->width());
+    qreal sy = static_cast<qreal>(areasize.height()) / static_cast<qreal>(this->height());
+    m_scalemin = std::min(static_cast<qreal>(std::min(sx, sy) * (1 - m_scalestep)), 0.05); // If graph is very large...
 
     this->adjustSize(areasize.width(), areasize.height());
     this->viewport()->update();

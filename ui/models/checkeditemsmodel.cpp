@@ -13,7 +13,7 @@ void CheckedItemsModel::uncheckAll()
 }
 
 Qt::ItemFlags CheckedItemsModel::flags(const QModelIndex &index) const { return QAbstractListModel::flags(index) | Qt::ItemIsUserCheckable; }
-int CheckedItemsModel::rowCount(const QModelIndex &parent) const { return m_items.size(); }
+int CheckedItemsModel::rowCount(const QModelIndex &parent) const { return static_cast<int>(m_items.size()); }
 
 QVariant CheckedItemsModel::data(const QModelIndex &index, int role) const
 {

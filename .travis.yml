@@ -15,7 +15,7 @@ install:
     # C++14
     - sudo apt-get install -qq gcc-7 g++-7
     # Qt 5.9
-    # - sudo apt-get install -qq qt59base qt59webchannel qt59webengine
+    - sudo apt-get install -qq qt59base # qt59webchannel qt59webengine
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
     - source /opt/qt*/bin/qt*-env.sh

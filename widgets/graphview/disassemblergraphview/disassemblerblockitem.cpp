@@ -31,9 +31,18 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
 }
 
 DisassemblerBlockItem::~DisassemblerBlockItem() { EVENT_DISCONNECT(m_disassembler->document()->cursor(), positionChanged, this); }
+std::string DisassemblerBlockItem::currentWord() { return m_renderer->getCurrentWord(); }
 DisassemblerActions *DisassemblerBlockItem::disassemblerActions() const { return m_actions; }
 bool DisassemblerBlockItem::hasIndex(s64 index) const { return m_basicblock->contains(index); }
 QSize DisassemblerBlockItem::size() const { return this->documentSize(); }
+
+void DisassemblerBlockItem::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    if(!m_actions->followUnderCursor())
+        m_renderer->selectWordAt(e->localPos());
+
+    e->accept();
+}
 
 void DisassemblerBlockItem::mousePressEvent(QMouseEvent *e)
 {

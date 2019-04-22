@@ -26,10 +26,12 @@ void GraphView::setDisassembler(const REDasm::DisassemblerPtr& disassembler) { m
 
 void GraphView::setGraph(REDasm::Graphing::Graph *graph)
 {
+    m_selecteditem = nullptr;
     m_scalefactor = m_scaleboost = 1.0;
     qDeleteAll(m_items);
     m_items.clear();
     m_lines.clear();
+    m_arrows.clear();
 
     m_graph = std::unique_ptr<REDasm::Graphing::Graph>(graph);
     this->computeLayout();
@@ -44,6 +46,23 @@ void GraphView::focusBlock(const GraphViewItem *item)
     int y = item->y() + m_renderoffset.y() + (item->height() / 2);
     this->horizontalScrollBar()->setValue(x - (this->width() / 2));
     this->verticalScrollBar()->setValue(y - (this->height() / 2));
+}
+
+void GraphView::mouseDoubleClickEvent(QMouseEvent* e)
+{
+    GraphViewItem* olditem = m_selecteditem;
+    m_selecteditem = this->itemFromMouseEvent(e);
+
+    if(olditem)
+        olditem->invalidate();
+
+    if(e->buttons() == Qt::LeftButton)
+    {
+        if(m_selecteditem)
+            m_selecteditem->mouseDoubleClickEvent(e);
+    }
+
+    QAbstractScrollArea::mouseDoubleClickEvent(e);
 }
 
 void GraphView::mousePressEvent(QMouseEvent *e)

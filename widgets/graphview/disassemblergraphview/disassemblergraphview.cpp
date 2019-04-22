@@ -16,8 +16,28 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent)
 
 DisassemblerGraphView::~DisassemblerGraphView()
 {
+    EVENT_DISCONNECT(m_disassembler->document()->cursor(), positionChanged, this);
+
     this->killTimer(m_blinktimer);
     m_blinktimer = -1;
+}
+
+void DisassemblerGraphView::setDisassembler(const REDasm::DisassemblerPtr &disassembler)
+{
+    GraphView::setDisassembler(disassembler);
+
+    EVENT_CONNECT(m_disassembler->document()->cursor(), positionChanged, this, [&]() {
+        if(this->isVisible())
+            this->renderGraph();
+    });
+}
+
+std::string DisassemblerGraphView::currentWord()
+{
+    if(!this->selectedItem())
+        return std::string();
+
+    return static_cast<DisassemblerBlockItem*>(this->selectedItem())->currentWord();
 }
 
 void DisassemblerGraphView::computeLayout()
@@ -99,9 +119,9 @@ bool DisassemblerGraphView::renderGraph()
 
 void DisassemblerGraphView::mouseReleaseEvent(QMouseEvent *e)
 {
-    if(e->button() == Qt::BackButton)
+    if(e->buttons() == Qt::BackButton)
         m_disassembler->document()->cursor()->goBack();
-    else if(e->button() == Qt::ForwardButton)
+    else if(e->buttons() == Qt::ForwardButton)
         m_disassembler->document()->cursor()->goForward();
 
     GraphView::mouseReleaseEvent(e);

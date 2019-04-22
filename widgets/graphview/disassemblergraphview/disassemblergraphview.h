@@ -14,6 +14,8 @@ class DisassemblerGraphView : public GraphView
     public:
         explicit DisassemblerGraphView(QWidget *parent = nullptr);
         virtual ~DisassemblerGraphView();
+        virtual void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
+        std::string currentWord();
         void goTo(address_t address);
         void focusCurrentBlock();
         bool renderGraph();

@@ -54,6 +54,7 @@ class DisassemblerView : public QWidget
 
     private:
         ListingFilterModel* getSelectedFilterModel();
+        std::string currentWord() const;
         void showListingOrGraph();
         void checkSyncGraph();
         void createActions();

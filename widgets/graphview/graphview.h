@@ -19,7 +19,7 @@ class GraphView : public QAbstractScrollArea
 
     public:
         explicit GraphView(QWidget *parent = nullptr);
-        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
+        virtual void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
         void setGraph(REDasm::Graphing::Graph* graph);
         GraphViewItem* selectedItem() const;
         REDasm::Graphing::Graph* graph() const;
@@ -28,6 +28,7 @@ class GraphView : public QAbstractScrollArea
         void focusBlock(const GraphViewItem* item);
 
     protected:
+        virtual void mouseDoubleClickEvent(QMouseEvent* e);
         virtual void mousePressEvent(QMouseEvent* e);
         virtual void mouseReleaseEvent(QMouseEvent* e);
         virtual void mouseMoveEvent(QMouseEvent* e);

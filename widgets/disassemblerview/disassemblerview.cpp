@@ -332,7 +332,7 @@ void DisassemblerView::displayAddress(address_t address)
 void DisassemblerView::displayCurrentReferences()
 {
     REDasm::ListingDocument& document = m_disassembler->document();
-    const std::string& word = m_listingview->textView()->wordUnderCursor();
+    std::string word = this->currentWord();
 
     if(!word.empty())
     {
@@ -437,7 +437,8 @@ void DisassemblerView::selectToHexDump(address_t address, u64 len)
     cursor->selectOffset(offset, len);
 }
 
-void DisassemblerView::showMenu(const QPoint&) {
+void DisassemblerView::showMenu(const QPoint&)
+{
     if(m_disassembler->busy())
         return;
 
@@ -539,5 +540,13 @@ ListingFilterModel *DisassemblerView::getSelectedFilterModel()
     else if(ui->tabView->currentWidget() == ui->tabStrings)
         return m_stringsmodel;
 
-    return NULL;
+    return nullptr;
+}
+
+std::string DisassemblerView::currentWord() const
+{
+    if(ui->stackedWidget->currentWidget() == m_graphview)
+        return m_graphview->currentWord();
+
+    return m_listingview->textView()->currentWord();
 }

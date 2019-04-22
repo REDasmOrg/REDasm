@@ -14,6 +14,7 @@ class DisassemblerBlockItem : public GraphViewItem
     public:
         explicit DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock* fbb, const REDasm::DisassemblerPtr& disassembler, const REDasm::Graphing::Node& node, QWidget *parent = nullptr);
         virtual ~DisassemblerBlockItem();
+        std::string currentWord();
         DisassemblerActions* disassemblerActions() const;
         bool hasIndex(s64 index) const;
 
@@ -22,6 +23,7 @@ class DisassemblerBlockItem : public GraphViewItem
         virtual QSize size() const;
 
     protected:
+        virtual void mouseDoubleClickEvent(QMouseEvent *e);
         virtual void mousePressEvent(QMouseEvent *e);
         virtual void mouseMoveEvent(QMouseEvent *e);
         virtual void invalidate(bool notify = true);

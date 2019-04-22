@@ -58,7 +58,7 @@ DisassemblerTextView::~DisassemblerTextView()
 }
 
 DisassemblerActions *DisassemblerTextView::disassemblerActions() const { return m_actions; }
-std::string DisassemblerTextView::wordUnderCursor() const { return m_renderer ? m_renderer->getCurrentWord() : std::string(); }
+std::string DisassemblerTextView::currentWord() const { return m_renderer ? m_renderer->getCurrentWord() : std::string(); }
 bool DisassemblerTextView::canGoBack() const { return this->currentDocument()->cursor()->canGoBack(); }
 bool DisassemblerTextView::canGoForward() const { return this->currentDocument()->cursor()->canGoForward(); }
 

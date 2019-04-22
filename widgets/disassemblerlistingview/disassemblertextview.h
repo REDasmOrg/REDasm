@@ -16,7 +16,7 @@ class DisassemblerTextView : public QAbstractScrollArea
         explicit DisassemblerTextView(QWidget *parent = nullptr);
         virtual ~DisassemblerTextView();
         DisassemblerActions* disassemblerActions() const;
-        std::string wordUnderCursor() const;
+        std::string currentWord() const;
         bool canGoBack() const;
         bool canGoForward() const;
         u64 visibleLines() const;

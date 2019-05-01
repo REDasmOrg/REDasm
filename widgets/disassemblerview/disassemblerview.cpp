@@ -308,19 +308,18 @@ void DisassemblerView::displayAddress(address_t address)
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
     s += QString::fromWCharArray(L"<b>Segment: </b>%1\u00A0\u00A0").arg(segm);
 
-    const REDasm::ListingItem* item = document->currentItem();
-
-    if(item && item->is(REDasm::ListingItem::InstructionItem))
+    if(document->currentItem())
     {
         QString func = "UNKNOWN";
 
         if(functionstart)
         {
             func = S_TO_QS(functionstart->name);
-            size_t offset = address - functionstart->address;
 
-            if(offset)
-                func += "+" + S_TO_QS(REDasm::hex(offset, 8));
+            if(address > functionstart->address)
+                func += "+" + S_TO_QS(REDasm::hex(address - functionstart->address, 8));
+            else if(address < functionstart->address)
+                func += S_TO_QS(REDasm::hex<REDasm::signed_of<size_t>::type>(address - functionstart->address));
         }
 
         s = QString::fromWCharArray(L"<b>Function: </b>%1\u00A0\u00A0").arg(func) + s;

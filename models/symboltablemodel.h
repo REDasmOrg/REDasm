@@ -12,7 +12,7 @@ class SymbolTableModel : public ListingItemModel
         void setSymbolFlags(u32 symbolflags);
 
     protected:
-        virtual bool isItemAllowed(REDasm::ListingItem* item) const;
+        virtual bool isItemAllowed(const REDasm::ListingItem *item) const;
 
     private:
         u32 m_symbolflags;

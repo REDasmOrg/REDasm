@@ -122,7 +122,7 @@ QString GotoModel::itemType(const REDasm::ListingItem *item) const
     return QString();
 }
 
-bool GotoModel::isItemAllowed(REDasm::ListingItem *item) const
+bool GotoModel::isItemAllowed(const REDasm::ListingItem *item) const
 {
     switch(item->type)
     {

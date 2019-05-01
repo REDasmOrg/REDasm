@@ -22,7 +22,7 @@ class GotoModel : public ListingItemModel
         QString itemType(const REDasm::ListingItem* item) const;
 
     protected:
-        virtual bool isItemAllowed(REDasm::ListingItem* item) const;
+        virtual bool isItemAllowed(const REDasm::ListingItem* item) const;
 };
 
 #endif // GOTOMODEL_H

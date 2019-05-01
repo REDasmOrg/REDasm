@@ -308,7 +308,7 @@ void DisassemblerView::displayAddress(address_t address)
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
     s += QString::fromWCharArray(L"<b>Segment: </b>%1\u00A0\u00A0").arg(segm);
 
-    REDasm::ListingItem* item = document->currentItem();
+    const REDasm::ListingItem* item = document->currentItem();
 
     if(item && item->is(REDasm::ListingItem::InstructionItem))
     {
@@ -468,7 +468,7 @@ void DisassemblerView::goBack() { m_disassembler->document()->cursor()->goBack()
 void DisassemblerView::syncHexEdit()
 {
     REDasm::ListingDocument& document = m_disassembler->document();
-    REDasm::ListingItem* item = document->currentItem();
+    const REDasm::ListingItem* item = document->currentItem();
 
     offset_location offset;
     u64 len = 0;

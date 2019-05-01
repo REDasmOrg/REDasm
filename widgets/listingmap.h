@@ -2,8 +2,6 @@
 #define LISTINGMAP_H
 
 #include <QWidget>
-#include <QList>
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/disassembler/disassemblerapi.h>
 
 class ListingMap : public QWidget
@@ -21,9 +19,6 @@ class ListingMap : public QWidget
         int itemSize() const;
         QRect buildRect(int offset, int itemsize) const;
         bool checkOrientation();
-        void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
-        void addItem(REDasm::ListingItem* item);
-        void removeItem(REDasm::ListingItem* item);
         void drawLabels(QPainter *painter);
         void renderSegments(QPainter *painter);
         void renderFunctions(QPainter *painter);
@@ -35,7 +30,6 @@ class ListingMap : public QWidget
 
     private:
         REDasm::DisassemblerPtr m_disassembler;
-        REDasm::ListingItemContainer m_functions;
         s32 m_orientation, m_totalsize;
         u64 m_lastseek;
 };

@@ -66,7 +66,7 @@ void DisassemblerViewDocks::updateCallGraph()
         return;
 
     REDasm::ListingDocument& document = m_disassembler->document();
-    REDasm::ListingItem* item = document->functionStart(document->currentItem()->address);
+    const REDasm::ListingItem* item = document->functionStart(document->currentItem()->address);
 
     if(!item)
     {

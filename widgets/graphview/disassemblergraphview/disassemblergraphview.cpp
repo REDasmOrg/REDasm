@@ -94,7 +94,7 @@ void DisassemblerGraphView::focusCurrentBlock()
 bool DisassemblerGraphView::renderGraph()
 {
     auto& document = m_disassembler->document();
-    REDasm::ListingItem* currentfunction = document->functionStart(document->currentItem());
+    const REDasm::ListingItem* currentfunction = document->functionStart(document->currentItem());
 
     if(!currentfunction)
         return false;

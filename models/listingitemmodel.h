@@ -21,13 +21,13 @@ class ListingItemModel : public DisassemblerModel
         virtual QVariant data(const QModelIndex &index, int role) const;
 
     protected:
-        virtual bool isItemAllowed(REDasm::ListingItem* item) const;
+        virtual bool isItemAllowed(const REDasm::ListingItem *item) const;
 
     private:
         void onListingChanged(const REDasm::ListingDocumentChanged *ldc);
 
     private:
-        REDasm::ListingItemContainer m_items;
+        REDasm::ListingItemConstContainer m_items;
         size_t m_itemtype;
 
     friend class ListingFilterModel;

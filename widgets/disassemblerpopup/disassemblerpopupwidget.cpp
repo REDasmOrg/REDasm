@@ -34,7 +34,7 @@ bool DisassemblerPopupWidget::renderPopup(const std::string &word, int line)
 {
     m_index = this->getIndexOfWord(word);
 
-    if((m_index == REDasm::ListingDocumentType::npos) || (m_index == line))
+    if((m_index == REDasm::npos) || (m_index == line))
         return false;
 
     m_rows = DEFAULT_ROW_COUNT;
@@ -73,7 +73,7 @@ size_t DisassemblerPopupWidget::getIndexOfWord(const std::string &word) const
     const REDasm::Symbol* symbol = m_document->symbol(word);
 
     if(!symbol)
-        return REDasm::ListingDocumentType::npos;
+        return REDasm::npos;
 
     if(symbol->isFunction())
         return m_document->functionIndex(symbol->address);

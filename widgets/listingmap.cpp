@@ -18,12 +18,7 @@ void ListingMap::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
     m_totalsize = disassembler->loader()->buffer()->size();
 
     auto& document = m_disassembler->document();
-
-    for(auto it = document->begin(); it != document->end(); it++)
-        this->addItem(it->get());
-
     this->update();
-    EVENT_CONNECT(document, changed, this, std::bind(&ListingMap::onDocumentChanged, this, std::placeholders::_1));
 
     EVENT_CONNECT(document->cursor(), positionChanged, this, [=]() {
         if(m_disassembler->busy())
@@ -43,14 +38,7 @@ void ListingMap::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 QSize ListingMap::sizeHint() const { return { LISTINGMAP_SIZE, LISTINGMAP_SIZE }; }
 int ListingMap::calculateSize(u64 sz) const { return std::max(1, static_cast<int>((sz * this->itemSize()) / m_totalsize)); }
 int ListingMap::calculatePosition(offset_t offset) const { return (offset * this->itemSize()) / m_totalsize; }
-
-int ListingMap::itemSize() const
-{
-    if(m_orientation == Qt::Horizontal)
-        return this->width();
-
-    return this->height();
-}
+int ListingMap::itemSize() const { return (m_orientation == Qt::Horizontal) ? this->width() : this->height(); }
 
 QRect ListingMap::buildRect(int p, int itemsize) const
 {
@@ -63,12 +51,7 @@ QRect ListingMap::buildRect(int p, int itemsize) const
 bool ListingMap::checkOrientation()
 {
     s32 oldorientation = m_orientation;
-
-    if(this->width() > this->height())
-        m_orientation = Qt::Horizontal;
-    else
-        m_orientation = Qt::Vertical;
-
+    m_orientation = (this->width() > this->height()) ? Qt::Horizontal : Qt::Vertical;
     return oldorientation != m_orientation;
 }
 
@@ -106,22 +89,6 @@ void ListingMap::drawLabels(QPainter* painter)
     }
 }
 
-void ListingMap::addItem(REDasm::ListingItem *item)
-{
-    if(!item->is(REDasm::ListingItem::FunctionItem))
-        return;
-
-    m_functions.insert(item);
-}
-
-void ListingMap::removeItem(REDasm::ListingItem *item)
-{
-    if(!item->is(REDasm::ListingItem::FunctionItem))
-        return;
-
-    m_functions.erase(item);
-}
-
 void ListingMap::renderSegments(QPainter* painter)
 {
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
@@ -143,46 +110,36 @@ void ListingMap::renderSegments(QPainter* painter)
 
 void ListingMap::renderFunctions(QPainter *painter)
 {
-    const auto* loader = m_disassembler->loader();
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
     u64 fsize = (m_orientation == Qt::Horizontal ? this->height() : this->width()) / 2;
-    u64 size = 0;
 
-    for(int i = 0; i < m_functions.size(); i++)
+    for(const REDasm::ListingItem* item : lock->functions())
     {
-        const REDasm::ListingItem* item = m_functions[i];
-
-        if(item == m_functions.back())
-        {
-            REDasm::Segment* segment = lock->segment(item->address);
-            size = segment->endaddress - item->address;
-        }
-        else
-            size = m_functions[i + 1]->address - item->address;
-
         const REDasm::Symbol* symbol = lock->symbol(item->address);
-        offset_location offset = loader->offset(symbol->address);
 
-        if(!offset.valid)
+        if(!lock->functions().containsBounds(item))
             continue;
 
-        QRect r = this->buildRect(this->calculatePosition(offset), this->calculateSize(size));
+        for(const auto& b : lock->functions().bounds(item))
+        {
+            QRect r = this->buildRect(this->calculatePosition(b.startidx), this->calculateSize(b.size()));
 
-        if(m_orientation == Qt::Horizontal)
-            r.setHeight(fsize);
-        else
-            r.setWidth(fsize);
+            if(m_orientation == Qt::Horizontal)
+                r.setHeight(fsize);
+            else
+                r.setWidth(fsize);
 
-        if(symbol->isLocked())
-            painter->fillRect(r, THEME_VALUE("locked_fg"));
-        else
-            painter->fillRect(r, THEME_VALUE("function_fg"));
+            if(symbol->isLocked())
+                painter->fillRect(r, THEME_VALUE("locked_fg"));
+            else
+                painter->fillRect(r, THEME_VALUE("function_fg"));
+        }
     }
 }
 
 void ListingMap::renderSeek(QPainter *painter)
 {
-    REDasm::ListingItem* item = m_disassembler->document()->currentItem();
+    const REDasm::ListingItem* item = m_disassembler->document()->currentItem();
 
     if(!item)
         return;
@@ -203,14 +160,6 @@ void ListingMap::renderSeek(QPainter *painter)
        r = QRect(0, this->calculatePosition(offset), this->width(), this->height() * 0.05);
 
     painter->fillRect(r, seekcolor);
-}
-
-void ListingMap::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
-{
-    if(ldc->isInserted())
-        this->addItem(ldc->item);
-    else if(ldc->isRemoved())
-        this->removeItem(ldc->item);
 }
 
 void ListingMap::paintEvent(QPaintEvent *)

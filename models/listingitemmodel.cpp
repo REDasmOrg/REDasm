@@ -117,7 +117,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-bool ListingItemModel::isItemAllowed(REDasm::ListingItem *item) const
+bool ListingItemModel::isItemAllowed(const REDasm::ListingItem *item) const
 {
     if(m_itemtype == REDasm::ListingItem::AllItems)
         return true;

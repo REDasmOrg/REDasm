@@ -12,7 +12,7 @@ void DisassemblerActions::popup(const QPoint &pos) { m_contextmenu->exec(pos); }
 void DisassemblerActions::adjustActions()
 {
     auto lock = REDasm::s_lock_safe_ptr(m_renderer->document());
-    REDasm::ListingItem* item = lock->currentItem();
+    const REDasm::ListingItem* item = lock->currentItem();
 
     if(!item)
         return;
@@ -142,7 +142,7 @@ void DisassemblerActions::showCallGraph()
     if(!symbol)
     {
         REDasm::ListingDocument& document = m_renderer->document();
-        REDasm::ListingItem* item = document->currentItem();
+        const REDasm::ListingItem* item = document->currentItem();
         symbol = document->functionStartSymbol(item->address);
     }
 
@@ -206,7 +206,7 @@ void DisassemblerActions::followPointerHexDump()
 
 void DisassemblerActions::addComment()
 {
-    REDasm::ListingItem* currentitem =  m_renderer->document()->currentItem();
+    const REDasm::ListingItem* currentitem =  m_renderer->document()->currentItem();
 
     bool ok = false;
     QString res = QInputDialog::getMultiLineText(this->widget(),

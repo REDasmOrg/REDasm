@@ -51,7 +51,7 @@ QModelIndex ListingFilterModel::mapFromSource(const QModelIndex &sourceindex) co
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(sourceindex.internalPointer());
     size_t idx = m_filtereditems.indexOf(item);
 
-    if(idx == REDasm::ListingItemContainer::npos)
+    if(idx == REDasm::npos)
         return QModelIndex();
 
     return this->index(idx, sourceindex.column());
@@ -66,7 +66,7 @@ QModelIndex ListingFilterModel::mapToSource(const QModelIndex &proxyindex) const
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(proxyindex.internalPointer());
     size_t idx = listingitemmodel->m_items.indexOf(item);
 
-    if(idx == REDasm::ListingItemContainer::npos)
+    if(idx == REDasm::npos)
         return QModelIndex();
 
     return listingitemmodel->index(idx, proxyindex.column());

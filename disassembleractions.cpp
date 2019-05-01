@@ -206,18 +206,18 @@ void DisassemblerActions::followPointerHexDump()
 
 void DisassemblerActions::addComment()
 {
-    address_t currentaddress = m_renderer->document()->currentItem()->address;
+    REDasm::ListingItem* currentitem =  m_renderer->document()->currentItem();
 
     bool ok = false;
     QString res = QInputDialog::getMultiLineText(this->widget(),
-                                                 "Comment @ " + QString::fromStdString(REDasm::hex(currentaddress)),
+                                                 "Comment @ " + QString::fromStdString(REDasm::hex(currentitem->address)),
                                                  "Insert a comment (leave blank to remove):",
-                                                 QString::fromStdString(m_renderer->document()->comment(currentaddress, true)), &ok);
+                                                 QString::fromStdString(m_renderer->document()->comment(currentitem, true)), &ok);
 
     if(!ok)
         return;
 
-    m_renderer->document()->comment(currentaddress, res.toStdString());
+    m_renderer->document()->comment(currentitem, res.toStdString());
 }
 
 void DisassemblerActions::goForward() { m_renderer->document()->cursor()->goForward(); }

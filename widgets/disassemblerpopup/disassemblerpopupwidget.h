@@ -19,13 +19,13 @@ class DisassemblerPopupWidget : public QPlainTextEdit
 
     private:
         void renderPopup();
-        int getIndexOfWord(const std::string& word) const;
+        size_t getIndexOfWord(const std::string& word) const;
 
     private:
         REDasm::DisassemblerPtr m_disassembler;
         REDasm::ListingDocument& m_document;
         ListingDocumentRenderer* m_documentrenderer;
-        int m_index, m_rows;
+        size_t m_index, m_rows;
 };
 
 #endif // DISASSEMBLERPOPUPWIDGET_H

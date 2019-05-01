@@ -10,7 +10,7 @@ DisassemblerColumnView::DisassemblerColumnView(QWidget *parent) : QWidget(parent
 
 void DisassemblerColumnView::setDisassembler(const REDasm::DisassemblerPtr& disassembler) { m_disassembler = disassembler; }
 
-void DisassemblerColumnView::renderArrows(u64 start, u64 count)
+void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 {
     m_first = start;
     m_last = start + count - 1;
@@ -20,9 +20,9 @@ void DisassemblerColumnView::renderArrows(u64 start, u64 count)
 
     auto& document = m_disassembler->document();
 
-    for(u64 i = 0; i < count; i++, start++)
+    for(size_t i = 0; i < count; i++, start++)
     {
-        if(start >= document->length())
+        if(start >= document->size())
             break;
 
         REDasm::ListingItem* item = document->itemAt(start);
@@ -39,9 +39,9 @@ void DisassemblerColumnView::renderArrows(u64 start, u64 count)
                 if(target == instruction->address)
                     continue;
 
-                u64 idx = static_cast<u64>(document->instructionIndex(target));
+                size_t idx = document->instructionIndex(target);
 
-                if(idx >= document->length())
+                if(idx >= document->size())
                     continue;
 
                 this->insertPath(item, start, idx);
@@ -55,9 +55,9 @@ void DisassemblerColumnView::renderArrows(u64 start, u64 count)
                 continue;
 
             REDasm::ReferenceVector refs = m_disassembler->getReferences(item->address);
-            u64 toidx = static_cast<u64>(document->instructionIndex(item->address));
+            size_t toidx = document->instructionIndex(item->address);
 
-            if(toidx >= document->length())
+            if(toidx >= document->size())
                 continue;
 
             for(address_t ref : refs)
@@ -65,9 +65,9 @@ void DisassemblerColumnView::renderArrows(u64 start, u64 count)
                 if(ref == item->address)
                     continue;
 
-                u64 idx = static_cast<u64>(document->instructionIndex(ref));
+                size_t idx = document->instructionIndex(ref);
 
-                if(idx >= document->length())
+                if(idx >= document->size())
                     continue;
 
                 this->insertPath(document->itemAt(idx), idx, toidx);

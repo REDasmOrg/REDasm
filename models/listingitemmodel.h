@@ -27,7 +27,7 @@ class ListingItemModel : public DisassemblerModel
         void onListingChanged(const REDasm::ListingDocumentChanged *ldc);
 
     private:
-        QList<REDasm::ListingItem*> m_items;
+        REDasm::ListingItemContainer m_items;
         size_t m_itemtype;
 
     friend class ListingFilterModel;

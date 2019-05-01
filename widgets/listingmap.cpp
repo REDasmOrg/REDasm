@@ -80,15 +80,13 @@ void ListingMap::drawLabels(QPainter* painter)
 
     painter->setPen(palette.color(QPalette::HighlightedText));
 
-    for(size_t i = 0; i < lock->segmentsCount(); i++)
+    for(const REDasm::Segment& segment : lock->segments())
     {
-        const REDasm::Segment* segment = lock->segmentAt(i);
-
-        if(segment->is(REDasm::SegmentTypes::Bss))
+        if(segment.is(REDasm::SegmentTypes::Bss))
             continue;
 
-        int pos = this->calculatePosition(segment->offset);
-        int segmentsize = this->calculateSize(segment->size());
+        int pos = this->calculatePosition(segment.offset);
+        int segmentsize = this->calculateSize(segment.size());
 
         if(segmentsize < fm.height()) // Don't draw labels on small segments
             continue;
@@ -97,50 +95,46 @@ void ListingMap::drawLabels(QPainter* painter)
         {
             painter->drawText(pos, 2, segmentsize - (fm.width(' ') * 2), fm.height(),
                               Qt::AlignLeft | Qt::AlignBottom,
-                              QString::fromStdString(segment->name));
+                              QString::fromStdString(segment.name));
         }
         else
         {
             painter->drawText(2, pos, this->width() - (fm.width(' ') * 2), fm.height(),
                               Qt::AlignRight | Qt::AlignTop,
-                              QString::fromStdString(segment->name));
+                              QString::fromStdString(segment.name));
         }
     }
 }
 
-void ListingMap::addItem(const REDasm::ListingItem *item)
+void ListingMap::addItem(REDasm::ListingItem *item)
 {
     if(!item->is(REDasm::ListingItem::FunctionItem))
         return;
 
-    auto it = REDasm::Listing::insertionPoint(&m_functions, item);
-    m_functions.insert(it, item);
+    m_functions.insert(item);
 }
 
-void ListingMap::removeItem(const REDasm::ListingItem *item)
+void ListingMap::removeItem(REDasm::ListingItem *item)
 {
     if(!item->is(REDasm::ListingItem::FunctionItem))
         return;
 
-    int idx = REDasm::Listing::indexOf(&m_functions, item);
-    m_functions.removeAt(idx);
+    m_functions.erase(item);
 }
 
 void ListingMap::renderSegments(QPainter* painter)
 {
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
 
-    for(size_t i = 0; i < lock->segmentsCount(); i++)
+    for(const REDasm::Segment& segment : lock->segments())
     {
-        const REDasm::Segment* segment = lock->segmentAt(i);
-
-        if(segment->is(REDasm::SegmentTypes::Bss))
+        if(segment.is(REDasm::SegmentTypes::Bss))
             continue;
 
-        QRect r = this->buildRect(this->calculatePosition(segment->offset),
-                                  this->calculateSize(segment->size()));
+        QRect r = this->buildRect(this->calculatePosition(segment.offset),
+                                  this->calculateSize(segment.size()));
 
-        if(segment->is(REDasm::SegmentTypes::Code))
+        if(segment.is(REDasm::SegmentTypes::Code))
             painter->fillRect(r, THEME_VALUE("label_fg"));
         else
             painter->fillRect(r, THEME_VALUE("data_fg"));
@@ -158,7 +152,7 @@ void ListingMap::renderFunctions(QPainter *painter)
     {
         const REDasm::ListingItem* item = m_functions[i];
 
-        if(item == m_functions.last())
+        if(item == m_functions.back())
         {
             REDasm::Segment* segment = lock->segment(item->address);
             size = segment->endaddress - item->address;

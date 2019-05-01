@@ -89,7 +89,7 @@ int CallGraphModel::getParentIndexFromChild(REDasm::ListingItem *childitem) cons
 int CallGraphModel::getParentIndex(REDasm::ListingItem *parentitem) const
 {
     const REDasm::ListingItems& parentlist = m_children[m_parents[parentitem]];
-    return REDasm::Listing::indexOf(&parentlist, parentitem);
+    return std::distance(parentlist.begin(), std::find(parentlist.begin(), parentlist.end(), parentitem));
 }
 
 bool CallGraphModel::hasChildren(const QModelIndex &parentindex) const

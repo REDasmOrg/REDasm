@@ -22,8 +22,8 @@ class ListingMap : public QWidget
         QRect buildRect(int offset, int itemsize) const;
         bool checkOrientation();
         void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
-        void addItem(const REDasm::ListingItem* item);
-        void removeItem(const REDasm::ListingItem* item);
+        void addItem(REDasm::ListingItem* item);
+        void removeItem(REDasm::ListingItem* item);
         void drawLabels(QPainter *painter);
         void renderSegments(QPainter *painter);
         void renderFunctions(QPainter *painter);
@@ -35,7 +35,7 @@ class ListingMap : public QWidget
 
     private:
         REDasm::DisassemblerPtr m_disassembler;
-        QList<const REDasm::ListingItem*> m_functions;
+        REDasm::ListingItemContainer m_functions;
         s32 m_orientation, m_totalsize;
         u64 m_lastseek;
 };

@@ -18,7 +18,7 @@ class DisassemblerColumnView : public QWidget
     public:
         explicit DisassemblerColumnView(QWidget *parent = nullptr);
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
-        void renderArrows(u64 start, u64 count);
+        void renderArrows(size_t start, size_t count);
 
     protected:
         virtual void paintEvent(QPaintEvent*);

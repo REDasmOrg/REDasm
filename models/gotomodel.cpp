@@ -103,7 +103,7 @@ QString GotoModel::itemName(const REDasm::ListingItem *item) const
             return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
     }
     else if(item->type == REDasm::ListingItem::TypeItem)
-        return S_TO_QS(document->type(item->address));
+        return S_TO_QS(document->type(item));
 
     return QString();
 }

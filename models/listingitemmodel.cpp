@@ -19,8 +19,7 @@ void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembl
         if(!this->isItemAllowed(it->get()))
             continue;
 
-        auto itip = REDasm::Listing::insertionPoint(&m_items, it->get());
-        m_items.insert(itip, it->get());
+        m_items.insert(it->get());
     }
 
     this->endResetModel();
@@ -35,7 +34,7 @@ QModelIndex ListingItemModel::index(int row, int column, const QModelIndex &pare
     if((row < 0) || (row >= m_items.size()))
         return QModelIndex();
 
-    return this->createIndex(row, column, m_items[row]);
+    return this->createIndex(row, column, const_cast<REDasm::ListingItem*>(m_items[row]));
 }
 
 int ListingItemModel::rowCount(const QModelIndex &) const { return m_items.size(); }
@@ -133,19 +132,16 @@ void ListingItemModel::onListingChanged(const REDasm::ListingDocumentChanged *ld
 
     if(ldc->isRemoved())
     {
-        int idx = REDasm::Listing::indexOf(&m_items, ldc->item);
-
+        int idx = static_cast<int>(m_items.indexOf(ldc->item));
         this->beginRemoveRows(QModelIndex(), idx, idx);
-        m_items.removeAt(idx);
+        m_items.erase(static_cast<size_t>(idx));
         this->endRemoveRows();
     }
     else if(ldc->isInserted())
     {
-        auto it = REDasm::Listing::insertionPoint(&m_items, ldc->item);
-        int idx = std::distance(m_items.begin(), it);
-
+        int idx = static_cast<int>(m_items.insertionIndex(ldc->item));
         this->beginInsertRows(QModelIndex(), idx, idx);
-        m_items.insert(it, ldc->item);
+        m_items.insert(ldc->item);
         this->endInsertRows();
     }
 }

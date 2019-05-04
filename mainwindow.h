@@ -23,11 +23,11 @@ class MainWindow : public QMainWindow
         ~MainWindow();
 
     protected:
-        virtual void closeEvent(QCloseEvent* e);
-        virtual void dragEnterEvent(QDragEnterEvent* e);
-        virtual void dragMoveEvent(QDragMoveEvent* e);
-        virtual void dropEvent(QDropEvent* e);
-        bool eventFilter(QObject* obj, QEvent* e);
+        void closeEvent(QCloseEvent* e) override;
+        void dragEnterEvent(QDragEnterEvent* e) override;
+        void dragMoveEvent(QDragMoveEvent* e) override;
+        void dropEvent(QDropEvent* e) override;
+        bool eventFilter(QObject* obj, QEvent* e) override;
 
     private slots:
         void onOpenClicked();

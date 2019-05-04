@@ -28,14 +28,14 @@ class GraphView : public QAbstractScrollArea
         void focusBlock(const GraphViewItem* item);
 
     protected:
-        virtual void mouseDoubleClickEvent(QMouseEvent* e);
-        virtual void mousePressEvent(QMouseEvent* e);
-        virtual void mouseReleaseEvent(QMouseEvent* e);
-        virtual void mouseMoveEvent(QMouseEvent* e);
-        virtual void wheelEvent(QWheelEvent* e);
-        virtual void resizeEvent(QResizeEvent* e);
-        virtual void paintEvent(QPaintEvent* e);
-        virtual void showEvent(QShowEvent* e);
+        void mouseDoubleClickEvent(QMouseEvent* e) override;
+        void mousePressEvent(QMouseEvent* e) override;
+        void mouseReleaseEvent(QMouseEvent* e) override;
+        void mouseMoveEvent(QMouseEvent* e) override;
+        void wheelEvent(QWheelEvent* e) override;
+        void resizeEvent(QResizeEvent* e) override;
+        void paintEvent(QPaintEvent* e) override;
+        void showEvent(QShowEvent* e) override;
         virtual void computeLayout();
 
     private:

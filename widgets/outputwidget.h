@@ -8,8 +8,8 @@ class OutputWidget : public QPlainTextEdit
     Q_OBJECT
 
     public:
-        explicit OutputWidget(QWidget *parent = NULL);
-        virtual QSize sizeHint() const;
+        explicit OutputWidget(QWidget *parent = nullptr);
+        QSize sizeHint() const override;
 
     public slots:
         void log(const QString& s);

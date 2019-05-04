@@ -4,7 +4,7 @@
 #include <QFontDatabase>
 #include <QColor>
 
-CallGraphModel::CallGraphModel(QObject *parent) : QAbstractItemModel(parent), m_disassembler(NULL), m_root(NULL) { }
+CallGraphModel::CallGraphModel(QObject *parent) : QAbstractItemModel(parent), m_disassembler(nullptr), m_root(nullptr) { }
 
 void CallGraphModel::setDisassembler(const REDasm::DisassemblerPtr &disassembler)
 {
@@ -23,7 +23,7 @@ void CallGraphModel::initializeGraph(address_t address)
     {
         m_root = it->get();
         m_depths[m_root] = 0;
-        m_parents[m_root] = NULL;
+        m_parents[m_root] = nullptr;
         this->populate(m_root);
     }
 }
@@ -31,7 +31,7 @@ void CallGraphModel::initializeGraph(address_t address)
 void CallGraphModel::clearGraph()
 {
     this->beginResetModel();
-    m_root = NULL;
+    m_root = nullptr;
     m_depths.clear();
     m_children.clear();
     m_parents.clear();

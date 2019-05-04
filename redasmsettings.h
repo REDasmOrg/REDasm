@@ -11,7 +11,7 @@ class REDasmSettings : public QSettings
     Q_OBJECT
 
     public:
-        explicit REDasmSettings(QObject *parent = NULL);
+        explicit REDasmSettings(QObject *parent = nullptr);
         QStringList recentFiles() const;
         QString currentTheme() const;
         QFont currentFont() const;

@@ -398,7 +398,7 @@ void MainWindow::closeFile()
 
     QWidget* oldwidget = ui->stackView->currentWidget();
 
-    if(oldwidget != NULL)
+    if(oldwidget != nullptr)
     {
         ui->stackView->removeWidget(oldwidget);
         oldwidget->deleteLater();
@@ -512,7 +512,7 @@ REDasm::DisassemblerAPI *MainWindow::currentDisassembler() const
     DisassemblerView* currdv = this->currentDisassemblerView();
 
     if(!currdv)
-        return NULL;
+        return nullptr;
 
     return currdv->disassembler();
 }

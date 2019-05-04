@@ -8,7 +8,7 @@ class SymbolTableModel : public ListingItemModel
     Q_OBJECT
 
     public:
-        explicit SymbolTableModel(size_t itemtype, QObject *parent = NULL);
+        explicit SymbolTableModel(size_t itemtype, QObject *parent = nullptr);
         void setSymbolFlags(u32 symbolflags);
 
     protected:

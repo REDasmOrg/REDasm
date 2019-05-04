@@ -13,7 +13,7 @@ class DisassemblerViewActions : public QObject
         enum { BackAction = 0, ForwardAction, GotoAction, GraphListingAction };
 
     public:
-        explicit DisassemblerViewActions(QObject *parent = NULL);
+        explicit DisassemblerViewActions(QObject *parent = nullptr);
         virtual ~DisassemblerViewActions();
         void setIcon(int actionid, const QIcon& icon);
         void setEnabled(int actionid, bool b);

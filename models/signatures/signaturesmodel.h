@@ -13,10 +13,10 @@ class SignaturesModel : public QAbstractListModel
         void setSignature(const REDasm::SignatureDB* sigdb);
 
     public:
-        virtual QVariant data(const QModelIndex &index, int role) const;
-        virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-        virtual int rowCount(const QModelIndex& = QModelIndex()) const;
-        virtual int columnCount(const QModelIndex& = QModelIndex()) const;
+        QVariant data(const QModelIndex &index, int role) const override;
+        QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+        int rowCount(const QModelIndex& = QModelIndex()) const override;
+        int columnCount(const QModelIndex& = QModelIndex()) const override;
 
     private:
         const REDasm::SignatureDB* m_signaturedb;

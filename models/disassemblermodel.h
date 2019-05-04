@@ -12,11 +12,11 @@ class DisassemblerModel : public QAbstractListModel
     Q_OBJECT
 
     public:
-        explicit DisassemblerModel(QObject *parent = NULL);
+        explicit DisassemblerModel(QObject *parent = nullptr);
 
     public:
         virtual void setDisassembler(const REDasm::DisassemblerPtr& disassembler);
-        virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+        QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
     protected:
         REDasm::DisassemblerPtr m_disassembler;

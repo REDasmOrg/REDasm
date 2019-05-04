@@ -2,7 +2,7 @@
 #include <QHeaderView>
 #include <QApplication>
 
-DisassemblerViewDocks::DisassemblerViewDocks(QObject *parent) : QObject(parent), m_disassembler(NULL)
+DisassemblerViewDocks::DisassemblerViewDocks(QObject *parent) : QObject(parent), m_disassembler(nullptr)
 {
     m_docksymbols = this->findDock("dockSymbols");
     m_dockreferences = this->findDock("dockReferences");
@@ -80,7 +80,7 @@ void DisassemblerViewDocks::updateCallGraph()
 
 QDockWidget *DisassemblerViewDocks::findDock(const QString &objectname) const
 {
-    QDockWidget* result = NULL;
+    QDockWidget* result = nullptr;
 
     for(const auto* widget : qApp->topLevelWidgets())
     {
@@ -125,8 +125,8 @@ void DisassemblerViewDocks::createSymbolsModel()
 {
     if(!m_docksymbols)
     {
-        m_functionsmodel = NULL;
-        m_callgraphmodel = NULL;
+        m_functionsmodel = nullptr;
+        m_callgraphmodel = nullptr;
         return;
     }
 
@@ -141,7 +141,7 @@ void DisassemblerViewDocks::createReferencesModel()
 {
     if(!m_dockreferences)
     {
-        m_referencesmodel = NULL;
+        m_referencesmodel = nullptr;
         return;
     }
 
@@ -157,7 +157,7 @@ void DisassemblerViewDocks::createListingMap()
 {
     if(!m_docklistingmap)
     {
-        m_listingmap = NULL;
+        m_listingmap = nullptr;
         return;
     }
 

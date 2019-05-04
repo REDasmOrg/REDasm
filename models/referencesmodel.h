@@ -11,15 +11,15 @@ class ReferencesModel : public DisassemblerModel
 
     public:
         explicit ReferencesModel(QObject *parent = 0);
-        virtual void setDisassembler(const REDasm::DisassemblerPtr& disassembler);
+        void setDisassembler(const REDasm::DisassemblerPtr& disassembler) override;
         void xref(address_t address);
 
     public:
-        virtual QModelIndex index(int row, int column, const QModelIndex &) const;
-        virtual QVariant data(const QModelIndex &index, int role) const;
-        virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-        virtual int rowCount(const QModelIndex&) const;
-        virtual int columnCount(const QModelIndex&) const;
+        QModelIndex index(int row, int column, const QModelIndex &) const override;
+        QVariant data(const QModelIndex &index, int role) const override;
+        QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+        int rowCount(const QModelIndex&) const override;
+        int columnCount(const QModelIndex&) const override;
 
     public slots:
         void clear();

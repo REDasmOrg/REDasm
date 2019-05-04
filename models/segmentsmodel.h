@@ -8,12 +8,12 @@ class SegmentsModel : public ListingItemModel
     Q_OBJECT
 
     public:
-        explicit SegmentsModel(QObject *parent = NULL);
+        explicit SegmentsModel(QObject *parent = nullptr);
 
     public:
-        virtual QVariant data(const QModelIndex &index, int role) const;
-        virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-        virtual int columnCount(const QModelIndex&) const;
+        QVariant data(const QModelIndex &index, int role) const override;
+        QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+        int columnCount(const QModelIndex&) const override;
 
     private:
         static QString segmentFlags(const REDasm::Segment* segment);

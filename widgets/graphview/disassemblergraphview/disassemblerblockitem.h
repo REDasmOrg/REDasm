@@ -19,14 +19,14 @@ class DisassemblerBlockItem : public GraphViewItem
         bool hasIndex(s64 index) const;
 
     public:
-        virtual void render(QPainter* painter, size_t state);
-        virtual QSize size() const;
+        void render(QPainter* painter, size_t state) override;
+        QSize size() const override;
 
     protected:
-        virtual void mouseDoubleClickEvent(QMouseEvent *e);
-        virtual void mousePressEvent(QMouseEvent *e);
-        virtual void mouseMoveEvent(QMouseEvent *e);
-        virtual void invalidate(bool notify = true);
+        void mouseDoubleClickEvent(QMouseEvent *e) override;
+        void mousePressEvent(QMouseEvent *e) override;
+        void mouseMoveEvent(QMouseEvent *e) override;
+        void invalidate(bool notify = true) override;
 
     private:
         QSize documentSize() const;

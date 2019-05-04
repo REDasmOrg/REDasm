@@ -16,10 +16,10 @@ class ListingFilterModel : public QIdentityProxyModel
         void clearFilter();
 
     public:
-        virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
-        virtual QModelIndex index(int row, int column, const QModelIndex& = QModelIndex()) const;
-        virtual QModelIndex mapFromSource(const QModelIndex& sourceindex) const;
-        virtual QModelIndex mapToSource(const QModelIndex& proxyindex) const;
+        int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+        QModelIndex index(int row, int column, const QModelIndex& = QModelIndex()) const override;
+        QModelIndex mapFromSource(const QModelIndex& sourceindex) const override;
+        QModelIndex mapToSource(const QModelIndex& proxyindex) const override;
 
     private:
         void updateFiltering();

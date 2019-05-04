@@ -32,22 +32,20 @@ class DisassemblerTextView : public QAbstractScrollArea
         void renderLine(u64 line);
 
     protected:
-        virtual void scrollContentsBy(int dx, int dy);
-        virtual void paintEvent(QPaintEvent* e);
-        virtual void resizeEvent(QResizeEvent* e);
-        virtual void mousePressEvent(QMouseEvent* e);
-        virtual void mouseMoveEvent(QMouseEvent* e);
-        virtual void mouseReleaseEvent(QMouseEvent* e);
-        virtual void mouseDoubleClickEvent(QMouseEvent* e);
-        virtual void wheelEvent(QWheelEvent *e);
-        virtual void keyPressEvent(QKeyEvent *e);
-        virtual void timerEvent(QTimerEvent* e);
-        virtual bool event(QEvent* e);
-
-    protected:
-        virtual void paintLines(QPainter* painter, u64 first, u64 last);
+        void scrollContentsBy(int dx, int dy) override;
+        void paintEvent(QPaintEvent* e) override;
+        void resizeEvent(QResizeEvent* e) override;
+        void mousePressEvent(QMouseEvent* e) override;
+        void mouseMoveEvent(QMouseEvent* e) override;
+        void mouseReleaseEvent(QMouseEvent* e) override;
+        void mouseDoubleClickEvent(QMouseEvent* e) override;
+        void wheelEvent(QWheelEvent *e) override;
+        void keyPressEvent(QKeyEvent *e) override;
+        void timerEvent(QTimerEvent* e) override;
+        bool event(QEvent* e) override;
 
     private:
+        void paintLines(QPainter* painter, u64 first, u64 last);
         void onDocumentChanged(const REDasm::ListingDocumentChanged* ldc);
         REDasm::ListingDocument& currentDocument();
         const REDasm::ListingDocument& currentDocument() const;

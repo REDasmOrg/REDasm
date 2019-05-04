@@ -14,24 +14,24 @@ class DisassemblerGraphView : public GraphView
     public:
         explicit DisassemblerGraphView(QWidget *parent = nullptr);
         virtual ~DisassemblerGraphView();
-        virtual void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
+        void setDisassembler(const REDasm::DisassemblerPtr &disassembler) override;
         std::string currentWord();
         void goTo(address_t address);
         void focusCurrentBlock();
         bool renderGraph();
 
-    protected:
-        virtual QColor getEdgeColor(const REDasm::Graphing::Edge &e) const;
-        virtual std::string getEdgeLabel(const REDasm::Graphing::Edge &e) const;
-        virtual void mousePressEvent(QMouseEvent *e);
-        virtual void mouseMoveEvent(QMouseEvent *e);
-        virtual void mouseReleaseEvent(QMouseEvent* e);
-        virtual void keyPressEvent(QKeyEvent *e);
-        virtual void showEvent(QShowEvent* e);
-        virtual void timerEvent(QTimerEvent* e);
-
     private:
-        virtual void computeLayout();
+        QColor getEdgeColor(const REDasm::Graphing::Edge &e) const;
+        std::string getEdgeLabel(const REDasm::Graphing::Edge &e) const;
+
+    protected:
+        void mousePressEvent(QMouseEvent *e) override;
+        void mouseMoveEvent(QMouseEvent *e) override;
+        void mouseReleaseEvent(QMouseEvent* e) override;
+        void keyPressEvent(QKeyEvent *e) override;
+        void showEvent(QShowEvent* e) override;
+        void timerEvent(QTimerEvent* e) override;
+        void computeLayout() override;
 
     signals:
         void switchView();

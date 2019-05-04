@@ -27,13 +27,13 @@ class CallGraphModel : public QAbstractItemModel
         int getParentIndex(REDasm::ListingItem *parentitem) const;
 
     public:
-        virtual bool hasChildren(const QModelIndex& parentindex) const;
-        virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
-        virtual QModelIndex parent(const QModelIndex &child) const;
-        virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-        virtual QVariant data(const QModelIndex &index, int role) const;
-        virtual int columnCount(const QModelIndex& parent) const;
-        virtual int rowCount(const QModelIndex& parent) const;
+        bool hasChildren(const QModelIndex& parentindex) const override;
+        QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+        QModelIndex parent(const QModelIndex &child) const override;
+        QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+        QVariant data(const QModelIndex &index, int role) const override;
+        int columnCount(const QModelIndex& parent) const override;
+        int rowCount(const QModelIndex& parent) const override;
 
     private:
         REDasm::PrinterPtr m_printer;

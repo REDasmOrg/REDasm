@@ -24,7 +24,7 @@ class DisassemblerView : public QWidget
     Q_OBJECT
 
     public:
-        explicit DisassemblerView(QLineEdit* lefilter, QWidget *parent = NULL);
+        explicit DisassemblerView(QLineEdit* lefilter, QWidget *parent = nullptr);
         virtual ~DisassemblerView();
         REDasm::DisassemblerAPI *disassembler();
         void setDisassembler(REDasm::DisassemblerAPI *disassembler);

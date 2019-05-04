@@ -3,7 +3,7 @@
 #include "../../redasmsettings.h"
 #include <QScrollBar>
 
-DisassemblerListingView::DisassemblerListingView(QWidget *parent): QSplitter(parent), m_disassembler(NULL)
+DisassemblerListingView::DisassemblerListingView(QWidget *parent): QSplitter(parent), m_disassembler(nullptr)
 {
     this->setOrientation(Qt::Horizontal);
     this->setStyleSheet("QSplitter::handle { background-color: " + THEME_VALUE_COLOR("seek") + "; }");

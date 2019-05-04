@@ -15,8 +15,8 @@ class DisassemblerPopup : public QWidget
         void popup(const std::string& word, int line);
 
     protected:
-        virtual void mouseMoveEvent(QMouseEvent *e);
-        virtual void wheelEvent(QWheelEvent* e);
+        void mouseMoveEvent(QMouseEvent *e) override;
+        void wheelEvent(QWheelEvent* e) override;
 
     private:
         void updateGeometry();

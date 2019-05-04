@@ -11,7 +11,7 @@ class ListingMap : public QWidget
     public:
         explicit ListingMap(QWidget *parent = 0);
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
-        virtual QSize sizeHint() const;
+        QSize sizeHint() const override;
 
     private:
         int calculateSize(u64 sz) const;
@@ -25,8 +25,8 @@ class ListingMap : public QWidget
         void renderSeek(QPainter *painter);
 
     protected:
-        virtual void paintEvent(QPaintEvent*);
-        virtual void resizeEvent(QResizeEvent* e);
+        void paintEvent(QPaintEvent*) override;
+        void resizeEvent(QResizeEvent* e) override;
 
     private:
         REDasm::DisassemblerPtr m_disassembler;

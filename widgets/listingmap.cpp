@@ -6,7 +6,7 @@
 
 #define LISTINGMAP_SIZE 64
 
-ListingMap::ListingMap(QWidget *parent) : QWidget(parent), m_disassembler(NULL), m_orientation(Qt::Vertical), m_totalsize(0), m_lastseek(0)
+ListingMap::ListingMap(QWidget *parent) : QWidget(parent), m_disassembler(nullptr), m_orientation(Qt::Vertical), m_totalsize(0), m_lastseek(0)
 {
     this->setBackgroundRole(QPalette::Base);
     this->setAutoFillBackground(true);

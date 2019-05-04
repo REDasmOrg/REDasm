@@ -12,9 +12,9 @@ class GotoModel : public ListingItemModel
         ~GotoModel();
 
     public:
-        virtual QVariant data(const QModelIndex &index, int role) const;
-        virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-        virtual int columnCount(const QModelIndex&) const;
+        QVariant data(const QModelIndex &index, int role) const override;
+        QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+        int columnCount(const QModelIndex&) const override;
 
     private:
         QColor itemColor(const REDasm::ListingItem* item) const;
@@ -22,7 +22,7 @@ class GotoModel : public ListingItemModel
         QString itemType(const REDasm::ListingItem* item) const;
 
     protected:
-        virtual bool isItemAllowed(const REDasm::ListingItem* item) const;
+        bool isItemAllowed(const REDasm::ListingItem* item) const override;
 };
 
 #endif // GOTOMODEL_H

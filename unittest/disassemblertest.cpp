@@ -28,14 +28,14 @@
 #define TEST_SYMBOL_NAME(s, sym, exp, n) TEST_SYMBOL(s, sym, TEST_NAME(sym, n) && exp)
 
 #define ADD_TEST(t, cb)                  m_tests[t] = std::bind(&DisassemblerTest::cb, this)
-#define ADD_TEST_NULL(t, cb)             m_tests[t] = NULL;
+#define ADD_TEST_NULL(t, cb)             m_tests[t] = nullptr;
 #define ADD_TEST_PATH(t, cb)             m_tests[TEST_PATH(t)] = std::bind(&DisassemblerTest::cb, this)
-#define ADD_TEST_PATH_NULL(t, cb)        m_tests[TEST_PATH(t)] = NULL;
+#define ADD_TEST_PATH_NULL(t, cb)        m_tests[TEST_PATH(t)] = nullptr;
 
 using namespace std;
 using namespace REDasm;
 
-DisassemblerTest::DisassemblerTest(): m_buffer(NULL)
+DisassemblerTest::DisassemblerTest(): m_buffer(nullptr)
 {
     ADD_TEST("/home/davide/Programmazione/Cavia.exe", testCavia);
 
@@ -51,7 +51,7 @@ DisassemblerTest::DisassemblerTest(): m_buffer(NULL)
     ADD_TEST_PATH("ELF Test/jmptable", testJmpTable);
     ADD_TEST_PATH("ELF Test/pwrctl_be", testPwrCtlBE);
 
-    ADD_TEST_PATH_NULL("PE Test/CorruptedIT.exe", NULL);
+    ADD_TEST_PATH_NULL("PE Test/CorruptedIT.exe", nullptr);
 
     ContextSettings ctxsettings;
     ctxsettings.tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();

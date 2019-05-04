@@ -20,7 +20,7 @@ class GraphView : public QAbstractScrollArea
     public:
         explicit GraphView(QWidget *parent = nullptr);
         virtual void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
-        void setGraph(REDasm::Graphing::Graph* graph);
+        void setGraph(REDasm::Graphing::Graph *graph);
         GraphViewItem* selectedItem() const;
         REDasm::Graphing::Graph* graph() const;
 
@@ -52,7 +52,7 @@ class GraphView : public QAbstractScrollArea
 
     private:
         GraphViewItem* m_selecteditem;
-        std::unique_ptr<REDasm::Graphing::Graph> m_graph;
+        REDasm::Graphing::Graph* m_graph;
         std::unordered_map< REDasm::Graphing::Edge, QVector<QLine> > m_lines;
         std::unordered_map<REDasm::Graphing::Edge, QPolygon> m_arrows;
         QPoint m_renderoffset, m_scrollbase;

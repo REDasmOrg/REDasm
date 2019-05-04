@@ -33,12 +33,12 @@ void GraphView::setGraph(REDasm::Graphing::Graph *graph)
     m_lines.clear();
     m_arrows.clear();
 
-    m_graph = std::unique_ptr<REDasm::Graphing::Graph>(graph);
+    m_graph = graph;
     this->computeLayout();
 }
 
 GraphViewItem *GraphView::selectedItem() const { return m_selecteditem; }
-REDasm::Graphing::Graph *GraphView::graph() const { return m_graph.get(); }
+REDasm::Graphing::Graph *GraphView::graph() const { return m_graph; }
 
 void GraphView::focusBlock(const GraphViewItem *item)
 {

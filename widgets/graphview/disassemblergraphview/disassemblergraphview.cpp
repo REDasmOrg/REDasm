@@ -99,21 +99,15 @@ bool DisassemblerGraphView::renderGraph()
     if(!currentfunction)
         return false;
 
-    if(m_currentfunction && (m_currentfunction == currentfunction))
-        return true;
+    auto* graph = document->functions().graph(currentfunction);
 
-    m_currentfunction = currentfunction;
-
-    const REDasm::ListingItem* currentitem = document->currentItem();
-    auto graph = std::make_unique<REDasm::Graphing::FunctionGraph>(m_disassembler.get());
-
-    if(!graph->build(currentitem->address))
+    if(!graph)
     {
-        REDasm::log("Graph creation failed @ " + REDasm::hex(currentitem->address));
+        REDasm::log("Graph creation failed @ " + REDasm::hex(currentfunction->address));
         return false;
     }
 
-    this->setGraph(graph.release());
+    this->setGraph(graph);
     return true;
 }
 

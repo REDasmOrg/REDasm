@@ -19,13 +19,13 @@ void CallGraphModel::initializeGraph(address_t address)
     REDasm::ListingDocument& document = m_disassembler->document();
     auto it = document->functionItem(address);
 
-    if(it != document->end())
-    {
-        m_root = it->get();
-        m_depths[m_root] = 0;
-        m_parents[m_root] = nullptr;
-        this->populate(m_root);
-    }
+    if(it == document->end())
+        return;
+
+    m_root = it->get();
+    m_depths[m_root] = 0;
+    m_parents[m_root] = nullptr;
+    this->populate(m_root);
 }
 
 void CallGraphModel::clearGraph()

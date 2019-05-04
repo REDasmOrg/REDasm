@@ -1,5 +1,6 @@
 #include "listingmap.h"
 #include "../themeprovider.h"
+#include <redasm/graph/functiongraph.h>
 #include <redasm/plugins/loader.h>
 #include <QPainter>
 #include <cmath>
@@ -116,13 +117,19 @@ void ListingMap::renderFunctions(QPainter *painter)
     for(const REDasm::ListingItem* item : lock->functions())
     {
         const REDasm::Symbol* symbol = lock->symbol(item->address);
+        const REDasm::Graphing::FunctionGraph* g = lock->functions().graph(item);
 
-        if(!lock->functions().containsBounds(item))
+        if(!g)
             continue;
 
-        for(const auto& b : lock->functions().bounds(item))
+        for(const auto& n : g->nodes())
         {
-            QRect r = this->buildRect(this->calculatePosition(b.startidx), this->calculateSize(b.size()));
+            const REDasm::Graphing::FunctionBasicBlock* fbb = g->data(n);
+
+            if(!fbb)
+                continue;
+
+            QRect r = this->buildRect(this->calculatePosition(fbb->startidx), this->calculateSize(fbb->count()));
 
             if(m_orientation == Qt::Horizontal)
                 r.setHeight(fsize);

@@ -85,13 +85,13 @@ QString SegmentsModel::segmentFlags(const REDasm::Segment *segment)
 {
     QString s;
 
-    if(segment->is(REDasm::SegmentTypes::Code))
+    if(segment->is(REDasm::SegmentType::Code))
         ADD_SEGMENT_TYPE(s, "CODE")
 
-    if(segment->is(REDasm::SegmentTypes::Data))
+    if(segment->is(REDasm::SegmentType::Data))
         ADD_SEGMENT_TYPE(s, "DATA")
 
-    if(segment->is(REDasm::SegmentTypes::Bss))
+    if(segment->is(REDasm::SegmentType::Bss))
         ADD_SEGMENT_TYPE(s, "BSS")
 
     return s;

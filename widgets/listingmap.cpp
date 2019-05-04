@@ -65,7 +65,7 @@ void ListingMap::drawLabels(QPainter* painter)
 
     for(const REDasm::Segment& segment : lock->segments())
     {
-        if(segment.is(REDasm::SegmentTypes::Bss))
+        if(segment.is(REDasm::SegmentType::Bss))
             continue;
 
         int pos = this->calculatePosition(segment.offset);
@@ -95,13 +95,13 @@ void ListingMap::renderSegments(QPainter* painter)
 
     for(const REDasm::Segment& segment : lock->segments())
     {
-        if(segment.is(REDasm::SegmentTypes::Bss))
+        if(segment.is(REDasm::SegmentType::Bss))
             continue;
 
         QRect r = this->buildRect(this->calculatePosition(segment.offset),
                                   this->calculateSize(segment.size()));
 
-        if(segment.is(REDasm::SegmentTypes::Code))
+        if(segment.is(REDasm::SegmentType::Code))
             painter->fillRect(r, THEME_VALUE("label_fg"));
         else
             painter->fillRect(r, THEME_VALUE("data_fg"));

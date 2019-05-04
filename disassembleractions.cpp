@@ -37,7 +37,7 @@ void DisassemblerActions::adjustActions()
         if(symbol)
             m_actions[DisassemblerActions::CallGraph]->setText(QString("Callgraph %1").arg(QString::fromStdString(symbol->name)));
 
-        m_actions[DisassemblerActions::CallGraph]->setVisible(symbol && symbolsegment && symbolsegment->is(REDasm::SegmentTypes::Code));
+        m_actions[DisassemblerActions::CallGraph]->setVisible(symbol && symbolsegment && symbolsegment->is(REDasm::SegmentType::Code));
         m_actions[DisassemblerActions::HexDumpFunction]->setVisible((symbol != nullptr));
         m_actions[DisassemblerActions::HexDump]->setVisible(true);
         return;
@@ -62,8 +62,8 @@ void DisassemblerActions::adjustActions()
 
     m_actions[DisassemblerActions::Comment]->setVisible(!m_renderer->disassembler()->busy() && item->is(REDasm::ListingItem::InstructionItem));
 
-    m_actions[DisassemblerActions::HexDump]->setVisible(symbolsegment && !symbolsegment->is(REDasm::SegmentTypes::Bss));
-    m_actions[DisassemblerActions::HexDumpFunction]->setVisible(itemsegment && !itemsegment->is(REDasm::SegmentTypes::Bss) && itemsegment->is(REDasm::SegmentTypes::Code));
+    m_actions[DisassemblerActions::HexDump]->setVisible(symbolsegment && !symbolsegment->is(REDasm::SegmentType::Bss));
+    m_actions[DisassemblerActions::HexDumpFunction]->setVisible(itemsegment && !itemsegment->is(REDasm::SegmentType::Bss) && itemsegment->is(REDasm::SegmentType::Code));
 }
 
 void DisassemblerActions::goTo(address_t address) { m_renderer->document()->goTo(address); }

@@ -174,7 +174,7 @@ std::string DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Edge &e)
     REDasm::InstructionPtr instruction = document->instruction(fromitem->address);
     std::string label;
 
-    if(instruction && instruction->is(REDasm::InstructionTypes::Conditional))
+    if(instruction && instruction->is(REDasm::InstructionType::Conditional))
     {
         const REDasm::ListingItem* toitem = document->itemAt(tofbb->startidx);
 

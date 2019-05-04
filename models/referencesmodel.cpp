@@ -76,11 +76,11 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
             {
                 REDasm::InstructionPtr instruction = document->instruction((*it)->address);
 
-                if(!instruction->is(REDasm::InstructionTypes::Conditional))
+                if(!instruction->is(REDasm::InstructionType::Conditional))
                     return THEME_VALUE("instruction_jmp_c");
-                else if(instruction->is(REDasm::InstructionTypes::Jump))
+                else if(instruction->is(REDasm::InstructionType::Jump))
                     return THEME_VALUE("instruction_jmp");
-                else if(instruction->is(REDasm::InstructionTypes::Call))
+                else if(instruction->is(REDasm::InstructionType::Call))
                     return THEME_VALUE("instruction_call");
             }
             else if((*it)->is(REDasm::ListingItem::SymbolItem))

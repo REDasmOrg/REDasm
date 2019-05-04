@@ -9,11 +9,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-#if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
-#elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-#    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wno-missing-braces")
-#endif()
+option(DEBUG_STL_ITERATORS "Enable iterator debugging in Debug mode (GCC only)" OFF)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
@@ -126,12 +122,13 @@ add_executable(${PROJECT_NAME} ${GUI_TYPE}
 
 target_include_directories(${PROJECT_NAME} PUBLIC LibREDasm QHexEdit)
 add_dependencies(${PROJECT_NAME} LibREDasm)
+target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets LibREDasm)
 
-target_link_libraries(${PROJECT_NAME}
-    Qt5::Core
-    Qt5::Gui
-    Qt5::Widgets
-    LibREDasm)
+if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") AND DEBUG_STL_ITERATORS)
+    target_compile_options(${PROJECT_NAME} PRIVATE -D_GLIBCXX_DEBUG)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-missing-braces)
+endif()
 
 if(WIN32)
     set(LIB_REDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm.dll)

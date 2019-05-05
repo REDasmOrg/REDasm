@@ -9,7 +9,7 @@ class ListingDocumentRenderer: public ListingRendererCommon
         ListingDocumentRenderer(REDasm::DisassemblerAPI* disassembler);
 
     protected:
-        virtual void renderLine(const REDasm::RendererLine& rl);
+        void renderLine(const REDasm::RendererLine& rl) override;
 };
 
 #endif // LISTINGDOCUMENTRENDERER_H

@@ -12,9 +12,10 @@ class ListingTextRenderer: public ListingRendererCommon
 {
     public:
         ListingTextRenderer(REDasm::DisassemblerAPI* disassembler);
+        virtual ~ListingTextRenderer() = default;
 
     protected:
-        virtual void renderLine(const REDasm::RendererLine& rl);
+        void renderLine(const REDasm::RendererLine& rl) override;
 };
 
 #endif // LISTINGTEXTRENDERER_H

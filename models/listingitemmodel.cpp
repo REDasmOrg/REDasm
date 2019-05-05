@@ -79,9 +79,9 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
         if(index.column() == 1)
         {
-            if(symbol->is(REDasm::SymbolTypes::WideStringMask))
+            if(symbol->is(REDasm::SymbolType::WideStringMask))
                 return S_TO_QS(REDasm::quoted(m_disassembler->readWString(symbol)));
-            else if(symbol->is(REDasm::SymbolTypes::StringMask))
+            else if(symbol->is(REDasm::SymbolType::StringMask))
                 return S_TO_QS(REDasm::quoted(m_disassembler->readString(symbol)));
 
             return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
@@ -110,7 +110,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
         if(index.column() == 0)
             return THEME_VALUE("address_list_fg");
 
-        if(symbol->is(REDasm::SymbolTypes::String) && (index.column() == 1))
+        if(symbol->is(REDasm::SymbolType::String) && (index.column() == 1))
             return THEME_VALUE("string_fg");
     }
 

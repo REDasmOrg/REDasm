@@ -26,15 +26,15 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     ui->stackedWidget->addWidget(m_graphview);
 
     m_importsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItem::SymbolItem, ui->tvImports);
-    static_cast<SymbolTableModel*>(m_importsmodel->sourceModel())->setSymbolFlags(REDasm::SymbolTypes::ImportMask);
+    static_cast<SymbolTableModel*>(m_importsmodel->sourceModel())->setSymbolType(REDasm::SymbolType::ImportMask);
     ui->tvImports->setModel(m_importsmodel);
 
     m_exportsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItem::AllItems, ui->tvExports);
-    static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolFlags(REDasm::SymbolTypes::ExportMask);
+    static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolType(REDasm::SymbolType::ExportMask);
     ui->tvExports->setModel(m_exportsmodel);
 
     m_stringsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItem::SymbolItem, ui->tvStrings);
-    static_cast<SymbolTableModel*>(m_stringsmodel->sourceModel())->setSymbolFlags(REDasm::SymbolTypes::StringMask);
+    static_cast<SymbolTableModel*>(m_stringsmodel->sourceModel())->setSymbolType(REDasm::SymbolType::StringMask);
     ui->tvStrings->setModel(m_stringsmodel);
 
     m_segmentsmodel = ListingFilterModel::createFilter<SegmentsModel>(ui->tvSegments);
@@ -482,7 +482,7 @@ void DisassemblerView::syncHexEdit()
         if(item->is(REDasm::ListingItem::SymbolItem))
         {
             symbol = document->symbol(item->address);
-            canbeinstruction = symbol->is(REDasm::SymbolTypes::Code);
+            canbeinstruction = symbol->is(REDasm::SymbolType::Code);
         }
         else if(item->is(REDasm::ListingItem::SegmentItem))
             canbeinstruction = false;

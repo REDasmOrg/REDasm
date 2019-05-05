@@ -9,13 +9,13 @@ class SymbolTableModel : public ListingItemModel
 
     public:
         explicit SymbolTableModel(size_t itemtype, QObject *parent = nullptr);
-        void setSymbolFlags(u32 symbolflags);
+        void setSymbolType(REDasm::SymbolType type);
 
     protected:
         virtual bool isItemAllowed(const REDasm::ListingItem *item) const;
 
     private:
-        u32 m_symbolflags;
+        REDasm::SymbolType m_symboltype;
 };
 
 #endif // SYMBOLTABLEMODEL_H

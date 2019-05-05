@@ -51,7 +51,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
         {
             const REDasm::Symbol* symbol = document->symbol(item->address);
 
-            if(!symbol || !symbol->is(REDasm::SymbolTypes::Code))
+            if(!symbol || !symbol->is(REDasm::SymbolType::Code))
                 continue;
 
             REDasm::ReferenceVector refs = m_disassembler->getReferences(item->address);

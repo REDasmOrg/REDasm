@@ -45,7 +45,7 @@ void DisassemblerActions::adjustActions()
 
     symbolsegment = lock->segment(symbol->address);
 
-    m_actions[DisassemblerActions::FollowPointerHexDump]->setVisible(symbol->is(REDasm::SymbolTypes::Pointer));
+    m_actions[DisassemblerActions::FollowPointerHexDump]->setVisible(symbol->is(REDasm::SymbolType::Pointer));
     m_actions[DisassemblerActions::FollowPointerHexDump]->setText(QString("Follow %1 pointer in Hex Dump").arg(QString::fromStdString(symbol->name)));
 
     m_actions[DisassemblerActions::XRefs]->setText(QString("Cross Reference %1").arg(QString::fromStdString(symbol->name)));
@@ -58,7 +58,7 @@ void DisassemblerActions::adjustActions()
     m_actions[DisassemblerActions::CallGraph]->setText(QString("Callgraph %1").arg(QString::fromStdString(symbol->name)));
 
     m_actions[DisassemblerActions::Follow]->setText(QString("Follow %1").arg(QString::fromStdString(symbol->name)));
-    m_actions[DisassemblerActions::Follow]->setVisible(symbol->is(REDasm::SymbolTypes::Code));
+    m_actions[DisassemblerActions::Follow]->setVisible(symbol->is(REDasm::SymbolType::Code));
 
     m_actions[DisassemblerActions::Comment]->setVisible(!m_renderer->disassembler()->busy() && item->is(REDasm::ListingItem::InstructionItem));
 
@@ -162,7 +162,7 @@ void DisassemblerActions::showHexDump()
 
     u64 len = sizeof(m_renderer->disassembler()->assembler()->addressWidth());
 
-    if(symbol->is(REDasm::SymbolTypes::String))
+    if(symbol->is(REDasm::SymbolType::String))
         len = m_renderer->disassembler()->readString(symbol).size();
 
     emit hexDumpRequested(symbol->address, len);
@@ -193,7 +193,7 @@ void DisassemblerActions::followPointerHexDump()
 {
     const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();
 
-    if(!symbol || !symbol->is(REDasm::SymbolTypes::Pointer))
+    if(!symbol || !symbol->is(REDasm::SymbolType::Pointer))
         return;
 
     u64 destination = 0;

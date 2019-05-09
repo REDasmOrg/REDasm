@@ -2,6 +2,9 @@
 #include <QFontDatabase>
 #include <QApplication>
 
+#define CURRENT_WINDOW_GEOMETRY "window_geometry_2"
+#define CURRENT_WINDOW_STATE    "window_state_2"
+
 QByteArray REDasmSettings::m_defaultstate;
 
 REDasmSettings::REDasmSettings(QObject *parent) : QSettings(parent) { }
@@ -10,12 +13,12 @@ bool REDasmSettings::restoreState(QMainWindow *mainwindow)
 {
     m_defaultstate = mainwindow->saveState(); // Keep default state
 
-    if(this->contains("window_geometry"))
-        mainwindow->restoreGeometry(this->value("window_geometry").toByteArray());
+    if(this->contains(CURRENT_WINDOW_GEOMETRY))
+        mainwindow->restoreGeometry(this->value(CURRENT_WINDOW_GEOMETRY).toByteArray());
 
-    if(this->contains("window_state"))
+    if(this->contains(CURRENT_WINDOW_STATE))
     {
-        mainwindow->restoreState(this->value("window_state").toByteArray());
+        mainwindow->restoreState(this->value(CURRENT_WINDOW_STATE).toByteArray());
         return true;
     }
 
@@ -26,8 +29,8 @@ void REDasmSettings::defaultState(QMainWindow *mainwindow) { mainwindow->restore
 
 void REDasmSettings::saveState(const QMainWindow *mainwindow)
 {
-    this->setValue("window_geometry", mainwindow->saveGeometry());
-    this->setValue("window_state", mainwindow->saveState());
+    this->setValue(CURRENT_WINDOW_GEOMETRY, mainwindow->saveGeometry());
+    this->setValue(CURRENT_WINDOW_STATE, mainwindow->saveState());
 }
 
 QStringList REDasmSettings::recentFiles() const { return this->value("recent_files").toStringList(); }

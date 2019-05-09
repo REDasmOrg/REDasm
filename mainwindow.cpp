@@ -14,6 +14,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->tabifyDockWidget(ui->dockFunctions, ui->dockCallTree);
 
     REDasm::ContextSettings ctxsettings;
     ctxsettings.tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
@@ -451,7 +452,8 @@ void MainWindow::selectLoader(REDasm::LoadRequest &request)
 
 void MainWindow::setViewWidgetsVisible(bool b)
 {
-    ui->dockSymbols->setVisible(b);
+    ui->dockFunctions->setVisible(b);
+    ui->dockCallTree->setVisible(b);
     ui->dockReferences->setVisible(b);
     ui->dockListingMap->setVisible(b);
 }

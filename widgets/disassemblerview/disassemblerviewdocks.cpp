@@ -4,11 +4,13 @@
 
 DisassemblerViewDocks::DisassemblerViewDocks(QObject *parent) : QObject(parent), m_disassembler(nullptr)
 {
-    m_docksymbols = this->findDock("dockSymbols");
+    m_dockfunctions = this->findDock("dockFunctions");
+    m_dockcalltree = this->findDock("dockCallTree");
     m_dockreferences = this->findDock("dockReferences");
     m_docklistingmap = this->findDock("dockListingMap");
 
-    this->createSymbolsModel();
+    this->createFunctionsModel();
+    this->createCallTreeModel();
     this->createReferencesModel();
     this->createListingMap();
 }
@@ -33,8 +35,8 @@ void DisassemblerViewDocks::setDisassembler(const REDasm::DisassemblerPtr& disas
     if(m_functionsmodel)
         m_functionsmodel->setDisassembler(disassembler);
 
-    if(m_callgraphmodel)
-        m_callgraphmodel->setDisassembler(disassembler);
+    if(m_calltreemodel)
+        m_calltreemodel->setDisassembler(disassembler);
 
     if(m_referencesmodel)
         m_referencesmodel->setDisassembler(disassembler);
@@ -45,24 +47,24 @@ void DisassemblerViewDocks::setDisassembler(const REDasm::DisassemblerPtr& disas
 
 ListingFilterModel *DisassemblerViewDocks::functionsModel() const { return m_functionsmodel; }
 ReferencesModel *DisassemblerViewDocks::referencesModel() const { return m_referencesmodel; }
-CallGraphModel *DisassemblerViewDocks::callGraphModel() { return m_callgraphmodel; }
+CallTreeModel *DisassemblerViewDocks::callTreeModel() { return m_calltreemodel; }
 QTableView *DisassemblerViewDocks::functionsView() const { return m_functionsview; }
 QTreeView *DisassemblerViewDocks::referencesView() const { return m_referencesview; }
-QTreeView *DisassemblerViewDocks::callgraphView() const { return m_callgraphview; }
+QTreeView *DisassemblerViewDocks::callgraphView() const { return m_calltreeview; }
 
 void DisassemblerViewDocks::initializeCallGraph(address_t address)
 {
     if(m_disassembler->busy())
         return;
 
-    m_tabsmodel->setCurrentWidget(m_callgraphview->parentWidget());
-    m_callgraphmodel->initializeGraph(address);
-    m_callgraphview->expandToDepth(0);
+    m_dockcalltree->show();
+    m_calltreemodel->initializeGraph(address);
+    m_calltreeview->expandToDepth(0);
 }
 
 void DisassemblerViewDocks::updateCallGraph()
 {
-    if(m_disassembler->busy() || (m_tabsmodel->currentIndex() != 1))
+    if(m_disassembler->busy() || m_calltreeview->visibleRegion().isEmpty())
         return;
 
     REDasm::ListingDocument& document = m_disassembler->document();
@@ -70,12 +72,12 @@ void DisassemblerViewDocks::updateCallGraph()
 
     if(!item)
     {
-        m_callgraphmodel->clearGraph();
+        m_calltreemodel->clearGraph();
         return;
     }
 
-    m_callgraphmodel->initializeGraph(item->address);
-    m_callgraphview->expandToDepth(0);
+    m_calltreemodel->initializeGraph(item->address);
+    m_calltreeview->expandToDepth(0);
 }
 
 QDockWidget *DisassemblerViewDocks::findDock(const QString &objectname) const
@@ -93,24 +95,25 @@ QDockWidget *DisassemblerViewDocks::findDock(const QString &objectname) const
     return result;
 }
 
-void DisassemblerViewDocks::createCallGraphModel()
+void DisassemblerViewDocks::createCallTreeModel()
 {
-    m_callgraphmodel = new CallGraphModel(this);
+    m_calltreemodel = new CallTreeModel(this);
 
-    m_callgraphview = m_docksymbols->widget()->findChild<QTreeView*>("tvCallGraph");
-    m_callgraphview->setModel(m_callgraphmodel);
+    m_calltreeview = m_dockcalltree->widget()->findChild<QTreeView*>("tvCallTree");
+    m_calltreeview->setModel(m_calltreemodel);
 
-    m_callgraphview->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_callgraphview->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-    m_callgraphview->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    m_calltreeview->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    m_calltreeview->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    m_calltreeview->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
-    connect(m_callgraphview, &QTreeView::expanded, m_callgraphmodel, &CallGraphModel::populateCallGraph);
+    connect(m_calltreeview, &QTreeView::expanded, m_calltreemodel, &CallTreeModel::populateCallGraph);
+    connect(m_dockcalltree, &QDockWidget::visibilityChanged, this, &DisassemblerViewDocks::updateCallGraph);
 }
 
 void DisassemblerViewDocks::createFunctionsModel()
 {
     m_functionsmodel = ListingFilterModel::createFilter<ListingItemModel>(REDasm::ListingItem::FunctionItem, this);
-    m_functionsview = m_docksymbols->widget()->findChild<QTableView*>("tvFunctions");
+    m_functionsview = m_dockfunctions->widget()->findChild<QTableView*>("tvFunctions");
     m_functionsview->setModel(m_functionsmodel);
 
     m_functionsview->verticalHeader()->setDefaultSectionSize(m_functionsview->verticalHeader()->minimumSectionSize());
@@ -119,22 +122,6 @@ void DisassemblerViewDocks::createFunctionsModel()
     m_functionsview->setColumnHidden(2, true);
     m_functionsview->setColumnHidden(3, true);
     m_functionsview->horizontalHeader()->moveSection(2, 1);
-}
-
-void DisassemblerViewDocks::createSymbolsModel()
-{
-    if(!m_docksymbols)
-    {
-        m_functionsmodel = nullptr;
-        m_callgraphmodel = nullptr;
-        return;
-    }
-
-    m_tabsmodel = m_docksymbols->widget()->findChild<QTabWidget*>("tabModels");
-    connect(m_tabsmodel, &QTabWidget::currentChanged, this, &DisassemblerViewDocks::updateCallGraph);
-
-    this->createFunctionsModel();
-    this->createCallGraphModel();
 }
 
 void DisassemblerViewDocks::createReferencesModel()

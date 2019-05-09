@@ -181,7 +181,7 @@ void DisassemblerView::checkDisassemblerStatus()
 void DisassemblerView::modelIndexSelected(const QModelIndex &index)
 {
     m_currentindex = index;
-    m_actsetfilter->setVisible(index.isValid() && (index.model() != m_docks->callGraphModel()));
+    m_actsetfilter->setVisible(index.isValid() && (index.model() != m_docks->callTreeModel()));
 }
 
 void DisassemblerView::checkHexEdit(int index)
@@ -244,7 +244,7 @@ void DisassemblerView::showModelReferences()
 
     const REDasm::Symbol* symbol = nullptr;
 
-    if(m_currentindex.model() == m_docks->callGraphModel())
+    if(m_currentindex.model() == m_docks->callTreeModel())
     {
         REDasm::InstructionPtr instruction = m_disassembler->document()->instruction(item->address);
         symbol = m_disassembler->document()->symbol(m_disassembler->getTarget(instruction->address));

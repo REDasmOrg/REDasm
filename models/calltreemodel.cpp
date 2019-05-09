@@ -1,18 +1,18 @@
-#include "callgraphmodel.h"
+#include "calltreemodel.h"
 #include <redasm/plugins/loader.h>
 #include "../themeprovider.h"
 #include <QFontDatabase>
 #include <QColor>
 
-CallGraphModel::CallGraphModel(QObject *parent) : QAbstractItemModel(parent), m_disassembler(nullptr), m_root(nullptr) { }
+CallTreeModel::CallTreeModel(QObject *parent) : QAbstractItemModel(parent), m_disassembler(nullptr), m_root(nullptr) { }
 
-void CallGraphModel::setDisassembler(const REDasm::DisassemblerPtr &disassembler)
+void CallTreeModel::setDisassembler(const REDasm::DisassemblerPtr &disassembler)
 {
     m_disassembler = disassembler;
     m_printer = REDasm::PrinterPtr(m_disassembler->assembler()->createPrinter(m_disassembler.get()));
 }
 
-void CallGraphModel::initializeGraph(address_t address)
+void CallTreeModel::initializeGraph(address_t address)
 {
     this->clearGraph();
 
@@ -28,7 +28,7 @@ void CallGraphModel::initializeGraph(address_t address)
     this->populate(m_root);
 }
 
-void CallGraphModel::clearGraph()
+void CallTreeModel::clearGraph()
 {
     this->beginResetModel();
     m_root = nullptr;
@@ -38,9 +38,9 @@ void CallGraphModel::clearGraph()
     this->endResetModel();
 }
 
-void CallGraphModel::populateCallGraph(const QModelIndex &index) { this->populate(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer())); }
+void CallTreeModel::populateCallGraph(const QModelIndex &index) { this->populate(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer())); }
 
-void CallGraphModel::populate(REDasm::ListingItem* parentitem)
+void CallTreeModel::populate(REDasm::ListingItem* parentitem)
 {
     if(m_children.contains(parentitem))
         return;
@@ -65,7 +65,7 @@ void CallGraphModel::populate(REDasm::ListingItem* parentitem)
     this->endInsertRows();
 }
 
-bool CallGraphModel::isDuplicate(const QModelIndex &index) const
+bool CallTreeModel::isDuplicate(const QModelIndex &index) const
 {
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
 
@@ -77,7 +77,7 @@ bool CallGraphModel::isDuplicate(const QModelIndex &index) const
     return (m_depths[item] - m_depths[parentitem]) != 1;
 }
 
-int CallGraphModel::getParentIndexFromChild(REDasm::ListingItem *childitem) const
+int CallTreeModel::getParentIndexFromChild(REDasm::ListingItem *childitem) const
 {
     if(childitem == m_root)
         return -1;
@@ -86,13 +86,13 @@ int CallGraphModel::getParentIndexFromChild(REDasm::ListingItem *childitem) cons
     return this->getParentIndex(parentitem);
 }
 
-int CallGraphModel::getParentIndex(REDasm::ListingItem *parentitem) const
+int CallTreeModel::getParentIndex(REDasm::ListingItem *parentitem) const
 {
     const REDasm::ListingItems& parentlist = m_children[m_parents[parentitem]];
     return std::distance(parentlist.begin(), std::find(parentlist.begin(), parentlist.end(), parentitem));
 }
 
-bool CallGraphModel::hasChildren(const QModelIndex &parentindex) const
+bool CallTreeModel::hasChildren(const QModelIndex &parentindex) const
 {
     if(!m_disassembler || !m_root || m_children.empty())
         return false;
@@ -116,7 +116,7 @@ bool CallGraphModel::hasChildren(const QModelIndex &parentindex) const
     return true;
 }
 
-QModelIndex CallGraphModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex CallTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     if(!m_disassembler || !m_root || m_children.empty())
         return QModelIndex();
@@ -129,7 +129,7 @@ QModelIndex CallGraphModel::index(int row, int column, const QModelIndex &parent
     return this->createIndex(row, column, m_children[parentitem][row]);
 }
 
-QModelIndex CallGraphModel::parent(const QModelIndex &child) const
+QModelIndex CallTreeModel::parent(const QModelIndex &child) const
 {
     if(!m_disassembler || !m_root)
         return QModelIndex();
@@ -143,7 +143,7 @@ QModelIndex CallGraphModel::parent(const QModelIndex &child) const
     return this->createIndex(this->getParentIndexFromChild(childitem), 0, parentitem);
 }
 
-QVariant CallGraphModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant CallTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(orientation != Qt::Horizontal)
         return QVariant();
@@ -165,7 +165,7 @@ QVariant CallGraphModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
-QVariant CallGraphModel::data(const QModelIndex &index, int role) const
+QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 {
     if(!m_disassembler || m_disassembler->busy() || !m_root)
         return QVariant();
@@ -211,9 +211,9 @@ QVariant CallGraphModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-int CallGraphModel::columnCount(const QModelIndex &parent) const { Q_UNUSED(parent) return 3; }
+int CallTreeModel::columnCount(const QModelIndex &parent) const { Q_UNUSED(parent) return 3; }
 
-int CallGraphModel::rowCount(const QModelIndex &parent) const
+int CallTreeModel::rowCount(const QModelIndex &parent) const
 {
     if(!m_disassembler || m_disassembler->busy() || !m_root || m_children.empty())
         return 0;

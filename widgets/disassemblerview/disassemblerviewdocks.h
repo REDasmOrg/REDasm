@@ -8,7 +8,7 @@
 #include <QTreeView>
 #include <redasm/disassembler/disassemblerapi.h>
 #include "../../models/listingfiltermodel.h"
-#include "../../models/callgraphmodel.h"
+#include "../../models/calltreemodel.h"
 #include "../../models/referencesmodel.h"
 #include "../listingmap.h"
 
@@ -24,7 +24,7 @@ class DisassemblerViewDocks : public QObject
     public:
         ListingFilterModel* functionsModel() const;
         ReferencesModel* referencesModel() const;
-        CallGraphModel* callGraphModel();
+        CallTreeModel* callTreeModel();
         QTableView* functionsView() const;
         QTreeView* referencesView() const;
         QTreeView* callgraphView() const;
@@ -35,20 +35,18 @@ class DisassemblerViewDocks : public QObject
 
     private:
         QDockWidget* findDock(const QString& objectname) const;
-        void createCallGraphModel();
+        void createCallTreeModel();
         void createFunctionsModel();
-        void createSymbolsModel();
         void createReferencesModel();
         void createListingMap();
 
     private:
         std::shared_ptr<REDasm::DisassemblerAPI> m_disassembler;
-        QDockWidget *m_docksymbols, *m_dockreferences, *m_docklistingmap;
-        QTreeView *m_referencesview, *m_callgraphview;
+        QDockWidget *m_dockfunctions, *m_dockcalltree, *m_dockreferences, *m_docklistingmap;
+        QTreeView *m_referencesview, *m_calltreeview;
         QTableView* m_functionsview;
-        QTabWidget* m_tabsmodel;
         ListingFilterModel* m_functionsmodel;
-        CallGraphModel* m_callgraphmodel;
+        CallTreeModel* m_calltreemodel;
         ReferencesModel* m_referencesmodel;
         ListingMap* m_listingmap;
 };

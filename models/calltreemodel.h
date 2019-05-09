@@ -1,5 +1,5 @@
-#ifndef CALLGRAPHMODEL_H
-#define CALLGRAPHMODEL_H
+#ifndef CALLTREEMODEL_H
+#define CALLTREEMODEL_H
 
 #include <QAbstractItemModel>
 #include <QHash>
@@ -7,12 +7,12 @@
 #include <redasm/plugins/assembler/printer.h>
 #include <redasm/disassembler/listing/listingdocument.h>
 
-class CallGraphModel : public QAbstractItemModel
+class CallTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
     public:
-        explicit CallGraphModel(QObject *parent = nullptr);
+        explicit CallTreeModel(QObject *parent = nullptr);
         void setDisassembler(const REDasm::DisassemblerPtr& disassembler);
         void initializeGraph(address_t address);
         void clearGraph();
@@ -44,4 +44,4 @@ class CallGraphModel : public QAbstractItemModel
         QHash<REDasm::ListingItem*, REDasm::ListingItem*> m_parents;
 };
 
-#endif // CALLGRAPHMODEL_H
+#endif // CALLTREEMODEL_H

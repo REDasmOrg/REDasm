@@ -30,6 +30,7 @@ class DisassemblerTextView : public QAbstractScrollArea
     private slots:
         void renderListing(const QRect& r = QRect());
         void renderLine(u64 line);
+        void moveToSelection();
 
     protected:
         void scrollContentsBy(int dx, int dy) override;
@@ -56,7 +57,6 @@ class DisassemblerTextView : public QAbstractScrollArea
         void paintLines(u64 first, u64 last);
         void blinkCursor();
         void adjustScrollBars();
-        void moveToSelection();
         void ensureColumnVisible();
         void showPopup(const QPoint &pos);
 

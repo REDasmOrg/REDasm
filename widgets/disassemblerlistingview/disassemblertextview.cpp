@@ -81,9 +81,13 @@ void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disass
     m_disassembler = disassembler;
 
     EVENT_CONNECT(this->currentDocument(), changed, this, std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1));
-    EVENT_CONNECT(this->currentDocument()->cursor(), positionChanged, this, std::bind(&DisassemblerTextView::moveToSelection, this));
+
+    EVENT_CONNECT(this->currentDocument()->cursor(), positionChanged, this, [&]() {
+        QMetaObject::invokeMethod(this, "moveToSelection", Qt::QueuedConnection);
+    });
 
     this->adjustScrollBars();
+
     connect(this->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderListing(); });
 
     m_renderer = std::make_unique<ListingTextRenderer>(m_disassembler.get());
@@ -409,7 +413,7 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
         if(ldc->index > this->lastVisibleLine()) // Don't care of bottom Insertion/Deletion
             return;
 
-        QMetaObject::invokeMethod(this, "renderListing", Qt::QueuedConnection);
+        //QMetaObject::invokeMethod(this, "renderListing", Qt::QueuedConnection);
     }
     else
         QMetaObject::invokeMethod(this, "renderLine", Qt::QueuedConnection, Q_ARG(u64, ldc->index));

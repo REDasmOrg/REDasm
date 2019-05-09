@@ -51,7 +51,7 @@ class MainWindow : public QMainWindow
         bool loadDatabase(const QString& filepath);
         void load(const QString &filepath);
         void checkCommandLine();
-        void showDisassemblerView(REDasm::Disassembler *disassembler);
+        void showDisassemblerView(REDasm::Disassembler *disassembler, bool fromdatabase);
         void selectLoader(REDasm::LoadRequest &request);
         void setViewWidgetsVisible(bool b);
         void configureWebEngine();

@@ -117,7 +117,7 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
 DisassemblerView::~DisassemblerView() { delete ui; }
 REDasm::DisassemblerAPI *DisassemblerView::disassembler() { return m_disassembler.get(); }
 
-void DisassemblerView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
+void DisassemblerView::bindDisassembler(REDasm::DisassemblerAPI *disassembler, bool fromdatabase)
 {
     m_disassembler = REDasm::DisassemblerPtr(disassembler); // Take ownership
 
@@ -157,7 +157,8 @@ void DisassemblerView::setDisassembler(REDasm::DisassemblerAPI *disassembler)
     m_actions->setEnabled(DisassemblerViewActions::BackAction, m_disassembler->document()->cursor()->canGoBack());
     m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_disassembler->document()->cursor()->canGoForward());
 
-    m_disassembler->disassemble();
+    if(!fromdatabase)
+        m_disassembler->disassemble();
 }
 
 void DisassemblerView::changeDisassemblerStatus()

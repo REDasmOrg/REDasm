@@ -294,7 +294,7 @@ bool MainWindow::loadDatabase(const QString &filepath)
                                      REDasm::quoted(disassembler->assembler()->name()) + " instruction set");
 
     m_fileinfo = QFileInfo(QString::fromStdString(filename));
-    this->showDisassemblerView(disassembler);
+    this->showDisassemblerView(disassembler, true);
     return true;
 }
 
@@ -342,7 +342,7 @@ void MainWindow::checkCommandLine()
     }
 }
 
-void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
+void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler, bool fromdatabase)
 {
     EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
         QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection);
@@ -359,7 +359,7 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
     }
 
     DisassemblerView *dv = new DisassemblerView(ui->leFilter);
-    dv->setDisassembler(disassembler); // Take ownership
+    dv->bindDisassembler(disassembler, fromdatabase); // Take ownership
     ui->stackView->addWidget(dv);
 
     this->setViewWidgetsVisible(true);
@@ -446,7 +446,7 @@ void MainWindow::selectLoader(REDasm::LoadRequest &request)
             QMetaObject::invokeMethod(m_lblprogress, "setVisible", Qt::QueuedConnection, Q_ARG(bool, currdv->disassembler()->busy()));
     });
 
-    this->showDisassemblerView(disassembler); // Take ownership
+    this->showDisassemblerView(disassembler, false); // Take ownership
 }
 
 void MainWindow::setViewWidgetsVisible(bool b)

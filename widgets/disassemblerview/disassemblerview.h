@@ -27,7 +27,7 @@ class DisassemblerView : public QWidget
         explicit DisassemblerView(QLineEdit* lefilter, QWidget *parent = nullptr);
         virtual ~DisassemblerView();
         REDasm::DisassemblerAPI *disassembler();
-        void setDisassembler(REDasm::DisassemblerAPI *disassembler);
+        void bindDisassembler(REDasm::DisassemblerAPI *disassembler, bool fromdatabase);
         void toggleFilter();
         void showFilter();
         void clearFilter();

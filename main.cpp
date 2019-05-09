@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
         return UnitTest::run();
 #endif // QT_DEBUG
 
+    qRegisterMetaType<u64>("u64");
     qRegisterMetaType<address_t>("address_t");
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 

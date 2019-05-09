@@ -135,6 +135,12 @@ bool DisassemblerActions::followUnderCursor()
     return true;
 }
 
+void DisassemblerActions::setEnabled(bool b)
+{
+    for(QAction* a : m_actions)
+        a->setEnabled(a);
+}
+
 void DisassemblerActions::showCallGraph()
 {
     const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();

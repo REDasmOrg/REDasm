@@ -146,6 +146,11 @@
    <addaction name="action_Open"/>
    <addaction name="action_Save"/>
    <addaction name="action_Signatures"/>
+   <addaction name="separator"/>
+   <addaction name="action_Back"/>
+   <addaction name="action_Forward"/>
+   <addaction name="action_Goto"/>
+   <addaction name="action_Graph"/>
   </widget>
   <widget class="QDockWidget" name="dockOutput">
    <property name="sizePolicy">
@@ -216,7 +221,7 @@
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2"/>
+   <widget class="ListingMap" name="listingMap"/>
   </widget>
   <widget class="QDockWidget" name="dockFunctions">
    <property name="features">
@@ -467,6 +472,38 @@
     <string>&amp;Subscribe to /r/REDasm</string>
    </property>
   </action>
+  <action name="action_Back">
+   <property name="text">
+    <string>&amp;Back</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_Forward">
+   <property name="text">
+    <string>&amp;Forward</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_Goto">
+   <property name="text">
+    <string>&amp;Goto</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_Graph">
+   <property name="text">
+    <string>&amp;Graph</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -474,6 +511,12 @@
    <class>OutputWidget</class>
    <extends>QPlainTextEdit</extends>
    <header>widgets/outputwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ListingMap</class>
+   <extends>QWidget</extends>
+   <header>widgets/listingmap.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

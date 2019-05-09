@@ -14,15 +14,15 @@ class DisassemblerViewActions : public QObject
 
     public:
         explicit DisassemblerViewActions(QObject *parent = nullptr);
-        virtual ~DisassemblerViewActions();
         void setIcon(int actionid, const QIcon& icon);
         void setEnabled(int actionid, bool b);
         void setVisible(int actionid, bool b);
+        void hideActions();
 
     private:
-        void addSeparator();
-        void addActions();
-        void removeActions();
+        template<typename Func> void showAction(int type, QAction* action, const QIcon& icon, const Func& slot);
+        void findActions(const std::function<void(QAction*)>& cb);
+        void initActions();
 
     signals:
         void backRequested();
@@ -35,5 +35,12 @@ class DisassemblerViewActions : public QObject
         QHash<int, QAction*> m_actions;
         QLinkedList<QAction*> m_separators;
 };
+
+template<typename Func> void DisassemblerViewActions::showAction(int type, QAction* action, const QIcon& icon, const Func& slot) {
+    m_actions[type] = action;
+    action->setIcon(icon);
+    action->setVisible(true);
+    connect(action, &QAction::triggered, this, slot);
+}
 
 #endif // DISASSEMBLERVIEWACTIONS_H

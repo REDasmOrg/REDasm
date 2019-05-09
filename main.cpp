@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
     REDasmSettings::setDefaultFormat(REDasmSettings::IniFormat);
     ThemeProvider::applyTheme();
     MainWindow w;
-
     w.show();
     return a.exec();
 }

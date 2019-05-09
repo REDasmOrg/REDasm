@@ -18,7 +18,6 @@ class DisassemblerViewDocks : public QObject
 
     public:
         explicit DisassemblerViewDocks(QObject *parent = nullptr);
-        virtual ~DisassemblerViewDocks();
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
 
     public:

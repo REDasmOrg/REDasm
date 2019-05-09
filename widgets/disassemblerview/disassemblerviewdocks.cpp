@@ -15,12 +15,6 @@ DisassemblerViewDocks::DisassemblerViewDocks(QObject *parent) : QObject(parent),
     this->createListingMap();
 }
 
-DisassemblerViewDocks::~DisassemblerViewDocks()
-{
-    if(m_listingmap)
-        m_listingmap->deleteLater();
-}
-
 void DisassemblerViewDocks::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
     m_disassembler = disassembler;
@@ -148,6 +142,5 @@ void DisassemblerViewDocks::createListingMap()
         return;
     }
 
-    m_listingmap = new ListingMap();
-    m_docklistingmap->setWidget(m_listingmap);
+    m_listingmap = static_cast<ListingMap*>(m_docklistingmap->widget());
 }

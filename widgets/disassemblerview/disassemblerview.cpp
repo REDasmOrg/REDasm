@@ -161,6 +161,12 @@ void DisassemblerView::bindDisassembler(REDasm::DisassemblerAPI *disassembler, b
         m_disassembler->disassemble();
 }
 
+void DisassemblerView::hideActions()
+{
+    if(m_actions)
+        m_actions->hideActions();
+}
+
 void DisassemblerView::changeDisassemblerStatus()
 {
     if(m_disassembler->state() == REDasm::Job::ActiveState)

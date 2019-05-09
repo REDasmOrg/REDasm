@@ -33,7 +33,6 @@ class MainWindow : public QMainWindow
         void onOpenClicked();
         void onSaveClicked();
         void onSaveAsClicked();
-        void onCloseClicked();
         void onRecentFileClicked();
         void onExitClicked();
         void onSignaturesClicked();
@@ -42,6 +41,7 @@ class MainWindow : public QMainWindow
         void onAboutClicked();
         void changeDisassemblerStatus();
         void checkDisassemblerStatus();
+        void closeFile();
 
     private:
         DisassemblerView* currentDisassemblerView() const;
@@ -51,11 +51,11 @@ class MainWindow : public QMainWindow
         bool loadDatabase(const QString& filepath);
         void load(const QString &filepath);
         void checkCommandLine();
+        void setStandardActionsEnabled(bool b);
         void showDisassemblerView(REDasm::Disassembler *disassembler, bool fromdatabase);
         void selectLoader(REDasm::LoadRequest &request);
         void setViewWidgetsVisible(bool b);
         void configureWebEngine();
-        void closeFile();
         bool canClose();
 
     private:

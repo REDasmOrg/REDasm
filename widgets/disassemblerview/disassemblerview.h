@@ -28,6 +28,7 @@ class DisassemblerView : public QWidget
         virtual ~DisassemblerView();
         REDasm::DisassemblerAPI *disassembler();
         void bindDisassembler(REDasm::DisassemblerAPI *disassembler, bool fromdatabase);
+        void hideActions();
         void toggleFilter();
         void showFilter();
         void clearFilter();
@@ -74,7 +75,6 @@ class DisassemblerView : public QWidget
         QLineEdit* m_lefilter;
         ListingFilterModel *m_segmentsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
         QAction* m_actsetfilter;
-        QActionGroup* m_viewactions;
 };
 
 #endif // DISASSEMBLERVIEW_H

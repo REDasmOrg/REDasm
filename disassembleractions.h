@@ -20,6 +20,7 @@ class DisassemblerActions : public QObject
 
     public slots:
         bool followUnderCursor();
+        void setEnabled(bool b);
         void popup(const QPoint& pos);
         void copy();
 

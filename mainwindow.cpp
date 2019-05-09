@@ -14,6 +14,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->toolBar->actions()[3]->setVisible(false); // Hide separator
     this->tabifyDockWidget(ui->dockFunctions, ui->dockCallTree);
 
     REDasm::ContextSettings ctxsettings;
@@ -58,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpenClicked);
     connect(ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveClicked);
     connect(ui->action_Save_As, &QAction::triggered, this, &MainWindow::onSaveAsClicked);
-    connect(ui->action_Close, &QAction::triggered, this, &MainWindow::onCloseClicked);
+    connect(ui->action_Close, &QAction::triggered, this, &MainWindow::closeFile);
     connect(ui->action_Exit, &QAction::triggered, this, &MainWindow::onExitClicked);
     connect(ui->action_Signatures, &QAction::triggered, this, &MainWindow::onSignaturesClicked);
     connect(ui->action_Reset_Layout, &QAction::triggered, this, &MainWindow::onResetLayoutClicked);
@@ -88,6 +89,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
         return;
     }
 
+    this->closeFile(); // Deallocate actions and docks
     QWidget::closeEvent(e);
 }
 
@@ -189,12 +191,6 @@ void MainWindow::onSaveAsClicked() // TODO: Handle multiple outputs
 
     if(!REDasm::Database::save(currdv->disassembler(), s.toStdString(), m_fileinfo.fileName().toStdString()))
         REDasm::log(REDasm::Database::lastError());
-}
-
-void MainWindow::onCloseClicked()
-{
-    this->closeFile();
-    ui->action_Close->setEnabled(false);
 }
 
 void MainWindow::onRecentFileClicked()
@@ -343,6 +339,13 @@ void MainWindow::checkCommandLine()
     }
 }
 
+void MainWindow::setStandardActionsEnabled(bool b)
+{
+    ui->action_Save->setEnabled(b);
+    ui->action_Save_As->setEnabled(b);
+    ui->action_Signatures->setEnabled(b);
+}
+
 void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler, bool fromdatabase)
 {
     EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
@@ -397,18 +400,21 @@ void MainWindow::closeFile()
         disassembler->stop();
     }
 
-    QWidget* oldwidget = ui->stackView->currentWidget();
+    DisassemblerView* oldview = this->currentDisassemblerView();
 
-    if(oldwidget != nullptr)
+    if(oldview != nullptr)
     {
-        ui->stackView->removeWidget(oldwidget);
-        oldwidget->deleteLater();
+        oldview->hideActions();
+        ui->stackView->removeWidget(oldview);
+        oldview->deleteLater();
     }
 
+    ui->action_Close->setEnabled(false);
     ui->pteOutput->clear();
     m_lblstatus->clear();
     m_lblprogress->setVisible(false);
     m_pbstatus->setVisible(false);
+    this->setStandardActionsEnabled(false);
     this->setViewWidgetsVisible(false);
 }
 
@@ -501,9 +507,7 @@ void MainWindow::checkDisassemblerStatus()
     m_pbstatus->setVisible(true);
     m_lblprogress->setVisible(disassembler->busy());
 
-    ui->action_Save->setEnabled(!disassembler->busy());
-    ui->action_Save_As->setEnabled(!disassembler->busy());
-    ui->action_Signatures->setEnabled(!disassembler->busy());
+    this->setStandardActionsEnabled(!disassembler->busy());
     ui->action_Close->setEnabled(true);
 }
 

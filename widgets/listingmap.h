@@ -31,7 +31,6 @@ class ListingMap : public QWidget
     private:
         REDasm::DisassemblerPtr m_disassembler;
         s32 m_orientation, m_totalsize;
-        u64 m_lastseek;
 };
 
 #endif // LISTINGMAP_H

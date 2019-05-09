@@ -46,6 +46,10 @@ void CallTreeModel::populate(REDasm::ListingItem* parentitem)
         return;
 
     REDasm::ListingItems calls = m_disassembler->getCalls(parentitem->address);
+
+    if(calls.empty())
+        return;
+
     QModelIndex index;
 
     if(parentitem != m_root)

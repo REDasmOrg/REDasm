@@ -12,7 +12,7 @@ DisassemblerViewActions::DisassemblerViewActions(QObject *parent) : QObject(pare
             break;
     }
 
-    this->addActions();
+    this->initActions();
 }
 
 void DisassemblerViewActions::setIcon(int actionid, const QIcon &icon)
@@ -40,40 +40,39 @@ void DisassemblerViewActions::setVisible(int actionid, bool b)
     m_actions[actionid]->setVisible(b);
 }
 
-DisassemblerViewActions::~DisassemblerViewActions() { this->removeActions(); }
-void DisassemblerViewActions::addSeparator() { m_separators.push_back(m_toolbar->addSeparator()); }
-
-void DisassemblerViewActions::addActions()
+void DisassemblerViewActions::findActions(const std::function<void(QAction*)>& cb)
 {
     if(!m_toolbar)
         return;
 
-    this->addSeparator();
+    QList<QAction*> actions = m_toolbar->actions();
+    auto it = std::find_if(actions.begin(), actions.end(), [](QAction* a) -> bool { return a->isSeparator(); });
 
-    m_actions[DisassemblerViewActions::BackAction] = m_toolbar->addAction(THEME_ICON("back"), QString(),
-                                                                          this, &DisassemblerViewActions::backRequested);
-
-    m_actions[DisassemblerViewActions::ForwardAction] = m_toolbar->addAction(THEME_ICON("forward"), QString(),
-                                                                             this, &DisassemblerViewActions::forwardRequested);
-
-    m_actions[DisassemblerViewActions::GotoAction] = m_toolbar->addAction(THEME_ICON("goto"), QString(),
-                                                                          this, &DisassemblerViewActions::gotoRequested);
-
-    m_actions[DisassemblerViewActions::GraphListingAction] = m_toolbar->addAction(THEME_ICON("graph"), QString(),
-                                                                                  this, &DisassemblerViewActions::graphListingRequested);
+    for(; it != actions.end(); it++)
+        cb(*it);
 }
 
-void DisassemblerViewActions::removeActions()
+void DisassemblerViewActions::initActions()
 {
-    for(auto it = m_actions.begin(); it != m_actions.end(); )
-    {
-        m_toolbar->removeAction(it.value());
-        it = m_actions.erase(it);
-    }
+    this->findActions([&](QAction* a) {
+        if(a->isSeparator())
+            m_separators.push_back(a);
+        else if(a->objectName().endsWith("Back"))
+            this->showAction(DisassemblerViewActions::BackAction, a, THEME_ICON("back"), &DisassemblerViewActions::backRequested);
+        else if(a->objectName().endsWith("Forward"))
+            this->showAction(DisassemblerViewActions::ForwardAction, a, THEME_ICON("forward"), &DisassemblerViewActions::forwardRequested);
+        else if(a->objectName().endsWith("Goto"))
+            this->showAction(DisassemblerViewActions::GotoAction, a, THEME_ICON("goto"), &DisassemblerViewActions::forwardRequested);
+        else if(a->objectName().endsWith("Graph"))
+            this->showAction(DisassemblerViewActions::GraphListingAction, a, THEME_ICON("graph"), &DisassemblerViewActions::graphListingRequested);
+    });
+}
 
-    while(!m_separators.empty())
-    {
-        m_toolbar->removeAction(m_separators.front());
-        m_separators.pop_front();
-    }
+void DisassemblerViewActions::hideActions()
+{
+    for(auto it = m_actions.begin(); it != m_actions.end(); it++)
+        (*it)->setVisible(false);
+
+    for(auto it = m_separators.begin(); it != m_separators.end(); it++)
+        (*it)->setVisible(false);
 }

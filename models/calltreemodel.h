@@ -27,6 +27,7 @@ class CallTreeModel : public QAbstractItemModel
         int getParentIndex(REDasm::ListingItem *parentitem) const;
 
     public:
+        address_location getCallTarget(const REDasm::ListingItem *item) const;
         bool hasChildren(const QModelIndex& parentindex) const override;
         QModelIndex index(int row, int column, const QModelIndex &parent) const override;
         QModelIndex parent(const QModelIndex &child) const override;

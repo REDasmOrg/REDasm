@@ -45,7 +45,17 @@ void CallTreeModel::populate(REDasm::ListingItem* parentitem)
     if(m_children.contains(parentitem))
         return;
 
-    REDasm::ListingItems calls = m_disassembler->getCalls(parentitem->address);
+    REDasm::ListingItems calls;
+
+    if(parentitem->is(REDasm::ListingItem::InstructionItem))
+    {
+        auto location = this->getCallTarget(parentitem);
+
+        if(location.valid)
+            calls = m_disassembler->getCalls(location);
+    }
+    else if(parentitem->is(REDasm::ListingItem::FunctionItem))
+        calls = m_disassembler->getCalls(parentitem->address);
 
     if(calls.empty())
         return;
@@ -96,6 +106,19 @@ int CallTreeModel::getParentIndex(REDasm::ListingItem *parentitem) const
     return std::distance(parentlist.begin(), std::find(parentlist.begin(), parentlist.end(), parentitem));
 }
 
+address_location CallTreeModel::getCallTarget(const REDasm::ListingItem *item) const
+{
+    if(!item->is(REDasm::ListingItem::InstructionItem))
+        return REDasm::invalid_location<address_t>();
+
+    REDasm::InstructionPtr instruction = m_disassembler->document()->instruction(item->address);
+
+    if(!instruction->is(REDasm::InstructionType::Call))
+        return REDasm::invalid_location<address_t>();
+
+    return m_disassembler->getTarget(item->address);
+}
+
 bool CallTreeModel::hasChildren(const QModelIndex &parentindex) const
 {
     if(!m_disassembler || !m_root || m_children.empty())
@@ -115,6 +138,12 @@ bool CallTreeModel::hasChildren(const QModelIndex &parentindex) const
 
         if(children.empty())
             return false;
+    }
+
+    if(parentitem->is(REDasm::ListingItem::InstructionItem))
+    {
+        auto location = this->getCallTarget(parentitem);
+        return location.valid ? !m_disassembler->getCalls(location).empty() : false;
     }
 
     return true;

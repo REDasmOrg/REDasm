@@ -15,7 +15,7 @@ class DisassemblerBlockItem : public GraphViewItem
         explicit DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock* fbb, const REDasm::DisassemblerPtr& disassembler, const REDasm::Graphing::Node& node, QWidget *parent = nullptr);
         virtual ~DisassemblerBlockItem();
         std::string currentWord();
-        DisassemblerActions* disassemblerActions() const;
+        ListingDocumentRenderer* renderer() const;
         bool hasIndex(s64 index) const;
 
     public:
@@ -23,7 +23,6 @@ class DisassemblerBlockItem : public GraphViewItem
         QSize size() const override;
 
     protected:
-        void itemSelectionChanged(bool selected) override;
         void mouseDoubleClickEvent(QMouseEvent *e) override;
         void mousePressEvent(QMouseEvent *e) override;
         void mouseMoveEvent(QMouseEvent *e) override;
@@ -33,10 +32,12 @@ class DisassemblerBlockItem : public GraphViewItem
         QSize documentSize() const;
         void setupDocument();
 
+    signals:
+        void followRequested(const QPointF& localpos);
+
     private:
         const REDasm::Graphing::FunctionBasicBlock* m_basicblock;
         std::unique_ptr<ListingDocumentRenderer> m_renderer;
-        DisassemblerActions* m_actions;
         REDasm::DisassemblerPtr m_disassembler;
         QTextDocument m_document;
         qreal m_charheight;

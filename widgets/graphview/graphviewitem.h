@@ -41,6 +41,7 @@ class GraphViewItem: public QObject
 
     signals:
         void invalidated();
+        void menuRequested();
 
     private:
         QPoint m_pos;

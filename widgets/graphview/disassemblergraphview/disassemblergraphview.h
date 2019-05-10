@@ -33,6 +33,11 @@ class DisassemblerGraphView : public GraphView
         void timerEvent(QTimerEvent* e) override;
         void computeLayout() override;
 
+    private slots:
+        void updateCurrentRenderer();
+        void onFollowRequested(const QPointF &localpos);
+        void onMenuRequested();
+
     signals:
         void switchView();
         void hexDumpRequested(address_t address, u64 len);
@@ -43,6 +48,7 @@ class DisassemblerGraphView : public GraphView
 
     private:
         const REDasm::ListingItem* m_currentfunction;
+        DisassemblerActions* m_disassembleractions;
         int m_blinktimer;
 };
 

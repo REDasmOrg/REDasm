@@ -2,6 +2,7 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QPainter>
+#include <QDebug>
 
 GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(nullptr), m_selecteditem(nullptr)
 {
@@ -50,43 +51,20 @@ void GraphView::focusBlock(const GraphViewItem *item)
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent* e)
 {
-    GraphViewItem* olditem = m_selecteditem;
-    m_selecteditem = this->itemFromMouseEvent(e);
-
-    if(olditem)
-    {
-        olditem->itemSelectionChanged(false);
-        olditem->invalidate();
-     }
+    this->updateSelectedItem(e);
 
     if(m_selecteditem && (e->buttons() == Qt::LeftButton))
-    {
-        m_selecteditem->itemSelectionChanged(false);
         m_selecteditem->mouseDoubleClickEvent(e);
-    }
 
     QAbstractScrollArea::mouseDoubleClickEvent(e);
 }
 
 void GraphView::mousePressEvent(QMouseEvent *e)
 {
-    GraphViewItem* olditem = m_selecteditem;
-    m_selecteditem = this->itemFromMouseEvent(e);
-
-    if(olditem && (olditem != m_selecteditem))
-    {
-        olditem->itemSelectionChanged(false);
-        olditem->invalidate();
-    }
+    this->updateSelectedItem(e);
 
     if(m_selecteditem)
-    {
-        if(olditem != m_selecteditem)
-        {
-            m_selecteditem->itemSelectionChanged(true);
-            m_selecteditem->mousePressEvent(e);
-        }
-    }
+        m_selecteditem->mousePressEvent(e);
     else if(e->button() == Qt::LeftButton)
     {
         m_scrollmode = true;
@@ -115,12 +93,11 @@ void GraphView::mouseReleaseEvent(QMouseEvent *e)
 
 void GraphView::mouseMoveEvent(QMouseEvent *e)
 {
-    GraphViewItem* item = this->itemFromMouseEvent(e);
-    m_selecteditem = item;
+    this->updateSelectedItem(e);
 
-    if(item)
+    if(m_selecteditem)
     {
-        item->mouseMoveEvent(e);
+        m_selecteditem->mouseMoveEvent(e);
         return;
     }
 
@@ -381,4 +358,22 @@ void GraphView::precomputeLine(const REDasm::Graphing::Edge &e)
     }
 
     m_lines[e] = lines;
+}
+
+void GraphView::updateSelectedItem(QMouseEvent *e)
+{
+    GraphViewItem* olditem = m_selecteditem;
+    m_selecteditem = this->itemFromMouseEvent(e);
+
+    if(olditem)
+    {
+        olditem->itemSelectionChanged(false);
+        olditem->invalidate();
+     }
+
+    if(m_selecteditem)
+        m_selecteditem->itemSelectionChanged(false);
+
+    if(olditem != m_selecteditem)
+        emit selectedItemChanged();
 }

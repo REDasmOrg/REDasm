@@ -16,7 +16,10 @@ class DisassemblerActions : public QObject
                Back, Forward, Copy };
 
     public:
+        explicit DisassemblerActions(QWidget *parent = nullptr);
         explicit DisassemblerActions(REDasm::ListingRenderer *renderer, QWidget *parent = nullptr);
+        void setCurrentRenderer(REDasm::ListingRenderer* renderer);
+        REDasm::ListingRenderer* renderer() const;
 
     public slots:
         bool followUnderCursor();

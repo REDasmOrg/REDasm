@@ -16,7 +16,6 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
     m_renderer = std::make_unique<ListingDocumentRenderer>(disassembler.get());
     m_renderer->setFirstVisibleLine(fbb->startidx);
     m_renderer->setFlags(ListingDocumentRenderer::HideSegmentName);
-    m_actions = new DisassemblerActions(m_renderer.get(), parent);
     this->invalidate(false);
 
     QFontMetricsF fm(m_document.defaultFont());
@@ -32,16 +31,13 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
 
 DisassemblerBlockItem::~DisassemblerBlockItem() { EVENT_DISCONNECT(m_disassembler->document()->cursor(), positionChanged, this); }
 std::string DisassemblerBlockItem::currentWord() { return m_renderer->getCurrentWord(); }
-DisassemblerActions *DisassemblerBlockItem::disassemblerActions() const { return m_actions; }
+ListingDocumentRenderer *DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
 bool DisassemblerBlockItem::hasIndex(s64 index) const { return m_basicblock->contains(index); }
 QSize DisassemblerBlockItem::size() const { return this->documentSize(); }
-void DisassemblerBlockItem::itemSelectionChanged(bool selected) { m_actions->setEnabled(selected); }
 
 void DisassemblerBlockItem::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    if(!m_actions->followUnderCursor())
-        m_renderer->selectWordAt(e->localPos());
-
+    emit followRequested(e->localPos());
     e->accept();
 }
 
@@ -49,10 +45,8 @@ void DisassemblerBlockItem::mousePressEvent(QMouseEvent *e)
 {
     if(e->buttons() == Qt::LeftButton)
         m_renderer->moveTo(e->localPos());
-    else if(e->buttons() == Qt::RightButton)
-        m_actions->popup(QCursor::pos());
     else
-        return;
+        GraphViewItem::mousePressEvent(e);
 
     e->accept();
 }

@@ -6,11 +6,17 @@
 #include <QMessageBox>
 #include <QClipboard>
 
+DisassemblerActions::DisassemblerActions(QWidget *parent): QObject(parent), m_renderer(nullptr) { this->createActions(); }
 DisassemblerActions::DisassemblerActions(REDasm::ListingRenderer* renderer, QWidget *parent) : QObject(parent), m_renderer(renderer) { this->createActions(); }
-void DisassemblerActions::popup(const QPoint &pos) { m_contextmenu->exec(pos); }
+void DisassemblerActions::setCurrentRenderer(REDasm::ListingRenderer *renderer) { m_renderer = renderer; }
+REDasm::ListingRenderer *DisassemblerActions::renderer() const { return m_renderer; }
+void DisassemblerActions::popup(const QPoint &pos) { if(m_renderer) m_contextmenu->exec(pos); }
 
 void DisassemblerActions::adjustActions()
 {
+    if(!m_renderer)
+        return;
+
     auto lock = REDasm::s_lock_safe_ptr(m_renderer->document());
     const REDasm::ListingItem* item = lock->currentItem();
 
@@ -66,7 +72,7 @@ void DisassemblerActions::adjustActions()
     m_actions[DisassemblerActions::HexDumpFunction]->setVisible(itemsegment && !itemsegment->is(REDasm::SegmentType::Bss) && itemsegment->is(REDasm::SegmentType::Code));
 }
 
-void DisassemblerActions::goTo(address_t address) { m_renderer->document()->goTo(address); }
+void DisassemblerActions::goTo(address_t address) { if(m_renderer) m_renderer->document()->goTo(address); }
 
 void DisassemblerActions::createActions()
 {
@@ -77,7 +83,7 @@ void DisassemblerActions::createActions()
     m_actions[DisassemblerActions::Comment] = m_contextmenu->addAction("Comment", this, &DisassemblerActions::addComment, QKeySequence(Qt::Key_Semicolon));
     m_contextmenu->addSeparator();
     m_actions[DisassemblerActions::XRefs] = m_contextmenu->addAction("Cross References", this, &DisassemblerActions::showReferencesUnderCursor, QKeySequence(Qt::Key_X));
-    m_actions[DisassemblerActions::Follow] = m_contextmenu->addAction("Follow", this, &DisassemblerActions::followUnderCursor);
+    m_actions[DisassemblerActions::Follow] = m_contextmenu->addAction("Follow", this, QOverload<>::of(&DisassemblerActions::followUnderCursor));
     m_actions[DisassemblerActions::FollowPointerHexDump] = m_contextmenu->addAction("Follow pointer in Hex Dump", this, &DisassemblerActions::followPointerHexDump);
     m_actions[DisassemblerActions::Goto] = m_contextmenu->addAction("Goto...", this, &DisassemblerActions::gotoDialogRequested, QKeySequence(Qt::Key_G));
     m_actions[DisassemblerActions::CallGraph] = m_contextmenu->addAction("Call Graph", this, &DisassemblerActions::showCallGraph, QKeySequence(Qt::CTRL + Qt::Key_G));
@@ -90,21 +96,27 @@ void DisassemblerActions::createActions()
     m_contextmenu->addSeparator();
     m_actions[DisassemblerActions::Copy] = m_contextmenu->addAction("Copy", this, &DisassemblerActions::copy, QKeySequence(QKeySequence::Copy));
 
-    pw->addAction(m_actions[DisassemblerActions::Rename]);
-    pw->addAction(m_actions[DisassemblerActions::XRefs]);
-    pw->addAction(m_actions[DisassemblerActions::Comment]);
-    pw->addAction(m_actions[DisassemblerActions::Goto]);
-    pw->addAction(m_actions[DisassemblerActions::CallGraph]);
-    pw->addAction(m_actions[DisassemblerActions::HexDump]);
-    pw->addAction(m_actions[DisassemblerActions::Back]);
-    pw->addAction(m_actions[DisassemblerActions::Forward]);
-    pw->addAction(m_actions[DisassemblerActions::Copy]);
+    if(pw)
+    {
+        pw->addAction(m_actions[DisassemblerActions::Rename]);
+        pw->addAction(m_actions[DisassemblerActions::XRefs]);
+        pw->addAction(m_actions[DisassemblerActions::Comment]);
+        pw->addAction(m_actions[DisassemblerActions::Goto]);
+        pw->addAction(m_actions[DisassemblerActions::CallGraph]);
+        pw->addAction(m_actions[DisassemblerActions::HexDump]);
+        pw->addAction(m_actions[DisassemblerActions::Back]);
+        pw->addAction(m_actions[DisassemblerActions::Forward]);
+        pw->addAction(m_actions[DisassemblerActions::Copy]);
+    }
 
     connect(m_contextmenu, &QMenu::aboutToShow, this, &DisassemblerActions::adjustActions);
 }
 
 void DisassemblerActions::renameSymbolUnderCursor()
 {
+    if(!m_renderer)
+        return;
+
     const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();
 
     if(!symbol || symbol->isLocked())
@@ -125,6 +137,9 @@ void DisassemblerActions::renameSymbolUnderCursor()
 
 bool DisassemblerActions::followUnderCursor()
 {
+    if(!m_renderer)
+        return false;
+
     const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();
 
     if(symbol)

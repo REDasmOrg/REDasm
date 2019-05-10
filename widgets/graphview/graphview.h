@@ -45,10 +45,14 @@ class GraphView : public QAbstractScrollArea
         void adjustSize(int vpw, int vph, const QPoint& cursorpos = QPoint(), bool fit = false);
         void precomputeArrow(const REDasm::Graphing::Edge& e);
         void precomputeLine(const REDasm::Graphing::Edge& e);
+        void updateSelectedItem(QMouseEvent* e);
 
     protected:
         REDasm::DisassemblerPtr m_disassembler;
         QHash<REDasm::Graphing::Node, GraphViewItem*> m_items;
+
+    signals:
+        void selectedItemChanged();
 
     private:
         GraphViewItem* m_selecteditem;

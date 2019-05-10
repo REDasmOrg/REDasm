@@ -10,8 +10,18 @@
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_currentfunction(nullptr)
 {
-    this->setFocusPolicy(Qt::StrongFocus);
     m_blinktimer = this->startTimer(CURSOR_BLINK_INTERVAL);
+    this->setFocusPolicy(Qt::StrongFocus);
+
+
+    m_disassembleractions = new DisassemblerActions(this);
+    connect(m_disassembleractions, &DisassemblerActions::gotoDialogRequested, this, &DisassemblerGraphView::gotoDialogRequested);
+    connect(m_disassembleractions, &DisassemblerActions::hexDumpRequested, this, &DisassemblerGraphView::hexDumpRequested);
+    connect(m_disassembleractions, &DisassemblerActions::referencesRequested, this, &DisassemblerGraphView::referencesRequested);
+    connect(m_disassembleractions, &DisassemblerActions::switchToHexDump, this, &DisassemblerGraphView::switchToHexDump);
+    connect(m_disassembleractions, &DisassemblerActions::callGraphRequested, this, &DisassemblerGraphView::callGraphRequested);
+
+    connect(this, &DisassemblerGraphView::selectedItemChanged, this, &DisassemblerGraphView::updateCurrentRenderer);
 }
 
 DisassemblerGraphView::~DisassemblerGraphView()
@@ -42,16 +52,14 @@ std::string DisassemblerGraphView::currentWord()
 
 void DisassemblerGraphView::computeLayout()
 {
+    m_disassembleractions->setCurrentRenderer(nullptr);
+
     for(const auto& n : this->graph()->nodes())
     {
         const auto* fbb = static_cast<REDasm::Graphing::FunctionGraph*>(this->graph())->data(n);
         auto* dbi = new DisassemblerBlockItem(fbb, m_disassembler, n, this->viewport());
-
-        connect(dbi->disassemblerActions(), &DisassemblerActions::gotoDialogRequested, this, &DisassemblerGraphView::gotoDialogRequested);
-        connect(dbi->disassemblerActions(), &DisassemblerActions::hexDumpRequested, this, &DisassemblerGraphView::hexDumpRequested);
-        connect(dbi->disassemblerActions(), &DisassemblerActions::referencesRequested, this, &DisassemblerGraphView::referencesRequested);
-        connect(dbi->disassemblerActions(), &DisassemblerActions::switchToHexDump, this, &DisassemblerGraphView::switchToHexDump);
-        connect(dbi->disassemblerActions(), &DisassemblerActions::callGraphRequested, this, &DisassemblerGraphView::callGraphRequested);
+        connect(dbi, &DisassemblerBlockItem::followRequested, this, &DisassemblerGraphView::onFollowRequested);
+        connect(dbi, &DisassemblerBlockItem::menuRequested, this, &DisassemblerGraphView::onMenuRequested);
 
         m_items[n] = dbi;
         this->graph()->width(n, dbi->width());
@@ -68,6 +76,33 @@ void DisassemblerGraphView::computeLayout()
     ll.execute();
 
     GraphView::computeLayout();
+}
+
+void DisassemblerGraphView::updateCurrentRenderer()
+{
+    GraphViewItem* selecteditem = this->selectedItem();
+
+    if(selecteditem)
+        m_disassembleractions->setCurrentRenderer(static_cast<DisassemblerBlockItem*>(selecteditem)->renderer());
+    else
+        m_disassembleractions->setCurrentRenderer(nullptr);
+}
+
+void DisassemblerGraphView::onFollowRequested(const QPointF& localpos)
+{
+    if(!m_disassembleractions->renderer())
+        return;
+
+    if(!m_disassembleractions->followUnderCursor())
+        static_cast<ListingRendererCommon*>(m_disassembleractions->renderer())->selectWordAt(localpos);
+}
+
+void DisassemblerGraphView::onMenuRequested()
+{
+    if(!m_disassembleractions->renderer())
+        return;
+
+    m_disassembleractions->popup(QCursor::pos());
 }
 
 void DisassemblerGraphView::goTo(address_t address)

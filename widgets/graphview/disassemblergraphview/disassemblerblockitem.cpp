@@ -35,6 +35,7 @@ std::string DisassemblerBlockItem::currentWord() { return m_renderer->getCurrent
 DisassemblerActions *DisassemblerBlockItem::disassemblerActions() const { return m_actions; }
 bool DisassemblerBlockItem::hasIndex(s64 index) const { return m_basicblock->contains(index); }
 QSize DisassemblerBlockItem::size() const { return this->documentSize(); }
+void DisassemblerBlockItem::itemSelectionChanged(bool selected) { m_actions->setEnabled(selected); }
 
 void DisassemblerBlockItem::mouseDoubleClickEvent(QMouseEvent *e)
 {

@@ -23,6 +23,7 @@ class DisassemblerBlockItem : public GraphViewItem
         QSize size() const override;
 
     protected:
+        void itemSelectionChanged(bool selected) override;
         void mouseDoubleClickEvent(QMouseEvent *e) override;
         void mousePressEvent(QMouseEvent *e) override;
         void mouseMoveEvent(QMouseEvent *e) override;

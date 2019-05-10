@@ -99,6 +99,10 @@ bool DisassemblerGraphView::renderGraph()
     if(!currentfunction)
         return false;
 
+    if(currentfunction == m_currentfunction) // Don't render graph again
+        return true;
+
+    m_currentfunction = currentfunction;
     auto* graph = document->functions().graph(currentfunction);
 
     if(!graph)

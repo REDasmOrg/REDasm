@@ -29,6 +29,7 @@ class GraphViewItem: public QObject
         void move(const QPoint &pos);
 
     protected:
+        virtual void itemSelectionChanged(bool selected);
         virtual void mouseDoubleClickEvent(QMouseEvent *e);
         virtual void mousePressEvent(QMouseEvent *e);
         virtual void mouseMoveEvent(QMouseEvent *e);

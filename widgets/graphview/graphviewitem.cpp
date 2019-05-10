@@ -11,6 +11,7 @@ QRect GraphViewItem::rect() const { return QRect(m_pos, this->size());  }
 bool GraphViewItem::contains(const QPoint &p) const { return this->rect().contains(p); }
 const QPoint &GraphViewItem::position() const { return m_pos; }
 void GraphViewItem::move(const QPoint &pos) { m_pos = pos; }
+void GraphViewItem::itemSelectionChanged(bool selected) { }
 QPoint GraphViewItem::mapToItem(const QPoint &p) const { return QPoint(p.x() - m_pos.x(), p.y() - m_pos.y()); }
 void GraphViewItem::mouseDoubleClickEvent(QMouseEvent *e) { }
 void GraphViewItem::mousePressEvent(QMouseEvent* e) { }

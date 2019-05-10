@@ -54,12 +54,15 @@ void GraphView::mouseDoubleClickEvent(QMouseEvent* e)
     m_selecteditem = this->itemFromMouseEvent(e);
 
     if(olditem)
-        olditem->invalidate();
-
-    if(e->buttons() == Qt::LeftButton)
     {
-        if(m_selecteditem)
-            m_selecteditem->mouseDoubleClickEvent(e);
+        olditem->itemSelectionChanged(false);
+        olditem->invalidate();
+     }
+
+    if(m_selecteditem && (e->buttons() == Qt::LeftButton))
+    {
+        m_selecteditem->itemSelectionChanged(false);
+        m_selecteditem->mouseDoubleClickEvent(e);
     }
 
     QAbstractScrollArea::mouseDoubleClickEvent(e);
@@ -70,16 +73,21 @@ void GraphView::mousePressEvent(QMouseEvent *e)
     GraphViewItem* olditem = m_selecteditem;
     m_selecteditem = this->itemFromMouseEvent(e);
 
-    if(olditem)
+    if(olditem && (olditem != m_selecteditem))
+    {
+        olditem->itemSelectionChanged(false);
         olditem->invalidate();
+    }
 
     if(m_selecteditem)
     {
-        m_selecteditem->mousePressEvent(e);
-        return;
+        if(olditem != m_selecteditem)
+        {
+            m_selecteditem->itemSelectionChanged(true);
+            m_selecteditem->mousePressEvent(e);
+        }
     }
-
-    if(e->button() == Qt::LeftButton)
+    else if(e->button() == Qt::LeftButton)
     {
         m_scrollmode = true;
         m_scrollbase = e->pos();
@@ -87,6 +95,7 @@ void GraphView::mousePressEvent(QMouseEvent *e)
         this->viewport()->grabMouse();
     }
 
+    this->viewport()->update();
     QAbstractScrollArea::mousePressEvent(e);
 }
 
@@ -178,7 +187,9 @@ void GraphView::paintEvent(QPaintEvent *e)
         QPen pen(c);
 
         if(m_selecteditem && ((it->first.source == m_selecteditem->node()) || (it->first.target == m_selecteditem->node())))
+        {
             pen.setWidthF(2.0 / m_scalefactor);
+        }
         else
         {
             pen.setWidthF(1.0 / m_scalefactor);

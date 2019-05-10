@@ -24,8 +24,11 @@ class GraphView : public QAbstractScrollArea
         GraphViewItem* selectedItem() const;
         REDasm::Graphing::Graph* graph() const;
 
+    public slots:
+        void focusSelectedBlock();
+
     protected:
-        void focusBlock(const GraphViewItem* item);
+        void focusBlock(const GraphViewItem* item, bool force = false);
 
     protected:
         void mouseDoubleClickEvent(QMouseEvent* e) override;
@@ -36,6 +39,7 @@ class GraphView : public QAbstractScrollArea
         void resizeEvent(QResizeEvent* e) override;
         void paintEvent(QPaintEvent* e) override;
         void showEvent(QShowEvent* e) override;
+        virtual void selectedItemChangedEvent();
         virtual void computeLayout();
 
     private:
@@ -45,7 +49,7 @@ class GraphView : public QAbstractScrollArea
         void adjustSize(int vpw, int vph, const QPoint& cursorpos = QPoint(), bool fit = false);
         void precomputeArrow(const REDasm::Graphing::Edge& e);
         void precomputeLine(const REDasm::Graphing::Edge& e);
-        void updateSelectedItem(QMouseEvent* e);
+        bool updateSelectedItem(QMouseEvent* e);
 
     protected:
         REDasm::DisassemblerPtr m_disassembler;

@@ -13,15 +13,12 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent)
     m_blinktimer = this->startTimer(CURSOR_BLINK_INTERVAL);
     this->setFocusPolicy(Qt::StrongFocus);
 
-
     m_disassembleractions = new DisassemblerActions(this);
     connect(m_disassembleractions, &DisassemblerActions::gotoDialogRequested, this, &DisassemblerGraphView::gotoDialogRequested);
     connect(m_disassembleractions, &DisassemblerActions::hexDumpRequested, this, &DisassemblerGraphView::hexDumpRequested);
     connect(m_disassembleractions, &DisassemblerActions::referencesRequested, this, &DisassemblerGraphView::referencesRequested);
     connect(m_disassembleractions, &DisassemblerActions::switchToHexDump, this, &DisassemblerGraphView::switchToHexDump);
     connect(m_disassembleractions, &DisassemblerActions::callGraphRequested, this, &DisassemblerGraphView::callGraphRequested);
-
-    connect(this, &DisassemblerGraphView::selectedItemChanged, this, &DisassemblerGraphView::updateCurrentRenderer);
 }
 
 DisassemblerGraphView::~DisassemblerGraphView()
@@ -76,16 +73,7 @@ void DisassemblerGraphView::computeLayout()
     ll.execute();
 
     GraphView::computeLayout();
-}
-
-void DisassemblerGraphView::updateCurrentRenderer()
-{
-    GraphViewItem* selecteditem = this->selectedItem();
-
-    if(selecteditem)
-        m_disassembleractions->setCurrentRenderer(static_cast<DisassemblerBlockItem*>(selecteditem)->renderer());
-    else
-        m_disassembleractions->setCurrentRenderer(nullptr);
+    this->focusCurrentBlock();
 }
 
 void DisassemblerGraphView::onFollowRequested(const QPointF& localpos)
@@ -95,6 +83,8 @@ void DisassemblerGraphView::onFollowRequested(const QPointF& localpos)
 
     if(!m_disassembleractions->followUnderCursor())
         static_cast<ListingRendererCommon*>(m_disassembleractions->renderer())->selectWordAt(localpos);
+    else
+        this->focusCurrentBlock();
 }
 
 void DisassemblerGraphView::onMenuRequested()
@@ -118,7 +108,9 @@ void DisassemblerGraphView::focusCurrentBlock()
 
     for(const auto& item : m_items)
     {
-        if(!static_cast<DisassemblerBlockItem*>(item)->hasIndex(cursor->currentLine()))
+        DisassemblerBlockItem* dbi = static_cast<DisassemblerBlockItem*>(item);
+
+        if(!dbi->hasIndex(cursor->currentLine()))
             continue;
 
         this->focusBlock(item);
@@ -190,6 +182,18 @@ void DisassemblerGraphView::timerEvent(QTimerEvent *e)
     }
 
     GraphView::timerEvent(e);
+}
+
+void DisassemblerGraphView::selectedItemChangedEvent()
+{
+    GraphViewItem* selecteditem = this->selectedItem();
+
+    if(selecteditem)
+        m_disassembleractions->setCurrentRenderer(static_cast<DisassemblerBlockItem*>(selecteditem)->renderer());
+    else
+        m_disassembleractions->setCurrentRenderer(nullptr);
+
+    GraphView::selectedItemChangedEvent();
 }
 
 QColor DisassemblerGraphView::getEdgeColor(const REDasm::Graphing::Edge &e) const

@@ -16,6 +16,8 @@ class DisassemblerGraphView : public GraphView
         virtual ~DisassemblerGraphView();
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler) override;
         std::string currentWord();
+
+    public slots:
         void goTo(address_t address);
         void focusCurrentBlock();
         bool renderGraph();
@@ -31,10 +33,10 @@ class DisassemblerGraphView : public GraphView
         void keyPressEvent(QKeyEvent *e) override;
         void showEvent(QShowEvent* e) override;
         void timerEvent(QTimerEvent* e) override;
+        void selectedItemChangedEvent() override;
         void computeLayout() override;
 
     private slots:
-        void updateCurrentRenderer();
         void onFollowRequested(const QPointF &localpos);
         void onMenuRequested();
 

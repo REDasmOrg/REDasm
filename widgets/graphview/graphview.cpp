@@ -41,27 +41,59 @@ void GraphView::setGraph(REDasm::Graphing::Graph *graph)
 GraphViewItem *GraphView::selectedItem() const { return m_selecteditem; }
 REDasm::Graphing::Graph *GraphView::graph() const { return m_graph; }
 
-void GraphView::focusBlock(const GraphViewItem *item)
+void GraphView::focusSelectedBlock()
 {
-    int x = item->x() + m_renderoffset.x() + (item->width() / 2);
-    int y = item->y() + m_renderoffset.y() + (item->height() / 2);
-    this->horizontalScrollBar()->setValue(x - (this->width() / 2));
-    this->verticalScrollBar()->setValue(y - (this->height() / 2));
+    if(m_selecteditem)
+        this->focusBlock(m_selecteditem);
+}
+
+void GraphView::focusBlock(const GraphViewItem *item, bool force)
+{
+    // Don't update the view for blocks that are already fully in view
+    int xofs = this->horizontalScrollBar()->value();
+    int yofs = this->verticalScrollBar()->value();
+    QRect viewportrect = this->viewport()->rect();
+
+    //before being shown for the first time viewport is kind of 98x28 so setting the parent size almost fixes this problem
+    if(!m_viewportready)
+        viewportrect.setSize(this->parentWidget()->size() - QSize(20, 20));
+
+    QPoint translation(m_renderoffset.x() - xofs, m_renderoffset.y() - yofs);
+
+    //Adjust scaled viewport
+    viewportrect.setWidth(viewportrect.width() / m_scalefactor);
+    viewportrect.setHeight(viewportrect.height() / m_scalefactor);
+    viewportrect.translate(-translation.x() / m_scalefactor, -translation.y() / m_scalefactor);
+
+    QFontMetrics fm = this->fontMetrics();
+    QRect r(item->x() + fm.height(), item->width() + fm.height(),
+            item->width() - (2 * fm.height()), item->height() - (2 * fm.height()));
+
+    if(force || !viewportrect.contains(r))
+    {
+        auto x = (item->x() + static_cast<int>(item->width() / 2)) * m_scalefactor;
+        auto y = (item->y() + (2 * fm.height()) + (item->currentLine() * fm.height())) * m_scalefactor;
+        this->horizontalScrollBar()->setValue(x + m_renderoffset.x() - static_cast<int>(this->horizontalScrollBar()->pageStep() / 2));
+        this->verticalScrollBar()->setValue(y + m_renderoffset.y() - static_cast<int>(this->verticalScrollBar()->pageStep() / 2));
+    }
 }
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent* e)
 {
-    this->updateSelectedItem(e);
+    bool updated = this->updateSelectedItem(e);
 
     if(m_selecteditem && (e->buttons() == Qt::LeftButton))
         m_selecteditem->mouseDoubleClickEvent(e);
+
+    if(updated)
+        this->selectedItemChangedEvent();
 
     QAbstractScrollArea::mouseDoubleClickEvent(e);
 }
 
 void GraphView::mousePressEvent(QMouseEvent *e)
 {
-    this->updateSelectedItem(e);
+    bool updated = this->updateSelectedItem(e);
 
     if(m_selecteditem)
         m_selecteditem->mousePressEvent(e);
@@ -74,6 +106,10 @@ void GraphView::mousePressEvent(QMouseEvent *e)
     }
 
     this->viewport()->update();
+
+    if(updated)
+        this->selectedItemChangedEvent();
+
     QAbstractScrollArea::mousePressEvent(e);
 }
 
@@ -93,7 +129,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *e)
 
 void GraphView::mouseMoveEvent(QMouseEvent *e)
 {
-    this->updateSelectedItem(e);
+    bool updated = this->updateSelectedItem(e);
 
     if(m_selecteditem)
     {
@@ -109,6 +145,9 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
         this->horizontalScrollBar()->setValue(this->horizontalScrollBar()->value() + delta.x());
         this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() + delta.y());
     }
+
+    if(updated)
+        this->selectedItemChangedEvent();
 
     QAbstractScrollArea::mouseMoveEvent(e);
 }
@@ -207,6 +246,12 @@ void GraphView::showEvent(QShowEvent *e)
     e->ignore();
 }
 
+void GraphView::selectedItemChangedEvent()
+{
+    this->focusSelectedBlock();
+    emit selectedItemChanged();
+}
+
 void GraphView::computeLayout()
 {
     for(const auto& n : m_graph->nodes())
@@ -293,6 +338,10 @@ void GraphView::zoomIn(const QPoint &cursorpos)
 
 void GraphView::adjustSize(int vpw, int vph, const QPoint &cursorpos, bool fit)
 {
+    //bugfix - resize event (during several initial calls) may reset correct adjustment already made
+    if(vph < 30)
+        return;
+
     m_rendersize = QSize(m_graph->areaWidth() * m_scalefactor, m_graph->areaHeight() * m_scalefactor);
     m_renderoffset = QPoint(vpw, vph);
 
@@ -360,7 +409,7 @@ void GraphView::precomputeLine(const REDasm::Graphing::Edge &e)
     m_lines[e] = lines;
 }
 
-void GraphView::updateSelectedItem(QMouseEvent *e)
+bool GraphView::updateSelectedItem(QMouseEvent *e)
 {
     GraphViewItem* olditem = m_selecteditem;
     m_selecteditem = this->itemFromMouseEvent(e);
@@ -374,6 +423,5 @@ void GraphView::updateSelectedItem(QMouseEvent *e)
     if(m_selecteditem)
         m_selecteditem->itemSelectionChanged(false);
 
-    if(olditem != m_selecteditem)
-        emit selectedItemChanged();
+    return olditem != m_selecteditem;
 }

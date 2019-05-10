@@ -33,6 +33,17 @@ DisassemblerBlockItem::~DisassemblerBlockItem() { EVENT_DISCONNECT(m_disassemble
 std::string DisassemblerBlockItem::currentWord() { return m_renderer->getCurrentWord(); }
 ListingDocumentRenderer *DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
 bool DisassemblerBlockItem::hasIndex(s64 index) const { return m_basicblock->contains(index); }
+
+int DisassemblerBlockItem::currentLine() const
+{
+    const REDasm::ListingCursor* cursor = m_renderer->document()->cursor();
+
+    if(this->hasIndex(cursor->currentLine()))
+        return cursor->currentLine() - m_basicblock->startidx;
+
+    return GraphViewItem::currentLine();
+}
+
 QSize DisassemblerBlockItem::size() const { return this->documentSize(); }
 
 void DisassemblerBlockItem::mouseDoubleClickEvent(QMouseEvent *e)

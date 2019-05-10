@@ -19,6 +19,7 @@ class DisassemblerBlockItem : public GraphViewItem
         bool hasIndex(s64 index) const;
 
     public:
+        int currentLine() const override;
         void render(QPainter* painter, size_t state) override;
         QSize size() const override;
 

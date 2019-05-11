@@ -129,11 +129,13 @@ void GraphView::mouseReleaseEvent(QMouseEvent *e)
 
 void GraphView::mouseMoveEvent(QMouseEvent *e)
 {
-    bool updated = this->updateSelectedItem(e);
-
     if(m_selecteditem)
     {
-        m_selecteditem->mouseMoveEvent(e);
+        GraphViewItem* item = this->itemFromMouseEvent(e);
+
+        if(item == m_selecteditem)
+            m_selecteditem->mouseMoveEvent(e);
+
         return;
     }
 
@@ -145,9 +147,6 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
         this->horizontalScrollBar()->setValue(this->horizontalScrollBar()->value() + delta.x());
         this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() + delta.y());
     }
-
-    if(updated)
-        this->selectedItemChangedEvent();
 
     QAbstractScrollArea::mouseMoveEvent(e);
 }

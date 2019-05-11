@@ -21,22 +21,19 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &AboutDialog::accept);
 }
 
-AboutDialog::~AboutDialog()
-{
-    delete ui;
-}
+AboutDialog::~AboutDialog() { delete ui; }
 
 void AboutDialog::initItems()
 {
     int major = 0, minor = 0;
     cs_version(&major, &minor);
 
-    m_depends.push_back({ "Qt",       QT_VERSION_STR,                         "https://www.qt.io" });
-    m_depends.push_back({ "Capstone", QString("%1.%2").arg(major).arg(minor), "https://www.capstone-engine.org" });
-    m_depends.push_back({ "JSON",     "---",                                  "https://github.com/nlohmann/json" });
-    m_depends.push_back({ "D3",       "5.0",                                  "https://d3js.org" });
-    m_depends.push_back({ "Dagre",    "0.7.5",                                "https://github.com/dagrejs/dagre" });
-    m_depends.push_back({ "Dagre-D3", "0.3.0",                                "https://github.com/dagrejs/dagre-d3" });
+    m_depends.push_back({ "Qt",           QT_VERSION_STR,                         "https://www.qt.io" });
+    m_depends.push_back({ "Capstone",     QString("%1.%2").arg(major).arg(minor), "https://www.capstone-engine.org" });
+    m_depends.push_back({ "JSON",         "---",                                  "https://github.com/nlohmann/json" });
+    m_depends.push_back({ "UndName",      "---",                                  "https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c" });
+    m_depends.push_back({ "Libiberty",    "---",                                  "https://github.com/bminor/binutils-gdb/tree/master/libiberty" });
+    m_depends.push_back({ "Visit-Struct", "---",                                  "https://github.com/cbeck88/visit_struct" });
 }
 
 void AboutDialog::initDepends()

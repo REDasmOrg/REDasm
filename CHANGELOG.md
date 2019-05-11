@@ -1,3 +1,18 @@
+**Version 2.1 - 11/05/2019**
+* Dropped QtWebEngine, native graph rendering.
+* Improved Rendering performance.
+* Improved Analysis speed and reliability.
+* Improved string detection.
+* Improved RTTI analysis.
+* Implemented Visual Studio's static libraries loader (.lib).
+* Implemented AVR8 Assembler (will be improved in the next releases).
+* Added Visual C++ 6, 2003, 2005, 2008 and 2017 signatures (32 bit only, for now).
+* Added MFC 6, 7.1, 8.0 and 9.0 signatures (32 bit only, for now).
+* PE Loader: Parse exception directory, classify executable (VB6, Delphi, MSVC, etc).
+* Fixed AppImage.
+* Lots of improvements.
+* Lots of bug fixes.
+
 **Version 2.0 - 04/03/2019**
 * Brand new disassembler engine.
 * Brand new disassembler widget.

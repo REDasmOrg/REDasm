@@ -41,6 +41,7 @@ class MainWindow : public QMainWindow
         void onAboutClicked();
         void changeDisassemblerStatus();
         void checkDisassemblerStatus();
+        void showProblems();
         void closeFile();
 
     private:
@@ -64,6 +65,7 @@ class MainWindow : public QMainWindow
         QFileInfo m_fileinfo;
         QStringList m_recents;
         QPushButton* m_pbstatus;
+        QPushButton* m_pbproblems;
 };
 
 #endif // MAINWINDOW_H

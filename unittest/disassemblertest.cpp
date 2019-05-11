@@ -57,6 +57,7 @@ DisassemblerTest::DisassemblerTest(): m_buffer(nullptr)
     ctxsettings.tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
     ctxsettings.searchPath = QDir::currentPath().toStdString();
     ctxsettings.logCallback =[](const std::string&) { };
+    ctxsettings.ignoreproblems = true;
     REDasm::init(ctxsettings);
 }
 

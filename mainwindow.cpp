@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "dialogs/signaturesdialog/signaturesdialog.h"
+#include "dialogs/problemsdialog/problemsdialog.h"
 #include "dialogs/settingsdialog/settingsdialog.h"
 #include "dialogs/aboutdialog/aboutdialog.h"
 #include "ui/redasmui.h"
@@ -47,8 +48,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_pbstatus->setText(QString::fromWCharArray(L"\u25cf"));
     m_pbstatus->setVisible(false);
 
+    m_pbproblems = new QPushButton(this);
+    m_pbproblems->setFlat(true);
+    m_pbproblems->setFixedHeight(ui->statusBar->height() * 0.8);
+    m_pbproblems->setVisible(false);
+
     ui->statusBar->addPermanentWidget(m_lblstatus, 70);
     ui->statusBar->addPermanentWidget(m_lblprogress, 30);
+    ui->statusBar->addPermanentWidget(m_pbproblems);
     ui->statusBar->addPermanentWidget(m_pbstatus);
 
     this->setAcceptDrops(true);
@@ -75,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     });
 
     connect(m_pbstatus, &QPushButton::clicked, this, &MainWindow::changeDisassemblerStatus);
+    connect(m_pbproblems, &QPushButton::clicked, this, &MainWindow::showProblems);
 
     qApp->installEventFilter(this);
 }
@@ -414,8 +422,10 @@ void MainWindow::closeFile()
     m_lblstatus->clear();
     m_lblprogress->setVisible(false);
     m_pbstatus->setVisible(false);
+    m_pbproblems->setVisible(false);
     this->setStandardActionsEnabled(false);
     this->setViewWidgetsVisible(false);
+    REDasm::Context::clearProblems();
 }
 
 void MainWindow::selectLoader(REDasm::LoadRequest &request)
@@ -491,6 +501,7 @@ void MainWindow::checkDisassemblerStatus()
     {
         ui->action_Close->setEnabled(false);
         m_pbstatus->setVisible(false);
+        m_pbproblems->setVisible(false);
         return;
     }
 
@@ -506,9 +517,17 @@ void MainWindow::checkDisassemblerStatus()
 
     m_pbstatus->setVisible(true);
     m_lblprogress->setVisible(disassembler->busy());
+    m_pbproblems->setText(QString::number(REDasm::Context::problemsCount()) + " problem(s)");
+    m_pbproblems->setVisible(!disassembler->busy() && REDasm::Context::hasProblems());
 
     this->setStandardActionsEnabled(!disassembler->busy());
     ui->action_Close->setEnabled(true);
+}
+
+void MainWindow::showProblems()
+{
+    ProblemsDialog dlgproblems(this);
+    dlgproblems.exec();
 }
 
 DisassemblerView *MainWindow::currentDisassemblerView() const { return dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget()); }

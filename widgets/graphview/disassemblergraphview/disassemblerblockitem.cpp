@@ -32,13 +32,13 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
 DisassemblerBlockItem::~DisassemblerBlockItem() { EVENT_DISCONNECT(m_disassembler->document()->cursor(), positionChanged, this); }
 std::string DisassemblerBlockItem::currentWord() { return m_renderer->getCurrentWord(); }
 ListingDocumentRenderer *DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
-bool DisassemblerBlockItem::hasIndex(s64 index) const { return m_basicblock->contains(index); }
+bool DisassemblerBlockItem::containsIndex(s64 index) const { return m_basicblock->contains(index); }
 
 int DisassemblerBlockItem::currentLine() const
 {
     const REDasm::ListingCursor* cursor = m_renderer->document()->cursor();
 
-    if(this->hasIndex(cursor->currentLine()))
+    if(this->containsIndex(cursor->currentLine()))
         return cursor->currentLine() - m_basicblock->startidx;
 
     return GraphViewItem::currentLine();

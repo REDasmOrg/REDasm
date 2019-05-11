@@ -15,6 +15,7 @@ class DisassemblerGraphView : public GraphView
         explicit DisassemblerGraphView(QWidget *parent = nullptr);
         virtual ~DisassemblerGraphView();
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler) override;
+        bool isCursorInGraph() const;
         std::string currentWord();
 
     public slots:
@@ -25,6 +26,7 @@ class DisassemblerGraphView : public GraphView
     private:
         QColor getEdgeColor(const REDasm::Graphing::Edge &e) const;
         std::string getEdgeLabel(const REDasm::Graphing::Edge &e) const;
+        GraphViewItem* itemFromCurrentLine() const;
 
     protected:
         void mousePressEvent(QMouseEvent *e) override;

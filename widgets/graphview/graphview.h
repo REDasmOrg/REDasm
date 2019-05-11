@@ -21,6 +21,8 @@ class GraphView : public QAbstractScrollArea
         explicit GraphView(QWidget *parent = nullptr);
         virtual void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
         void setGraph(REDasm::Graphing::Graph *graph);
+        void setSelectedBlock(GraphViewItem* item);
+        void setFocusOnSelection(bool b);
         GraphViewItem* selectedItem() const;
         REDasm::Graphing::Graph* graph() const;
 
@@ -69,6 +71,9 @@ class GraphView : public QAbstractScrollArea
         qreal m_scalemin, m_scalemax;
         int m_scaledirection, m_scaleboost;
         bool m_viewportready, m_scrollmode;
+
+    private:
+        bool m_focusonselection;
 };
 
 #endif // GRAPHVIEW_H

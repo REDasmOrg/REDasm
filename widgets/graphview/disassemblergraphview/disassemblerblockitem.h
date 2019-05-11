@@ -16,7 +16,7 @@ class DisassemblerBlockItem : public GraphViewItem
         virtual ~DisassemblerBlockItem();
         std::string currentWord();
         ListingDocumentRenderer* renderer() const;
-        bool hasIndex(s64 index) const;
+        bool containsIndex(s64 index) const;
 
     public:
         int currentLine() const override;

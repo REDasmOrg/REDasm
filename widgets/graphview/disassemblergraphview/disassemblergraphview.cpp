@@ -34,10 +34,17 @@ void DisassemblerGraphView::setDisassembler(const REDasm::DisassemblerPtr &disas
     GraphView::setDisassembler(disassembler);
 
     EVENT_CONNECT(m_disassembler->document()->cursor(), positionChanged, this, [&]() {
-        if(this->isVisible())
-            this->renderGraph();
+        if(!this->isVisible())
+            return;
+
+        this->renderGraph();
+
+        if(!this->hasFocus())
+            this->focusCurrentBlock();
     });
 }
+
+bool DisassemblerGraphView::isCursorInGraph() const { return this->itemFromCurrentLine() != nullptr; }
 
 std::string DisassemblerGraphView::currentWord()
 {
@@ -104,18 +111,13 @@ void DisassemblerGraphView::goTo(address_t address)
 
 void DisassemblerGraphView::focusCurrentBlock()
 {
-    const REDasm::ListingCursor* cursor = m_disassembler->document()->cursor();
+    GraphViewItem* item = this->itemFromCurrentLine();
 
-    for(const auto& item : m_items)
-    {
-        DisassemblerBlockItem* dbi = static_cast<DisassemblerBlockItem*>(item);
+    if(!item)
+        return;
 
-        if(!dbi->hasIndex(cursor->currentLine()))
-            continue;
-
-        this->focusBlock(item);
-        break;
-    }
+    this->focusBlock(item);
+    this->setSelectedBlock(item);
 }
 
 bool DisassemblerGraphView::renderGraph()
@@ -225,6 +227,32 @@ std::string DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Edge &e)
         label += !label.empty() ? " (LOOP)" : "LOOP";
 
     return label;
+}
+
+GraphViewItem *DisassemblerGraphView::itemFromCurrentLine() const
+{
+    const REDasm::ListingCursor* cursor = m_disassembler->document()->cursor();
+    const REDasm::ListingItem* item = m_disassembler->document()->currentItem();
+
+    if(!item)
+        return nullptr;
+
+    size_t line = cursor->currentLine();
+
+    if(item->is(REDasm::ListingItem::FunctionItem)) // Adjust to instruction
+        line = m_disassembler->document()->instructionIndex(item->address);
+
+    for(const auto& item : m_items)
+    {
+        DisassemblerBlockItem* dbi = static_cast<DisassemblerBlockItem*>(item);
+
+        if(!dbi->containsIndex(line))
+            continue;
+
+        return item;
+    }
+
+    return nullptr;
 }
 
 void DisassemblerGraphView::mousePressEvent(QMouseEvent *e)

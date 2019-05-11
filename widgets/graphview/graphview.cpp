@@ -4,7 +4,7 @@
 #include <QPainter>
 #include <QDebug>
 
-GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(nullptr), m_selecteditem(nullptr)
+GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(nullptr), m_selecteditem(nullptr), m_focusonselection(false)
 {
     m_prevscalefactor = m_scaledirection = 0;
     m_scalemax = 5.0;
@@ -38,6 +38,20 @@ void GraphView::setGraph(REDasm::Graphing::Graph *graph)
     this->computeLayout();
 }
 
+void GraphView::setSelectedBlock(GraphViewItem *item)
+{
+    for(GraphViewItem* gvi : m_items)
+    {
+        if(gvi != item)
+            continue;
+
+        m_selecteditem = item;
+        this->focusSelectedBlock();
+        break;
+    }
+}
+
+void GraphView::setFocusOnSelection(bool b) { m_focusonselection = b; }
 GraphViewItem *GraphView::selectedItem() const { return m_selecteditem; }
 REDasm::Graphing::Graph *GraphView::graph() const { return m_graph; }
 
@@ -247,7 +261,9 @@ void GraphView::showEvent(QShowEvent *e)
 
 void GraphView::selectedItemChangedEvent()
 {
-    this->focusSelectedBlock();
+    if(m_focusonselection)
+        this->focusSelectedBlock();
+
     emit selectedItemChanged();
 }
 

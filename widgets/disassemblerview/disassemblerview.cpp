@@ -232,7 +232,11 @@ void DisassemblerView::goTo(const QModelIndex &index)
         return;
 
     m_disassembler->document()->goTo(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer()));
-    this->checkSyncGraph();
+
+    if(!m_graphview->isCursorInGraph())
+        ui->stackedWidget->setCurrentWidget(m_listingview);
+
+    this->showListingOrGraph();
 }
 
 void DisassemblerView::showModelReferences()
@@ -512,14 +516,6 @@ void DisassemblerView::syncHexEdit()
 
     QHexCursor* cursor = ui->hexView->document()->cursor();
     cursor->selectOffset(offset, len);
-}
-
-void DisassemblerView::checkSyncGraph()
-{
-    if(ui->stackedWidget->currentWidget() == m_graphview)
-        m_graphview->renderGraph();
-
-    this->showListingOrGraph();
 }
 
 void DisassemblerView::createActions()

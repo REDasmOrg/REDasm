@@ -24,7 +24,7 @@ You can hack and improve REDasm without any issues and limitations.<br>
 *Runs on Windows and Linux.*<br>
 
 <p align="center">
-  <img height="450" src="https://raw.githubusercontent.com/REDasmOrg/REDasm/master/artwork/Slideshow_20190203.gif">
+  <img height="450" src="https://raw.githubusercontent.com/REDasmOrg/REDasm/master/artwork/Slideshow_20190511.gif">
 </p>
 
 ## Formats & Assemblers Support

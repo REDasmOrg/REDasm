@@ -122,7 +122,12 @@ add_executable(${PROJECT_NAME} ${GUI_TYPE}
 
 target_include_directories(${PROJECT_NAME} PUBLIC LibREDasm QHexEdit)
 add_dependencies(${PROJECT_NAME} LibREDasm)
-target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets LibREDasm)
+
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets LibREDasm)
+else()
+    target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets pthread LibREDasm)
+endif()
 
 if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") AND DEBUG_STL_ITERATORS)
     target_compile_options(${PROJECT_NAME} PRIVATE -D_GLIBCXX_DEBUG)

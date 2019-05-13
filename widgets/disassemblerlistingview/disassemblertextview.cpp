@@ -62,10 +62,10 @@ std::string DisassemblerTextView::currentWord() const { return m_renderer ? m_re
 bool DisassemblerTextView::canGoBack() const { return this->currentDocument()->cursor()->canGoBack(); }
 bool DisassemblerTextView::canGoForward() const { return this->currentDocument()->cursor()->canGoForward(); }
 
-u64 DisassemblerTextView::visibleLines() const
+size_t DisassemblerTextView::visibleLines() const
 {
     QFontMetrics fm = this->fontMetrics();
-    u64 vl = std::ceil(this->height() / fm.height());
+    size_t vl = std::ceil(this->height() / fm.height());
 
     if((vl <= 1) && (this->currentDocument()->size() >= DOCUMENT_IDEAL_SIZE))
         return DOCUMENT_IDEAL_SIZE;
@@ -73,8 +73,8 @@ u64 DisassemblerTextView::visibleLines() const
     return vl;
 }
 
-u64 DisassemblerTextView::firstVisibleLine() const { return this->verticalScrollBar()->value(); }
-u64 DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines() - 1; }
+size_t DisassemblerTextView::firstVisibleLine() const { return this->verticalScrollBar()->value(); }
+size_t DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines() - 1; }
 
 void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
@@ -174,9 +174,9 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
     QFontMetrics fm = this->fontMetrics();
     const QRect& r = e->rect();
 
-    u64 firstvisible = this->firstVisibleLine();
-    u64 first = firstvisible + (r.top() / fm.height());
-    u64 last = firstvisible + (r.bottom() / fm.height());
+    size_t firstvisible = this->firstVisibleLine();
+    size_t first = firstvisible + (r.top() / fm.height());
+    size_t last = firstvisible + (r.bottom() / fm.height());
 
     QPainter painter(this->viewport());
     painter.setFont(this->font());
@@ -266,7 +266,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 
     if(e->matches(QKeySequence::MoveToNextChar) || e->matches(QKeySequence::SelectNextChar))
     {
-        u64 len = m_renderer->getLastColumn(cur->currentLine());
+        size_t len = m_renderer->getLastColumn(cur->currentLine());
 
         if(e->matches(QKeySequence::MoveToNextChar))
             cur->moveTo(cur->currentLine(), std::min(len, cur->currentColumn() + 1));
@@ -285,7 +285,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         if(lock->lastLine()  == cur->currentLine())
             return;
 
-        int nextline = cur->currentLine() + 1;
+        size_t nextline = cur->currentLine() + 1;
 
         if(e->matches(QKeySequence::MoveToNextLine))
             cur->moveTo(nextline, std::min(cur->currentColumn(), m_renderer->getLastColumn(nextline)));
@@ -297,7 +297,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         if(!cur->currentLine())
             return;
 
-        int prevline = cur->currentLine() - 1;
+        size_t prevline = cur->currentLine() - 1;
 
         if(e->matches(QKeySequence::MoveToPreviousLine))
             cur->moveTo(prevline, std::min(cur->currentColumn(), m_renderer->getLastColumn(prevline)));
@@ -309,7 +309,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         if(lock->lastLine()  == cur->currentLine())
             return;
 
-        int pageline = std::min(lock->lastLine(), this->firstVisibleLine() + this->visibleLines());
+        size_t pageline = std::min(lock->lastLine(), this->firstVisibleLine() + this->visibleLines());
 
         if(e->matches(QKeySequence::MoveToNextPage))
             cur->moveTo(pageline, std::min(cur->currentColumn(), m_renderer->getLastColumn(pageline)));
@@ -321,10 +321,10 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         if(!cur->currentLine())
             return;
 
-        u64 pageline = 0;
+        size_t pageline = 0;
 
         if(this->firstVisibleLine() > this->visibleLines())
-            pageline = std::max(static_cast<u64>(0), this->firstVisibleLine() - this->visibleLines());
+            pageline = std::max(size_t(0), this->firstVisibleLine() - this->visibleLines());
 
         if(e->matches(QKeySequence::MoveToPreviousPage))
             cur->moveTo(pageline, std::min(cur->currentColumn(), m_renderer->getLastColumn(pageline)));
@@ -428,7 +428,7 @@ const REDasm::Symbol* DisassemblerTextView::symbolUnderCursor()
     return lock->symbol(m_renderer->getCurrentWord());
 }
 
-bool DisassemblerTextView::isLineVisible(u64 line) const
+bool DisassemblerTextView::isLineVisible(size_t line) const
 {
     if(line < this->firstVisibleLine())
         return false;
@@ -439,7 +439,7 @@ bool DisassemblerTextView::isLineVisible(u64 line) const
     return true;
 }
 
-bool DisassemblerTextView::isColumnVisible(u64 column, u64 *xpos)
+bool DisassemblerTextView::isColumnVisible(size_t column, size_t *xpos)
 {
     QScrollBar* hscrollbar = this->horizontalScrollBar();
     u64 lastxpos = hscrollbar->value() + this->width();
@@ -462,7 +462,7 @@ bool DisassemblerTextView::isColumnVisible(u64 column, u64 *xpos)
         *xpos = 0;
         return false;
     }
-    if(*xpos < static_cast<u64>(hscrollbar->value()))
+    if(*xpos < static_cast<size_t>(hscrollbar->value()))
     {
         *xpos = hscrollbar->value() - *xpos;
         return false;
@@ -471,7 +471,7 @@ bool DisassemblerTextView::isColumnVisible(u64 column, u64 *xpos)
     return true;
 }
 
-QRect DisassemblerTextView::lineRect(u64 line)
+QRect DisassemblerTextView::lineRect(size_t line)
 {
     if(!this->isLineVisible(line))
         return QRect();
@@ -482,7 +482,7 @@ QRect DisassemblerTextView::lineRect(u64 line)
     return QRect(vprect.x(), offset * fm.height(), vprect.width(), fm.height());
 }
 
-void DisassemblerTextView::renderLine(u64 line)
+void DisassemblerTextView::renderLine(size_t line)
 {
     if(!this->isLineVisible(line))
         return;
@@ -490,7 +490,7 @@ void DisassemblerTextView::renderLine(u64 line)
     this->paintLines(line, line);
 }
 
-void DisassemblerTextView::paintLines(u64 first, u64 last)
+void DisassemblerTextView::paintLines(size_t first, size_t last)
 {
     first = std::max(first, this->firstVisibleLine());
     last = std::min(last, this->lastVisibleLine());
@@ -544,7 +544,7 @@ void DisassemblerTextView::ensureColumnVisible()
 
     auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
     REDasm::ListingCursor* cur = lock->cursor();
-    u64 xpos = 0;
+    size_t xpos = 0;
 
     if(this->isColumnVisible(cur->currentColumn(), &xpos))
         return;

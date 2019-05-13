@@ -19,9 +19,9 @@ class DisassemblerTextView : public QAbstractScrollArea
         std::string currentWord() const;
         bool canGoBack() const;
         bool canGoForward() const;
-        u64 visibleLines() const;
-        u64 firstVisibleLine() const;
-        u64 lastVisibleLine() const;
+        size_t visibleLines() const;
+        size_t firstVisibleLine() const;
+        size_t lastVisibleLine() const;
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
 
     public slots:
@@ -29,7 +29,7 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     private slots:
         void renderListing(const QRect& r = QRect());
-        void renderLine(u64 line);
+        void renderLine(size_t line);
         void moveToSelection();
 
     protected:
@@ -51,10 +51,10 @@ class DisassemblerTextView : public QAbstractScrollArea
         REDasm::ListingDocument& currentDocument();
         const REDasm::ListingDocument& currentDocument() const;
         const REDasm::Symbol *symbolUnderCursor();
-        bool isLineVisible(u64 line) const;
-        bool isColumnVisible(u64 column, u64 *xpos);
-        QRect lineRect(u64 line);
-        void paintLines(u64 first, u64 last);
+        bool isLineVisible(size_t line) const;
+        bool isColumnVisible(size_t column, size_t *xpos);
+        QRect lineRect(size_t line);
+        void paintLines(size_t first, size_t last);
         void blinkCursor();
         void adjustScrollBars();
         void ensureColumnVisible();

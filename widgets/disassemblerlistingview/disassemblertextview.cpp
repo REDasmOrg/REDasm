@@ -213,7 +213,11 @@ void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
     {
         e->accept();
         this->currentDocument()->cursor()->disable();
-        m_renderer->select(e->pos());
+
+        QPoint pos = e->pos();
+        pos.rx() = std::max(0, pos.x());
+        pos.ry() = std::max(0, pos.y());
+        m_renderer->select(pos);
     }
     else
         QAbstractScrollArea::mouseMoveEvent(e);
@@ -268,6 +272,9 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     {
         size_t len = m_renderer->getLastColumn(cur->currentLine());
 
+        if(len == cur->currentColumn())
+            return;
+
         if(e->matches(QKeySequence::MoveToNextChar))
             cur->moveTo(cur->currentLine(), std::min(len, cur->currentColumn() + 1));
         else
@@ -275,10 +282,13 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
     }
     else if(e->matches(QKeySequence::MoveToPreviousChar) || e->matches(QKeySequence::SelectPreviousChar))
     {
+        if(!cur->currentColumn())
+            return;
+
         if(e->matches(QKeySequence::MoveToPreviousChar))
-            cur->moveTo(cur->currentLine(), std::max(static_cast<u64>(0), cur->currentColumn() - 1));
+            cur->moveTo(cur->currentLine(), std::max(size_t(0), cur->currentColumn() - 1));
         else
-            cur->select(cur->currentLine(), std::max(static_cast<u64>(0), cur->currentColumn() - 1));
+            cur->select(cur->currentLine(), std::max(size_t(0), cur->currentColumn() - 1));
     }
     else if(e->matches(QKeySequence::MoveToNextLine) || e->matches(QKeySequence::SelectNextLine))
     {

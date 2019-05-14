@@ -60,7 +60,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         else if(index.column() == 2)
         {
             if((*it)->is(REDasm::ListingItem::InstructionItem))
-                return QString::fromStdString(m_printer->out(document->instruction((*it)->address)));
+                return QString::fromStdString(REDasm::simplified(m_printer->out(document->instruction((*it)->address))));
             else if((*it)->is(REDasm::ListingItem::SymbolItem))
                 return QString::fromStdString(document->symbol((*it)->address)->name);
         }
@@ -121,11 +121,14 @@ QString ReferencesModel::direction(address_t address) const
     REDasm::ListingCursor* cur = m_disassembler->document()->cursor();
     REDasm::ListingItem* item = m_disassembler->document()->itemAt(cur->currentLine());
 
-    if(address > item->address)
-        return "Down";
+    if(item)
+    {
+        if(address > item->address)
+            return "Down";
 
-    if(address < item->address)
-        return "Up";
+        if(address < item->address)
+            return "Up";
+    }
 
     return "---";
 }

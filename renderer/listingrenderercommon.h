@@ -21,7 +21,7 @@ class ListingRendererCommon: public REDasm::ListingRenderer
         REDasm::ListingRenderer::Range wordHitTest(const QPointF& pos);
         std::string getWordFromPos(const QPointF& pos, Range *wordpos = nullptr);
         void selectWordAt(const QPointF &pos);
-        void setFirstVisibleLine(u64 line);
+        void setFirstVisibleLine(size_t line);
         const QFontMetricsF fontMetrics() const;
         qreal maxWidth() const;
 
@@ -32,7 +32,7 @@ class ListingRendererCommon: public REDasm::ListingRenderer
     protected:
         QFontMetricsF m_fontmetrics;
         qreal m_maxwidth;
-        u64 m_firstline;
+        size_t m_firstline;
 };
 
 #endif // LISTINGRENDERERCOMMON_H

@@ -81,7 +81,7 @@ REDasm::ListingRenderer::Range ListingRendererCommon::wordHitTest(const QPointF 
     return wordpos;
 }
 
-void ListingRendererCommon::setFirstVisibleLine(u64 line) { m_firstline = line; }
+void ListingRendererCommon::setFirstVisibleLine(size_t line) { m_firstline = line; }
 const QFontMetricsF ListingRendererCommon::fontMetrics() const { return m_fontmetrics; }
 qreal ListingRendererCommon::maxWidth() const { return m_maxwidth; }
 

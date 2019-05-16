@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <redasm/disassembler/disassemblerapi.h>
-#include "../../models/listingfiltermodel.h"
+#include "../../models/gotomodel/gotofiltermodel.h"
 
 namespace Ui {
 class GotoDialog;
@@ -23,7 +23,7 @@ class GotoDialog : public QDialog
         void validateEntry();
 
     private slots:
-        void onSymbolSelected(const QModelIndex& index);
+        void onItemSelected(const QModelIndex& index);
 
     signals:
         void gotoAddress(address_t address);
@@ -32,7 +32,7 @@ class GotoDialog : public QDialog
     private:
         Ui::GotoDialog *ui;
         REDasm::DisassemblerPtr m_disassembler;
-        ListingFilterModel* m_gotomodel;
+        GotoFilterModel* m_gotomodel;
         address_t m_address;
         bool m_validaddress;
 };

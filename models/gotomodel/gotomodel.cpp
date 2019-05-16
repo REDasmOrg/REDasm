@@ -1,16 +1,22 @@
 #include "gotomodel.h"
-#include "../themeprovider.h"
-#include <redasm/plugins/loader.h>
+#include "../../themeprovider.h"
+#include <redasm/disassembler/disassembler.h>
 
-GotoModel::GotoModel(QObject *parent) : ListingItemModel(REDasm::ListingItem::AllItems, parent) { }
-GotoModel::~GotoModel() { EVENT_DISCONNECT(m_disassembler->document(), changed, this);  }
+GotoModel::GotoModel(QObject *parent) : DisassemblerModel(parent) { }
+
+void GotoModel::setDisassembler(const REDasm::DisassemblerPtr &disassembler)
+{
+    this->beginResetModel();
+    DisassemblerModel::setDisassembler(disassembler);
+    this->endResetModel();
+}
 
 QVariant GotoModel::data(const QModelIndex &index, int role) const
 {
     if(!m_disassembler)
         return QVariant();
 
-    const REDasm::ListingItem* item = this->item(index);
+    const REDasm::ListingItem* item = reinterpret_cast<const REDasm::ListingItem*>(index.internalPointer());
 
     if(!item)
         return QVariant();
@@ -59,7 +65,16 @@ QVariant GotoModel::headerData(int section, Qt::Orientation orientation, int rol
     return DisassemblerModel::headerData(section, orientation, role);
 }
 
+QModelIndex GotoModel::index(int row, int column, const QModelIndex &parent) const
+{
+    if(!m_disassembler)
+        return QModelIndex();
+
+    return this->createIndex(row, column, m_disassembler->document()->itemAt(row));
+}
+
 int GotoModel::columnCount(const QModelIndex &) const { return 3; }
+int GotoModel::rowCount(const QModelIndex &) const { return m_disassembler ? m_disassembler->document()->size() : 0; }
 
 QColor GotoModel::itemColor(const REDasm::ListingItem *item) const
 {
@@ -123,21 +138,4 @@ QString GotoModel::itemType(const REDasm::ListingItem *item) const
         return "SYMBOL";
 
     return QString();
-}
-
-bool GotoModel::isItemAllowed(const REDasm::ListingItem *item) const
-{
-    switch(item->type)
-    {
-        case REDasm::ListingItem::SegmentItem:
-        case REDasm::ListingItem::FunctionItem:
-        case REDasm::ListingItem::SymbolItem:
-        case REDasm::ListingItem::TypeItem:
-            return true;
-
-        default:
-            break;
-    }
-
-    return false;
 }

@@ -484,6 +484,11 @@ const REDasm::ListingItem *DisassemblerView::itemFromIndex(const QModelIndex &in
     if(filtermodel)
         return filtermodel->item(index);
 
+    const GotoModel* gotomodel = dynamic_cast<const GotoModel*>(index.model());
+
+    if(gotomodel)
+        return reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
+
     return nullptr;
 }
 

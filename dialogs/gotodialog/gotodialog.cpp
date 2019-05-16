@@ -1,12 +1,11 @@
 #include "gotodialog.h"
 #include "ui_gotodialog.h"
-#include "../../models/gotomodel.h"
 
 GotoDialog::GotoDialog(const REDasm::DisassemblerPtr& disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_disassembler(disassembler), m_address(0), m_validaddress(false)
 {
     ui->setupUi(this);
 
-    m_gotomodel = ListingFilterModel::createFilter<GotoModel>(ui->tvFunctions);
+    m_gotomodel = new GotoFilterModel(ui->tvFunctions);
     m_gotomodel->setDisassembler(disassembler);
 
     ui->tvFunctions->setModel(m_gotomodel);
@@ -16,7 +15,7 @@ GotoDialog::GotoDialog(const REDasm::DisassemblerPtr& disassembler, QWidget *par
     connect(ui->leAddress, &QLineEdit::textChanged, this, [=](const QString) { this->validateEntry(); });
     connect(ui->leAddress, &QLineEdit::returnPressed, this, &GotoDialog::accept);
 
-    connect(ui->tvFunctions, &QTableView::doubleClicked, this, &GotoDialog::onSymbolSelected);
+    connect(ui->tvFunctions, &QTableView::doubleClicked, this, &GotoDialog::onItemSelected);
     connect(ui->tvFunctions, &QTableView::doubleClicked, this, &GotoDialog::accept);
 
     connect(ui->pbGoto, &QPushButton::clicked, this, &GotoDialog::accept);
@@ -35,18 +34,18 @@ void GotoDialog::validateEntry()
     {
         m_validaddress = false;
         ui->pbGoto->setEnabled(false);
-        m_gotomodel->clearFilter();
+        m_gotomodel->setFilterFixedString(QString());
         return;
     }
 
     m_address = s.toULongLong(&ok, 16);
     ui->pbGoto->setEnabled(ok);
     m_validaddress = ok;
-    m_gotomodel->setFilter(s);
+    m_gotomodel->setFilterFixedString(s);
 }
 
-void GotoDialog::onSymbolSelected(const QModelIndex &index)
+void GotoDialog::onItemSelected(const QModelIndex &index)
 {
     m_validaddress = false;
-    emit symbolSelected(index);
+    emit symbolSelected(m_gotomodel->mapToSource(index));
 }

@@ -219,7 +219,7 @@ void DisassemblerView::updateCurrentFilter(int index)
 
 void DisassemblerView::gotoXRef(const QModelIndex &index)
 {
-    if(!index.isValid() || !index.internalPointer())
+    if(!index.isValid() || !index.internalId())
         return;
 
     ui->tabView->setCurrentWidget(ui->tabListing);
@@ -228,10 +228,15 @@ void DisassemblerView::gotoXRef(const QModelIndex &index)
 
 void DisassemblerView::goTo(const QModelIndex &index)
 {
-    if(!index.isValid() || !index.internalPointer())
+    if(!index.isValid())
         return;
 
-    m_disassembler->document()->goTo(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer()));
+    const REDasm::ListingItem* item = this->itemFromIndex(index);
+
+    if(!item)
+        return;
+
+    m_disassembler->document()->goTo(item);
 
     if(!m_graphview->isCursorInGraph())
         ui->stackedWidget->setCurrentWidget(m_listingview);
@@ -241,16 +246,13 @@ void DisassemblerView::goTo(const QModelIndex &index)
 
 void DisassemblerView::showModelReferences()
 {
-    if(!m_currentindex.isValid() || !m_currentindex.internalPointer())
+    if(!m_currentindex.isValid())
         return;
 
-    REDasm::ListingItem* item = nullptr;
-    const QAbstractProxyModel* proxymodel = dynamic_cast<const QAbstractProxyModel*>(m_currentindex.model());
+    const REDasm::ListingItem* item = this->itemFromIndex(m_currentindex);
 
-    if(proxymodel)
-        item = reinterpret_cast<REDasm::ListingItem*>(proxymodel->mapToSource(m_currentindex).internalPointer());
-    else
-        item = reinterpret_cast<REDasm::ListingItem*>(m_currentindex.internalPointer());
+    if(!item)
+        return;
 
     const REDasm::Symbol* symbol = nullptr;
 
@@ -474,6 +476,16 @@ void DisassemblerView::showGoto()
 
 void DisassemblerView::goForward() { m_disassembler->document()->cursor()->goForward(); }
 void DisassemblerView::goBack() { m_disassembler->document()->cursor()->goBack(); }
+
+const REDasm::ListingItem *DisassemblerView::itemFromIndex(const QModelIndex &index) const
+{
+    const ListingFilterModel* filtermodel = dynamic_cast<const ListingFilterModel*>(index.model());
+
+    if(filtermodel)
+        return filtermodel->item(index);
+
+    return nullptr;
+}
 
 void DisassemblerView::syncHexEdit()
 {

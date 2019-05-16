@@ -4,7 +4,8 @@
 
 ListingFilterModel::ListingFilterModel(QObject *parent) : QIdentityProxyModel(parent) { }
 const QString &ListingFilterModel::filter() const { return m_filterstring; }
-void ListingFilterModel::setDisassembler(const REDasm::DisassemblerPtr& disassembler) { reinterpret_cast<ListingItemModel*>(this->sourceModel())->setDisassembler(disassembler); }
+const REDasm::ListingItem *ListingFilterModel::item(const QModelIndex &index) const { return static_cast<ListingItemModel*>(this->sourceModel())->item(this->mapToSource(index));  }
+void ListingFilterModel::setDisassembler(const REDasm::DisassemblerPtr& disassembler) { static_cast<ListingItemModel*>(this->sourceModel())->setDisassembler(disassembler); }
 
 void ListingFilterModel::setFilter(const QString &filter)
 {
@@ -40,7 +41,7 @@ QModelIndex ListingFilterModel::index(int row, int column, const QModelIndex&) c
     if(m_filtereditems.empty())
         return QModelIndex();
 
-    return this->createIndex(row, column, m_filtereditems[row]);
+    return this->createIndex(row, column);
 }
 
 QModelIndex ListingFilterModel::mapFromSource(const QModelIndex &sourceindex) const
@@ -48,8 +49,13 @@ QModelIndex ListingFilterModel::mapFromSource(const QModelIndex &sourceindex) co
     if(!this->canFilter() || !sourceindex.isValid())
         return QIdentityProxyModel::mapFromSource(sourceindex);
 
-    REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(sourceindex.internalPointer());
-    size_t idx = m_filtereditems.indexOf(item);
+    ListingItemModel* listingitemmodel = reinterpret_cast<ListingItemModel*>(this->sourceModel());
+    auto location = listingitemmodel->address(sourceindex);
+
+    if(!location.valid)
+        return QModelIndex();
+
+    size_t idx = m_filtereditems.indexOf(location);
 
     if(idx == REDasm::npos)
         return QModelIndex();
@@ -63,8 +69,7 @@ QModelIndex ListingFilterModel::mapToSource(const QModelIndex &proxyindex) const
         return QIdentityProxyModel::mapToSource(proxyindex);
 
     ListingItemModel* listingitemmodel = reinterpret_cast<ListingItemModel*>(this->sourceModel());
-    REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(proxyindex.internalPointer());
-    size_t idx = listingitemmodel->m_items.indexOf(item);
+    size_t idx = listingitemmodel->m_items.indexOf(m_filtereditems[proxyindex.row()]);
 
     if(idx == REDasm::npos)
         return QModelIndex();
@@ -79,19 +84,19 @@ void ListingFilterModel::updateFiltering()
 
     if(this->canFilter())
     {
-        QAbstractItemModel* sourcemodel = this->sourceModel();
+        ListingItemModel* listingitemmodel = reinterpret_cast<ListingItemModel*>(this->sourceModel());
 
-        for(int i = 0; i < sourcemodel->rowCount(); i++)
+        for(int i = 0; i < listingitemmodel->rowCount(); i++)
         {
-            for(int j = 0; j < sourcemodel->columnCount(); j++)
+            for(int j = 0; j < listingitemmodel->columnCount(); j++)
             {
-                QModelIndex index = sourcemodel->index(i, j);
-                QVariant data = sourcemodel->data(index);
+                QModelIndex index = listingitemmodel->index(i, j);
+                QVariant data = listingitemmodel->data(index);
 
                 if((data.type() != QVariant::String) || (data.toString().indexOf(m_filterstring, 0, Qt::CaseInsensitive) == -1))
                     continue;
 
-                m_filtereditems.append(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer()));
+                m_filtereditems.push_back(listingitemmodel->address(index));
                 break;
             }
         }

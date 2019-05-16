@@ -10,7 +10,10 @@ QVariant GotoModel::data(const QModelIndex &index, int role) const
     if(!m_disassembler)
         return QVariant();
 
-    const REDasm::ListingItem* item = reinterpret_cast<const REDasm::ListingItem*>(index.internalPointer());
+    const REDasm::ListingItem* item = this->item(index);
+
+    if(!item)
+        return QVariant();
 
     if(role == Qt::DisplayRole)
     {

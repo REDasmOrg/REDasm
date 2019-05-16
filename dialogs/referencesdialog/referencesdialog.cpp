@@ -19,7 +19,7 @@ ReferencesDialog::~ReferencesDialog() { delete ui; }
 
 void ReferencesDialog::on_tvReferences_doubleClicked(const QModelIndex &index)
 {
-    if(!index.isValid() || !index.internalPointer())
+    if(!index.isValid() || !index.internalId())
         return;
 
     emit jumpTo(index.internalId());

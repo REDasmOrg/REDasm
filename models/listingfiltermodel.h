@@ -11,6 +11,7 @@ class ListingFilterModel : public QIdentityProxyModel
     public:
         explicit ListingFilterModel(QObject *parent = nullptr);
         const QString& filter() const;
+        const REDasm::ListingItem* item(const QModelIndex& index) const;
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
         void setFilter(const QString& filter);
         void clearFilter();
@@ -30,7 +31,7 @@ class ListingFilterModel : public QIdentityProxyModel
         template<typename T> static ListingFilterModel* createFilter(size_t filter, QObject* parent);
 
     private:
-        QVector<REDasm::ListingItem*> m_filtereditems;
+        QList<address_t> m_filtereditems;
         QString m_filterstring;
 };
 

@@ -62,7 +62,7 @@ void DisassemblerViewActions::initActions()
         else if(a->objectName().endsWith("Forward"))
             this->showAction(DisassemblerViewActions::ForwardAction, a, THEME_ICON("forward"), &DisassemblerViewActions::forwardRequested);
         else if(a->objectName().endsWith("Goto"))
-            this->showAction(DisassemblerViewActions::GotoAction, a, THEME_ICON("goto"), &DisassemblerViewActions::forwardRequested);
+            this->showAction(DisassemblerViewActions::GotoAction, a, THEME_ICON("goto"), &DisassemblerViewActions::gotoRequested);
         else if(a->objectName().endsWith("Graph"))
             this->showAction(DisassemblerViewActions::GraphListingAction, a, THEME_ICON("graph"), &DisassemblerViewActions::graphListingRequested);
     });

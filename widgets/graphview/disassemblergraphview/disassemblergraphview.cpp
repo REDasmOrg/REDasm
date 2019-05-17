@@ -19,6 +19,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent)
     connect(m_disassembleractions, &DisassemblerActions::referencesRequested, this, &DisassemblerGraphView::referencesRequested);
     connect(m_disassembleractions, &DisassemblerActions::switchToHexDump, this, &DisassemblerGraphView::switchToHexDump);
     connect(m_disassembleractions, &DisassemblerActions::callGraphRequested, this, &DisassemblerGraphView::callGraphRequested);
+    connect(m_disassembleractions, &DisassemblerActions::itemInformationRequested, this, &DisassemblerGraphView::itemInformationRequested);
 }
 
 DisassemblerGraphView::~DisassemblerGraphView()

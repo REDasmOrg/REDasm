@@ -42,6 +42,7 @@ class DisassemblerView : public QWidget
         void gotoXRef(const QModelIndex &index);
         void goTo(const QModelIndex &index);
         void showModelReferences();
+        void showCurrentItemInfo();
         void showReferences(address_t address);
         void displayAddress(address_t address);
         void displayCurrentReferences();

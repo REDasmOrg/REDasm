@@ -47,6 +47,7 @@ class DisassemblerGraphView : public GraphView
         void hexDumpRequested(address_t address, u64 len);
         void referencesRequested(address_t address);
         void callGraphRequested(address_t address);
+        void itemInformationRequested();
         void gotoDialogRequested();
         void switchToHexDump();
 

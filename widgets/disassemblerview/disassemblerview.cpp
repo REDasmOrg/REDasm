@@ -1,5 +1,6 @@
 ﻿#include "disassemblerview.h"
 #include "ui_disassemblerview.h"
+#include "../../dialogs/dev/iteminformationdialog/iteminformationdialog.h"
 #include "../../dialogs/referencesdialog/referencesdialog.h"
 #include "../../themeprovider.h"
 #include "../../redasmsettings.h"
@@ -84,6 +85,7 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     connect(m_graphview, &DisassemblerGraphView::hexDumpRequested, this, &DisassemblerView::selectToHexDump);
     connect(m_graphview, &DisassemblerGraphView::referencesRequested, this, &DisassemblerView::showReferences);
     connect(m_graphview, &DisassemblerGraphView::switchToHexDump, this, &DisassemblerView::switchToHexDump);
+    connect(m_graphview, &DisassemblerGraphView::itemInformationRequested, this, &DisassemblerView::showCurrentItemInfo);
     connect(m_graphview, &DisassemblerGraphView::callGraphRequested, m_docks, &DisassemblerViewDocks::initializeCallGraph);
 
     connect(m_actions, &DisassemblerViewActions::backRequested, this, &DisassemblerView::goBack);
@@ -152,6 +154,7 @@ void DisassemblerView::bindDisassembler(REDasm::DisassemblerAPI *disassembler, b
     connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::hexDumpRequested, this, &DisassemblerView::selectToHexDump);
     connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::referencesRequested, this, &DisassemblerView::showReferences);
     connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::switchToHexDump, this, &DisassemblerView::switchToHexDump);
+    connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::itemInformationRequested, this, &DisassemblerView::showCurrentItemInfo);
     connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::callGraphRequested, m_docks, &DisassemblerViewDocks::initializeCallGraph);
 
     m_actions->setEnabled(DisassemblerViewActions::BackAction, m_disassembler->document()->cursor()->canGoBack());
@@ -265,6 +268,12 @@ void DisassemblerView::showModelReferences()
         symbol = m_disassembler->document()->symbol(item->address);
 
     this->showReferences(symbol->address);
+}
+
+void DisassemblerView::showCurrentItemInfo()
+{
+    ItemInformationDialog dlgiteminfo(m_disassembler, this);
+    dlgiteminfo.exec();
 }
 
 void DisassemblerView::showReferences(address_t address)

@@ -13,7 +13,8 @@ class DisassemblerActions : public QObject
     public:
         enum { Rename = 0, XRefs, Follow, FollowPointerHexDump,
                CallGraph, Goto, HexDump, HexDumpFunction, Comment,
-               Back, Forward, Copy };
+               Back, Forward, Copy,
+               ItemInformation };
 
     public:
         explicit DisassemblerActions(QWidget *parent = nullptr);
@@ -48,6 +49,7 @@ class DisassemblerActions : public QObject
         void hexDumpRequested(address_t address, u64 len);
         void referencesRequested(address_t address);
         void callGraphRequested(address_t address);
+        void itemInformationRequested();
         void gotoDialogRequested();
         void switchToHexDump();
 

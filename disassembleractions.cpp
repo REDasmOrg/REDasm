@@ -29,6 +29,7 @@ void DisassemblerActions::adjustActions()
     m_actions[DisassemblerActions::Forward]->setVisible(lock->cursor()->canGoForward());
     m_actions[DisassemblerActions::Copy]->setVisible(lock->cursor()->hasSelection());
     m_actions[DisassemblerActions::Goto]->setVisible(!m_renderer->disassembler()->busy());
+    m_actions[DisassemblerActions::ItemInformation]->setVisible(!m_renderer->disassembler()->busy());
 
     if(!symbol)
     {
@@ -95,6 +96,7 @@ void DisassemblerActions::createActions()
     m_actions[DisassemblerActions::Forward] = m_contextmenu->addAction("Forward", this, &DisassemblerActions::goForward, QKeySequence(Qt::CTRL + Qt::Key_Right));
     m_contextmenu->addSeparator();
     m_actions[DisassemblerActions::Copy] = m_contextmenu->addAction("Copy", this, &DisassemblerActions::copy, QKeySequence(QKeySequence::Copy));
+    m_actions[DisassemblerActions::ItemInformation] = m_contextmenu->addAction("Item Information", this, &DisassemblerActions::itemInformationRequested);
 
     if(pw)
     {

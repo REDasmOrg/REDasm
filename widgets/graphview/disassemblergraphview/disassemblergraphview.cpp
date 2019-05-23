@@ -61,7 +61,7 @@ void DisassemblerGraphView::computeLayout()
 
     for(const auto& n : this->graph()->nodes())
     {
-        const auto* fbb = static_cast<REDasm::Graphing::FunctionGraph*>(this->graph())->data(n);
+        const auto* fbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(n);
         auto* dbi = new DisassemblerBlockItem(fbb, m_disassembler, n, this->viewport());
         connect(dbi, &DisassemblerBlockItem::followRequested, this, &DisassemblerGraphView::onFollowRequested);
         connect(dbi, &DisassemblerBlockItem::menuRequested, this, &DisassemblerGraphView::onMenuRequested);

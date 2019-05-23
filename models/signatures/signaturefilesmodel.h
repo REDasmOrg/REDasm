@@ -2,9 +2,9 @@
 #define SIGNATUREFILESMODEL_H
 
 #include <QAbstractListModel>
-#include <redasm/disassembler/disassemblerapi.h>
-#include <redasm/database/signaturedb.h>
-#include <redasm/plugins/loader.h>
+#include <core/disassembler/disassemblerapi.h>
+#include <core/database/signaturedb.h>
+#include <core/plugins/loader.h>
 #include <json.hpp>
 
 class SignatureFilesModel : public QAbstractListModel

@@ -1,5 +1,5 @@
 #include "calltreemodel.h"
-#include <redasm/plugins/loader.h>
+#include <core/plugins/loader.h>
 #include "../themeprovider.h"
 #include <QFontDatabase>
 #include <QColor>

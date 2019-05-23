@@ -1,6 +1,6 @@
 #include "unittest.h"
 #include "disassemblertest.h"
-#include <redasm/redasm_context.h>
+#include <core/redasm_context.h>
 
 int UnitTest::run()
 {

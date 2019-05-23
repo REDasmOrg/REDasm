@@ -1,5 +1,5 @@
 #include "disassemblertest.h"
-#include <redasm/disassembler/disassembler.h>
+#include <core/disassembler/disassembler.h>
 #include <QStandardPaths>
 #include <QApplication>
 #include <iostream>

@@ -2,7 +2,7 @@
 #define ITEMINFORMATIONDIALOG_H
 
 #include <QDialog>
-#include <redasm/disassembler/disassembler.h>
+#include <core/disassembler/disassembler.h>
 
 namespace Ui {
 class ItemInformationDialog;

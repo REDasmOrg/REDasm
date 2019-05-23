@@ -1,5 +1,5 @@
 #include "signaturefilesmodel.h"
-#include <redasm/redasm.h>
+#include <core/redasm.h>
 #include <QFileInfo>
 #include <QDirIterator>
 #include <QDir>

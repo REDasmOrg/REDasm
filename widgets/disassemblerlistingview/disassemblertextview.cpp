@@ -1,6 +1,6 @@
 #include "disassemblertextview.h"
 #include "../../models/disassemblermodel.h"
-#include <redasm/plugins/loader.h>
+#include <core/plugins/loader.h>
 #include <QtWidgets>
 #include <QtGui>
 #include <cmath>

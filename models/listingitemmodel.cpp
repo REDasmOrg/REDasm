@@ -1,7 +1,7 @@
 #include "listingitemmodel.h"
-#include <redasm/disassembler/listing/listingdocument.h>
-#include <redasm/support/demangler.h>
-#include <redasm/plugins/loader.h>
+#include <core/disassembler/listing/listingdocument.h>
+#include <core/support/demangler.h>
+#include <core/plugins/loader.h>
 #include "../themeprovider.h"
 #include <QColor>
 

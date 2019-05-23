@@ -5,7 +5,7 @@
 #include <QTextOption>
 #include <QFontMetrics>
 #include <QFont>
-#include <redasm/disassembler/listing/listingrenderer.h>
+#include <core/disassembler/listing/listingrenderer.h>
 #include "listingrenderercommon.h"
 
 class ListingTextRenderer: public ListingRendererCommon

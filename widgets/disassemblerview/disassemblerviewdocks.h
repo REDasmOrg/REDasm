@@ -6,7 +6,7 @@
 #include <QTabWidget>
 #include <QTableView>
 #include <QTreeView>
-#include <redasm/disassembler/disassemblerapi.h>
+#include <core/disassembler/disassemblerapi.h>
 #include "../../models/listingfiltermodel.h"
 #include "../../models/calltreemodel.h"
 #include "../../models/referencesmodel.h"

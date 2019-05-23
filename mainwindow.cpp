@@ -7,7 +7,7 @@
 #include "ui/redasmui.h"
 #include "redasmsettings.h"
 #include "themeprovider.h"
-#include <redasm/database/database.h>
+#include <core/database/database.h>
 #include <QtWidgets>
 #include <QtCore>
 #include <QtGui>

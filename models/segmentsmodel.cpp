@@ -1,5 +1,5 @@
 #include "segmentsmodel.h"
-#include <redasm/plugins/loader.h>
+#include <core/plugins/loader.h>
 #include <QColor>
 #include "../themeprovider.h"
 

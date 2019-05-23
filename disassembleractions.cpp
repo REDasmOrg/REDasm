@@ -1,6 +1,6 @@
 #include "disassembleractions.h"
-#include <redasm/disassembler/listing/listingdocument.h>
-#include <redasm/plugins/assembler/assembler.h>
+#include <core/disassembler/listing/listingdocument.h>
+#include <core/plugins/assembler/assembler.h>
 #include <QApplication>
 #include <QInputDialog>
 #include <QMessageBox>

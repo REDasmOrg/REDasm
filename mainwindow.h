@@ -5,8 +5,8 @@
 #include <QPushButton>
 #include <QFileInfo>
 #include <QLabel>
-#include <redasm/plugins/plugins.h>
-#include <redasm/disassembler/disassembler.h>
+#include <core/plugins/plugins.h>
+#include <core/disassembler/disassembler.h>
 #include "widgets/disassemblerview/disassemblerview.h"
 #include "dialogs/loaderdialog/loaderdialog.h"
 

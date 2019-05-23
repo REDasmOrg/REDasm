@@ -3,7 +3,7 @@
 
 #include <QStandardItemModel>
 #include <QDialog>
-#include <redasm/plugins/plugins.h>
+#include <core/plugins/plugins.h>
 
 namespace Ui {
 class LoaderDialog;

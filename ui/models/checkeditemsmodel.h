@@ -2,7 +2,7 @@
 #define CHECKEDITEMSMODEL_H
 
 #include <QAbstractListModel>
-#include <redasm/redasm_ui.h>
+#include <core/redasm_ui.h>
 
 class CheckedItemsModel : public QAbstractListModel
 {

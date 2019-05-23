@@ -1,7 +1,7 @@
 #include "disassemblergraphview.h"
 #include "../../../models/disassemblermodel.h"
 #include "../../../redasmsettings.h"
-#include <redasm/graph/layout/layeredlayout.h>
+#include <core/graph/layout/layeredlayout.h>
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QPainter>

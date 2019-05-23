@@ -8,8 +8,8 @@
 #include <QAbstractScrollArea>
 #include <QVector>
 #include <QList>
-#include <redasm/disassembler/disassemblerapi.h>
-#include <redasm/graph/graph.h>
+#include <core/disassembler/disassemblerapi.h>
+#include <core/graph/graph.h>
 #include "../../../themeprovider.h"
 #include "graphviewitem.h"
 

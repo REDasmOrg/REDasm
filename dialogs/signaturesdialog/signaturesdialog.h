@@ -5,7 +5,7 @@
 #include <QDialog>
 #include "../models/signatures/signaturefilesmodel.h"
 #include "../models/signatures/signaturesmodel.h"
-#include <redasm/disassembler/disassemblerapi.h>
+#include <core/disassembler/disassemblerapi.h>
 
 namespace Ui {
 class SignaturesDialog;

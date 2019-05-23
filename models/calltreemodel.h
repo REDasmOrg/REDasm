@@ -3,9 +3,9 @@
 
 #include <QAbstractItemModel>
 #include <QHash>
-#include <redasm/disassembler/disassemblerapi.h>
-#include <redasm/plugins/assembler/printer.h>
-#include <redasm/disassembler/listing/listingdocument.h>
+#include <core/disassembler/disassemblerapi.h>
+#include <core/plugins/assembler/printer.h>
+#include <core/disassembler/listing/listingdocument.h>
 
 class CallTreeModel : public QAbstractItemModel
 {

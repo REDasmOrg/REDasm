@@ -2,7 +2,7 @@
 #define REFERENCESMODEL_H
 
 #include <QJsonObject>
-#include <redasm/plugins/assembler/printer.h>
+#include <core/plugins/assembler/printer.h>
 #include "disassemblermodel.h"
 
 class ReferencesModel : public DisassemblerModel

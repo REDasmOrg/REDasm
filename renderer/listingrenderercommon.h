@@ -5,8 +5,8 @@
 #include <QTextCursor>
 #include <QHash>
 #include <QFont>
-#include <redasm/disassembler/listing/listingdocument.h>
-#include <redasm/disassembler/listing/listingrenderer.h>
+#include <core/disassembler/listing/listingdocument.h>
+#include <core/disassembler/listing/listingrenderer.h>
 
 #define CURSOR_BLINK_INTERVAL 500  // 500ms
 

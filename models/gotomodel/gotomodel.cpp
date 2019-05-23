@@ -1,6 +1,6 @@
 #include "gotomodel.h"
 #include "../../themeprovider.h"
-#include <redasm/disassembler/disassembler.h>
+#include <core/disassembler/disassembler.h>
 
 GotoModel::GotoModel(QObject *parent) : DisassemblerModel(parent) { }
 

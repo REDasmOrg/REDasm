@@ -1,7 +1,7 @@
 #include "referencesmodel.h"
-#include <redasm/disassembler/types/referencetable.h>
-#include <redasm/disassembler/listing/listingdocument.h>
-#include <redasm/plugins/loader.h>
+#include <core/disassembler/types/referencetable.h>
+#include <core/disassembler/listing/listingdocument.h>
+#include <core/plugins/loader.h>
 #include "../themeprovider.h"
 
 ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent) { }

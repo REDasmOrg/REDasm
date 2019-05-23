@@ -5,7 +5,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QRect>
-#include <redasm/graph/graph.h>
+#include <core/graph/graph.h>
 
 class GraphViewItem: public QObject
 {

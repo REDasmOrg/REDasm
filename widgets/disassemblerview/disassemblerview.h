@@ -5,7 +5,7 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QHexView/qhexview.h>
-#include <redasm/disassembler/disassembler.h>
+#include <core/disassembler/disassembler.h>
 #include "../../models/symboltablemodel.h"
 #include "../../models/segmentsmodel.h"
 #include "../../dialogs/gotodialog/gotodialog.h"

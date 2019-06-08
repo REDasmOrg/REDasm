@@ -1,7 +1,7 @@
 #include "listingmap.h"
 #include "../themeprovider.h"
-#include <core/graph/functiongraph.h>
-#include <core/plugins/loader.h>
+#include <redasm/graph/functiongraph.h>
+#include <redasm/plugins/loader/loader.h>
 #include <QPainter>
 #include <cmath>
 
@@ -112,12 +112,13 @@ void ListingMap::renderSegments(QPainter* painter)
 void ListingMap::renderFunctions(QPainter *painter)
 {
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
-    u64 fsize = (m_orientation == Qt::Horizontal ? this->height() : this->width()) / 2;
+    size_t fsize = (m_orientation == Qt::Horizontal ? this->height() : this->width()) / 2;
 
-    for(const REDasm::ListingItem* item : lock->functions())
+    for(size_t i = 0; i < lock->functions()->size(); i++)
     {
-        const REDasm::Symbol* symbol = lock->symbol(item->address);
-        const REDasm::Graphing::FunctionGraph* g = lock->functions().graph(item);
+        const REDasm::ListingItem* item = lock->functions()->at(i);
+        const REDasm::Symbol* symbol = lock->symbol(item->address());
+        const REDasm::Graphing::FunctionGraph* g = lock->functions()->graph(item);
 
         if(!g)
             continue;
@@ -129,7 +130,7 @@ void ListingMap::renderFunctions(QPainter *painter)
             if(!fbb)
                 continue;
 
-            QRect r = this->buildRect(this->calculatePosition(fbb->startidx), this->calculateSize(fbb->count()));
+            QRect r = this->buildRect(this->calculatePosition(fbb->startIndex()), this->calculateSize(fbb->count()));
 
             if(m_orientation == Qt::Horizontal)
                 r.setHeight(fsize);
@@ -151,7 +152,7 @@ void ListingMap::renderSeek(QPainter *painter)
     if(!item)
         return;
 
-    offset_location offset  = m_disassembler->loader()->offset(item->address);
+    offset_location offset  = m_disassembler->loader()->offset(item->address());
 
     if(!offset.valid)
         return;

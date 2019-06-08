@@ -2,7 +2,7 @@
 #define DISASSEMBLERBLOCKITEM_H
 
 #include <QTextDocument>
-#include <core/graph/functiongraph.h>
+#include <redasm/graph/functiongraph.h>
 #include "../../../renderer/listingdocumentrenderer.h"
 #include "../../../disassembleractions.h"
 #include "../graphviewitem.h"

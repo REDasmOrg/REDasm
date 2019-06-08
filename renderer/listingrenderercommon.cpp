@@ -7,25 +7,26 @@
 #include <QTextDocument>
 #include <QPalette>
 #include <QPainter>
+#include <cmath>
 
-ListingRendererCommon::ListingRendererCommon(REDasm::DisassemblerAPI *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(REDasmSettings::font()), m_maxwidth(0), m_firstline(0) { }
+ListingRendererCommon::ListingRendererCommon(REDasm::Disassembler *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(REDasmSettings::font()), m_maxwidth(0), m_firstline(0) { }
 
 void ListingRendererCommon::moveTo(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos);
-    m_cursor->moveTo(cp.first, cp.second);
+    this->cursor()->moveTo(cp.first, cp.second);
 }
 
 void ListingRendererCommon::select(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos);
-    m_cursor->select(cp.first, cp.second);
+    this->cursor()->select(cp.first, cp.second);
 }
 
 REDasm::ListingCursor::Position ListingRendererCommon::hitTest(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp;
-    cp.first = std::min(static_cast<size_t>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), m_document->lastLine());
+    cp.first = std::min(static_cast<size_t>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), this->document()->lastLine());
     cp.second = std::numeric_limits<size_t>::max();
 
     REDasm::RendererLine rl(true);

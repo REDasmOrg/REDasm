@@ -1,11 +1,12 @@
 #include "disassemblergraphview.h"
 #include "../../../models/disassemblermodel.h"
 #include "../../../redasmsettings.h"
-#include <core/graph/layout/layeredlayout.h>
+#include <redasm/graph/layout/layeredlayout.h>
+#include <redasm/support/utils.h>
+#include <redasm/context.h>
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QPainter>
-#include <QDebug>
 #include <QAction>
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent), m_currentfunction(nullptr)
@@ -133,11 +134,11 @@ bool DisassemblerGraphView::renderGraph()
         return true;
 
     m_currentfunction = currentfunction;
-    auto* graph = document->functions().graph(currentfunction);
+    auto* graph = document->functions()->graph(currentfunction);
 
     if(!graph)
     {
-        REDasm::log("Graph creation failed @ " + REDasm::hex(currentfunction->address));
+        r_ctx->log("Graph creation failed @ " + REDasm::Utils::hex(currentfunction->address()));
         return false;
     }
 
@@ -210,21 +211,21 @@ std::string DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Edge &e)
     const REDasm::Graphing::FunctionBasicBlock* fromfbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(e.source);
     const REDasm::Graphing::FunctionBasicBlock* tofbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(e.target);
     REDasm::ListingDocument& document = m_disassembler->document();
-    const REDasm::ListingItem* fromitem = document->itemAt(fromfbb->endidx);
-    REDasm::InstructionPtr instruction = document->instruction(fromitem->address);
+    const REDasm::ListingItem* fromitem = document->itemAt(fromfbb->endIndex());
+    REDasm::InstructionPtr instruction = document->instruction(fromitem->address());
     std::string label;
 
     if(instruction && instruction->is(REDasm::InstructionType::Conditional))
     {
-        const REDasm::ListingItem* toitem = document->itemAt(tofbb->startidx);
+        const REDasm::ListingItem* toitem = document->itemAt(tofbb->startIndex());
 
-        if(m_disassembler->getTarget(instruction->address) == toitem->address)
+        if(m_disassembler->getTarget(instruction->address) == toitem->address())
             label = "TRUE";
         else
             label = "FALSE";
     }
 
-    if(tofbb->startidx <= fromfbb->startidx)
+    if(!(tofbb->startIndex() > fromfbb->startIndex()))
         label += !label.empty() ? " (LOOP)" : "LOOP";
 
     return label;
@@ -240,8 +241,8 @@ GraphViewItem *DisassemblerGraphView::itemFromCurrentLine() const
 
     size_t line = cursor->currentLine();
 
-    if(item->is(REDasm::ListingItem::FunctionItem)) // Adjust to instruction
-        line = m_disassembler->document()->instructionIndex(item->address);
+    if(item->is(REDasm::ListingItemType::FunctionItem)) // Adjust to instruction
+        line = m_disassembler->document()->instructionIndex(item->address());
 
     for(const auto& item : m_items)
     {

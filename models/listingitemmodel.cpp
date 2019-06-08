@@ -1,11 +1,14 @@
 #include "listingitemmodel.h"
-#include <core/disassembler/listing/listingdocument.h>
-#include <core/support/demangler.h>
-#include <core/plugins/loader.h>
+#include <redasm/disassembler/listing/listingdocumentiterator.h>
+#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/plugins/assembler/assembler.h>
+#include <redasm/plugins/loader/loader.h>
+#include <redasm/support/demangler.h>
+#include <redasm/support/utils.h>
 #include "../themeprovider.h"
 #include <QColor>
 
-ListingItemModel::ListingItemModel(size_t itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
+ListingItemModel::ListingItemModel(REDasm::ListingItemType itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(REDasm::ListingItemType::Undefined) { }
 
 void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
@@ -13,17 +16,19 @@ void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembl
     auto& document = m_disassembler->document();
 
     this->beginResetModel();
+    REDasm::ListingDocumentIterator it(document);
 
-    for(auto it = document->begin(); it != document->end(); it++)
+    while(it.hasNext())
     {
-        if(!this->isItemAllowed(it->get()))
+        const REDasm::ListingItem* item = it.next();
+
+        if(!this->isItemAllowed(item))
             continue;
 
-        m_items.insert((*it)->address);
+        m_items.insert(item->address());
     }
 
     this->endResetModel();
-
     EVENT_CONNECT(document, changed, this, std::bind(&ListingItemModel::onListingChanged, this, std::placeholders::_1));
 }
 
@@ -33,21 +38,21 @@ const REDasm::ListingItem *ListingItemModel::item(const QModelIndex &index) cons
         return nullptr;
 
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
-    REDasm::ListingDocumentType::const_iterator it = lock->end();
+    const REDasm::ListingItem* item = nullptr;
 
-    if(m_itemtype == REDasm::ListingItem::SegmentItem)
-        it = lock->segmentItem(m_items[index.row()]);
-    else if(m_itemtype == REDasm::ListingItem::FunctionItem)
-        it = lock->functionItem(m_items[index.row()]);
+    if(m_itemtype == REDasm::ListingItemType::SegmentItem)
+        item = lock->segmentItem(m_items[index.row()]);
+    else if(m_itemtype == REDasm::ListingItemType::FunctionItem)
+        item = lock->functionItem(m_items[index.row()]);
     else
     {
-        it = lock->instructionItem(m_items[index.row()]); // Try to get an instruction
+        item = lock->instructionItem(m_items[index.row()]); // Try to get an instruction
 
-        if(it == lock->end())
-            it = lock->symbolItem(m_items[index.row()]);  // Try to get an symbol
+        if(!item)
+            item = lock->symbolItem(m_items[index.row()]);  // Try to get an symbol
     }
 
-    return (it != lock->end()) ? it->get() : nullptr;
+    return item;
 }
 
 address_location ListingItemModel::address(const QModelIndex &index) const
@@ -105,14 +110,14 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(symbol->address, m_disassembler->assembler()->bits()));
+            return S_TO_QS(REDasm::Utils::hex(symbol->address, m_disassembler->assembler()->bits()));
 
         if(index.column() == 1)
         {
             if(symbol->is(REDasm::SymbolType::WideStringMask))
-                return S_TO_QS(REDasm::quoted(m_disassembler->readWString(symbol)));
+                return S_TO_QS(REDasm::Utils::quoted(m_disassembler->readWString(symbol)));
             else if(symbol->is(REDasm::SymbolType::StringMask))
-                return S_TO_QS(REDasm::quoted(m_disassembler->readString(symbol)));
+                return S_TO_QS(REDasm::Utils::quoted(m_disassembler->readString(symbol)));
 
             return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
         }
@@ -149,29 +154,29 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
 bool ListingItemModel::isItemAllowed(const REDasm::ListingItem *item) const
 {
-    if(m_itemtype == REDasm::ListingItem::AllItems)
+    if(m_itemtype == REDasm::ListingItemType::AllItems)
         return true;
 
-    return m_itemtype == item->type;
+    return item->is(m_itemtype);
 }
 
 void ListingItemModel::onListingChanged(const REDasm::ListingDocumentChanged *ldc)
 {
-    if(!this->isItemAllowed(ldc->item))
+    if(!this->isItemAllowed(ldc->item()))
         return;
 
     if(ldc->isRemoved())
     {
-        int idx = static_cast<int>(m_items.indexOf(ldc->item->address));
+        int idx = static_cast<int>(m_items.indexOf(ldc->item()->address()));
         this->beginRemoveRows(QModelIndex(), idx, idx);
         m_items.eraseAt(static_cast<size_t>(idx));
         this->endRemoveRows();
     }
     else if(ldc->isInserted())
     {
-        int idx = static_cast<int>(m_items.insertionIndex(ldc->item->address));
+        int idx = static_cast<int>(m_items.insertionIndex(ldc->item()->address()));
         this->beginInsertRows(QModelIndex(), idx, idx);
-        m_items.insert(ldc->item->address);
+        m_items.insert(ldc->item()->address());
         this->endInsertRows();
     }
 }

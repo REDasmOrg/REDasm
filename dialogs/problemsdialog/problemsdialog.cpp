@@ -1,7 +1,7 @@
 #include "problemsdialog.h"
 #include "ui_problemsdialog.h"
 #include <QStandardItemModel>
-#include <core/redasm.h>
+#include <redasm/context.h>
 
 ProblemsDialog::ProblemsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::ProblemsDialog)
 {
@@ -9,7 +9,7 @@ ProblemsDialog::ProblemsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Pr
 
     QStandardItemModel* m = new QStandardItemModel(ui->lvProblems);
 
-    for(const std::string& problem : REDasm::Context::problems())
+    for(const std::string& problem : r_ctx->problems())
         m->appendRow(new QStandardItem(QString::fromStdString(problem)));
 
     ui->lvProblems->setModel(m);

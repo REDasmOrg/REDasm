@@ -4,7 +4,9 @@
 #include <map>
 #include <functional>
 #include <QStringList>
-#include <core/disassembler/disassembler.h>
+#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/disassembler.h>
+#include <redasm/buffer/memorybuffer.h>
 
 class DisassemblerTest
 {

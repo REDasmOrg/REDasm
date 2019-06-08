@@ -1,6 +1,9 @@
 #include "disassembleractions.h"
-#include <core/disassembler/listing/listingdocument.h>
-#include <core/plugins/assembler/assembler.h>
+#include <redasm/disassembler/disassembler.h>
+#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/plugins/assembler/assembler.h>
+#include <redasm/support/utils.h>
+#include <redasm/context.h>
 #include <QApplication>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -24,7 +27,7 @@ void DisassemblerActions::adjustActions()
         return;
 
     const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();
-    REDasm::Segment *itemsegment = lock->segment(item->address), *symbolsegment = nullptr;
+    REDasm::Segment *itemsegment = lock->segment(item->address()), *symbolsegment = nullptr;
     m_actions[DisassemblerActions::Back]->setVisible(lock->cursor()->canGoBack());
     m_actions[DisassemblerActions::Forward]->setVisible(lock->cursor()->canGoForward());
     m_actions[DisassemblerActions::Copy]->setVisible(lock->cursor()->hasSelection());
@@ -33,8 +36,8 @@ void DisassemblerActions::adjustActions()
 
     if(!symbol)
     {
-        symbolsegment = lock->segment(item->address);
-        symbol = lock->functionStartSymbol(item->address);
+        symbolsegment = lock->segment(item->address());
+        symbol = lock->functionStartSymbol(item->address());
 
         m_actions[DisassemblerActions::Rename]->setVisible(false);
         m_actions[DisassemblerActions::XRefs]->setVisible(false);
@@ -67,7 +70,7 @@ void DisassemblerActions::adjustActions()
     m_actions[DisassemblerActions::Follow]->setText(QString("Follow %1").arg(QString::fromStdString(symbol->name)));
     m_actions[DisassemblerActions::Follow]->setVisible(symbol->is(REDasm::SymbolType::Code));
 
-    m_actions[DisassemblerActions::Comment]->setVisible(!m_renderer->disassembler()->busy() && item->is(REDasm::ListingItem::InstructionItem));
+    m_actions[DisassemblerActions::Comment]->setVisible(!m_renderer->disassembler()->busy() && item->is(REDasm::ListingItemType::InstructionItem));
 
     m_actions[DisassemblerActions::HexDump]->setVisible(symbolsegment && !symbolsegment->is(REDasm::SegmentType::Bss));
     m_actions[DisassemblerActions::HexDumpFunction]->setVisible(itemsegment && !itemsegment->is(REDasm::SegmentType::Bss) && itemsegment->is(REDasm::SegmentType::Code));
@@ -166,7 +169,7 @@ void DisassemblerActions::showCallGraph()
     {
         REDasm::ListingDocument& document = m_renderer->document();
         const REDasm::ListingItem* item = document->currentItem();
-        symbol = document->functionStartSymbol(item->address);
+        symbol = document->functionStartSymbol(item->address());
     }
 
     if(symbol)
@@ -204,12 +207,12 @@ void DisassemblerActions::showReferencesUnderCursor()
 void DisassemblerActions::printFunctionHexDump()
 {
     const REDasm::Symbol* symbol = nullptr;
-    std::string s = m_renderer->disassembler()->getHexDump(m_renderer->document()->currentItem()->address, &symbol);
+    std::string s = m_renderer->disassembler()->getHexDump(m_renderer->document()->currentItem()->address(), &symbol);
 
     if(s.empty())
         return;
 
-    REDasm::log(symbol->name + ": " + REDasm::quoted(s));
+    r_ctx->log(symbol->name + ": " + REDasm::Utils::quoted(s));
 }
 
 void DisassemblerActions::followPointerHexDump()
@@ -233,7 +236,7 @@ void DisassemblerActions::addComment()
 
     bool ok = false;
     QString res = QInputDialog::getMultiLineText(this->widget(),
-                                                 "Comment @ " + QString::fromStdString(REDasm::hex(currentitem->address)),
+                                                 "Comment @ " + QString::fromStdString(REDasm::Utils::hex(currentitem->address())),
                                                  "Insert a comment (leave blank to remove):",
                                                  QString::fromStdString(m_renderer->document()->comment(currentitem, true)), &ok);
 

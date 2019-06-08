@@ -3,14 +3,14 @@
 
 #include <QList>
 #include "disassemblermodel.h"
-#include <core/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/listing/listingdocument.h>
 
 class ListingItemModel : public DisassemblerModel
 {
     Q_OBJECT
 
     public:
-        explicit ListingItemModel(size_t itemtype, QObject *parent = nullptr);
+        explicit ListingItemModel(REDasm::ListingItemType itemtype, QObject *parent = nullptr);
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler) override;
         const REDasm::ListingItem* item(const QModelIndex& index) const;
         address_location address(const QModelIndex& index) const;
@@ -30,7 +30,7 @@ class ListingItemModel : public DisassemblerModel
 
     private:
         REDasm::sorted_container<address_t> m_items;
-        size_t m_itemtype;
+        REDasm::ListingItemType m_itemtype;
 
     friend class ListingFilterModel;
 };

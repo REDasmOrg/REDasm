@@ -3,7 +3,8 @@
 
 #include <QStandardItemModel>
 #include <QDialog>
-#include <core/plugins/plugins.h>
+#include <redasm/plugins/loader/loader.h>
+#include <redasm/plugins/assembler/assembler.h>
 
 namespace Ui {
 class LoaderDialog;
@@ -15,12 +16,12 @@ class LoaderDialog : public QDialog
 
     public:
         explicit LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent = nullptr);
-        const REDasm::LoaderPlugin_Entry *selectedLoader() const;
-        const REDasm::AssemblerPlugin_Entry *selectedAssembler() const;
+        const REDasm::Loader *selectedLoader() const;
+        const REDasm::Assembler *selectedAssembler() const;
         address_t baseAddress() const;
         address_t entryPoint() const;
         offset_t offset() const;
-        u32 selectedLoaderFlags() const;
+        REDasm::LoaderFlags selectedLoaderFlags() const;
         ~LoaderDialog();
 
     private:
@@ -32,7 +33,7 @@ class LoaderDialog : public QDialog
     private:
         Ui::LoaderDialog *ui;
         QStandardItemModel* m_loadersmodel;
-        REDasm::LoaderList m_loaders;
+        //REDasm::LoaderList m_loaders;
         const REDasm::LoadRequest& m_request;
 };
 

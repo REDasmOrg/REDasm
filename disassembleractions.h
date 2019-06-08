@@ -4,7 +4,7 @@
 #include <QAction>
 #include <QObject>
 #include <QMenu>
-#include <core/disassembler/listing/listingrenderer.h>
+#include <redasm/disassembler/listing/listingrenderer.h>
 
 class DisassemblerActions : public QObject
 {

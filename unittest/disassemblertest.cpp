@@ -1,5 +1,6 @@
 #include "disassemblertest.h"
-#include <core/disassembler/disassembler.h>
+#include <redasm/disassembler/disassembler.h>
+#include <redasm/support/utils.h>
 #include <QStandardPaths>
 #include <QApplication>
 #include <iostream>
@@ -138,7 +139,7 @@ void DisassemblerTest::testTrampolines(const std::map<address_t, string> &trampo
     for(auto& trampoline : trampolines)
     {
         const Symbol* symbol = m_document->symbol(trampoline.first);
-        TEST_SYMBOL_NAME("Trampoline " + trampoline.second + " @  " + REDasm::hex(trampoline.first), symbol, symbol->isFunction(), trampoline.second);
+        TEST_SYMBOL_NAME("Trampoline " + trampoline.second + " @  " + Utils::hex(trampoline.first), symbol, symbol->isFunction(), trampoline.second);
     }
 }
 
@@ -148,7 +149,7 @@ void DisassemblerTest::testVBEvents(const std::map<address_t, string> &vbevents)
     {
         std::string procname = DisassemblerTest::replaceAll(vbevent.second, "::", "_");
         const Symbol* symbol = m_document->symbol(vbevent.first);
-        TEST_SYMBOL_NAME("Event " + vbevent.second + " @ " + REDasm::hex(vbevent.first), symbol, symbol->isFunction(), procname);
+        TEST_SYMBOL_NAME("Event " + vbevent.second + " @ " + Utils::hex(vbevent.first), symbol, symbol->isFunction(), procname);
     }
 }
 
@@ -328,7 +329,7 @@ void DisassemblerTest::testTn11()
     for(address_t target : m_disassembler->getTargets(instruction->address))
     {
         const Symbol* symbol = m_document->symbol(target);
-        TEST("Checking CASE #" + std::to_string(i) + " @ " + REDasm::hex(target), symbol && symbol->is(SymbolType::Code) && m_document->instruction(target));
+        TEST("Checking CASE #" + std::to_string(i) + " @ " + REDasm::Utils::hex(target), symbol && symbol->is(SymbolType::Code) && m_document->instruction(target));
         i++;
     }
 }

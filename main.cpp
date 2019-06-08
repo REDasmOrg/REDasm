@@ -11,8 +11,8 @@
 int main(int argc, char *argv[])
 {
 #ifdef QT_DEBUG
-    if((argc == 2) && !std::strcmp(argv[1], "--testmode"))
-        return UnitTest::run();
+    //if((argc == 2) && !std::strcmp(argv[1], "--testmode"))
+        //return UnitTest::run();
 #endif // QT_DEBUG
 
     qRegisterMetaType<u64>("u64");

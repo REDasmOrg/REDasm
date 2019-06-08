@@ -3,7 +3,7 @@
 
 #include <QAbstractListModel>
 #include <QIdentityProxyModel>
-#include <core/disassembler/disassemblerapi.h>
+#include <redasm/disassembler/disassembler.h>
 
 #define S_TO_QS(s) QString::fromStdString(s)
 

@@ -5,7 +5,7 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QHexView/qhexview.h>
-#include <core/disassembler/disassembler.h>
+#include <redasm/disassembler/disassembler.h>
 #include "../../models/symboltablemodel.h"
 #include "../../models/segmentsmodel.h"
 #include "../../dialogs/gotodialog/gotodialog.h"
@@ -26,8 +26,8 @@ class DisassemblerView : public QWidget
     public:
         explicit DisassemblerView(QLineEdit* lefilter, QWidget *parent = nullptr);
         virtual ~DisassemblerView();
-        REDasm::DisassemblerAPI *disassembler();
-        void bindDisassembler(REDasm::DisassemblerAPI *disassembler, bool fromdatabase);
+        REDasm::Disassembler *disassembler();
+        void bindDisassembler(REDasm::Disassembler *disassembler, bool fromdatabase);
         void hideActions();
         void toggleFilter();
         void showFilter();

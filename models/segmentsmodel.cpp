@@ -1,11 +1,13 @@
 #include "segmentsmodel.h"
-#include <core/plugins/loader.h>
+#include <redasm/plugins/assembler/assembler.h>
+#include <redasm/plugins/loader/loader.h>
+#include <redasm/support/utils.h>
 #include <QColor>
 #include "../themeprovider.h"
 
 #define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 
-SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(REDasm::ListingItem::SegmentItem, parent) { }
+SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(REDasm::ListingItemType::SegmentItem, parent) { }
 
 QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 {
@@ -14,21 +16,21 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 
     if(role == Qt::DisplayRole)
     {
-        const REDasm::AssemblerPlugin* assembler = m_disassembler->assembler();
+        const REDasm::Assembler* assembler = m_disassembler->assembler();
         const REDasm::Segment& segment = m_disassembler->document()->segments().at(index.row());
 
         if(index.column() == 0)
-            return S_TO_QS(REDasm::hex(segment.address, assembler->bits()));
+            return S_TO_QS(REDasm::Utils::hex(segment.address, assembler->bits()));
         if(index.column() == 1)
-            return S_TO_QS(REDasm::hex(segment.endaddress, assembler->bits()));
+            return S_TO_QS(REDasm::Utils::hex(segment.endaddress, assembler->bits()));
         if(index.column() == 2)
-            return S_TO_QS(REDasm::hex(segment.size(), assembler->bits()));
+            return S_TO_QS(REDasm::Utils::hex(segment.size(), assembler->bits()));
         if(index.column() == 3)
-            return S_TO_QS(REDasm::hex(segment.offset, assembler->bits()));
+            return S_TO_QS(REDasm::Utils::hex(segment.offset, assembler->bits()));
         if(index.column() == 4)
-            return S_TO_QS(REDasm::hex(segment.endoffset, assembler->bits()));
+            return S_TO_QS(REDasm::Utils::hex(segment.endoffset, assembler->bits()));
         if(index.column() == 5)
-            return S_TO_QS(REDasm::hex(segment.rawSize(), assembler->bits()));
+            return S_TO_QS(REDasm::Utils::hex(segment.rawSize(), assembler->bits()));
         if(index.column() == 6)
             return S_TO_QS(segment.name);
         if(index.column() == 7)

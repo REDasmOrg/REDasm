@@ -1,5 +1,5 @@
 #include "signaturesmodel.h"
-#include <core/support/demangler.h>
+#include <redasm/support/demangler.h>
 
 SignaturesModel::SignaturesModel(QObject *parent): QAbstractListModel(parent), m_signaturedb(nullptr) { }
 

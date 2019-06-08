@@ -10,8 +10,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 option(DEBUG_STL_ITERATORS      "Enable iterator debugging in Debug mode (GCC only)" OFF)
-option(ENABLE_ADDRESS_SANITIZER "Enable Address Sanitizer" OFF)
-option(ENABLE_THREAD_SANITIZER  "Enable Thread Sanitizer" OFF)
+option(ENABLE_ADDRESS_SANITIZER "Enable Address Sanitizer"                           OFF)
+option(ENABLE_THREAD_SANITIZER  "Enable Thread Sanitizer"                            OFF)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
@@ -46,7 +46,7 @@ add_subdirectory(LibREDasm)
 add_subdirectory(QHexView)
 
 if((CMAKE_BUILD_TYPE MATCHES Debug) OR (CMAKE_BUILD_TYPE MATCHES RelWithDebInfo))
-    add_subdirectory(unittest)
+    #add_subdirectory(unittest)
 endif()
 
 QT5_WRAP_UI(UI_HDRS ${UI_FILES})

@@ -2,7 +2,7 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QPainter>
-#include <QDebug>
+#include <cmath>
 
 GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(nullptr), m_selecteditem(nullptr), m_focusonselection(false)
 {

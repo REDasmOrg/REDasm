@@ -27,9 +27,9 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 
         REDasm::ListingItem* item = document->itemAt(start);
 
-        if(item->is(REDasm::ListingItem::InstructionItem))
+        if(item->is(REDasm::ListingItemType::InstructionItem))
         {
-            REDasm::InstructionPtr instruction = document->instruction(item->address);
+            REDasm::InstructionPtr instruction = document->instruction(item->address());
 
             if(!instruction->is(REDasm::InstructionType::Jump))
                 continue;
@@ -47,22 +47,22 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
                 this->insertPath(item, start, idx);
             }
         }
-        else if(item->is(REDasm::ListingItem::SymbolItem))
+        else if(item->is(REDasm::ListingItemType::SymbolItem))
         {
-            const REDasm::Symbol* symbol = document->symbol(item->address);
+            const REDasm::Symbol* symbol = document->symbol(item->address());
 
             if(!symbol || !symbol->is(REDasm::SymbolType::Code))
                 continue;
 
-            REDasm::ReferenceVector refs = m_disassembler->getReferences(item->address);
-            size_t toidx = document->instructionIndex(item->address);
+            REDasm::ReferenceVector refs = m_disassembler->getReferences(item->address());
+            size_t toidx = document->instructionIndex(item->address());
 
             if(toidx >= document->size())
                 continue;
 
             for(address_t ref : refs)
             {
-                if(ref == item->address)
+                if(ref == item->address())
                     continue;
 
                 size_t idx = document->instructionIndex(ref);
@@ -144,7 +144,7 @@ void DisassemblerColumnView::insertPath(REDasm::ListingItem* fromitem, u64 fromi
 {
     auto& document = m_disassembler->document();
     auto pair = qMakePair(fromidx, toidx);
-    REDasm::InstructionPtr frominstruction = document->instruction(fromitem->address);
+    REDasm::InstructionPtr frominstruction = document->instruction(fromitem->address());
 
     if(!frominstruction || !frominstruction->is(REDasm::InstructionType::Jump) || m_done.contains(pair))
         return;

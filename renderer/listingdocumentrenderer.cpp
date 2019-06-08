@@ -2,9 +2,9 @@
 #include <QTextDocument>
 #include <QTextOption>
 
-ListingDocumentRenderer::ListingDocumentRenderer(REDasm::DisassemblerAPI* disassembler): ListingRendererCommon(disassembler)
+ListingDocumentRenderer::ListingDocumentRenderer(REDasm::Disassembler* disassembler): ListingRendererCommon(disassembler)
 {
-    this->setFlags(ListingDocumentRenderer::HideSegmentName | ListingDocumentRenderer::HideAddress);
+    this->setFlags(REDasm::ListingRendererFlags::HideSegmentName | REDasm::ListingRendererFlags::HideAddress);
 }
 
 void ListingDocumentRenderer::renderLine(const REDasm::RendererLine &rl)

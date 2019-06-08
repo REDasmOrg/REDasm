@@ -5,13 +5,13 @@
 #include <QTextOption>
 #include <QFontMetrics>
 #include <QFont>
-#include <core/disassembler/listing/listingrenderer.h>
+#include <redasm/disassembler/listing/listingrenderer.h>
 #include "listingrenderercommon.h"
 
 class ListingTextRenderer: public ListingRendererCommon
 {
     public:
-        ListingTextRenderer(REDasm::DisassemblerAPI* disassembler);
+        ListingTextRenderer(REDasm::Disassembler* disassembler);
         virtual ~ListingTextRenderer() = default;
 
     protected:

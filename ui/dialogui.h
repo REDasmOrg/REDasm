@@ -3,7 +3,7 @@
 
 #include <QListView>
 #include <QDialog>
-#include <core/redasm_ui.h>
+#include <redasm/ui.h>
 #include "models/checkeditemsmodel.h"
 
 namespace Ui {

@@ -2,7 +2,7 @@
 #define REDASMUI_H
 
 #include <QMainWindow>
-#include <core/redasm.h>
+#include <redasm/redasm.h>
 
 class REDasmUI: public REDasm::AbstractUI
 {

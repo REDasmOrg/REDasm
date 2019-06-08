@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QFontMetricsF>
 #include <QPainter>
-#include <QDebug>
+#include <cmath>
 
 #define BLOCK_MARGIN 4
 #define DROP_SHADOW_SIZE  10
@@ -14,8 +14,8 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
     this->setupDocument();
 
     m_renderer = std::make_unique<ListingDocumentRenderer>(disassembler.get());
-    m_renderer->setFirstVisibleLine(fbb->startidx);
-    m_renderer->setFlags(ListingDocumentRenderer::HideSegmentName);
+    m_renderer->setFirstVisibleLine(fbb->startIndex());
+    m_renderer->setFlags(REDasm::ListingRendererFlags::HideSegmentName);
     this->invalidate(false);
 
     QFontMetricsF fm(m_document.defaultFont());
@@ -39,7 +39,7 @@ int DisassemblerBlockItem::currentLine() const
     const REDasm::ListingCursor* cursor = m_renderer->document()->cursor();
 
     if(this->containsIndex(cursor->currentLine()))
-        return cursor->currentLine() - m_basicblock->startidx;
+        return cursor->currentLine() - m_basicblock->startIndex();
 
     return GraphViewItem::currentLine();
 }
@@ -74,7 +74,7 @@ void DisassemblerBlockItem::mouseMoveEvent(QMouseEvent *e)
 void DisassemblerBlockItem::invalidate(bool notify)
 {
     m_document.clear();
-    m_renderer->render(m_basicblock->startidx, m_basicblock->count(), &m_document);
+    m_renderer->render(m_basicblock->startIndex(), m_basicblock->count(), &m_document);
     m_document.adjustSize();
 
     GraphViewItem::invalidate(notify);

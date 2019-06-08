@@ -1,18 +1,18 @@
 #include "signaturefilesmodel.h"
-#include <core/redasm.h>
+#include <redasm/redasm.h>
 #include <QFileInfo>
 #include <QDirIterator>
 #include <QDir>
 
-SignatureFilesModel::SignatureFilesModel(REDasm::DisassemblerAPI *disassembler, QObject *parent): QAbstractListModel(parent), m_disassembler(disassembler)
+SignatureFilesModel::SignatureFilesModel(REDasm::Disassembler* disassembler, QObject *parent): QAbstractListModel(parent), m_disassembler(disassembler)
 {
-    QDirIterator it(QString::fromStdString(REDasm::makeSignaturePath(std::string())), {"*.json"}, QDir::Files);
+    QDirIterator it(QString::fromStdString(r_ctx->signature(std::string())), {"*.json"}, QDir::Files);
 
     while(it.hasNext())
     {
         QString sigpath = it.next();
         std::string sigid = QFileInfo(sigpath).baseName().toStdString();
-        m_signaturefiles.push_back({ sigid, REDasm::makeSignaturePath(sigid) + ".json" });
+        m_signaturefiles.push_back({ sigid, r_ctx->signature(sigid) + ".json" });
     }
 }
 

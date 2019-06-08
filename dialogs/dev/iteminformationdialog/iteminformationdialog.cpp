@@ -2,6 +2,8 @@
 #include "ui_iteminformationdialog.h"
 #include "../../../redasmsettings.h"
 #include "../logsyntaxhighlighter.h"
+#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/support/utils.h>
 
 #define ITEM_TYPE(x)  #x
 #define HEADER_STRING "="
@@ -36,22 +38,22 @@ ItemInformationDialog &ItemInformationDialog::string(const QString &k, const QSt
 
 QString ItemInformationDialog::itemType(const REDasm::ListingItem *item) const
 {
-    if(item->type == REDasm::ListingItem::SegmentItem)
+    if(item->type() == REDasm::ListingItemType::SegmentItem)
         return ITEM_TYPE(REDasm::ListingItem::SegmentItem);
-    if(item->type == REDasm::ListingItem::EmptyItem)
+    if(item->type() == REDasm::ListingItemType::EmptyItem)
         return ITEM_TYPE(REDasm::ListingItem::EmptyItem);
-    if(item->type == REDasm::ListingItem::FunctionItem)
+    if(item->type() == REDasm::ListingItemType::FunctionItem)
         return ITEM_TYPE(REDasm::ListingItem::FunctionItem);
-    if(item->type == REDasm::ListingItem::TypeItem)
+    if(item->type() == REDasm::ListingItemType::TypeItem)
         return ITEM_TYPE(REDasm::ListingItem::TypeItem);
-    if(item->type == REDasm::ListingItem::SymbolItem)
+    if(item->type() == REDasm::ListingItemType::SymbolItem)
         return ITEM_TYPE(REDasm::ListingItem::SymbolItem);
-    if(item->type == REDasm::ListingItem::MetaItem)
+    if(item->type() == REDasm::ListingItemType::MetaItem)
         return ITEM_TYPE(REDasm::ListingItem::MetaItem);
-    if(item->type == REDasm::ListingItem::InstructionItem)
+    if(item->type() == REDasm::ListingItemType::InstructionItem)
         return ITEM_TYPE(REDasm::ListingItem::InstructionItem);
 
-    return QString::number(item->type);
+    return QString::number(static_cast<size_t>(item->type()));
 }
 
 void ItemInformationDialog::displayInformation()
@@ -60,21 +62,21 @@ void ItemInformationDialog::displayInformation()
     const REDasm::ListingItem* item = document->currentItem();
 
     this->line("document_index", QString::number(document->itemIndex(item)));
-    this->line("address", QString::fromStdString(REDasm::hex(item->address)));
+    this->line("address", QString::fromStdString(REDasm::Utils::hex(item->address())));
     this->line("type", this->itemType(item));
-    this->line("index", QString::number(item->index));
+    this->line("index", QString::number(item->index()));
 
     this->line().header("DATA");
 
-    this->array("comments", item->data->comments.begin(), item->data->comments.end(),
-                [&](const std::string& s) -> QString { return QString::fromStdString(s); });
+    // this->array("comments", item->data->comments.begin(), item->data->comments.end(),
+    //             [&](const std::string& s) -> QString { return QString::fromStdString(s); });
 
-    this->array("auto_comments", item->data->autocomments.begin(), item->data->autocomments.end(),
-                [&](const std::string& s) -> QString { return QString::fromStdString(s); });
+    // this->array("auto_comments", item->data->autocomments.begin(), item->data->autocomments.end(),
+    //             [&](const std::string& s) -> QString { return QString::fromStdString(s); });
 
-    this->line("meta", QString("{ name: \"%1\", type: \"%2\"}").arg(QString::fromStdString(item->data->meta.name),
-                                                                    QString::fromStdString(item->data->meta.type)));
+    // this->line("meta", QString("{ name: \"%1\", type: \"%2\"}").arg(QString::fromStdString(item->data->meta.name),
+    //                                                                 QString::fromStdString(item->data->meta.type)));
 
-    this->string("type", QString::fromStdString(item->data->type));
+    // this->string("type", QString::fromStdString(item->data->type));
 }
 

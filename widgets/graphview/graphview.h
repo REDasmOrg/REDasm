@@ -8,9 +8,9 @@
 #include <QAbstractScrollArea>
 #include <QVector>
 #include <QList>
-#include <core/disassembler/disassemblerapi.h>
-#include <core/graph/graph.h>
-#include "../../../themeprovider.h"
+#include <redasm/disassembler/disassembler.h>
+#include <redasm/graph/graph.h>
+#include "../../themeprovider.h"
 #include "graphviewitem.h"
 
 class GraphView : public QAbstractScrollArea

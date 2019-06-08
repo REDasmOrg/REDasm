@@ -6,7 +6,7 @@
 class ListingDocumentRenderer: public ListingRendererCommon
 {
     public:
-        ListingDocumentRenderer(REDasm::DisassemblerAPI* disassembler);
+        ListingDocumentRenderer(REDasm::Disassembler* disassembler);
 
     protected:
         void renderLine(const REDasm::RendererLine& rl) override;

@@ -2,7 +2,7 @@
 #define REFERENCESMODEL_H
 
 #include <QJsonObject>
-#include <core/plugins/assembler/printer.h>
+#include <redasm/plugins/assembler/printer/printer.h>
 #include "disassemblermodel.h"
 
 class ReferencesModel : public DisassemblerModel
@@ -29,7 +29,7 @@ class ReferencesModel : public DisassemblerModel
 
     private:
         REDasm::ReferenceVector m_references;
-        REDasm::PrinterPtr m_printer;
+        REDasm::object_ptr<REDasm::Printer> m_printer;
 };
 
 #endif // REFERENCESMODEL_H

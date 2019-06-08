@@ -1,6 +1,6 @@
 #include "disassemblerpopup.h"
 #include <QLayout>
-#include <QDebug>
+#include <cmath>
 
 #define POPUP_MARGIN 16
 

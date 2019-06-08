@@ -62,7 +62,7 @@ void DisassemblerViewDocks::updateCallGraph()
         return;
 
     REDasm::ListingDocument& document = m_disassembler->document();
-    const REDasm::ListingItem* item = document->functionStart(document->currentItem()->address);
+    const REDasm::ListingItem* item = document->functionStart(document->currentItem()->address());
 
     if(!item)
     {
@@ -70,7 +70,7 @@ void DisassemblerViewDocks::updateCallGraph()
         return;
     }
 
-    m_calltreemodel->initializeGraph(item->address);
+    m_calltreemodel->initializeGraph(item->address());
     m_calltreeview->expandToDepth(0);
 }
 
@@ -106,7 +106,7 @@ void DisassemblerViewDocks::createCallTreeModel()
 
 void DisassemblerViewDocks::createFunctionsModel()
 {
-    m_functionsmodel = ListingFilterModel::createFilter<ListingItemModel>(REDasm::ListingItem::FunctionItem, this);
+    m_functionsmodel = ListingFilterModel::createFilter<ListingItemModel>(REDasm::ListingItemType::FunctionItem, this);
     m_functionsview = m_dockfunctions->widget()->findChild<QTableView*>("tvFunctions");
     m_functionsview->setModel(m_functionsmodel);
 

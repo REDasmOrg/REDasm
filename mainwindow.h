@@ -5,8 +5,8 @@
 #include <QPushButton>
 #include <QFileInfo>
 #include <QLabel>
-#include <core/plugins/plugins.h>
-#include <core/disassembler/disassembler.h>
+#include <redasm/support/utils.h>
+#include <redasm/redasm.h>
 #include "widgets/disassemblerview/disassemblerview.h"
 #include "dialogs/loaderdialog/loaderdialog.h"
 
@@ -46,7 +46,7 @@ class MainWindow : public QMainWindow
 
     private:
         DisassemblerView* currentDisassemblerView() const;
-        REDasm::DisassemblerAPI* currentDisassembler() const;
+        REDasm::Disassembler* currentDisassembler() const;
         void loadWindowState();
         void loadRecents();
         bool loadDatabase(const QString& filepath);

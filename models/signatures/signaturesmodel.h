@@ -2,7 +2,7 @@
 #define SIGNATURESMODEL_H
 
 #include <QAbstractListModel>
-#include <core/database/signaturedb.h>
+#include <redasm/database/signaturedb.h>
 
 class SignaturesModel : public QAbstractListModel
 {

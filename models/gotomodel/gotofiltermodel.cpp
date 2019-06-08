@@ -16,12 +16,12 @@ bool GotoFilterModel::filterAcceptsRow(int sourcerow, const QModelIndex &sourcep
     if(!item)
         return false;
 
-    switch(item->type)
+    switch(item->type())
     {
-        case REDasm::ListingItem::SegmentItem:
-        case REDasm::ListingItem::FunctionItem:
-        case REDasm::ListingItem::SymbolItem:
-        case REDasm::ListingItem::TypeItem:
+        case REDasm::ListingItemType::SegmentItem:
+        case REDasm::ListingItemType::FunctionItem:
+        case REDasm::ListingItemType::SymbolItem:
+        case REDasm::ListingItemType::TypeItem:
             return QSortFilterProxyModel::filterAcceptsRow(sourcerow, sourceparent);
 
         default:

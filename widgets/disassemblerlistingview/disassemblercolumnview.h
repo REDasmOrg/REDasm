@@ -5,8 +5,8 @@
 #include <QList>
 #include <QPair>
 #include <QSet>
-#include <core/disassembler/disassemblerapi.h>
-#include <core/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/disassembler.h>
+#include <redasm/disassembler/listing/listingdocument.h>
 
 class DisassemblerColumnView : public QWidget
 {

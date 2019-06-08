@@ -2,17 +2,17 @@
 #define SIGNATUREFILESMODEL_H
 
 #include <QAbstractListModel>
-#include <core/disassembler/disassemblerapi.h>
-#include <core/database/signaturedb.h>
-#include <core/plugins/loader.h>
-#include <json.hpp>
+#include <redasm/disassembler/disassembler.h>
+#include <redasm/database/signaturedb.h>
+#include <redasm/plugins/loader/loader.h>
+#include <redasm/libs/json/json.hpp>
 
 class SignatureFilesModel : public QAbstractListModel
 {
     Q_OBJECT
 
     public:
-        explicit SignatureFilesModel(REDasm::DisassemblerAPI* disassembler, QObject *parent = nullptr);
+        explicit SignatureFilesModel(REDasm::Disassembler* disassembler, QObject *parent = nullptr);
         const REDasm::SignatureDB* load(const QModelIndex& index);
         const std::string& signatureId(const QModelIndex& index) const;
         const std::string& signaturePath(const QModelIndex& index) const;
@@ -30,7 +30,7 @@ class SignatureFilesModel : public QAbstractListModel
     private:
         QList< QPair<std::string, std::string> > m_signaturefiles;
         QHash<int, REDasm::SignatureDB> m_loadedsignatures;
-        REDasm::DisassemblerAPI* m_disassembler;
+        REDasm::Disassembler* m_disassembler;
 };
 
 #endif // SIGNATUREFILESMODEL_H

@@ -7,7 +7,8 @@
 #include "ui/redasmui.h"
 #include "redasmsettings.h"
 #include "themeprovider.h"
-#include <core/database/database.h>
+#include <redasm/plugins/assembler/assembler.h>
+#include <redasm/support/utils.h>
 #include <QtWidgets>
 #include <QtCore>
 #include <QtGui>
@@ -20,14 +21,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     REDasm::ContextSettings ctxsettings;
     ctxsettings.tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
-    ctxsettings.searchPath = QDir::currentPath().toStdString();
+    ctxsettings.runtimePath = QDir::currentPath().toStdString();
     ctxsettings.statusCallback = [&](const std::string& s) { QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
     ctxsettings.progressCallback = [&](size_t pending) { QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending))); };
     ctxsettings.logCallback = [&](const std::string& s) { QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
     ctxsettings.ui = std::make_shared<REDasmUI>(this);
-
-    REDasm::init(ctxsettings);
-    REDasm::log(QString("Found %1 loaders and %2 assemblers").arg(REDasm::Plugins::loadersCount).arg(REDasm::Plugins::assemblers.size()).toStdString());
+    REDasm::Context::init(ctxsettings);
 
     this->setViewWidgetsVisible(false);
     ui->leFilter->setVisible(false);
@@ -179,10 +178,10 @@ void MainWindow::onSaveClicked()
         return;
 
     std::string rdbfile = QString("%1.%2").arg(m_fileinfo.baseName(), RDB_SIGNATURE_EXT).toStdString();
-    REDasm::log("Saving Database " + REDasm::quoted(rdbfile));
+    r_ctx->log("Saving Database " + REDasm::Utils::quoted(rdbfile));
 
     if(!REDasm::Database::save(currdv->disassembler(), rdbfile, m_fileinfo.fileName().toStdString()))
-        REDasm::log(REDasm::Database::lastError());
+        r_ctx->log(REDasm::Database::lastError());
 }
 
 void MainWindow::onSaveAsClicked() // TODO: Handle multiple outputs
@@ -198,7 +197,7 @@ void MainWindow::onSaveAsClicked() // TODO: Handle multiple outputs
         return;
 
     if(!REDasm::Database::save(currdv->disassembler(), s.toStdString(), m_fileinfo.fileName().toStdString()))
-        REDasm::log(REDasm::Database::lastError());
+        r_ctx->log(REDasm::Database::lastError());
 }
 
 void MainWindow::onRecentFileClicked()
@@ -290,13 +289,13 @@ bool MainWindow::loadDatabase(const QString &filepath)
     if(!disassembler)
     {
         if(m_fileinfo.suffix() == RDB_SIGNATURE_EXT)
-            REDasm::log(REDasm::Database::lastError());
+            r_ctx->log(REDasm::Database::lastError());
 
         return false;
     }
 
-    REDasm::log("Selected loader " + REDasm::quoted(disassembler->loader()->name()) + " with " +
-                                     REDasm::quoted(disassembler->assembler()->name()) + " instruction set");
+    r_ctx->log("Selected loader " + REDasm::Utils::quoted(disassembler->loader()->description()) + " with " +
+                                    REDasm::Utils::quoted(disassembler->assembler()->description()) + " instruction set");
 
     m_fileinfo = QFileInfo(QString::fromStdString(filename));
     this->showDisassemblerView(disassembler, true);
@@ -399,7 +398,7 @@ bool MainWindow::canClose()
 
 void MainWindow::closeFile()
 {
-    REDasm::DisassemblerAPI* disassembler = this->currentDisassembler();
+    REDasm::Disassembler* disassembler = this->currentDisassembler();
 
     // TODO: messageBox for confirmation?
     if(disassembler)
@@ -425,7 +424,7 @@ void MainWindow::closeFile()
     m_pbproblems->setVisible(false);
     this->setStandardActionsEnabled(false);
     this->setViewWidgetsVisible(false);
-    REDasm::Context::clearProblems();
+    r_ctx->clearProblems();
 }
 
 void MainWindow::selectLoader(REDasm::LoadRequest &request)
@@ -435,35 +434,35 @@ void MainWindow::selectLoader(REDasm::LoadRequest &request)
     if(dlgloader.exec() != LoaderDialog::Accepted)
         return;
 
-    const REDasm::AssemblerPlugin_Entry* assemblerentry = nullptr;
-    const REDasm::LoaderPlugin_Entry* loaderentry = dlgloader.selectedLoader();
-    std::unique_ptr<REDasm::LoaderPlugin> loader(loaderentry->init(request));
+    // const REDasm::AssemblerPlugin_Entry* assemblerentry = nullptr;
+    // const REDasm::LoaderPlugin_Entry* loaderentry = dlgloader.selectedLoader();
+    // std::unique_ptr<REDasm::LoaderPlugin> loader(loaderentry->init(request));
 
-    if(loaderentry->flags() & REDasm::LoaderFlags::CustomAssembler)
-        assemblerentry = dlgloader.selectedAssembler();
-    else
-        assemblerentry = REDasm::getAssembler(loader->assembler());
+    // if(loaderentry->flags() & REDasm::LoaderFlags::CustomAssembler)
+    //     assemblerentry = dlgloader.selectedAssembler();
+    // else
+    //     assemblerentry = REDasm::getAssembler(loader->assembler());
 
-    if(!assemblerentry)
-    {
-        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString(loader->assembler())));
-        return;
-    }
+    // if(!assemblerentry)
+    // {
+    //     QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString(loader->assembler())));
+    //     return;
+    // }
 
-    if(loaderentry->flags() & REDasm::LoaderFlags::CustomAddressing)
-        loader->build(assemblerentry->name(), dlgloader.offset(), dlgloader.baseAddress(), dlgloader.entryPoint());
+    // if(loaderentry->flags() & REDasm::LoaderFlags::CustomAddressing)
+    //     loader->build(assemblerentry->name(), dlgloader.offset(), dlgloader.baseAddress(), dlgloader.entryPoint());
 
-    REDasm::log("Selected loader " + REDasm::quoted(loaderentry->name()) + " with " + REDasm::quoted(assemblerentry->name()) + " instruction set");
-    REDasm::Disassembler* disassembler = new REDasm::Disassembler(assemblerentry->init(), loader.release());
+    // r_ctx->log("Selected loader " + REDasm::Utils::quoted(loaderentry->name()) + " with " + REDasm::Utils::quoted(assemblerentry->name()) + " instruction set");
+    // REDasm::Disassembler* disassembler = new REDasm::Disassembler(assemblerentry->init(), loader.release());
 
-    EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
-        DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+    // EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
+    //     DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
 
-        if(currdv)
-            QMetaObject::invokeMethod(m_lblprogress, "setVisible", Qt::QueuedConnection, Q_ARG(bool, currdv->disassembler()->busy()));
-    });
+    //     if(currdv)
+    //         QMetaObject::invokeMethod(m_lblprogress, "setVisible", Qt::QueuedConnection, Q_ARG(bool, currdv->disassembler()->busy()));
+    // });
 
-    this->showDisassemblerView(disassembler, false); // Take ownership
+    // this->showDisassemblerView(disassembler, false); // Take ownership
 }
 
 void MainWindow::setViewWidgetsVisible(bool b)
@@ -482,20 +481,20 @@ void MainWindow::onAboutClicked()
 
 void MainWindow::changeDisassemblerStatus()
 {
-    REDasm::DisassemblerAPI* disassembler = this->currentDisassembler();
+    REDasm::Disassembler* disassembler = this->currentDisassembler();
 
     if(!disassembler)
         return;
 
-    if(disassembler->state() == REDasm::Job::ActiveState)
+    if(disassembler->state() == REDasm::JobState::ActiveState)
         disassembler->pause();
-    else if(disassembler->state() == REDasm::Job::PausedState)
+    else if(disassembler->state() == REDasm::JobState::PausedState)
         disassembler->resume();
 }
 
 void MainWindow::checkDisassemblerStatus()
 {
-    REDasm::DisassemblerAPI* disassembler = this->currentDisassembler();
+    REDasm::Disassembler* disassembler = this->currentDisassembler();
 
     if(!disassembler)
     {
@@ -506,19 +505,19 @@ void MainWindow::checkDisassemblerStatus()
     }
 
     this->setWindowTitle(disassembler->busy() ? QString("%1 (Working)").arg(m_fileinfo.fileName()) : m_fileinfo.fileName());
-    size_t state = disassembler->state();
+    REDasm::JobState state = disassembler->state();
 
-    if(state == REDasm::Job::ActiveState)
+    if(state == REDasm::JobState::ActiveState)
         m_pbstatus->setStyleSheet("color: red;");
-    else if(state == REDasm::Job::PausedState)
+    else if(state == REDasm::JobState::PausedState)
         m_pbstatus->setStyleSheet("color: goldenrod;");
     else
         m_pbstatus->setStyleSheet("color: green;");
 
     m_pbstatus->setVisible(true);
     m_lblprogress->setVisible(disassembler->busy());
-    m_pbproblems->setText(QString::number(REDasm::Context::problemsCount()) + " problem(s)");
-    m_pbproblems->setVisible(!disassembler->busy() && REDasm::Context::hasProblems());
+    m_pbproblems->setText(QString::number(r_ctx->problemsCount()) + " problem(s)");
+    m_pbproblems->setVisible(!disassembler->busy() && r_ctx->hasProblems());
 
     this->setStandardActionsEnabled(!disassembler->busy());
     ui->action_Close->setEnabled(true);
@@ -532,7 +531,7 @@ void MainWindow::showProblems()
 
 DisassemblerView *MainWindow::currentDisassemblerView() const { return dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget()); }
 
-REDasm::DisassemblerAPI *MainWindow::currentDisassembler() const
+REDasm::Disassembler *MainWindow::currentDisassembler() const
 {
     DisassemblerView* currdv = this->currentDisassemblerView();
 

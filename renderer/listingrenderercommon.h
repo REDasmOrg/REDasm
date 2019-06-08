@@ -5,15 +5,16 @@
 #include <QTextCursor>
 #include <QHash>
 #include <QFont>
-#include <core/disassembler/listing/listingdocument.h>
-#include <core/disassembler/listing/listingrenderer.h>
+#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/disassembler.h>
+#include <redasm/disassembler/listing/listingrenderer.h>
 
 #define CURSOR_BLINK_INTERVAL 500  // 500ms
 
 class ListingRendererCommon: public REDasm::ListingRenderer
 {
     public:
-        ListingRendererCommon(REDasm::DisassemblerAPI* disassembler);
+        ListingRendererCommon(REDasm::Disassembler* disassembler);
         virtual ~ListingRendererCommon() = default;
         void moveTo(const QPointF& pos);
         void select(const QPointF& pos);

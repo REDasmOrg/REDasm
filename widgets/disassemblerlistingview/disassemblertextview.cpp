@@ -1,6 +1,7 @@
 #include "disassemblertextview.h"
 #include "../../models/disassemblermodel.h"
-#include <core/plugins/loader.h>
+#include <redasm/plugins/loader/loader.h>
+#include <redasm/context.h>
 #include <QtWidgets>
 #include <QtGui>
 #include <cmath>
@@ -37,7 +38,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     if(refreshfreq <= 0)
         refreshfreq = FALLBACK_REFRESH_RATE;
 
-    REDasm::log("Setting refresh rate to " + QString::number(refreshfreq, 'f', 1).toStdString() + "Hz");
+    r_ctx->log("Setting refresh rate to " + QString::number(refreshfreq, 'f', 1).toStdString() + "Hz");
     m_refreshrate = std::ceil((1 / refreshfreq) * 1000);
     m_blinktimerid = this->startTimer(CURSOR_BLINK_INTERVAL);
 }
@@ -418,15 +419,15 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
     m_disassembler->document()->cursor()->clearSelection();
     this->adjustScrollBars();
 
-    if(ldc->action != REDasm::ListingDocumentChanged::Changed) // Insertion or Deletion
+    if(ldc->action() != REDasm::ListingDocumentAction::Changed) // Insertion or Deletion
     {
-        if(ldc->index > this->lastVisibleLine()) // Don't care of bottom Insertion/Deletion
+        if(ldc->index() > this->lastVisibleLine()) // Don't care of bottom Insertion/Deletion
             return;
 
         //QMetaObject::invokeMethod(this, "renderListing", Qt::QueuedConnection);
     }
     else
-        QMetaObject::invokeMethod(this, "renderLine", Qt::QueuedConnection, Q_ARG(u64, ldc->index));
+        QMetaObject::invokeMethod(this, "renderLine", Qt::QueuedConnection, Q_ARG(size_t, ldc->index()));
 }
 
 REDasm::ListingDocument &DisassemblerTextView::currentDocument() { return m_disassembler->document(); }
@@ -535,7 +536,7 @@ void DisassemblerTextView::moveToSelection()
     if(!this->isLineVisible(cur->currentLine())) // Center on selection
     {
         QScrollBar* vscrollbar = this->verticalScrollBar();
-        vscrollbar->setValue(std::max(static_cast<s64>(0), static_cast<s64>(cur->currentLine() - this->visibleLines() / 2)));
+        vscrollbar->setValue(std::max(static_cast<size_t>(0), static_cast<size_t>(cur->currentLine() - this->visibleLines() / 2)));
     }
     else
         this->renderListing();
@@ -544,7 +545,7 @@ void DisassemblerTextView::moveToSelection()
     REDasm::ListingItem* item = lock->itemAt(cur->currentLine());
 
     if(item)
-        emit addressChanged(item->address);
+        emit addressChanged(item->address());
 }
 
 void DisassemblerTextView::ensureColumnVisible()

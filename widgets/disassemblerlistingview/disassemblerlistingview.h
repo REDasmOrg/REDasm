@@ -2,7 +2,7 @@
 #define DISASSEMBLERLISTINGVIEW_H
 
 #include <QSplitter>
-#include <core/disassembler/disassemblerapi.h>
+#include <redasm/disassembler/disassembler.h>
 #include "disassemblercolumnview.h"
 #include "disassemblertextview.h"
 

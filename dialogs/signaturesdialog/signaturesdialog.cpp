@@ -2,8 +2,9 @@
 #include "ui_signaturesdialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <redasm/context.h>
 
-SignaturesDialog::SignaturesDialog(REDasm::DisassemblerAPI *disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::SignaturesDialog), m_disassembler(disassembler)
+SignaturesDialog::SignaturesDialog(REDasm::Disassembler *disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::SignaturesDialog), m_disassembler(disassembler)
 {
     ui->setupUi(this);
     ui->leFilter->setEnabled(false);
@@ -61,7 +62,7 @@ void SignaturesDialog::readSignature(const QModelIndex &index)
 void SignaturesDialog::browseSignatures()
 {
     QString s = QFileDialog::getOpenFileName(this, "Load Signature...",
-                                             QString::fromStdString(REDasm::makeSignaturePath(std::string())),
+                                             QString::fromStdString(r_ctx->signature(std::string())),
                                              "REDasm Signature (*.json)");
 
     if(s.isEmpty())

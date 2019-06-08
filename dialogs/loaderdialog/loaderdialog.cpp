@@ -1,16 +1,18 @@
 #include "loaderdialog.h"
 #include "ui_loaderdialog.h"
+#include <redasm/plugins/loader/loader.h>
+#include <redasm/context.h>
 #include <QPushButton>
 
-LoaderDialog::LoaderDialog(const REDasm::LoadRequest &request, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(request)
+LoaderDialog::LoaderDialog(const REDasm::LoadRequest *request, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(request)
 {
     ui->setupUi(this);
 
-    //m_loaders = REDasm::getLoaders(request);
+    m_loaders = r_pm->getLoaders(request);
     m_loadersmodel = new QStandardItemModel(ui->lvLoaders);
 
-    //for(const auto& entry : m_loaders)
-        //m_loadersmodel->appendRow(new QStandardItem(QString::fromStdString(entry->name())));
+    for(const auto& entry : m_loaders)
+        m_loadersmodel->appendRow(new QStandardItem(QString::fromUtf8(entry->descriptor->description)));
 
     ui->lvLoaders->setModel(m_loadersmodel);
     ui->lvLoaders->setCurrentIndex(m_loadersmodel->index(0, 0));
@@ -37,22 +39,37 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest &request, QWidget *parent) 
     });
 }
 
-const REDasm::Loader* LoaderDialog::selectedLoader() const
+LoaderDialog::~LoaderDialog()
+{
+    auto ait = std::find(m_assemblers.begin(), m_assemblers.end(), this->selectedAssembler());
+    auto lit = std::find(m_loaders.begin(), m_loaders.end(), this->selectedLoader());
+
+    // Keep selected assemblers/loaders
+    m_assemblers.erase(ait);
+    m_loaders.erase(lit);
+
+    r_pm->unload(m_assemblers);
+    r_pm->unload(m_loaders);
+
+    delete ui;
+}
+
+const REDasm::PluginInstance *LoaderDialog::selectedLoader() const
 {
     QModelIndex index = ui->lvLoaders->currentIndex();
 
     if(!index.isValid())
         return nullptr;
 
-    //return m_loaders[index.row()];
+    return m_loaders[index.row()];
 }
 
-const REDasm::Assembler* LoaderDialog::selectedAssembler() const
+const REDasm::PluginInstance* LoaderDialog::selectedAssembler() const
 {
-    // REDasm::LoaderFlags flags = this->selectedLoaderFlags();
+    REDasm::LoaderFlags flags = this->selectedLoaderFlags();
 
-    // if(flags & REDasm::LoaderFlags::CustomAssembler)
-    //     return REDasm::getAssembler(ui->cbAssembler->currentData().toString().toStdString());
+    if(flags & REDasm::LoaderFlags::CustomAssembler)
+         return r_pm->findAssembler(ui->cbAssembler->currentData().toString().toStdString());
 
     return nullptr;
 }
@@ -60,7 +77,6 @@ const REDasm::Assembler* LoaderDialog::selectedAssembler() const
 address_t LoaderDialog::baseAddress() const { return ui->leBaseAddress->text().toULongLong(nullptr, 16); }
 address_t LoaderDialog::entryPoint() const { return ui->leEntryPoint->text().toULongLong(nullptr, 16); }
 offset_t LoaderDialog::offset() const { return ui->leOffset->text().toULongLong(nullptr, 16); }
-LoaderDialog::~LoaderDialog() { delete ui; }
 
 REDasm::LoaderFlags LoaderDialog::selectedLoaderFlags() const
 {
@@ -69,8 +85,8 @@ REDasm::LoaderFlags LoaderDialog::selectedLoaderFlags() const
     if(!index.isValid())
         return REDasm::LoaderFlags::None;
 
-    //const auto* loaderentry = m_loaders[index.row()];
-    //return loaderentry->flags();
+    const REDasm::PluginInstance* pi = m_loaders[index.row()];
+    return REDasm::plugin_cast<REDasm::Loader>(pi)->flags();
 }
 
 void LoaderDialog::checkFlags()
@@ -98,7 +114,7 @@ void LoaderDialog::validateInput()
 
     if(flags & REDasm::LoaderFlags::CustomAddressing)
     {
-        if(ui->leOffset->text().isEmpty() || (this->offset() >= m_request.buffer()->size()))
+        if(ui->leOffset->text().isEmpty() || (this->offset() >= m_request->buffer()->size()))
             okenabled = false;
         if((ui->leEntryPoint->text().isEmpty() || ui->leBaseAddress->text().isEmpty()) || (this->entryPoint() > this->baseAddress()))
             okenabled = false;
@@ -121,8 +137,8 @@ void LoaderDialog::updateInputMask()
 
 void LoaderDialog::populateAssemblers()
 {
-    //const auto& assemblers = REDasm::Plugins::assemblers;
+    m_assemblers = r_pm->getAssemblers();
 
-    //for(auto it = assemblers.begin(); it != assemblers.end(); it++)
-        //ui->cbAssembler->addItem(QString::fromStdString(it->second.name()), QString::fromStdString(it->first));
+    for(auto it = m_assemblers.begin(); it != m_assemblers.end(); it++)
+        ui->cbAssembler->addItem(QString::fromUtf8((*it)->descriptor->description), QString::fromUtf8((*it)->descriptor->id));
 }

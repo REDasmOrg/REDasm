@@ -54,7 +54,7 @@ class MainWindow : public QMainWindow
         void checkCommandLine();
         void setStandardActionsEnabled(bool b);
         void showDisassemblerView(REDasm::Disassembler *disassembler, bool fromdatabase);
-        void selectLoader(REDasm::LoadRequest &request);
+        void selectLoader(const REDasm::LoadRequest *request);
         void setViewWidgetsVisible(bool b);
         void configureWebEngine();
         bool canClose();

@@ -8,6 +8,7 @@
 #include "redasmsettings.h"
 #include "themeprovider.h"
 #include <redasm/plugins/assembler/assembler.h>
+#include <redasm/plugins/pluginmanager.h>
 #include <redasm/support/utils.h>
 #include <QtWidgets>
 #include <QtCore>
@@ -321,7 +322,7 @@ void MainWindow::load(const QString& filepath)
     if(buffer && !buffer->empty())
     {
         REDasm::LoadRequest request(filepath.toStdString(), buffer);
-        this->selectLoader(request);
+        this->selectLoader(&request);
     }
 }
 
@@ -427,42 +428,45 @@ void MainWindow::closeFile()
     r_ctx->clearProblems();
 }
 
-void MainWindow::selectLoader(REDasm::LoadRequest &request)
+void MainWindow::selectLoader(const REDasm::LoadRequest *request)
 {
     LoaderDialog dlgloader(request, this);
 
     if(dlgloader.exec() != LoaderDialog::Accepted)
         return;
 
-    // const REDasm::AssemblerPlugin_Entry* assemblerentry = nullptr;
-    // const REDasm::LoaderPlugin_Entry* loaderentry = dlgloader.selectedLoader();
-    // std::unique_ptr<REDasm::LoaderPlugin> loader(loaderentry->init(request));
+    const REDasm::PluginInstance *assemblerpi = nullptr, *loaderpi = dlgloader.selectedLoader();
+    REDasm::Loader* loader = REDasm::plugin_cast<REDasm::Loader>(loaderpi);
 
-    // if(loaderentry->flags() & REDasm::LoaderFlags::CustomAssembler)
-    //     assemblerentry = dlgloader.selectedAssembler();
-    // else
-    //     assemblerentry = REDasm::getAssembler(loader->assembler());
+    if(loader->flags() & REDasm::LoaderFlags::CustomAssembler)
+        assemblerpi = dlgloader.selectedAssembler();
+    else
+        assemblerpi = r_pm->findAssembler(loader->assembler());
 
-    // if(!assemblerentry)
-    // {
-    //     QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString(loader->assembler())));
-    //     return;
-    // }
+    if(!assemblerpi)
+    {
+        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString(loader->assembler())));
+        r_pm->unload(loader->instance());
+        return;
+    }
 
-    // if(loaderentry->flags() & REDasm::LoaderFlags::CustomAddressing)
-    //     loader->build(assemblerentry->name(), dlgloader.offset(), dlgloader.baseAddress(), dlgloader.entryPoint());
+    REDasm::Assembler* assembler = REDasm::plugin_cast<REDasm::Assembler>(assemblerpi);
+    loader->init(request);
 
-    // r_ctx->log("Selected loader " + REDasm::Utils::quoted(loaderentry->name()) + " with " + REDasm::Utils::quoted(assemblerentry->name()) + " instruction set");
-    // REDasm::Disassembler* disassembler = new REDasm::Disassembler(assemblerentry->init(), loader.release());
+    if(loader->flags() & REDasm::LoaderFlags::CustomAddressing)
+        loader->build(assembler->id(), dlgloader.offset(), dlgloader.baseAddress(), dlgloader.entryPoint());
 
-    // EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
-    //     DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
+    r_ctx->log("Selected loader " + REDasm::Utils::quoted(loader->description()) + " with " + REDasm::Utils::quoted(assembler->description()) + " instruction set");
+    REDasm::Disassembler* disassembler = new REDasm::Disassembler(assembler, loader);
 
-    //     if(currdv)
-    //         QMetaObject::invokeMethod(m_lblprogress, "setVisible", Qt::QueuedConnection, Q_ARG(bool, currdv->disassembler()->busy()));
-    // });
+    EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
+        DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
 
-    // this->showDisassemblerView(disassembler, false); // Take ownership
+        if(currdv)
+            QMetaObject::invokeMethod(m_lblprogress, "setVisible", Qt::QueuedConnection, Q_ARG(bool, currdv->disassembler()->busy()));
+    });
+
+    this->showDisassemblerView(disassembler, false); // Take ownership
 }
 
 void MainWindow::setViewWidgetsVisible(bool b)

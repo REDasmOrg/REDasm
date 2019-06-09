@@ -4,7 +4,7 @@
 #include <redasm/context.h>
 #include <QPushButton>
 
-LoaderDialog::LoaderDialog(const REDasm::LoadRequest *request, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(request)
+LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(request)
 {
     ui->setupUi(this);
 
@@ -73,7 +73,7 @@ const REDasm::PluginInstance* LoaderDialog::selectedAssembler() const
     REDasm::LoaderFlags flags = this->selectedLoaderFlags();
 
     if(flags & REDasm::LoaderFlags::CustomAssembler)
-         return r_pm->findAssembler(ui->cbAssembler->currentData().toString().toStdString());
+         return r_pm->findAssembler(qUtf8Printable(ui->cbAssembler->currentData().toString()));
 
     return nullptr;
 }
@@ -118,7 +118,7 @@ void LoaderDialog::validateInput()
 
     if(flags & REDasm::LoaderFlags::CustomAddressing)
     {
-        if(ui->leOffset->text().isEmpty() || (this->offset() >= m_request->buffer()->size()))
+        if(ui->leOffset->text().isEmpty() || (this->offset() >= m_request.buffer()->size()))
             okenabled = false;
         if((ui->leEntryPoint->text().isEmpty() || ui->leBaseAddress->text().isEmpty()) || (this->entryPoint() > this->baseAddress()))
             okenabled = false;

@@ -331,7 +331,7 @@ void MainWindow::load(const QString& filepath)
     if(buffer && !buffer->empty())
     {
         REDasm::LoadRequest request(filepath.toStdString(), buffer);
-        this->selectLoader(&request);
+        this->selectLoader(request);
     }
 }
 
@@ -437,7 +437,7 @@ void MainWindow::closeFile()
     r_ctx->clearProblems();
 }
 
-void MainWindow::selectLoader(const REDasm::LoadRequest *request)
+void MainWindow::selectLoader(const REDasm::LoadRequest& request)
 {
     LoaderDialog dlgloader(request, this);
 
@@ -454,12 +454,13 @@ void MainWindow::selectLoader(const REDasm::LoadRequest *request)
 
     if(!assemblerpi)
     {
-        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromStdString(loader->assembler())));
+        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromUtf8(loader->assembler())));
         r_pm->unload(loader->instance());
         return;
     }
 
     REDasm::Assembler* assembler = REDasm::plugin_cast<REDasm::Assembler>(assemblerpi);
+    assembler->init(loader->assembler());
     loader->init(request);
 
     if(loader->flags() & REDasm::LoaderFlags::CustomAddressing)

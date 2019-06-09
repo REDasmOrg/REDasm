@@ -113,7 +113,7 @@ string DisassemblerTest::replaceAll(std::string str, const std::string &from, co
 void DisassemblerTest::runCurrentTest(const std::string& filepath, const TestCallback &cb)
 {
     LoadRequest request(filepath, m_buffer);
-    REDasm::PluginManager::PluginList loaders = r_pm->getLoaders(&request); //, true);
+    REDasm::PluginManager::PluginList loaders = r_pm->getLoaders(request); //, true);
     TEST("Loader", !loaders.empty());
 
     if(loaders.empty())
@@ -121,15 +121,18 @@ void DisassemblerTest::runCurrentTest(const std::string& filepath, const TestCal
 
     const PluginInstance *assemblerpi = nullptr, *loaderpi = loaders.front();
     REDasm::Loader* loader = REDasm::plugin_cast<REDasm::Loader>(loaderpi);
-    loader->init(&request);
+    loader->init(request);
 
-    assemblerpi = r_pm->findAssembler(loader->assembler());
+    assemblerpi = r_pm->findAssembler(loader->assembler().id);
     TEST("Assembler", assemblerpi);
 
     if(!assemblerpi)
         return;
 
-    m_disassembler = std::make_unique<Disassembler>(REDasm::plugin_cast<REDasm::Assembler>(assemblerpi), loader);
+    REDasm::Assembler* assembler = REDasm::plugin_cast<REDasm::Assembler>(assemblerpi);
+    assembler->init(loader->assembler());
+
+    m_disassembler = std::make_unique<Disassembler>(assembler, loader);
     m_document = m_disassembler->document();
 
     cout << "->> Disassembler...";

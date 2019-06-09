@@ -14,7 +14,7 @@ class LoaderDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit LoaderDialog(const REDasm::LoadRequest* request, QWidget *parent = nullptr);
+        explicit LoaderDialog(const REDasm::LoadRequest &request, QWidget *parent = nullptr);
         ~LoaderDialog();
         const REDasm::PluginInstance* selectedLoader() const;
         const REDasm::PluginInstance* selectedAssembler() const;
@@ -35,7 +35,7 @@ class LoaderDialog : public QDialog
         Ui::LoaderDialog *ui;
         QStandardItemModel* m_loadersmodel;
         REDasm::PluginManager::PluginList m_loaders, m_assemblers;
-        const REDasm::LoadRequest* m_request;
+        const REDasm::LoadRequest& m_request;
 };
 
 #endif // LOADERDIALOG_H

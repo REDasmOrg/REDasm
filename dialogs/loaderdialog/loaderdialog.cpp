@@ -41,15 +41,19 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest *request, QWidget *parent) 
 
 LoaderDialog::~LoaderDialog()
 {
-    auto ait = std::find(m_assemblers.begin(), m_assemblers.end(), this->selectedAssembler());
-    auto lit = std::find(m_loaders.begin(), m_loaders.end(), this->selectedLoader());
+    if(!m_assemblers.empty())
+    {
+        auto ait = std::find(m_assemblers.begin(), m_assemblers.end(), this->selectedAssembler());
+        m_assemblers.erase(ait); // Keep selected assembler
+        r_pm->unload(m_assemblers);
+    }
 
-    // Keep selected assemblers/loaders
-    m_assemblers.erase(ait);
-    m_loaders.erase(lit);
-
-    r_pm->unload(m_assemblers);
-    r_pm->unload(m_loaders);
+    if(!m_loaders.empty())
+    {
+        auto lit = std::find(m_loaders.begin(), m_loaders.end(), this->selectedLoader());
+        m_loaders.erase(lit);   // Keep selected loader
+        r_pm->unload(m_loaders);
+    }
 
     delete ui;
 }

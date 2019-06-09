@@ -14,6 +14,8 @@
 #include <QtCore>
 #include <QtGui>
 
+#define PLUGINS_FOLDER_NAME "plugins"
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -27,8 +29,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ctxsettings.progressCallback = [&](size_t pending) { QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending))); };
     ctxsettings.logCallback = [&](const std::string& s) { QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
     ctxsettings.ui = std::make_shared<REDasmUI>(this);
-    REDasm::Context::init(ctxsettings);
 
+    for(const QString& searchpaths : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation))
+        ctxsettings.pluginPaths.push_back(REDasm::Path::create(searchpaths.toStdString(), PLUGINS_FOLDER_NAME));
+
+#ifdef REDASM_PORTABLE_MODE
+    ctxsettings.pluginPaths.push_front(REDasm::Path::create(ctxsettings.runtimePath, PLUGINS_FOLDER_NAME));
+#endif
+
+    REDasm::Context::init(ctxsettings);
     this->setViewWidgetsVisible(false);
     ui->leFilter->setVisible(false);
 

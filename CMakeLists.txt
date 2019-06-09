@@ -12,9 +12,14 @@ set(CMAKE_AUTORCC ON)
 option(DEBUG_STL_ITERATORS      "Enable iterator debugging in Debug mode (GCC only)" OFF)
 option(ENABLE_ADDRESS_SANITIZER "Enable Address Sanitizer"                           OFF)
 option(ENABLE_THREAD_SANITIZER  "Enable Thread Sanitizer"                            OFF)
+option(PORTABLE_MODE            "Enable Portable Mode"                               OFF)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
+
+if(PORTABLE_MODE)
+    add_definitions(-DREDASM_PORTABLE_MODE=1)
+endif()
 
 if(UNIX)
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
@@ -46,7 +51,7 @@ add_subdirectory(LibREDasm)
 add_subdirectory(QHexView)
 
 if((CMAKE_BUILD_TYPE MATCHES Debug) OR (CMAKE_BUILD_TYPE MATCHES RelWithDebInfo))
-    #add_subdirectory(unittest)
+    add_subdirectory(unittest)
 endif()
 
 QT5_WRAP_UI(UI_HDRS ${UI_FILES})
@@ -150,4 +155,3 @@ endif()
 # Post build commands
 set(LIBREDASM_BIN ${CMAKE_BINARY_DIR}/LibREDasm/LibREDasm${CMAKE_SHARED_LIBRARY_SUFFIX})
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${LIBREDASM_BIN} ${CMAKE_BINARY_DIR})
-

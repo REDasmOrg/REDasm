@@ -20,6 +20,7 @@ class DisassemblerTest
 
     public:
         DisassemblerTest();
+        ~DisassemblerTest();
         void runTests();
 
     private:

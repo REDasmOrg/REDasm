@@ -1,6 +1,8 @@
 #include "disassemblertest.h"
 #include <redasm/disassembler/disassembler.h>
+#include <redasm/plugins/assembler/assembler.h>
 #include <redasm/support/utils.h>
+#include <redasm/context.h>
 #include <QStandardPaths>
 #include <QApplication>
 #include <iostream>
@@ -56,16 +58,19 @@ DisassemblerTest::DisassemblerTest(): m_buffer(nullptr)
 
     ContextSettings ctxsettings;
     ctxsettings.tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
-    ctxsettings.searchPath = QDir::currentPath().toStdString();
+    ctxsettings.runtimePath = QDir::currentPath().toStdString();
     ctxsettings.logCallback =[](const std::string&) { };
     ctxsettings.ignoreproblems = true;
-    REDasm::init(ctxsettings);
+    r_ctx->init(ctxsettings);
 }
+
+DisassemblerTest::~DisassemblerTest() { }
 
 void DisassemblerTest::runTests()
 {
     for(const TestItem& test : m_tests)
     {
+        r_pm->unloadAll();
         QString testpath = QString::fromStdString(test.first);
         QFileInfo fi(testpath);
 
@@ -108,22 +113,23 @@ string DisassemblerTest::replaceAll(std::string str, const std::string &from, co
 void DisassemblerTest::runCurrentTest(const std::string& filepath, const TestCallback &cb)
 {
     LoadRequest request(filepath, m_buffer);
-    LoaderList loaders = REDasm::getLoaders(request, true);
+    REDasm::PluginManager::PluginList loaders = r_pm->getLoaders(&request); //, true);
     TEST("Loader", !loaders.empty());
 
     if(loaders.empty())
         return;
 
-    const LoaderPlugin_Entry* loaderentry = loaders.front();
-    std::unique_ptr<LoaderPlugin> loader(loaderentry->init(request));
+    const PluginInstance *assemblerpi = nullptr, *loaderpi = loaders.front();
+    REDasm::Loader* loader = REDasm::plugin_cast<REDasm::Loader>(loaderpi);
+    loader->init(&request);
 
-    const AssemblerPlugin_Entry* assemblerentry = REDasm::getAssembler(loader->assembler());
-    TEST("Assembler", assemblerentry);
+    assemblerpi = r_pm->findAssembler(loader->assembler());
+    TEST("Assembler", assemblerpi);
 
-    if(!assemblerentry)
+    if(!assemblerpi)
         return;
 
-    m_disassembler = std::make_unique<Disassembler>(assemblerentry->init(), loader.release()); // Takes ownership
+    m_disassembler = std::make_unique<Disassembler>(REDasm::plugin_cast<REDasm::Assembler>(assemblerpi), loader);
     m_document = m_disassembler->document();
 
     cout << "->> Disassembler...";

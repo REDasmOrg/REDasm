@@ -4,7 +4,7 @@
 
 int UnitTest::run()
 {
-    //REDasm::Context::sync(true);
+    r_ctx->sync(true);
     DisassemblerTest disasmtest;
     disasmtest.runTests();
     return 0;

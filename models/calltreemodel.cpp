@@ -47,7 +47,7 @@ void CallTreeModel::populate(const REDasm::ListingItem* parentitem)
     if(m_children.contains(parentitem))
         return;
 
-    REDasm::ListingItems calls;
+    REDasm::ListingItemConstContainer calls;
 
     if(parentitem->is(REDasm::ListingItemType::InstructionItem))
     {
@@ -70,7 +70,7 @@ void CallTreeModel::populate(const REDasm::ListingItem* parentitem)
     this->beginInsertRows(index, 0, static_cast<int>(calls.size()));
     m_children[parentitem] = calls;
 
-    for(REDasm::ListingItem* item : m_children[parentitem])
+    for(const REDasm::ListingItem* item : m_children[parentitem])
     {
         m_parents[item] = parentitem;
 
@@ -104,7 +104,7 @@ int CallTreeModel::getParentIndexFromChild(const REDasm::ListingItem *childitem)
 
 int CallTreeModel::getParentIndex(const REDasm::ListingItem *parentitem) const
 {
-    const REDasm::ListingItems& parentlist = m_children[m_parents[parentitem]];
+    const REDasm::ListingItemConstContainer& parentlist = m_children[m_parents[parentitem]];
     return std::distance(parentlist.begin(), std::find(parentlist.begin(), parentlist.end(), parentitem));
 }
 
@@ -136,7 +136,7 @@ bool CallTreeModel::hasChildren(const QModelIndex &parentindex) const
 
     if(m_children.contains(parentitem))
     {
-        const REDasm::ListingItems& children = m_children[parentitem];
+        const REDasm::ListingItemConstContainer& children = m_children[parentitem];
 
         if(children.empty())
             return false;
@@ -161,7 +161,7 @@ QModelIndex CallTreeModel::index(int row, int column, const QModelIndex &parent)
     if(!parentitem)
         return this->createIndex(row, column, const_cast<REDasm::ListingItem*>(m_root));
 
-    return this->createIndex(row, column, m_children[parentitem][row]);
+    return this->createIndex(row, column, const_cast<REDasm::ListingItem*>(m_children[parentitem][row]));
 }
 
 QModelIndex CallTreeModel::parent(const QModelIndex &child) const

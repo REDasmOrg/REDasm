@@ -41,7 +41,7 @@ class CallTreeModel : public QAbstractItemModel
         REDasm::DisassemblerPtr m_disassembler;
         const REDasm::ListingItem* m_root;
         QHash<const REDasm::ListingItem*, s32> m_depths;
-        QHash<const REDasm::ListingItem*, REDasm::ListingItems> m_children;
+        QHash<const REDasm::ListingItem*, REDasm::ListingItemConstContainer> m_children;
         QHash<const REDasm::ListingItem*, const REDasm::ListingItem*> m_parents;
 };
 

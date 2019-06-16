@@ -8,7 +8,7 @@
 #include "../themeprovider.h"
 #include <QColor>
 
-ListingItemModel::ListingItemModel(REDasm::ListingItemType itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(REDasm::ListingItemType::Undefined) { }
+ListingItemModel::ListingItemModel(REDasm::ListingItemType itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
 
 void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {

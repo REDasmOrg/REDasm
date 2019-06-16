@@ -41,7 +41,7 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) 
 
 LoaderDialog::~LoaderDialog()
 {
-    if(!m_assemblers.empty())
+    if(!m_assemblers.empty() && this->selectedAssembler())
     {
         auto ait = std::find(m_assemblers.begin(), m_assemblers.end(), this->selectedAssembler());
         m_assemblers.erase(ait); // Keep selected assembler
@@ -73,7 +73,7 @@ const REDasm::PluginInstance* LoaderDialog::selectedAssembler() const
     REDasm::LoaderFlags flags = this->selectedLoaderFlags();
 
     if(flags & REDasm::LoaderFlags::CustomAssembler)
-         return r_pm->findAssembler(qUtf8Printable(ui->cbAssembler->currentData().toString()));
+        return m_assemblers[ui->cbAssembler->currentIndex()];
 
     return nullptr;
 }

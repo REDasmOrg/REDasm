@@ -203,7 +203,7 @@ void DisassemblerTest::testOllyDump()
     if(!instruction)
         return;
 
-    TEST("Validating CALL @ 0x00403BEA target", instruction->is(InstructionType::Call) && m_disassembler->getTargetsCount(instruction->address));
+    TEST("Validating CALL @ 0x00403BEA target", instruction->is(InstructionType::Call) && m_disassembler->getTargetsCount(instruction->address()));
 
     symbol = m_document->symbol(0x00407730);
     TEST_SYMBOL("Checking if target is pointer", symbol, symbol->is(SymbolType::Pointer));
@@ -289,12 +289,12 @@ void DisassemblerTest::testIoliARM()
     if(!instruction)
         return;
 
-    TEST("Checking LDR's operands count", (instruction->mnemonic == "ldr") && (instruction->operands.size() >= 2));
+    TEST("Checking LDR's operands count", (instruction->mnemonic() == "ldr") && (instruction->operandsCount() >= 2));
 
-    Operand op = instruction->operands[1];
-    TEST("Checking LDR's operand 2", op.is(OperandType::Memory));
+    Operand* op = instruction->op(1);
+    TEST("Checking LDR's operand 2", op->is(OperandType::Memory));
 
-    const Symbol* symbol = m_document->symbol(op.u_value);
+    const Symbol* symbol = m_document->symbol(op->u_value);
     TEST_SYMBOL("Checking LDR's operand 2 symbol", symbol, symbol->is(SymbolType::Data) && symbol->is(SymbolType::Pointer));
 
     symbol = m_disassembler->dereferenceSymbol(symbol);
@@ -306,13 +306,13 @@ void DisassemblerTest::testIoliARM()
     if(!instruction)
         return;
 
-    TEST("Checking LDR's operands count", (instruction->mnemonic == "ldr") && (instruction->operands.size() >= 2));
+    TEST("Checking LDR's operands count", (instruction->mnemonic() == "ldr") && (instruction->operandsCount() >= 2));
 
-    op = instruction->operands[1];
-    TEST("Checking LDR's operand 2", op.is(OperandType::Memory));
+    op = instruction->op(1);
+    TEST("Checking LDR's operand 2", op->is(OperandType::Memory));
 
     u64 value = 0;
-    symbol = m_document->symbol(op.u_value);
+    symbol = m_document->symbol(op->u_value);
     TEST_SYMBOL("Checking LDR's operand 2 symbol", symbol, symbol->is(SymbolType::Data) && symbol->is(SymbolType::Pointer));
     TEST("Checking dereferenced value", m_disassembler->dereference(symbol->address, &value) && (value == 0x149a));
 }
@@ -328,14 +328,14 @@ void DisassemblerTest::testTn11()
     if(!instruction)
         return;
 
-    TEST("Checking TARGETS count @ 0x00401197", m_disassembler->getTargetsCount(instruction->address) == 5);
+    TEST("Checking TARGETS count @ 0x00401197", m_disassembler->getTargetsCount(instruction->address()) == 5);
 
-    if(m_disassembler->getTargetsCount(instruction->address) != 5)
+    if(m_disassembler->getTargetsCount(instruction->address()) != 5)
         return;
 
     size_t i = 0;
 
-    for(address_t target : m_disassembler->getTargets(instruction->address))
+    for(address_t target : m_disassembler->getTargets(instruction->address()))
     {
         const Symbol* symbol = m_document->symbol(target);
         TEST("Checking CASE #" + std::to_string(i) + " @ " + REDasm::Utils::hex(target), symbol && symbol->is(SymbolType::Code) && m_document->instruction(target));

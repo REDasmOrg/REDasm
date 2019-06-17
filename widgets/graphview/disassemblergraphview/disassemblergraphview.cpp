@@ -219,7 +219,7 @@ std::string DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Edge &e)
     {
         const REDasm::ListingItem* toitem = document->itemAt(tofbb->startIndex());
 
-        if(m_disassembler->getTarget(instruction->address) == toitem->address())
+        if(m_disassembler->getTarget(instruction->address()) == toitem->address())
             label = "TRUE";
         else
             label = "FALSE";

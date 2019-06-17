@@ -266,7 +266,7 @@ void DisassemblerView::showModelReferences()
     if(m_currentindex.model() == m_docks->callTreeModel())
     {
         REDasm::InstructionPtr instruction = m_disassembler->document()->instruction(item->address());
-        symbol = m_disassembler->document()->symbol(m_disassembler->getTarget(instruction->address));
+        symbol = m_disassembler->document()->symbol(m_disassembler->getTarget(instruction->address()));
     }
     else
         symbol = m_disassembler->document()->symbol(item->address());
@@ -528,7 +528,7 @@ void DisassemblerView::syncHexEdit()
             if(!instruction)
                 return;
 
-            len = instruction->size;
+            len = instruction->size();
         }
         else if(symbol)
             len = m_disassembler->assembler()->addressWidth();

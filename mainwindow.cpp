@@ -30,8 +30,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ctxsettings.logCallback = [&](const std::string& s) { QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
     ctxsettings.ui = std::make_shared<REDasmUI>(this);
 
-    r_ctx->sync(true);
-
     for(const QString& searchpaths : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation))
         ctxsettings.pluginPaths.push_back(REDasm::Path::create(searchpaths.toStdString(), PLUGINS_FOLDER_NAME));
 

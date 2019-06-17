@@ -34,9 +34,9 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
             if(!instruction->is(REDasm::InstructionType::Jump))
                 continue;
 
-            for(address_t target : m_disassembler->getTargets(instruction->address))
+            for(address_t target : m_disassembler->getTargets(instruction->address()))
             {
-                if(target == instruction->address)
+                if(target == instruction->address())
                     continue;
 
                 size_t idx = document->instructionIndex(target);

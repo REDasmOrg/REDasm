@@ -408,9 +408,12 @@ bool DisassemblerTextView::event(QEvent *e)
     return QAbstractScrollArea::event(e);
 }
 
-void DisassemblerTextView::paintLines(QPainter *painter, u64 first, u64 last)
+void DisassemblerTextView::paintLines(QPainter *painter, size_t first, size_t last)
 {
-    u64 count = (last - first) + 1;
+    if(first > last)
+        return;
+
+    size_t count = (last - first) + 1;
     m_renderer->render(first, count, painter);
 }
 
@@ -424,7 +427,7 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChange
         if(ldc->index() > this->lastVisibleLine()) // Don't care of bottom Insertion/Deletion
             return;
 
-        //QMetaObject::invokeMethod(this, "renderListing", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, "renderListing", Qt::QueuedConnection);
     }
     else
         QMetaObject::invokeMethod(this, "renderLine", Qt::QueuedConnection, Q_ARG(size_t, ldc->index()));

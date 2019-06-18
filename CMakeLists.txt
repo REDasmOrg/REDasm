@@ -50,6 +50,13 @@ add_definitions(-DREDASM_VERSION="${REDASM_BUILD_VERSION}")
 add_subdirectory(LibREDasm)
 add_subdirectory(QHexView)
 
+# FindREDasm.config
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/LibREDasm/redasm")
+
+add_subdirectory(submodules/plugins)
+add_subdirectory(submodules/assemblers)
+add_subdirectory(submodules/loaders)
+
 if((CMAKE_BUILD_TYPE MATCHES Debug) OR (CMAKE_BUILD_TYPE MATCHES RelWithDebInfo))
     add_subdirectory(unittest)
 endif()
@@ -128,6 +135,7 @@ add_executable(${PROJECT_NAME} ${GUI_TYPE}
                ${CMAKE_SOURCE_DIR}/res/windows/resources.rc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC LibREDasm QHexEdit)
+
 add_dependencies(${PROJECT_NAME} LibREDasm)
 
 if(WIN32)

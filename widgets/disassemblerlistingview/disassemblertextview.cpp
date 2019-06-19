@@ -522,11 +522,12 @@ void DisassemblerTextView::adjustScrollBars()
 
     QScrollBar* vscrollbar = this->verticalScrollBar();
     auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
+    size_t vl = this->visibleLines();
 
-    if(static_cast<int>(lock->size()) <= this->visibleLines())
+    if(lock->size() <= vl)
         vscrollbar->setMaximum(static_cast<int>(lock->size()));
     else
-        vscrollbar->setMaximum(static_cast<int>(lock->size() - this->visibleLines() + 1));
+        vscrollbar->setMaximum(static_cast<int>(lock->size() - vl + 1));
 
     this->ensureColumnVisible();
 }

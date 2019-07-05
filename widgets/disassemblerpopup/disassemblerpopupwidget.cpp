@@ -30,7 +30,7 @@ DisassemblerPopupWidget::DisassemblerPopupWidget(ListingDocumentRenderer *docume
     this->setGraphicsEffect(dropshadow);
 }
 
-bool DisassemblerPopupWidget::renderPopup(const std::string &word, int line)
+bool DisassemblerPopupWidget::renderPopup(const REDasm::String &word, int line)
 {
     m_index = this->getIndexOfWord(word);
 
@@ -68,7 +68,7 @@ void DisassemblerPopupWidget::renderPopup()
     m_documentrenderer->render(m_index, m_rows, this->document());
 }
 
-size_t DisassemblerPopupWidget::getIndexOfWord(const std::string &word) const
+size_t DisassemblerPopupWidget::getIndexOfWord(const REDasm::String &word) const
 {
     const REDasm::Symbol* symbol = m_document->symbol(word);
 

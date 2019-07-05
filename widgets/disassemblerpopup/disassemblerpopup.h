@@ -12,7 +12,7 @@ class DisassemblerPopup : public QWidget
     public:
         explicit DisassemblerPopup(const REDasm::DisassemblerPtr& disassembler, QWidget* parent = nullptr);
         ~DisassemblerPopup();
-        void popup(const std::string& word, int line);
+        void popup(const REDasm::String &word, int line);
 
     protected:
         void mouseMoveEvent(QMouseEvent *e) override;

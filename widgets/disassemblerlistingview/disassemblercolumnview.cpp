@@ -29,14 +29,14 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 
         if(item->is(REDasm::ListingItemType::InstructionItem))
         {
-            REDasm::InstructionPtr instruction = document->instruction(item->address());
+            REDasm::CachedInstruction instruction = document->instruction(item->address());
 
             if(!instruction->is(REDasm::InstructionType::Jump))
                 continue;
 
-            for(address_t target : m_disassembler->getTargets(instruction->address()))
+            for(address_t target : m_disassembler->getTargets(instruction->address))
             {
-                if(target == instruction->address())
+                if(target == instruction->address)
                     continue;
 
                 size_t idx = document->instructionIndex(target);
@@ -144,7 +144,7 @@ void DisassemblerColumnView::insertPath(REDasm::ListingItem* fromitem, u64 fromi
 {
     auto& document = m_disassembler->document();
     auto pair = qMakePair(fromidx, toidx);
-    REDasm::InstructionPtr frominstruction = document->instruction(fromitem->address());
+    REDasm::CachedInstruction frominstruction = document->instruction(fromitem->address());
 
     if(!frominstruction || !frominstruction->is(REDasm::InstructionType::Jump) || m_done.contains(pair))
         return;

@@ -12,8 +12,8 @@ class DisassemblerTest
 {
     private:
         typedef std::function<void()> TestCallback;
-        typedef std::map<std::string, TestCallback> TestList;
-        typedef std::pair<std::string, TestCallback> TestItem;
+        typedef std::map<REDasm::String, TestCallback> TestList;
+        typedef std::pair<REDasm::String, TestCallback> TestItem;
 
     public:
         REDasm::SimpleEvent done;
@@ -25,11 +25,11 @@ class DisassemblerTest
 
     private:
         static std::string replaceAll(std::string str, const std::string& from, const std::string& to);
-        void runCurrentTest(const std::string &filepath, const TestCallback& cb);
+        void runCurrentTest(const REDasm::String &filepath, const TestCallback& cb);
 
     private:
-        void testTrampolines(const std::map<address_t, std::string>& trampolines);
-        void testVBEvents(const std::map<address_t, std::string>& vbevents);
+        void testTrampolines(const std::map<address_t, REDasm::String> &trampolines);
+        void testVBEvents(const std::map<address_t, REDasm::String> &vbevents);
 
     private: // Tests
         void testCavia();

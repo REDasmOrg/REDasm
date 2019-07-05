@@ -1,6 +1,7 @@
 #include "disassemblergraphview.h"
 #include "../../../models/disassemblermodel.h"
 #include "../../../redasmsettings.h"
+#include "../../../convert.h"
 #include <redasm/graph/layout/layeredlayout.h>
 #include <redasm/support/utils.h>
 #include <redasm/context.h>
@@ -48,10 +49,10 @@ void DisassemblerGraphView::setDisassembler(const REDasm::DisassemblerPtr &disas
 
 bool DisassemblerGraphView::isCursorInGraph() const { return this->itemFromCurrentLine() != nullptr; }
 
-std::string DisassemblerGraphView::currentWord()
+REDasm::String DisassemblerGraphView::currentWord()
 {
     if(!this->selectedItem())
-        return std::string();
+        return REDasm::String();
 
     return static_cast<DisassemblerBlockItem*>(this->selectedItem())->currentWord();
 }
@@ -74,7 +75,7 @@ void DisassemblerGraphView::computeLayout()
 
     for(const auto& e : this->graph()->edges())
     {
-        this->graph()->color(e, this->getEdgeColor(e).name().toStdString());
+        this->graph()->color(e, qUtf8Printable(this->getEdgeColor(e).name()));
         this->graph()->label(e, this->getEdgeLabel(e));
     }
 
@@ -138,7 +139,7 @@ bool DisassemblerGraphView::renderGraph()
 
     if(!graph)
     {
-        r_ctx->log("Graph creation failed @ " + REDasm::Utils::hex(currentfunction->address()));
+        r_ctx->log("Graph creation failed @ " + REDasm::String::hex(currentfunction->address()));
         return false;
     }
 
@@ -203,23 +204,23 @@ void DisassemblerGraphView::selectedItemChangedEvent()
 QColor DisassemblerGraphView::getEdgeColor(const REDasm::Graphing::Edge &e) const
 {
     const REDasm::Graphing::FunctionBasicBlock* fbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(e.source);
-    return THEME_VALUE(QString::fromStdString(fbb->style(e.target)));
+    return THEME_VALUE(Convert::to_qstring(fbb->style(e.target)));
 }
 
-std::string DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Edge &e) const
+REDasm::String DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Edge &e) const
 {
     const REDasm::Graphing::FunctionBasicBlock* fromfbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(e.source);
     const REDasm::Graphing::FunctionBasicBlock* tofbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(e.target);
     REDasm::ListingDocument& document = m_disassembler->document();
     const REDasm::ListingItem* fromitem = document->itemAt(fromfbb->endIndex());
-    REDasm::InstructionPtr instruction = document->instruction(fromitem->address());
-    std::string label;
+    REDasm::CachedInstruction instruction = document->instruction(fromitem->address());
+    REDasm::String label;
 
     if(instruction && instruction->is(REDasm::InstructionType::Conditional))
     {
         const REDasm::ListingItem* toitem = document->itemAt(tofbb->startIndex());
 
-        if(m_disassembler->getTarget(instruction->address()) == toitem->address())
+        if(m_disassembler->getTarget(instruction->address) == toitem->address())
             label = "TRUE";
         else
             label = "FALSE";

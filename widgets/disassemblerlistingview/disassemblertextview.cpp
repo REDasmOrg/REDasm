@@ -1,5 +1,6 @@
 #include "disassemblertextview.h"
 #include "../../models/disassemblermodel.h"
+#include "../../convert.h"
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/context.h>
 #include <QtWidgets>
@@ -38,7 +39,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     if(refreshfreq <= 0)
         refreshfreq = FALLBACK_REFRESH_RATE;
 
-    r_ctx->log("Setting refresh rate to " + QString::number(refreshfreq, 'f', 1).toStdString() + "Hz");
+    r_ctx->log("Setting refresh rate to " + Convert::to_rstring(QString::number(refreshfreq, 'f', 1)) + "Hz");
     m_refreshrate = std::ceil((1 / refreshfreq) * 1000);
     m_blinktimerid = this->startTimer(CURSOR_BLINK_INTERVAL);
 }
@@ -59,7 +60,7 @@ DisassemblerTextView::~DisassemblerTextView()
 }
 
 DisassemblerActions *DisassemblerTextView::disassemblerActions() const { return m_actions; }
-std::string DisassemblerTextView::currentWord() const { return m_renderer ? m_renderer->getCurrentWord() : std::string(); }
+REDasm::String DisassemblerTextView::currentWord() const { return m_renderer ? m_renderer->getCurrentWord() : REDasm::String(); }
 bool DisassemblerTextView::canGoBack() const { return this->currentDocument()->cursor()->canGoBack(); }
 bool DisassemblerTextView::canGoForward() const { return this->currentDocument()->cursor()->canGoForward(); }
 
@@ -570,7 +571,7 @@ void DisassemblerTextView::ensureColumnVisible()
 
 void DisassemblerTextView::showPopup(const QPoint& pos)
 {
-    std::string word = m_renderer->getWordFromPos(pos);
+    REDasm::String word = m_renderer->getWordFromPos(pos);
 
     if(!word.empty())
     {

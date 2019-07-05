@@ -57,7 +57,7 @@ class DisassemblerView : public QWidget
     private:
         const REDasm::ListingItem* itemFromIndex(const QModelIndex& index) const;
         ListingFilterModel* getSelectedFilterModel();
-        std::string currentWord() const;
+        REDasm::String currentWord() const;
         void showListingOrGraph();
         void createActions();
         void filterSymbols();

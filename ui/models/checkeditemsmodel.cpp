@@ -1,4 +1,5 @@
 #include "checkeditemsmodel.h"
+#include "../../convert.h"
 
 CheckedItemsModel::CheckedItemsModel(REDasm::UI::CheckList &items, QObject *parent): QAbstractListModel(parent), m_items(items) { }
 
@@ -20,7 +21,7 @@ QVariant CheckedItemsModel::data(const QModelIndex &index, int role) const
     const auto& item = m_items[index.row()];
 
     if(role == Qt::DisplayRole)
-        return QString::fromStdString(item.first);
+        return Convert::to_qstring(item.first);
     if(role == Qt::CheckStateRole)
         return item.second ? Qt::Checked : Qt::Unchecked;
 

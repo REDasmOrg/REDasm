@@ -265,8 +265,8 @@ void DisassemblerView::showModelReferences()
 
     if(m_currentindex.model() == m_docks->callTreeModel())
     {
-        REDasm::InstructionPtr instruction = m_disassembler->document()->instruction(item->address());
-        symbol = m_disassembler->document()->symbol(m_disassembler->getTarget(instruction->address()));
+        REDasm::CachedInstruction instruction = m_disassembler->document()->instruction(item->address());
+        symbol = m_disassembler->document()->symbol(m_disassembler->getTarget(instruction->address));
     }
     else
         symbol = m_disassembler->document()->symbol(item->address());
@@ -325,8 +325,8 @@ void DisassemblerView::displayAddress(address_t address)
     offset_location offset = loader->offset(address);
 
     QString segm = segment ? S_TO_QS(segment->name) : "UNKNOWN",
-            offs = segment && offset.valid ? S_TO_QS(REDasm::Utils::hex(offset, assembler->bits())) : "UNKNOWN",
-            addr = S_TO_QS(REDasm::Utils::hex(address, assembler->bits()));
+            offs = segment && offset.valid ? S_TO_QS(REDasm::String::hex(offset.value, assembler->bits())) : "UNKNOWN",
+            addr = S_TO_QS(REDasm::String::hex(address, assembler->bits()));
 
     QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
@@ -337,20 +337,20 @@ void DisassemblerView::displayAddress(address_t address)
         QString func = S_TO_QS(functionstart->name);
 
         if(address > functionstart->address)
-            func += "+" + S_TO_QS(REDasm::Utils::hex(address - functionstart->address, 8));
+            func += "+" + S_TO_QS(REDasm::String::hex(address - functionstart->address, 8));
         else if(address < functionstart->address)
-            func += S_TO_QS(REDasm::Utils::hex<REDasm::signed_of<size_t>::type>(address - functionstart->address));
+            func += S_TO_QS(REDasm::String::hex<REDasm::signed_of<size_t>::type>(address - functionstart->address));
 
         s = QString::fromWCharArray(L"<b>Function: </b>%1\u00A0\u00A0").arg(func) + s;
     }
 
-    r_ctx->status(s.toStdString());
+    r_ctx->status(qUtf8Printable(s));
 }
 
 void DisassemblerView::displayCurrentReferences()
 {
     REDasm::ListingDocument& document = m_disassembler->document();
-    std::string word = this->currentWord();
+    REDasm::String word = this->currentWord();
 
     if(!word.empty())
     {
@@ -523,12 +523,12 @@ void DisassemblerView::syncHexEdit()
 
         if(canbeinstruction)
         {
-            REDasm::InstructionPtr instruction = document->instruction(item->address());
+            REDasm::CachedInstruction instruction = document->instruction(item->address());
 
             if(!instruction)
                 return;
 
-            len = instruction->size();
+            len = instruction->size;
         }
         else if(symbol)
             len = m_disassembler->assembler()->addressWidth();
@@ -568,7 +568,7 @@ ListingFilterModel *DisassemblerView::getSelectedFilterModel()
     return nullptr;
 }
 
-std::string DisassemblerView::currentWord() const
+REDasm::String DisassemblerView::currentWord() const
 {
     if(ui->stackedWidget->currentWidget() == m_graphview)
         return m_graphview->currentWord();

@@ -94,6 +94,7 @@ SET(HEADERS
     ${MODELS_HEADERS}
     ${RENDERER_HEADERS}
     ${UI_HEADERS}
+    convert.h
     mainwindow.h
     themeprovider.h
     redasmsettings.h

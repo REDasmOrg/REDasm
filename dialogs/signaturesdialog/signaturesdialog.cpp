@@ -1,5 +1,6 @@
 #include "signaturesdialog.h"
 #include "ui_signaturesdialog.h"
+#include "../../convert.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <redasm/context.h>
@@ -37,7 +38,7 @@ SignaturesDialog::~SignaturesDialog() { delete ui; }
 
 void SignaturesDialog::loadSignature(bool)
 {
-    const std::string& sigpath = m_signaturefilesmodel->signaturePath(ui->tvFiles->currentIndex());
+    const REDasm::String& sigpath = m_signaturefilesmodel->signaturePath(ui->tvFiles->currentIndex());
 
     if(m_disassembler->loadSignature(sigpath))
     {
@@ -47,7 +48,7 @@ void SignaturesDialog::loadSignature(bool)
 
     QMessageBox msgbox(this);
     msgbox.setWindowTitle("Load Error");
-    msgbox.setText(QString("Error loading '%1'").arg(QFileInfo(QString::fromStdString(sigpath)).fileName()));
+    msgbox.setText(QString("Error loading '%1'").arg(QFileInfo(Convert::to_qstring(sigpath)).fileName()));
     msgbox.setStandardButtons(QMessageBox::Ok);
 }
 
@@ -62,16 +63,16 @@ void SignaturesDialog::readSignature(const QModelIndex &index)
 void SignaturesDialog::browseSignatures()
 {
     QString s = QFileDialog::getOpenFileName(this, "Load Signature...",
-                                             QString::fromStdString(r_ctx->signature(std::string())),
+                                             Convert::to_qstring(r_ctx->signature(REDasm::String())),
                                              "REDasm Signature (*.json)");
 
     if(s.isEmpty())
         return;
 
-    std::string sigid = QFileInfo(s).baseName().toStdString();
+    REDasm::String sigid = Convert::to_rstring(QFileInfo(s).baseName());
 
     if(m_signaturefilesmodel->contains(sigid))
         return;
 
-    m_signaturefilesmodel->add(sigid, s.toStdString());
+    m_signaturefilesmodel->add(sigid, Convert::to_rstring(s));
 }

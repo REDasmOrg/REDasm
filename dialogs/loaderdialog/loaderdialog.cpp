@@ -1,5 +1,6 @@
 #include "loaderdialog.h"
 #include "ui_loaderdialog.h"
+#include "../convert.h"
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/context.h>
 #include <QPushButton>
@@ -12,7 +13,7 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) 
     m_loadersmodel = new QStandardItemModel(ui->lvLoaders);
 
     for(const auto& entry : m_loaders)
-        m_loadersmodel->appendRow(new QStandardItem(QString::fromUtf8(entry->descriptor->description)));
+        m_loadersmodel->appendRow(new QStandardItem(Convert::to_qstring(entry->descriptor->description)));
 
     ui->lvLoaders->setModel(m_loadersmodel);
     ui->lvLoaders->setCurrentIndex(m_loadersmodel->index(0, 0));
@@ -144,5 +145,5 @@ void LoaderDialog::populateAssemblers()
     m_assemblers = r_pm->getAssemblers();
 
     for(auto it = m_assemblers.begin(); it != m_assemblers.end(); it++)
-        ui->cbAssembler->addItem(QString::fromUtf8((*it)->descriptor->description), QString::fromUtf8((*it)->descriptor->id));
+        ui->cbAssembler->addItem(Convert::to_qstring((*it)->descriptor->description), Convert::to_qstring((*it)->descriptor->id));
 }

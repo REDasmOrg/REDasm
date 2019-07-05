@@ -1,5 +1,6 @@
 #include "listingmap.h"
 #include "../themeprovider.h"
+#include "../convert.h"
 #include <redasm/graph/functiongraph.h>
 #include <redasm/plugins/loader/loader.h>
 #include <QPainter>
@@ -64,13 +65,17 @@ void ListingMap::drawLabels(QPainter* painter)
 
     painter->setPen(palette.color(QPalette::HighlightedText));
 
-    for(const REDasm::Segment& segment : lock->segments())
+    auto it = lock->segments().iterator();
+
+    while(it.hasNext())
     {
-        if(segment.is(REDasm::SegmentType::Bss))
+        const REDasm::Segment* segment = variant_object<REDasm::Segment>(it.next());
+
+        if(segment->is(REDasm::SegmentType::Bss))
             continue;
 
-        int pos = this->calculatePosition(segment.offset);
-        int segmentsize = this->calculateSize(segment.size());
+        int pos = this->calculatePosition(segment->offset);
+        int segmentsize = this->calculateSize(segment->size());
 
         if(segmentsize < fm.height()) // Don't draw labels on small segments
             continue;
@@ -79,13 +84,13 @@ void ListingMap::drawLabels(QPainter* painter)
         {
             painter->drawText(pos, 2, segmentsize - (fm.width(' ') * 2), fm.height(),
                               Qt::AlignLeft | Qt::AlignBottom,
-                              QString::fromStdString(segment.name));
+                              Convert::to_qstring(segment->name));
         }
         else
         {
             painter->drawText(2, pos, this->width() - (fm.width(' ') * 2), fm.height(),
                               Qt::AlignRight | Qt::AlignTop,
-                              QString::fromStdString(segment.name));
+                              Convert::to_qstring(segment->name));
         }
     }
 }
@@ -93,16 +98,19 @@ void ListingMap::drawLabels(QPainter* painter)
 void ListingMap::renderSegments(QPainter* painter)
 {
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
+    auto it = lock->segments().iterator();
 
-    for(const REDasm::Segment& segment : lock->segments())
+    while(it.hasNext())
     {
-        if(segment.is(REDasm::SegmentType::Bss))
+        const REDasm::Segment* segment = variant_object<REDasm::Segment>(it.next());
+
+        if(segment->is(REDasm::SegmentType::Bss))
             continue;
 
-        QRect r = this->buildRect(this->calculatePosition(segment.offset),
-                                  this->calculateSize(segment.size()));
+        QRect r = this->buildRect(this->calculatePosition(segment->offset),
+                                  this->calculateSize(segment->size()));
 
-        if(segment.is(REDasm::SegmentType::Code))
+        if(segment->is(REDasm::SegmentType::Code))
             painter->fillRect(r, THEME_VALUE("label_fg"));
         else
             painter->fillRect(r, THEME_VALUE("data_fg"));

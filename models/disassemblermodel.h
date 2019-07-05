@@ -5,7 +5,7 @@
 #include <QIdentityProxyModel>
 #include <redasm/disassembler/disassembler.h>
 
-#define S_TO_QS(s) QString::fromStdString(s)
+#define S_TO_QS(s) QString::fromUtf8(s.c_str())
 
 class DisassemblerModel : public QAbstractListModel
 {

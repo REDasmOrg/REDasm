@@ -14,7 +14,7 @@ class DisassemblerBlockItem : public GraphViewItem
     public:
         explicit DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock* fbb, const REDasm::DisassemblerPtr& disassembler, const REDasm::Graphing::Node& node, QWidget *parent = nullptr);
         virtual ~DisassemblerBlockItem();
-        std::string currentWord();
+        REDasm::String currentWord();
         ListingDocumentRenderer* renderer() const;
         bool containsIndex(s64 index) const;
 

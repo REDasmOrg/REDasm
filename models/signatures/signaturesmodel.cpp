@@ -1,4 +1,5 @@
 #include "signaturesmodel.h"
+#include "../convert.h"
 #include <redasm/support/demangler.h>
 
 SignaturesModel::SignaturesModel(QObject *parent): QAbstractListModel(parent), m_signaturedb(nullptr) { }
@@ -18,10 +19,10 @@ QVariant SignaturesModel::data(const QModelIndex &index, int role) const
     if(index.column() == 0)
     {
         const auto& signature = m_signaturedb->at(index.row());
-        return QString::fromStdString(REDasm::Demangler::demangled(signature["name"]));
+        return Convert::to_qstring(REDasm::Demangler::demangled(signature["name"]));
     }
     if(index.column() == 1)
-        return QString::fromStdString(m_signaturedb->assembler());
+        return Convert::to_qstring(m_signaturedb->assembler());
     if(index.column() == 2)
         return static_cast<quint64>(m_signaturedb->size());
     if(index.column() == 3)

@@ -3,6 +3,7 @@
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/utils.h>
 #include "../themeprovider.h"
+#include "../convert.h"
 #include <QFontDatabase>
 #include <QColor>
 
@@ -113,7 +114,7 @@ address_location CallTreeModel::getCallTarget(const REDasm::ListingItem *item) c
     if(!item->is(REDasm::ListingItemType::InstructionItem))
         return REDasm::invalid_location<address_t>();
 
-    REDasm::InstructionPtr instruction = m_disassembler->document()->instruction(item->address());
+    REDasm::CachedInstruction instruction = m_disassembler->document()->instruction(item->address());
 
     if(!instruction->is(REDasm::InstructionType::Call))
         return REDasm::invalid_location<address_t>();
@@ -220,13 +221,13 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return QString::fromStdString(REDasm::Utils::hex(item->address(), m_disassembler->assembler()->bits()));
+            return Convert::to_qstring(REDasm::String::hex(item->address(), m_disassembler->assembler()->bits()));
         else if(index.column() == 1)
         {
             if(item->is(REDasm::ListingItemType::FunctionItem))
-                return QString::fromStdString(symbol->name);
+                return Convert::to_qstring(symbol->name);
 
-            return QString::fromStdString(m_printer->out(lock->instruction(item->address())));
+            return Convert::to_qstring(m_printer->out(lock->instruction(item->address())));
         }
         else if(index.column() == 2)
             return item == m_root ? "---" : QString::number(m_disassembler->getReferencesCount(item->address()));

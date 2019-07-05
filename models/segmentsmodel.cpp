@@ -4,6 +4,7 @@
 #include <redasm/support/utils.h>
 #include <QColor>
 #include "../themeprovider.h"
+#include "../convert.h"
 
 #define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 
@@ -17,24 +18,24 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         const REDasm::Assembler* assembler = m_disassembler->assembler();
-        const REDasm::Segment& segment = m_disassembler->document()->segments().at(index.row());
+        const REDasm::Segment* segment = variant_object<REDasm::Segment>(m_disassembler->document()->segments().at(index.row()));
 
         if(index.column() == 0)
-            return S_TO_QS(REDasm::Utils::hex(segment.address, assembler->bits()));
+            return Convert::to_qstring(REDasm::String::hex(segment->address, assembler->bits()));
         if(index.column() == 1)
-            return S_TO_QS(REDasm::Utils::hex(segment.endaddress, assembler->bits()));
+            return Convert::to_qstring(REDasm::String::hex(segment->endaddress, assembler->bits()));
         if(index.column() == 2)
-            return S_TO_QS(REDasm::Utils::hex(segment.size(), assembler->bits()));
+            return Convert::to_qstring(REDasm::String::hex(segment->size(), assembler->bits()));
         if(index.column() == 3)
-            return S_TO_QS(REDasm::Utils::hex(segment.offset, assembler->bits()));
+            return Convert::to_qstring(REDasm::String::hex(segment->offset, assembler->bits()));
         if(index.column() == 4)
-            return S_TO_QS(REDasm::Utils::hex(segment.endoffset, assembler->bits()));
+            return Convert::to_qstring(REDasm::String::hex(segment->endoffset, assembler->bits()));
         if(index.column() == 5)
-            return S_TO_QS(REDasm::Utils::hex(segment.rawSize(), assembler->bits()));
+            return Convert::to_qstring(REDasm::String::hex(segment->rawSize(), assembler->bits()));
         if(index.column() == 6)
-            return S_TO_QS(segment.name);
+            return Convert::to_qstring(segment->name);
         if(index.column() == 7)
-            return SegmentsModel::segmentFlags(&segment);
+            return SegmentsModel::segmentFlags(segment);
     }
     else if(role == Qt::ForegroundRole)
     {

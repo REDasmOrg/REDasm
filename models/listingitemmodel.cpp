@@ -110,14 +110,14 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::Utils::hex(symbol->address, m_disassembler->assembler()->bits()));
+            return S_TO_QS(REDasm::String::hex(symbol->address, m_disassembler->assembler()->bits()));
 
         if(index.column() == 1)
         {
             if(symbol->is(REDasm::SymbolType::WideStringMask))
-                return S_TO_QS(REDasm::Utils::quoted(m_disassembler->readWString(symbol)));
+                return S_TO_QS(m_disassembler->readWString(symbol).quoted());
             else if(symbol->is(REDasm::SymbolType::StringMask))
-                return S_TO_QS(REDasm::Utils::quoted(m_disassembler->readString(symbol)));
+                return S_TO_QS(m_disassembler->readString(symbol).quoted());
 
             return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
         }

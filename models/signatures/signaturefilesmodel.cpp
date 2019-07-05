@@ -1,4 +1,5 @@
 #include "signaturefilesmodel.h"
+#include "../convert.h"
 #include <redasm/redasm.h>
 #include <QFileInfo>
 #include <QDirIterator>
@@ -6,14 +7,10 @@
 
 SignatureFilesModel::SignatureFilesModel(REDasm::Disassembler* disassembler, QObject *parent): QAbstractListModel(parent), m_disassembler(disassembler)
 {
-    QDirIterator it(QString::fromStdString(r_ctx->signature(std::string())), {"*.json"}, QDir::Files);
+    QDirIterator it(Convert::to_qstring(r_ctx->signature(REDasm::String()).c_str()), {"*.json"}, QDir::Files);
 
     while(it.hasNext())
-    {
-        QString sigpath = it.next();
-        std::string sigid = QFileInfo(sigpath).baseName().toStdString();
-        m_signaturefiles.push_back({ sigid, r_ctx->signature(sigid) + ".json" });
-    }
+        m_signaturefiles.push_back({ Convert::to_rstring(QFileInfo(it.next()).baseName()),  r_ctx->signature(REDasm::String()) + ".json" });
 }
 
 const REDasm::SignatureDB *SignatureFilesModel::load(const QModelIndex &index)
@@ -28,10 +25,10 @@ const REDasm::SignatureDB *SignatureFilesModel::load(const QModelIndex &index)
     return &m_loadedsignatures[index.row()];
 }
 
-const std::string &SignatureFilesModel::signatureId(const QModelIndex &index) const { return m_signaturefiles[index.row()].first;  }
-const std::string& SignatureFilesModel::signaturePath(const QModelIndex &index) const { return m_signaturefiles[index.row()].second; }
+const REDasm::String &SignatureFilesModel::signatureId(const QModelIndex &index) const { return m_signaturefiles[index.row()].first;  }
+const REDasm::String& SignatureFilesModel::signaturePath(const QModelIndex &index) const { return m_signaturefiles[index.row()].second; }
 
-void SignatureFilesModel::add(const std::string &sigid, const std::string &sigpath)
+void SignatureFilesModel::add(const REDasm::String &sigid, const REDasm::String &sigpath)
 {
     this->beginInsertRows(QModelIndex(), m_signaturefiles.size(), m_signaturefiles.size());
     m_signaturefiles.push_back({sigid, sigpath});
@@ -46,12 +43,12 @@ void SignatureFilesModel::mark(const QModelIndex &index)
 
 bool SignatureFilesModel::isLoaded(const QModelIndex &index) const
 {
-    const std::string& signature = m_signaturefiles[index.row()].first;
+    const REDasm::String& signature = m_signaturefiles[index.row()].first;
     auto it = m_disassembler->loader()->signatures().find(signature);
     return it != m_disassembler->loader()->signatures().end();
 }
 
-bool SignatureFilesModel::contains(const std::string &sigid) const
+bool SignatureFilesModel::contains(const REDasm::String &sigid) const
 {
     for(const auto& item : m_signaturefiles)
     {
@@ -68,7 +65,7 @@ QVariant SignatureFilesModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if(index.column() == 0)
-        return QString::fromStdString(m_signaturefiles[index.row()].first);
+        return Convert::to_qstring(m_signaturefiles[index.row()].first);
 
     if(index.column() == 1)
         return this->isLoaded(index) ? "YES" : "NO";

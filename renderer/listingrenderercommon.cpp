@@ -1,6 +1,7 @@
 ﻿#include "listingrenderercommon.h"
 #include "../redasmsettings.h"
 #include "../themeprovider.h"
+#include "../convert.h"
 #include <QApplication>
 #include <QRegularExpression>
 #include <QTextCharFormat>
@@ -34,10 +35,10 @@ REDasm::ListingCursor::Position ListingRendererCommon::hitTest(const QPointF &po
     if(!this->getRendererLine(cp.first, rl))
         cp.second = 0;
 
-    std::string s = rl.text;
+    REDasm::String s = rl.text;
     qreal x = 0;
 
-    for(size_t i = 0; i < s.length(); i++)
+    for(size_t i = 0; i < s.size(); i++)
     {
         qreal w = m_fontmetrics.width(s[i]);
 
@@ -51,12 +52,12 @@ REDasm::ListingCursor::Position ListingRendererCommon::hitTest(const QPointF &po
     }
 
     if(cp.second == std::numeric_limits<size_t>::max())
-        cp.second = s.length() - 1;
+        cp.second = s.size() - 1;
 
     return cp;
 }
 
-std::string ListingRendererCommon::getWordFromPos(const QPointF &pos, REDasm::ListingRenderer::Range* wordpos)
+REDasm::String ListingRendererCommon::getWordFromPos(const QPointF &pos, REDasm::ListingRenderer::Range* wordpos)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos);
     return this->wordFromPosition(cp, wordpos);
@@ -103,7 +104,7 @@ void ListingRendererCommon::insertText(const REDasm::RendererLine &rl, QTextCurs
             if((rf.fgstyle == "cursor_fg") || (rf.fgstyle == "selection_fg"))
                 charformat.setForeground(qApp->palette().color(QPalette::HighlightedText));
             else
-                charformat.setForeground(THEME_VALUE(QString::fromStdString(rf.fgstyle)));
+                charformat.setForeground(THEME_VALUE(Convert::to_qstring(rf.fgstyle)));
         }
 
         if(!rf.bgstyle.empty())
@@ -113,10 +114,10 @@ void ListingRendererCommon::insertText(const REDasm::RendererLine &rl, QTextCurs
             else if(rf.bgstyle == "selection_bg")
                 charformat.setBackground(qApp->palette().color(QPalette::Highlight));
             else
-                charformat.setBackground(THEME_VALUE(QString::fromStdString(rf.bgstyle)));
+                charformat.setBackground(THEME_VALUE(Convert::to_qstring(rf.bgstyle)));
         }
 
-        textcursor->insertText(QString::fromStdString(rl.formatText(rf)), charformat);
+        textcursor->insertText(Convert::to_qstring(rl.formatText(rf)), charformat);
     }
 
     if(!rl.highlighted)
@@ -144,12 +145,12 @@ void ListingRendererCommon::renderText(const REDasm::RendererLine &rl, float x, 
             if((rf.fgstyle == "cursor_fg") || (rf.fgstyle == "selection_fg"))
                 painter->setPen(qApp->palette().color(QPalette::HighlightedText));
             else
-                painter->setPen(THEME_VALUE(QString::fromStdString(rf.fgstyle)));
+                painter->setPen(THEME_VALUE(Convert::to_qstring(rf.fgstyle)));
         }
         else
             painter->setPen(qApp->palette().color(QPalette::WindowText));
 
-        QString chunk = QString::fromStdString(rl.formatText(rf));
+        QString chunk = Convert::to_qstring(rl.formatText(rf));
         QRectF chunkrect = painter->boundingRect(QRectF(x, y, fm.width(chunk), fm.height()), Qt::TextIncludeTrailingSpaces, chunk);
 
         if(!rf.bgstyle.empty())
@@ -159,7 +160,7 @@ void ListingRendererCommon::renderText(const REDasm::RendererLine &rl, float x, 
             else if(rf.bgstyle == "selection_bg")
                 painter->fillRect(chunkrect, qApp->palette().color(QPalette::Highlight));
             else
-                painter->fillRect(chunkrect, THEME_VALUE(QString::fromStdString(rf.bgstyle)));
+                painter->fillRect(chunkrect, THEME_VALUE(Convert::to_qstring(rf.bgstyle)));
         }
 
         painter->drawText(chunkrect, Qt::TextSingleLine, chunk);

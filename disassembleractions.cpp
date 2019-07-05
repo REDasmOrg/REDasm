@@ -1,4 +1,5 @@
 #include "disassembleractions.h"
+#include "../convert.h"
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/plugins/assembler/assembler.h>
@@ -45,7 +46,7 @@ void DisassemblerActions::adjustActions()
         m_actions[DisassemblerActions::FollowPointerHexDump]->setVisible(false);
 
         if(symbol)
-            m_actions[DisassemblerActions::CallGraph]->setText(QString("Callgraph %1").arg(QString::fromStdString(symbol->name)));
+            m_actions[DisassemblerActions::CallGraph]->setText(QString("Callgraph %1").arg(Convert::to_qstring(symbol->name)));
 
         m_actions[DisassemblerActions::CallGraph]->setVisible(symbol && symbolsegment && symbolsegment->is(REDasm::SegmentType::Code));
         m_actions[DisassemblerActions::HexDumpFunction]->setVisible((symbol != nullptr));
@@ -56,18 +57,18 @@ void DisassemblerActions::adjustActions()
     symbolsegment = lock->segment(symbol->address);
 
     m_actions[DisassemblerActions::FollowPointerHexDump]->setVisible(symbol->is(REDasm::SymbolType::Pointer));
-    m_actions[DisassemblerActions::FollowPointerHexDump]->setText(QString("Follow %1 pointer in Hex Dump").arg(QString::fromStdString(symbol->name)));
+    m_actions[DisassemblerActions::FollowPointerHexDump]->setText(QString("Follow %1 pointer in Hex Dump").arg(Convert::to_qstring(symbol->name)));
 
-    m_actions[DisassemblerActions::XRefs]->setText(QString("Cross Reference %1").arg(QString::fromStdString(symbol->name)));
+    m_actions[DisassemblerActions::XRefs]->setText(QString("Cross Reference %1").arg(Convert::to_qstring(symbol->name)));
     m_actions[DisassemblerActions::XRefs]->setVisible(!m_renderer->disassembler()->busy());
 
-    m_actions[DisassemblerActions::Rename]->setText(QString("Rename %1").arg(QString::fromStdString(symbol->name)));
+    m_actions[DisassemblerActions::Rename]->setText(QString("Rename %1").arg(Convert::to_qstring(symbol->name)));
     m_actions[DisassemblerActions::Rename]->setVisible(!m_renderer->disassembler()->busy() && !symbol->isLocked());
 
     m_actions[DisassemblerActions::CallGraph]->setVisible(!m_renderer->disassembler()->busy() && symbol->isFunction());
-    m_actions[DisassemblerActions::CallGraph]->setText(QString("Callgraph %1").arg(QString::fromStdString(symbol->name)));
+    m_actions[DisassemblerActions::CallGraph]->setText(QString("Callgraph %1").arg(Convert::to_qstring(symbol->name)));
 
-    m_actions[DisassemblerActions::Follow]->setText(QString("Follow %1").arg(QString::fromStdString(symbol->name)));
+    m_actions[DisassemblerActions::Follow]->setText(QString("Follow %1").arg(Convert::to_qstring(symbol->name)));
     m_actions[DisassemblerActions::Follow]->setVisible(symbol->is(REDasm::SymbolType::Code));
 
     m_actions[DisassemblerActions::Comment]->setVisible(!m_renderer->disassembler()->busy() && item->is(REDasm::ListingItemType::InstructionItem));
@@ -127,17 +128,17 @@ void DisassemblerActions::renameSymbolUnderCursor()
     if(!symbol || symbol->isLocked())
         return;
 
-    QString symbolname = QString::fromStdString(symbol->name);
+    QString symbolname = Convert::to_qstring(symbol->name);
     QString res = QInputDialog::getText(this->widget(), QString("Rename %1").arg(symbolname), "Symbol name:", QLineEdit::Normal, symbolname);
 
-    if(m_renderer->document()->symbol(res.toStdString()))
+    if(m_renderer->document()->symbol(Convert::to_rstring(res)))
     {
         QMessageBox::warning(this->widget(), "Rename failed", "Duplicate symbol name");
         this->renameSymbolUnderCursor();
         return;
     }
 
-    m_renderer->document()->rename(symbol->address, res.toStdString());
+    m_renderer->document()->rename(symbol->address, Convert::to_rstring(res));
 }
 
 bool DisassemblerActions::followUnderCursor()
@@ -207,12 +208,12 @@ void DisassemblerActions::showReferencesUnderCursor()
 void DisassemblerActions::printFunctionHexDump()
 {
     const REDasm::Symbol* symbol = nullptr;
-    std::string s = m_renderer->disassembler()->getHexDump(m_renderer->document()->currentItem()->address(), &symbol);
+    REDasm::String s = m_renderer->disassembler()->getHexDump(m_renderer->document()->currentItem()->address(), &symbol);
 
     if(s.empty())
         return;
 
-    r_ctx->log(symbol->name + ": " + REDasm::Utils::quoted(s));
+    r_ctx->log(symbol->name + ": " + s.quoted());
 }
 
 void DisassemblerActions::followPointerHexDump()
@@ -234,16 +235,18 @@ void DisassemblerActions::addComment()
 {
     const REDasm::ListingItem* currentitem =  m_renderer->document()->currentItem();
 
+    m_renderer->document()->comment(currentitem, true);
+
     bool ok = false;
     QString res = QInputDialog::getMultiLineText(this->widget(),
-                                                 "Comment @ " + QString::fromStdString(REDasm::Utils::hex(currentitem->address())),
+                                                 "Comment @ " + Convert::to_qstring(REDasm::String::hex(currentitem->address())),
                                                  "Insert a comment (leave blank to remove):",
-                                                 QString::fromStdString(m_renderer->document()->comment(currentitem, true)), &ok);
+                                                 Convert::to_qstring(m_renderer->document()->comment(currentitem, true)), &ok);
 
     if(!ok)
         return;
 
-    m_renderer->document()->comment(currentitem, res.toStdString());
+    m_renderer->document()->comment(currentitem, Convert::to_rstring(res));
 }
 
 void DisassemblerActions::goForward() { m_renderer->document()->cursor()->goForward(); }
@@ -254,7 +257,7 @@ void DisassemblerActions::copy()
     if(!m_renderer->document()->cursor()->hasSelection())
         return;
 
-    qApp->clipboard()->setText(QString::fromStdString(m_renderer->getSelectedText()));
+    qApp->clipboard()->setText(Convert::to_qstring(m_renderer->getSelectedText()));
 }
 
 QWidget *DisassemblerActions::widget() const { return qobject_cast<QWidget*>(this->parent()); }

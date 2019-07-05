@@ -5,6 +5,7 @@
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/utils.h>
 #include "../themeprovider.h"
+#include "../convert.h"
 
 ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent) { }
 
@@ -56,15 +57,15 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::Utils::hex(item->address(), m_disassembler->assembler()->bits()));
+            return S_TO_QS(REDasm::String::hex(item->address(), m_disassembler->assembler()->bits()));
         else if(index.column() == 1)
             return this->direction(item->address());
         else if(index.column() == 2)
         {
             if(item->is(REDasm::ListingItemType::InstructionItem))
-                return QString::fromStdString(REDasm::Utils::simplified(m_printer->out(document->instruction(item->address()))));
+                return Convert::to_qstring(m_printer->out(document->instruction(item->address())).simplified());
             else if(item->is(REDasm::ListingItemType::SymbolItem))
-                return QString::fromStdString(document->symbol(item->address())->name);
+                return Convert::to_qstring(document->symbol(item->address())->name);
         }
     }
     else if(role == Qt::ForegroundRole)
@@ -76,7 +77,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         {
             if(item->is(REDasm::ListingItemType::InstructionItem))
             {
-                REDasm::InstructionPtr instruction = document->instruction(item->address());
+                REDasm::CachedInstruction instruction = document->instruction(item->address());
 
                 if(!instruction->is(REDasm::InstructionType::Conditional))
                     return THEME_VALUE("instruction_jmp_c");

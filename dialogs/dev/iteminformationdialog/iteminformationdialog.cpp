@@ -2,6 +2,7 @@
 #include "ui_iteminformationdialog.h"
 #include "../../../redasmsettings.h"
 #include "../logsyntaxhighlighter.h"
+#include "../convert.h"
 #include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/support/utils.h>
 
@@ -62,7 +63,7 @@ void ItemInformationDialog::displayInformation()
     const REDasm::ListingItem* item = document->currentItem();
 
     this->line("document_index", QString::number(document->itemIndex(item)));
-    this->line("address", QString::fromStdString(REDasm::Utils::hex(item->address())));
+    this->line("address", Convert::to_qstring(REDasm::String::hex(item->address())));
     this->line("type", this->itemType(item));
     this->line("index", QString::number(item->index()));
 

@@ -7,6 +7,7 @@
 #include "ui/redasmui.h"
 #include "redasmsettings.h"
 #include "themeprovider.h"
+#include "convert.h"
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/pluginmanager.h>
 #include <redasm/support/utils.h>
@@ -23,15 +24,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->tabifyDockWidget(ui->dockFunctions, ui->dockCallTree);
 
     REDasm::ContextSettings ctxsettings;
-    ctxsettings.tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
-    ctxsettings.runtimePath = QDir::currentPath().toStdString();
-    ctxsettings.statusCallback = [&](const std::string& s) { QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
+    ctxsettings.tempPath = Convert::to_rstring(QStandardPaths::writableLocation(QStandardPaths::TempLocation));
+    ctxsettings.runtimePath = Convert::to_rstring(QDir::currentPath());
+    ctxsettings.statusCallback = [&](const REDasm::String& s) { QMetaObject::invokeMethod(m_lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
     ctxsettings.progressCallback = [&](size_t pending) { QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending))); };
-    ctxsettings.logCallback = [&](const std::string& s) { QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, S_TO_QS(s))); };
+    ctxsettings.logCallback = [&](const REDasm::String& s) { QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, Convert::to_qstring(s))); };
     ctxsettings.ui = std::make_shared<REDasmUI>(this);
 
     for(const QString& searchpaths : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation))
-        ctxsettings.pluginPaths.push_back(REDasm::Path::create(searchpaths.toStdString(), PLUGINS_FOLDER_NAME));
+        ctxsettings.pluginPaths.push_back(REDasm::Path::create(Convert::to_rstring(searchpaths), PLUGINS_FOLDER_NAME));
 
 #ifdef REDASM_PORTABLE_MODE
     ctxsettings.pluginPaths.push_front(REDasm::Path::create(ctxsettings.runtimePath, PLUGINS_FOLDER_NAME));
@@ -187,10 +188,10 @@ void MainWindow::onSaveClicked()
     if(!currdv)
         return;
 
-    std::string rdbfile = QString("%1.%2").arg(m_fileinfo.baseName(), RDB_SIGNATURE_EXT).toStdString();
-    r_ctx->log("Saving Database " + REDasm::Utils::quoted(rdbfile));
+    REDasm::String rdbfile = Convert::to_rstring(QString("%1.%2").arg(m_fileinfo.baseName(), RDB_SIGNATURE_EXT));
+    r_ctx->log("Saving Database " + rdbfile.quoted());
 
-    if(!REDasm::Database::save(currdv->disassembler(), rdbfile, m_fileinfo.fileName().toStdString()))
+    if(!REDasm::Database::save(currdv->disassembler(), rdbfile, Convert::to_rstring(m_fileinfo.fileName())))
         r_ctx->log(REDasm::Database::lastError());
 }
 
@@ -206,7 +207,7 @@ void MainWindow::onSaveAsClicked() // TODO: Handle multiple outputs
     if(!currdv)
         return;
 
-    if(!REDasm::Database::save(currdv->disassembler(), s.toStdString(), m_fileinfo.fileName().toStdString()))
+    if(!REDasm::Database::save(currdv->disassembler(), Convert::to_rstring(s), Convert::to_rstring(m_fileinfo.fileName())))
         r_ctx->log(REDasm::Database::lastError());
 }
 
@@ -293,8 +294,8 @@ void MainWindow::loadRecents()
 
 bool MainWindow::loadDatabase(const QString &filepath)
 {
-    std::string filename;
-    REDasm::Disassembler* disassembler = REDasm::Database::load(filepath.toStdString(), filename);
+    REDasm::String filename;
+    REDasm::Disassembler* disassembler = REDasm::Database::load(Convert::to_rstring(filepath), filename);
 
     if(!disassembler)
     {
@@ -304,10 +305,10 @@ bool MainWindow::loadDatabase(const QString &filepath)
         return false;
     }
 
-    r_ctx->log("Selected loader " + REDasm::Utils::quoted(disassembler->loader()->description()) + " with " +
-                                    REDasm::Utils::quoted(disassembler->assembler()->description()) + " instruction set");
+    r_ctx->log("Selected loader " + REDasm::String(disassembler->loader()->description()).quoted() + " with " +
+                                    REDasm::String(disassembler->assembler()->description()).quoted() + " instruction set");
 
-    m_fileinfo = QFileInfo(QString::fromStdString(filename));
+    m_fileinfo = QFileInfo(Convert::to_qstring(filename));
     this->showDisassemblerView(disassembler, true);
     return true;
 }
@@ -326,11 +327,11 @@ void MainWindow::load(const QString& filepath)
     if(this->loadDatabase(filepath))
         return;
 
-    REDasm::MemoryBuffer* buffer = REDasm::MemoryBuffer::fromFile(filepath.toStdString()); // TODO: Deallocate in case of user-cancel?
+    REDasm::MemoryBuffer* buffer = REDasm::MemoryBuffer::fromFile(Convert::to_rstring(filepath)); // TODO: Deallocate in case of user-cancel?
 
     if(buffer && !buffer->empty())
     {
-        REDasm::LoadRequest request(filepath.toStdString(), buffer);
+        REDasm::LoadRequest request(Convert::to_rstring(filepath), buffer);
         this->selectLoader(request);
     }
 }
@@ -472,7 +473,9 @@ void MainWindow::selectLoader(const REDasm::LoadRequest& request)
     else
         loader->load();
 
-    r_ctx->log("Selected loader " + REDasm::Utils::quoted(loader->description()) + " with " + REDasm::Utils::quoted(assembler->description()) + " instruction set");
+    r_ctx->log("Selected loader " + REDasm::String(loader->description()).quoted() +
+               " with " + REDasm::String(assembler->description()).quoted() + " instruction set");
+
     REDasm::Disassembler* disassembler = new REDasm::Disassembler(assembler, loader);
 
     EVENT_CONNECT(disassembler, busyChanged, this, [&]() {

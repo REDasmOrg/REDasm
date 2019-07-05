@@ -1,4 +1,5 @@
 #include "graphview.h"
+#include "../../convert.h"
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QPainter>
@@ -212,7 +213,7 @@ void GraphView::paintEvent(QPaintEvent *e)
 
     for(auto it = m_lines.begin(); it != m_lines.end(); it++)
     {
-        QColor c(QString::fromStdString(m_graph->color(it->first)));
+        QColor c(Convert::to_qstring(m_graph->color(it->first)));
         QPen pen(c);
 
         if(m_selecteditem && ((it->first.source == m_selecteditem->node()) || (it->first.target == m_selecteditem->node())))

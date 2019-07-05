@@ -27,7 +27,7 @@ QVariant GotoModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::Utils::hex(item->address(), m_disassembler->assembler()->bits()));
+            return S_TO_QS(REDasm::String::hex(item->address(), m_disassembler->assembler()->bits()));
         if(index.column() == 1)
             return this->itemName(item);
         if(index.column() == 2)

@@ -80,15 +80,21 @@ void ListingMap::drawLabels(QPainter* painter)
         if(segmentsize < fm.height()) // Don't draw labels on small segments
             continue;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+        int w = fm.horizontalAdvance(" ") * 2;
+#else
+        int w = fm.width(" ") * 2;
+#endif
+
         if(m_orientation == Qt::Horizontal)
         {
-            painter->drawText(pos, 2, segmentsize - (fm.width(' ') * 2), fm.height(),
+            painter->drawText(pos, 2, segmentsize - w, fm.height(),
                               Qt::AlignLeft | Qt::AlignBottom,
                               Convert::to_qstring(segment->name));
         }
         else
         {
-            painter->drawText(2, pos, this->width() - (fm.width(' ') * 2), fm.height(),
+            painter->drawText(2, pos, this->width() - w, fm.height(),
                               Qt::AlignRight | Qt::AlignTop,
                               Convert::to_qstring(segment->name));
         }

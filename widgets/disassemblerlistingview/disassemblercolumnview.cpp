@@ -89,7 +89,14 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
 
     QPainter painter(this);
     QFontMetrics fm = this->fontMetrics();
-    int w = fm.width(" "), h = fm.height(), x = this->width() - (w * 2);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    int w = fm.horizontalAdvance(" ");
+#else
+    int w = fm.width(" ");
+#endif
+
+    int h = fm.height(), x = this->width() - (w * 2);
 
     for(auto it = m_paths.begin(); it != m_paths.end(); it++, x -= w)
     {
@@ -128,7 +135,13 @@ bool DisassemblerColumnView::isPathSelected(const DisassemblerColumnView::ArrowP
 
 void DisassemblerColumnView::fillArrow(QPainter* painter, int y, const QFontMetrics& fm)
 {
-    int w = fm.width(" ") / 2, hl = fm.height() / 3;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    int w = fm.horizontalAdvance(" ") / 2;
+#else
+    int w = fm.width(" ") / 2;
+#endif
+
+    int hl = fm.height() / 3;
 
     QPainterPath path;
     path.moveTo(QPoint(this->width() - w, y));

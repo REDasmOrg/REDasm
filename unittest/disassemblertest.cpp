@@ -121,7 +121,7 @@ void DisassemblerTest::runCurrentTest(const String& filepath, const TestCallback
         return;
 
     const PluginInstance *assemblerpi = nullptr, *loaderpi = loaders.front();
-    REDasm::Loader* loader = REDasm::plugin_cast<REDasm::Loader>(loaderpi);
+    REDasm::Loader* loader = plugin_cast<REDasm::Loader>(loaderpi);
     loader->init(request);
 
     assemblerpi = r_pm->findAssembler(loader->assembler().id);
@@ -130,7 +130,7 @@ void DisassemblerTest::runCurrentTest(const String& filepath, const TestCallback
     if(!assemblerpi)
         return;
 
-    REDasm::Assembler* assembler = REDasm::plugin_cast<REDasm::Assembler>(assemblerpi);
+    REDasm::Assembler* assembler = plugin_cast<REDasm::Assembler>(assemblerpi);
     assembler->init(loader->assembler());
 
     m_disassembler = std::make_unique<Disassembler>(assembler, loader);

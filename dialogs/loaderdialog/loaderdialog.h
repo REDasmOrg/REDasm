@@ -29,6 +29,7 @@ class LoaderDialog : public QDialog
         void checkFlags();
         void validateInput();
         void updateInputMask();
+        void syncAssembler();
         void populateAssemblers();
 
     private:

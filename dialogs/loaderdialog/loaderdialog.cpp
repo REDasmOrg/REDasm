@@ -21,6 +21,7 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) 
     this->populateAssemblers();
     this->checkFlags();
     this->updateInputMask();
+    this->syncAssembler();
 
     connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&)  {
         this->validateInput();
@@ -37,6 +38,7 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) 
     connect(ui->lvLoaders, &QListView::clicked, this, [&](const QModelIndex& index) {
         this->checkFlags();
         this->validateInput();
+        this->syncAssembler();
     });
 }
 
@@ -91,7 +93,7 @@ REDasm::LoaderFlags LoaderDialog::selectedLoaderFlags() const
         return REDasm::LoaderFlags::None;
 
     const REDasm::PluginInstance* pi = m_loaders[index.row()];
-    return REDasm::plugin_cast<REDasm::Loader>(pi)->flags();
+    return plugin_cast<REDasm::Loader>(pi)->flags();
 }
 
 void LoaderDialog::checkFlags()
@@ -138,6 +140,21 @@ void LoaderDialog::updateInputMask()
     ui->leEntryPoint->setText(QString("0").repeated(16));
     ui->leOffset->setText(QString("0").repeated(16));
     ui->leBaseAddress->setText(QString("0").repeated(16));
+}
+
+void LoaderDialog::syncAssembler()
+{
+    const REDasm::PluginInstance* pi = this->selectedLoader();
+    auto* loader = plugin_cast<REDasm::Loader>(pi);
+
+    for(auto it = m_assemblers.begin(); it != m_assemblers.end(); it++)
+    {
+        if(std::strcmp(loader->assembler().id, (*it)->descriptor->id))
+            continue;
+
+        ui->cbAssembler->setCurrentText(Convert::to_qstring((*it)->descriptor->description));
+        break;
+    }
 }
 
 void LoaderDialog::populateAssemblers()

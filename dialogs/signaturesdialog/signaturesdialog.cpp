@@ -63,7 +63,7 @@ void SignaturesDialog::readSignature(const QModelIndex &index)
 void SignaturesDialog::browseSignatures()
 {
     QString s = QFileDialog::getOpenFileName(this, "Load Signature...",
-                                             Convert::to_qstring(r_ctx->signature(REDasm::String())),
+                                             Convert::to_qstring(r_ctx->signaturedb(REDasm::String())),
                                              "REDasm Signature (*.json)");
 
     if(s.isEmpty())

@@ -7,10 +7,10 @@
 
 SignatureFilesModel::SignatureFilesModel(REDasm::Disassembler* disassembler, QObject *parent): QAbstractListModel(parent), m_disassembler(disassembler)
 {
-    QDirIterator it(Convert::to_qstring(r_ctx->signature(REDasm::String()).c_str()), {"*.json"}, QDir::Files);
+    QDirIterator it(Convert::to_qstring(r_ctx->signaturedb(REDasm::String()).c_str()), {"*.json"}, QDir::Files);
 
     while(it.hasNext())
-        m_signaturefiles.push_back({ Convert::to_rstring(QFileInfo(it.next()).baseName()),  r_ctx->signature(REDasm::String()) + ".json" });
+        m_signaturefiles.push_back({ Convert::to_rstring(QFileInfo(it.next()).baseName()),  r_ctx->signaturedb(REDasm::String()) + ".json" });
 }
 
 const REDasm::SignatureDB *SignatureFilesModel::load(const QModelIndex &index)

@@ -11,7 +11,7 @@
 class ListingTextRenderer: public ListingRendererCommon
 {
     public:
-        ListingTextRenderer(REDasm::Disassembler* disassembler);
+        ListingTextRenderer();
         virtual ~ListingTextRenderer() = default;
 
     protected:

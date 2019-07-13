@@ -8,7 +8,7 @@
 #include <QPalette>
 #include <QPainter>
 
-ListingTextRenderer::ListingTextRenderer(REDasm::Disassembler *disassembler): ListingRendererCommon(disassembler) { }
+ListingTextRenderer::ListingTextRenderer(): ListingRendererCommon() { }
 
 void ListingTextRenderer::renderLine(const REDasm::RendererLine &rl)
 {

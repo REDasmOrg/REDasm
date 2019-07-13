@@ -455,7 +455,7 @@ void MainWindow::selectLoader(const REDasm::LoadRequest& request)
 
     if(!assemblerpi)
     {
-        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(QString::fromUtf8(loader->assembler())));
+        QMessageBox::information(this, "Assembler not found", QString("Cannot find assembler '%1'").arg(Convert::to_qstring(loader->assembler())));
 
         connect(&dlgloader, &LoaderDialog::destroyed, this, [loader]() {
             r_pm->unload(loader->instance());

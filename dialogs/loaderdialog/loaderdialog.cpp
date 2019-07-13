@@ -149,7 +149,7 @@ void LoaderDialog::syncAssembler()
 
     for(auto it = m_assemblers.begin(); it != m_assemblers.end(); it++)
     {
-        if(std::strcmp(loader->assembler().id, (*it)->descriptor->id))
+        if(loader->assembler().id != (*it)->descriptor->id)
             continue;
 
         ui->cbAssembler->setCurrentText(Convert::to_qstring((*it)->descriptor->description));

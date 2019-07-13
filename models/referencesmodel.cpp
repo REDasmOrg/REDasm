@@ -4,6 +4,7 @@
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/utils.h>
+#include <redasm/redasm.h>
 #include "../themeprovider.h"
 #include "../convert.h"
 
@@ -12,7 +13,7 @@ ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent) { }
 void ReferencesModel::setDisassembler(const REDasm::DisassemblerPtr &disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
-    m_printer = disassembler->assembler()->createPrinter(disassembler.get());
+    m_printer = r_asm->createPrinter();
 }
 
 void ReferencesModel::clear()

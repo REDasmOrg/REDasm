@@ -3,7 +3,7 @@
 #include <QTextDocument>
 #include <QTextOption>
 
-ListingDocumentRenderer::ListingDocumentRenderer(REDasm::Disassembler* disassembler): ListingRendererCommon(disassembler)
+ListingDocumentRenderer::ListingDocumentRenderer(): ListingRendererCommon()
 {
     this->setFlags(REDasm::ListingRendererFlags::HideSegmentName | REDasm::ListingRendererFlags::HideAddress);
 }

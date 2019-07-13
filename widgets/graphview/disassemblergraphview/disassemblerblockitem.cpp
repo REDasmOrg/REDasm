@@ -1,5 +1,6 @@
 #include "disassemblerblockitem.h"
 #include "../../../redasmsettings.h"
+#include <redasm/context.h>
 #include <QApplication>
 #include <QFontMetricsF>
 #include <QPainter>
@@ -13,7 +14,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBas
 {
     this->setupDocument();
 
-    m_renderer = std::make_unique<ListingDocumentRenderer>(disassembler.get());
+    m_renderer = std::make_unique<ListingDocumentRenderer>();
     m_renderer->setFirstVisibleLine(fbb->startIndex());
     m_renderer->setFlags(REDasm::ListingRendererFlags::HideSegmentName);
     this->invalidate(false);
@@ -36,7 +37,7 @@ bool DisassemblerBlockItem::containsIndex(s64 index) const { return m_basicblock
 
 int DisassemblerBlockItem::currentLine() const
 {
-    const REDasm::ListingCursor* cursor = m_renderer->document()->cursor();
+    const REDasm::ListingCursor* cursor = r_doc->cursor();
 
     if(this->containsIndex(cursor->currentLine()))
         return cursor->currentLine() - m_basicblock->startIndex();

@@ -6,7 +6,7 @@
 
 DisassemblerPopup::DisassemblerPopup(const REDasm::DisassemblerPtr &disassembler, QWidget *parent): QWidget(parent)
 {
-    m_documentrenderer = new ListingDocumentRenderer(disassembler.get());
+    m_documentrenderer = new ListingDocumentRenderer();
     m_popupwidget = new DisassemblerPopupWidget(m_documentrenderer, disassembler, this);
 
     QVBoxLayout* vboxlayout = new QVBoxLayout(this);

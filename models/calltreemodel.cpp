@@ -2,6 +2,7 @@
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/utils.h>
+#include <redasm/redasm.h>
 #include "../themeprovider.h"
 #include "../convert.h"
 #include <QFontDatabase>
@@ -12,7 +13,7 @@ CallTreeModel::CallTreeModel(QObject *parent) : QAbstractItemModel(parent), m_di
 void CallTreeModel::setDisassembler(const REDasm::DisassemblerPtr &disassembler)
 {
     m_disassembler = disassembler;
-    m_printer = m_disassembler->assembler()->createPrinter(m_disassembler.get());
+    m_printer = r_asm->createPrinter();
 }
 
 void CallTreeModel::initializeGraph(address_t address)

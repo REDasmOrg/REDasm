@@ -2,6 +2,7 @@
 #include "../redasmsettings.h"
 #include "../themeprovider.h"
 #include "../convert.h"
+#include <redasm/context.h>
 #include <QApplication>
 #include <QRegularExpression>
 #include <QTextCharFormat>
@@ -10,7 +11,7 @@
 #include <QPainter>
 #include <cmath>
 
-ListingRendererCommon::ListingRendererCommon(REDasm::Disassembler *disassembler): REDasm::ListingRenderer(disassembler), m_fontmetrics(REDasmSettings::font()), m_maxwidth(0), m_firstline(0) { }
+ListingRendererCommon::ListingRendererCommon(): REDasm::ListingRenderer(), m_fontmetrics(REDasmSettings::font()), m_maxwidth(0), m_firstline(0) { }
 
 void ListingRendererCommon::moveTo(const QPointF &pos)
 {
@@ -27,7 +28,7 @@ void ListingRendererCommon::select(const QPointF &pos)
 REDasm::ListingCursor::Position ListingRendererCommon::hitTest(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp;
-    cp.first = std::min(static_cast<size_t>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), this->document()->lastLine());
+    cp.first = std::min(static_cast<size_t>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), r_doc->lastLine());
     cp.second = std::numeric_limits<size_t>::max();
 
     REDasm::RendererLine rl(true);
@@ -65,7 +66,7 @@ REDasm::String ListingRendererCommon::getWordFromPos(const QPointF &pos, REDasm:
 
 void ListingRendererCommon::selectWordAt(const QPointF& pos)
 {
-    auto lock = REDasm::s_lock_safe_ptr(this->document());
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
     REDasm::ListingCursor* cur = lock->cursor();
     Range r = this->wordHitTest(pos);
 

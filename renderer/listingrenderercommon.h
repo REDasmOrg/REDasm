@@ -14,7 +14,7 @@
 class ListingRendererCommon: public REDasm::ListingRenderer
 {
     public:
-        ListingRendererCommon(REDasm::Disassembler* disassembler);
+        ListingRendererCommon();
         virtual ~ListingRendererCommon() = default;
         void moveTo(const QPointF& pos);
         void select(const QPointF& pos);

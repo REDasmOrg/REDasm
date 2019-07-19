@@ -576,7 +576,7 @@ void DisassemblerTextView::showPopup(const QPoint& pos)
     if(!word.empty())
     {
         REDasm::ListingCursor::Position cp = m_renderer->hitTest(pos);
-        m_disassemblerpopup->popup(word, cp.first);
+        m_disassemblerpopup->popup(word, cp.line);
         return;
     }
 

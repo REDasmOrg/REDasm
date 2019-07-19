@@ -16,25 +16,25 @@ ListingRendererCommon::ListingRendererCommon(): REDasm::ListingRenderer(), m_fon
 void ListingRendererCommon::moveTo(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos);
-    this->cursor()->moveTo(cp.first, cp.second);
+    this->cursor()->moveTo(cp.line, cp.column);
 }
 
 void ListingRendererCommon::select(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos);
-    this->cursor()->select(cp.first, cp.second);
+    this->cursor()->select(cp.line, cp.column);
 }
 
 REDasm::ListingCursor::Position ListingRendererCommon::hitTest(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp;
-    cp.first = std::min(static_cast<size_t>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), r_doc->lastLine());
-    cp.second = std::numeric_limits<size_t>::max();
+    cp.line = std::min(static_cast<size_t>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), r_doc->lastLine());
+    cp.column = std::numeric_limits<size_t>::max();
 
     REDasm::RendererLine rl(true);
 
-    if(!this->getRendererLine(cp.first, rl))
-        cp.second = 0;
+    if(!this->getRendererLine(cp.line, rl))
+        cp.column = 0;
 
     REDasm::String s = rl.text;
     qreal x = 0;
@@ -45,15 +45,15 @@ REDasm::ListingCursor::Position ListingRendererCommon::hitTest(const QPointF &po
 
         if(x >= pos.x())
         {
-            cp.second = i - 1;
+            cp.column = i - 1;
             break;
         }
 
         x += w;
     }
 
-    if(cp.second == std::numeric_limits<size_t>::max())
-        cp.second = s.size() - 1;
+    if(cp.column == std::numeric_limits<size_t>::max())
+        cp.column = s.size() - 1;
 
     return cp;
 }

@@ -21,10 +21,10 @@ class CallTreeModel : public QAbstractItemModel
         void populateCallGraph(const QModelIndex& index);
 
     private:
-        void populate(const REDasm::ListingItem *parentitem);
+        void populate(REDasm::ListingItem *parentitem);
         bool isDuplicate(const QModelIndex& index) const;
-        int getParentIndexFromChild(const REDasm::ListingItem *childitem) const;
-        int getParentIndex(const REDasm::ListingItem *parentitem) const;
+        int getParentIndexFromChild(REDasm::ListingItem *childitem) const;
+        int getParentIndex(REDasm::ListingItem *parentitem) const;
 
     public:
         address_location getCallTarget(const REDasm::ListingItem *item) const;
@@ -39,10 +39,10 @@ class CallTreeModel : public QAbstractItemModel
     private:
         REDasm::object_ptr<REDasm::Printer> m_printer;
         REDasm::DisassemblerPtr m_disassembler;
-        const REDasm::ListingItem* m_root;
-        QHash<const REDasm::ListingItem*, s32> m_depths;
-        QHash<const REDasm::ListingItem*, REDasm::ListingItemConstContainer> m_children;
-        QHash<const REDasm::ListingItem*, const REDasm::ListingItem*> m_parents;
+        REDasm::ListingItem* m_root;
+        QHash<REDasm::ListingItem*, s32> m_depths;
+        QHash<REDasm::ListingItem*, REDasm::SortedList> m_children;
+        QHash<REDasm::ListingItem*, REDasm::ListingItem*> m_parents;
 };
 
 #endif // CALLTREEMODEL_H

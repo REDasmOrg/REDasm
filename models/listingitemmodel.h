@@ -29,7 +29,7 @@ class ListingItemModel : public DisassemblerModel
         void onListingChanged(const REDasm::ListingDocumentChanged *ldc);
 
     private:
-        REDasm::sorted_container<address_t> m_items;
+        REDasm::SortedList m_items;
         REDasm::ListingItemType m_itemtype;
 
     friend class ListingFilterModel;

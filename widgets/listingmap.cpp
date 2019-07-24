@@ -65,11 +65,9 @@ void ListingMap::drawLabels(QPainter* painter)
 
     painter->setPen(palette.color(QPalette::HighlightedText));
 
-    auto it = lock->segments().iterator();
-
-    while(it.hasNext())
+    for(size_t i = 0; i < lock->segments().size(); i++)
     {
-        const REDasm::Segment* segment = variant_object<REDasm::Segment>(it.next());
+        const REDasm::Segment* segment = variant_object<REDasm::Segment>(lock->segments()[i]);
 
         if(segment->is(REDasm::SegmentType::Bss))
             continue;
@@ -104,11 +102,10 @@ void ListingMap::drawLabels(QPainter* painter)
 void ListingMap::renderSegments(QPainter* painter)
 {
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
-    auto it = lock->segments().iterator();
 
-    while(it.hasNext())
+    for(size_t i = 0; i < lock->segments().size(); i++)
     {
-        const REDasm::Segment* segment = variant_object<REDasm::Segment>(it.next());
+        const REDasm::Segment* segment = variant_object<REDasm::Segment>(lock->segments()[i]);
 
         if(segment->is(REDasm::SegmentType::Bss))
             continue;
@@ -130,7 +127,7 @@ void ListingMap::renderFunctions(QPainter *painter)
 
     for(size_t i = 0; i < lock->functions()->size(); i++)
     {
-        const REDasm::ListingItem* item = lock->functions()->at(i);
+        REDasm::ListingItem* item = lock->functions()->at(i);
         const REDasm::Symbol* symbol = lock->symbol(item->address());
         const REDasm::Graphing::FunctionGraph* g = lock->functions()->graph(item);
 

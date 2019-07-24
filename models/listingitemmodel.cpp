@@ -1,5 +1,4 @@
 #include "listingitemmodel.h"
-#include <redasm/disassembler/listing/listingdocumentiterator.h>
 #include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/loader.h>
@@ -16,11 +15,10 @@ void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembl
     auto& document = m_disassembler->document();
 
     this->beginResetModel();
-    REDasm::ListingDocumentIterator it(document);
 
-    while(it.hasNext())
+    for(size_t i = 0; i < document->size(); i++)
     {
-        const REDasm::ListingItem* item = it.next();
+        const REDasm::ListingItem* item = document->itemAt(i);
 
         if(!this->isItemAllowed(item))
             continue;
@@ -38,18 +36,18 @@ const REDasm::ListingItem *ListingItemModel::item(const QModelIndex &index) cons
         return nullptr;
 
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
-    const REDasm::ListingItem* item = nullptr;
+    REDasm::ListingItem* item = nullptr;
 
     if(m_itemtype == REDasm::ListingItemType::SegmentItem)
-        item = lock->segmentItem(m_items[index.row()]);
+        item = lock->segmentItem(m_items[index.row()].toU64());
     else if(m_itemtype == REDasm::ListingItemType::FunctionItem)
-        item = lock->functionItem(m_items[index.row()]);
+        item = lock->functionItem(m_items[index.row()].toU64());
     else
     {
-        item = lock->instructionItem(m_items[index.row()]); // Try to get an instruction
+        item = lock->instructionItem(m_items[index.row()].toU64()); // Try to get an instruction
 
         if(!item)
-            item = lock->symbolItem(m_items[index.row()]);  // Try to get an symbol
+            item = lock->symbolItem(m_items[index.row()].toU64());  // Try to get an symbol
     }
 
     return item;
@@ -60,7 +58,7 @@ address_location ListingItemModel::address(const QModelIndex &index) const
     if(!index.isValid() || (index.row() < 0) || (index.row() >= m_items.size()))
         return REDasm::invalid_location<address_t>();
 
-    return REDasm::make_location(m_items[index.row()]);
+    return REDasm::make_location(m_items[index.row()].toU64());
 }
 
 QModelIndex ListingItemModel::index(int row, int column, const QModelIndex &parent) const
@@ -102,7 +100,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
-    const REDasm::Symbol* symbol = lock->symbol(m_items[index.row()]);
+    const REDasm::Symbol* symbol = lock->symbol(m_items[index.row()].toU64());
 
     if(!symbol)
         return QVariant();
@@ -169,7 +167,7 @@ void ListingItemModel::onListingChanged(const REDasm::ListingDocumentChanged *ld
     {
         int idx = static_cast<int>(m_items.indexOf(ldc->item()->address()));
         this->beginRemoveRows(QModelIndex(), idx, idx);
-        m_items.eraseAt(static_cast<size_t>(idx));
+        m_items.removeAt(static_cast<size_t>(idx));
         this->endRemoveRows();
     }
     else if(ldc->isInserted())

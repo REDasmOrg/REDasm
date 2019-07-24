@@ -108,7 +108,7 @@ void DisassemblerGraphView::onMenuRequested()
 void DisassemblerGraphView::goTo(address_t address)
 {
     auto& document = m_disassembler->document();
-    document->cursor()->moveTo(document->instructionIndex(address));
+    document->cursor()->moveTo(document->findInstruction(address));
     this->renderGraph();
 }
 
@@ -126,7 +126,7 @@ void DisassemblerGraphView::focusCurrentBlock()
 bool DisassemblerGraphView::renderGraph()
 {
     auto& document = m_disassembler->document();
-    const REDasm::ListingItem* currentfunction = document->functionStart(document->currentItem());
+    REDasm::ListingItem* currentfunction = document->functionStart(document->currentItem());
 
     if(!currentfunction)
         return false;
@@ -243,7 +243,7 @@ GraphViewItem *DisassemblerGraphView::itemFromCurrentLine() const
     size_t line = cursor->currentLine();
 
     if(item->is(REDasm::ListingItemType::FunctionItem)) // Adjust to instruction
-        line = m_disassembler->document()->instructionIndex(item->address());
+        line = m_disassembler->document()->findInstruction(item->address());
 
     for(const auto& item : m_items)
     {

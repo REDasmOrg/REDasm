@@ -21,7 +21,7 @@ void CallTreeModel::initializeGraph(address_t address)
     this->clearGraph();
 
     REDasm::ListingDocument& document = m_disassembler->document();
-    const REDasm::ListingItem* item = document->functionItem(address);
+    REDasm::ListingItem* item = document->functionItem(address);
 
     if(!item)
         return;
@@ -44,12 +44,12 @@ void CallTreeModel::clearGraph()
 
 void CallTreeModel::populateCallGraph(const QModelIndex &index) { this->populate(reinterpret_cast<REDasm::ListingItem*>(index.internalPointer())); }
 
-void CallTreeModel::populate(const REDasm::ListingItem* parentitem)
+void CallTreeModel::populate(REDasm::ListingItem* parentitem)
 {
     if(m_children.contains(parentitem))
         return;
 
-    REDasm::ListingItemConstContainer calls;
+    REDasm::SortedList calls;
 
     if(parentitem->is(REDasm::ListingItemType::InstructionItem))
     {
@@ -72,8 +72,9 @@ void CallTreeModel::populate(const REDasm::ListingItem* parentitem)
     this->beginInsertRows(index, 0, static_cast<int>(calls.size()));
     m_children[parentitem] = calls;
 
-    for(const REDasm::ListingItem* item : m_children[parentitem])
+    for(size_t i = 0; i < m_children[parentitem].size(); i++)
     {
+        REDasm::ListingItem* item = variant_object<REDasm::ListingItem>(m_children[parentitem][i]);
         m_parents[item] = parentitem;
 
         if(!m_depths.contains(item))
@@ -85,29 +86,29 @@ void CallTreeModel::populate(const REDasm::ListingItem* parentitem)
 
 bool CallTreeModel::isDuplicate(const QModelIndex &index) const
 {
-    const REDasm::ListingItem* item = reinterpret_cast<const REDasm::ListingItem*>(index.internalPointer());
+    REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
 
     if(item == m_root)
         return false;
 
     QModelIndex parentindex = this->parent(index);
-    const REDasm::ListingItem* parentitem = reinterpret_cast<const REDasm::ListingItem*>(parentindex.internalPointer());
+    REDasm::ListingItem* parentitem = reinterpret_cast<REDasm::ListingItem*>(parentindex.internalPointer());
     return (m_depths[item] - m_depths[parentitem]) != 1;
 }
 
-int CallTreeModel::getParentIndexFromChild(const REDasm::ListingItem *childitem) const
+int CallTreeModel::getParentIndexFromChild(REDasm::ListingItem *childitem) const
 {
     if(childitem == m_root)
         return -1;
 
-    const REDasm::ListingItem* parentitem = m_parents[childitem];
+    REDasm::ListingItem* parentitem = m_parents[childitem];
     return this->getParentIndex(parentitem);
 }
 
-int CallTreeModel::getParentIndex(const REDasm::ListingItem *parentitem) const
+int CallTreeModel::getParentIndex(REDasm::ListingItem *parentitem) const
 {
-    const REDasm::ListingItemConstContainer& parentlist = m_children[m_parents[parentitem]];
-    return std::distance(parentlist.begin(), std::find(parentlist.begin(), parentlist.end(), parentitem));
+    const REDasm::SortedList& parentlist = m_children[m_parents[parentitem]];
+    return parentlist.indexOf(parentitem);
 }
 
 address_location CallTreeModel::getCallTarget(const REDasm::ListingItem *item) const
@@ -138,7 +139,7 @@ bool CallTreeModel::hasChildren(const QModelIndex &parentindex) const
 
     if(m_children.contains(parentitem))
     {
-        const REDasm::ListingItemConstContainer& children = m_children[parentitem];
+        const REDasm::SortedList& children = m_children[parentitem];
 
         if(children.empty())
             return false;
@@ -163,7 +164,7 @@ QModelIndex CallTreeModel::index(int row, int column, const QModelIndex &parent)
     if(!parentitem)
         return this->createIndex(row, column, const_cast<REDasm::ListingItem*>(m_root));
 
-    return this->createIndex(row, column, const_cast<REDasm::ListingItem*>(m_children[parentitem][row]));
+    return this->createIndex(row, column, variant_object<REDasm::ListingItem>(m_children[parentitem][row]));
 }
 
 QModelIndex CallTreeModel::parent(const QModelIndex &child) const
@@ -171,12 +172,12 @@ QModelIndex CallTreeModel::parent(const QModelIndex &child) const
     if(!m_disassembler || !m_root)
         return QModelIndex();
 
-    const REDasm::ListingItem* childitem = reinterpret_cast<const REDasm::ListingItem*>(child.internalPointer());
+    REDasm::ListingItem* childitem = reinterpret_cast<REDasm::ListingItem*>(child.internalPointer());
 
     if(childitem == m_root)
         return QModelIndex();
 
-    const REDasm::ListingItem* parentitem = m_parents[childitem];
+    REDasm::ListingItem* parentitem = m_parents[childitem];
     return this->createIndex(this->getParentIndexFromChild(childitem), 0, const_cast<REDasm::ListingItem*>(parentitem));
 }
 

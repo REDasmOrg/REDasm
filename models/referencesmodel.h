@@ -1,8 +1,8 @@
 #ifndef REFERENCESMODEL_H
 #define REFERENCESMODEL_H
 
-#include <QJsonObject>
 #include <redasm/plugins/assembler/printer/printer.h>
+#include <redasm/types/containers/set.h>
 #include "disassemblermodel.h"
 
 class ReferencesModel : public DisassemblerModel
@@ -28,7 +28,7 @@ class ReferencesModel : public DisassemblerModel
         QString direction(address_t address) const;
 
     private:
-        REDasm::ReferenceVector m_references;
+        REDasm::SortedSet m_references;
         REDasm::object_ptr<REDasm::Printer> m_printer;
 };
 

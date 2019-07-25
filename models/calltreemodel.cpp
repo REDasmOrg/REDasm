@@ -214,10 +214,10 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 
     if(item->is(REDasm::ListingItemType::InstructionItem))
     {
-        REDasm::ReferenceSet refs = m_disassembler->getTargets(item->address());
+        REDasm::SortedSet refs = m_disassembler->getTargets(item->address());
 
         if(!refs.empty())
-            symbol = lock->symbol(*refs.begin());
+            symbol = lock->symbol(refs.first().toU64());
     }
 
     if(role == Qt::DisplayRole)

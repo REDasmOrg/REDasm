@@ -337,9 +337,11 @@ void DisassemblerTest::testTn11()
         return;
 
     size_t i = 0;
+    SortedSet targets = m_disassembler->getTargets(instruction->address);
 
-    for(address_t target : m_disassembler->getTargets(instruction->address))
+    for(size_t i = 0; i < targets.size(); i++)
     {
+        address_t target = targets[i].toU64();
         const Symbol* symbol = m_document->symbol(target);
         TEST(("Checking CASE #" + String::number(i) + " @ " + String::hex(target)).c_str(), symbol && symbol->is(SymbolType::Code) && m_document->instruction(target));
         i++;

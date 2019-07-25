@@ -38,7 +38,7 @@ QModelIndex ReferencesModel::index(int row, int column, const QModelIndex &) con
     if(row >= static_cast<int>(m_references.size()))
         return QModelIndex();
 
-    return this->createIndex(row, column, m_references[row]);
+    return this->createIndex(row, column, m_references[row].toU64());
 }
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
@@ -47,10 +47,10 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     auto& document = m_disassembler->document();
-    const REDasm::ListingItem* item = document->instructionItem(m_references[index.row()]);
+    const REDasm::ListingItem* item = document->instructionItem(m_references[index.row()].toU64());
 
     if(!item)
-        item = document->symbolItem(m_references[index.row()]);
+        item = document->symbolItem(m_references[index.row()].toU64());
 
     if(!item)
         return QVariant();

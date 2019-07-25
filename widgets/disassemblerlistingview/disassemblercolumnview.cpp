@@ -34,8 +34,12 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
             if(!instruction->is(REDasm::InstructionType::Jump))
                 continue;
 
-            for(address_t target : m_disassembler->getTargets(instruction->address))
+            REDasm::SortedSet targets = m_disassembler->getTargets(instruction->address);
+
+            for(size_t i = 0; i < targets.size(); i++)
             {
+                address_t target = targets[i].toU64();
+
                 if(target == instruction->address)
                     continue;
 
@@ -54,14 +58,17 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
             if(!symbol || !symbol->is(REDasm::SymbolType::Code))
                 continue;
 
-            REDasm::ReferenceVector refs = m_disassembler->getReferences(item->address());
             size_t toidx = document->findInstruction(item->address());
 
             if(toidx >= document->size())
                 continue;
 
-            for(address_t ref : refs)
+            REDasm::SortedSet refs = m_disassembler->getReferences(item->address());
+
+            for(size_t i = 0; i < refs.size(); i++)
             {
+                address_t ref = refs[i].toU64();
+
                 if(ref == item->address())
                     continue;
 

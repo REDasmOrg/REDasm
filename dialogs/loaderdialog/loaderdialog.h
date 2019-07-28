@@ -35,7 +35,7 @@ class LoaderDialog : public QDialog
     private:
         Ui::LoaderDialog *ui;
         QStandardItemModel* m_loadersmodel;
-        REDasm::PluginManager::PluginList m_loaders, m_assemblers;
+        REDasm::PluginList m_loaders, m_assemblers;
         const REDasm::LoadRequest& m_request;
 };
 

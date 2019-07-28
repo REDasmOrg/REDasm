@@ -114,13 +114,13 @@ string DisassemblerTest::replaceAll(std::string str, const std::string &from, co
 void DisassemblerTest::runCurrentTest(const String& filepath, const TestCallback &cb)
 {
     LoadRequest request(filepath, m_buffer);
-    REDasm::PluginManager::PluginList loaders = r_pm->getLoaders(request); //, true);
+    REDasm::PluginList loaders = r_pm->getLoaders(request); //, true);
     TEST("Loader", !loaders.empty());
 
     if(loaders.empty())
         return;
 
-    const PluginInstance *assemblerpi = nullptr, *loaderpi = loaders.front();
+    const PluginInstance *assemblerpi = nullptr, *loaderpi = loaders.first();
     REDasm::Loader* loader = plugin_cast<REDasm::Loader>(loaderpi);
     loader->init(request);
 

@@ -12,8 +12,11 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) 
     m_loaders = r_pm->getLoaders(request);
     m_loadersmodel = new QStandardItemModel(ui->lvLoaders);
 
-    for(const auto& entry : m_loaders)
-        m_loadersmodel->appendRow(new QStandardItem(Convert::to_qstring(entry->descriptor->description)));
+    for(size_t i = 0; i < m_loaders.size(); i++)
+    {
+        const REDasm::PluginInstance* pi = m_loaders.at(i);
+        m_loadersmodel->appendRow(new QStandardItem(Convert::to_qstring(pi->descriptor->description)));
+    }
 
     ui->lvLoaders->setModel(m_loadersmodel);
     ui->lvLoaders->setCurrentIndex(m_loadersmodel->index(0, 0));
@@ -46,15 +49,13 @@ LoaderDialog::~LoaderDialog()
 {
     if(!m_assemblers.empty() && this->selectedAssembler())
     {
-        auto ait = std::find(m_assemblers.begin(), m_assemblers.end(), this->selectedAssembler());
-        m_assemblers.erase(ait); // Keep selected assembler
+        m_assemblers.remove(this->selectedLoader()); // Keep selected assembler
         r_pm->unload(m_assemblers);
     }
 
     if(!m_loaders.empty())
     {
-        auto lit = std::find(m_loaders.begin(), m_loaders.end(), this->selectedLoader());
-        m_loaders.erase(lit);   // Keep selected loader
+        m_loaders.remove(this->selectedLoader());   // Keep selected loader
         r_pm->unload(m_loaders);
     }
 
@@ -68,7 +69,7 @@ const REDasm::PluginInstance *LoaderDialog::selectedLoader() const
     if(!index.isValid())
         return nullptr;
 
-    return m_loaders[index.row()];
+    return m_loaders.at(index.row());
 }
 
 const REDasm::PluginInstance* LoaderDialog::selectedAssembler() const
@@ -76,7 +77,7 @@ const REDasm::PluginInstance* LoaderDialog::selectedAssembler() const
     REDasm::LoaderFlags flags = this->selectedLoaderFlags();
 
     if(flags & REDasm::LoaderFlags::CustomAssembler)
-        return m_assemblers[ui->cbAssembler->currentIndex()];
+        return m_assemblers.at(ui->cbAssembler->currentIndex());
 
     return nullptr;
 }
@@ -92,7 +93,7 @@ REDasm::LoaderFlags LoaderDialog::selectedLoaderFlags() const
     if(!index.isValid())
         return REDasm::LoaderFlags::None;
 
-    const REDasm::PluginInstance* pi = m_loaders[index.row()];
+    const REDasm::PluginInstance* pi = m_loaders.at(index.row());
     return plugin_cast<REDasm::Loader>(pi)->flags();
 }
 
@@ -147,12 +148,12 @@ void LoaderDialog::syncAssembler()
     const REDasm::PluginInstance* pi = this->selectedLoader();
     auto* loader = plugin_cast<REDasm::Loader>(pi);
 
-    for(auto it = m_assemblers.begin(); it != m_assemblers.end(); it++)
+    for(size_t i = 0; i < m_assemblers.size(); i++)
     {
-        if(loader->assembler().id != (*it)->descriptor->id)
+        if(loader->assembler().id != m_assemblers.at(i)->descriptor->id)
             continue;
 
-        ui->cbAssembler->setCurrentText(Convert::to_qstring((*it)->descriptor->description));
+        ui->cbAssembler->setCurrentText(Convert::to_qstring(m_assemblers.at(i)->descriptor->description));
         break;
     }
 }
@@ -161,6 +162,9 @@ void LoaderDialog::populateAssemblers()
 {
     m_assemblers = r_pm->getAssemblers();
 
-    for(auto it = m_assemblers.begin(); it != m_assemblers.end(); it++)
-        ui->cbAssembler->addItem(Convert::to_qstring((*it)->descriptor->description), Convert::to_qstring((*it)->descriptor->id));
+    for(size_t i = 0; i < m_assemblers.size(); i++)
+    {
+        const REDasm::PluginInstance* pi = m_assemblers.at(i);
+        ui->cbAssembler->addItem(Convert::to_qstring(pi->descriptor->description), Convert::to_qstring(pi->descriptor->id));
+    }
 }

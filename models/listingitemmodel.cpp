@@ -167,7 +167,7 @@ void ListingItemModel::onListingChanged(const REDasm::ListingDocumentChanged *ld
     {
         int idx = static_cast<int>(m_items.indexOf(ldc->item()->address()));
         this->beginRemoveRows(QModelIndex(), idx, idx);
-        m_items.removeAt(static_cast<size_t>(idx));
+        m_items.eraseAt(static_cast<size_t>(idx));
         this->endRemoveRows();
     }
     else if(ldc->isInserted())

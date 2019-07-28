@@ -61,9 +61,8 @@ void DisassemblerGraphView::computeLayout()
 {
     m_disassembleractions->setCurrentRenderer(nullptr);
 
-    for(const auto& n : this->graph()->nodes())
-    {
-        const auto* fbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(n);
+    this->graph()->nodes().each([&](REDasm::Node n) {
+        const REDasm::FunctionBasicBlock* fbb = variant_object<REDasm::FunctionBasicBlock>(this->graph()->data(n));
         auto* dbi = new DisassemblerBlockItem(fbb, m_disassembler, n, this->viewport());
         connect(dbi, &DisassemblerBlockItem::followRequested, this, &DisassemblerGraphView::onFollowRequested);
         connect(dbi, &DisassemblerBlockItem::menuRequested, this, &DisassemblerGraphView::onMenuRequested);
@@ -71,13 +70,12 @@ void DisassemblerGraphView::computeLayout()
         m_items[n] = dbi;
         this->graph()->width(n, dbi->width());
         this->graph()->height(n, dbi->height());
-    }
+    });
 
-    for(const auto& e : this->graph()->edges())
-    {
+    this->graph()->edges().each([&](const REDasm::Edge& e) {
         this->graph()->color(e, qUtf8Printable(this->getEdgeColor(e).name()));
         this->graph()->label(e, this->getEdgeLabel(e));
-    }
+    });
 
     REDasm::Graphing::LayeredLayout ll(this->graph());
     ll.execute();
@@ -201,16 +199,16 @@ void DisassemblerGraphView::selectedItemChangedEvent()
     GraphView::selectedItemChangedEvent();
 }
 
-QColor DisassemblerGraphView::getEdgeColor(const REDasm::Graphing::Edge &e) const
+QColor DisassemblerGraphView::getEdgeColor(const REDasm::Edge& e) const
 {
-    const REDasm::Graphing::FunctionBasicBlock* fbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(e.source);
+    const REDasm::FunctionBasicBlock* fbb = variant_object<REDasm::FunctionBasicBlock>(this->graph()->data(e.source));
     return THEME_VALUE(Convert::to_qstring(fbb->style(e.target)));
 }
 
-REDasm::String DisassemblerGraphView::getEdgeLabel(const REDasm::Graphing::Edge &e) const
+REDasm::String DisassemblerGraphView::getEdgeLabel(const REDasm::Edge& e) const
 {
-    const REDasm::Graphing::FunctionBasicBlock* fromfbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(e.source);
-    const REDasm::Graphing::FunctionBasicBlock* tofbb = static_cast<const REDasm::Graphing::FunctionGraph*>(this->graph())->data(e.target);
+    const REDasm::FunctionBasicBlock* fromfbb = variant_object<REDasm::FunctionBasicBlock>(this->graph()->data(e.source));
+    const REDasm::FunctionBasicBlock* tofbb = variant_object<REDasm::FunctionBasicBlock>(this->graph()->data(e.target));
     REDasm::ListingDocument& document = m_disassembler->document();
     const REDasm::ListingItem* fromitem = document->itemAt(fromfbb->endIndex());
     REDasm::CachedInstruction instruction = document->instruction(fromitem->address());

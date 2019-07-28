@@ -8,6 +8,7 @@
 #include <QAbstractScrollArea>
 #include <QVector>
 #include <QList>
+#include <unordered_map>
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/graph/graph.h>
 #include "../../themeprovider.h"
@@ -20,11 +21,11 @@ class GraphView : public QAbstractScrollArea
     public:
         explicit GraphView(QWidget *parent = nullptr);
         virtual void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
-        void setGraph(REDasm::Graphing::Graph *graph);
+        void setGraph(REDasm::Graph *graph);
         void setSelectedBlock(GraphViewItem* item);
         void setFocusOnSelection(bool b);
         GraphViewItem* selectedItem() const;
-        REDasm::Graphing::Graph* graph() const;
+        REDasm::Graph* graph() const;
 
     public slots:
         void focusSelectedBlock();
@@ -49,30 +50,28 @@ class GraphView : public QAbstractScrollArea
         void zoomOut(const QPoint& cursorpos);
         void zoomIn(const QPoint& cursorpos);
         void adjustSize(int vpw, int vph, const QPoint& cursorpos = QPoint(), bool fit = false);
-        void precomputeArrow(const REDasm::Graphing::Edge& e);
-        void precomputeLine(const REDasm::Graphing::Edge& e);
+        void precomputeArrow(const REDasm::Edge &e);
+        void precomputeLine(const REDasm::Edge &e);
         bool updateSelectedItem(QMouseEvent* e);
-
-    protected:
-        REDasm::DisassemblerPtr m_disassembler;
-        QHash<REDasm::Graphing::Node, GraphViewItem*> m_items;
 
     signals:
         void selectedItemChanged();
 
+    protected:
+        REDasm::DisassemblerPtr m_disassembler;
+        QHash<REDasm::Node, GraphViewItem*> m_items;
+
     private:
         GraphViewItem* m_selecteditem;
-        REDasm::Graphing::Graph* m_graph;
-        std::unordered_map< REDasm::Graphing::Edge, QVector<QLine> > m_lines;
-        std::unordered_map<REDasm::Graphing::Edge, QPolygon> m_arrows;
+        REDasm::Graph* m_graph;
+        std::unordered_map< REDasm::Edge, QVector<QLine> > m_lines;
+        std::unordered_map<REDasm::Edge, QPolygon> m_arrows;
         QPoint m_renderoffset, m_scrollbase;
         QSize m_rendersize;
         qreal m_scalefactor, m_scalestep, m_prevscalefactor;
         qreal m_scalemin, m_scalemax;
         int m_scaledirection, m_scaleboost;
         bool m_viewportready, m_scrollmode;
-
-    private:
         bool m_focusonselection;
 };
 

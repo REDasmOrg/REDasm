@@ -15,10 +15,10 @@ class GraphViewItem: public QObject
         enum: size_t { None = 0, Selected, Focused };
 
     public:
-        explicit GraphViewItem(const REDasm::Graphing::Node& node, QObject* parent = nullptr);
+        explicit GraphViewItem(REDasm::Node node, QObject* parent = nullptr);
         virtual ~GraphViewItem() = default;
         virtual void invalidate(bool notify = true);
-        const REDasm::Graphing::Node& node() const;
+        REDasm::Node node() const;
         int x() const;
         int y() const;
         int width() const;
@@ -46,8 +46,7 @@ class GraphViewItem: public QObject
 
     private:
         QPoint m_pos;
-
-        const REDasm::Graphing::Node& m_node;
+        REDasm::Node m_node;
 
     friend class GraphView;
 };

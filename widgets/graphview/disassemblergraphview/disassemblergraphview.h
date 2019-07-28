@@ -24,8 +24,8 @@ class DisassemblerGraphView : public GraphView
         bool renderGraph();
 
     private:
-        QColor getEdgeColor(const REDasm::Graphing::Edge &e) const;
-        REDasm::String getEdgeLabel(const REDasm::Graphing::Edge &e) const;
+        QColor getEdgeColor(const REDasm::Edge &e) const;
+        REDasm::String getEdgeLabel(const REDasm::Edge &e) const;
         GraphViewItem* itemFromCurrentLine() const;
 
     protected:

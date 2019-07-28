@@ -10,7 +10,7 @@
 #define DROP_SHADOW_SIZE  10
 #define BLOCK_MARGINS -BLOCK_MARGIN, 0, BLOCK_MARGIN, BLOCK_MARGIN
 
-DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::Graphing::FunctionBasicBlock *fbb, const REDasm::DisassemblerPtr &disassembler, const REDasm::Graphing::Node &node, QWidget *parent) : GraphViewItem(node, parent), m_basicblock(fbb), m_disassembler(disassembler)
+DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *fbb, const REDasm::DisassemblerPtr &disassembler, REDasm::Node node, QWidget *parent) : GraphViewItem(node, parent), m_basicblock(fbb), m_disassembler(disassembler)
 {
     this->setupDocument();
 

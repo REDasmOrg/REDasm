@@ -1,8 +1,8 @@
 #include "graphviewitem.h"
 #include <QDebug>
 
-GraphViewItem::GraphViewItem(const REDasm::Graphing::Node &node, QObject *parent): QObject(parent), m_node(node) { }
-const REDasm::Graphing::Node &GraphViewItem::node() const { return m_node; }
+GraphViewItem::GraphViewItem(REDasm::Node node, QObject *parent): QObject(parent), m_node(node) { }
+REDasm::Node GraphViewItem::node() const { return m_node; }
 int GraphViewItem::x() const { return this->position().x(); }
 int GraphViewItem::y() const { return this->position().y(); }
 int GraphViewItem::width() const { return this->size().width(); }

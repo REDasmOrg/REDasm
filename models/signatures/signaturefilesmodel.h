@@ -5,7 +5,7 @@
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/database/signaturedb.h>
 #include <redasm/plugins/loader/loader.h>
-#include <redasm/libs/json/json.hpp>
+#include <redasm/libs/nlohmann/json.hpp>
 
 class SignatureFilesModel : public QAbstractListModel
 {

@@ -129,17 +129,16 @@ void ListingMap::renderFunctions(QPainter *painter)
     {
         REDasm::ListingItem* item = lock->functions()->at(i);
         const REDasm::Symbol* symbol = lock->symbol(item->address());
-        const REDasm::Graphing::FunctionGraph* g = lock->functions()->graph(item);
+        const REDasm::FunctionGraph* g = lock->functions()->graph(item);
 
         if(!g)
             continue;
 
-        for(const auto& n : g->nodes())
-        {
-            const REDasm::Graphing::FunctionBasicBlock* fbb = g->data(n);
+        g->nodes().each([&](REDasm::Node n) {
+            const REDasm::FunctionBasicBlock* fbb = variant_object<REDasm::FunctionBasicBlock>(g->data(n));
 
             if(!fbb)
-                continue;
+                return;
 
             QRect r = this->buildRect(this->calculatePosition(fbb->startIndex()), this->calculateSize(fbb->count()));
 
@@ -152,7 +151,7 @@ void ListingMap::renderFunctions(QPainter *painter)
                 painter->fillRect(r, THEME_VALUE("locked_fg"));
             else
                 painter->fillRect(r, THEME_VALUE("function_fg"));
-        }
+        });
     }
 }
 

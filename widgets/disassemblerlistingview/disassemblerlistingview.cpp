@@ -35,14 +35,14 @@ void DisassemblerListingView::setDisassembler(const REDasm::DisassemblerPtr& dis
 
     REDasm::ListingDocument& document = m_disassembler->document();
 
-    EVENT_CONNECT(document->cursor(), positionChanged, this, [&]() {
+    document->cursor()->positionChanged.connect(this, [&](REDasm::EventArgs*) {
         if(m_disassembler->busy())
             return;
 
         QMetaObject::invokeMethod(m_disassemblercolumnview, "update", Qt::QueuedConnection);
     });
 
-    EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
+    m_disassembler->busyChanged.connect(this, [&](REDasm::EventArgs*) {
         if(m_disassembler->busy())
             return;
 

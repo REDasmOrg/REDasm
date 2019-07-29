@@ -25,8 +25,8 @@ class ListingItemModel : public DisassemblerModel
     protected:
         virtual bool isItemAllowed(const REDasm::ListingItem *item) const;
 
-    private slots:
-        void onListingChanged(const REDasm::ListingDocumentChanged *ldc);
+    private:
+        void onListingChanged(REDasm::EventArgs* e);
 
     private:
         REDasm::SortedList m_items;

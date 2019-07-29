@@ -19,7 +19,7 @@ void DisassemblerViewDocks::setDisassembler(const REDasm::DisassemblerPtr& disas
 {
     m_disassembler = disassembler;
 
-    EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
+    m_disassembler->busyChanged.connect(this, [&](REDasm::EventArgs*) {
         if(m_disassembler->busy())
             return;
 

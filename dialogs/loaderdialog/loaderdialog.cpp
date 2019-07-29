@@ -49,13 +49,13 @@ LoaderDialog::~LoaderDialog()
 {
     if(!m_assemblers.empty() && this->selectedAssembler())
     {
-        m_assemblers.remove(this->selectedLoader()); // Keep selected assembler
+        m_assemblers.erase(this->selectedLoader()); // Keep selected assembler
         r_pm->unload(m_assemblers);
     }
 
     if(!m_loaders.empty())
     {
-        m_loaders.remove(this->selectedLoader());   // Keep selected loader
+        m_loaders.erase(this->selectedLoader());   // Keep selected loader
         r_pm->unload(m_loaders);
     }
 

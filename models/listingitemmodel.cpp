@@ -27,7 +27,7 @@ void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembl
     }
 
     this->endResetModel();
-    EVENT_CONNECT(document, changed, this, std::bind(&ListingItemModel::onListingChanged, this, std::placeholders::_1));
+    document->changed.connect(this, std::bind(&ListingItemModel::onListingChanged, this, std::placeholders::_1));
 }
 
 const REDasm::ListingItem *ListingItemModel::item(const QModelIndex &index) const
@@ -158,8 +158,10 @@ bool ListingItemModel::isItemAllowed(const REDasm::ListingItem *item) const
     return item->is(m_itemtype);
 }
 
-void ListingItemModel::onListingChanged(const REDasm::ListingDocumentChanged *ldc)
+void ListingItemModel::onListingChanged(REDasm::EventArgs* e)
 {
+    REDasm::ListingDocumentChangedEventArgs *ldc = static_cast<REDasm::ListingDocumentChangedEventArgs*>(e);
+
     if(!this->isItemAllowed(ldc->item()))
         return;
 

@@ -96,8 +96,9 @@ void ListingRendererCommon::insertText(const REDasm::RendererLine &rl, QTextCurs
         textcursor->insertBlock(QTextBlockFormat());
     }
 
-    for(const REDasm::RendererFormat& rf : rl.formats)
+    for(size_t i = 0; i < rl.formats.size(); i++)
     {
+        const REDasm::RendererFormat& rf = rl.formats.at(i);
         QTextCharFormat charformat;
 
         if(!rf.fgstyle.empty())
@@ -139,8 +140,10 @@ void ListingRendererCommon::renderText(const REDasm::RendererLine &rl, float x, 
         painter->fillRect(0, y, vpr.width(), fm.height(), THEME_VALUE("seek"));
     }
 
-    for(const REDasm::RendererFormat& rf : rl.formats)
+    for(size_t i = 0; i < rl.formats.size(); i++)
     {
+        const REDasm::RendererFormat& rf = rl.formats.at(i);
+
         if(!rf.fgstyle.empty())
         {
             if((rf.fgstyle == "cursor_fg") || (rf.fgstyle == "selection_fg"))

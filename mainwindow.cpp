@@ -366,7 +366,7 @@ void MainWindow::setStandardActionsEnabled(bool b)
 
 void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler, bool fromdatabase)
 {
-    EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
+    disassembler->busyChanged.connect(this, [&](REDasm::EventArgs*) {
         QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection);
     });
 
@@ -477,7 +477,7 @@ void MainWindow::selectLoader(const REDasm::LoadRequest& request)
 
     REDasm::Disassembler* disassembler = new REDasm::Disassembler(assembler, loader);
 
-    EVENT_CONNECT(disassembler, busyChanged, this, [&]() {
+    disassembler->busyChanged.connect(this, [&](REDasm::EventArgs*) {
         DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
 
         if(currdv)

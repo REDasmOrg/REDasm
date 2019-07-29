@@ -16,9 +16,6 @@ class DisassemblerTest
         typedef std::pair<REDasm::String, TestCallback> TestItem;
 
     public:
-        REDasm::SimpleEvent done;
-
-    public:
         DisassemblerTest();
         ~DisassemblerTest();
         void runTests();

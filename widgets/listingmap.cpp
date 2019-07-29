@@ -22,14 +22,14 @@ void ListingMap::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
     auto& document = m_disassembler->document();
     this->update();
 
-    EVENT_CONNECT(document->cursor(), positionChanged, this, [=]() {
+    document->cursor()->positionChanged.connect(this, [=](REDasm::EventArgs*) {
         if(m_disassembler->busy())
             return;
 
         QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
     });
 
-    EVENT_CONNECT(m_disassembler, busyChanged, this, [=]() {
+    m_disassembler->busyChanged.connect(this, [=](REDasm::EventArgs*) {
         if(m_disassembler->busy())
             return;
 

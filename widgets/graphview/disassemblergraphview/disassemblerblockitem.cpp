@@ -22,7 +22,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
     QFontMetricsF fm(m_document.defaultFont());
     m_charheight = fm.height();
 
-    EVENT_CONNECT(m_disassembler->document()->cursor(), positionChanged, this, [&]() {
+    m_disassembler->document()->cursor()->positionChanged.connect(this, [&](REDasm::EventArgs*) {
         if(!m_basicblock->contains(m_disassembler->document()->cursor()->currentLine()))
             return;
 
@@ -30,7 +30,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
     });
 }
 
-DisassemblerBlockItem::~DisassemblerBlockItem() { EVENT_DISCONNECT(m_disassembler->document()->cursor(), positionChanged, this); }
+DisassemblerBlockItem::~DisassemblerBlockItem() { m_disassembler->document()->cursor()->positionChanged.disconnect(this); }
 REDasm::String DisassemblerBlockItem::currentWord() { return m_renderer->getCurrentWord(); }
 ListingDocumentRenderer *DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
 bool DisassemblerBlockItem::containsIndex(s64 index) const { return m_basicblock->contains(index); }

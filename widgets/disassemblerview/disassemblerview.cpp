@@ -142,15 +142,15 @@ void DisassemblerView::bindDisassembler(REDasm::Disassembler *disassembler, bool
 
     ui->stackedWidget->currentWidget()->setFocus();
 
-    EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
+    m_disassembler->busyChanged.connect(this, [&](REDasm::EventArgs*) {
         QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection);
     });
 
-    EVENT_CONNECT(m_disassembler->document()->cursor(), backChanged, this, [=]() {
+    m_disassembler->document()->cursor()->backChanged.connect(this, [&](REDasm::EventArgs*) {
         m_actions->setEnabled(DisassemblerViewActions::BackAction, m_disassembler->document()->cursor()->canGoBack());
     });
 
-    EVENT_CONNECT(m_disassembler->document()->cursor(), forwardChanged, this, [=]() {
+    m_disassembler->document()->cursor()->forwardChanged.connect(this, [&](REDasm::EventArgs*) {
         m_actions->setEnabled(DisassemblerViewActions::ForwardAction, m_disassembler->document()->cursor()->canGoForward());
     });
 

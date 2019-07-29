@@ -82,9 +82,9 @@ void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disass
 {
     m_disassembler = disassembler;
 
-    EVENT_CONNECT(this->currentDocument(), changed, this, std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1));
+    this->currentDocument()->changed.connect(this, std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1));
 
-    EVENT_CONNECT(this->currentDocument()->cursor(), positionChanged, this, [&]() {
+    this->currentDocument()->cursor()->positionChanged.connect(this, [&](REDasm::EventArgs*) {
         QMetaObject::invokeMethod(this, "moveToSelection", Qt::QueuedConnection);
     });
 
@@ -418,8 +418,10 @@ void DisassemblerTextView::paintLines(QPainter *painter, size_t first, size_t la
     m_renderer->render(first, count, painter);
 }
 
-void DisassemblerTextView::onDocumentChanged(const REDasm::ListingDocumentChanged *ldc)
+void DisassemblerTextView::onDocumentChanged(REDasm::EventArgs *e)
 {
+    REDasm::ListingDocumentChangedEventArgs *ldc = static_cast<REDasm::ListingDocumentChangedEventArgs*>(e);
+
     m_disassembler->document()->cursor()->clearSelection();
     this->adjustScrollBars();
 

@@ -477,7 +477,7 @@ void MainWindow::selectLoader(const REDasm::LoadRequest& request)
         loader->load();
 
     r_ctx->log("Selected loader " + REDasm::String(loader->description()).quoted() +
-               " with " + REDasm::String(assembler->description()).quoted() + " instruction set");
+               " with " + REDasm::String(assembler->description()).quoted() + " assembler");
 
     REDasm::Disassembler* disassembler = new REDasm::Disassembler(assembler, loader);
 

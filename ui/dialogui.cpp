@@ -3,15 +3,21 @@
 #include <QSortFilterProxyModel>
 #include <QPushButton>
 
-DialogUI::DialogUI(QWidget *parent) : QDialog(parent), ui(new Ui::DialogUI)
+DialogUI::DialogUI(QWidget *parent) : QDialog(parent), ui(new Ui::DialogUI), m_selectedindex(-1)
 {
     ui->setupUi(this);
-
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 }
 
 DialogUI::~DialogUI() { delete ui; }
+int DialogUI::selectedIndex() const { return m_selectedindex; }
 void DialogUI::setText(const QString &s) { ui->lblTitle->setText(s); }
+
+void DialogUI::selectableItems(const REDasm::List &items)
+{
+    this->hideFilter();
+    this->createList(new ListItemsModel(items));
+}
 
 void DialogUI::setItems(REDasm::UI::CheckList &items)
 {
@@ -29,6 +35,12 @@ void DialogUI::setItems(REDasm::UI::CheckList &items)
     });
 }
 
+void DialogUI::hideFilter()
+{
+    ui->leFilter->setVisible(false);
+    ui->pbApply->setVisible(false);
+}
+
 void DialogUI::createList(QAbstractItemModel* model)
 {
     QSortFilterProxyModel* filtermodel = new QSortFilterProxyModel(this);
@@ -42,7 +54,12 @@ void DialogUI::createList(QAbstractItemModel* model)
     lvitems->setModel(filtermodel);
     ui->stackedWidget->addWidget(lvitems);
 
-    connect(ui->leFilter, &QLineEdit::textChanged, filtermodel, &QSortFilterProxyModel::setFilterFixedString);
+    connect(lvitems->selectionModel(), &QItemSelectionModel::currentRowChanged, this, [&](const QModelIndex &current, const QModelIndex &previous) {
+        m_selectedindex = current.row();
+    });
+
+    if(ui->leFilter->isVisible())
+        connect(ui->leFilter, &QLineEdit::textChanged, filtermodel, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 void DialogUI::setCanAccept(bool b) { ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(b); }

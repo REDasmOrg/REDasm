@@ -25,7 +25,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="filterLayout">
      <item>
       <widget class="QLineEdit" name="leFilter">
        <property name="text">

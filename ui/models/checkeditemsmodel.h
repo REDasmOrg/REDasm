@@ -6,6 +6,8 @@
 
 class CheckedItemsModel : public QAbstractListModel
 {
+    Q_OBJECT
+
     public:
         CheckedItemsModel(REDasm::UI::CheckList& items, QObject* parent = nullptr);
         void uncheckAll();

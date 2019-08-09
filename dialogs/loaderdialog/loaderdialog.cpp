@@ -146,6 +146,10 @@ void LoaderDialog::updateInputMask()
 void LoaderDialog::syncAssembler()
 {
     const REDasm::PluginInstance* pi = this->selectedLoader();
+
+    if(!pi)
+        return;
+
     auto* loader = plugin_cast<REDasm::Loader>(pi);
 
     for(size_t i = 0; i < m_assemblers.size(); i++)

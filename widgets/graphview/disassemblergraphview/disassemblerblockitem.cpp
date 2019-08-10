@@ -16,7 +16,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
 
     m_renderer = std::make_unique<ListingDocumentRenderer>();
     m_renderer->setFirstVisibleLine(fbb->startIndex());
-    m_renderer->setFlags(REDasm::ListingRendererFlags::HideSegmentName);
+    m_renderer->setFlags(REDasm::ListingRendererFlags::HideSegment | REDasm::ListingRendererFlags::HideBasicBlocks);
     this->invalidate(false);
 
     QFontMetricsF fm(m_document.defaultFont());

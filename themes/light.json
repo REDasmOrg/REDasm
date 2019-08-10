@@ -38,5 +38,7 @@
 
     "address_list_fg": "darkblue",
     "segment_name_fg": "darkgreen",
-    "segment_flags_fg": "darkred"
+    "segment_flags_fg": "darkred",
+
+    "basicblock": "#bdc3c7"
 }

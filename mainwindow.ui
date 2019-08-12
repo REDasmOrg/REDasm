@@ -338,7 +338,7 @@
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
    <property name="windowTitle">
-    <string>Refere&amp;nces</string>
+    <string>References</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>

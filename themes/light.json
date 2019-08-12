@@ -40,5 +40,5 @@
     "segment_name_fg": "darkgreen",
     "segment_flags_fg": "darkred",
 
-    "basicblock": "#bdc3c7"
+    "separator": "#bdc3c7"
 }

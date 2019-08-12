@@ -54,5 +54,5 @@
     "segment_name_fg": "#2dcb71",
     "segment_flags_fg": "#f47cc3",
 
-    "basicblock": "#34495e"
+    "separator": "#34495e"
 }

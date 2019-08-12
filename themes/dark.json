@@ -26,6 +26,8 @@
 
     "locked_fg": "#d45c9e",
     "locked_bg": "#34495e",
+    "entrypoint_fg": "#d45c9e",
+    "entrypoint_bg": "#2d5036",
     "highlight_fg": "#2b2b2b",
     "highlight_bg": "#2ecc71",
     "seek": "#2b2b2b",

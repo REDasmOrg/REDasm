@@ -135,6 +135,8 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::BackgroundRole)
     {
+        if(symbol->isEntryPoint())
+            return THEME_VALUE("entrypoint_bg");
         if(symbol->isFunction() && symbol->isLocked())
             return THEME_VALUE("locked_bg");
     }

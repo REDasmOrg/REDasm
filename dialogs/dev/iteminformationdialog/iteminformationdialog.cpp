@@ -62,7 +62,7 @@ void ItemInformationDialog::displayInformation()
     const auto& document = m_disassembler->document();
     const REDasm::ListingItem* item = document->currentItem();
 
-    this->line("document_index", QString::number(document->findItem(item)));
+    this->line("document_index", QString::number(document->itemIndex(item)));
     this->line("address", Convert::to_qstring(REDasm::String::hex(item->address())));
     this->line("type", this->itemType(item));
     this->line("index", QString::number(item->index()));

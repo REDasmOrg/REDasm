@@ -43,7 +43,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
                 if(target == instruction->address)
                     continue;
 
-                size_t idx = document->findInstruction(target);
+                size_t idx = document->instructionIndex(target);
 
                 if(idx >= document->size())
                     continue;
@@ -58,7 +58,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
             if(!symbol || !symbol->is(REDasm::SymbolType::Code))
                 continue;
 
-            size_t toidx = document->findInstruction(item->address());
+            size_t toidx = document->instructionIndex(item->address());
 
             if(toidx >= document->size())
                 continue;
@@ -72,7 +72,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
                 if(ref == item->address())
                     continue;
 
-                size_t idx = document->findInstruction(ref);
+                size_t idx = document->instructionIndex(ref);
 
                 if(idx >= document->size())
                     continue;

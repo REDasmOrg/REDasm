@@ -23,7 +23,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
     m_charheight = fm.height();
 
     m_disassembler->document()->cursor()->positionChanged.connect(this, [&](REDasm::EventArgs*) {
-        if(!m_basicblock->contains(m_disassembler->document()->cursor()->currentLine()))
+        if(!m_basicblock->contains(m_disassembler->document()->currentItem()))
             return;
 
         this->invalidate();
@@ -33,14 +33,14 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
 DisassemblerBlockItem::~DisassemblerBlockItem() { m_disassembler->document()->cursor()->positionChanged.disconnect(this); }
 REDasm::String DisassemblerBlockItem::currentWord() { return m_renderer->getCurrentWord(); }
 ListingDocumentRenderer *DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
-bool DisassemblerBlockItem::containsIndex(s64 index) const { return m_basicblock->contains(index); }
+bool DisassemblerBlockItem::containsItem(REDasm::ListingItem* item) const { return m_basicblock->contains(item); }
 
 int DisassemblerBlockItem::currentLine() const
 {
     const REDasm::ListingCursor* cursor = r_doc->cursor();
 
-    if(this->containsIndex(cursor->currentLine()))
-        return cursor->currentLine() - m_basicblock->startIndex();
+    if(this->containsItem(r_doc->currentItem()))
+        return cursor->currentLine() - r_doc->itemIndex(m_basicblock->startItem());
 
     return GraphViewItem::currentLine();
 }

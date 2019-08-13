@@ -76,7 +76,7 @@ size_t DisassemblerPopupWidget::getIndexOfWord(const REDasm::String &word) const
         return REDasm::npos;
 
     if(symbol->isFunction())
-        return m_document->findFunction(symbol->address);
+        return m_document->functionIndex(symbol->address);
 
-    return m_document->findSymbol(symbol->address);
+    return m_document->symbolIndex(symbol->address);
 }

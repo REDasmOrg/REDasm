@@ -140,7 +140,8 @@ void ListingMap::renderFunctions(QPainter *painter)
             if(!fbb)
                 return;
 
-            QRect r = this->buildRect(this->calculatePosition(fbb->startIndex()), this->calculateSize(fbb->count()));
+            REDasm::ListingItem* startitem = fbb->startItem();
+            QRect r = this->buildRect(this->calculatePosition(m_disassembler->loader()->offset(startitem->address())), this->calculateSize(fbb->count()));
 
             if(m_orientation == Qt::Horizontal)
                 r.setHeight(fsize);

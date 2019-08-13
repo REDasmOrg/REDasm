@@ -12,7 +12,7 @@ class DisassemblerActions : public QObject
 
     public:
         enum { Rename = 0, XRefs, Follow, FollowPointerHexDump,
-               CallGraph, Goto, HexDump, HexDumpFunction, Comment,
+               CallGraph, Goto, HexDump, HexDumpFunction, Comment, CreateFunction,
                Back, Forward, Copy,
                ItemInformation };
 
@@ -35,6 +35,7 @@ class DisassemblerActions : public QObject
         void showReferencesUnderCursor();
         void printFunctionHexDump();
         void followPointerHexDump();
+        void createFunction();
         void showCallGraph();
         void showHexDump();
         void addComment();

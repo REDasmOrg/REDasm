@@ -45,6 +45,20 @@ void DisassemblerActions::adjustActions()
         m_actions[DisassemblerActions::Follow]->setVisible(false);
         m_actions[DisassemblerActions::FollowPointerHexDump]->setVisible(false);
 
+        if(!r_disasm->busy())
+        {
+            bool ok = false;
+            address_t currentaddress = m_renderer->getCurrentWord().toUInt(16, &ok);
+            const REDasm::Segment* currentsegment = ok ? r_doc->segment(currentaddress) : nullptr;
+
+            m_actions[DisassemblerActions::CreateFunction]->setVisible(currentsegment && currentsegment->is(REDasm::SegmentType::Code));
+
+            if(currentsegment)
+                m_actions[DisassemblerActions::CreateFunction]->setText(QString("Create Function @ %1").arg(Convert::to_qstring(REDasm::String::hex(currentaddress))));
+        }
+        else
+            m_actions[DisassemblerActions::CreateFunction]->setVisible(false);
+
         if(symbol)
             m_actions[DisassemblerActions::CallGraph]->setText(QString("Callgraph %1").arg(Convert::to_qstring(symbol->name)));
 
@@ -56,8 +70,14 @@ void DisassemblerActions::adjustActions()
 
     symbolsegment = lock->segment(symbol->address);
 
-    m_actions[DisassemblerActions::FollowPointerHexDump]->setVisible(symbol->is(REDasm::SymbolType::Pointer));
+    m_actions[DisassemblerActions::CreateFunction]->setText(QString("Create Function @ %1").arg(Convert::to_qstring(REDasm::String::hex(symbol->address))));
+    m_actions[DisassemblerActions::CreateFunction]->setVisible(!r_disasm->busy() &&
+                                                               (symbolsegment && symbolsegment->is(REDasm::SegmentType::Code)) &&
+                                                               (!symbol->isLocked() && !symbol->isFunction()));
+
+
     m_actions[DisassemblerActions::FollowPointerHexDump]->setText(QString("Follow %1 pointer in Hex Dump").arg(Convert::to_qstring(symbol->name)));
+    m_actions[DisassemblerActions::FollowPointerHexDump]->setVisible(symbol->is(REDasm::SymbolType::Pointer));
 
     m_actions[DisassemblerActions::XRefs]->setText(QString("Cross Reference %1").arg(Convert::to_qstring(symbol->name)));
     m_actions[DisassemblerActions::XRefs]->setVisible(!r_disasm->busy());
@@ -65,8 +85,8 @@ void DisassemblerActions::adjustActions()
     m_actions[DisassemblerActions::Rename]->setText(QString("Rename %1").arg(Convert::to_qstring(symbol->name)));
     m_actions[DisassemblerActions::Rename]->setVisible(!r_disasm->busy() && !symbol->isLocked());
 
-    m_actions[DisassemblerActions::CallGraph]->setVisible(!r_disasm->busy() && symbol->isFunction());
     m_actions[DisassemblerActions::CallGraph]->setText(QString("Callgraph %1").arg(Convert::to_qstring(symbol->name)));
+    m_actions[DisassemblerActions::CallGraph]->setVisible(!r_disasm->busy() && symbol->isFunction());
 
     m_actions[DisassemblerActions::Follow]->setText(QString("Follow %1").arg(Convert::to_qstring(symbol->name)));
     m_actions[DisassemblerActions::Follow]->setVisible(symbol->is(REDasm::SymbolType::Code));
@@ -95,6 +115,7 @@ void DisassemblerActions::createActions()
     m_contextmenu->addSeparator();
     m_actions[DisassemblerActions::HexDump] = m_contextmenu->addAction("Show Hex Dump", this, &DisassemblerActions::showHexDump, QKeySequence(Qt::CTRL + Qt::Key_H));
     m_actions[DisassemblerActions::HexDumpFunction] = m_contextmenu->addAction("Hex Dump Function", this, &DisassemblerActions::printFunctionHexDump);
+    m_actions[DisassemblerActions::CreateFunction] = m_contextmenu->addAction("Create Function", this, &DisassemblerActions::createFunction, QKeySequence(Qt::SHIFT + Qt::Key_C));
     m_contextmenu->addSeparator();
     m_actions[DisassemblerActions::Back] = m_contextmenu->addAction("Back", this, &DisassemblerActions::goBack, QKeySequence(Qt::CTRL + Qt::Key_Left));
     m_actions[DisassemblerActions::Forward] = m_contextmenu->addAction("Forward", this, &DisassemblerActions::goForward, QKeySequence(Qt::CTRL + Qt::Key_Right));
@@ -110,6 +131,7 @@ void DisassemblerActions::createActions()
         pw->addAction(m_actions[DisassemblerActions::Goto]);
         pw->addAction(m_actions[DisassemblerActions::CallGraph]);
         pw->addAction(m_actions[DisassemblerActions::HexDump]);
+        pw->addAction(m_actions[DisassemblerActions::CreateFunction]);
         pw->addAction(m_actions[DisassemblerActions::Back]);
         pw->addAction(m_actions[DisassemblerActions::Forward]);
         pw->addAction(m_actions[DisassemblerActions::Copy]);
@@ -229,6 +251,22 @@ void DisassemblerActions::followPointerHexDump()
         return;
 
     emit hexDumpRequested(destination, r_asm->addressWidth());
+}
+
+void DisassemblerActions::createFunction()
+{
+    bool ok = false;
+    const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();
+    address_t address = symbol ? symbol->address : m_renderer->getCurrentWord().toUInt(16, &ok);
+
+    if(!symbol && !ok)
+    {
+        r_ctx->log("Cannot disassemble " + m_renderer->getCurrentWord());
+        return;
+    }
+
+    r_disasm->disassemble(address);
+    r_doc->function(address);
 }
 
 void DisassemblerActions::addComment()

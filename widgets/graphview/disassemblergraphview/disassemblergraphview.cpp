@@ -133,10 +133,11 @@ bool DisassemblerGraphView::renderGraph()
         return true;
 
     m_currentfunction = currentfunction;
-    auto* graph = document->functions()->graph(currentfunction);
+    auto* graph = document->functions()->graph(currentfunction->address());
 
     if(!graph)
     {
+        m_currentfunction = nullptr;
         r_ctx->log("Graph creation failed @ " + REDasm::String::hex(currentfunction->address()));
         return false;
     }

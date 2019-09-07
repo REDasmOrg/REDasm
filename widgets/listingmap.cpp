@@ -127,9 +127,9 @@ void ListingMap::renderFunctions(QPainter *painter)
 
     for(size_t i = 0; i < lock->functions()->size(); i++)
     {
-        REDasm::ListingItem* item = lock->functions()->at(i);
-        const REDasm::Symbol* symbol = lock->symbol(item->address());
-        const REDasm::FunctionGraph* g = lock->functions()->graph(item);
+        address_t address = lock->functions()->at(i);
+        const REDasm::Symbol* symbol = lock->symbol(address);
+        const REDasm::FunctionGraph* g = lock->functions()->graph(address);
 
         if(!g)
             continue;

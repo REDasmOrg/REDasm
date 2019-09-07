@@ -23,7 +23,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
     m_charheight = fm.height();
 
     m_disassembler->document()->cursor()->positionChanged.connect(this, [&](REDasm::EventArgs*) {
-        if(!m_basicblock->contains(m_disassembler->document()->currentItem()))
+        if(!m_basicblock->contains(m_disassembler->document()->currentItem()->address()))
             return;
 
         this->invalidate();
@@ -33,7 +33,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
 DisassemblerBlockItem::~DisassemblerBlockItem() { m_disassembler->document()->cursor()->positionChanged.disconnect(this); }
 REDasm::String DisassemblerBlockItem::currentWord() { return m_renderer->getCurrentWord(); }
 ListingDocumentRenderer *DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
-bool DisassemblerBlockItem::containsItem(REDasm::ListingItem* item) const { return m_basicblock->contains(item); }
+bool DisassemblerBlockItem::containsItem(REDasm::ListingItem* item) const { return m_basicblock->contains(item->address()); }
 
 int DisassemblerBlockItem::currentLine() const
 {

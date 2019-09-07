@@ -351,7 +351,7 @@ void GraphView::zoomIn(const QPoint &cursorpos)
 void GraphView::adjustSize(int vpw, int vph, const QPoint &cursorpos, bool fit)
 {
     //bugfix - resize event (during several initial calls) may reset correct adjustment already made
-    if(vph < 30)
+    if(!m_graph || (vph < 30))
         return;
 
     m_rendersize = QSize(m_graph->areaWidth() * m_scalefactor, m_graph->areaHeight() * m_scalefactor);

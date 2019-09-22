@@ -1,9 +1,11 @@
 #include "gotomodel.h"
 #include "../../themeprovider.h"
-#include <redasm/disassembler/disassembler.h>
+#include <redasm/disassembler/listing/listingdocumentnew.h>
 #include <redasm/plugins/assembler/assembler.h>
+#include <redasm/disassembler/disassembler.h>
 #include <redasm/support/demangler.h>
 #include <redasm/support/utils.h>
+#include "../../../convert.h"
 
 GotoModel::GotoModel(QObject *parent) : DisassemblerModel(parent) { }
 
@@ -19,15 +21,12 @@ QVariant GotoModel::data(const QModelIndex &index, int role) const
     if(!m_disassembler)
         return QVariant();
 
-    const REDasm::ListingItem* item = reinterpret_cast<const REDasm::ListingItem*>(index.internalPointer());
-
-    if(!item)
-        return QVariant();
+    REDasm::ListingItem item = m_disassembler->documentNew()->items()->at(index.row());
 
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::String::hex(item->address(), m_disassembler->assembler()->bits()));
+            return Convert::to_qstring(REDasm::String::hex(item.address_new, m_disassembler->assembler()->bits()));
         if(index.column() == 1)
             return this->itemName(item);
         if(index.column() == 2)
@@ -57,88 +56,61 @@ QVariant GotoModel::headerData(int section, Qt::Orientation orientation, int rol
 
     if(role == Qt::DisplayRole)
     {
-        if(section == 0)
-            return "Address";
-        else if(section == 1)
-            return "Name";
-        else if(section == 2)
-            return "Type";
+        if(section == 0)      return "Address";
+        else if(section == 1) return "Name";
+        else if(section == 2) return "Type";
     }
 
     return DisassemblerModel::headerData(section, orientation, role);
 }
 
-QModelIndex GotoModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if(!m_disassembler)
-        return QModelIndex();
-
-    return this->createIndex(row, column, m_disassembler->document()->itemAt(row));
-}
-
 int GotoModel::columnCount(const QModelIndex &) const { return 3; }
-int GotoModel::rowCount(const QModelIndex &) const { return m_disassembler ? m_disassembler->document()->size() : 0; }
+int GotoModel::rowCount(const QModelIndex &) const { return m_disassembler ? m_disassembler->documentNew()->items()->size() : 0; }
 
-QColor GotoModel::itemColor(const REDasm::ListingItem *item) const
+QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
 {
-    if(item->type() == REDasm::ListingItemType::SegmentItem)
-        return THEME_VALUE("segment_fg");
-    if(item->type() == REDasm::ListingItemType::FunctionItem)
-        return THEME_VALUE("function_fg");
-    if(item->type() == REDasm::ListingItemType::TypeItem)
-        return THEME_VALUE("type_fg");
+    if(item.is(REDasm::ListingItemType::SegmentItem))  return THEME_VALUE("segment_fg");
+    if(item.is(REDasm::ListingItemType::FunctionItem)) return THEME_VALUE("function_fg");
+    if(item.is(REDasm::ListingItemType::TypeItem))     return THEME_VALUE("type_fg");
 
-    if(item->type() == REDasm::ListingItemType::SymbolItem)
+    if(item.is(REDasm::ListingItemType::SymbolItem))
     {
-        const REDasm::ListingDocument& document = m_disassembler->document();
-        const REDasm::Symbol* symbol = document->symbol(item->address());
+        const auto& document = m_disassembler->documentNew();
+        const REDasm::Symbol* symbol = document->symbols()->symbol(item.address_new);
 
-        if(!symbol)
-            return QColor();
-
-        if(symbol->is(REDasm::SymbolType::String))
-            return THEME_VALUE("string_fg");
-
+        if(!symbol) return QColor();
+        if(symbol->is(REDasm::SymbolType::String)) return THEME_VALUE("string_fg");
         return THEME_VALUE("data_fg");
     }
 
     return QColor();
 }
 
-QString GotoModel::itemName(const REDasm::ListingItem *item) const
+QString GotoModel::itemName(const REDasm::ListingItem& item) const
 {
-    const REDasm::ListingDocument& document = m_disassembler->document();
+    const auto& document = m_disassembler->documentNew();
 
-    if(item->type() == REDasm::ListingItemType::SegmentItem)
+    if(item.is(REDasm::ListingItemType::SegmentItem))
     {
-        const REDasm::Segment* segment = document->segment(item->address());
-
-        if(segment)
-            return S_TO_QS(segment->name);
+        const REDasm::Segment* segment = document->segments()->find(item.address_new);
+        if(segment) return S_TO_QS(segment->name);
     }
-    else if((item->type() == REDasm::ListingItemType::FunctionItem) || (item->type() == REDasm::ListingItemType::SymbolItem))
+    else if(item.is(REDasm::ListingItemType::FunctionItem) || item.is(REDasm::ListingItemType::SymbolItem))
     {
-        const REDasm::Symbol* symbol = document->symbol(item->address());
-
-        if(symbol)
-            return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
+        const REDasm::Symbol* symbol = document->symbols()->symbol(item.address_new);
+        if(symbol) return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
     }
-    else if(item->type() == REDasm::ListingItemType::TypeItem)
-        return S_TO_QS(document->type(item));
+    //FIXME: else if(item->type() == REDasm::ListingItemType::TypeItem)
+        //FIXME: return S_TO_QS(document->type(item));
 
     return QString();
 }
 
-QString GotoModel::itemType(const REDasm::ListingItem *item) const
+QString GotoModel::itemType(const REDasm::ListingItem& item) const
 {
-    if(item->type() == REDasm::ListingItemType::SegmentItem)
-        return "SEGMENT";
-    if(item->type() == REDasm::ListingItemType::FunctionItem)
-        return "FUNCTION";
-    if(item->type() == REDasm::ListingItemType::TypeItem)
-        return "TYPE";
-    if(item->type() == REDasm::ListingItemType::SymbolItem)
-        return "SYMBOL";
-
+    if(item.is(REDasm::ListingItemType::SegmentItem))  return "SEGMENT";
+    if(item.is(REDasm::ListingItemType::FunctionItem)) return "FUNCTION";
+    if(item.is(REDasm::ListingItemType::TypeItem))     return "TYPE";
+    if(item.is(REDasm::ListingItemType::SymbolItem))   return "SYMBOL";
     return QString();
 }

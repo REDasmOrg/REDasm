@@ -238,17 +238,17 @@ void DisassemblerView::goTo(const QModelIndex &index)
     if(!index.isValid())
         return;
 
-    const REDasm::ListingItem* item = this->itemFromIndex(index);
+    REDasm::ListingItem item = this->itemFromIndex(index);
 
-    if(!item)
+    if(item.isValid())
         return;
 
-    m_disassembler->document()->goTo(item);
+    //FIXME: m_disassembler->document()->goTo(item);
 
-    if(!m_graphview->isCursorInGraph())
-        ui->stackedWidget->setCurrentWidget(m_listingview);
+    //FIXME: if(!m_graphview->isCursorInGraph())
+    //FIXME:     ui->stackedWidget->setCurrentWidget(m_listingview);
 
-    this->showListingOrGraph();
+    //FIXME: this->showListingOrGraph();
 }
 
 void DisassemblerView::showModelReferences()
@@ -256,22 +256,22 @@ void DisassemblerView::showModelReferences()
     if(!m_currentindex.isValid())
         return;
 
-    const REDasm::ListingItem* item = this->itemFromIndex(m_currentindex);
+    //FIXME: const REDasm::ListingItem* item = this->itemFromIndex(m_currentindex);
 
-    if(!item)
-        return;
+    //FIXME: if(!item)
+    //FIXME:     return;
 
-    const REDasm::Symbol* symbol = nullptr;
+    //FIXME: const REDasm::Symbol* symbol = nullptr;
 
-    if(m_currentindex.model() == m_docks->callTreeModel())
-    {
-        REDasm::CachedInstruction instruction = m_disassembler->document()->instruction(item->address());
-        symbol = m_disassembler->document()->symbol(m_disassembler->getTarget(instruction->address));
-    }
-    else
-        symbol = m_disassembler->document()->symbol(item->address());
+    //FIXME: if(m_currentindex.model() == m_docks->callTreeModel())
+    //FIXME: {
+    //FIXME:     REDasm::CachedInstruction instruction = m_disassembler->document()->instruction(item->address());
+    //FIXME:     symbol = m_disassembler->document()->symbol(m_disassembler->getTarget(instruction->address));
+    //FIXME: }
+    //FIXME: else
+    //FIXME:     symbol = m_disassembler->document()->symbol(item->address());
 
-    this->showReferences(symbol->address);
+    //FIXME: this->showReferences(symbol->address);
 }
 
 void DisassemblerView::showCurrentItemInfo()
@@ -349,7 +349,7 @@ void DisassemblerView::displayAddress(address_t address)
 
 void DisassemblerView::displayCurrentReferences()
 {
-    REDasm::ListingDocument& document = m_disassembler->document();
+    auto& document = m_disassembler->documentNew();
     REDasm::String word = this->currentWord();
 
     if(!word.empty())
@@ -363,8 +363,8 @@ void DisassemblerView::displayCurrentReferences()
         }
     }
 
-    REDasm::ListingItem* item = document->itemAt(document->cursor()->currentLine());
-    m_docks->referencesModel()->xref(item->address());
+    REDasm::ListingItem item = document->itemAt(document->cursor().currentLine());
+    m_docks->referencesModel()->xref(item.address_new);
 }
 
 void DisassemblerView::switchGraphListing()
@@ -483,19 +483,19 @@ void DisassemblerView::showGoto()
 void DisassemblerView::goForward() { m_disassembler->document()->cursor()->goForward(); }
 void DisassemblerView::goBack() { m_disassembler->document()->cursor()->goBack(); }
 
-const REDasm::ListingItem *DisassemblerView::itemFromIndex(const QModelIndex &index) const
+REDasm::ListingItem DisassemblerView::itemFromIndex(const QModelIndex &index) const
 {
     const ListingFilterModel* filtermodel = dynamic_cast<const ListingFilterModel*>(index.model());
 
     if(filtermodel)
         return filtermodel->item(index);
 
-    const GotoModel* gotomodel = dynamic_cast<const GotoModel*>(index.model());
+    //FIXME: const GotoModel* gotomodel = dynamic_cast<const GotoModel*>(index.model());
 
-    if(gotomodel)
-        return reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
+    //FIXME: if(gotomodel)
+    //FIXME:     return reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
 
-    return nullptr;
+    return REDasm::ListingItem();
 }
 
 void DisassemblerView::syncHexEdit()
@@ -508,14 +508,14 @@ void DisassemblerView::syncHexEdit()
 
     if(item)
     {
-        offset = m_disassembler->loader()->offset(item->address());
+        offset = m_disassembler->loader()->offset(item->address_new);
 
         bool canbeinstruction = true;
         const REDasm::Symbol* symbol = nullptr;
 
         if(item->is(REDasm::ListingItemType::SymbolItem))
         {
-            symbol = document->symbol(item->address());
+            symbol = document->symbol(item->address_new);
             canbeinstruction = symbol->is(REDasm::SymbolType::Code);
         }
         else if(item->is(REDasm::ListingItemType::SegmentItem))
@@ -523,7 +523,7 @@ void DisassemblerView::syncHexEdit()
 
         if(canbeinstruction)
         {
-            REDasm::CachedInstruction instruction = document->instruction(item->address());
+            REDasm::CachedInstruction instruction = document->instruction(item->address_new);
 
             if(!instruction)
                 return;

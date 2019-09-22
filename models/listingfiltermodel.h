@@ -1,7 +1,6 @@
-#ifndef LISTINGFILTERMODEL_H
-#define LISTINGFILTERMODEL_H
+#pragma once
 
-#include <QSortFilterProxyModel>
+#include <QIdentityProxyModel>
 #include "listingitemmodel.h"
 
 class ListingFilterModel : public QIdentityProxyModel
@@ -11,7 +10,7 @@ class ListingFilterModel : public QIdentityProxyModel
     public:
         explicit ListingFilterModel(QObject *parent = nullptr);
         const QString& filter() const;
-        const REDasm::ListingItem* item(const QModelIndex& index) const;
+        REDasm::ListingItem item(const QModelIndex& index) const;
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
         void setFilter(const QString& filter);
         void clearFilter();
@@ -48,5 +47,3 @@ template<typename T> ListingFilterModel* ListingFilterModel::createFilter(REDasm
     filtermodel->setSourceModel(new T(filter, filtermodel));
     return filtermodel;
 }
-
-#endif // LISTINGFILTERMODEL_H

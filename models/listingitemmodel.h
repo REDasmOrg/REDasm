@@ -1,9 +1,10 @@
-#ifndef LISTINGITEMMODEL_H
-#define LISTINGITEMMODEL_H
+#pragma once
 
 #include <QList>
 #include "disassemblermodel.h"
 #include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/listing/listingdocumentnew.h>
+#include <redasm/disassembler/listing/backend/listingitems.h>
 
 class ListingItemModel : public DisassemblerModel
 {
@@ -12,7 +13,7 @@ class ListingItemModel : public DisassemblerModel
     public:
         explicit ListingItemModel(REDasm::ListingItemType itemtype, QObject *parent = nullptr);
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler) override;
-        const REDasm::ListingItem* item(const QModelIndex& index) const;
+        REDasm::ListingItem item(const QModelIndex& index) const;
         address_location address(const QModelIndex& index) const;
 
     public:
@@ -23,7 +24,7 @@ class ListingItemModel : public DisassemblerModel
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     protected:
-        virtual bool isItemAllowed(const REDasm::ListingItem *item) const;
+        virtual bool isItemAllowed(const REDasm::ListingItem& item) const;
 
     private:
         void onListingChanged(REDasm::EventArgs* e);
@@ -34,5 +35,3 @@ class ListingItemModel : public DisassemblerModel
 
     friend class ListingFilterModel;
 };
-
-#endif // LISTINGITEMMODEL_H

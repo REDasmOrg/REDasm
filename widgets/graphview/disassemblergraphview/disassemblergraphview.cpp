@@ -133,12 +133,12 @@ bool DisassemblerGraphView::renderGraph()
         return true;
 
     m_currentfunction = currentfunction;
-    auto* graph = document->functions()->graph(currentfunction->address());
+    auto* graph = document->functions()->graph(currentfunction->address_new);
 
     if(!graph)
     {
         m_currentfunction = nullptr;
-        r_ctx->log("Graph creation failed @ " + REDasm::String::hex(currentfunction->address()));
+        r_ctx->log("Graph creation failed @ " + REDasm::String::hex(currentfunction->address_new));
         return false;
     }
 
@@ -212,14 +212,14 @@ REDasm::String DisassemblerGraphView::getEdgeLabel(const REDasm::Edge& e) const
     const REDasm::FunctionBasicBlock* tofbb = variant_object<REDasm::FunctionBasicBlock>(this->graph()->data(e.target));
     REDasm::ListingDocument& document = m_disassembler->document();
     const REDasm::ListingItem* fromitem = fromfbb->endItem();
-    REDasm::CachedInstruction instruction = document->instruction(fromitem->address());
+    REDasm::CachedInstruction instruction = document->instruction(fromitem->address_new);
     REDasm::String label;
 
     if(instruction && instruction->is(REDasm::InstructionType::Conditional))
     {
         const REDasm::ListingItem* toitem = tofbb->startItem();
 
-        if(m_disassembler->getTarget(instruction->address) == toitem->address())
+        if(m_disassembler->getTarget(instruction->address) == toitem->address_new)
             label = "TRUE";
         else
             label = "FALSE";
@@ -240,7 +240,7 @@ GraphViewItem *DisassemblerGraphView::itemFromCurrentLine() const
         return nullptr;
 
     if(item->is(REDasm::ListingItemType::FunctionItem)) // Adjust to instruction
-        item = m_disassembler->document()->instructionItem(item->address());
+        item = m_disassembler->document()->instructionItem(item->address_new);
 
     for(const auto& gvi : m_items)
     {

@@ -29,7 +29,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 
         if(item->is(REDasm::ListingItemType::InstructionItem))
         {
-            REDasm::CachedInstruction instruction = document->instruction(item->address());
+            REDasm::CachedInstruction instruction = document->instruction(item->address_new);
 
             if(!instruction->is(REDasm::InstructionType::Jump))
                 continue;
@@ -53,23 +53,23 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
         }
         else if(item->is(REDasm::ListingItemType::SymbolItem))
         {
-            const REDasm::Symbol* symbol = document->symbol(item->address());
+            const REDasm::Symbol* symbol = document->symbol(item->address_new);
 
             if(!symbol || !symbol->is(REDasm::SymbolType::Code))
                 continue;
 
-            size_t toidx = document->instructionIndex(item->address());
+            size_t toidx = document->instructionIndex(item->address_new);
 
             if(toidx >= document->size())
                 continue;
 
-            REDasm::SortedSet refs = m_disassembler->getReferences(item->address());
+            REDasm::SortedSet refs = m_disassembler->getReferences(item->address_new);
 
             for(size_t i = 0; i < refs.size(); i++)
             {
                 address_t ref = refs[i].toU64();
 
-                if(ref == item->address())
+                if(ref == item->address_new)
                     continue;
 
                 size_t idx = document->instructionIndex(ref);
@@ -164,7 +164,7 @@ void DisassemblerColumnView::insertPath(REDasm::ListingItem* fromitem, u64 fromi
 {
     auto& document = m_disassembler->document();
     auto pair = qMakePair(fromidx, toidx);
-    REDasm::CachedInstruction frominstruction = document->instruction(fromitem->address());
+    REDasm::CachedInstruction frominstruction = document->instruction(fromitem->address_new);
 
     if(!frominstruction || !frominstruction->is(REDasm::InstructionType::Jump) || m_done.contains(pair))
         return;

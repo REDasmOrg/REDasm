@@ -1,5 +1,4 @@
-#ifndef SYMBOLTABLEMODEL_H
-#define SYMBOLTABLEMODEL_H
+#pragma once
 
 #include "listingitemmodel.h"
 
@@ -12,10 +11,8 @@ class SymbolTableModel : public ListingItemModel
         void setSymbolType(REDasm::SymbolType type);
 
     protected:
-        virtual bool isItemAllowed(const REDasm::ListingItem *item) const;
+        bool isItemAllowed(const REDasm::ListingItem& item) const override;
 
     private:
         REDasm::SymbolType m_symboltype;
 };
-
-#endif // SYMBOLTABLEMODEL_H

@@ -18,7 +18,7 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         const REDasm::Assembler* assembler = m_disassembler->assembler();
-        const REDasm::Segment* segment = variant_object<REDasm::Segment>(m_disassembler->document()->segments().at(index.row()));
+        const REDasm::Segment* segment = m_disassembler->documentNew()->segments()->at(index.row());
 
         switch(index.column())
         {
@@ -37,19 +37,14 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() == 6)
-            return THEME_VALUE("segment_name_fg");
-        else if(index.column() == 7)
-            return THEME_VALUE("segment_flags_fg");
-
+        if(index.column() == 6) return THEME_VALUE("segment_name_fg");
+        else if(index.column() == 7) return THEME_VALUE("segment_flags_fg");
         return THEME_VALUE("address_list_fg");
     }
     else if(role == Qt::TextAlignmentRole)
     {
-        if(index.column() > 5)
-            return Qt::AlignCenter;
-        else
-            return Qt::AlignRight;
+        if(index.column() > 5) return Qt::AlignCenter;
+        else return Qt::AlignRight;
     }
 
     return QVariant();

@@ -4,7 +4,6 @@ project(REDasm)
 
 set(QT_VERSION_REQ "5.9")
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -45,7 +44,6 @@ endif()
 
 set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
 add_definitions(-DREDASM_VERSION="${REDASM_BUILD_VERSION}")
-
 
 add_subdirectory(LibREDasm)
 add_subdirectory(QHexView)
@@ -135,8 +133,7 @@ add_executable(${PROJECT_NAME} ${GUI_TYPE}
                ${RESOURCES}
                ${CMAKE_SOURCE_DIR}/res/windows/resources.rc)
 
-target_include_directories(${PROJECT_NAME} PUBLIC LibREDasm QHexEdit)
-
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} LibREDasm QHexEdit)
 add_dependencies(${PROJECT_NAME} LibREDasm)
 
 if(WIN32)

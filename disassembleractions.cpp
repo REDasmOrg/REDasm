@@ -28,7 +28,7 @@ void DisassemblerActions::adjustActions()
         return;
 
     const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();
-    REDasm::Segment *itemsegment = lock->segment(item->address()), *symbolsegment = nullptr;
+    REDasm::Segment *itemsegment = lock->segment(item->address_new), *symbolsegment = nullptr;
     m_actions[DisassemblerActions::Back]->setVisible(lock->cursor()->canGoBack());
     m_actions[DisassemblerActions::Forward]->setVisible(lock->cursor()->canGoForward());
     m_actions[DisassemblerActions::Copy]->setVisible(lock->cursor()->hasSelection());
@@ -37,8 +37,8 @@ void DisassemblerActions::adjustActions()
 
     if(!symbol)
     {
-        symbolsegment = lock->segment(item->address());
-        symbol = lock->functionStartSymbol(item->address());
+        symbolsegment = lock->segment(item->address_new);
+        symbol = lock->functionStartSymbol(item->address_new);
 
         m_actions[DisassemblerActions::Rename]->setVisible(false);
         m_actions[DisassemblerActions::XRefs]->setVisible(false);
@@ -192,7 +192,7 @@ void DisassemblerActions::showCallGraph()
     {
         REDasm::ListingDocument& document = r_doc;
         const REDasm::ListingItem* item = document->currentItem();
-        symbol = document->functionStartSymbol(item->address());
+        symbol = document->functionStartSymbol(item->address_new);
     }
 
     if(symbol)
@@ -230,7 +230,7 @@ void DisassemblerActions::showReferencesUnderCursor()
 void DisassemblerActions::printFunctionHexDump()
 {
     const REDasm::Symbol* symbol = nullptr;
-    REDasm::String s = r_disasm->getHexDump(r_doc->currentItem()->address(), &symbol);
+    REDasm::String s = r_disasm->getHexDump(r_doc->currentItem()->address_new, &symbol);
 
     if(s.empty())
         return;
@@ -271,13 +271,13 @@ void DisassemblerActions::createFunction()
 
 void DisassemblerActions::addComment()
 {
-    const REDasm::ListingItem* currentitem =  r_doc->currentItem();
+    REDasm::ListingItem* currentitem =  r_doc->currentItem();
 
     r_doc->comment(currentitem, true);
 
     bool ok = false;
     QString res = QInputDialog::getMultiLineText(this->widget(),
-                                                 "Comment @ " + Convert::to_qstring(REDasm::String::hex(currentitem->address())),
+                                                 "Comment @ " + Convert::to_qstring(REDasm::String::hex(currentitem->address_new)),
                                                  "Insert a comment (leave blank to remove):",
                                                  Convert::to_qstring(r_doc->comment(currentitem, true)), &ok);
 

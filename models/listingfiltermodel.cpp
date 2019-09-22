@@ -4,7 +4,7 @@
 
 ListingFilterModel::ListingFilterModel(QObject *parent) : QIdentityProxyModel(parent) { }
 const QString &ListingFilterModel::filter() const { return m_filterstring; }
-const REDasm::ListingItem *ListingFilterModel::item(const QModelIndex &index) const { return static_cast<ListingItemModel*>(this->sourceModel())->item(this->mapToSource(index));  }
+REDasm::ListingItem ListingFilterModel::item(const QModelIndex &index) const { return static_cast<ListingItemModel*>(this->sourceModel())->item(this->mapToSource(index));  }
 void ListingFilterModel::setDisassembler(const REDasm::DisassemblerPtr& disassembler) { static_cast<ListingItemModel*>(this->sourceModel())->setDisassembler(disassembler); }
 
 void ListingFilterModel::setFilter(const QString &filter)

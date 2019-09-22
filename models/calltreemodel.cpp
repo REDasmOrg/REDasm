@@ -59,7 +59,7 @@ void CallTreeModel::populate(REDasm::ListingItem* parentitem)
             calls = m_disassembler->getCalls(location);
     }
     else if(parentitem->is(REDasm::ListingItemType::FunctionItem))
-        calls = m_disassembler->getCalls(parentitem->address());
+        calls = m_disassembler->getCalls(parentitem->address_new);
 
     if(calls.empty())
         return;
@@ -116,12 +116,12 @@ address_location CallTreeModel::getCallTarget(const REDasm::ListingItem *item) c
     if(!item->is(REDasm::ListingItemType::InstructionItem))
         return REDasm::invalid_location<address_t>();
 
-    REDasm::CachedInstruction instruction = m_disassembler->document()->instruction(item->address());
+    REDasm::CachedInstruction instruction = m_disassembler->document()->instruction(item->address_new);
 
     if(!instruction->is(REDasm::InstructionType::Call))
         return REDasm::invalid_location<address_t>();
 
-    return m_disassembler->getTarget(item->address());
+    return m_disassembler->getTarget(item->address_new);
 }
 
 bool CallTreeModel::hasChildren(const QModelIndex &parentindex) const
@@ -210,11 +210,11 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
     REDasm::ListingItem* item = reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
-    const REDasm::Symbol* symbol = lock->symbol(item->address());
+    const REDasm::Symbol* symbol = lock->symbol(item->address_new);
 
     if(item->is(REDasm::ListingItemType::InstructionItem))
     {
-        REDasm::SortedSet refs = m_disassembler->getTargets(item->address());
+        REDasm::SortedSet refs = m_disassembler->getTargets(item->address_new);
 
         if(!refs.empty())
             symbol = lock->symbol(refs.first().toU64());
@@ -223,16 +223,16 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return Convert::to_qstring(REDasm::String::hex(item->address(), m_disassembler->assembler()->bits()));
+            return Convert::to_qstring(REDasm::String::hex(item->address_new, m_disassembler->assembler()->bits()));
         else if(index.column() == 1)
         {
             if(item->is(REDasm::ListingItemType::FunctionItem))
                 return Convert::to_qstring(symbol->name);
 
-            return Convert::to_qstring(m_printer->out(lock->instruction(item->address())));
+            return Convert::to_qstring(m_printer->out(lock->instruction(item->address_new)));
         }
         else if(index.column() == 2)
-            return item == m_root ? "---" : QString::number(m_disassembler->getReferencesCount(item->address()));
+            return item == m_root ? "---" : QString::number(m_disassembler->getReferencesCount(item->address_new));
     }
     else if(role == Qt::ForegroundRole)
     {

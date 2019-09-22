@@ -55,7 +55,7 @@ class DisassemblerView : public QWidget
         void goBack();
 
     private:
-        const REDasm::ListingItem* itemFromIndex(const QModelIndex& index) const;
+        REDasm::ListingItem itemFromIndex(const QModelIndex& index) const;
         ListingFilterModel* getSelectedFilterModel();
         REDasm::String currentWord() const;
         void showListingOrGraph();

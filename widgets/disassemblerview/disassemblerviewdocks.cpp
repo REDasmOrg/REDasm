@@ -58,11 +58,12 @@ void DisassemblerViewDocks::initializeCallGraph(address_t address)
 
 void DisassemblerViewDocks::updateCallGraph()
 {
-    if(m_disassembler->busy() || m_calltreeview->visibleRegion().isEmpty())
+    REDasm::ListingDocument& document = m_disassembler->document();
+
+    if(m_disassembler->busy() || m_calltreeview->visibleRegion().isEmpty() || !document->currentItem())
         return;
 
-    REDasm::ListingDocument& document = m_disassembler->document();
-    const REDasm::ListingItem* item = document->functionStart(document->currentItem()->address());
+    const REDasm::ListingItem* item = document->functionStart(document->currentItem()->address_new);
 
     if(!item)
     {
@@ -70,7 +71,7 @@ void DisassemblerViewDocks::updateCallGraph()
         return;
     }
 
-    m_calltreemodel->initializeGraph(item->address());
+    m_calltreemodel->initializeGraph(item->address_new);
     m_calltreeview->expandToDepth(0);
 }
 

@@ -39,22 +39,22 @@ ItemInformationDialog &ItemInformationDialog::string(const QString &k, const QSt
 
 QString ItemInformationDialog::itemType(const REDasm::ListingItem *item) const
 {
-    if(item->type() == REDasm::ListingItemType::SegmentItem)
+    if(item->type_new == REDasm::ListingItemType::SegmentItem)
         return ITEM_TYPE(REDasm::ListingItem::SegmentItem);
-    if(item->type() == REDasm::ListingItemType::EmptyItem)
+    if(item->type_new == REDasm::ListingItemType::EmptyItem)
         return ITEM_TYPE(REDasm::ListingItem::EmptyItem);
-    if(item->type() == REDasm::ListingItemType::FunctionItem)
+    if(item->type_new == REDasm::ListingItemType::FunctionItem)
         return ITEM_TYPE(REDasm::ListingItem::FunctionItem);
-    if(item->type() == REDasm::ListingItemType::TypeItem)
+    if(item->type_new == REDasm::ListingItemType::TypeItem)
         return ITEM_TYPE(REDasm::ListingItem::TypeItem);
-    if(item->type() == REDasm::ListingItemType::SymbolItem)
+    if(item->type_new == REDasm::ListingItemType::SymbolItem)
         return ITEM_TYPE(REDasm::ListingItem::SymbolItem);
-    if(item->type() == REDasm::ListingItemType::MetaItem)
+    if(item->type_new == REDasm::ListingItemType::MetaItem)
         return ITEM_TYPE(REDasm::ListingItem::MetaItem);
-    if(item->type() == REDasm::ListingItemType::InstructionItem)
+    if(item->type_new == REDasm::ListingItemType::InstructionItem)
         return ITEM_TYPE(REDasm::ListingItem::InstructionItem);
 
-    return QString::number(static_cast<size_t>(item->type()));
+    return QString::number(static_cast<size_t>(item->type_new));
 }
 
 void ItemInformationDialog::displayInformation()
@@ -63,9 +63,9 @@ void ItemInformationDialog::displayInformation()
     const REDasm::ListingItem* item = document->currentItem();
 
     this->line("document_index", QString::number(document->itemIndex(item)));
-    this->line("address", Convert::to_qstring(REDasm::String::hex(item->address())));
+    this->line("address", Convert::to_qstring(REDasm::String::hex(item->address_new)));
     this->line("type", this->itemType(item));
-    this->line("index", QString::number(item->index()));
+    this->line("index", QString::number(item->index_new));
 
     this->line().header("DATA");
 

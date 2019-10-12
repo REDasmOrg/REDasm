@@ -193,8 +193,6 @@ void DisassemblerGraphView::selectedItemChangedEvent()
 
     if(selecteditem)
         m_disassembleractions->setCurrentRenderer(static_cast<DisassemblerBlockItem*>(selecteditem)->renderer());
-    else
-        m_disassembleractions->setCurrentRenderer(nullptr);
 
     GraphView::selectedItemChangedEvent();
 }

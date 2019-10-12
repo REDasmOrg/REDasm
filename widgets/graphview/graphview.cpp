@@ -45,8 +45,11 @@ void GraphView::setSelectedBlock(GraphViewItem *item)
         if(gvi != item)
             continue;
 
+        bool changed = (m_selecteditem != item);
         m_selecteditem = item;
         this->focusSelectedBlock();
+        if (changed)
+            this->selectedItemChangedEvent();
         break;
     }
 }

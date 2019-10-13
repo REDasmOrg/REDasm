@@ -295,7 +295,7 @@ void DisassemblerTest::testIoliARM()
     TEST("Checking LDR's operands count", (instruction->mnemonic == "ldr") && (instruction->operandsCount() >= 2));
 
     Operand* op = instruction->op(1);
-    TEST("Checking LDR's operand 2", op->is(OperandType::Memory));
+    TEST("Checking LDR's operand 2", op->typeIs(OperandType::Memory));
 
     const Symbol* symbol = m_document->symbol(op->u_value);
     TEST_SYMBOL("Checking LDR's operand 2 symbol", symbol, symbol->is(SymbolType::Data) && symbol->is(SymbolType::Pointer));
@@ -312,7 +312,7 @@ void DisassemblerTest::testIoliARM()
     TEST("Checking LDR's operands count", (instruction->mnemonic == "ldr") && (instruction->operandsCount() >= 2));
 
     op = instruction->op(1);
-    TEST("Checking LDR's operand 2", op->is(OperandType::Memory));
+    TEST("Checking LDR's operand 2", op->typeIs(OperandType::Memory));
 
     u64 value = 0;
     symbol = m_document->symbol(op->u_value);

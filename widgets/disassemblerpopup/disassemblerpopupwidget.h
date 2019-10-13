@@ -12,7 +12,7 @@ class DisassemblerPopupWidget : public QPlainTextEdit
 
     public:
         explicit DisassemblerPopupWidget(ListingDocumentRenderer* documentrenderer, const REDasm::DisassemblerPtr& disassembler, QWidget *parent = nullptr);
-        bool renderPopup(const REDasm::String& word, int line);
+        bool renderPopup(const REDasm::String& word, size_t line);
         void moreRows();
         void lessRows();
         int rows() const;

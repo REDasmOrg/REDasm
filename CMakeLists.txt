@@ -27,9 +27,10 @@ if(UNIX)
     set(CMAKE_INSTALL_RPATH ".")
 endif()
 
-find_package(Qt5Core CONFIG REQUIRED)
-find_package(Qt5Gui CONFIG REQUIRED)
-find_package(Qt5Widgets CONFIG REQUIRED)
+find_package(Qt5Core       CONFIG REQUIRED)
+find_package(Qt5Gui        CONFIG REQUIRED)
+find_package(Qt5Widgets    CONFIG REQUIRED)
+find_package(Qt5Concurrent CONFIG REQUIRED)
 find_package(Git)
 
 if(GIT_FOUND)

@@ -30,7 +30,7 @@ DisassemblerPopupWidget::DisassemblerPopupWidget(ListingDocumentRenderer *docume
     this->setGraphicsEffect(dropshadow);
 }
 
-bool DisassemblerPopupWidget::renderPopup(const REDasm::String &word, int line)
+bool DisassemblerPopupWidget::renderPopup(const REDasm::String &word, size_t line)
 {
     m_index = this->getIndexOfWord(word);
 

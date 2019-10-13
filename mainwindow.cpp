@@ -11,6 +11,8 @@
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/pluginmanager.h>
 #include <redasm/support/utils.h>
+#include <QtConcurrent/QtConcurrent>
+#include <QFutureWatcher>
 #include <QtWidgets>
 #include <QtCore>
 #include <QtGui>
@@ -307,7 +309,7 @@ bool MainWindow::loadDatabase(const QString &filepath)
                                     REDasm::String(disassembler->assembler()->description()).quoted() + " instruction set");
 
     m_fileinfo = QFileInfo(Convert::to_qstring(filename));
-    this->showDisassemblerView(disassembler, true);
+    this->showDisassemblerView(disassembler);
     return true;
 }
 
@@ -362,7 +364,7 @@ void MainWindow::setStandardActionsEnabled(bool b)
     ui->action_Signatures->setEnabled(b);
 }
 
-void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler, bool fromdatabase)
+void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
 {
     disassembler->busyChanged.connect(this, [&](REDasm::EventArgs*) {
         QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection);
@@ -379,7 +381,7 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler, bool f
     }
 
     DisassemblerView *dv = new DisassemblerView(ui->leFilter);
-    dv->bindDisassembler(disassembler, fromdatabase); // Take ownership
+    dv->bindDisassembler(disassembler); // Take ownership
     ui->stackView->addWidget(dv);
 
     this->setViewWidgetsVisible(true);
@@ -439,17 +441,13 @@ void MainWindow::closeFile()
 void MainWindow::selectLoader(const REDasm::LoadRequest& request)
 {
     LoaderDialog dlgloader(request, this);
-
-    if(dlgloader.exec() != LoaderDialog::Accepted)
-        return;
+    if(dlgloader.exec() != LoaderDialog::Accepted) return;
 
     const REDasm::PluginInstance *assemblerpi = nullptr, *loaderpi = dlgloader.selectedLoader();
     REDasm::Loader* loader = plugin_cast<REDasm::Loader>(loaderpi);
 
-    if(loader->flags() & REDasm::LoaderFlags::CustomAssembler)
-        assemblerpi = dlgloader.selectedAssembler();
-    else
-        assemblerpi = r_pm->findAssembler(loader->assembler());
+    if(loader->flags() & REDasm::LoaderFlags::CustomAssembler) assemblerpi = dlgloader.selectedAssembler();
+    else assemblerpi = r_pm->findAssembler(loader->assembler());
 
     if(!assemblerpi)
     {
@@ -469,11 +467,6 @@ void MainWindow::selectLoader(const REDasm::LoadRequest& request)
     REDasm::Assembler* assembler = plugin_cast<REDasm::Assembler>(assemblerpi);
     assembler->init(loader->assembler());
 
-    if(loader->flags() & REDasm::LoaderFlags::CustomAddressing)
-        loader->build(assembler->id(), dlgloader.offset(), dlgloader.baseAddress(), dlgloader.entryPoint());
-    else
-        loader->load();
-
     r_ctx->log("Selected loader " + REDasm::String(loader->description()).quoted() +
                " with " + REDasm::String(assembler->description()).quoted() + " assembler");
 
@@ -486,7 +479,20 @@ void MainWindow::selectLoader(const REDasm::LoadRequest& request)
             QMetaObject::invokeMethod(m_lblprogress, "setVisible", Qt::QueuedConnection, Q_ARG(bool, currdv->disassembler()->busy()));
     });
 
-    this->showDisassemblerView(disassembler, false); // Take ownership
+    this->showDisassemblerView(disassembler); // Take ownership
+
+    if(r_ldr->flags() & REDasm::LoaderFlags::CustomAddressing)
+    {
+        r_ldr->build(assembler->id(), dlgloader.offset(), dlgloader.baseAddress(), dlgloader.entryPoint());
+        this->currentDisassembler()->disassemble();
+    }
+    else
+    {
+        auto* futurewatcher = new QFutureWatcher<void>(this);
+        connect(futurewatcher, &QFutureWatcher<void>::finished, this, [&]() { this->currentDisassembler()->disassemble(); });
+        connect(futurewatcher, &QFutureWatcher<void>::finished, futurewatcher, &QFutureWatcher<void>::deleteLater);
+        futurewatcher->setFuture(QtConcurrent::run([&]() { r_ldr->load(); }));
+    }
 }
 
 void MainWindow::setViewWidgetsVisible(bool b)
@@ -506,14 +512,10 @@ void MainWindow::onAboutClicked()
 void MainWindow::changeDisassemblerStatus()
 {
     REDasm::Disassembler* disassembler = this->currentDisassembler();
+    if(!disassembler) return;
 
-    if(!disassembler)
-        return;
-
-    if(disassembler->state() == REDasm::JobState::ActiveState)
-        disassembler->pause();
-    else if(disassembler->state() == REDasm::JobState::PausedState)
-        disassembler->resume();
+    if(disassembler->state() == REDasm::JobState::ActiveState) disassembler->pause();
+    else if(disassembler->state() == REDasm::JobState::PausedState) disassembler->resume();
 }
 
 void MainWindow::checkDisassemblerStatus()
@@ -531,12 +533,9 @@ void MainWindow::checkDisassemblerStatus()
     this->setWindowTitle(disassembler->busy() ? QString("%1 (Working)").arg(m_fileinfo.fileName()) : m_fileinfo.fileName());
     REDasm::JobState state = disassembler->state();
 
-    if(state == REDasm::JobState::ActiveState)
-        m_pbstatus->setStyleSheet("color: red;");
-    else if(state == REDasm::JobState::PausedState)
-        m_pbstatus->setStyleSheet("color: goldenrod;");
-    else
-        m_pbstatus->setStyleSheet("color: green;");
+    if(state == REDasm::JobState::ActiveState) m_pbstatus->setStyleSheet("color: red;");
+    else if(state == REDasm::JobState::PausedState) m_pbstatus->setStyleSheet("color: goldenrod;");
+    else m_pbstatus->setStyleSheet("color: green;");
 
     m_pbstatus->setVisible(true);
     m_lblprogress->setVisible(disassembler->busy());
@@ -547,20 +546,11 @@ void MainWindow::checkDisassemblerStatus()
     ui->action_Close->setEnabled(true);
 }
 
-void MainWindow::showProblems()
-{
-    ProblemsDialog dlgproblems(this);
-    dlgproblems.exec();
-}
-
+void MainWindow::showProblems() { ProblemsDialog dlgproblems(this); dlgproblems.exec(); }
 DisassemblerView *MainWindow::currentDisassemblerView() const { return dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget()); }
 
 REDasm::Disassembler *MainWindow::currentDisassembler() const
 {
     DisassemblerView* currdv = this->currentDisassemblerView();
-
-    if(!currdv)
-        return nullptr;
-
-    return currdv->disassembler();
+    return currdv ? currdv->disassembler(): nullptr;
 }

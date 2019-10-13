@@ -1,5 +1,4 @@
-#ifndef REFERENCESDIALOG_H
-#define REFERENCESDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include "../../models/referencesmodel.h"
@@ -13,7 +12,7 @@ class ReferencesDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit ReferencesDialog(const REDasm::DisassemblerPtr& disassembler, const REDasm::Symbol *symbol, QWidget *parent = nullptr);
+        explicit ReferencesDialog(const REDasm::Symbol *symbol, QWidget *parent = nullptr);
         ~ReferencesDialog();
 
     signals:
@@ -26,5 +25,3 @@ class ReferencesDialog : public QDialog
         Ui::ReferencesDialog *ui;
         ReferencesModel* m_referencesmodel;
 };
-
-#endif // REFERENCESDIALOG_H

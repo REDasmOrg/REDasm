@@ -23,7 +23,7 @@ DisassemblerPopup::DisassemblerPopup(const REDasm::DisassemblerPtr &disassembler
 
 DisassemblerPopup::~DisassemblerPopup() { delete m_documentrenderer; }
 
-void DisassemblerPopup::popup(const REDasm::String &word, int line)
+void DisassemblerPopup::popup(const REDasm::String &word, size_t line)
 {
     if(!m_popupwidget->renderPopup(word, line))
     {

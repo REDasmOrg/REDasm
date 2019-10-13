@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QPushButton>
@@ -53,7 +52,7 @@ class MainWindow : public QMainWindow
         void load(const QString &filepath);
         void checkCommandLine();
         void setStandardActionsEnabled(bool b);
-        void showDisassemblerView(REDasm::Disassembler *disassembler, bool fromdatabase);
+        void showDisassemblerView(REDasm::Disassembler *disassembler);
         void selectLoader(const REDasm::LoadRequest &request);
         void setViewWidgetsVisible(bool b);
         void configureWebEngine();
@@ -67,5 +66,3 @@ class MainWindow : public QMainWindow
         QPushButton* m_pbstatus;
         QPushButton* m_pbproblems;
 };
-
-#endif // MAINWINDOW_H

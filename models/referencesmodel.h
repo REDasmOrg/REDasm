@@ -1,5 +1,4 @@
-#ifndef REFERENCESMODEL_H
-#define REFERENCESMODEL_H
+#pragma once
 
 #include <redasm/plugins/assembler/printer/printer.h>
 #include <redasm/types/containers/set.h>
@@ -10,7 +9,7 @@ class ReferencesModel : public DisassemblerModel
     Q_OBJECT
 
     public:
-        explicit ReferencesModel(QObject *parent = 0);
+        explicit ReferencesModel(QObject *parent = nullptr);
         void setDisassembler(const REDasm::DisassemblerPtr& disassembler) override;
         void xref(address_t address);
 
@@ -31,5 +30,3 @@ class ReferencesModel : public DisassemblerModel
         REDasm::SortedSet m_references;
         REDasm::object_ptr<REDasm::Printer> m_printer;
 };
-
-#endif // REFERENCESMODEL_H

@@ -5,6 +5,7 @@
 #include <redasm/support/demangler.h>
 #include <redasm/support/utils.h>
 #include "../themeprovider.h"
+#include "../convert.h"
 #include <QColor>
 
 ListingItemModel::ListingItemModel(REDasm::ListingItemType itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
@@ -101,13 +102,22 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return S_TO_QS(REDasm::String::hex(symbol->address, m_disassembler->assembler()->bits()));
+            return Convert::to_qstring(REDasm::String::hex(symbol->address, m_disassembler->assembler()->bits()));
 
         if(index.column() == 1)
         {
-            if(symbol->is(REDasm::SymbolType::WideStringMask)) return S_TO_QS(m_disassembler->readWString(symbol).quoted());
-            else if(symbol->is(REDasm::SymbolType::StringMask)) return S_TO_QS(m_disassembler->readString(symbol).quoted());
-            return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
+            if(symbol->is(REDasm::SymbolType::StringNew))
+            {
+                const REDasm::BlockItem* block = lock->block(symbol->address);
+                if(!block) return QVariant();
+
+                if(symbol->hasFlag(REDasm::SymbolFlags::WideString))
+                    return Convert::to_qstring(m_disassembler->readWString(symbol->address, block->size()).quoted());
+
+                return Convert::to_qstring(m_disassembler->readString(symbol->address, block->size()).quoted());
+            }
+
+            return Convert::to_qstring(REDasm::Demangler::demangled(symbol->name));
         }
 
         if(index.column() == 2)
@@ -116,9 +126,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
         if(index.column() == 3)
         {
             const REDasm::Segment* segment = lock->segments()->find(symbol->address);
-
-            if(segment) return S_TO_QS(segment->name);
-            return "???";
+            return segment ? Convert::to_qstring(segment->name) : "???";
         }
     }
     else if(role == Qt::BackgroundRole)
@@ -129,7 +137,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     else if(role == Qt::ForegroundRole)
     {
         if(index.column() == 0) return THEME_VALUE("address_list_fg");
-        if(symbol->is(REDasm::SymbolType::String) && (index.column() == 1)) return THEME_VALUE("string_fg");
+        if(symbol->is(REDasm::SymbolType::StringNew) && (index.column() == 1)) return THEME_VALUE("string_fg");
     }
 
     return QVariant();

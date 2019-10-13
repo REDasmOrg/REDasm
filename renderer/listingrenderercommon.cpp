@@ -16,13 +16,13 @@ ListingRendererCommon::ListingRendererCommon(): REDasm::ListingRenderer(), m_fon
 void ListingRendererCommon::moveTo(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos);
-    this->cursor()->moveTo(cp.line, cp.column);
+    r_docnew->cursor().moveTo(cp.line, cp.column);
 }
 
 void ListingRendererCommon::select(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos);
-    this->cursor()->select(cp.line, cp.column);
+    r_docnew->cursor().select(cp.line, cp.column);
 }
 
 REDasm::ListingCursor::Position ListingRendererCommon::hitTest(const QPointF &pos)

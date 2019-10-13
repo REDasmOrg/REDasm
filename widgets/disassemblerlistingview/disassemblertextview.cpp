@@ -34,7 +34,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
     this->horizontalScrollBar()->setValue(0);
     this->horizontalScrollBar()->setMaximum(maxwidth);
 
-    float refreshfreq = qApp->primaryScreen()->refreshRate();
+    double refreshfreq = qApp->primaryScreen()->refreshRate();
 
     if(refreshfreq <= 0)
         refreshfreq = FALLBACK_REFRESH_RATE;
@@ -103,7 +103,7 @@ void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disass
     m_actions = new DisassemblerActions(m_renderer.get(), this);
 
     connect(this, &DisassemblerTextView::customContextMenuRequested, this, [&](const QPoint&) {
-        m_actions->popup(QCursor::pos());
+        if(!this->currentDocumentNew()->empty()) m_actions->popup(QCursor::pos());
     });
 
     m_disassemblerpopup = new DisassemblerPopup(m_disassembler, this);
@@ -538,6 +538,8 @@ void DisassemblerTextView::adjustScrollBars()
 void DisassemblerTextView::moveToSelection()
 {
     auto lock = REDasm::s_lock_safe_ptr(this->currentDocumentNew());
+    if(lock->empty()) return;
+
     REDasm::ListingCursor& cur = lock->cursor();
 
     if(!this->isLineVisible(cur.currentLine())) // Center on selection
@@ -549,6 +551,8 @@ void DisassemblerTextView::moveToSelection()
         this->renderListing();
 
     this->ensureColumnVisible();
+
+    if(cur.currentLine() >= lock->itemsCount()) return;
     REDasm::ListingItem item = lock->itemAt(cur.currentLine());
 
     if(item.isValid())
@@ -573,6 +577,8 @@ void DisassemblerTextView::ensureColumnVisible()
 
 void DisassemblerTextView::showPopup(const QPoint& pos)
 {
+    if(this->currentDocumentNew()->empty()) return;
+
     REDasm::String word = m_renderer->getWordFromPos(pos);
 
     if(!word.empty())

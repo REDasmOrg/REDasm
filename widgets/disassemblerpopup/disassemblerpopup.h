@@ -1,5 +1,4 @@
-#ifndef DISASSEMBLERPOPUP_H
-#define DISASSEMBLERPOPUP_H
+#pragma once
 
 #include <QWidget>
 #include <redasm/disassembler/listing/listingdocument.h>
@@ -12,7 +11,7 @@ class DisassemblerPopup : public QWidget
     public:
         explicit DisassemblerPopup(const REDasm::DisassemblerPtr& disassembler, QWidget* parent = nullptr);
         ~DisassemblerPopup();
-        void popup(const REDasm::String &word, int line);
+        void popup(const REDasm::String &word, size_t line);
 
     protected:
         void mouseMoveEvent(QMouseEvent *e) override;
@@ -28,5 +27,3 @@ class DisassemblerPopup : public QWidget
     private:
         QPoint m_lastpos;
 };
-
-#endif // DISASSEMBLERPOPUP_H

@@ -1,5 +1,4 @@
-#ifndef DISASSEMBLERVIEWACTIONS_H
-#define DISASSEMBLERVIEWACTIONS_H
+#pragma once
 
 #include <QLinkedList>
 #include <QToolBar>
@@ -42,5 +41,3 @@ template<typename Func> void DisassemblerViewActions::showAction(int type, QActi
     action->setVisible(true);
     connect(action, &QAction::triggered, this, slot);
 }
-
-#endif // DISASSEMBLERVIEWACTIONS_H

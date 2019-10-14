@@ -1,5 +1,4 @@
-#ifndef DISASSEMBLERVIEWDOCKS_H
-#define DISASSEMBLERVIEWDOCKS_H
+#pragma once
 
 #include <QAbstractItemView>
 #include <QDockWidget>
@@ -49,5 +48,3 @@ class DisassemblerViewDocks : public QObject
         ReferencesModel* m_referencesmodel;
         ListingMap* m_listingmap;
 };
-
-#endif // DISASSEMBLERVIEWDOCKS_H

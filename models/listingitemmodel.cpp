@@ -95,7 +95,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     if(!index.isValid()) return QVariant();
 
     auto lock = REDasm::s_lock_safe_ptr(m_disassembler->documentNew());
-    const REDasm::Symbol* symbol = lock->symbols()->symbol(m_items[index.row()].toU64());
+    const REDasm::Symbol* symbol = lock->symbols()->get(m_items[index.row()].toU64());
 
     if(!symbol) return QVariant();
 

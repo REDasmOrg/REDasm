@@ -76,7 +76,7 @@ QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
     if(item.is(REDasm::ListingItemType::SymbolItem))
     {
         const auto& document = m_disassembler->documentNew();
-        const REDasm::Symbol* symbol = document->symbols()->symbol(item.address_new);
+        const REDasm::Symbol* symbol = document->symbols()->get(item.address_new);
 
         if(!symbol) return QColor();
         if(symbol->is(REDasm::SymbolType::String)) return THEME_VALUE("string_fg");
@@ -97,7 +97,7 @@ QString GotoModel::itemName(const REDasm::ListingItem& item) const
     }
     else if(item.is(REDasm::ListingItemType::FunctionItem) || item.is(REDasm::ListingItemType::SymbolItem))
     {
-        const REDasm::Symbol* symbol = document->symbols()->symbol(item.address_new);
+        const REDasm::Symbol* symbol = document->symbols()->get(item.address_new);
         if(symbol) return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
     }
     //FIXME: else if(item->type() == REDasm::ListingItemType::TypeItem)

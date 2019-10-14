@@ -1,5 +1,4 @@
-#ifndef DISASSEMBLERVIEW_H
-#define DISASSEMBLERVIEW_H
+#pragma once
 
 #include <QProgressBar>
 #include <QLineEdit>
@@ -77,5 +76,3 @@ class DisassemblerView : public QWidget
         ListingFilterModel *m_segmentsmodel, *m_importsmodel, *m_exportsmodel, *m_stringsmodel;
         QAction* m_actsetfilter;
 };
-
-#endif // DISASSEMBLERVIEW_H

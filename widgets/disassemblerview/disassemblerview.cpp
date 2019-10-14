@@ -35,8 +35,9 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     ui->tvImports->setModel(m_importsmodel);
 
     m_exportsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItemType::AllItems, ui->tvExports);
-    //static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolType(REDasm::SymbolType::ExportNew);
-    //ui->tvExports->setModel(m_exportsmodel);
+    static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolType(REDasm::SymbolType::FunctionNew);
+    static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolFlags(REDasm::SymbolFlags::Export);
+    ui->tvExports->setModel(m_exportsmodel);
 
     m_stringsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItemType::SymbolItem, ui->tvStrings);
     static_cast<SymbolTableModel*>(m_stringsmodel->sourceModel())->setSymbolType(REDasm::SymbolType::StringNew);
@@ -61,9 +62,9 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     ui->tvImports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvImports->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvImports->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-    //ui->tvExports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    //ui->tvExports->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    //ui->tvExports->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    ui->tvExports->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui->tvExports->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tvExports->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->tvStrings->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
@@ -227,48 +228,42 @@ void DisassemblerView::gotoXRef(const QModelIndex &index)
         return;
 
     ui->tabView->setCurrentWidget(ui->tabListing);
-    m_disassembler->document()->goTo(static_cast<address_t>(index.internalId()));
+    r_docnew->goTo(static_cast<address_t>(index.internalId()));
 }
 
 void DisassemblerView::goTo(const QModelIndex &index)
 {
-    if(!index.isValid())
-        return;
+    if(!index.isValid()) return;
 
     REDasm::ListingItem item = this->itemFromIndex(index);
+    if(!item.isValid()) return;
 
-    if(item.isValid())
-        return;
+    r_docnew->goTo(item);
 
-    //FIXME: m_disassembler->document()->goTo(item);
+    if(!m_graphview->isCursorInGraph())
+        ui->stackedWidget->setCurrentWidget(m_listingview);
 
-    //FIXME: if(!m_graphview->isCursorInGraph())
-    //FIXME:     ui->stackedWidget->setCurrentWidget(m_listingview);
-
-    //FIXME: this->showListingOrGraph();
+    this->showListingOrGraph();
 }
 
 void DisassemblerView::showModelReferences()
 {
-    if(!m_currentindex.isValid())
-        return;
+    if(!m_currentindex.isValid()) return;
 
-    //FIXME: const REDasm::ListingItem* item = this->itemFromIndex(m_currentindex);
+    REDasm::ListingItem item = this->itemFromIndex(m_currentindex);
+    if(!item.isValid()) return;
 
-    //FIXME: if(!item)
-    //FIXME:     return;
+    const REDasm::Symbol* symbol = nullptr;
 
-    //FIXME: const REDasm::Symbol* symbol = nullptr;
+    if(m_currentindex.model() == m_docks->callTreeModel())
+    {
+        REDasm::CachedInstruction instruction = r_docnew->instruction(item.address_new);
+        symbol = r_docnew->symbol(r_disasm->getTarget(instruction->address));
+    }
+    else
+        symbol = r_docnew->symbol(item.address_new);
 
-    //FIXME: if(m_currentindex.model() == m_docks->callTreeModel())
-    //FIXME: {
-    //FIXME:     REDasm::CachedInstruction instruction = m_disassembler->document()->instruction(item->address());
-    //FIXME:     symbol = m_disassembler->document()->symbol(m_disassembler->getTarget(instruction->address));
-    //FIXME: }
-    //FIXME: else
-    //FIXME:     symbol = m_disassembler->document()->symbol(item->address());
-
-    //FIXME: this->showReferences(symbol->address);
+    this->showReferences(symbol->address);
 }
 
 void DisassemblerView::showCurrentItemInfo()
@@ -472,11 +467,8 @@ REDasm::ListingItem DisassemblerView::itemFromIndex(const QModelIndex &index) co
     if(filtermodel)
         return filtermodel->item(index);
 
-    //FIXME: const GotoModel* gotomodel = dynamic_cast<const GotoModel*>(index.model());
-
-    //FIXME: if(gotomodel)
-    //FIXME:     return reinterpret_cast<REDasm::ListingItem*>(index.internalPointer());
-
+    const GotoModel* gotomodel = dynamic_cast<const GotoModel*>(index.model());
+    if(gotomodel) return r_docnew->itemAt(index.row());
     return REDasm::ListingItem();
 }
 
@@ -536,17 +528,11 @@ void DisassemblerView::createActions()
 
 ListingFilterModel *DisassemblerView::getSelectedFilterModel()
 {
-    if(ui->tabView->currentWidget() == ui->tabListing)
-        return m_docks->functionsModel();
-    else if(ui->tabView->currentWidget() == ui->tabSegments)
-        return m_segmentsmodel;
-    else if(ui->tabView->currentWidget() == ui->tabImports)
-        return m_importsmodel;
-    else if(ui->tabView->currentWidget() == ui->tabExports)
-        return m_exportsmodel;
-    else if(ui->tabView->currentWidget() == ui->tabStrings)
-        return m_stringsmodel;
-
+    if(ui->tabView->currentWidget() == ui->tabListing) return m_docks->functionsModel();
+    if(ui->tabView->currentWidget() == ui->tabSegments) return m_segmentsmodel;
+    if(ui->tabView->currentWidget() == ui->tabImports) return m_importsmodel;
+    if(ui->tabView->currentWidget() == ui->tabExports) return m_exportsmodel;
+    if(ui->tabView->currentWidget() == ui->tabStrings) return m_stringsmodel;
     return nullptr;
 }
 

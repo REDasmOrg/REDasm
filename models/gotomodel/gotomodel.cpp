@@ -1,11 +1,10 @@
 #include "gotomodel.h"
 #include "../../themeprovider.h"
-#include <redasm/disassembler/listing/listingdocumentnew.h>
+#include "../../../convert.h"
 #include <redasm/plugins/assembler/assembler.h>
-#include <redasm/disassembler/disassembler.h>
 #include <redasm/support/demangler.h>
 #include <redasm/support/utils.h>
-#include "../../../convert.h"
+#include <redasm/context.h>
 
 GotoModel::GotoModel(QObject *parent) : DisassemblerModel(parent) { }
 
@@ -26,7 +25,7 @@ QVariant GotoModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return Convert::to_qstring(REDasm::String::hex(item.address_new, m_disassembler->assembler()->bits()));
+            return Convert::to_qstring(REDasm::String::hex(item.address_new, r_asm->bits()));
         if(index.column() == 1)
             return this->itemName(item);
         if(index.column() == 2)
@@ -65,7 +64,7 @@ QVariant GotoModel::headerData(int section, Qt::Orientation orientation, int rol
 }
 
 int GotoModel::columnCount(const QModelIndex &) const { return 3; }
-int GotoModel::rowCount(const QModelIndex &) const { return m_disassembler ? m_disassembler->documentNew()->items()->size() : 0; }
+int GotoModel::rowCount(const QModelIndex &) const { return r_disasm ? r_docnew->items()->size() : 0; }
 
 QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
 {
@@ -75,11 +74,10 @@ QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
 
     if(item.is(REDasm::ListingItemType::SymbolItem))
     {
-        const auto& document = m_disassembler->documentNew();
-        const REDasm::Symbol* symbol = document->symbols()->get(item.address_new);
+        const REDasm::Symbol* symbol = r_docnew->symbol(item.address_new);
 
         if(!symbol) return QColor();
-        if(symbol->is(REDasm::SymbolType::String)) return THEME_VALUE("string_fg");
+        if(symbol->is(REDasm::SymbolType::StringNew)) return THEME_VALUE("string_fg");
         return THEME_VALUE("data_fg");
     }
 
@@ -88,16 +86,14 @@ QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
 
 QString GotoModel::itemName(const REDasm::ListingItem& item) const
 {
-    const auto& document = m_disassembler->documentNew();
-
     if(item.is(REDasm::ListingItemType::SegmentItem))
     {
-        const REDasm::Segment* segment = document->segments()->find(item.address_new);
+        const REDasm::Segment* segment = r_docnew->segment(item.address_new);
         if(segment) return S_TO_QS(segment->name);
     }
     else if(item.is(REDasm::ListingItemType::FunctionItem) || item.is(REDasm::ListingItemType::SymbolItem))
     {
-        const REDasm::Symbol* symbol = document->symbols()->get(item.address_new);
+        const REDasm::Symbol* symbol = r_docnew->symbol(item.address_new);
         if(symbol) return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
     }
     //FIXME: else if(item->type() == REDasm::ListingItemType::TypeItem)
@@ -108,9 +104,14 @@ QString GotoModel::itemName(const REDasm::ListingItem& item) const
 
 QString GotoModel::itemType(const REDasm::ListingItem& item) const
 {
-    if(item.is(REDasm::ListingItemType::SegmentItem))  return "SEGMENT";
-    if(item.is(REDasm::ListingItemType::FunctionItem)) return "FUNCTION";
-    if(item.is(REDasm::ListingItemType::TypeItem))     return "TYPE";
-    if(item.is(REDasm::ListingItemType::SymbolItem))   return "SYMBOL";
+    switch(item.type_new)
+    {
+        case REDasm::ListingItemType::SegmentItem:  return "SEGMENT";
+        case REDasm::ListingItemType::FunctionItem: return "FUNCTION";
+        case REDasm::ListingItemType::TypeItem:     return "TYPE";
+        case REDasm::ListingItemType::SymbolItem:   return "SYMBOL";
+        default: break;
+    }
+
     return QString();
 }

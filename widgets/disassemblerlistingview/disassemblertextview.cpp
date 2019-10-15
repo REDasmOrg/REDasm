@@ -447,12 +447,8 @@ const REDasm::Symbol* DisassemblerTextView::symbolUnderCursor()
 
 bool DisassemblerTextView::isLineVisible(size_t line) const
 {
-    if(line < this->firstVisibleLine())
-        return false;
-
-    if(line > this->lastVisibleLine())
-        return false;
-
+    if(line < this->firstVisibleLine()) return false;
+    if(line > this->lastVisibleLine()) return false;
     return true;
 }
 

@@ -1,5 +1,4 @@
-﻿#ifndef DISASSEMBLERACTIONS_H
-#define DISASSEMBLERACTIONS_H
+﻿#pragma once
 
 #include <QAction>
 #include <QObject>
@@ -55,9 +54,7 @@ class DisassemblerActions : public QObject
         void switchToHexDump();
 
     private:
-        REDasm::ListingRenderer* m_renderer;
+        REDasm::ListingRenderer* m_renderer{nullptr};
         QHash<int, QAction*> m_actions;
-        QMenu* m_contextmenu;
+        QMenu* m_contextmenu{nullptr};
 };
-
-#endif // DISASSEMBLERACTIONS_H

@@ -104,14 +104,14 @@ void LoaderDialog::checkFlags()
     if(!index.isValid())
     {
         ui->cbAssembler->setEnabled(false);
-        ui->groupBox->setEnabled(false);
+        ui->tabAddressing->setEnabled(false);
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
         return;
     }
 
     REDasm::LoaderFlags flags = this->selectedLoaderFlags();
     ui->cbAssembler->setEnabled(flags & REDasm::LoaderFlags::CustomAssembler);
-    ui->groupBox->setEnabled(flags & REDasm::LoaderFlags::CustomAddressing);
+    ui->tabAddressing->setEnabled(flags & REDasm::LoaderFlags::CustomAddressing);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
@@ -171,4 +171,10 @@ void LoaderDialog::populateAssemblers()
         const REDasm::PluginInstance* pi = m_assemblers.at(i);
         ui->cbAssembler->addItem(Convert::to_qstring(pi->descriptor->description), Convert::to_qstring(pi->descriptor->id));
     }
+}
+
+void LoaderDialog::accept()
+{
+    r_ctx->flag(REDasm::ContextFlags::StepDisassembly, ui->chbStepDisassembly->isChecked());
+    QDialog::accept();
 }

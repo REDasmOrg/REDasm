@@ -3,6 +3,7 @@
 
     "Shadow": "#2b2b2b",
     "Base": "#262626",
+    "AlternateBase": "#2b2b2b",
     "Text": "#ecf0f1",
     "Window": "#2b2b2b",
     "WindowText": "#ecf0f1",

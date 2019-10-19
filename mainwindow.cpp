@@ -4,6 +4,8 @@
 #include "dialogs/problemsdialog/problemsdialog.h"
 #include "dialogs/settingsdialog/settingsdialog.h"
 #include "dialogs/aboutdialog/aboutdialog.h"
+#include "dialogs/tabledialog/tabledialog.h"
+#include "models/dev/blocklistmodel.h"
 #include "ui/redasmui.h"
 #include "redasmsettings.h"
 #include "themeprovider.h"
@@ -72,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->loadWindowState();
     this->loadRecents();
     this->checkCommandLine();
+    this->initShortcuts();
 
     connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpenClicked);
     connect(ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveClicked);
@@ -81,7 +84,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Signatures, &QAction::triggered, this, &MainWindow::onSignaturesClicked);
     connect(ui->action_Reset_Layout, &QAction::triggered, this, &MainWindow::onResetLayoutClicked);
     connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
+    connect(ui->action_Blocks, &QAction::triggered, this, &MainWindow::onBlocksClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
+
+    connect(ui->action_Step, &QAction::triggered, this, [&]() {
+        if(r_disasm) r_disasm->resume();
+    });
 
     connect(ui->action_Report_Bug, &QAction::triggered, this, []() {
         QDesktopServices::openUrl(QUrl("https://github.com/REDasmOrg/REDasm/issues"));
@@ -113,17 +121,13 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *e)
 {
-    if(!e->mimeData()->hasUrls())
-        return;
-
+    if(!e->mimeData()->hasUrls()) return;
     e->acceptProposedAction();
 }
 
 void MainWindow::dragMoveEvent(QDragMoveEvent *e)
 {
-    if(!e->mimeData()->hasUrls())
-        return;
-
+    if(!e->mimeData()->hasUrls()) return;
     e->acceptProposedAction();
 }
 
@@ -246,6 +250,21 @@ void MainWindow::onSettingsClicked()
     sd.exec();
 }
 
+void MainWindow::onBlocksClicked()
+{
+    static TableDialog* td = nullptr;
+
+    if(!td)
+    {
+        td = new TableDialog(this);
+        td->setWindowTitle("Block List");
+        td->setButtonBoxVisible(false);
+        td->setModel(new BlockListModel());
+    }
+
+    td->show();
+}
+
 void MainWindow::loadWindowState()
 {
     REDasmSettings settings;
@@ -357,11 +376,25 @@ void MainWindow::checkCommandLine()
     }
 }
 
+void MainWindow::initShortcuts()
+{
+    auto actions = ui->menu_Development->actions();
+
+    for(int i = 2; i < actions.size(); i++)
+    {
+        if(actions[i]->isSeparator()) continue;
+        actions[i]->setShortcut(QKeySequence(QString("CTRL+SHIFT+F%1").arg(i + 1)));
+    }
+}
+
 void MainWindow::setStandardActionsEnabled(bool b)
 {
-    ui->action_Save->setEnabled(b);
-    ui->action_Save_As->setEnabled(b);
-    ui->action_Signatures->setEnabled(b);
+    bool step = r_ctx->hasFlag(REDasm::ContextFlags::StepDisassembly);
+
+    ui->action_Save->setEnabled(step || b);
+    ui->action_Save_As->setEnabled(step || b);
+    ui->action_Signatures->setEnabled(step || b);
+    ui->menu_Development->setEnabled(step || b);
 }
 
 void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
@@ -442,6 +475,8 @@ void MainWindow::selectLoader(const REDasm::LoadRequest& request)
 {
     LoaderDialog dlgloader(request, this);
     if(dlgloader.exec() != LoaderDialog::Accepted) return;
+
+    ui->action_Step->setEnabled(r_ctx->hasFlag(REDasm::ContextFlags::StepDisassembly));
 
     const REDasm::PluginInstance *assemblerpi = nullptr, *loaderpi = dlgloader.selectedLoader();
     REDasm::Loader* loader = plugin_cast<REDasm::Loader>(loaderpi);

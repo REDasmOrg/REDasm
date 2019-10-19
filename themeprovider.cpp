@@ -80,6 +80,7 @@ void ThemeProvider::applyTheme()
 
     THEME_UI_SET_COLOR(palette, Shadow);
     THEME_UI_SET_COLOR(palette, Base);
+    THEME_UI_SET_COLOR(palette, AlternateBase);
     THEME_UI_SET_COLOR(palette, Text);
     THEME_UI_SET_COLOR(palette, Window);
     THEME_UI_SET_COLOR(palette, WindowText);

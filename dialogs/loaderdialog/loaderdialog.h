@@ -1,5 +1,4 @@
-#ifndef LOADERDIALOG_H
-#define LOADERDIALOG_H
+#pragma once
 
 #include <QStandardItemModel>
 #include <QDialog>
@@ -32,11 +31,12 @@ class LoaderDialog : public QDialog
         void syncAssembler();
         void populateAssemblers();
 
+    public slots:
+        void accept() override;
+
     private:
         Ui::LoaderDialog *ui;
         QStandardItemModel* m_loadersmodel;
         REDasm::PluginList m_loaders, m_assemblers;
         const REDasm::LoadRequest& m_request;
 };
-
-#endif // LOADERDIALOG_H

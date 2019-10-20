@@ -1,5 +1,6 @@
 #include "gotodialog.h"
 #include "ui_gotodialog.h"
+#include <redasm/context.h>
 
 GotoDialog::GotoDialog(const REDasm::DisassemblerPtr& disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_disassembler(disassembler), m_address(0), m_validaddress(false)
 {
@@ -23,7 +24,7 @@ GotoDialog::GotoDialog(const REDasm::DisassemblerPtr& disassembler, QWidget *par
 
 GotoDialog::~GotoDialog() { delete ui; }
 address_t GotoDialog::address() const { return m_address; }
-bool GotoDialog::hasValidAddress() const { return m_validaddress && m_disassembler->document()->segment(m_address); }
+bool GotoDialog::hasValidAddress() const { return m_validaddress && r_docnew->segment(m_address); }
 
 void GotoDialog::validateEntry()
 {

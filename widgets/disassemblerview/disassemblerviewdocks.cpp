@@ -27,17 +27,10 @@ void DisassemblerViewDocks::setDisassembler(const REDasm::DisassemblerPtr& disas
         m_functionsview->resizeColumnToContents(0);
     });
 
-    if(m_functionsmodel)
-        m_functionsmodel->setDisassembler(disassembler);
-
-    if(m_calltreemodel)
-        m_calltreemodel->setDisassembler(disassembler);
-
-    if(m_referencesmodel)
-        m_referencesmodel->setDisassembler(disassembler);
-
-    if(m_listingmap)
-        m_listingmap->setDisassembler(disassembler);
+    if(m_functionsmodel) m_functionsmodel->setDisassembler(disassembler);
+    if(m_calltreemodel) m_calltreemodel->setDisassembler(disassembler);
+    if(m_referencesmodel) m_referencesmodel->setDisassembler(disassembler);
+    if(m_listingmap) m_listingmap->setDisassembler(disassembler);
 }
 
 ListingFilterModel *DisassemblerViewDocks::functionsModel() const { return m_functionsmodel; }

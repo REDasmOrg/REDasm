@@ -1,5 +1,4 @@
-#ifndef GOTODIALOG_H
-#define GOTODIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <redasm/disassembler/disassembler.h>
@@ -36,5 +35,3 @@ class GotoDialog : public QDialog
         address_t m_address;
         bool m_validaddress;
 };
-
-#endif // GOTODIALOG_H

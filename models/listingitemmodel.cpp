@@ -4,6 +4,7 @@
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/demangler.h>
 #include <redasm/support/utils.h>
+#include <redasm/context.h>
 #include "../themeprovider.h"
 #include "../convert.h"
 #include <QColor>
@@ -13,17 +14,13 @@ ListingItemModel::ListingItemModel(REDasm::ListingItemType itemtype, QObject *pa
 void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
-    auto lock = REDasm::s_lock_safe_ptr(m_disassembler->documentNew());
-
+    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
     this->beginResetModel();
 
     for(size_t i = 0; i < lock->items()->size(); i++)
     {
         const REDasm::ListingItem& item = lock->items()->at(i);
-
-        if(!this->isItemAllowed(item))
-            continue;
-
+        if(!this->isItemAllowed(item)) continue;
         m_items.insert(item.address_new);
     }
 
@@ -94,7 +91,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 {
     if(!index.isValid()) return QVariant();
 
-    auto lock = REDasm::s_lock_safe_ptr(m_disassembler->documentNew());
+    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
     const REDasm::Symbol* symbol = lock->symbols()->get(m_items[index.row()].toU64());
 
     if(!symbol) return QVariant();

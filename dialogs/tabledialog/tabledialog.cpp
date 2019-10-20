@@ -1,18 +1,17 @@
 #include "tabledialog.h"
 #include "ui_tabledialog.h"
 #include <QSortFilterProxyModel>
+#include "../../themeprovider.h"
 
 TableDialog::TableDialog(QWidget *parent) : QDialog(parent), ui(new Ui::TableDialog)
 {
     ui->setupUi(this);
     ui->leSearch->setVisible(false);
     ui->tbvTable->setCornerButtonEnabled(true);
-
-    ui->tbvTable->setStyleSheet(QString("QTableCornerButton::section { border-width: 1px; border-color: %1; border-style:solid; }")
-                                .arg(qApp->palette().color(QPalette::Shadow).name()));
-
     ui->tbvTable->verticalHeader()->setDefaultSectionSize(ui->tbvTable->verticalHeader()->minimumSectionSize());
     ui->tbvTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+
+    ThemeProvider::styleCornerButton(ui->tbvTable);
 
     connect(ui->leSearch, &QLineEdit::textChanged, this, [&](const QString& s) {
         static_cast<QSortFilterProxyModel*>(ui->tbvTable->model())->setFilterFixedString(s);

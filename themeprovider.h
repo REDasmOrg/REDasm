@@ -6,6 +6,7 @@
 #define THEME_VALUE_COLOR(n) THEME_VALUE(n).name()
 
 #include <QJsonObject>
+#include <QTableView>
 #include <QColor>
 #include <QIcon>
 
@@ -26,6 +27,7 @@ class ThemeProvider
         static QIcon icon(const QString& name);
         static QColor seekColor();
         static QColor dottedColor();
+        static void styleCornerButton(QTableView* tableview);
         static void applyTheme();
 
     private:

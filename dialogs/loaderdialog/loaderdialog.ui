@@ -123,7 +123,7 @@
        <item>
         <widget class="QCheckBox" name="chbStepDisassembly">
          <property name="text">
-          <string>Step Disassembly (press F8)</string>
+          <string>Stepped Disassembly (press F8)</string>
          </property>
         </widget>
        </item>

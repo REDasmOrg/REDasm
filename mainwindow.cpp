@@ -88,7 +88,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
 
     connect(ui->action_Step, &QAction::triggered, this, [&]() {
-        if(r_disasm) r_disasm->resume();
+        if(!r_disasm) return;
+
+        r_disasm->resume();
+        this->checkDisassemblerStatus();
     });
 
     connect(ui->action_Report_Bug, &QAction::triggered, this, []() {
@@ -381,10 +384,7 @@ void MainWindow::initShortcuts()
     auto actions = ui->menu_Development->actions();
 
     for(int i = 2; i < actions.size(); i++)
-    {
-        if(actions[i]->isSeparator()) continue;
-        actions[i]->setShortcut(QKeySequence(QString("CTRL+SHIFT+F%1").arg(i + 1)));
-    }
+        actions[i]->setShortcut(QKeySequence(QString("CTRL+SHIFT+F%1").arg(i - 1)));
 }
 
 void MainWindow::setStandardActionsEnabled(bool b)
@@ -565,7 +565,21 @@ void MainWindow::checkDisassemblerStatus()
         return;
     }
 
-    this->setWindowTitle(disassembler->busy() ? QString("%1 (Working)").arg(m_fileinfo.fileName()) : m_fileinfo.fileName());
+    switch(disassembler->state())
+    {
+        case REDasm::JobState::ActiveState:
+            this->setWindowTitle(QString("%1 (Working)").arg(m_fileinfo.fileName()));
+            break;
+
+        case REDasm::JobState::PausedState:
+            this->setWindowTitle(QString("%1 (Paused)").arg(m_fileinfo.fileName()));
+            break;
+
+        default:
+            this->setWindowTitle(m_fileinfo.fileName());
+            break;
+    }
+
     REDasm::JobState state = disassembler->state();
 
     if(state == REDasm::JobState::ActiveState) m_pbstatus->setStyleSheet("color: red;");
@@ -575,7 +589,11 @@ void MainWindow::checkDisassemblerStatus()
     m_pbstatus->setVisible(true);
     m_lblprogress->setVisible(disassembler->busy());
     m_pbproblems->setText(QString::number(r_ctx->problemsCount()) + " problem(s)");
-    m_pbproblems->setVisible(!disassembler->busy() && r_ctx->hasProblems());
+
+    if(r_ctx->hasFlag(REDasm::ContextFlags::StepDisassembly))
+        m_pbproblems->setVisible(true);
+    else
+        m_pbproblems->setVisible(!disassembler->busy() && r_ctx->hasProblems());
 
     this->setStandardActionsEnabled(!disassembler->busy());
     ui->action_Close->setEnabled(true);

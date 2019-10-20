@@ -1,7 +1,7 @@
 #include "symboltablemodel.h"
 #include <redasm/context.h>
 
-SymbolTableModel::SymbolTableModel(REDasm::ListingItemType itemtype, QObject *parent) : ListingItemModel(itemtype, parent) { }
+SymbolTableModel::SymbolTableModel(REDasm::ListingItemType itemtype, QObject *parent): ListingItemModel(itemtype, parent) { }
 void SymbolTableModel::setSymbolType(REDasm::SymbolType type) { m_symboltype = type; }
 void SymbolTableModel::setSymbolFlags(REDasm::SymbolFlags flags) { m_symbolflags = flags; }
 

@@ -48,7 +48,7 @@ REDasm::ListingItem ListingItemModel::item(const QModelIndex &index) const
         item = lock->items()->instructionItem(m_items[index.row()].toU64()); // Try to get an instruction
 
         if(!item.isValid())
-            item = lock->items()->symbolItem(m_items[index.row()].toU64());  // Try to get an symbol
+            item = lock->items()->symbolItem(m_items[index.row()].toU64());  // Try to get a symbol
     }
 
     return item;

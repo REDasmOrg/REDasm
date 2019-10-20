@@ -16,7 +16,7 @@ class DisassemblerBlockItem : public GraphViewItem
         virtual ~DisassemblerBlockItem();
         REDasm::String currentWord();
         ListingDocumentRenderer* renderer() const;
-        bool containsItem(REDasm::ListingItem *item) const;
+        bool containsItem(const REDasm::ListingItem& item) const;
 
     public:
         int currentLine() const override;

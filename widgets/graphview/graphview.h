@@ -1,5 +1,4 @@
-#ifndef GRAPHVIEW_H
-#define GRAPHVIEW_H
+#pragma once
 
 // Widget based on x64dbg's DisassemblerGraphView
 // - https://github.com/x64dbg/x64dbg/blob/development/src/gui/Src/Gui/DisassemblerGraphView.h
@@ -21,7 +20,7 @@ class GraphView : public QAbstractScrollArea
     public:
         explicit GraphView(QWidget *parent = nullptr);
         virtual void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
-        void setGraph(REDasm::Graph *graph);
+        void setGraph(REDasm::Graph* graph);
         void setSelectedBlock(GraphViewItem* item);
         void setFocusOnSelection(bool b);
         GraphViewItem* selectedItem() const;
@@ -62,17 +61,15 @@ class GraphView : public QAbstractScrollArea
         QHash<REDasm::Node, GraphViewItem*> m_items;
 
     private:
-        GraphViewItem* m_selecteditem;
-        REDasm::Graph* m_graph;
+        GraphViewItem* m_selecteditem{nullptr};
+        REDasm::Graph* m_graph{nullptr};
         std::unordered_map< REDasm::Edge, QVector<QLine> > m_lines;
         std::unordered_map<REDasm::Edge, QPolygon> m_arrows;
         QPoint m_renderoffset, m_scrollbase;
         QSize m_rendersize;
-        qreal m_scalefactor, m_scalestep, m_prevscalefactor;
-        qreal m_scalemin, m_scalemax;
-        int m_scaledirection, m_scaleboost;
-        bool m_viewportready, m_scrollmode;
-        bool m_focusonselection;
+        qreal m_scalefactor{1.0}, m_scalestep{0.1}, m_prevscalefactor{0};
+        qreal m_scalemin{0}, m_scalemax{5.0};
+        int m_scaledirection{0}, m_scaleboost{1};
+        bool m_viewportready{false}, m_scrollmode{true};
+        bool m_focusonselection{false};
 };
-
-#endif // GRAPHVIEW_H

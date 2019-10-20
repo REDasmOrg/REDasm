@@ -1,5 +1,4 @@
-#ifndef DISASSEMBLERGRAPHVIEW_H
-#define DISASSEMBLERGRAPHVIEW_H
+#pragma once
 
 #include <QAbstractScrollArea>
 #include <QList>
@@ -52,9 +51,7 @@ class DisassemblerGraphView : public GraphView
         void switchToHexDump();
 
     private:
-        const REDasm::ListingItem* m_currentfunction;
+        REDasm::ListingItem m_currentfunction;
         DisassemblerActions* m_disassembleractions;
         int m_blinktimer;
 };
-
-#endif // DISASSEMBLERGRAPHVIEW_H

@@ -22,8 +22,8 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
     QFontMetricsF fm(m_document.defaultFont());
     m_charheight = fm.height();
 
-    m_disassembler->document()->cursor()->positionChanged.connect(this, [&](REDasm::EventArgs*) {
-        if(!m_basicblock->contains(m_disassembler->document()->currentItem()->address_new))
+    r_docnew->cursor().positionChanged.connect(this, [&](REDasm::EventArgs*) {
+        if(!m_basicblock->contains(r_docnew->currentItem().address_new))
             return;
 
         this->invalidate();
@@ -33,14 +33,14 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
 DisassemblerBlockItem::~DisassemblerBlockItem() { m_disassembler->document()->cursor()->positionChanged.disconnect(this); }
 REDasm::String DisassemblerBlockItem::currentWord() { return m_renderer->getCurrentWord(); }
 ListingDocumentRenderer *DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
-bool DisassemblerBlockItem::containsItem(REDasm::ListingItem* item) const { return m_basicblock->contains(item->address_new); }
+bool DisassemblerBlockItem::containsItem(const REDasm::ListingItem& item) const { return m_basicblock->contains(item.address_new); }
 
 int DisassemblerBlockItem::currentLine() const
 {
-    const REDasm::ListingCursor* cursor = r_doc->cursor();
+    const REDasm::ListingCursor& cursor = r_docnew->cursor();
 
-    if(this->containsItem(r_doc->currentItem()))
-        return cursor->currentLine() - r_doc->itemIndex(m_basicblock->startItem());
+    if(this->containsItem(r_docnew->currentItem()))
+        return cursor.currentLine() - r_docnew->itemIndex(m_basicblock->startItem().address_new);
 
     return GraphViewItem::currentLine();
 }

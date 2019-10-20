@@ -5,16 +5,8 @@
 #include <QPainter>
 #include <cmath>
 
-GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembler(nullptr), m_selecteditem(nullptr), m_focusonselection(false)
+GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent)
 {
-    m_prevscalefactor = m_scaledirection = 0;
-    m_scalemax = 5.0;
-    m_scalefactor = m_scaleboost = 1.0;
-    m_scalestep = 0.1;
-    m_viewportready = false;
-    m_scrollmode = true;
-    m_scalemin = 0;
-
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, THEME_VALUE("graph_bg"));
 
@@ -26,7 +18,7 @@ GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent), m_disassembl
 
 void GraphView::setDisassembler(const REDasm::DisassemblerPtr& disassembler) { m_disassembler = disassembler; }
 
-void GraphView::setGraph(REDasm::Graph *graph)
+void GraphView::setGraph(REDasm::Graph* graph)
 {
     m_selecteditem = nullptr;
     m_scalefactor = m_scaleboost = 1.0;
@@ -43,9 +35,7 @@ void GraphView::setSelectedBlock(GraphViewItem *item)
 {
     for(GraphViewItem* gvi : m_items)
     {
-        if(gvi != item)
-            continue;
-
+        if(gvi != item) continue;
         m_selecteditem = item;
         this->focusSelectedBlock();
         break;
@@ -54,13 +44,8 @@ void GraphView::setSelectedBlock(GraphViewItem *item)
 
 void GraphView::setFocusOnSelection(bool b) { m_focusonselection = b; }
 GraphViewItem *GraphView::selectedItem() const { return m_selecteditem; }
-REDasm::Graph *GraphView::graph() const { return m_graph; }
-
-void GraphView::focusSelectedBlock()
-{
-    if(m_selecteditem)
-        this->focusBlock(m_selecteditem);
-}
+REDasm::Graph* GraphView::graph() const { return m_graph; }
+void GraphView::focusSelectedBlock() { if(m_selecteditem) this->focusBlock(m_selecteditem); }
 
 void GraphView::focusBlock(const GraphViewItem *item, bool force)
 {

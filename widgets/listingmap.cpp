@@ -130,28 +130,20 @@ void ListingMap::renderFunctions(QPainter *painter)
         address_t address = lock->functions()->at(i);
         const REDasm::Symbol* symbol = lock->symbol(address);
         const REDasm::FunctionGraph* g = lock->functions()->graph(address);
-
-        if(!g)
-            continue;
+        if(!g) continue;
 
         g->nodes().each([&](REDasm::Node n) {
             const REDasm::FunctionBasicBlock* fbb = variant_object<REDasm::FunctionBasicBlock>(g->data(n));
+            if(!fbb) return;
 
-            if(!fbb)
-                return;
+            REDasm::ListingItem startitem = fbb->startItem();
+            QRect r = this->buildRect(this->calculatePosition(m_disassembler->loader()->offset(startitem.address_new)), this->calculateSize(fbb->count()));
 
-            REDasm::ListingItem* startitem = fbb->startItem();
-            QRect r = this->buildRect(this->calculatePosition(m_disassembler->loader()->offset(startitem->address_new)), this->calculateSize(fbb->count()));
+            if(m_orientation == Qt::Horizontal) r.setHeight(fsize);
+            else r.setWidth(fsize);
 
-            if(m_orientation == Qt::Horizontal)
-                r.setHeight(fsize);
-            else
-                r.setWidth(fsize);
-
-            if(symbol->isLocked())
-                painter->fillRect(r, THEME_VALUE("locked_fg"));
-            else
-                painter->fillRect(r, THEME_VALUE("function_fg"));
+            if(symbol->isLocked()) painter->fillRect(r, THEME_VALUE("locked_fg"));
+            else painter->fillRect(r, THEME_VALUE("function_fg"));
         });
     }
 }

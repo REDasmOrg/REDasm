@@ -261,6 +261,7 @@ void MainWindow::onBlocksClicked()
     {
         td = new TableDialog(this);
         td->setWindowTitle("Block List");
+        td->enableFiltering();
         td->setButtonBoxVisible(false);
         td->setModel(new BlockListModel());
     }

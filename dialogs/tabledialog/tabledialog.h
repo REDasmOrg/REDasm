@@ -16,6 +16,7 @@ class TableDialog : public QDialog
         ~TableDialog();
 
     public:
+        void enableFiltering();
         void setButtonBoxVisible(bool b);
         void setModel(QAbstractItemModel* model);
 

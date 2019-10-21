@@ -113,9 +113,7 @@ void DisassemblerGraphView::goTo(address_t address)
 void DisassemblerGraphView::focusCurrentBlock()
 {
     GraphViewItem* item = this->itemFromCurrentLine();
-
-    if(!item)
-        return;
+    if(!item) return;
 
     this->focusBlock(item);
     this->setSelectedBlock(item);

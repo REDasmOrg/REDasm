@@ -30,7 +30,7 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
     });
 }
 
-DisassemblerBlockItem::~DisassemblerBlockItem() { m_disassembler->document()->cursor()->positionChanged.disconnect(this); }
+DisassemblerBlockItem::~DisassemblerBlockItem() { r_docnew->cursor().positionChanged.disconnect(this); }
 REDasm::String DisassemblerBlockItem::currentWord() { return m_renderer->getCurrentWord(); }
 ListingDocumentRenderer *DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
 bool DisassemblerBlockItem::containsItem(const REDasm::ListingItem& item) const { return m_basicblock->contains(item.address_new); }

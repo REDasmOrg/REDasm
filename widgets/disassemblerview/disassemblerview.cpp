@@ -134,7 +134,7 @@ void DisassemblerView::bindDisassembler(REDasm::Disassembler *disassembler)
     m_stringsmodel->setDisassembler(m_disassembler);
     m_segmentsmodel->setDisassembler(m_disassembler);
 
-    REDasm::AbstractBuffer* buffer = m_disassembler->loader()->buffer();
+    REDasm::AbstractBuffer* buffer = r_ldr->buffer();
     m_hexdocument = QHexDocument::fromMemory<QMemoryRefBuffer>(reinterpret_cast<char*>(buffer->data()), buffer->size(), ui->hexView);
     ui->hexView->setDocument(m_hexdocument);
 
@@ -166,18 +166,16 @@ void DisassemblerView::bindDisassembler(REDasm::Disassembler *disassembler)
     m_actions->setEnabled(DisassemblerViewActions::ForwardAction, r_docnew->cursor().canGoForward());
 }
 
-void DisassemblerView::hideActions()
-{
-    if(m_actions)
-        m_actions->hideActions();
-}
+void DisassemblerView::hideActions() { if(m_actions) m_actions->hideActions(); }
 
 void DisassemblerView::changeDisassemblerStatus()
 {
-    if(m_disassembler->state() == REDasm::JobState::ActiveState)
-        m_disassembler->pause();
-    else if(m_disassembler->state() == REDasm::JobState::PausedState)
-        m_disassembler->resume();
+    switch(r_disasm->state())
+    {
+        case REDasm::JobState::ActiveState: m_disassembler->pause(); break;
+        case REDasm::JobState::PausedState: m_disassembler->resume(); break;
+        default: break;
+    }
 }
 
 void DisassemblerView::checkDisassemblerStatus()
@@ -198,28 +196,19 @@ void DisassemblerView::modelIndexSelected(const QModelIndex &index)
 void DisassemblerView::checkHexEdit(int index)
 {
     QWidget* w = ui->tabView->widget(index);
-
-    if(!w || (w != ui->tabHexDump))
-        return;
-
+    if(!w || (w != ui->tabHexDump)) return;
     this->syncHexEdit();
 }
 
 void DisassemblerView::updateCurrentFilter(int index)
 {
     QWidget* w = ui->tabView->widget(index);
+    if(!w) return;
 
-    if(!w)
-        return;
-
-    if(w == ui->tabSegments)
-        m_segmentsmodel->setFilter(m_lefilter->text());
-    else if(w == ui->tabImports)
-        m_importsmodel->setFilter(m_lefilter->text());
-    else if(w == ui->tabExports)
-        m_exportsmodel->setFilter(m_lefilter->text());
-    else if(w == ui->tabStrings)
-        m_stringsmodel->setFilter(m_lefilter->text());
+    if(w == ui->tabSegments) m_segmentsmodel->setFilter(m_lefilter->text());
+    else if(w == ui->tabImports) m_importsmodel->setFilter(m_lefilter->text());
+    else if(w == ui->tabExports) m_exportsmodel->setFilter(m_lefilter->text());
+    else if(w == ui->tabStrings) m_stringsmodel->setFilter(m_lefilter->text());
 }
 
 void DisassemblerView::gotoXRef(const QModelIndex &index)
@@ -307,7 +296,7 @@ void DisassemblerView::displayAddress(address_t address)
     if(r_disasm->busy()) return;
 
     const REDasm::Segment* segment = r_docnew->segment(address);
-    const REDasm::Symbol* functionstart = nullptr; //FIXME: document->functionStartSymbol(address);
+    const REDasm::Symbol* functionstart = r_docnew->functionStartSymbol(address);
     offset_location offset = r_ldr->offset(address);
 
     QString segm = segment ? S_TO_QS(segment->name) : "UNKNOWN",

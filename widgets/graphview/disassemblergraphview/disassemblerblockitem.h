@@ -1,5 +1,4 @@
-#ifndef DISASSEMBLERBLOCKITEM_H
-#define DISASSEMBLERBLOCKITEM_H
+#pragma once
 
 #include <QTextDocument>
 #include <redasm/graph/functiongraph.h>
@@ -44,5 +43,3 @@ class DisassemblerBlockItem : public GraphViewItem
         qreal m_charheight;
         QFont m_font;
 };
-
-#endif // DISASSEMBLERBLOCKITEM_H

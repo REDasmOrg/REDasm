@@ -1,5 +1,4 @@
-#ifndef GRAPHVIEWITEM_H
-#define GRAPHVIEWITEM_H
+#pragma once
 
 #include <QObject>
 #include <QMouseEvent>
@@ -50,5 +49,3 @@ class GraphViewItem: public QObject
 
     friend class GraphView;
 };
-
-#endif // GRAPHVIEWITEM_H

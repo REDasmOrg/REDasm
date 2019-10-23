@@ -2,8 +2,7 @@
 
 #include <QAbstractListModel>
 #include <redasm/disassembler/disassembler.h>
-
-#define S_TO_QS(s) QString::fromUtf8(s.c_str())
+#include "../convert.h"
 
 class DisassemblerModel : public QAbstractListModel
 {

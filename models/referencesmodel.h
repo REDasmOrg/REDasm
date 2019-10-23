@@ -10,7 +10,6 @@ class ReferencesModel : public DisassemblerModel
 
     public:
         explicit ReferencesModel(QObject *parent = nullptr);
-        void setDisassembler(const REDasm::DisassemblerPtr& disassembler) override;
         void xref(address_t address);
 
     public:

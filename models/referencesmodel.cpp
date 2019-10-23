@@ -8,13 +8,7 @@
 #include "../themeprovider.h"
 #include "../convert.h"
 
-ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent) { }
-
-void ReferencesModel::setDisassembler(const REDasm::DisassemblerPtr &disassembler)
-{
-    DisassemblerModel::setDisassembler(disassembler);
-    m_printer = r_asm->createPrinter();
-}
+ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent) { m_printer = r_asm->createPrinter(); }
 
 void ReferencesModel::clear()
 {
@@ -51,7 +45,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 
     if(role == Qt::DisplayRole)
     {
-        if(index.column() == 0) return S_TO_QS(REDasm::String::hex(item.address_new, r_asm->bits()));
+        if(index.column() == 0) return Convert::to_qstring(REDasm::String::hex(item.address_new, r_asm->bits()));
         else if(index.column() == 1) return this->direction(item.address_new);
         else if(index.column() == 2)
         {

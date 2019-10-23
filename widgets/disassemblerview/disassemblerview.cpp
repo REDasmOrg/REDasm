@@ -268,7 +268,7 @@ void DisassemblerView::showReferences(address_t address)
 
     if(!r_disasm->getReferencesCount(symbol->address))
     {
-        QMessageBox::information(this, "No References", "There are no references to " + S_TO_QS(symbol->name));
+        QMessageBox::information(this, "No References", "There are no references to " + Convert::to_qstring(symbol->name));
         return;
     }
 
@@ -299,9 +299,9 @@ void DisassemblerView::displayAddress(address_t address)
     const REDasm::Symbol* functionstart = r_docnew->functionStartSymbol(address);
     offset_location offset = r_ldr->offset(address);
 
-    QString segm = segment ? S_TO_QS(segment->name) : "UNKNOWN",
-            offs = segment && offset.valid ? S_TO_QS(REDasm::String::hex(offset.value, r_asm->bits())) : "UNKNOWN",
-            addr = S_TO_QS(REDasm::String::hex(address, r_asm->bits()));
+    QString segm = segment ? Convert::to_qstring(segment->name) : "UNKNOWN",
+            offs = segment && offset.valid ? Convert::to_qstring(REDasm::String::hex(offset.value, r_asm->bits())) : "UNKNOWN",
+            addr = Convert::to_qstring(REDasm::String::hex(address, r_asm->bits()));
 
     QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
@@ -309,12 +309,12 @@ void DisassemblerView::displayAddress(address_t address)
 
     if(r_docnew->currentItem().isValid() && functionstart)
     {
-        QString func = S_TO_QS(functionstart->name);
+        QString func = Convert::to_qstring(functionstart->name);
 
         if(address > functionstart->address)
-            func += "+" + S_TO_QS(REDasm::String::hex(address - functionstart->address, 8));
+            func += "+" + Convert::to_qstring(REDasm::String::hex(address - functionstart->address, 8));
         else if(address < functionstart->address)
-            func += S_TO_QS(REDasm::String::hex<REDasm::signed_of<size_t>::type>(address - functionstart->address));
+            func += Convert::to_qstring(REDasm::String::hex<REDasm::signed_of<size_t>::type>(address - functionstart->address));
 
         s = QString::fromWCharArray(L"<b>Function: </b>%1\u00A0\u00A0").arg(func) + s;
     }

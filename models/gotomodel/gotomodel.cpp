@@ -89,15 +89,15 @@ QString GotoModel::itemName(const REDasm::ListingItem& item) const
     if(item.is(REDasm::ListingItemType::SegmentItem))
     {
         const REDasm::Segment* segment = r_docnew->segment(item.address_new);
-        if(segment) return S_TO_QS(segment->name);
+        if(segment) return Convert::to_qstring(segment->name);
     }
     else if(item.is(REDasm::ListingItemType::FunctionItem) || item.is(REDasm::ListingItemType::SymbolItem))
     {
         const REDasm::Symbol* symbol = r_docnew->symbol(item.address_new);
-        if(symbol) return S_TO_QS(REDasm::Demangler::demangled(symbol->name));
+        if(symbol) return Convert::to_qstring(REDasm::Demangler::demangled(symbol->name));
     }
     //FIXME: else if(item->type() == REDasm::ListingItemType::TypeItem)
-        //FIXME: return S_TO_QS(document->type(item));
+        //FIXME: return Convert::to_qstring(document->type(item));
 
     return QString();
 }

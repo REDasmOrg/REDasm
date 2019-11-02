@@ -11,6 +11,7 @@ class DisassemblerListingView : public QSplitter
 
     public:
         explicit DisassemblerListingView(QWidget *parent = nullptr);
+        ~DisassemblerListingView();
         DisassemblerColumnView* columnView();
         DisassemblerTextView* textView();
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler);

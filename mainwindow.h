@@ -39,7 +39,6 @@ class MainWindow : public QMainWindow
         void onSettingsClicked();
         void onBlocksClicked();
         void onAboutClicked();
-        void changeDisassemblerStatus();
         void checkDisassemblerStatus();
         void showProblems();
         void closeFile();
@@ -62,9 +61,8 @@ class MainWindow : public QMainWindow
 
     private:
         Ui::MainWindow *ui;
-        QLabel *m_lblstatus, *m_lblprogress;
+        QLabel *m_lblstatus, *m_lblprogress, *m_lblstatusicon;
         QFileInfo m_fileinfo;
         QStringList m_recents;
-        QPushButton* m_pbstatus;
         QPushButton* m_pbproblems;
 };

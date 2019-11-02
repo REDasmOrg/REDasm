@@ -3,6 +3,7 @@
 #include "../convert.h"
 #include <redasm/graph/functiongraph.h>
 #include <redasm/plugins/loader/loader.h>
+#include <redasm/context.h>
 #include <QPainter>
 #include <cmath>
 
@@ -18,22 +19,15 @@ void ListingMap::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
     m_disassembler = disassembler;
     m_totalsize = disassembler->loader()->buffer()->size();
-
-    auto& document = m_disassembler->document();
     this->update();
 
-    document->cursor()->positionChanged.connect(this, [=](REDasm::EventArgs*) {
-        if(m_disassembler->busy())
-            return;
-
+    r_evt::subscribe(REDasm::StandardEvents::Cursor_PositionChanged, this, [=](const REDasm::EventArgs*) {
+        if(r_disasm->busy()) return;
         QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
     });
 
-    m_disassembler->busyChanged.connect(this, [=](REDasm::EventArgs*) {
-        if(m_disassembler->busy())
-            return;
-
-        QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+    r_evt::subscribe(REDasm::StandardEvents::Disassembler_BusyChanged, this, [=](const REDasm::EventArgs*) {
+        if(!r_disasm->busy()) QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
     });
 }
 

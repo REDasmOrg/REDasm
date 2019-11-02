@@ -1,6 +1,7 @@
 #include "disassemblerlistingview.h"
 #include "../../themeprovider.h"
 #include "../../redasmsettings.h"
+#include <redasm/context.h>
 #include <QScrollBar>
 
 DisassemblerListingView::DisassemblerListingView(QWidget *parent): QSplitter(parent), m_disassembler(nullptr)
@@ -24,6 +25,7 @@ DisassemblerListingView::DisassemblerListingView(QWidget *parent): QSplitter(par
     this->setHandleWidth(4);
 }
 
+DisassemblerListingView::~DisassemblerListingView() { r_evt::ungroup(this); }
 DisassemblerColumnView *DisassemblerListingView::columnView() { return m_disassemblercolumnview; }
 DisassemblerTextView *DisassemblerListingView::textView() { return m_disassemblertextview; }
 
@@ -33,19 +35,13 @@ void DisassemblerListingView::setDisassembler(const REDasm::DisassemblerPtr& dis
     m_disassemblercolumnview->setDisassembler(m_disassembler);
     m_disassemblertextview->setDisassembler(m_disassembler);
 
-    REDasm::ListingDocument& document = m_disassembler->document();
-
-    document->cursor()->positionChanged.connect(this, [&](REDasm::EventArgs*) {
-        if(m_disassembler->busy())
-            return;
-
+    r_evt::subscribe(REDasm::StandardEvents::Cursor_PositionChanged, this, [&](const REDasm::EventArgs*) {
+        if(r_disasm->busy()) return;
         QMetaObject::invokeMethod(m_disassemblercolumnview, "update", Qt::QueuedConnection);
     });
 
-    m_disassembler->busyChanged.connect(this, [&](REDasm::EventArgs*) {
-        if(m_disassembler->busy())
-            return;
-
+    r_evt::subscribe(REDasm::StandardEvents::Disassembler_BusyChanged, this, [&](const REDasm::EventArgs*) {
+        if(r_disasm->busy()) return;
         QMetaObject::invokeMethod(this, "renderArrows", Qt::QueuedConnection);
     });
 }

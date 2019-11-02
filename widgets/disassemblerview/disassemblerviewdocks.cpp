@@ -20,11 +20,8 @@ void DisassemblerViewDocks::setDisassembler(const REDasm::DisassemblerPtr& disas
 {
     m_disassembler = disassembler;
 
-    m_disassembler->busyChanged.connect(this, [&](REDasm::EventArgs*) {
-        if(m_disassembler->busy())
-            return;
-
-        m_functionsview->resizeColumnToContents(0);
+    r_evt::subscribe(REDasm::StandardEvents::Disassembler_BusyChanged, this, [&](const REDasm::EventArgs*) {
+        if(!r_disasm->busy()) m_functionsview->resizeColumnToContents(0);
     });
 
     if(m_functionsmodel) m_functionsmodel->setDisassembler(disassembler);

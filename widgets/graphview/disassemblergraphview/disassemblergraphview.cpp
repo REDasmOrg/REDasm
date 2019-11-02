@@ -26,8 +26,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent): GraphView(parent)
 
 DisassemblerGraphView::~DisassemblerGraphView()
 {
-    m_disassembler->document()->cursor()->positionChanged.disconnect(this);
-
+    r_evt::ungroup(this);
     this->killTimer(m_blinktimer);
     m_blinktimer = -1;
 }
@@ -36,14 +35,10 @@ void DisassemblerGraphView::setDisassembler(const REDasm::DisassemblerPtr &disas
 {
     GraphView::setDisassembler(disassembler);
 
-    m_disassembler->document()->cursor()->positionChanged.connect(this, [&](REDasm::EventArgs*) {
-        if(!this->isVisible())
-            return;
-
+    r_evt::subscribe(REDasm::StandardEvents::Cursor_PositionChanged, this, [&](const REDasm::EventArgs*) {
+        if(!this->isVisible()) return;
         this->renderGraph();
-
-        if(!this->hasFocus())
-            this->focusCurrentBlock();
+        if(!this->hasFocus()) this->focusCurrentBlock();
     });
 }
 

@@ -46,7 +46,7 @@ class DisassemblerTextView : public QAbstractScrollArea
 
     private:
         void paintLines(QPainter* painter, size_t first, size_t last);
-        void onDocumentChanged(REDasm::EventArgs *e);
+        void onDocumentChanged(const REDasm::EventArgs* e);
         REDasm::ListingDocumentNew& currentDocumentNew();
         const REDasm::ListingDocumentNew& currentDocumentNew() const;
         const REDasm::Symbol *symbolUnderCursor();

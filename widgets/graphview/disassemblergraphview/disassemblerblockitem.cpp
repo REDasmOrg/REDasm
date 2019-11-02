@@ -22,15 +22,13 @@ DisassemblerBlockItem::DisassemblerBlockItem(const REDasm::FunctionBasicBlock *f
     QFontMetricsF fm(m_document.defaultFont());
     m_charheight = fm.height();
 
-    r_docnew->cursor().positionChanged.connect(this, [&](REDasm::EventArgs*) {
-        if(!m_basicblock->contains(r_docnew->currentItem().address_new))
-            return;
-
+    r_evt::subscribe(REDasm::StandardEvents::Cursor_PositionChanged, this, [&](const REDasm::EventArgs*) {
+        if(!m_basicblock->contains(r_docnew->currentItem().address_new)) return;
         this->invalidate();
     });
 }
 
-DisassemblerBlockItem::~DisassemblerBlockItem() { r_docnew->cursor().positionChanged.disconnect(this); }
+DisassemblerBlockItem::~DisassemblerBlockItem() { r_evt::ungroup(this); }
 REDasm::String DisassemblerBlockItem::currentWord() { return m_renderer->getCurrentWord(); }
 ListingDocumentRenderer *DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
 bool DisassemblerBlockItem::containsItem(const REDasm::ListingItem& item) const { return m_basicblock->contains(item.address_new); }

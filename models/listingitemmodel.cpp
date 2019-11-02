@@ -10,6 +10,7 @@
 #include <QColor>
 
 ListingItemModel::ListingItemModel(REDasm::ListingItemType itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
+ListingItemModel::~ListingItemModel() { r_evt::ungroup(this); }
 
 void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
@@ -25,7 +26,7 @@ void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembl
     }
 
     this->endResetModel();
-    lock->changed.connect(this, std::bind(&ListingItemModel::onListingChanged, this, std::placeholders::_1));
+    r_evt::subscribe_m(REDasm::StandardEvents::Document_Changed, this, &ListingItemModel::onListingChanged);
 }
 
 REDasm::ListingItem ListingItemModel::item(const QModelIndex &index) const
@@ -148,9 +149,9 @@ bool ListingItemModel::isItemAllowed(const REDasm::ListingItem& item) const
     return item.is(m_itemtype);
 }
 
-void ListingItemModel::onListingChanged(REDasm::EventArgs* e)
+void ListingItemModel::onListingChanged(const REDasm::EventArgs* e)
 {
-    REDasm::ListingDocumentChangedEventArgs *ldc = static_cast<REDasm::ListingDocumentChangedEventArgs*>(e);
+    const auto* ldc = static_cast<const REDasm::ListingDocumentChangedEventArgs*>(e);
 
     if(!this->isItemAllowed(ldc->itemNew()))
         return;

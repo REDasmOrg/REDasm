@@ -46,6 +46,8 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): QAbstractScrollArea
 
 DisassemblerTextView::~DisassemblerTextView()
 {
+    r_evt::ungroup(this);
+
     if(m_blinktimerid != -1)
     {
         this->killTimer(m_blinktimerid);
@@ -82,9 +84,9 @@ void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disass
 {
     m_disassembler = disassembler;
 
-    this->currentDocumentNew()->changed.connect(this, std::bind(&DisassemblerTextView::onDocumentChanged, this, std::placeholders::_1));
+    r_evt::subscribe_m(REDasm::StandardEvents::Document_Changed, this, &DisassemblerTextView::onDocumentChanged);
 
-    this->currentDocumentNew()->cursor().positionChanged.connect(this, [&](REDasm::EventArgs*) {
+    r_evt::subscribe(REDasm::StandardEvents::Cursor_PositionChanged, this, [&](const REDasm::EventArgs*) {
         QMetaObject::invokeMethod(this, "moveToSelection", Qt::QueuedConnection);
     });
 
@@ -109,7 +111,7 @@ void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disass
     m_disassemblerpopup = new DisassemblerPopup(m_disassembler, this);
 
     if(!m_disassembler->busy())
-        this->currentDocumentNew()->cursor().positionChanged();
+        r_evt::trigger(REDasm::StandardEvents::Cursor_PositionChanged);
 }
 
 void DisassemblerTextView::copy()
@@ -418,9 +420,9 @@ void DisassemblerTextView::paintLines(QPainter *painter, size_t first, size_t la
     m_renderer->render(first, count, painter);
 }
 
-void DisassemblerTextView::onDocumentChanged(REDasm::EventArgs *e)
+void DisassemblerTextView::onDocumentChanged(const REDasm::EventArgs *e)
 {
-    REDasm::ListingDocumentChangedEventArgs *ldc = static_cast<REDasm::ListingDocumentChangedEventArgs*>(e);
+    const auto* ldc = static_cast<const REDasm::ListingDocumentChangedEventArgs*>(e);
 
     this->currentDocumentNew()->cursor().clearSelection();
     this->adjustScrollBars();

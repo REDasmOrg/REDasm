@@ -33,7 +33,6 @@ class DisassemblerView : public QWidget
         void clearFilter();
 
     private slots:
-        void changeDisassemblerStatus();
         void checkDisassemblerStatus();
         void modelIndexSelected(const QModelIndex& index);
         void checkHexEdit(int index);

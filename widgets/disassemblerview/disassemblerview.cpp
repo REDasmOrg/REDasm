@@ -121,7 +121,7 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     this->createActions();
 }
 
-DisassemblerView::~DisassemblerView() { delete ui; }
+DisassemblerView::~DisassemblerView() { r_evt::ungroup(this); delete ui; }
 REDasm::Disassembler *DisassemblerView::disassembler() { return m_disassembler.get(); }
 
 void DisassemblerView::bindDisassembler(REDasm::Disassembler *disassembler)
@@ -143,15 +143,15 @@ void DisassemblerView::bindDisassembler(REDasm::Disassembler *disassembler)
 
     ui->stackedWidget->currentWidget()->setFocus();
 
-    m_disassembler->busyChanged.connect(this, [&](REDasm::EventArgs*) {
+    r_evt::subscribe(REDasm::StandardEvents::Disassembler_BusyChanged, this, [&](const REDasm::EventArgs*) {
         QMetaObject::invokeMethod(this, "checkDisassemblerStatus", Qt::QueuedConnection);
     });
 
-    r_docnew->cursor().backChanged.connect(this, [&](REDasm::EventArgs*) {
+    r_evt::subscribe(REDasm::StandardEvents::Cursor_BackChanged, this, [&](const REDasm::EventArgs*) {
         m_actions->setEnabled(DisassemblerViewActions::BackAction, r_docnew->cursor().canGoBack());
     });
 
-    r_docnew->cursor().forwardChanged.connect(this, [&](REDasm::EventArgs*) {
+    r_evt::subscribe(REDasm::StandardEvents::Cursor_ForwardChanged, this, [&](const REDasm::EventArgs*) {
         m_actions->setEnabled(DisassemblerViewActions::ForwardAction, r_docnew->cursor().canGoForward());
     });
 
@@ -167,16 +167,6 @@ void DisassemblerView::bindDisassembler(REDasm::Disassembler *disassembler)
 }
 
 void DisassemblerView::hideActions() { if(m_actions) m_actions->hideActions(); }
-
-void DisassemblerView::changeDisassemblerStatus()
-{
-    switch(r_disasm->state())
-    {
-        case REDasm::JobState::ActiveState: m_disassembler->pause(); break;
-        case REDasm::JobState::PausedState: m_disassembler->resume(); break;
-        default: break;
-    }
-}
 
 void DisassemblerView::checkDisassemblerStatus()
 {

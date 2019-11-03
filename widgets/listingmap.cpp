@@ -55,16 +55,14 @@ void ListingMap::drawLabels(QPainter* painter)
 {
     QPalette palette = this->palette();
     QFontMetrics fm = painter->fontMetrics();
-    auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
+    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
 
     painter->setPen(palette.color(QPalette::HighlightedText));
 
-    for(size_t i = 0; i < lock->segments().size(); i++)
+    for(size_t i = 0; i < lock->segmentsCount(); i++)
     {
-        const REDasm::Segment* segment = variant_object<REDasm::Segment>(lock->segments()[i]);
-
-        if(segment->is(REDasm::SegmentType::Bss))
-            continue;
+        const REDasm::Segment* segment = lock->segmentAt(i);
+        if(segment->is(REDasm::SegmentType::Bss)) continue;
 
         int pos = this->calculatePosition(segment->offset);
         int segmentsize = this->calculateSize(segment->size());
@@ -95,35 +93,31 @@ void ListingMap::drawLabels(QPainter* painter)
 
 void ListingMap::renderSegments(QPainter* painter)
 {
-    auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
+    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
 
-    for(size_t i = 0; i < lock->segments().size(); i++)
+    for(size_t i = 0; i < lock->segmentsCount(); i++)
     {
-        const REDasm::Segment* segment = variant_object<REDasm::Segment>(lock->segments()[i]);
-
-        if(segment->is(REDasm::SegmentType::Bss))
-            continue;
+        const REDasm::Segment* segment = lock->segmentAt(i);
+        if(segment->is(REDasm::SegmentType::Bss)) continue;
 
         QRect r = this->buildRect(this->calculatePosition(segment->offset),
                                   this->calculateSize(segment->size()));
 
-        if(segment->is(REDasm::SegmentType::Code))
-            painter->fillRect(r, THEME_VALUE("label_fg"));
-        else
-            painter->fillRect(r, THEME_VALUE("data_fg"));
+        if(segment->is(REDasm::SegmentType::Code)) painter->fillRect(r, THEME_VALUE("label_fg"));
+        else painter->fillRect(r, THEME_VALUE("data_fg"));
     }
 }
 
 void ListingMap::renderFunctions(QPainter *painter)
 {
-    auto lock = REDasm::s_lock_safe_ptr(m_disassembler->document());
+    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
     size_t fsize = (m_orientation == Qt::Horizontal ? this->height() : this->width()) / 2;
 
-    for(size_t i = 0; i < lock->functions()->size(); i++)
+    for(size_t i = 0; i < lock->functionsCount(); i++)
     {
-        address_t address = lock->functions()->at(i);
+        address_t address = lock->functionAt(i);
         const REDasm::Symbol* symbol = lock->symbol(address);
-        const REDasm::FunctionGraph* g = lock->functions()->graph(address);
+        const REDasm::FunctionGraph* g = lock->graph(address);
         if(!g) continue;
 
         g->nodes().each([&](REDasm::Node n) {
@@ -131,7 +125,7 @@ void ListingMap::renderFunctions(QPainter *painter)
             if(!fbb) return;
 
             REDasm::ListingItem startitem = fbb->startItem();
-            QRect r = this->buildRect(this->calculatePosition(m_disassembler->loader()->offset(startitem.address_new)), this->calculateSize(fbb->count()));
+            QRect r = this->buildRect(this->calculatePosition(r_ldr->offset(startitem.address_new)), this->calculateSize(fbb->count()));
 
             if(m_orientation == Qt::Horizontal) r.setHeight(fsize);
             else r.setWidth(fsize);
@@ -144,15 +138,11 @@ void ListingMap::renderFunctions(QPainter *painter)
 
 void ListingMap::renderSeek(QPainter *painter)
 {
-    const REDasm::ListingItem* item = m_disassembler->document()->currentItem();
+    REDasm::ListingItem item = r_docnew->currentItem();
+    if(!item.isValid()) return;
 
-    if(!item)
-        return;
-
-    offset_location offset  = m_disassembler->loader()->offset(item->address_new);
-
-    if(!offset.valid)
-        return;
+    offset_location offset  = r_ldr->offset(item.address_new);
+    if(!offset.valid) return;
 
     QColor seekcolor = THEME_VALUE("seek");
     seekcolor.setAlphaF(0.4);
@@ -169,9 +159,7 @@ void ListingMap::renderSeek(QPainter *painter)
 
 void ListingMap::paintEvent(QPaintEvent *)
 {
-    if(!m_disassembler)
-        return;
-
+    if(!r_disasm) return;
     this->checkOrientation();
 
     QPainter painter(this);
@@ -180,12 +168,12 @@ void ListingMap::paintEvent(QPaintEvent *)
 
     this->renderSegments(&painter);
 
-    if(!m_disassembler->busy()) // Don't render functions when disassembler is busy
+    if(!r_disasm->busy()) // Don't render functions when disassembler is busy
         this->renderFunctions(&painter);
 
     this->drawLabels(&painter);
 
-    if(!m_disassembler->busy()) // Don't render seek when disassembler is busy
+    if(!r_disasm->busy()) // Don't render seek when disassembler is busy
         this->renderSeek(&painter);
 }
 

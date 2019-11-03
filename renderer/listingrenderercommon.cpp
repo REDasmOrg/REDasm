@@ -28,7 +28,7 @@ void ListingRendererCommon::select(const QPointF &pos)
 REDasm::ListingCursor::Position ListingRendererCommon::hitTest(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp;
-    cp.line = std::min(static_cast<size_t>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), r_doc->lastLine());
+    cp.line = std::min(static_cast<size_t>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), r_docnew->itemsCount() - 1);
     cp.column = std::numeric_limits<size_t>::max();
 
     REDasm::RendererLine rl(true);

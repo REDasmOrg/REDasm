@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QTextDocument>
-#include <redasm/graph/functiongraph.h>
+#include <redasm/disassembler/model/functiongraph.h>
 #include "../../../renderer/listingdocumentrenderer.h"
 #include "../../../disassembleractions.h"
 #include "../graphviewitem.h"

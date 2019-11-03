@@ -1,7 +1,7 @@
 #include "listingmap.h"
 #include "../themeprovider.h"
 #include "../convert.h"
-#include <redasm/graph/functiongraph.h>
+#include <redasm/disassembler/model/functiongraph.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/context.h>
 #include <QPainter>

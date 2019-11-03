@@ -412,17 +412,13 @@ void DisassemblerView::selectToHexDump(address_t address, u64 len)
 
 void DisassemblerView::showMenu(const QPoint&)
 {
-    if(m_disassembler->busy())
-        return;
-
+    if(r_disasm->busy()) return;
     m_contextmenu->exec(QCursor::pos());
 }
 
 void DisassemblerView::showGoto()
 {
-    if(m_disassembler->busy())
-        return;
-
+    if(r_disasm->busy()) return;
     GotoDialog dlggoto(m_disassembler, this);
     connect(&dlggoto, &GotoDialog::symbolSelected, this, &DisassemblerView::goTo);
 
@@ -441,9 +437,10 @@ void DisassemblerView::goBack() { r_docnew->cursor().goBack(); }
 REDasm::ListingItem DisassemblerView::itemFromIndex(const QModelIndex &index) const
 {
     const ListingFilterModel* filtermodel = dynamic_cast<const ListingFilterModel*>(index.model());
+    if(filtermodel) return filtermodel->item(index);
 
-    if(filtermodel)
-        return filtermodel->item(index);
+    const CallTreeModel* calltreemodel = dynamic_cast<const CallTreeModel*>(index.model());
+    if(calltreemodel) return calltreemodel->item(index);
 
     const GotoModel* gotomodel = dynamic_cast<const GotoModel*>(index.model());
     if(gotomodel) return r_docnew->itemAt(index.row());

@@ -1,11 +1,9 @@
-#ifndef CALLTREEMODEL_H
-#define CALLTREEMODEL_H
+#pragma once
 
 #include <QAbstractItemModel>
-#include <QHash>
-#include <redasm/disassembler/disassembler.h>
 #include <redasm/plugins/assembler/printer/printer.h>
-#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/model/calltree.h>
+#include <redasm/disassembler/disassembler.h>
 
 class CallTreeModel : public QAbstractItemModel
 {
@@ -13,21 +11,11 @@ class CallTreeModel : public QAbstractItemModel
 
     public:
         explicit CallTreeModel(QObject *parent = nullptr);
-        void setDisassembler(const REDasm::DisassemblerPtr& disassembler);
+        const REDasm::ListingItem& item(const QModelIndex& index) const;
+        void setDisassembler(const REDasm::DisassemblerPtr&);
         void initializeGraph(address_t address);
-        void clearGraph();
-
-    public slots:
-        void populateCallGraph(const QModelIndex& index);
-
-    private:
-        void populate(REDasm::ListingItem *parentitem);
-        bool isDuplicate(const QModelIndex& index) const;
-        int getParentIndexFromChild(REDasm::ListingItem *childitem) const;
-        int getParentIndex(REDasm::ListingItem *parentitem) const;
 
     public:
-        address_location getCallTarget(const REDasm::ListingItem *item) const;
         bool hasChildren(const QModelIndex& parentindex) const override;
         QModelIndex index(int row, int column, const QModelIndex &parent) const override;
         QModelIndex parent(const QModelIndex &child) const override;
@@ -36,13 +24,11 @@ class CallTreeModel : public QAbstractItemModel
         int columnCount(const QModelIndex& parent) const override;
         int rowCount(const QModelIndex& parent) const override;
 
+    public slots:
+        void populateCallGraph(const QModelIndex& index);
+
     private:
         REDasm::object_ptr<REDasm::Printer> m_printer;
-        REDasm::DisassemblerPtr m_disassembler;
-        REDasm::ListingItem* m_root;
-        QHash<REDasm::ListingItem*, s32> m_depths;
-        QHash<REDasm::ListingItem*, REDasm::SortedList> m_children;
-        QHash<REDasm::ListingItem*, REDasm::ListingItem*> m_parents;
+        std::unique_ptr<REDasm::CallTree> m_calltree;
+        REDasm::ListingItem m_currentitem;
 };
-
-#endif // CALLTREEMODEL_H

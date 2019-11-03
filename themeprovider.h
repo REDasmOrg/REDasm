@@ -1,5 +1,4 @@
-#ifndef THEMEPROVIDER_H
-#define THEMEPROVIDER_H
+#pragma once
 
 #define THEME_ICON(n)  ThemeProvider::icon(n)
 #define THEME_VALUE(n) ThemeProvider::themeValue(n)
@@ -37,5 +36,3 @@ class ThemeProvider
     private:
         static QJsonObject m_theme;
 };
-
-#endif // THEMEPROVIDER_H

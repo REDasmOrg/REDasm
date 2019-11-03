@@ -2,7 +2,7 @@
 
 #include <QAbstractScrollArea>
 #include <QList>
-#include <redasm/graph/functiongraph.h>
+#include <redasm/disassembler/model/functiongraph.h>
 #include "disassemblerblockitem.h"
 #include "../graphview.h"
 

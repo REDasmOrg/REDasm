@@ -86,13 +86,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Blocks, &QAction::triggered, this, &MainWindow::onBlocksClicked);
     connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
 
-    // connect(ui->action_Step, &QAction::triggered, this, [&]() {
-    //     if(!r_disasm) return;
-
-    //     r_disasm->resume();
-    //     this->checkDisassemblerStatus();
-    // });
-
     connect(ui->action_Report_Bug, &QAction::triggered, this, []() {
         QDesktopServices::openUrl(QUrl("https://github.com/REDasmOrg/REDasm/issues"));
     });
@@ -389,11 +382,9 @@ void MainWindow::initShortcuts()
 
 void MainWindow::setStandardActionsEnabled(bool b)
 {
-    bool step = r_ctx->hasFlag(REDasm::ContextFlags::StepDisassembly);
-
-    ui->action_Save->setEnabled(step || b);
-    ui->action_Save_As->setEnabled(step || b);
-    ui->action_Signatures->setEnabled(step || b);
+    ui->action_Save->setEnabled(b);
+    ui->action_Save_As->setEnabled(b);
+    ui->action_Signatures->setEnabled(b);
     ui->menu_Development->setEnabled(this->currentDisassemblerView() || b);
 }
 
@@ -475,8 +466,6 @@ void MainWindow::selectLoader(const REDasm::LoadRequest& request)
 {
     LoaderDialog dlgloader(request, this);
     if(dlgloader.exec() != LoaderDialog::Accepted) return;
-
-    ui->action_Step->setEnabled(r_ctx->hasFlag(REDasm::ContextFlags::StepDisassembly));
 
     const REDasm::PluginInstance *assemblerpi = nullptr, *loaderpi = dlgloader.selectedLoader();
     REDasm::Loader* loader = plugin_cast<REDasm::Loader>(loaderpi);
@@ -565,11 +554,7 @@ void MainWindow::checkDisassemblerStatus()
     m_lblstatusicon->setVisible(true);
     m_lblprogress->setVisible(r_disasm->busy());
     m_pbproblems->setText(QString::number(r_ctx->problemsCount()) + " problem(s)");
-
-    if(r_ctx->hasFlag(REDasm::ContextFlags::StepDisassembly))
-        m_pbproblems->setVisible(true);
-    else
-        m_pbproblems->setVisible(!r_disasm->busy() && r_ctx->hasProblems());
+    m_pbproblems->setVisible(!r_disasm->busy() && r_ctx->hasProblems());
 
     this->setStandardActionsEnabled(!r_disasm->busy());
     ui->action_Close->setEnabled(true);

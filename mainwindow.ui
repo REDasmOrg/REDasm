@@ -117,7 +117,6 @@
      <property name="title">
       <string>&amp;Development</string>
      </property>
-     <addaction name="action_Step"/>
      <addaction name="separator"/>
      <addaction name="action_Blocks"/>
     </widget>
@@ -517,14 +516,6 @@
   <action name="action_Blocks">
    <property name="text">
     <string>Blocks</string>
-   </property>
-  </action>
-  <action name="action_Step">
-   <property name="text">
-    <string>&amp;Step</string>
-   </property>
-   <property name="shortcut">
-    <string>F8</string>
    </property>
   </action>
  </widget>

@@ -56,6 +56,9 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
+     <property name="tabBarAutoHide">
+      <bool>true</bool>
+     </property>
      <widget class="QWidget" name="tabAddressing">
       <property name="enabled">
        <bool>true</bool>
@@ -112,33 +115,6 @@
           <widget class="QLineEdit" name="leOffset"/>
          </item>
         </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tabDevelopment">
-      <attribute name="title">
-       <string>Development</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QCheckBox" name="chbStepDisassembly">
-         <property name="text">
-          <string>Stepped Disassembly (press F8)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>

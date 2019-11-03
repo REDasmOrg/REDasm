@@ -172,9 +172,3 @@ void LoaderDialog::populateAssemblers()
         ui->cbAssembler->addItem(Convert::to_qstring(pi->descriptor->description), Convert::to_qstring(pi->descriptor->id));
     }
 }
-
-void LoaderDialog::accept()
-{
-    r_ctx->flag(REDasm::ContextFlags::StepDisassembly, ui->chbStepDisassembly->isChecked());
-    QDialog::accept();
-}

@@ -124,7 +124,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
         if(index.column() == 3)
         {
             const REDasm::Segment* segment = lock->segments()->find(symbol->address);
-            return segment ? Convert::to_qstring(segment->name) : "???";
+            return segment ? Convert::to_qstring(segment->name()) : "???";
         }
     }
     else if(role == Qt::BackgroundRole)

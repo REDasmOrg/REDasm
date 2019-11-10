@@ -289,7 +289,7 @@ void DisassemblerView::displayAddress(address_t address)
     const REDasm::Symbol* functionstart = r_docnew->functionStartSymbol(address);
     offset_location offset = r_ldr->offset(address);
 
-    QString segm = segment ? Convert::to_qstring(segment->name) : "UNKNOWN",
+    QString segm = segment ? Convert::to_qstring(segment->name()) : "UNKNOWN",
             offs = segment && offset.valid ? Convert::to_qstring(REDasm::String::hex(offset.value, r_asm->bits())) : "UNKNOWN",
             addr = Convert::to_qstring(REDasm::String::hex(address, r_asm->bits()));
 

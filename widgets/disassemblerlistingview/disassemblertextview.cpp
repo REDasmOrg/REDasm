@@ -116,22 +116,17 @@ void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disass
 
 void DisassemblerTextView::copy()
 {
-    if(!m_actions)
-        return;
-
+    if(!m_actions) return;
     m_actions->copy();
 }
 
 void DisassemblerTextView::renderListing(const QRect &r)
 {
-    if(!m_disassembler || (m_disassembler->busy() && (m_refreshtimerid != -1)))
+    if(!r_disasm || (r_disasm->busy() && (m_refreshtimerid != -1)))
         return;
 
-    if(r.isNull())
-        this->viewport()->update();
-    else
-        this->viewport()->update(r);
-
+    if(r.isNull()) this->viewport()->update();
+    else this->viewport()->update(r);
     m_refreshtimerid = this->startTimer(m_refreshrate);
 }
 
@@ -171,9 +166,7 @@ void DisassemblerTextView::scrollContentsBy(int dx, int dy)
 void DisassemblerTextView::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e)
-
-    if(!m_disassembler || !m_renderer)
-        return;
+    if(!r_disasm || !m_renderer) return;
 
     QFontMetrics fm = this->fontMetrics();
     const QRect& r = e->rect();
@@ -413,8 +406,7 @@ bool DisassemblerTextView::event(QEvent *e)
 
 void DisassemblerTextView::paintLines(QPainter *painter, size_t first, size_t last)
 {
-    if(first > last)
-        return;
+    if(first > last) return;
 
     size_t count = (last - first) + 1;
     m_renderer->render(first, count, painter);
@@ -422,9 +414,10 @@ void DisassemblerTextView::paintLines(QPainter *painter, size_t first, size_t la
 
 void DisassemblerTextView::onDocumentChanged(const REDasm::EventArgs *e)
 {
+    auto lock = REDasm::x_lock_safe_ptr(r_docnew);
     const auto* ldc = static_cast<const REDasm::ListingDocumentChangedEventArgs*>(e);
 
-    this->currentDocumentNew()->cursor().clearSelection();
+    lock->cursor().clearSelection();
     this->adjustScrollBars();
 
     if(ldc->action() != REDasm::ListingDocumentAction::Changed) // Insertion or Deletion
@@ -522,7 +515,7 @@ void DisassemblerTextView::adjustScrollBars()
         return;
 
     QScrollBar* vscrollbar = this->verticalScrollBar();
-    auto lock = REDasm::s_lock_safe_ptr(this->currentDocumentNew());
+    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
     size_t vl = this->visibleLines();
 
     if(lock->itemsCount() <= vl)

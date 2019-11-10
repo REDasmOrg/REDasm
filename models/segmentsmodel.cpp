@@ -28,7 +28,7 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
             case 3: return Convert::to_qstring(REDasm::String::hex(segment->offset, assembler->bits()));
             case 4: return Convert::to_qstring(REDasm::String::hex(segment->endoffset, assembler->bits()));
             case 5: return Convert::to_qstring(REDasm::String::hex(segment->rawSize(), assembler->bits()));
-            case 6: return Convert::to_qstring(segment->name);
+            case 6: return Convert::to_qstring(segment->name());
             case 7: return SegmentsModel::segmentFlags(segment);
             case 8: return (segment->coveragebytes == REDasm::npos) ? "N/A" : (QString::number((static_cast<double>(segment->coveragebytes) /
                                                                                                 static_cast<double>(segment->rawSize())) * 100, 'g', 3) + "%");

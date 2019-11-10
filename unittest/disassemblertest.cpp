@@ -206,7 +206,7 @@ void DisassemblerTest::testOllyDump()
     if(!instruction)
         return;
 
-    TEST("Validating CALL @ 0x00403BEA target", instruction->is(InstructionType::Call) && m_disassembler->getTargetsCount(instruction->address));
+    TEST("Validating CALL @ 0x00403BEA target", instruction->typeIs(InstructionType::Call) && m_disassembler->getTargetsCount(instruction->address));
 
     symbol = m_document->symbol(0x00407730);
     TEST_SYMBOL("Checking if target is pointer", symbol, symbol->is(SymbolType::Pointer));
@@ -292,10 +292,10 @@ void DisassemblerTest::testIoliARM()
     if(!instruction)
         return;
 
-    TEST("Checking LDR's operands count", (instruction->mnemonic == "ldr") && (instruction->operandsCount() >= 2));
+    TEST("Checking LDR's operands count", (instruction->mnemonic() == "ldr") && (instruction->operandscount >= 2));
 
     Operand* op = instruction->op(1);
-    TEST("Checking LDR's operand 2", op->typeIs(OperandType::Memory));
+    TEST("Checking LDR's operand 2", REDasm::typeIs(op, OperandType::Memory));
 
     const Symbol* symbol = m_document->symbol(op->u_value);
     TEST_SYMBOL("Checking LDR's operand 2 symbol", symbol, symbol->is(SymbolType::Data) && symbol->is(SymbolType::Pointer));
@@ -309,10 +309,10 @@ void DisassemblerTest::testIoliARM()
     if(!instruction)
         return;
 
-    TEST("Checking LDR's operands count", (instruction->mnemonic == "ldr") && (instruction->operandsCount() >= 2));
+    TEST("Checking LDR's operands count", (instruction->mnemonic() == "ldr") && (instruction->operandscount >= 2));
 
     op = instruction->op(1);
-    TEST("Checking LDR's operand 2", op->typeIs(OperandType::Memory));
+    TEST("Checking LDR's operand 2", REDasm::typeIs(op, OperandType::Memory));
 
     u64 value = 0;
     symbol = m_document->symbol(op->u_value);

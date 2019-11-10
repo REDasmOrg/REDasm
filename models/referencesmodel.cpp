@@ -66,9 +66,9 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
             {
                 REDasm::CachedInstruction instruction = r_docnew->instruction(item.address_new);
 
-                if(!instruction->is(REDasm::InstructionType::Conditional)) return THEME_VALUE("instruction_jmp_c");
-                else if(instruction->is(REDasm::InstructionType::Jump)) return THEME_VALUE("instruction_jmp");
-                else if(instruction->is(REDasm::InstructionType::Call)) return THEME_VALUE("instruction_call");
+                if(!instruction->typeIs(REDasm::InstructionType::Conditional)) return THEME_VALUE("instruction_jmp_c");
+                else if(instruction->typeIs(REDasm::InstructionType::Jump)) return THEME_VALUE("instruction_jmp");
+                else if(instruction->typeIs(REDasm::InstructionType::Call)) return THEME_VALUE("instruction_call");
             }
             else if(item.is(REDasm::ListingItemType::SymbolItem))
             {

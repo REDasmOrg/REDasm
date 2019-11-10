@@ -66,15 +66,13 @@ REDasm::String ListingRendererCommon::getWordFromPos(const QPointF &pos, REDasm:
 
 void ListingRendererCommon::selectWordAt(const QPointF& pos)
 {
-    auto lock = REDasm::s_lock_safe_ptr(r_doc);
-    REDasm::ListingCursor* cur = lock->cursor();
+    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
+    REDasm::ListingCursor& cur = lock->cursor();
     Range r = this->wordHitTest(pos);
+    if(r.first > r.second) return;
 
-    if(r.first > r.second)
-        return;
-
-    cur->moveTo(cur->currentLine(), r.first);
-    cur->select(cur->currentLine(), r.second);
+    cur.moveTo(cur.currentLine(), r.first);
+    cur.select(cur.currentLine(), r.second);
 }
 
 REDasm::ListingRenderer::Range ListingRendererCommon::wordHitTest(const QPointF &pos)

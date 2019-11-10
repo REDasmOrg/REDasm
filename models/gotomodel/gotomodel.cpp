@@ -89,7 +89,7 @@ QString GotoModel::itemName(const REDasm::ListingItem& item) const
     if(item.is(REDasm::ListingItemType::SegmentItem))
     {
         const REDasm::Segment* segment = r_docnew->segment(item.address_new);
-        if(segment) return Convert::to_qstring(segment->name);
+        if(segment) return Convert::to_qstring(segment->name());
     }
     else if(item.is(REDasm::ListingItemType::FunctionItem) || item.is(REDasm::ListingItemType::SymbolItem))
     {

@@ -80,13 +80,13 @@ void ListingMap::drawLabels(QPainter* painter)
         {
             painter->drawText(pos, 2, segmentsize - w, fm.height(),
                               Qt::AlignLeft | Qt::AlignBottom,
-                              Convert::to_qstring(segment->name));
+                              Convert::to_qstring(segment->name()));
         }
         else
         {
             painter->drawText(2, pos, this->width() - w, fm.height(),
                               Qt::AlignRight | Qt::AlignTop,
-                              Convert::to_qstring(segment->name));
+                              Convert::to_qstring(segment->name()));
         }
     }
 }

@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         ctxsettings.pluginPaths.push_back(REDasm::Path::create(Convert::to_rstring(searchpaths), PLUGINS_FOLDER_NAME));
 
     REDasm::Context::init(ctxsettings);
+    //r_ctx->sync(true);
     this->setViewWidgetsVisible(false);
     ui->leFilter->setVisible(false);
 

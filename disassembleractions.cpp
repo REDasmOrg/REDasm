@@ -179,16 +179,8 @@ void DisassemblerActions::setEnabled(bool b)
 void DisassemblerActions::showCallGraph()
 {
     const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();
-
-    if(!symbol)
-    {
-        REDasm::ListingDocument& document = r_doc;
-        const REDasm::ListingItem* item = document->currentItem();
-        symbol = document->functionStartSymbol(item->address_new);
-    }
-
-    if(symbol)
-        emit callGraphRequested(symbol->address);
+    if(!symbol) symbol = r_docnew->functionStartSymbol(r_docnew->currentItem().address_new);
+    if(symbol) emit callGraphRequested(symbol->address);
 }
 
 void DisassemblerActions::showHexDump()
@@ -265,18 +257,16 @@ void DisassemblerActions::addComment()
 {
     REDasm::ListingItem currentitem =  r_docnew->currentItem();
 
-    //FIXME: r_docnew->comment(currentitem, true);
+    bool ok = false;
+    QString res = QInputDialog::getMultiLineText(this->widget(),
+                                                 "Comment @ " + Convert::to_qstring(REDasm::String::hex(currentitem.address_new)),
+                                                 "Insert a comment (leave blank to remove):",
+                                                 Convert::to_qstring(r_docnew->comment(currentitem.address_new, true)), &ok);
 
-    //FIXME: bool ok = false;
-    //FIXME: QString res = QInputDialog::getMultiLineText(this->widget(),
-                                                 //FIXME: "Comment @ " + Convert::to_qstring(REDasm::String::hex(currentitem->address_new)),
-                                                 //FIXME: "Insert a comment (leave blank to remove):",
-                                                 //FIXME: Convert::to_qstring(r_docnew->comment(currentitem, true)), &ok);
+    if(!ok)
+        return;
 
-    //FIXME: if(!ok)
-        //FIXME: return;
-
-    //FIXME: r_docnew->comment(currentitem, Convert::to_rstring(res));
+    r_docnew->comment(currentitem.address_new, Convert::to_rstring(res));
 }
 
 void DisassemblerActions::goForward() { r_docnew->cursor().goForward(); }

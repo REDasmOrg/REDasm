@@ -31,6 +31,9 @@ class LoaderDialog : public QDialog
         void syncAssembler();
         void populateAssemblers();
 
+    private slots:
+        void onAccepted();
+
     private:
         Ui::LoaderDialog *ui;
         QStandardItemModel* m_loadersmodel;

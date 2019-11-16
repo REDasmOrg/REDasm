@@ -26,6 +26,8 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) 
     this->updateInputMask();
     this->syncAssembler();
 
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &LoaderDialog::onAccepted);
+
     connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&)  {
         this->validateInput();
     });
@@ -38,7 +40,7 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) 
         this->validateInput();
     });
 
-    connect(ui->lvLoaders, &QListView::clicked, this, [&](const QModelIndex& index) {
+    connect(ui->lvLoaders, &QListView::clicked, this, [&](const QModelIndex&) {
         this->checkFlags();
         this->validateInput();
         this->syncAssembler();
@@ -171,4 +173,16 @@ void LoaderDialog::populateAssemblers()
         const REDasm::PluginInstance* pi = m_assemblers.at(i);
         ui->cbAssembler->addItem(Convert::to_qstring(pi->descriptor->description), Convert::to_qstring(pi->descriptor->id));
     }
+}
+
+void LoaderDialog::onAccepted()
+{
+    REDasm::ContextFlags flags = REDasm::ContextFlags::None;
+
+    if(ui->chkNoCFG->isChecked()) flags |= REDasm::ContextFlags::DisableCFG;
+    if(ui->chkNoAnalysis->isChecked()) flags |= REDasm::ContextFlags::DisableAnalyzer;
+    if(ui->chkNoSignatures->isChecked()) flags |= REDasm::ContextFlags::DisableSignature;
+    if(ui->chkNoUnexplored->isChecked()) flags |= REDasm::ContextFlags::DisableUnexplored;
+
+    r_ctx->flags(flags);
 }

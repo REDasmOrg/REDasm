@@ -16,7 +16,7 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,1,0,1,0">
+  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,1,0,0,0">
    <item>
     <widget class="QLabel" name="label_6">
      <property name="text">
@@ -57,7 +57,7 @@
       <number>0</number>
      </property>
      <property name="tabBarAutoHide">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <widget class="QWidget" name="tabAddressing">
       <property name="enabled">
@@ -115,6 +115,41 @@
           <widget class="QLineEdit" name="leOffset"/>
          </item>
         </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabEngine">
+      <attribute name="title">
+       <string>Engine</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QCheckBox" name="chkNoUnexplored">
+         <property name="text">
+          <string>Ignore unexplored blocks</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkNoAnalysis">
+         <property name="text">
+          <string>Skip analysis</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkNoSignatures">
+         <property name="text">
+          <string>Don't load signatures</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkNoCFG">
+         <property name="text">
+          <string>Skip Control Flow Graph</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

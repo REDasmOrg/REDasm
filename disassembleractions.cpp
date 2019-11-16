@@ -35,8 +35,7 @@ void DisassemblerActions::adjustActions()
     if(!symbol)
     {
         symbolsegment = lock->segment(item.address);
-        //symbol = lock->functionStartSymbol(item->address_new);
-        symbol = nullptr; // FIXME: !!!
+        symbol = lock->functionStartSymbol(item.address);
 
         m_actions[DisassemblerActions::Rename]->setVisible(false);
         m_actions[DisassemblerActions::XRefs]->setVisible(false);

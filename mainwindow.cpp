@@ -197,14 +197,10 @@ void MainWindow::onSaveClicked()
 void MainWindow::onSaveAsClicked() // TODO: Handle multiple outputs
 {
     QString s = QFileDialog::getSaveFileName(this, "Save As...", m_fileinfo.fileName(), "REDasm Database (*.rdb)");
-
-    if(s.isEmpty())
-        return;
+    if(s.isEmpty()) return;
 
     DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
-
-    if(!currdv)
-        return;
+    if(!currdv) return;
 
     if(!REDasm::Database::save(currdv->disassembler(), Convert::to_rstring(s), Convert::to_rstring(m_fileinfo.fileName())))
         r_ctx->log(REDasm::Database::lastError());

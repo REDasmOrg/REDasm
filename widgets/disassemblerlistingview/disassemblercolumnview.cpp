@@ -32,7 +32,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
         if(item.is(REDasm::ListingItemType::InstructionItem))
         {
             REDasm::CachedInstruction instruction = r_doc->instruction(item.address);
-            if(!instruction->typeIs(REDasm::InstructionType::Jump)) continue;
+            if(!instruction->isJump()) continue;
 
             REDasm::SortedSet targets = r_disasm->getTargets(instruction->address);
 
@@ -152,14 +152,14 @@ void DisassemblerColumnView::insertPath(const REDasm::ListingItem& fromitem, siz
     auto pair = qMakePair(fromidx, toidx);
     REDasm::CachedInstruction frominstruction = r_doc->instruction(fromitem.address);
 
-    if(!frominstruction || !frominstruction->typeIs(REDasm::InstructionType::Jump) || m_done.contains(pair))
+    if(!frominstruction || !frominstruction->isJump() || m_done.contains(pair))
         return;
 
     m_done.insert(pair);
 
     if(fromidx > toidx) // Loop
     {
-        if(frominstruction->typeIs(REDasm::InstructionType::Conditional))
+        if(frominstruction->isConditional())
             m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_loop_c") });
         else
             m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_loop") });
@@ -167,7 +167,7 @@ void DisassemblerColumnView::insertPath(const REDasm::ListingItem& fromitem, siz
         return;
     }
 
-    if(frominstruction->typeIs(REDasm::InstructionType::Conditional))
+    if(frominstruction->isConditional())
         m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_false") });
     else
         m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge") });

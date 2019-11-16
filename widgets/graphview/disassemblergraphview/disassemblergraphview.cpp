@@ -197,7 +197,7 @@ REDasm::String DisassemblerGraphView::getEdgeLabel(const REDasm::Edge& e) const
     REDasm::CachedInstruction instruction = r_doc->instruction(fromitem.address);
     REDasm::String label;
 
-    if(instruction && instruction->typeIs(REDasm::InstructionType::Conditional))
+    if(instruction && instruction->isConditional())
     {
         const REDasm::ListingItem& toitem = tofbb->startItem();
 

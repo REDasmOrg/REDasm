@@ -10,8 +10,8 @@
     "pointer_fg": "#d95459",
     "type_fg": "#d95459",
 
-    "locked_fg": "#d45c9e",
-    "locked_bg": "#e2ffff",
+    "strong_fg": "#d45c9e",
+    "strong_bg": "#e2ffff",
     "marked_fg": "#d45c9e",
     "marked_bg": "#e2ffff",
     "entrypoint_fg": "#a5c63b",

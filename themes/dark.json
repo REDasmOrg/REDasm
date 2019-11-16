@@ -25,8 +25,8 @@
     "pointer_fg": "#d95459",
     "type_fg": "#d95459",
 
-    "locked_fg": "#d45c9e",
-    "locked_bg": "#34495e",
+    "strong_fg": "#d45c9e",
+    "strong_bg": "#34495e",
     "marked_fg": "#d45c9e",
     "marked_bg": "#34495e",
     "entrypoint_fg": "#d45c9e",

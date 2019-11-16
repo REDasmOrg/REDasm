@@ -77,7 +77,7 @@ QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
         const REDasm::Symbol* symbol = r_doc->symbol(item.address);
 
         if(!symbol) return QColor();
-        if(symbol->is(REDasm::SymbolType::StringNew)) return THEME_VALUE("string_fg");
+        if(symbol->isString()) return THEME_VALUE("string_fg");
         return THEME_VALUE("data_fg");
     }
 

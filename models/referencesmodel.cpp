@@ -72,8 +72,8 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
             else if(item.is(REDasm::ListingItemType::SymbolItem))
             {
                 const REDasm::Symbol* symbol = r_doc->symbol(item.address);
-                if(symbol->is(REDasm::SymbolType::Data)) return THEME_VALUE("data_fg");
-                else if(symbol->is(REDasm::SymbolType::String)) return THEME_VALUE("string_fg");
+                if(symbol->isData()) return THEME_VALUE("data_fg");
+                else if(symbol->isString()) return THEME_VALUE("string_fg");
             }
         }
     }

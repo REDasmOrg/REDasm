@@ -71,23 +71,23 @@ void DisassemblerActions::adjustActions()
     m_actions[DisassemblerActions::CreateFunction]->setText(QString("Create Function @ %1").arg(Convert::to_qstring(REDasm::String::hex(symbol->address))));
     m_actions[DisassemblerActions::CreateFunction]->setVisible(!r_disasm->busy() &&
                                                                (symbolsegment && symbolsegment->is(REDasm::SegmentType::Code)) &&
-                                                               (!symbol->isLocked() && !symbol->isFunction()));
+                                                               (symbol->isWeak() && !symbol->isFunction()));
 
 
     m_actions[DisassemblerActions::FollowPointerHexDump]->setText(QString("Follow %1 pointer in Hex Dump").arg(Convert::to_qstring(symbol->name)));
-    m_actions[DisassemblerActions::FollowPointerHexDump]->setVisible(symbol->is(REDasm::SymbolType::Pointer));
+    m_actions[DisassemblerActions::FollowPointerHexDump]->setVisible(symbol->isPointer());
 
     m_actions[DisassemblerActions::XRefs]->setText(QString("Cross Reference %1").arg(Convert::to_qstring(symbol->name)));
     m_actions[DisassemblerActions::XRefs]->setVisible(!r_disasm->busy());
 
     m_actions[DisassemblerActions::Rename]->setText(QString("Rename %1").arg(Convert::to_qstring(symbol->name)));
-    m_actions[DisassemblerActions::Rename]->setVisible(!r_disasm->busy() && !symbol->isLocked());
+    m_actions[DisassemblerActions::Rename]->setVisible(!r_disasm->busy() && symbol->isWeak());
 
     m_actions[DisassemblerActions::CallGraph]->setText(QString("Callgraph %1").arg(Convert::to_qstring(symbol->name)));
     m_actions[DisassemblerActions::CallGraph]->setVisible(!r_disasm->busy() && symbol->isFunction());
 
     m_actions[DisassemblerActions::Follow]->setText(QString("Follow %1").arg(Convert::to_qstring(symbol->name)));
-    m_actions[DisassemblerActions::Follow]->setVisible(symbol->is(REDasm::SymbolType::Code));
+    m_actions[DisassemblerActions::Follow]->setVisible(symbol->isLabel());
 
     m_actions[DisassemblerActions::Comment]->setVisible(!r_disasm->busy() && item.is(REDasm::ListingItemType::InstructionItem));
 
@@ -144,9 +144,7 @@ void DisassemblerActions::renameSymbolUnderCursor()
         return;
 
     const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();
-
-    if(!symbol || symbol->isLocked())
-        return;
+    if(!symbol || !symbol->isWeak()) return;
 
     QString symbolname = Convert::to_qstring(symbol->name);
     QString res = QInputDialog::getText(this->widget(), QString("Rename %1").arg(symbolname), "Symbol name:", QLineEdit::Normal, symbolname);
@@ -194,8 +192,8 @@ void DisassemblerActions::showHexDump()
 
     u64 len = sizeof(r_asm->addressWidth());
 
-    if(symbol->is(REDasm::SymbolType::String))
-        len = r_disasm->readString(symbol).size();
+    if(symbol->isAsciiString()) len = r_disasm->readString(symbol).size();
+    else if(symbol->isWideString()) len = r_disasm->readWString(symbol).size();
 
     emit hexDumpRequested(symbol->address, len);
 }
@@ -203,9 +201,7 @@ void DisassemblerActions::showHexDump()
 void DisassemblerActions::showReferencesUnderCursor()
 {
     const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();
-
-    if(!symbol)
-        return;
+    if(!symbol) return;
 
     emit referencesRequested(symbol->address);
 }
@@ -214,9 +210,7 @@ void DisassemblerActions::printFunctionHexDump()
 {
     const REDasm::Symbol* symbol = nullptr;
     REDasm::String s = r_disasm->getHexDump(r_doc->currentItem().address, &symbol);
-
-    if(s.empty())
-        return;
+    if(s.empty()) return;
 
     r_ctx->log(symbol->name + ": " + s.quoted());
 }
@@ -224,9 +218,7 @@ void DisassemblerActions::printFunctionHexDump()
 void DisassemblerActions::followPointerHexDump()
 {
     const REDasm::Symbol* symbol = m_renderer->symbolUnderCursor();
-
-    if(!symbol || !symbol->is(REDasm::SymbolType::Pointer))
-        return;
+    if(!symbol || !symbol->isPointer()) return;
 
     u64 destination = 0;
 

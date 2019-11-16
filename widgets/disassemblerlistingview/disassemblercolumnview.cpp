@@ -50,7 +50,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
         else if(item.is(REDasm::ListingItemType::SymbolItem))
         {
             const REDasm::Symbol* symbol = r_doc->symbol(item.address);
-            if(!symbol || !symbol->typeIs(REDasm::SymbolType::LabelNew)) continue;
+            if(!symbol || !symbol->isLabel()) continue;
 
             size_t toidx = r_doc->itemInstructionIndex(item.address);
             if(toidx >= r_doc->itemsCount()) continue;

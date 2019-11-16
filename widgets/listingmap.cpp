@@ -130,8 +130,7 @@ void ListingMap::renderFunctions(QPainter *painter)
             if(m_orientation == Qt::Horizontal) r.setHeight(fsize);
             else r.setWidth(fsize);
 
-            if(symbol->isLocked()) painter->fillRect(r, THEME_VALUE("locked_fg"));
-            else painter->fillRect(r, THEME_VALUE("function_fg"));
+            painter->fillRect(r, THEME_VALUE("function_fg"));
         });
     }
 }

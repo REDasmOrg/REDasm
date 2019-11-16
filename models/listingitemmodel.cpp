@@ -103,12 +103,12 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
         if(index.column() == 1)
         {
-            if(symbol->is(REDasm::SymbolType::StringNew))
+            if(symbol->isString())
             {
                 const REDasm::BlockItem* block = lock->block(symbol->address);
                 if(!block) return QVariant();
 
-                if(symbol->hasFlag(REDasm::SymbolFlags::WideString))
+                if(symbol->isWideString())
                     return Convert::to_qstring(m_disassembler->readWString(symbol->address, block->size()).quoted());
 
                 return Convert::to_qstring(m_disassembler->readString(symbol->address, block->size()).quoted());
@@ -129,12 +129,11 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     else if(role == Qt::BackgroundRole)
     {
         if(symbol->isEntryPoint()) return THEME_VALUE("entrypoint_bg");
-        if(symbol->isFunction() && symbol->isLocked()) return THEME_VALUE("locked_bg");
     }
     else if(role == Qt::ForegroundRole)
     {
         if(index.column() == 0) return THEME_VALUE("address_list_fg");
-        if(symbol->is(REDasm::SymbolType::StringNew) && (index.column() == 1)) return THEME_VALUE("string_fg");
+        if(symbol->isString() && (index.column() == 1)) return THEME_VALUE("string_fg");
     }
 
     return QVariant();

@@ -38,20 +38,20 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 {
     if(!r_disasm || r_disasm->busy()) return QVariant();
 
-    REDasm::ListingItem item = r_docnew->itemInstruction(m_references[index.row()].toU64());
-    if(!item.isValid()) item = r_docnew->itemSymbol(m_references[index.row()].toU64());
+    REDasm::ListingItem item = r_doc->itemInstruction(m_references[index.row()].toU64());
+    if(!item.isValid()) item = r_doc->itemSymbol(m_references[index.row()].toU64());
     if(!item.isValid()) return QVariant();
 
     if(role == Qt::DisplayRole)
     {
-        if(index.column() == 0) return Convert::to_qstring(REDasm::String::hex(item.address_new, r_asm->bits()));
-        else if(index.column() == 1) return this->direction(item.address_new);
+        if(index.column() == 0) return Convert::to_qstring(REDasm::String::hex(item.address, r_asm->bits()));
+        else if(index.column() == 1) return this->direction(item.address);
         else if(index.column() == 2)
         {
             if(item.is(REDasm::ListingItemType::InstructionItem))
-                return Convert::to_qstring(m_printer->out(r_docnew->instruction(item.address_new)).simplified());
+                return Convert::to_qstring(m_printer->out(r_doc->instruction(item.address)).simplified());
             else if(item.is(REDasm::ListingItemType::SymbolItem)) {
-                return Convert::to_qstring(r_docnew->symbol(item.address_new)->name);
+                return Convert::to_qstring(r_doc->symbol(item.address)->name);
             }
         }
     }
@@ -63,7 +63,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         {
             if(item.is(REDasm::ListingItemType::InstructionItem))
             {
-                REDasm::CachedInstruction instruction = r_docnew->instruction(item.address_new);
+                REDasm::CachedInstruction instruction = r_doc->instruction(item.address);
 
                 if(!instruction->typeIs(REDasm::InstructionType::Conditional)) return THEME_VALUE("instruction_jmp_c");
                 else if(instruction->typeIs(REDasm::InstructionType::Jump)) return THEME_VALUE("instruction_jmp");
@@ -71,7 +71,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
             }
             else if(item.is(REDasm::ListingItemType::SymbolItem))
             {
-                const REDasm::Symbol* symbol = r_docnew->symbol(item.address_new);
+                const REDasm::Symbol* symbol = r_doc->symbol(item.address);
                 if(symbol->is(REDasm::SymbolType::Data)) return THEME_VALUE("data_fg");
                 else if(symbol->is(REDasm::SymbolType::String)) return THEME_VALUE("string_fg");
             }
@@ -98,12 +98,12 @@ int ReferencesModel::columnCount(const QModelIndex &) const { return 3; }
 
 QString ReferencesModel::direction(address_t address) const
 {
-    REDasm::ListingItem item = r_docnew->itemAt(r_docnew->cursor().currentLine());
+    REDasm::ListingItem item = r_doc->itemAt(r_doc->cursor().currentLine());
 
     if(item.isValid())
     {
-        if(address > item.address_new) return "Down";
-        if(address < item.address_new) return "Up";
+        if(address > item.address) return "Down";
+        if(address < item.address) return "Up";
     }
 
     return "---";

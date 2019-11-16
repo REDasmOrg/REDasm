@@ -18,7 +18,7 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         const REDasm::Assembler* assembler = m_disassembler->assembler();
-        const REDasm::Segment* segment = m_disassembler->documentNew()->segments()->at(index.row());
+        const REDasm::Segment* segment = m_disassembler->document()->segments()->at(index.row());
 
         switch(index.column())
         {

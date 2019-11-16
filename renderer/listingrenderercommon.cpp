@@ -16,19 +16,19 @@ ListingRendererCommon::ListingRendererCommon(): REDasm::ListingRenderer(), m_fon
 void ListingRendererCommon::moveTo(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos);
-    r_docnew->cursor().moveTo(cp.line, cp.column);
+    r_doc->cursor().moveTo(cp.line, cp.column);
 }
 
 void ListingRendererCommon::select(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp = this->hitTest(pos);
-    r_docnew->cursor().select(cp.line, cp.column);
+    r_doc->cursor().select(cp.line, cp.column);
 }
 
 REDasm::ListingCursor::Position ListingRendererCommon::hitTest(const QPointF &pos)
 {
     REDasm::ListingCursor::Position cp;
-    cp.line = std::min(static_cast<size_t>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), r_docnew->itemsCount() - 1);
+    cp.line = std::min(static_cast<size_t>(m_firstline + std::floor(pos.y() / m_fontmetrics.height())), r_doc->itemsCount() - 1);
     cp.column = std::numeric_limits<size_t>::max();
 
     REDasm::RendererLine rl(true);
@@ -66,7 +66,7 @@ REDasm::String ListingRendererCommon::getWordFromPos(const QPointF &pos, REDasm:
 
 void ListingRendererCommon::selectWordAt(const QPointF& pos)
 {
-    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
     REDasm::ListingCursor& cur = lock->cursor();
     Range r = this->wordHitTest(pos);
     if(r.first > r.second) return;

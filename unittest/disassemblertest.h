@@ -3,7 +3,7 @@
 #include <functional>
 #include <map>
 #include <QStringList>
-#include <redasm/disassembler/listing/document/listingdocumentnew.h>
+#include <redasm/disassembler/listing/document/listingdocument.h>
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/buffer/memorybuffer.h>
 
@@ -44,6 +44,6 @@ class DisassemblerTest
     private:
         TestList m_tests;
         std::unique_ptr<REDasm::Disassembler> m_disassembler;
-        REDasm::ListingDocumentNew m_document;
+        REDasm::ListingDocument m_document;
         REDasm::MemoryBuffer* m_buffer;
 };

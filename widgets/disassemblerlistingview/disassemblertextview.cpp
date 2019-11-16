@@ -63,15 +63,15 @@ DisassemblerTextView::~DisassemblerTextView()
 
 DisassemblerActions *DisassemblerTextView::disassemblerActions() const { return m_actions; }
 REDasm::String DisassemblerTextView::currentWord() const { return m_renderer ? m_renderer->getCurrentWord() : REDasm::String(); }
-bool DisassemblerTextView::canGoBack() const { return this->currentDocumentNew()->cursor().canGoBack(); }
-bool DisassemblerTextView::canGoForward() const { return this->currentDocumentNew()->cursor().canGoForward(); }
+bool DisassemblerTextView::canGoBack() const { return this->currentDocument()->cursor().canGoBack(); }
+bool DisassemblerTextView::canGoForward() const { return this->currentDocument()->cursor().canGoForward(); }
 
 size_t DisassemblerTextView::visibleLines() const
 {
     QFontMetrics fm = this->fontMetrics();
     size_t vl = std::ceil(this->height() / fm.height());
 
-    if((vl <= 1) && (this->currentDocumentNew()->itemsCount() >= DOCUMENT_IDEAL_SIZE))
+    if((vl <= 1) && (this->currentDocument()->itemsCount() >= DOCUMENT_IDEAL_SIZE))
         return DOCUMENT_IDEAL_SIZE;
 
     return vl;
@@ -105,7 +105,7 @@ void DisassemblerTextView::setDisassembler(const REDasm::DisassemblerPtr& disass
     m_actions = new DisassemblerActions(m_renderer.get(), this);
 
     connect(this, &DisassemblerTextView::customContextMenuRequested, this, [&](const QPoint&) {
-        if(!this->currentDocumentNew()->empty()) m_actions->popup(QCursor::pos());
+        if(!this->currentDocument()->empty()) m_actions->popup(QCursor::pos());
     });
 
     m_disassemblerpopup = new DisassemblerPopup(m_disassembler, this);
@@ -137,11 +137,11 @@ void DisassemblerTextView::blinkCursor()
 
     if(m_disassembler->busy())
     {
-        this->currentDocumentNew()->cursor().toggle();
+        this->currentDocument()->cursor().toggle();
         return;
     }
 
-    auto lock = REDasm::s_lock_safe_ptr(this->currentDocumentNew());
+    auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
 
     if(!this->hasFocus())
         lock->cursor().disable();
@@ -189,7 +189,7 @@ void DisassemblerTextView::resizeEvent(QResizeEvent *e)
 
 void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
 {
-    const REDasm::ListingCursor& cur = this->currentDocumentNew()->cursor();
+    const REDasm::ListingCursor& cur = this->currentDocument()->cursor();
 
     if((e->button() == Qt::LeftButton) || (!cur.hasSelection() && (e->button() == Qt::RightButton)))
     {
@@ -197,9 +197,9 @@ void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
         m_renderer->moveTo(e->pos());
     }
     else if(e->button() == Qt::BackButton)
-        this->currentDocumentNew()->cursor().goBack();
+        this->currentDocument()->cursor().goBack();
     else if(e->button() == Qt::ForwardButton)
-        this->currentDocumentNew()->cursor().goForward();
+        this->currentDocument()->cursor().goForward();
 
     QAbstractScrollArea::mousePressEvent(e);
 }
@@ -209,7 +209,7 @@ void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
     if(e->buttons() == Qt::LeftButton)
     {
         e->accept();
-        this->currentDocumentNew()->cursor().disable();
+        this->currentDocument()->cursor().disable();
 
         QPoint pos = e->pos();
         pos.rx() = std::max(0, pos.x());
@@ -261,7 +261,7 @@ void DisassemblerTextView::wheelEvent(QWheelEvent *e)
 
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
-    auto lock = REDasm::s_lock_safe_ptr(this->currentDocumentNew());
+    auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
     REDasm::ListingCursor& cur = lock->cursor();
     cur.enable();
 
@@ -414,7 +414,7 @@ void DisassemblerTextView::paintLines(QPainter *painter, size_t first, size_t la
 
 void DisassemblerTextView::onDocumentChanged(const REDasm::EventArgs *e)
 {
-    auto lock = REDasm::x_lock_safe_ptr(r_docnew);
+    auto lock = REDasm::x_lock_safe_ptr(r_doc);
     const auto* ldc = static_cast<const REDasm::ListingDocumentChangedEventArgs*>(e);
 
     lock->cursor().clearSelection();
@@ -431,12 +431,12 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::EventArgs *e)
         QMetaObject::invokeMethod(this, "renderLine", Qt::QueuedConnection, Q_ARG(size_t, ldc->index));
 }
 
-REDasm::ListingDocumentNew& DisassemblerTextView::currentDocumentNew() { return m_disassembler->documentNew(); }
-const REDasm::ListingDocumentNew& DisassemblerTextView::currentDocumentNew() const { return m_disassembler->documentNew(); }
+REDasm::ListingDocument& DisassemblerTextView::currentDocument() { return m_disassembler->document(); }
+const REDasm::ListingDocument& DisassemblerTextView::currentDocument() const { return m_disassembler->document(); }
 
 const REDasm::Symbol* DisassemblerTextView::symbolUnderCursor()
 {
-    auto lock = REDasm::s_lock_safe_ptr(this->currentDocumentNew());
+    auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
     return lock->symbol(m_renderer->getCurrentWord());
 }
 
@@ -515,7 +515,7 @@ void DisassemblerTextView::adjustScrollBars()
         return;
 
     QScrollBar* vscrollbar = this->verticalScrollBar();
-    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
     size_t vl = this->visibleLines();
 
     if(lock->itemsCount() <= vl)
@@ -528,7 +528,7 @@ void DisassemblerTextView::adjustScrollBars()
 
 void DisassemblerTextView::moveToSelection()
 {
-    auto lock = REDasm::s_lock_safe_ptr(this->currentDocumentNew());
+    auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
     if(lock->empty()) return;
 
     REDasm::ListingCursor& cur = lock->cursor();
@@ -547,7 +547,7 @@ void DisassemblerTextView::moveToSelection()
     REDasm::ListingItem item = lock->itemAt(cur.currentLine());
 
     if(item.isValid())
-        emit addressChanged(item.address_new);
+        emit addressChanged(item.address);
 }
 
 void DisassemblerTextView::ensureColumnVisible()
@@ -555,7 +555,7 @@ void DisassemblerTextView::ensureColumnVisible()
     if(!m_disassembler)
         return;
 
-    auto lock = REDasm::s_lock_safe_ptr(this->currentDocumentNew());
+    auto lock = REDasm::s_lock_safe_ptr(this->currentDocument());
     const REDasm::ListingCursor& cur = lock->cursor();
     size_t xpos = 0;
 
@@ -568,7 +568,7 @@ void DisassemblerTextView::ensureColumnVisible()
 
 void DisassemblerTextView::showPopup(const QPoint& pos)
 {
-    if(this->currentDocumentNew()->empty()) return;
+    if(this->currentDocument()->empty()) return;
 
     REDasm::String word = m_renderer->getWordFromPos(pos);
 

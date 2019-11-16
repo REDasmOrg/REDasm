@@ -55,7 +55,7 @@ void ListingMap::drawLabels(QPainter* painter)
 {
     QPalette palette = this->palette();
     QFontMetrics fm = painter->fontMetrics();
-    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
 
     painter->setPen(palette.color(QPalette::HighlightedText));
 
@@ -93,7 +93,7 @@ void ListingMap::drawLabels(QPainter* painter)
 
 void ListingMap::renderSegments(QPainter* painter)
 {
-    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
 
     for(size_t i = 0; i < lock->segmentsCount(); i++)
     {
@@ -110,7 +110,7 @@ void ListingMap::renderSegments(QPainter* painter)
 
 void ListingMap::renderFunctions(QPainter *painter)
 {
-    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
     size_t fsize = (m_orientation == Qt::Horizontal ? this->height() : this->width()) / 2;
 
     for(size_t i = 0; i < lock->functionsCount(); i++)
@@ -125,7 +125,7 @@ void ListingMap::renderFunctions(QPainter *painter)
             if(!fbb) return;
 
             REDasm::ListingItem startitem = fbb->startItem();
-            QRect r = this->buildRect(this->calculatePosition(r_ldr->offset(startitem.address_new)), this->calculateSize(fbb->count()));
+            QRect r = this->buildRect(this->calculatePosition(r_ldr->offset(startitem.address)), this->calculateSize(fbb->count()));
 
             if(m_orientation == Qt::Horizontal) r.setHeight(fsize);
             else r.setWidth(fsize);
@@ -138,10 +138,10 @@ void ListingMap::renderFunctions(QPainter *painter)
 
 void ListingMap::renderSeek(QPainter *painter)
 {
-    REDasm::ListingItem item = r_docnew->currentItem();
+    REDasm::ListingItem item = r_doc->currentItem();
     if(!item.isValid()) return;
 
-    offset_location offset  = r_ldr->offset(item.address_new);
+    offset_location offset  = r_ldr->offset(item.address);
     if(!offset.valid) return;
 
     QColor seekcolor = THEME_VALUE("seek");

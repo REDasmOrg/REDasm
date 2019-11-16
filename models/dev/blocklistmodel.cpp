@@ -32,7 +32,7 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
 {
     if(role == Qt::DisplayRole)
     {
-        const REDasm::BlockItem* bi = r_docnew->blocks()->at(index.row());
+        const REDasm::BlockItem* bi = r_doc->blocks()->at(index.row());
 
         switch(index.column())
         {
@@ -56,20 +56,20 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
 }
 
 int BlockListModel::columnCount(const QModelIndex&) const { return 5; }
-int BlockListModel::rowCount(const QModelIndex&) const { return r_docnew->blocksCount(); }
+int BlockListModel::rowCount(const QModelIndex&) const { return r_doc->blocksCount(); }
 
 QString BlockListModel::symbolName(const QModelIndex& index) const
 {
-    const REDasm::BlockItem* bi = r_docnew->blocks()->at(index.row());
-    const REDasm::Symbol* symbol = r_docnew->symbol(bi->start);
+    const REDasm::BlockItem* bi = r_doc->blocks()->at(index.row());
+    const REDasm::Symbol* symbol = r_doc->symbol(bi->start);
     if(symbol) return Convert::to_qstring(symbol->name);
     return QString();
 }
 
 QString BlockListModel::segmentName(int section) const
 {
-    const REDasm::BlockItem* bi = r_docnew->blocks()->at(section);
-    const REDasm::Segment* segment = r_docnew->segment(bi->start);
+    const REDasm::BlockItem* bi = r_doc->blocks()->at(section);
+    const REDasm::Segment* segment = r_doc->segment(bi->start);
     if(segment) return Convert::to_qstring(segment->name());
     return QString();
 }

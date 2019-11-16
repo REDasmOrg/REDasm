@@ -2,7 +2,7 @@
 
 #include <QList>
 #include "disassemblermodel.h"
-#include <redasm/disassembler/listing/document/listingdocumentnew.h>
+#include <redasm/disassembler/listing/document/listingdocument.h>
 #include <redasm/disassembler/listing/backend/listingitems.h>
 
 class ListingItemModel : public DisassemblerModel

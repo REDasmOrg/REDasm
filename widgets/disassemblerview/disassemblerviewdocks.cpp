@@ -49,11 +49,11 @@ void DisassemblerViewDocks::initializeCallGraph(address_t address)
 
 void DisassemblerViewDocks::updateCallGraph()
 {
-    if(r_disasm->busy() || m_calltreeview->visibleRegion().isEmpty() || !r_docnew->currentItem().isValid())
+    if(r_disasm->busy() || m_calltreeview->visibleRegion().isEmpty() || !r_doc->currentItem().isValid())
         return;
 
-    REDasm::ListingItem item = r_docnew->functionStart(r_docnew->currentItem().address_new);
-    m_calltreemodel->initializeGraph(item.address_new);
+    REDasm::ListingItem item = r_doc->functionStart(r_doc->currentItem().address);
+    m_calltreemodel->initializeGraph(item.address);
     m_calltreeview->expandToDepth(0);
 }
 

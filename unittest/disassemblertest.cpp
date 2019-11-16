@@ -134,7 +134,7 @@ void DisassemblerTest::runCurrentTest(const String& filepath, const TestCallback
     assembler->init(loader->assembler());
 
     m_disassembler = std::make_unique<Disassembler>(assembler, loader);
-    m_document = m_disassembler->documentNew();
+    m_document = m_disassembler->document();
 
     cout << "->> Disassembler...";
     m_disassembler->disassemble();

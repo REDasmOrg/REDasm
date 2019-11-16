@@ -1,5 +1,5 @@
 #include "gotofiltermodel.h"
-#include <redasm/disassembler/listing/document/listingdocumentnew.h>
+#include <redasm/disassembler/listing/document/listingdocument.h>
 
 GotoFilterModel::GotoFilterModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
@@ -13,12 +13,12 @@ void GotoFilterModel::setDisassembler(const REDasm::DisassemblerPtr &disassemble
 bool GotoFilterModel::filterAcceptsRow(int sourcerow, const QModelIndex &sourceparent) const
 {
     const GotoModel* gotomodel = static_cast<const GotoModel*>(this->sourceModel());
-    REDasm::ListingItem item = gotomodel->disassembler()->documentNew()->items()->at(sourcerow);
+    REDasm::ListingItem item = gotomodel->disassembler()->document()->items()->at(sourcerow);
 
     if(!item.isValid())
         return false;
 
-    switch(item.type_new)
+    switch(item.type)
     {
         case REDasm::ListingItemType::SegmentItem:
         case REDasm::ListingItemType::FunctionItem:

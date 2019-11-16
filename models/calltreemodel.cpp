@@ -20,7 +20,7 @@ void CallTreeModel::setDisassembler(const REDasm::DisassemblerPtr&) { m_printer 
 
 void CallTreeModel::initializeGraph(address_t address)
 {
-    REDasm::ListingItem item = r_docnew->functionStart(address);
+    REDasm::ListingItem item = r_doc->functionStart(address);
     if(m_currentitem == item) return;
 
     this->beginResetModel();
@@ -95,25 +95,25 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
     if(!node) return QVariant();
 
     const REDasm::ListingItem& item = node->data;
-    const REDasm::Symbol* symbol = r_docnew->symbol(item.address_new);
+    const REDasm::Symbol* symbol = r_doc->symbol(item.address);
 
     if(item.is(REDasm::ListingItemType::InstructionItem))
     {
-        REDasm::SortedSet refs = r_disasm->getTargets(item.address_new);
-        if(!refs.empty()) symbol = r_docnew->symbol(refs.first().toU64());
+        REDasm::SortedSet refs = r_disasm->getTargets(item.address);
+        if(!refs.empty()) symbol = r_doc->symbol(refs.first().toU64());
     }
 
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return Convert::to_qstring(REDasm::String::hex(item.address_new, r_asm->bits()));
+            return Convert::to_qstring(REDasm::String::hex(item.address, r_asm->bits()));
         else if(index.column() == 1)
         {
             if(item.is(REDasm::ListingItemType::FunctionItem)) return Convert::to_qstring(symbol->name);
-            return Convert::to_qstring(m_printer->out(r_docnew->instruction(item.address_new)));
+            return Convert::to_qstring(m_printer->out(r_doc->instruction(item.address)));
         }
         else if(index.column() == 2)
-            return node == m_calltree.get() ? "---" : QString::number(r_disasm->getReferencesCount(item.address_new));
+            return node == m_calltree.get() ? "---" : QString::number(r_disasm->getReferencesCount(item.address));
     }
     else if((role == Qt::ForegroundRole) && (index.column() == 0)) return THEME_VALUE("address_fg");
     else if((role == Qt::TextAlignmentRole) && (index.column() == 2)) return Qt::AlignCenter;

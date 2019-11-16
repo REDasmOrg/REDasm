@@ -14,14 +14,14 @@ ListingItemModel::~ListingItemModel() { r_evt::ungroup(this); }
 void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
-    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
     this->beginResetModel();
 
     for(size_t i = 0; i < lock->items()->size(); i++)
     {
         const REDasm::ListingItem& item = lock->items()->at(i);
         if(!this->isItemAllowed(item)) continue;
-        m_items.insert(item.address_new);
+        m_items.insert(item.address);
     }
 
     this->endResetModel();
@@ -33,7 +33,7 @@ REDasm::ListingItem ListingItemModel::item(const QModelIndex &index) const
     if(!index.isValid() || (index.row() >= m_items.size()))
         return REDasm::ListingItem();
 
-    auto lock = REDasm::s_lock_safe_ptr(m_disassembler->documentNew());
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
     REDasm::ListingItem item;
 
     if(m_itemtype == REDasm::ListingItemType::SegmentItem)
@@ -91,7 +91,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 {
     if(!index.isValid()) return QVariant();
 
-    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
     const REDasm::Symbol* symbol = lock->symbols()->get(m_items[index.row()].toU64());
 
     if(!symbol) return QVariant();
@@ -157,16 +157,16 @@ void ListingItemModel::onListingChanged(const REDasm::EventArgs* e)
 
     if(ldc->isRemoved())
     {
-        int idx = static_cast<int>(m_items.indexOf(ldc->item.address_new));
+        int idx = static_cast<int>(m_items.indexOf(ldc->item.address));
         this->beginRemoveRows(QModelIndex(), idx, idx);
         m_items.eraseAt(static_cast<size_t>(idx));
         this->endRemoveRows();
     }
     else if(ldc->isInserted())
     {
-        int idx = static_cast<int>(m_items.insertionIndex(ldc->item.address_new));
+        int idx = static_cast<int>(m_items.insertionIndex(ldc->item.address));
         this->beginInsertRows(QModelIndex(), idx, idx);
-        m_items.insert(ldc->item.address_new);
+        m_items.insert(ldc->item.address);
         this->endInsertRows();
     }
 }

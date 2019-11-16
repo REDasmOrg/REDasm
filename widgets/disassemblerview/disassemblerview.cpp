@@ -148,11 +148,11 @@ void DisassemblerView::bindDisassembler(REDasm::Disassembler *disassembler)
     });
 
     r_evt::subscribe(REDasm::StandardEvents::Cursor_BackChanged, this, [&](const REDasm::EventArgs*) {
-        m_actions->setEnabled(DisassemblerViewActions::BackAction, r_docnew->cursor().canGoBack());
+        m_actions->setEnabled(DisassemblerViewActions::BackAction, r_doc->cursor().canGoBack());
     });
 
     r_evt::subscribe(REDasm::StandardEvents::Cursor_ForwardChanged, this, [&](const REDasm::EventArgs*) {
-        m_actions->setEnabled(DisassemblerViewActions::ForwardAction, r_docnew->cursor().canGoForward());
+        m_actions->setEnabled(DisassemblerViewActions::ForwardAction, r_doc->cursor().canGoForward());
     });
 
     connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::gotoDialogRequested, this, &DisassemblerView::showGoto);
@@ -162,8 +162,8 @@ void DisassemblerView::bindDisassembler(REDasm::Disassembler *disassembler)
     connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::itemInformationRequested, this, &DisassemblerView::showCurrentItemInfo);
     connect(m_listingview->textView()->disassemblerActions(), &DisassemblerActions::callGraphRequested, m_docks, &DisassemblerViewDocks::initializeCallGraph);
 
-    m_actions->setEnabled(DisassemblerViewActions::BackAction, r_docnew->cursor().canGoBack());
-    m_actions->setEnabled(DisassemblerViewActions::ForwardAction, r_docnew->cursor().canGoForward());
+    m_actions->setEnabled(DisassemblerViewActions::BackAction, r_doc->cursor().canGoBack());
+    m_actions->setEnabled(DisassemblerViewActions::ForwardAction, r_doc->cursor().canGoForward());
 }
 
 void DisassemblerView::hideActions() { if(m_actions) m_actions->hideActions(); }
@@ -207,7 +207,7 @@ void DisassemblerView::gotoXRef(const QModelIndex &index)
         return;
 
     ui->tabView->setCurrentWidget(ui->tabListing);
-    r_docnew->goTo(static_cast<address_t>(index.internalId()));
+    r_doc->goTo(static_cast<address_t>(index.internalId()));
 }
 
 void DisassemblerView::goTo(const QModelIndex &index)
@@ -217,7 +217,7 @@ void DisassemblerView::goTo(const QModelIndex &index)
     REDasm::ListingItem item = this->itemFromIndex(index);
     if(!item.isValid()) return;
 
-    r_docnew->goTo(item);
+    r_doc->goTo(item);
 
     if(!m_graphview->isCursorInGraph())
         ui->stackedWidget->setCurrentWidget(m_listingview);
@@ -236,11 +236,11 @@ void DisassemblerView::showModelReferences()
 
     if(m_currentindex.model() == m_docks->callTreeModel())
     {
-        REDasm::CachedInstruction instruction = r_docnew->instruction(item.address_new);
-        symbol = r_docnew->symbol(r_disasm->getTarget(instruction->address));
+        REDasm::CachedInstruction instruction = r_doc->instruction(item.address);
+        symbol = r_doc->symbol(r_disasm->getTarget(instruction->address));
     }
     else
-        symbol = r_docnew->symbol(item.address_new);
+        symbol = r_doc->symbol(item.address);
 
     this->showReferences(symbol->address);
 }
@@ -253,7 +253,7 @@ void DisassemblerView::showCurrentItemInfo()
 
 void DisassemblerView::showReferences(address_t address)
 {
-    const REDasm::Symbol* symbol = r_docnew->symbol(address);
+    const REDasm::Symbol* symbol = r_doc->symbol(address);
     if(!symbol) return;
 
     if(!r_disasm->getReferencesCount(symbol->address))
@@ -266,7 +266,7 @@ void DisassemblerView::showReferences(address_t address)
 
     connect(&dlgreferences, &ReferencesDialog::jumpTo, this, [&](address_t address) {
         if(ui->stackedWidget->currentWidget() == m_graphview) {
-            if(r_docnew->itemInstruction(address).isValid()) {
+            if(r_doc->itemInstruction(address).isValid()) {
                 m_graphview->goTo(address);
                 return;
             }
@@ -274,7 +274,7 @@ void DisassemblerView::showReferences(address_t address)
             this->switchGraphListing();
         }
 
-        r_docnew->goTo(address);
+        r_doc->goTo(address);
         ui->tabView->setCurrentWidget(ui->tabListing);
     });
 
@@ -285,8 +285,8 @@ void DisassemblerView::displayAddress(address_t address)
 {
     if(r_disasm->busy()) return;
 
-    const REDasm::Segment* segment = r_docnew->segment(address);
-    const REDasm::Symbol* functionstart = r_docnew->functionStartSymbol(address);
+    const REDasm::Segment* segment = r_doc->segment(address);
+    const REDasm::Symbol* functionstart = r_doc->functionStartSymbol(address);
     offset_location offset = r_ldr->offset(address);
 
     QString segm = segment ? Convert::to_qstring(segment->name()) : "UNKNOWN",
@@ -297,7 +297,7 @@ void DisassemblerView::displayAddress(address_t address)
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
     s += QString::fromWCharArray(L"<b>Segment: </b>%1\u00A0\u00A0").arg(segm);
 
-    if(r_docnew->currentItem().isValid() && functionstart)
+    if(r_doc->currentItem().isValid() && functionstart)
     {
         QString func = Convert::to_qstring(functionstart->name);
 
@@ -318,7 +318,7 @@ void DisassemblerView::displayCurrentReferences()
 
     if(!word.empty())
     {
-        const REDasm::Symbol* symbol = r_docnew->symbol(word);
+        const REDasm::Symbol* symbol = r_doc->symbol(word);
 
         if(symbol)
         {
@@ -327,8 +327,8 @@ void DisassemblerView::displayCurrentReferences()
         }
     }
 
-    REDasm::ListingItem item = r_docnew->itemAt(r_docnew->cursor().currentLine());
-    m_docks->referencesModel()->xref(item.address_new);
+    REDasm::ListingItem item = r_doc->itemAt(r_doc->cursor().currentLine());
+    m_docks->referencesModel()->xref(item.address);
 }
 
 void DisassemblerView::switchGraphListing()
@@ -425,14 +425,14 @@ void DisassemblerView::showGoto()
     if((dlggoto.exec() != GotoDialog::Accepted) || !dlggoto.hasValidAddress())
         return;
 
-    if(r_docnew->goTo(dlggoto.address()))
+    if(r_doc->goTo(dlggoto.address()))
         return;
 
     this->selectToHexDump(dlggoto.address(), m_disassembler->assembler()->addressWidth());
 }
 
-void DisassemblerView::goForward() { r_docnew->cursor().goForward(); }
-void DisassemblerView::goBack() { r_docnew->cursor().goBack(); }
+void DisassemblerView::goForward() { r_doc->cursor().goForward(); }
+void DisassemblerView::goBack() { r_doc->cursor().goBack(); }
 
 REDasm::ListingItem DisassemblerView::itemFromIndex(const QModelIndex &index) const
 {
@@ -443,27 +443,27 @@ REDasm::ListingItem DisassemblerView::itemFromIndex(const QModelIndex &index) co
     if(calltreemodel) return calltreemodel->item(index);
 
     const GotoModel* gotomodel = dynamic_cast<const GotoModel*>(index.model());
-    if(gotomodel) return r_docnew->itemAt(index.row());
+    if(gotomodel) return r_doc->itemAt(index.row());
     return REDasm::ListingItem();
 }
 
 void DisassemblerView::syncHexEdit()
 {
-    REDasm::ListingItem item = r_docnew->currentItem();
+    REDasm::ListingItem item = r_doc->currentItem();
 
     offset_location offset;
     size_t len = 0;
 
     if(item.isValid())
     {
-        offset = m_disassembler->loader()->offset(item.address_new);
+        offset = m_disassembler->loader()->offset(item.address);
 
         bool canbeinstruction = true;
         const REDasm::Symbol* symbol = nullptr;
 
         if(item.is(REDasm::ListingItemType::SymbolItem))
         {
-            symbol = r_docnew->symbol(item.address_new);
+            symbol = r_doc->symbol(item.address);
             canbeinstruction = symbol->is(REDasm::SymbolType::LabelNew);
         }
         else if(item.is(REDasm::ListingItemType::SegmentItem))
@@ -471,7 +471,7 @@ void DisassemblerView::syncHexEdit()
 
         if(canbeinstruction)
         {
-            REDasm::CachedInstruction instruction = r_docnew->instruction(item.address_new);
+            REDasm::CachedInstruction instruction = r_doc->instruction(item.address);
 
             if(!instruction)
                 return;

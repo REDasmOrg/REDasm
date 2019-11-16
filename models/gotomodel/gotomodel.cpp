@@ -20,12 +20,12 @@ QVariant GotoModel::data(const QModelIndex &index, int role) const
     if(!m_disassembler)
         return QVariant();
 
-    REDasm::ListingItem item = m_disassembler->documentNew()->items()->at(index.row());
+    REDasm::ListingItem item = m_disassembler->document()->items()->at(index.row());
 
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return Convert::to_qstring(REDasm::String::hex(item.address_new, r_asm->bits()));
+            return Convert::to_qstring(REDasm::String::hex(item.address, r_asm->bits()));
         if(index.column() == 1)
             return this->itemName(item);
         if(index.column() == 2)
@@ -64,7 +64,7 @@ QVariant GotoModel::headerData(int section, Qt::Orientation orientation, int rol
 }
 
 int GotoModel::columnCount(const QModelIndex &) const { return 3; }
-int GotoModel::rowCount(const QModelIndex &) const { return r_disasm ? r_docnew->items()->size() : 0; }
+int GotoModel::rowCount(const QModelIndex &) const { return r_disasm ? r_doc->items()->size() : 0; }
 
 QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
 {
@@ -74,7 +74,7 @@ QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
 
     if(item.is(REDasm::ListingItemType::SymbolItem))
     {
-        const REDasm::Symbol* symbol = r_docnew->symbol(item.address_new);
+        const REDasm::Symbol* symbol = r_doc->symbol(item.address);
 
         if(!symbol) return QColor();
         if(symbol->is(REDasm::SymbolType::StringNew)) return THEME_VALUE("string_fg");
@@ -88,12 +88,12 @@ QString GotoModel::itemName(const REDasm::ListingItem& item) const
 {
     if(item.is(REDasm::ListingItemType::SegmentItem))
     {
-        const REDasm::Segment* segment = r_docnew->segment(item.address_new);
+        const REDasm::Segment* segment = r_doc->segment(item.address);
         if(segment) return Convert::to_qstring(segment->name());
     }
     else if(item.is(REDasm::ListingItemType::FunctionItem) || item.is(REDasm::ListingItemType::SymbolItem))
     {
-        const REDasm::Symbol* symbol = r_docnew->symbol(item.address_new);
+        const REDasm::Symbol* symbol = r_doc->symbol(item.address);
         if(symbol) return Convert::to_qstring(REDasm::Demangler::demangled(symbol->name));
     }
     //FIXME: else if(item->type() == REDasm::ListingItemType::TypeItem)
@@ -104,7 +104,7 @@ QString GotoModel::itemName(const REDasm::ListingItem& item) const
 
 QString GotoModel::itemType(const REDasm::ListingItem& item) const
 {
-    switch(item.type_new)
+    switch(item.type)
     {
         case REDasm::ListingItemType::SegmentItem:  return "SEGMENT";
         case REDasm::ListingItemType::FunctionItem: return "FUNCTION";

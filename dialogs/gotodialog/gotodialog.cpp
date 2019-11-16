@@ -24,7 +24,7 @@ GotoDialog::GotoDialog(const REDasm::DisassemblerPtr& disassembler, QWidget *par
 
 GotoDialog::~GotoDialog() { delete ui; }
 address_t GotoDialog::address() const { return m_address; }
-bool GotoDialog::hasValidAddress() const { return m_validaddress && r_docnew->segment(m_address); }
+bool GotoDialog::hasValidAddress() const { return m_validaddress && r_doc->segment(m_address); }
 
 void GotoDialog::validateEntry()
 {

@@ -45,7 +45,7 @@ bool DisassemblerPopupWidget::renderPopup(const REDasm::String &word, size_t lin
 
 void DisassemblerPopupWidget::moreRows()
 {
-    if((m_index + m_rows) > r_docnew->itemsCount())
+    if((m_index + m_rows) > r_doc->itemsCount())
         return;
 
     m_rows++;
@@ -71,8 +71,8 @@ void DisassemblerPopupWidget::renderPopup()
 
 size_t DisassemblerPopupWidget::getIndexOfWord(const REDasm::String &word) const
 {
-    const REDasm::Symbol* symbol = r_docnew->symbol(word);
+    const REDasm::Symbol* symbol = r_doc->symbol(word);
     if(!symbol) return REDasm::npos;
-    if(symbol->isFunction()) return r_docnew->itemFunctionIndex(symbol->address);
-    return r_docnew->itemSymbolIndex(symbol->address);
+    if(symbol->isFunction()) return r_doc->itemFunctionIndex(symbol->address);
+    return r_doc->itemSymbolIndex(symbol->address);
 }

@@ -1,11 +1,9 @@
-#ifndef LISTINGRENDERERCOMMON_H
-#define LISTINGRENDERERCOMMON_H
+#pragma once
 
 #include <QFontMetricsF>
 #include <QTextCursor>
 #include <QHash>
 #include <QFont>
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/disassembler/listing/listingrenderer.h>
 
@@ -35,5 +33,3 @@ class ListingRendererCommon: public REDasm::ListingRenderer
         qreal m_maxwidth;
         size_t m_firstline;
 };
-
-#endif // LISTINGRENDERERCOMMON_H

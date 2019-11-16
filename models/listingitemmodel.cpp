@@ -1,5 +1,4 @@
 #include "listingitemmodel.h"
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/demangler.h>
@@ -153,21 +152,21 @@ void ListingItemModel::onListingChanged(const REDasm::EventArgs* e)
 {
     const auto* ldc = static_cast<const REDasm::ListingDocumentChangedEventArgs*>(e);
 
-    if(!this->isItemAllowed(ldc->itemNew()))
+    if(!this->isItemAllowed(ldc->item))
         return;
 
     if(ldc->isRemoved())
     {
-        int idx = static_cast<int>(m_items.indexOf(ldc->itemNew().address_new));
+        int idx = static_cast<int>(m_items.indexOf(ldc->item.address_new));
         this->beginRemoveRows(QModelIndex(), idx, idx);
         m_items.eraseAt(static_cast<size_t>(idx));
         this->endRemoveRows();
     }
     else if(ldc->isInserted())
     {
-        int idx = static_cast<int>(m_items.insertionIndex(ldc->itemNew().address_new));
+        int idx = static_cast<int>(m_items.insertionIndex(ldc->item.address_new));
         this->beginInsertRows(QModelIndex(), idx, idx);
-        m_items.insert(ldc->itemNew().address_new);
+        m_items.insert(ldc->item.address_new);
         this->endInsertRows();
     }
 }

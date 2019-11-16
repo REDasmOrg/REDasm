@@ -1,8 +1,6 @@
-#ifndef DISASSEMBLERPOPUPWIDGET_H
-#define DISASSEMBLERPOPUPWIDGET_H
+#pragma once
 
 #include <QPlainTextEdit>
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/disassembler/disassembler.h>
 #include "../../renderer/listingdocumentrenderer.h"
 
@@ -23,9 +21,6 @@ class DisassemblerPopupWidget : public QPlainTextEdit
 
     private:
         REDasm::DisassemblerPtr m_disassembler;
-        REDasm::ListingDocument& m_document;
         ListingDocumentRenderer* m_documentrenderer;
         size_t m_index, m_rows;
 };
-
-#endif // DISASSEMBLERPOPUPWIDGET_H

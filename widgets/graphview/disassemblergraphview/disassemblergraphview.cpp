@@ -100,8 +100,7 @@ void DisassemblerGraphView::onMenuRequested()
 
 void DisassemblerGraphView::goTo(address_t address)
 {
-    auto& document = m_disassembler->document();
-    document->cursor()->moveTo(document->instructionIndex(address));
+    r_docnew->cursor().moveTo(r_docnew->itemInstructionIndex(address));
     this->renderGraph();
 }
 
@@ -138,11 +137,8 @@ bool DisassemblerGraphView::renderGraph()
 
 void DisassemblerGraphView::mouseReleaseEvent(QMouseEvent *e)
 {
-    if(e->buttons() == Qt::BackButton)
-        m_disassembler->document()->cursor()->goBack();
-    else if(e->buttons() == Qt::ForwardButton)
-        m_disassembler->document()->cursor()->goForward();
-
+    if(e->buttons() == Qt::BackButton) r_docnew->cursor().goBack();
+    else if(e->buttons() == Qt::ForwardButton) r_docnew->cursor().goForward();
     GraphView::mouseReleaseEvent(e);
 }
 
@@ -166,13 +162,10 @@ void DisassemblerGraphView::timerEvent(QTimerEvent *e)
     {
         GraphViewItem* item = this->selectedItem();
 
-        if(!this->viewport()->hasFocus() || !item)
-            m_disassembler->document()->cursor()->disable();
-        else
-            m_disassembler->document()->cursor()->toggle();
+        if(!this->viewport()->hasFocus() || !item) r_docnew->cursor().disable();
+        else r_docnew->cursor().toggle();
 
-        if(item)
-            item->invalidate();
+        if(item) item->invalidate();
     }
 
     GraphView::timerEvent(e);
@@ -200,9 +193,8 @@ REDasm::String DisassemblerGraphView::getEdgeLabel(const REDasm::Edge& e) const
 {
     const REDasm::FunctionBasicBlock* fromfbb = variant_object<REDasm::FunctionBasicBlock>(this->graph()->data(e.source));
     const REDasm::FunctionBasicBlock* tofbb = variant_object<REDasm::FunctionBasicBlock>(this->graph()->data(e.target));
-    REDasm::ListingDocument& document = m_disassembler->document();
     const REDasm::ListingItem& fromitem = fromfbb->endItem();
-    REDasm::CachedInstruction instruction = document->instruction(fromitem.address_new);
+    REDasm::CachedInstruction instruction = r_docnew->instruction(fromitem.address_new);
     REDasm::String label;
 
     if(instruction && instruction->typeIs(REDasm::InstructionType::Conditional))

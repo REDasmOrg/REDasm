@@ -1,10 +1,9 @@
-#ifndef DISASSEMBLERTEST_H
-#define DISASSEMBLERTEST_H
+#pragma once
 
-#include <map>
 #include <functional>
+#include <map>
 #include <QStringList>
-#include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/listing/document/listingdocumentnew.h>
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/buffer/memorybuffer.h>
 
@@ -45,8 +44,6 @@ class DisassemblerTest
     private:
         TestList m_tests;
         std::unique_ptr<REDasm::Disassembler> m_disassembler;
-        REDasm::ListingDocument m_document;
+        REDasm::ListingDocumentNew m_document;
         REDasm::MemoryBuffer* m_buffer;
 };
-
-#endif // DISASSEMBLERTEST_H

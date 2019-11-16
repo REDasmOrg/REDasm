@@ -1,5 +1,6 @@
 #include "disassemblerpopupwidget.h"
 #include "../../redasmsettings.h"
+#include <redasm/context.h>
 #include <QGraphicsDropShadowEffect>
 #include <QFontDatabase>
 #include <QFontMetrics>
@@ -7,7 +8,7 @@
 
 #define DEFAULT_ROW_COUNT 10
 
-DisassemblerPopupWidget::DisassemblerPopupWidget(ListingDocumentRenderer *documentrenderer, const REDasm::DisassemblerPtr &disassembler, QWidget *parent): QPlainTextEdit(parent), m_disassembler(disassembler), m_document(disassembler->document()), m_documentrenderer(documentrenderer), m_index(-1), m_rows(DEFAULT_ROW_COUNT)
+DisassemblerPopupWidget::DisassemblerPopupWidget(ListingDocumentRenderer *documentrenderer, const REDasm::DisassemblerPtr &disassembler, QWidget *parent): QPlainTextEdit(parent), m_disassembler(disassembler), m_documentrenderer(documentrenderer), m_index(-1), m_rows(DEFAULT_ROW_COUNT)
 {
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, palette.color(QPalette::ToolTipBase));
@@ -44,7 +45,7 @@ bool DisassemblerPopupWidget::renderPopup(const REDasm::String &word, size_t lin
 
 void DisassemblerPopupWidget::moreRows()
 {
-    if((m_index + m_rows) > m_document->size())
+    if((m_index + m_rows) > r_docnew->itemsCount())
         return;
 
     m_rows++;
@@ -70,13 +71,8 @@ void DisassemblerPopupWidget::renderPopup()
 
 size_t DisassemblerPopupWidget::getIndexOfWord(const REDasm::String &word) const
 {
-    const REDasm::Symbol* symbol = m_document->symbol(word);
-
-    if(!symbol)
-        return REDasm::npos;
-
-    if(symbol->isFunction())
-        return m_document->functionIndex(symbol->address);
-
-    return m_document->symbolIndex(symbol->address);
+    const REDasm::Symbol* symbol = r_docnew->symbol(word);
+    if(!symbol) return REDasm::npos;
+    if(symbol->isFunction()) return r_docnew->itemFunctionIndex(symbol->address);
+    return r_docnew->itemSymbolIndex(symbol->address);
 }

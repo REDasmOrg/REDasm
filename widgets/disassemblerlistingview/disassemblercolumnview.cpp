@@ -123,8 +123,7 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
 
 bool DisassemblerColumnView::isPathSelected(const DisassemblerColumnView::ArrowPath &path) const
 {
-    auto& document = m_disassembler->document();
-    u64 line = document->cursor()->currentLine();
+    size_t line = r_docnew->cursor().currentLine();
     return (line == path.startidx) || (line == path.endidx);
 }
 

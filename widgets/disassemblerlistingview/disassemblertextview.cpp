@@ -420,15 +420,15 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::EventArgs *e)
     lock->cursor().clearSelection();
     this->adjustScrollBars();
 
-    if(ldc->action() != REDasm::ListingDocumentAction::Changed) // Insertion or Deletion
+    if(ldc->action != REDasm::ListingDocumentAction::Changed) // Insertion or Deletion
     {
-        if(ldc->index() > this->lastVisibleLine()) // Don't care of bottom Insertion/Deletion
+        if(ldc->index > this->lastVisibleLine()) // Don't care of bottom Insertion/Deletion
             return;
 
         QMetaObject::invokeMethod(this, "renderListing", Qt::QueuedConnection);
     }
     else
-        QMetaObject::invokeMethod(this, "renderLine", Qt::QueuedConnection, Q_ARG(size_t, ldc->index()));
+        QMetaObject::invokeMethod(this, "renderLine", Qt::QueuedConnection, Q_ARG(size_t, ldc->index));
 }
 
 REDasm::ListingDocumentNew& DisassemblerTextView::currentDocumentNew() { return m_disassembler->documentNew(); }

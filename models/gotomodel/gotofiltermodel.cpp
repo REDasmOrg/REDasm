@@ -1,5 +1,5 @@
 #include "gotofiltermodel.h"
-#include <redasm/disassembler/listing/listingdocumentnew.h>
+#include <redasm/disassembler/listing/document/listingdocumentnew.h>
 
 GotoFilterModel::GotoFilterModel(QObject *parent) : QSortFilterProxyModel(parent)
 {

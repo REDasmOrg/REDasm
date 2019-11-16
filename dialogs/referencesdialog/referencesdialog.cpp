@@ -1,7 +1,6 @@
 #include "referencesdialog.h"
 #include "ui_referencesdialog.h"
 #include "../../convert.h"
-#include <redasm/disassembler/listing/listingdocument.h>
 
 ReferencesDialog::ReferencesDialog(const REDasm::Symbol* symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog)
 {

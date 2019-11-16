@@ -1,6 +1,5 @@
 #include "referencesmodel.h"
 #include <redasm/disassembler/listing/backend/referencetable.h>
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/utils.h>

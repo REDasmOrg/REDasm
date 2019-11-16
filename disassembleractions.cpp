@@ -1,7 +1,6 @@
 #include "disassembleractions.h"
 #include "../convert.h"
 #include <redasm/disassembler/disassembler.h>
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/support/utils.h>
 #include <redasm/context.h>

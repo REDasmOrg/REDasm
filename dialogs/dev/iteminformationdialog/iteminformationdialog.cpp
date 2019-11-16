@@ -3,7 +3,6 @@
 #include "../../../redasmsettings.h"
 #include "../logsyntaxhighlighter.h"
 #include "../convert.h"
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/support/utils.h>
 
 #define ITEM_TYPE(x)  #x
@@ -59,15 +58,14 @@ QString ItemInformationDialog::itemType(const REDasm::ListingItem *item) const
 
 void ItemInformationDialog::displayInformation()
 {
-    const auto& document = m_disassembler->document();
-    const REDasm::ListingItem* item = document->currentItem();
+    // const REDasm::ListingItem& item = r_docnew->currentItem();
 
-    this->line("document_index", QString::number(document->itemIndex(item)));
-    this->line("address", Convert::to_qstring(REDasm::String::hex(item->address_new)));
-    this->line("type", this->itemType(item));
-    this->line("index", QString::number(item->index_new));
+    // this->line("document_index", QString::number(document->itemIndex(item)));
+    // this->line("address", Convert::to_qstring(REDasm::String::hex(item->address_new)));
+    // this->line("type", this->itemType(item));
+    // this->line("index", QString::number(item->index_new));
 
-    this->line().header("DATA");
+    // this->line().header("DATA");
 
     // this->array("comments", item->data->comments.begin(), item->data->comments.end(),
     //             [&](const std::string& s) -> QString { return QString::fromStdString(s); });

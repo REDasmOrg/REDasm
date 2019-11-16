@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QWidget>
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/disassembler/disassembler.h>
 #include "../../renderer/listingdocumentrenderer.h"
 #include "disassemblerpopupwidget.h"

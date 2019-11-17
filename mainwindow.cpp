@@ -373,8 +373,8 @@ void MainWindow::initShortcuts()
 {
     auto actions = ui->menu_Development->actions();
 
-    for(int i = 2; i < actions.size(); i++)
-        actions[i]->setShortcut(QKeySequence(QString("CTRL+SHIFT+F%1").arg(i - 1)));
+    for(int i = 1; i < actions.size(); i++)
+        actions[i]->setShortcut(QKeySequence(QString("CTRL+SHIFT+F%1").arg(i)));
 }
 
 void MainWindow::setStandardActionsEnabled(bool b)

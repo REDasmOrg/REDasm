@@ -1,5 +1,4 @@
-#ifndef GOTOFILTERMODEL_H
-#define GOTOFILTERMODEL_H
+#pragma once
 
 #include <QSortFilterProxyModel>
 #include "gotomodel.h"
@@ -15,5 +14,3 @@ class GotoFilterModel : public QSortFilterProxyModel
     protected:
         bool filterAcceptsRow(int sourcerow, const QModelIndex &sourceparent) const override;
 };
-
-#endif // GOTOFILTERMODEL_H

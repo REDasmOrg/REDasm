@@ -14,9 +14,7 @@ bool GotoFilterModel::filterAcceptsRow(int sourcerow, const QModelIndex &sourcep
 {
     const GotoModel* gotomodel = static_cast<const GotoModel*>(this->sourceModel());
     REDasm::ListingItem item = gotomodel->disassembler()->document()->items()->at(sourcerow);
-
-    if(!item.isValid())
-        return false;
+    if(!item.isValid()) return false;
 
     switch(item.type)
     {

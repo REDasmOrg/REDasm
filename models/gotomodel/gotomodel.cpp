@@ -96,8 +96,8 @@ QString GotoModel::itemName(const REDasm::ListingItem& item) const
         const REDasm::Symbol* symbol = r_doc->symbol(item.address);
         if(symbol) return Convert::to_qstring(REDasm::Demangler::demangled(symbol->name));
     }
-    //FIXME: else if(item->type() == REDasm::ListingItemType::TypeItem)
-        //FIXME: return Convert::to_qstring(document->type(item));
+    else if(item.type == REDasm::ListingItemType::TypeItem)
+        return Convert::to_qstring(r_doc->type(item.address));
 
     return QString();
 }

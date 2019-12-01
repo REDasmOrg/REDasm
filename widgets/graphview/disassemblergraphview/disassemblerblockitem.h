@@ -3,7 +3,7 @@
 #include <QTextDocument>
 #include <redasm/disassembler/model/functiongraph.h>
 #include "../../../renderer/listingdocumentrenderer.h"
-#include "../../../disassembleractions.h"
+#include "../../../actions/disassembleractions.h"
 #include "../graphviewitem.h"
 
 class DisassemblerBlockItem : public GraphViewItem

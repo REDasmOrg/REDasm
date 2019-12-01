@@ -25,5 +25,7 @@
         <file>res/dark/open.png</file>
         <file>res/dark/save.png</file>
         <file>res/logo_big_dark.png</file>
+        <file>res/fonts/FontAwesomeBrands.otf</file>
+        <file>res/fonts/FontAwesome.otf</file>
     </qresource>
 </RCC>

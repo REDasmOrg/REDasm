@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <redasm/support/utils.h>
 #include <redasm/redasm.h>
+#include "actions/toolbaractions.h"
 #include "widgets/disassemblerview/disassemblerview.h"
 #include "dialogs/loaderdialog/loaderdialog.h"
 
@@ -18,7 +19,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
     public:
-        explicit MainWindow(QWidget *parent = 0);
+        explicit MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
 
     protected:
@@ -32,7 +33,7 @@ class MainWindow : public QMainWindow
         void onOpenClicked();
         void onSaveClicked();
         void onSaveAsClicked();
-        void onRecentFileClicked();
+        void onRecentFileClicked(const QString& filepath);
         void onExitClicked();
         void onSignaturesClicked();
         void onResetLayoutClicked();
@@ -47,12 +48,9 @@ class MainWindow : public QMainWindow
         DisassemblerView* currentDisassemblerView() const;
         REDasm::Disassembler* currentDisassembler() const;
         void loadWindowState();
-        void loadRecents();
         bool loadDatabase(const QString& filepath);
         void load(const QString &filepath);
         void checkCommandLine();
-        void initShortcuts();
-        void setStandardActionsEnabled(bool b);
         void showDisassemblerView(REDasm::Disassembler *disassembler);
         void selectLoader(const REDasm::LoadRequest &request);
         void setViewWidgetsVisible(bool b);
@@ -61,6 +59,7 @@ class MainWindow : public QMainWindow
 
     private:
         Ui::MainWindow *ui;
+        ToolBarActions *m_tbactions;
         QLabel *m_lblstatus, *m_lblprogress, *m_lblstatusicon;
         QFileInfo m_fileinfo;
         QStringList m_recents;

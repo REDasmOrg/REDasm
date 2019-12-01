@@ -5,7 +5,7 @@
 #include <QMenu>
 #include "../../renderer/listingtextrenderer.h"
 #include "../disassemblerpopup/disassemblerpopup.h"
-#include "../disassembleractions.h"
+#include "../actions/disassembleractions.h"
 
 class DisassemblerTextView : public QAbstractScrollArea
 {

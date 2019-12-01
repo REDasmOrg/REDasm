@@ -1,5 +1,4 @@
-#ifndef REDASMSETTINGS_H
-#define REDASMSETTINGS_H
+#pragma once
 
 #define MAX_RECENT_FILES 10
 
@@ -30,5 +29,3 @@ class REDasmSettings : public QSettings
     private:
         static QByteArray m_defaultstate;
 };
-
-#endif // REDASMSETTINGS_H

@@ -34,8 +34,7 @@ void DisassemblerViewActions::setVisible(int actionid, bool b)
 
 void DisassemblerViewActions::findActions(const std::function<void(QAction*)>& cb)
 {
-    if(!m_toolbar)
-        return;
+    if(!m_toolbar) return;
 
     QList<QAction*> actions = m_toolbar->actions();
     auto it = std::find_if(actions.begin(), actions.end(), [](QAction* a) -> bool { return a->isSeparator(); });
@@ -51,7 +50,6 @@ void DisassemblerViewActions::initActions()
         else if(a->objectName().endsWith("Back")) this->showAction(DisassemblerViewActions::BackAction, a, THEME_ICON("back"), &DisassemblerViewActions::backRequested);
         else if(a->objectName().endsWith("Forward")) this->showAction(DisassemblerViewActions::ForwardAction, a, THEME_ICON("forward"), &DisassemblerViewActions::forwardRequested);
         else if(a->objectName().endsWith("Goto")) this->showAction(DisassemblerViewActions::GotoAction, a, THEME_ICON("goto"), &DisassemblerViewActions::gotoRequested);
-        else if(a->objectName().endsWith("Graph")) this->showAction(DisassemblerViewActions::GraphListingAction, a, THEME_ICON("graph"), &DisassemblerViewActions::graphListingRequested);
     });
 }
 

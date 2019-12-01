@@ -17,8 +17,7 @@ void DisassemblerActions::popup(const QPoint &pos) { if(m_renderer) m_contextmen
 
 void DisassemblerActions::adjustActions()
 {
-    if(!m_renderer)
-        return;
+    if(!m_renderer) return;
 
     auto lock = REDasm::s_lock_safe_ptr(r_doc);
     REDasm::ListingItem item = lock->currentItem();

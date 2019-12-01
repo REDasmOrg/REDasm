@@ -40,16 +40,8 @@ void SignaturesDialog::loadSignature(bool)
 {
     const REDasm::String& sigpath = m_signaturefilesmodel->signaturePath(ui->tvFiles->currentIndex());
 
-    if(m_disassembler->loadSignature(sigpath))
-    {
-        m_signaturefilesmodel->mark(ui->tvFiles->currentIndex());
-        return;
-    }
-
-    QMessageBox msgbox(this);
-    msgbox.setWindowTitle("Load Error");
-    msgbox.setText(QString("Error loading '%1'").arg(QFileInfo(Convert::to_qstring(sigpath)).fileName()));
-    msgbox.setStandardButtons(QMessageBox::Ok);
+    m_disassembler->loadSignature(sigpath);
+    m_signaturefilesmodel->mark(ui->tvFiles->currentIndex());
 }
 
 void SignaturesDialog::readSignature(const QModelIndex &index)

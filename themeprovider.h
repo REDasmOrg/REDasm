@@ -1,7 +1,7 @@
 #pragma once
 
-#define THEME_ICON(n)  ThemeProvider::icon(n)
-#define THEME_VALUE(n) ThemeProvider::themeValue(n)
+#define THEME_ICON(n)        ThemeProvider::icon(n)
+#define THEME_VALUE(n)       ThemeProvider::themeValue(n)
 #define THEME_VALUE_COLOR(n) THEME_VALUE(n).name()
 
 #include <QJsonObject>

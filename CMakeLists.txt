@@ -80,6 +80,10 @@ file(GLOB_RECURSE MODELS_SOURCES models/*.cpp)
 file(GLOB_RECURSE RENDERER_HEADERS renderer/*.h)
 file(GLOB_RECURSE RENDERER_SOURCES renderer/*.cpp)
 
+# Actions
+file(GLOB_RECURSE ACTIONS_HEADERS actions/*.h)
+file(GLOB_RECURSE ACTIONS_SOURCES actions/*.cpp)
+
 # UI
 file(GLOB_RECURSE UI_HEADERS ui/*.h)
 file(GLOB_RECURSE UI_SOURCES ui/*.cpp)
@@ -91,13 +95,14 @@ SET(HEADERS
     ${WIDGETS_HEADERS}
     ${DIALOGS_HEADERS}
     ${MODELS_HEADERS}
+    ${ACTIONS_HEADERS}
     ${RENDERER_HEADERS}
     ${UI_HEADERS}
     convert.h
     mainwindow.h
     themeprovider.h
     redasmsettings.h
-    disassembleractions.h)
+    redasmfonts.h)
 
 SET(SOURCES
     ${QHEXVIEW_SOURCES}
@@ -105,13 +110,14 @@ SET(SOURCES
     ${WIDGETS_SOURCES}
     ${DIALOGS_SOURCES}
     ${MODELS_SOURCES}
+    ${ACTIONS_SOURCES}
     ${RENDERER_SOURCES}
     ${UI_SOURCES}
     main.cpp
     mainwindow.cpp
     themeprovider.cpp
     redasmsettings.cpp
-    disassembleractions.cpp)
+    redasmfonts.cpp)
 
 set(FORMS
     ${WIDGETS_UIS}

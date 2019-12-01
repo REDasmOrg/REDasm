@@ -7,6 +7,7 @@
 #include "dialogs/tabledialog/tabledialog.h"
 #include "models/dev/blocklistmodel.h"
 #include "ui/redasmui.h"
+#include "redasmfonts.h"
 #include "redasmsettings.h"
 #include "themeprovider.h"
 #include "convert.h"
@@ -24,7 +25,9 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->toolBar->actions()[3]->setVisible(false); // Hide separator
+    ui->dockListingMap->setTitleBarWidget(new QWidget());
+    m_tbactions = new ToolBarActions(this);
+
     this->tabifyDockWidget(ui->dockFunctions, ui->dockCallTree);
 
     REDasm::ContextSettings ctxsettings;
@@ -45,19 +48,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->setViewWidgetsVisible(false);
     ui->leFilter->setVisible(false);
 
-    ui->action_Open->setIcon(THEME_ICON("open"));
-    ui->action_Save->setIcon(THEME_ICON("save"));
-    ui->action_Signatures->setIcon(THEME_ICON("database"));
-
     m_lblstatus = new QLabel(this);
     m_lblprogress = new QLabel(this);
     m_lblprogress->setVisible(false);
     m_lblprogress->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     m_lblstatusicon = new QLabel(this);
-    m_lblstatusicon->setFixedWidth(ui->statusBar->height() * 0.8);
     m_lblstatusicon->setFixedHeight(ui->statusBar->height() * 0.8);
-    m_lblstatusicon->setText(QString::fromWCharArray(L"\u25cf"));
+    m_lblstatusicon->setFont(FA_FONT);
+    m_lblstatusicon->setText("\uf017");
     m_lblstatusicon->setVisible(false);
 
     m_pbproblems = new QPushButton(this);
@@ -72,31 +71,25 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     this->setAcceptDrops(true);
     this->loadWindowState();
-    this->loadRecents();
     this->checkCommandLine();
-    this->initShortcuts();
 
-    connect(ui->action_Open, &QAction::triggered, this, &MainWindow::onOpenClicked);
-    connect(ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveClicked);
-    connect(ui->action_Save_As, &QAction::triggered, this, &MainWindow::onSaveAsClicked);
-    connect(ui->action_Close, &QAction::triggered, this, &MainWindow::closeFile);
-    connect(ui->action_Exit, &QAction::triggered, this, &MainWindow::onExitClicked);
-    connect(ui->action_Signatures, &QAction::triggered, this, &MainWindow::onSignaturesClicked);
-    connect(ui->action_Reset_Layout, &QAction::triggered, this, &MainWindow::onResetLayoutClicked);
-    connect(ui->action_Settings, &QAction::triggered, this, &MainWindow::onSettingsClicked);
-    connect(ui->action_Blocks, &QAction::triggered, this, &MainWindow::onBlocksClicked);
-    connect(ui->action_About_REDasm, &QAction::triggered, this, &MainWindow::onAboutClicked);
+    connect(m_tbactions, &ToolBarActions::open, this, &MainWindow::onOpenClicked);
+    connect(m_tbactions, &ToolBarActions::save, this, &MainWindow::onSaveClicked);
+    connect(m_tbactions, &ToolBarActions::saveAs, this, &MainWindow::onSaveAsClicked);
+    connect(m_tbactions, &ToolBarActions::close, this, &MainWindow::closeFile);
+    connect(m_tbactions, &ToolBarActions::exit, this, &MainWindow::onExitClicked);
+    connect(m_tbactions, &ToolBarActions::signatures, this, &MainWindow::onSignaturesClicked);
+    connect(m_tbactions, &ToolBarActions::resetLayout, this, &MainWindow::onResetLayoutClicked);
+    connect(m_tbactions, &ToolBarActions::settings, this, &MainWindow::onSettingsClicked);
+    connect(m_tbactions, &ToolBarActions::blocks, this, &MainWindow::onBlocksClicked);
+    connect(m_tbactions, &ToolBarActions::about, this, &MainWindow::onAboutClicked);
+    connect(m_tbactions, &ToolBarActions::loadRecent, this, &MainWindow::load);
 
-    connect(ui->action_Report_Bug, &QAction::triggered, this, []() {
-        QDesktopServices::openUrl(QUrl("https://github.com/REDasmOrg/REDasm/issues"));
-    });
-
-    connect(ui->action_Subscribe_to_r_REDasm, &QAction::triggered, this, []() {
-        QDesktopServices::openUrl(QUrl("https://www.reddit.com/r/REDasm"));
-    });
+    // connect(ui->action_Subscribe_to_r_REDasm, &QAction::triggered, this, []() {
+    //     QDesktopServices::openUrl(QUrl("https://www.reddit.com/r/REDasm"));
+    // });
 
     connect(m_pbproblems, &QPushButton::clicked, this, &MainWindow::showProblems);
-
     qApp->installEventFilter(this);
 }
 
@@ -206,7 +199,7 @@ void MainWindow::onSaveAsClicked() // TODO: Handle multiple outputs
         r_ctx->log(REDasm::Database::lastError());
 }
 
-void MainWindow::onRecentFileClicked()
+void MainWindow::onRecentFileClicked(const QString& filepath)
 {
     QAction* sender = qobject_cast<QAction*>(this->sender());
 
@@ -270,40 +263,6 @@ void MainWindow::loadWindowState()
     this->move(position.topLeft());
 }
 
-void MainWindow::loadRecents()
-{
-    REDasmSettings settings;
-    m_recents = settings.recentFiles();
-    ui->action_Recent_Files->setEnabled(!m_recents.empty());
-
-    QMenu* mnurecents = ui->action_Recent_Files->menu();
-
-    if(!mnurecents)
-    {
-        mnurecents = new QMenu(this);
-        ui->action_Recent_Files->setMenu(mnurecents);
-    }
-    else
-        mnurecents->clear();
-
-    for(int i = 0; i < MAX_RECENT_FILES; i++)
-    {
-        if(i >= m_recents.length())
-        {
-            QAction* action = mnurecents->addAction(QString());
-            action->setVisible(false);
-            continue;
-        }
-
-        if(!QFileInfo(m_recents[i]).exists())
-            continue;
-
-        QAction* action = mnurecents->addAction(QString("%1 - %2").arg(i).arg(m_recents[i]));
-        action->setData(m_recents[i]);
-        connect(action, &QAction::triggered, this, &MainWindow::onRecentFileClicked);
-    }
-}
-
 bool MainWindow::loadDatabase(const QString &filepath)
 {
     REDasm::String filename;
@@ -334,7 +293,7 @@ void MainWindow::load(const QString& filepath)
 
     REDasmSettings settings;
     settings.updateRecentFiles(filepath);
-    this->loadRecents();
+    m_tbactions->loadRecents();
 
     if(this->loadDatabase(filepath))
         return;
@@ -367,22 +326,6 @@ void MainWindow::checkCommandLine()
         this->load(arg);
         break;
     }
-}
-
-void MainWindow::initShortcuts()
-{
-    auto actions = ui->menu_Development->actions();
-
-    for(int i = 1; i < actions.size(); i++)
-        actions[i]->setShortcut(QKeySequence(QString("CTRL+SHIFT+F%1").arg(i)));
-}
-
-void MainWindow::setStandardActionsEnabled(bool b)
-{
-    ui->action_Save->setEnabled(b);
-    ui->action_Save_As->setEnabled(b);
-    ui->action_Signatures->setEnabled(b);
-    ui->menu_Development->setEnabled(this->currentDisassemblerView() || b);
 }
 
 void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
@@ -448,13 +391,13 @@ void MainWindow::closeFile()
         oldview->deleteLater();
     }
 
-    ui->action_Close->setEnabled(false);
+    m_tbactions->setActionEnabled(ToolBarActions::Close, false);
     ui->pteOutput->clear();
     m_lblstatus->clear();
     m_lblprogress->setVisible(false);
     m_lblstatusicon->setVisible(false);
     m_pbproblems->setVisible(false);
-    this->setStandardActionsEnabled(false);
+    m_tbactions->setStandardActionsEnabled(false);
     this->setViewWidgetsVisible(false);
     r_ctx->clearProblems();
 }
@@ -531,7 +474,7 @@ void MainWindow::checkDisassemblerStatus()
 {
     if(!r_disasm)
     {
-        ui->action_Close->setEnabled(false);
+        m_tbactions->setActionEnabled(ToolBarActions::Close, false);
         m_lblstatusicon->setVisible(false);
         m_pbproblems->setVisible(false);
         return;
@@ -553,8 +496,8 @@ void MainWindow::checkDisassemblerStatus()
     m_pbproblems->setText(QString::number(r_ctx->problemsCount()) + " problem(s)");
     m_pbproblems->setVisible(!r_disasm->busy() && r_ctx->hasProblems());
 
-    this->setStandardActionsEnabled(!r_disasm->busy());
-    ui->action_Close->setEnabled(true);
+    m_tbactions->setStandardActionsEnabled(!r_disasm->busy());
+    m_tbactions->setActionEnabled(ToolBarActions::Close, true);
 }
 
 void MainWindow::showProblems() { ProblemsDialog dlgproblems(this); dlgproblems.exec(); }

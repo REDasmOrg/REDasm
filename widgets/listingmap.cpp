@@ -7,7 +7,7 @@
 #include <QPainter>
 #include <cmath>
 
-#define LISTINGMAP_SIZE 64
+#define LISTINGMAP_SIZE 32
 
 ListingMap::ListingMap(QWidget *parent) : QWidget(parent), m_disassembler(nullptr), m_orientation(Qt::Vertical), m_totalsize(0)
 {

@@ -17,6 +17,9 @@
    <iconset resource="resources.qrc">
     <normaloff>:/res/logo.png</normaloff>:/res/logo.png</iconset>
   </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonTextBesideIcon</enum>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_6">
     <property name="spacing">
@@ -85,85 +88,6 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1118</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menu_File">
-    <property name="title">
-     <string>&amp;File</string>
-    </property>
-    <addaction name="action_Open"/>
-    <addaction name="action_Save"/>
-    <addaction name="action_Save_As"/>
-    <addaction name="action_Close"/>
-    <addaction name="action_Recent_Files"/>
-    <addaction name="separator"/>
-    <addaction name="action_Exit"/>
-   </widget>
-   <widget class="QMenu" name="menu_REDasm">
-    <property name="title">
-     <string>&amp;REDasm</string>
-    </property>
-    <widget class="QMenu" name="menu_Development">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="title">
-      <string>&amp;Development</string>
-     </property>
-     <addaction name="separator"/>
-     <addaction name="action_Blocks"/>
-    </widget>
-    <addaction name="action_Signatures"/>
-    <addaction name="action_Settings"/>
-    <addaction name="separator"/>
-    <addaction name="menu_Development"/>
-   </widget>
-   <widget class="QMenu" name="menu">
-    <property name="title">
-     <string>&amp;?</string>
-    </property>
-    <addaction name="action_Report_Bug"/>
-    <addaction name="action_Subscribe_to_r_REDasm"/>
-    <addaction name="separator"/>
-    <addaction name="action_About_REDasm"/>
-   </widget>
-   <widget class="QMenu" name="menu_Window">
-    <property name="title">
-     <string>&amp;Window</string>
-    </property>
-    <addaction name="action_Reset_Layout"/>
-   </widget>
-   <addaction name="menu_File"/>
-   <addaction name="menu_REDasm"/>
-   <addaction name="menu_Window"/>
-   <addaction name="menu"/>
-  </widget>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="action_Open"/>
-   <addaction name="action_Save"/>
-   <addaction name="action_Signatures"/>
-   <addaction name="separator"/>
-   <addaction name="action_Back"/>
-   <addaction name="action_Forward"/>
-   <addaction name="action_Goto"/>
-   <addaction name="action_Graph"/>
-  </widget>
   <widget class="QDockWidget" name="dockOutput">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -225,13 +149,13 @@
   </widget>
   <widget class="QDockWidget" name="dockListingMap">
    <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+    <set>QDockWidget::DockWidgetMovable</set>
    </property>
    <property name="windowTitle">
     <string>Map</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>2</number>
+    <number>4</number>
    </attribute>
    <widget class="ListingMap" name="listingMap"/>
   </widget>
@@ -350,7 +274,7 @@
     <string>References</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>1</number>
+    <number>8</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_7">
     <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -400,124 +324,23 @@
     </layout>
    </widget>
   </widget>
-  <action name="action_Open">
-   <property name="text">
-    <string>&amp;Open</string>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
-  </action>
-  <action name="action_Exit">
-   <property name="text">
-    <string>&amp;Exit</string>
-   </property>
-  </action>
-  <action name="action_Save">
-   <property name="enabled">
+   <property name="movable">
     <bool>false</bool>
    </property>
-   <property name="text">
-    <string>&amp;Save</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="action_About_REDasm">
-   <property name="text">
-    <string>&amp;About REDasm</string>
-   </property>
-  </action>
-  <action name="action_Settings">
-   <property name="text">
-    <string>&amp;Settings</string>
-   </property>
-  </action>
-  <action name="action_Recent_Files">
-   <property name="text">
-    <string>&amp;Recent Files</string>
-   </property>
-  </action>
-  <action name="action_Save_As">
-   <property name="enabled">
+   <property name="floatable">
     <bool>false</bool>
    </property>
-   <property name="text">
-    <string>Sa&amp;ve As...</string>
-   </property>
-  </action>
-  <action name="action_Signatures">
-   <property name="enabled">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
     <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Signatures</string>
-   </property>
-   <property name="toolTip">
-    <string>Signatures</string>
-   </property>
-  </action>
-  <action name="action_Close">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Close</string>
-   </property>
-  </action>
-  <action name="action_Reset_Layout">
-   <property name="text">
-    <string>&amp;Reset Layout</string>
-   </property>
-  </action>
-  <action name="action_Report_Bug">
-   <property name="text">
-    <string>&amp;Report Bug</string>
-   </property>
-  </action>
-  <action name="action_Subscribe_to_r_REDasm">
-   <property name="text">
-    <string>&amp;Subscribe to /r/REDasm</string>
-   </property>
-  </action>
-  <action name="action_Back">
-   <property name="text">
-    <string>&amp;Back</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="action_Forward">
-   <property name="text">
-    <string>&amp;Forward</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="action_Goto">
-   <property name="text">
-    <string>&amp;Goto</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="action_Graph">
-   <property name="text">
-    <string>&amp;Graph</string>
-   </property>
-   <property name="visible">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="action_Blocks">
-   <property name="text">
-    <string>Blocks</string>
-   </property>
-  </action>
+   </attribute>
+  </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

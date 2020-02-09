@@ -23,12 +23,14 @@ class ToolBarActions: public QObject
         ToolBarActions(QMainWindow* mainwindow);
         void setActionEnabled(size_t action, bool b);
         void setStandardActionsEnabled(bool b);
+        void setDisassemblerActionsEnabled(bool b);
         void loadRecents();
 
     private:
         void createAction(const QChar& code, const QString& text = QString(), bool visible = true);
-        QToolButton* createButton(const QChar& code, const QString& text = QString(), bool visible = true);
+        QToolButton* createButton(const QChar& code, const QString& text = QString(), bool enabled = true);
         template<typename Slot> QToolButton* createButton(const QChar& code, const QString& text, const Slot& slot);
+        template<typename Slot> QToolButton* createButton(const QChar& code, const QString& text, bool visible, const Slot& slot);
         QLabel* createLabel(const QString& text);
         void addLeftPart();
         void addRightPart();
@@ -58,12 +60,19 @@ class ToolBarActions: public QObject
         QStringList m_recents;
         QToolBar* m_toolbar;
         QMenu *m_popupmenu, *m_recentsmenu, *m_windowmenu, *m_communitymenu, *m_devmenu;
+        int m_startidx;
 };
 
 template<typename Slot>
 QToolButton* ToolBarActions::createButton(const QChar& code, const QString& text, const Slot& slot)
 {
-    QToolButton* btn = this->createButton(code, text);
+    return this->createButton(code, text, true, slot);
+}
+
+template<typename Slot>
+QToolButton* ToolBarActions::createButton(const QChar& code, const QString& text, bool visible, const Slot& slot)
+{
+    QToolButton* btn = this->createButton(code, text, visible);
     connect(btn, &QToolButton::clicked, this, slot);
     return btn;
 }

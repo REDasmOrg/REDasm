@@ -85,10 +85,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(m_tbactions, &ToolBarActions::about, this, &MainWindow::onAboutClicked);
     connect(m_tbactions, &ToolBarActions::loadRecent, this, &MainWindow::load);
 
-    // connect(ui->action_Subscribe_to_r_REDasm, &QAction::triggered, this, []() {
-    //     QDesktopServices::openUrl(QUrl("https://www.reddit.com/r/REDasm"));
-    // });
-
     connect(m_pbproblems, &QPushButton::clicked, this, &MainWindow::showProblems);
     qApp->installEventFilter(this);
 }
@@ -497,6 +493,7 @@ void MainWindow::checkDisassemblerStatus()
     m_pbproblems->setVisible(!r_disasm->busy() && r_ctx->hasProblems());
 
     m_tbactions->setStandardActionsEnabled(!r_disasm->busy());
+    m_tbactions->setDisassemblerActionsEnabled(!r_disasm->busy());
     m_tbactions->setActionEnabled(ToolBarActions::Close, true);
 }
 

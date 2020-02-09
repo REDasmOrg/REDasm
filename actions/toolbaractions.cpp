@@ -4,6 +4,7 @@
 #include <redasm/context.h>
 #include <QDesktopServices>
 #include <QFileInfo>
+#include <QDebug>
 #include <QMenu>
 #include <QUrl>
 
@@ -29,6 +30,17 @@ void ToolBarActions::setStandardActionsEnabled(bool b)
     m_devmenu->setEnabled(r_disasm || b);
 }
 
+void ToolBarActions::setDisassemblerActionsEnabled(bool b)
+{
+    auto actions = m_toolbar->actions();
+
+    for(int i = m_startidx; i < actions.size(); i++)
+    {
+        actions[i]->setEnabled(b);
+        actions[i]->setVisible(b);
+    }
+}
+
 QToolButton* ToolBarActions::createButton(const QChar& code, const QString& text, bool visible)
 {
     QToolButton* tb = new QToolButton(m_toolbar);
@@ -51,9 +63,12 @@ void ToolBarActions::addLeftPart()
     m_toolbar->addAction(m_actions[ToolBarActions::Save]);
     m_toolbar->addAction(m_actions[ToolBarActions::Recents]);
     m_toolbar->addSeparator();
-    this->createAction(0xf053, "Back", false);
-    this->createAction(0xf054, "Forward", false);
-    this->createAction(0xf002, "Goto", false);
+
+    m_startidx = m_toolbar->actions().size();
+
+    m_toolbar->addWidget(this->createButton(0xf053, "Back", false, &ToolBarActions::back));
+    m_toolbar->addWidget(this->createButton(0xf054, "Forward", false, &ToolBarActions::forward));
+    m_toolbar->addWidget(this->createButton(0xf101, "Goto", false, &ToolBarActions::goTo));
 }
 
 void ToolBarActions::addRightPart()

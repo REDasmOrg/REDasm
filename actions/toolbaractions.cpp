@@ -18,6 +18,8 @@ ToolBarActions::ToolBarActions(QMainWindow* mainwindow): QObject(mainwindow)
 
     this->addLeftPart();
     this->addRightPart();
+
+    this->setStandardActionsEnabled(false);
 }
 
 void ToolBarActions::setActionEnabled(size_t action, bool b) { m_actions[action]->setEnabled(b); }
@@ -27,14 +29,16 @@ void ToolBarActions::setStandardActionsEnabled(bool b)
     m_actions[ToolBarActions::Save]->setEnabled(b);
     m_actions[ToolBarActions::SaveAs]->setEnabled(b);
     m_actions[ToolBarActions::Signatures]->setEnabled(b);
-    m_devmenu->setEnabled(r_disasm || b);
+
+    m_devmenu->setEnabled(b);
+    for(QAction* act : m_devmenu->actions()) act->setEnabled(b);
 }
 
 void ToolBarActions::setDisassemblerActionsEnabled(bool b)
 {
     auto actions = m_toolbar->actions();
 
-    for(int i = m_startidx; i < actions.size(); i++)
+    for(int i = m_startidx; i < m_endidx; i++)
     {
         actions[i]->setEnabled(b);
         actions[i]->setVisible(b);
@@ -69,6 +73,8 @@ void ToolBarActions::addLeftPart()
     m_toolbar->addWidget(this->createButton(0xf053, "Back", false, &ToolBarActions::back));
     m_toolbar->addWidget(this->createButton(0xf054, "Forward", false, &ToolBarActions::forward));
     m_toolbar->addWidget(this->createButton(0xf101, "Goto", false, &ToolBarActions::goTo));
+
+    m_endidx = m_toolbar->actions().size();
 }
 
 void ToolBarActions::addRightPart()

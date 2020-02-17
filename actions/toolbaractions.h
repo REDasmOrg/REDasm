@@ -61,7 +61,7 @@ class ToolBarActions: public QObject
         QStringList m_recents;
         QToolBar* m_toolbar;
         QMenu *m_popupmenu, *m_recentsmenu, *m_windowmenu, *m_communitymenu, *m_devmenu;
-        int m_startidx;
+        int m_startidx, m_endidx;
 };
 
 template<typename Slot>

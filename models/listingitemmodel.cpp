@@ -150,22 +150,29 @@ bool ListingItemModel::isItemAllowed(const REDasm::ListingItem& item) const
 void ListingItemModel::onListingChanged(const REDasm::EventArgs* e)
 {
     const auto* ldc = static_cast<const REDasm::ListingDocumentChangedEventArgs*>(e);
+    if(!this->isItemAllowed(ldc->item)) return;
 
-    if(!this->isItemAllowed(ldc->item))
-        return;
+    int idx = -1;
 
-    if(ldc->isRemoved())
+    switch(ldc->action)
     {
-        int idx = static_cast<int>(m_items.indexOf(ldc->item.address));
-        this->beginRemoveRows(QModelIndex(), idx, idx);
-        m_items.eraseAt(static_cast<size_t>(idx));
-        this->endRemoveRows();
-    }
-    else if(ldc->isInserted())
-    {
-        int idx = static_cast<int>(m_items.insertionIndex(ldc->item.address));
-        this->beginInsertRows(QModelIndex(), idx, idx);
-        m_items.insert(ldc->item.address);
-        this->endInsertRows();
+        case REDasm::ListingDocumentAction::Inserted:
+            idx = static_cast<int>(m_items.insertionIndex(ldc->item.address));
+            this->beginInsertRows(QModelIndex(), idx, idx);
+            m_items.insert(ldc->item.address);
+            this->endInsertRows();
+            break;
+
+        case REDasm::ListingDocumentAction::Removed:
+            idx = static_cast<int>(m_items.indexOf(ldc->item.address));
+            this->beginRemoveRows(QModelIndex(), idx, idx);
+            m_items.eraseAt(static_cast<size_t>(idx));
+            this->endRemoveRows();
+            break;
+
+        case REDasm::ListingDocumentAction::Changed:
+            idx = static_cast<int>(m_items.indexOf(ldc->item.address));
+            emit dataChanged(this->index(idx, 0), this->index(idx, this->columnCount() - 1));
+            break;
     }
 }

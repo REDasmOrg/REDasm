@@ -32,6 +32,11 @@ class DisassemblerView : public QWidget
         void showFilter();
         void clearFilter();
 
+    public slots:
+        void showGoto();
+        void goForward();
+        void goBack();
+
     private slots:
         void checkDisassemblerStatus();
         void modelIndexSelected(const QModelIndex& index);
@@ -48,9 +53,6 @@ class DisassemblerView : public QWidget
         void switchToHexDump();
         void selectToHexDump(address_t address, u64 len);
         void showMenu(const QPoint&);
-        void showGoto();
-        void goForward();
-        void goBack();
 
     private:
         REDasm::ListingItem itemFromIndex(const QModelIndex& index) const;

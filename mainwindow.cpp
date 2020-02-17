@@ -349,6 +349,10 @@ void MainWindow::showDisassemblerView(REDasm::Disassembler *disassembler)
     }
 
     DisassemblerView *dv = new DisassemblerView(ui->leFilter);
+    connect(m_tbactions, &ToolBarActions::goTo, dv, &DisassemblerView::showGoto);
+    connect(m_tbactions, &ToolBarActions::back, dv, &DisassemblerView::goBack);
+    connect(m_tbactions, &ToolBarActions::forward, dv, &DisassemblerView::goForward);
+
     dv->bindDisassembler(disassembler); // Take ownership
     ui->stackView->addWidget(dv);
 

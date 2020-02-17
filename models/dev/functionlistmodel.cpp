@@ -32,8 +32,13 @@ QVariant FunctionListModel::data(const QModelIndex& index, int role) const
         }
 
     }
-    else if((role == Qt::ForegroundRole) && (index.column() == 0))
-        return THEME_VALUE("address_list_fg");
+    else if(role == Qt::ForegroundRole)
+    {
+        if(index.column() == 0) return THEME_VALUE("address_list_fg");
+
+        address_t address = r_doc->functionAt(index.row());
+        if(!r_doc->graph(address)) return THEME_VALUE("graph_edge_false");
+    }
 
     return QVariant();
 }

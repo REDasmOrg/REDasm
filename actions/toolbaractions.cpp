@@ -133,6 +133,7 @@ void ToolBarActions::createMenu()
 
     m_devmenu = new QMenu("Development");
     m_actions[ToolBarActions::Blocks] = m_devmenu->addAction("Blocks", this, &ToolBarActions::blocks, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F1));
+    m_actions[ToolBarActions::FunctionGraphs] = m_devmenu->addAction("Function Graphs", this, &ToolBarActions::functionGraphs, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F2));
 
     m_popupmenu = new QMenu(m_toolbar);
     m_actions[ToolBarActions::Open] = m_popupmenu->addAction(FA_ICON(0xf07c), "Open", this, &ToolBarActions::open, QKeySequence(Qt::CTRL + Qt::Key_O));

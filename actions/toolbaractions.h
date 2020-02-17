@@ -13,7 +13,7 @@ class ToolBarActions: public QObject
         enum {
             Open, Save, SaveAs, Close, Recents,
             Signatures,
-            Development, Blocks,
+            Development, Blocks, FunctionGraphs,
             Settings,
             Window, ResetLayout,
             Bug, Community, About, Exit
@@ -53,6 +53,7 @@ class ToolBarActions: public QObject
         void resetLayout();
         void settings();
         void blocks();
+        void functionGraphs();
         void about();
 
     private:

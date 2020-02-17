@@ -99,7 +99,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0)
-            return Convert::to_qstring(REDasm::String::hex(symbol->address, m_disassembler->assembler()->bits()));
+            return Convert::to_qstring(REDasm::String::hex(symbol->address, r_asm->bits()));
 
         if(index.column() == 1)
         {
@@ -109,16 +109,16 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
                 if(!block) return QVariant();
 
                 if(symbol->isWideString())
-                    return Convert::to_qstring(m_disassembler->readWString(symbol->address, block->size()).quoted());
+                    return Convert::to_qstring(r_disasm->readWString(symbol->address, block->size()).quoted());
 
-                return Convert::to_qstring(m_disassembler->readString(symbol->address, block->size()).quoted());
+                return Convert::to_qstring(r_disasm->readString(symbol->address, block->size()).quoted());
             }
 
             return Convert::to_qstring(REDasm::Demangler::demangled(symbol->name));
         }
 
         if(index.column() == 2)
-            return QString::number(m_disassembler->getReferencesCount(symbol->address));
+            return QString::number(r_disasm->getReferencesCount(symbol->address));
 
         if(index.column() == 3)
         {

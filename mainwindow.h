@@ -39,6 +39,7 @@ class MainWindow : public QMainWindow
         void onResetLayoutClicked();
         void onSettingsClicked();
         void onBlocksClicked();
+        void onFunctionGraphsClicked();
         void onAboutClicked();
         void checkDisassemblerStatus();
         void showProblems();

@@ -5,6 +5,7 @@
 #include "dialogs/settingsdialog/settingsdialog.h"
 #include "dialogs/aboutdialog/aboutdialog.h"
 #include "dialogs/tabledialog/tabledialog.h"
+#include "dialogs/dev/functiongraphdialog/functiongraphdialog.h"
 #include "models/dev/blocklistmodel.h"
 #include "ui/redasmui.h"
 #include "redasmfonts.h"
@@ -82,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(m_tbactions, &ToolBarActions::resetLayout, this, &MainWindow::onResetLayoutClicked);
     connect(m_tbactions, &ToolBarActions::settings, this, &MainWindow::onSettingsClicked);
     connect(m_tbactions, &ToolBarActions::blocks, this, &MainWindow::onBlocksClicked);
+    connect(m_tbactions, &ToolBarActions::functionGraphs, this, &MainWindow::onFunctionGraphsClicked);
     connect(m_tbactions, &ToolBarActions::about, this, &MainWindow::onAboutClicked);
     connect(m_tbactions, &ToolBarActions::loadRecent, this, &MainWindow::load);
 
@@ -245,6 +247,12 @@ void MainWindow::onBlocksClicked()
     }
 
     td->show();
+}
+
+void MainWindow::onFunctionGraphsClicked()
+{
+    FunctionGraphDialog dlggraph(this);
+    dlggraph.exec();
 }
 
 void MainWindow::loadWindowState()

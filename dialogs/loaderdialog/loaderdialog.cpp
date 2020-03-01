@@ -76,7 +76,7 @@ const REDasm::PluginInstance *LoaderDialog::selectedLoader() const
 
 const REDasm::PluginInstance* LoaderDialog::selectedAssembler() const
 {
-    REDasm::LoaderFlags flags = this->selectedLoaderFlags();
+    flag_t flags = this->selectedLoaderFlags();
 
     if(flags & REDasm::LoaderFlags::CustomAssembler)
         return m_assemblers.at(ui->cbAssembler->currentIndex());
@@ -88,7 +88,7 @@ address_t LoaderDialog::baseAddress() const { return ui->leBaseAddress->text().t
 address_t LoaderDialog::entryPoint() const { return ui->leEntryPoint->text().toULongLong(nullptr, 16); }
 offset_t LoaderDialog::offset() const { return ui->leOffset->text().toULongLong(nullptr, 16); }
 
-REDasm::LoaderFlags LoaderDialog::selectedLoaderFlags() const
+flag_t LoaderDialog::selectedLoaderFlags() const
 {
     QModelIndex index = ui->lvLoaders->currentIndex();
 
@@ -111,7 +111,7 @@ void LoaderDialog::checkFlags()
         return;
     }
 
-    REDasm::LoaderFlags flags = this->selectedLoaderFlags();
+    flag_t flags = this->selectedLoaderFlags();
     ui->cbAssembler->setEnabled(flags & REDasm::LoaderFlags::CustomAssembler);
     ui->tabAddressing->setEnabled(flags & REDasm::LoaderFlags::CustomAddressing);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
@@ -120,7 +120,7 @@ void LoaderDialog::checkFlags()
 void LoaderDialog::validateInput()
 {
     bool okenabled = true;
-    REDasm::LoaderFlags flags = this->selectedLoaderFlags();
+    flag_t flags = this->selectedLoaderFlags();
 
     if(flags & REDasm::LoaderFlags::CustomAddressing)
     {
@@ -177,12 +177,12 @@ void LoaderDialog::populateAssemblers()
 
 void LoaderDialog::onAccepted()
 {
-    REDasm::ContextFlags flags = REDasm::ContextFlags::None;
+    flag_t flags = REDasm::Context::None;
 
-    if(ui->chkNoCFG->isChecked()) flags |= REDasm::ContextFlags::DisableCFG;
-    if(ui->chkNoAnalysis->isChecked()) flags |= REDasm::ContextFlags::DisableAnalyzer;
-    if(ui->chkNoSignatures->isChecked()) flags |= REDasm::ContextFlags::DisableSignature;
-    if(ui->chkNoUnexplored->isChecked()) flags |= REDasm::ContextFlags::DisableUnexplored;
+    if(ui->chkNoCFG->isChecked()) flags |= REDasm::Context::DisableCFG;
+    if(ui->chkNoAnalysis->isChecked()) flags |= REDasm::Context::DisableAnalyzer;
+    if(ui->chkNoSignatures->isChecked()) flags |= REDasm::Context::DisableSignature;
+    if(ui->chkNoUnexplored->isChecked()) flags |= REDasm::Context::DisableUnexplored;
 
     r_ctx->flags(flags);
 }

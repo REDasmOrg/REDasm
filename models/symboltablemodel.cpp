@@ -2,8 +2,8 @@
 #include <redasm/context.h>
 
 SymbolTableModel::SymbolTableModel(REDasm::ListingItemType itemtype, QObject *parent): ListingItemModel(itemtype, parent) { }
-void SymbolTableModel::setSymbolType(REDasm::SymbolType type) { m_symboltype = type; }
-void SymbolTableModel::setSymbolFlags(REDasm::SymbolFlags flags) { m_symbolflags = flags; }
+void SymbolTableModel::setSymbolType(type_t type) { m_symboltype = type; }
+void SymbolTableModel::setSymbolFlags(flag_t flags) { m_symbolflags = flags; }
 
 bool SymbolTableModel::isItemAllowed(const REDasm::ListingItem& item) const
 {

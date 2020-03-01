@@ -17,7 +17,7 @@ class LoaderDialog : public QDialog
         ~LoaderDialog();
         const REDasm::PluginInstance* selectedLoader() const;
         const REDasm::PluginInstance* selectedAssembler() const;
-        REDasm::LoaderFlags selectedLoaderFlags() const;
+        flag_t selectedLoaderFlags() const;
         address_t baseAddress() const;
         address_t entryPoint() const;
         offset_t offset() const;

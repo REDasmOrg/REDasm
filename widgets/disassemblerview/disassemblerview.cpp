@@ -30,16 +30,16 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     ui->stackedWidget->addWidget(m_listingview);
     ui->stackedWidget->addWidget(m_graphview);
 
-    m_importsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItemType::SymbolItem, ui->tvImports);
+    m_importsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItem::SymbolItem, ui->tvImports);
     static_cast<SymbolTableModel*>(m_importsmodel->sourceModel())->setSymbolType(REDasm::Symbol::T_Import);
     ui->tvImports->setModel(m_importsmodel);
 
-    m_exportsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItemType::AllItems, ui->tvExports);
+    m_exportsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItem::AllItems, ui->tvExports);
     static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolType(REDasm::Symbol::T_Function);
     static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolFlags(REDasm::Symbol::F_Export);
     ui->tvExports->setModel(m_exportsmodel);
 
-    m_stringsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItemType::SymbolItem, ui->tvStrings);
+    m_stringsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItem::SymbolItem, ui->tvStrings);
     static_cast<SymbolTableModel*>(m_stringsmodel->sourceModel())->setSymbolType(REDasm::Symbol::T_String);
     ui->tvStrings->setModel(m_stringsmodel);
 
@@ -461,12 +461,12 @@ void DisassemblerView::syncHexEdit()
         bool canbeinstruction = true;
         const REDasm::Symbol* symbol = nullptr;
 
-        if(item.is(REDasm::ListingItemType::SymbolItem))
+        if(item.is(REDasm::ListingItem::SymbolItem))
         {
             symbol = r_doc->symbol(item.address);
             canbeinstruction = symbol->isLabel();
         }
-        else if(item.is(REDasm::ListingItemType::SegmentItem))
+        else if(item.is(REDasm::ListingItem::SegmentItem))
             canbeinstruction = false;
 
         if(canbeinstruction)

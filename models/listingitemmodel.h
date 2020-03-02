@@ -10,7 +10,7 @@ class ListingItemModel : public DisassemblerModel
     Q_OBJECT
 
     public:
-        explicit ListingItemModel(REDasm::ListingItemType itemtype, QObject *parent = nullptr);
+        explicit ListingItemModel(type_t itemtype, QObject *parent = nullptr);
         ~ListingItemModel();
         void setDisassembler(const REDasm::DisassemblerPtr &disassembler) override;
         REDasm::ListingItem item(const QModelIndex& index) const;
@@ -31,7 +31,7 @@ class ListingItemModel : public DisassemblerModel
 
     private:
         REDasm::SortedList m_items;
-        REDasm::ListingItemType m_itemtype;
+        type_t m_itemtype;
 
     friend class ListingFilterModel;
 };

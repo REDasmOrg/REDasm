@@ -29,7 +29,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 
         REDasm::ListingItem item = r_doc->itemAt(start);
 
-        if(item.is(REDasm::ListingItemType::InstructionItem))
+        if(item.is(REDasm::ListingItem::InstructionItem))
         {
             REDasm::CachedInstruction instruction = r_doc->instruction(item.address);
             if(!instruction->isJump()) continue;
@@ -47,7 +47,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
                 this->insertPath(item, start, idx);
             }
         }
-        else if(item.is(REDasm::ListingItemType::SymbolItem))
+        else if(item.is(REDasm::ListingItem::SymbolItem))
         {
             const REDasm::Symbol* symbol = r_doc->symbol(item.address);
             if(!symbol || !symbol->isLabel()) continue;

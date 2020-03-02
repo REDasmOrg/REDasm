@@ -87,7 +87,7 @@ void DisassemblerActions::adjustActions()
     m_actions[DisassemblerActions::Follow]->setText(QString("Follow %1").arg(Convert::to_qstring(symbol->name)));
     m_actions[DisassemblerActions::Follow]->setVisible(symbol->isLabel());
 
-    m_actions[DisassemblerActions::Comment]->setVisible(!r_disasm->busy() && item.is(REDasm::ListingItemType::InstructionItem));
+    m_actions[DisassemblerActions::Comment]->setVisible(!r_disasm->busy() && item.is(REDasm::ListingItem::InstructionItem));
 
     m_actions[DisassemblerActions::HexDump]->setVisible(symbolsegment && !symbolsegment->is(REDasm::Segment::T_Bss));
     m_actions[DisassemblerActions::HexDumpFunction]->setVisible(itemsegment && !itemsegment->is(REDasm::Segment::T_Bss) && itemsegment->is(REDasm::Segment::T_Code));

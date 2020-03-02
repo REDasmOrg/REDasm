@@ -7,7 +7,7 @@ class SymbolTableModel : public ListingItemModel
     Q_OBJECT
 
     public:
-        explicit SymbolTableModel(REDasm::ListingItemType itemtype, QObject *parent = nullptr);
+        explicit SymbolTableModel(type_t itemtype, QObject *parent = nullptr);
         void setSymbolType(type_t type);
         void setSymbolFlags(flag_t flags);
 

@@ -68,11 +68,11 @@ int GotoModel::rowCount(const QModelIndex &) const { return r_disasm ? r_doc->it
 
 QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
 {
-    if(item.is(REDasm::ListingItemType::SegmentItem))  return THEME_VALUE("segment_fg");
-    if(item.is(REDasm::ListingItemType::FunctionItem)) return THEME_VALUE("function_fg");
-    if(item.is(REDasm::ListingItemType::TypeItem))     return THEME_VALUE("type_fg");
+    if(item.is(REDasm::ListingItem::SegmentItem))  return THEME_VALUE("segment_fg");
+    if(item.is(REDasm::ListingItem::FunctionItem)) return THEME_VALUE("function_fg");
+    if(item.is(REDasm::ListingItem::TypeItem))     return THEME_VALUE("type_fg");
 
-    if(item.is(REDasm::ListingItemType::SymbolItem))
+    if(item.is(REDasm::ListingItem::SymbolItem))
     {
         const REDasm::Symbol* symbol = r_doc->symbol(item.address);
 
@@ -86,17 +86,17 @@ QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
 
 QString GotoModel::itemName(const REDasm::ListingItem& item) const
 {
-    if(item.is(REDasm::ListingItemType::SegmentItem))
+    if(item.is(REDasm::ListingItem::SegmentItem))
     {
         const REDasm::Segment* segment = r_doc->segment(item.address);
         if(segment) return Convert::to_qstring(segment->name());
     }
-    else if(item.is(REDasm::ListingItemType::FunctionItem) || item.is(REDasm::ListingItemType::SymbolItem))
+    else if(item.is(REDasm::ListingItem::FunctionItem) || item.is(REDasm::ListingItem::SymbolItem))
     {
         const REDasm::Symbol* symbol = r_doc->symbol(item.address);
         if(symbol) return Convert::to_qstring(REDasm::Demangler::demangled(symbol->name));
     }
-    else if(item.type == REDasm::ListingItemType::TypeItem)
+    else if(item.type == REDasm::ListingItem::TypeItem)
         return Convert::to_qstring(r_doc->type(item.address));
 
     return QString();
@@ -106,10 +106,10 @@ QString GotoModel::itemType(const REDasm::ListingItem& item) const
 {
     switch(item.type)
     {
-        case REDasm::ListingItemType::SegmentItem:  return "SEGMENT";
-        case REDasm::ListingItemType::FunctionItem: return "FUNCTION";
-        case REDasm::ListingItemType::TypeItem:     return "TYPE";
-        case REDasm::ListingItemType::SymbolItem:   return "SYMBOL";
+        case REDasm::ListingItem::SegmentItem:  return "SEGMENT";
+        case REDasm::ListingItem::FunctionItem: return "FUNCTION";
+        case REDasm::ListingItem::TypeItem:     return "TYPE";
+        case REDasm::ListingItem::SymbolItem:   return "SYMBOL";
         default: break;
     }
 

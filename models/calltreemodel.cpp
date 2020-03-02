@@ -97,7 +97,7 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
     const REDasm::ListingItem& item = node->data;
     const REDasm::Symbol* symbol = r_doc->symbol(item.address);
 
-    if(item.is(REDasm::ListingItemType::InstructionItem))
+    if(item.is(REDasm::ListingItem::InstructionItem))
     {
         REDasm::SortedSet refs = r_disasm->getTargets(item.address);
         if(!refs.empty()) symbol = r_doc->symbol(refs.first().toU64());
@@ -109,7 +109,7 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
             return Convert::to_qstring(REDasm::String::hex(item.address, r_asm->bits()));
         else if(index.column() == 1)
         {
-            if(item.is(REDasm::ListingItemType::FunctionItem)) return Convert::to_qstring(symbol->name);
+            if(item.is(REDasm::ListingItem::FunctionItem)) return Convert::to_qstring(symbol->name);
             return Convert::to_qstring(m_printer->out(r_doc->instruction(item.address)));
         }
         else if(index.column() == 2)

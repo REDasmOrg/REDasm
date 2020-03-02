@@ -216,7 +216,7 @@ GraphViewItem *DisassemblerGraphView::itemFromCurrentLine() const
     REDasm::ListingItem item = r_doc->currentItem();
     if(!item.isValid()) return nullptr;
 
-    if(item.is(REDasm::ListingItemType::FunctionItem)) // Adjust to instruction
+    if(item.is(REDasm::ListingItem::FunctionItem)) // Adjust to instruction
         item = r_doc->itemInstruction(item.address);
 
     for(const auto& gvi : m_items)

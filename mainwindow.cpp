@@ -418,7 +418,7 @@ void MainWindow::selectLoader(const REDasm::LoadRequest& request)
     const REDasm::PluginInstance *assemblerpi = nullptr, *loaderpi = dlgloader.selectedLoader();
     REDasm::Loader* loader = plugin_cast<REDasm::Loader>(loaderpi);
 
-    if(loader->flags() & REDasm::LoaderFlags::CustomAssembler) assemblerpi = dlgloader.selectedAssembler();
+    if(loader->flags() & REDasm::Loader::CustomAssembler) assemblerpi = dlgloader.selectedAssembler();
     else assemblerpi = r_pm->findAssembler(loader->assembler());
 
     if(!assemblerpi)
@@ -450,7 +450,7 @@ void MainWindow::selectLoader(const REDasm::LoadRequest& request)
 
     this->showDisassemblerView(disassembler); // Take ownership
 
-    if(r_ldr->flags() & REDasm::LoaderFlags::CustomAddressing)
+    if(r_ldr->flags() & REDasm::Loader::CustomAddressing)
     {
         r_ldr->build(assembler->id(), dlgloader.offset(), dlgloader.baseAddress(), dlgloader.entryPoint());
         this->currentDisassembler()->disassemble();

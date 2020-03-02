@@ -8,7 +8,7 @@
 
 #define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 
-SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(REDasm::ListingItemType::SegmentItem, parent) { }
+SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(REDasm::ListingItem::SegmentItem, parent) { }
 
 QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 {

@@ -78,7 +78,7 @@ const REDasm::PluginInstance* LoaderDialog::selectedAssembler() const
 {
     flag_t flags = this->selectedLoaderFlags();
 
-    if(flags & REDasm::LoaderFlags::CustomAssembler)
+    if(flags & REDasm::Loader::CustomAssembler)
         return m_assemblers.at(ui->cbAssembler->currentIndex());
 
     return nullptr;
@@ -93,7 +93,7 @@ flag_t LoaderDialog::selectedLoaderFlags() const
     QModelIndex index = ui->lvLoaders->currentIndex();
 
     if(!index.isValid())
-        return REDasm::LoaderFlags::None;
+        return REDasm::Loader::None;
 
     const REDasm::PluginInstance* pi = m_loaders.at(index.row());
     return plugin_cast<REDasm::Loader>(pi)->flags();
@@ -112,8 +112,8 @@ void LoaderDialog::checkFlags()
     }
 
     flag_t flags = this->selectedLoaderFlags();
-    ui->cbAssembler->setEnabled(flags & REDasm::LoaderFlags::CustomAssembler);
-    ui->tabAddressing->setEnabled(flags & REDasm::LoaderFlags::CustomAddressing);
+    ui->cbAssembler->setEnabled(flags & REDasm::Loader::CustomAssembler);
+    ui->tabAddressing->setEnabled(flags & REDasm::Loader::CustomAddressing);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
@@ -122,7 +122,7 @@ void LoaderDialog::validateInput()
     bool okenabled = true;
     flag_t flags = this->selectedLoaderFlags();
 
-    if(flags & REDasm::LoaderFlags::CustomAddressing)
+    if(flags & REDasm::Loader::CustomAddressing)
     {
         if(ui->leOffset->text().isEmpty() || (this->offset() >= m_request.buffer()->size()))
             okenabled = false;

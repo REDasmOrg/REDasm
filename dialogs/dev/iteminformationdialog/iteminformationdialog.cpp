@@ -38,19 +38,19 @@ ItemInformationDialog &ItemInformationDialog::string(const QString &k, const QSt
 
 QString ItemInformationDialog::itemType(const REDasm::ListingItem *item) const
 {
-    if(item->type == REDasm::ListingItemType::SegmentItem)
+    if(item->type == REDasm::ListingItem::SegmentItem)
         return ITEM_TYPE(REDasm::ListingItem::SegmentItem);
-    if(item->type == REDasm::ListingItemType::EmptyItem)
+    if(item->type == REDasm::ListingItem::EmptyItem)
         return ITEM_TYPE(REDasm::ListingItem::EmptyItem);
-    if(item->type == REDasm::ListingItemType::FunctionItem)
+    if(item->type == REDasm::ListingItem::FunctionItem)
         return ITEM_TYPE(REDasm::ListingItem::FunctionItem);
-    if(item->type == REDasm::ListingItemType::TypeItem)
+    if(item->type == REDasm::ListingItem::TypeItem)
         return ITEM_TYPE(REDasm::ListingItem::TypeItem);
-    if(item->type == REDasm::ListingItemType::SymbolItem)
+    if(item->type == REDasm::ListingItem::SymbolItem)
         return ITEM_TYPE(REDasm::ListingItem::SymbolItem);
-    if(item->type == REDasm::ListingItemType::MetaItem)
+    if(item->type == REDasm::ListingItem::MetaItem)
         return ITEM_TYPE(REDasm::ListingItem::MetaItem);
-    if(item->type == REDasm::ListingItemType::InstructionItem)
+    if(item->type == REDasm::ListingItem::InstructionItem)
         return ITEM_TYPE(REDasm::ListingItem::InstructionItem);
 
     return QString::number(static_cast<size_t>(item->type));

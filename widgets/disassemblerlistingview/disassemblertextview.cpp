@@ -420,7 +420,7 @@ void DisassemblerTextView::onDocumentChanged(const REDasm::EventArgs *e)
     lock->cursor().clearSelection();
     this->adjustScrollBars();
 
-    if(ldc->action != REDasm::ListingDocumentAction::Changed) // Insertion or Deletion
+    if(ldc->action != REDasm::ListingDocumentChangedEventArgs::Changed) // Insertion or Deletion
     {
         if(ldc->index > this->lastVisibleLine()) // Don't care of bottom Insertion/Deletion
             return;

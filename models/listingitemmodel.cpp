@@ -8,7 +8,7 @@
 #include "../convert.h"
 #include <QColor>
 
-ListingItemModel::ListingItemModel(REDasm::ListingItemType itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
+ListingItemModel::ListingItemModel(type_t itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
 ListingItemModel::~ListingItemModel() { r_evt::ungroup(this); }
 
 void ListingItemModel::setDisassembler(const REDasm::DisassemblerPtr& disassembler)
@@ -36,9 +36,9 @@ REDasm::ListingItem ListingItemModel::item(const QModelIndex &index) const
     auto lock = REDasm::s_lock_safe_ptr(r_doc);
     REDasm::ListingItem item;
 
-    if(m_itemtype == REDasm::ListingItemType::SegmentItem)
+    if(m_itemtype == REDasm::ListingItem::SegmentItem)
         item = lock->items()->segmentItem(m_items[index.row()].toU64());
-    else if(m_itemtype == REDasm::ListingItemType::FunctionItem)
+    else if(m_itemtype == REDasm::ListingItem::FunctionItem)
         item = lock->items()->functionItem(m_items[index.row()].toU64());
     else
     {
@@ -141,7 +141,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
 bool ListingItemModel::isItemAllowed(const REDasm::ListingItem& item) const
 {
-    if(m_itemtype == REDasm::ListingItemType::AllItems)
+    if(m_itemtype == REDasm::ListingItem::AllItems)
         return true;
 
     return item.is(m_itemtype);
@@ -156,21 +156,21 @@ void ListingItemModel::onListingChanged(const REDasm::EventArgs* e)
 
     switch(ldc->action)
     {
-        case REDasm::ListingDocumentAction::Inserted:
+        case REDasm::ListingDocumentChangedEventArgs::Inserted:
             idx = static_cast<int>(m_items.insertionIndex(ldc->item.address));
             this->beginInsertRows(QModelIndex(), idx, idx);
             m_items.insert(ldc->item.address);
             this->endInsertRows();
             break;
 
-        case REDasm::ListingDocumentAction::Removed:
+        case REDasm::ListingDocumentChangedEventArgs::Removed:
             idx = static_cast<int>(m_items.indexOf(ldc->item.address));
             this->beginRemoveRows(QModelIndex(), idx, idx);
             m_items.eraseAt(static_cast<size_t>(idx));
             this->endRemoveRows();
             break;
 
-        case REDasm::ListingDocumentAction::Changed:
+        case REDasm::ListingDocumentChangedEventArgs::Changed:
             idx = static_cast<int>(m_items.indexOf(ldc->item.address));
             emit dataChanged(this->index(idx, 0), this->index(idx, this->columnCount() - 1));
             break;

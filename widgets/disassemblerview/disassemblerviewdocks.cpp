@@ -89,7 +89,7 @@ void DisassemblerViewDocks::createCallTreeModel()
 
 void DisassemblerViewDocks::createFunctionsModel()
 {
-    m_functionsmodel = ListingFilterModel::createFilter<ListingItemModel>(REDasm::ListingItemType::FunctionItem, this);
+    m_functionsmodel = ListingFilterModel::createFilter<ListingItemModel>(REDasm::ListingItem::FunctionItem, this);
     m_functionsview = m_dockfunctions->widget()->findChild<QTableView*>("tvFunctions");
     m_functionsview->setModel(m_functionsmodel);
 

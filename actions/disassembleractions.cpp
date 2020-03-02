@@ -47,7 +47,7 @@ void DisassemblerActions::adjustActions()
             address_t currentaddress = m_renderer->getCurrentWord().toUInt(16, &ok);
             const REDasm::Segment* currentsegment = ok ? r_doc->segment(currentaddress) : nullptr;
 
-            m_actions[DisassemblerActions::CreateFunction]->setVisible(currentsegment && currentsegment->is(REDasm::SegmentType::Code));
+            m_actions[DisassemblerActions::CreateFunction]->setVisible(currentsegment && currentsegment->is(REDasm::Segment::T_Code));
 
             if(currentsegment)
                 m_actions[DisassemblerActions::CreateFunction]->setText(QString("Create Function @ %1").arg(Convert::to_qstring(REDasm::String::hex(currentaddress))));
@@ -58,7 +58,7 @@ void DisassemblerActions::adjustActions()
         if(symbol)
             m_actions[DisassemblerActions::CallGraph]->setText(QString("Callgraph %1").arg(Convert::to_qstring(symbol->name)));
 
-        m_actions[DisassemblerActions::CallGraph]->setVisible(symbol && symbolsegment && symbolsegment->is(REDasm::SegmentType::Code));
+        m_actions[DisassemblerActions::CallGraph]->setVisible(symbol && symbolsegment && symbolsegment->is(REDasm::Segment::T_Code));
         m_actions[DisassemblerActions::HexDumpFunction]->setVisible((symbol != nullptr));
         m_actions[DisassemblerActions::HexDump]->setVisible(true);
         return;
@@ -68,7 +68,7 @@ void DisassemblerActions::adjustActions()
 
     m_actions[DisassemblerActions::CreateFunction]->setText(QString("Create Function @ %1").arg(Convert::to_qstring(REDasm::String::hex(symbol->address))));
     m_actions[DisassemblerActions::CreateFunction]->setVisible(!r_disasm->busy() &&
-                                                               (symbolsegment && symbolsegment->is(REDasm::SegmentType::Code)) &&
+                                                               (symbolsegment && symbolsegment->is(REDasm::Segment::T_Code)) &&
                                                                (symbol->isWeak() && !symbol->isFunction()));
 
 
@@ -89,8 +89,8 @@ void DisassemblerActions::adjustActions()
 
     m_actions[DisassemblerActions::Comment]->setVisible(!r_disasm->busy() && item.is(REDasm::ListingItemType::InstructionItem));
 
-    m_actions[DisassemblerActions::HexDump]->setVisible(symbolsegment && !symbolsegment->is(REDasm::SegmentType::Bss));
-    m_actions[DisassemblerActions::HexDumpFunction]->setVisible(itemsegment && !itemsegment->is(REDasm::SegmentType::Bss) && itemsegment->is(REDasm::SegmentType::Code));
+    m_actions[DisassemblerActions::HexDump]->setVisible(symbolsegment && !symbolsegment->is(REDasm::Segment::T_Bss));
+    m_actions[DisassemblerActions::HexDumpFunction]->setVisible(itemsegment && !itemsegment->is(REDasm::Segment::T_Bss) && itemsegment->is(REDasm::Segment::T_Code));
 }
 
 void DisassemblerActions::goTo(address_t address) { if(m_renderer) r_doc->goTo(address); }

@@ -31,16 +31,16 @@ DisassemblerView::DisassemblerView(QLineEdit *lefilter, QWidget *parent) : QWidg
     ui->stackedWidget->addWidget(m_graphview);
 
     m_importsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItemType::SymbolItem, ui->tvImports);
-    static_cast<SymbolTableModel*>(m_importsmodel->sourceModel())->setSymbolType(REDasm::SymbolType::Import);
+    static_cast<SymbolTableModel*>(m_importsmodel->sourceModel())->setSymbolType(REDasm::Symbol::T_Import);
     ui->tvImports->setModel(m_importsmodel);
 
     m_exportsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItemType::AllItems, ui->tvExports);
-    static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolType(REDasm::SymbolType::Function);
-    static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolFlags(REDasm::SymbolFlags::Export);
+    static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolType(REDasm::Symbol::T_Function);
+    static_cast<SymbolTableModel*>(m_exportsmodel->sourceModel())->setSymbolFlags(REDasm::Symbol::F_Export);
     ui->tvExports->setModel(m_exportsmodel);
 
     m_stringsmodel = ListingFilterModel::createFilter<SymbolTableModel>(REDasm::ListingItemType::SymbolItem, ui->tvStrings);
-    static_cast<SymbolTableModel*>(m_stringsmodel->sourceModel())->setSymbolType(REDasm::SymbolType::String);
+    static_cast<SymbolTableModel*>(m_stringsmodel->sourceModel())->setSymbolType(REDasm::Symbol::T_String);
     ui->tvStrings->setModel(m_stringsmodel);
 
     m_segmentsmodel = ListingFilterModel::createFilter<SegmentsModel>(ui->tvSegments);

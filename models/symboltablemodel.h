@@ -15,6 +15,6 @@ class SymbolTableModel : public ListingItemModel
         bool isItemAllowed(const REDasm::ListingItem& item) const override;
 
     private:
-        type_t m_symboltype{REDasm::SymbolType::None};
-        flag_t m_symbolflags{REDasm::SymbolFlags::None};
+        type_t m_symboltype{REDasm::Symbol::T_None};
+        flag_t m_symbolflags{REDasm::Symbol::T_None};
 };

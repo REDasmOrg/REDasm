@@ -12,6 +12,6 @@ bool SymbolTableModel::isItemAllowed(const REDasm::ListingItem& item) const
 
     const REDasm::Symbol* symbol = r_doc->symbol(item.address);
     if(!symbol || !REDasm::typeIs(symbol, m_symboltype)) return false;
-    if(m_symbolflags == REDasm::SymbolFlags::None) return true;
+    if(m_symbolflags == REDasm::Symbol::T_None) return true;
     return REDasm::hasFlag(symbol, m_symbolflags);
 }

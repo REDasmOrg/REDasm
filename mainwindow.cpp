@@ -14,7 +14,7 @@
 #include "convert.h"
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/pluginmanager.h>
-#include <redasm/support/utils.h>
+#include <redasm/support/filesystem.h>
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
 #include <QtWidgets>
@@ -38,13 +38,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ctxsettings.progressCallback = [&](size_t pending) { QMetaObject::invokeMethod(m_lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending))); };
     ctxsettings.logCallback = [&](const REDasm::String& s) { QMetaObject::invokeMethod(ui->pteOutput, "log", Qt::QueuedConnection, Q_ARG(QString, Convert::to_qstring(s))); };
     ctxsettings.ui = std::make_shared<REDasmUI>(this);
-    
-    ctxsettings.pluginPaths.push_front(REDasm::Path::create(ctxsettings.runtimePath, PLUGINS_FOLDER_NAME));
-
-    for(const QString& searchpaths : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation))
-        ctxsettings.pluginPaths.push_back(REDasm::Path::create(Convert::to_rstring(searchpaths), PLUGINS_FOLDER_NAME));
 
     REDasm::Context::init(ctxsettings);
+    r_ctx->addPluginPath(REDasm::FS::Path::join(ctxsettings.runtimePath, PLUGINS_FOLDER_NAME));
+
+    for(const QString& searchpaths : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation))
+        r_ctx->addPluginPath(REDasm::FS::Path::join(Convert::to_rstring(searchpaths), PLUGINS_FOLDER_NAME));
+
     //r_ctx->sync(true);
     this->setViewWidgetsVisible(false);
     ui->leFilter->setVisible(false);

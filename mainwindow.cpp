@@ -91,7 +91,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     qApp->installEventFilter(this);
 }
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow()
+{
+    r_pm->shutdown();
+    delete ui;
+}
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {

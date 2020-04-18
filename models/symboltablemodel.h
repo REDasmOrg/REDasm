@@ -12,9 +12,9 @@ class SymbolTableModel : public ListingItemModel
         void setSymbolFlags(flag_t flags);
 
     protected:
-        bool isItemAllowed(const REDasm::ListingItem& item) const override;
+        bool isItemAllowed(const RDDocumentItem& item) const override;
 
     private:
-        type_t m_symboltype{REDasm::Symbol::T_None};
-        flag_t m_symbolflags{REDasm::Symbol::T_None};
+        type_t m_symboltype{SymbolType_None};
+        flag_t m_symbolflags{SymbolFlags_None};
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../listingitemmodel.h"
+#include <redasm/disassembler/listing/document/listingitem.h>
 
 class GotoModel : public DisassemblerModel
 {
@@ -8,7 +9,7 @@ class GotoModel : public DisassemblerModel
 
     public:
         explicit GotoModel(QObject *parent = nullptr);
-        void setDisassembler(const REDasm::DisassemblerPtr &disassembler) override;
+        void setDisassembler(RDDisassembler* disassembler) override;
 
     public:
         QVariant data(const QModelIndex &index, int role) const override;

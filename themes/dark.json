@@ -24,6 +24,7 @@
     "meta_fg": "#d95459",
     "pointer_fg": "#d95459",
     "type_fg": "#d95459",
+    "import_fg": "#745ec5",
 
     "strong_fg": "#d45c9e",
     "strong_bg": "#34495e",

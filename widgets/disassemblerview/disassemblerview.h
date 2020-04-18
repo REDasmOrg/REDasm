@@ -4,7 +4,7 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QHexView/qhexview.h>
-#include <redasm/disassembler/disassembler.h>
+#include <rdapi/rdapi.h>
 #include "../../models/symboltablemodel.h"
 #include "../../models/segmentsmodel.h"
 #include "../../dialogs/gotodialog/gotodialog.h"
@@ -25,8 +25,8 @@ class DisassemblerView : public QWidget
     public:
         explicit DisassemblerView(QLineEdit* lefilter, QWidget *parent = nullptr);
         virtual ~DisassemblerView();
-        REDasm::Disassembler *disassembler();
-        void bindDisassembler(REDasm::Disassembler *disassembler);
+        RDDisassembler* disassembler();
+        void bindDisassembler(RDDisassembler* disassembler);
         void hideActions();
         void toggleFilter();
         void showFilter();
@@ -55,9 +55,11 @@ class DisassemblerView : public QWidget
         void showMenu(const QPoint&);
 
     private:
-        REDasm::ListingItem itemFromIndex(const QModelIndex& index) const;
+        bool itemFromIndex(const QModelIndex& index, RDDocumentItem* item) const;
         ListingFilterModel* getSelectedFilterModel();
-        REDasm::String currentWord() const;
+        QString currentWord() const;
+        RDCursor* activeCursor() const;
+        bool getCurrentItem(RDDocumentItem* item) const;
         void showListingOrGraph();
         void createActions();
         void filterSymbols();
@@ -65,7 +67,7 @@ class DisassemblerView : public QWidget
 
     private:
         Ui::DisassemblerView *ui;
-        REDasm::DisassemblerPtr m_disassembler;
+        RDDisassembler* m_disassembler{nullptr};
         DisassemblerViewActions* m_actions;
         DisassemblerViewDocks* m_docks;
         DisassemblerGraphView* m_graphview;

@@ -1,8 +1,7 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <redasm/disassembler/disassembler.h>
-#include "../convert.h"
+#include <rdapi/rdapi.h>
 
 class DisassemblerModel : public QAbstractListModel
 {
@@ -12,10 +11,10 @@ class DisassemblerModel : public QAbstractListModel
         explicit DisassemblerModel(QObject *parent = nullptr);
 
     public:
-        const REDasm::DisassemblerPtr& disassembler() const;
-        virtual void setDisassembler(const REDasm::DisassemblerPtr& disassembler);
+        const RDDisassembler* disassembler() const;
+        virtual void setDisassembler(RDDisassembler* disassembler);
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
     protected:
-        REDasm::DisassemblerPtr m_disassembler;
+        RDDisassembler* m_disassembler;
 };

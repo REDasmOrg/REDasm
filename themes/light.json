@@ -9,6 +9,7 @@
     "meta_fg": "#8eb021",
     "pointer_fg": "#d95459",
     "type_fg": "#d95459",
+    "import_fg": "#5b48a2",
 
     "strong_fg": "#d45c9e",
     "strong_bg": "#e2ffff",

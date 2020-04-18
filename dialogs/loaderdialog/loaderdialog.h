@@ -2,7 +2,7 @@
 
 #include <QStandardItemModel>
 #include <QDialog>
-#include <redasm/plugins/pluginmanager.h>
+#include <rdapi/rdapi.h>
 
 namespace Ui {
 class LoaderDialog;
@@ -13,10 +13,10 @@ class LoaderDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit LoaderDialog(const REDasm::LoadRequest &request, QWidget *parent = nullptr);
+        explicit LoaderDialog(const RDLoaderRequest *request, QWidget *parent = nullptr);
         ~LoaderDialog();
-        const REDasm::PluginInstance* selectedLoader() const;
-        const REDasm::PluginInstance* selectedAssembler() const;
+        RDLoaderPlugin* selectedLoader() const;
+        RDAssemblerPlugin* selectedAssembler() const;
         flag_t selectedLoaderFlags() const;
         address_t baseAddress() const;
         address_t entryPoint() const;
@@ -37,6 +37,7 @@ class LoaderDialog : public QDialog
     private:
         Ui::LoaderDialog *ui;
         QStandardItemModel* m_loadersmodel;
-        REDasm::PluginList m_loaders, m_assemblers;
-        const REDasm::LoadRequest& m_request;
+        QList<RDLoaderPlugin*> m_loaders;
+        QList<RDAssemblerPlugin*> m_assemblers;
+        const RDLoaderRequest* m_request;
 };

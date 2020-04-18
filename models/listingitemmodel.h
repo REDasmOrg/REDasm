@@ -1,9 +1,10 @@
 #pragma once
 
 #include <QList>
+#include <QSet>
 #include "disassemblermodel.h"
-#include <redasm/disassembler/listing/document/listingdocument.h>
-#include <redasm/disassembler/listing/backend/listingitems.h>
+#include <rdapi/document/document.h>
+#include <rdapi/events.h>
 
 class ListingItemModel : public DisassemblerModel
 {
@@ -11,26 +12,32 @@ class ListingItemModel : public DisassemblerModel
 
     public:
         explicit ListingItemModel(type_t itemtype, QObject *parent = nullptr);
-        ~ListingItemModel();
-        void setDisassembler(const REDasm::DisassemblerPtr &disassembler) override;
-        REDasm::ListingItem item(const QModelIndex& index) const;
-        address_location address(const QModelIndex& index) const;
+        virtual ~ListingItemModel();
+        void setDisassembler(RDDisassembler* disassembler) override;
+        const RDDocumentItem& item(const QModelIndex& index) const;
+        //address_location address(const QModelIndex& index) const;
 
     public:
-        QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
         int rowCount(const QModelIndex& = QModelIndex()) const override;
         int columnCount(const QModelIndex& = QModelIndex()) const override;
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     protected:
-        virtual bool isItemAllowed(const REDasm::ListingItem& item) const;
+        virtual bool isItemAllowed(const RDDocumentItem& item) const;
 
     private:
-        void onListingChanged(const REDasm::EventArgs* e);
+        static QString escapeString(const QString& s);
+        void onItemChanged(const RDEventArgs* e);
+        void onItemInserted(const RDEventArgs* e);
+        void onItemRemoved(const RDEventArgs* e);
+
+    protected:
+        RDDocument* m_document{nullptr};
 
     private:
-        REDasm::SortedList m_items;
+        QList<RDDocumentItem> m_items;
+        QSet<event_t> m_events;
         type_t m_itemtype;
 
     friend class ListingFilterModel;

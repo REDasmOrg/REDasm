@@ -1,15 +1,16 @@
 #include "referencesdialog.h"
 #include "ui_referencesdialog.h"
-#include "../../convert.h"
 
-ReferencesDialog::ReferencesDialog(const REDasm::Symbol* symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog)
+ReferencesDialog::ReferencesDialog(RDDisassembler* disassembler, const RDSymbol* symbol, const RDCursor* cursor, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog)
 {
     ui->setupUi(this);
 
-    this->setWindowTitle(QString("%1 References").arg(Convert::to_qstring(symbol->name)));
+    RDDocument* doc = RDDisassembler_GetDocument(disassembler);
+    this->setWindowTitle(QString("%1 References").arg(RDDocument_GetSymbolName(doc, symbol->address)));
 
     m_referencesmodel = new ReferencesModel(ui->tvReferences);
-    m_referencesmodel->xref(symbol->address);
+    m_referencesmodel->setDisassembler(disassembler);
+    m_referencesmodel->xref(symbol->address, cursor);
 
     ui->tvReferences->setModel(m_referencesmodel);
 }

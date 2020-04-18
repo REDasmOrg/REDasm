@@ -158,17 +158,17 @@ void DisassemblerGraphView::showEvent(QShowEvent *e)
 
 void DisassemblerGraphView::timerEvent(QTimerEvent *e)
 {
-    if(!m_disassembler->busy() && this->isVisible() && (e->timerId() == m_blinktimer))
-    {
-        GraphViewItem* item = this->selectedItem();
+    // if(!m_disassembler->busy() && this->isVisible() && (e->timerId() == m_blinktimer))
+    // {
+    //     GraphViewItem* item = this->selectedItem();
 
-        if(!this->viewport()->hasFocus() || !item) r_doc->cursor().disable();
-        else r_doc->cursor().toggle();
+    //     if(!this->viewport()->hasFocus() || !item) r_doc->cursor().disable();
+    //     else r_doc->cursor().toggle();
 
-        if(item) item->invalidate();
-    }
+    //     if(item) item->invalidate();
+    // }
 
-    GraphView::timerEvent(e);
+    // GraphView::timerEvent(e);
 }
 
 void DisassemblerGraphView::selectedItemChangedEvent()

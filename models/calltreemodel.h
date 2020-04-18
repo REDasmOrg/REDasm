@@ -4,6 +4,7 @@
 #include <redasm/plugins/assembler/printer/printer.h>
 #include <redasm/disassembler/model/calltree.h>
 #include <redasm/disassembler/disassembler.h>
+#include <rdapi/rdapi.h>
 
 class CallTreeModel : public QAbstractItemModel
 {
@@ -12,7 +13,7 @@ class CallTreeModel : public QAbstractItemModel
     public:
         explicit CallTreeModel(QObject *parent = nullptr);
         const REDasm::ListingItem& item(const QModelIndex& index) const;
-        void setDisassembler(const REDasm::DisassemblerPtr&);
+        void setDisassembler(RDDisassembler* disassembler);
         void initializeGraph(address_t address);
 
     public:
@@ -28,6 +29,7 @@ class CallTreeModel : public QAbstractItemModel
         void populateCallGraph(const QModelIndex& index);
 
     private:
+        RDDisassembler* m_disassembler{nullptr};
         REDasm::object_ptr<REDasm::Printer> m_printer;
         std::unique_ptr<REDasm::CallTree> m_calltree;
         REDasm::ListingItem m_currentitem;

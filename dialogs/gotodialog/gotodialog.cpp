@@ -7,7 +7,7 @@ GotoDialog::GotoDialog(const REDasm::DisassemblerPtr& disassembler, QWidget *par
     ui->setupUi(this);
 
     m_gotomodel = new GotoFilterModel(ui->tvFunctions);
-    m_gotomodel->setDisassembler(disassembler);
+    //m_gotomodel->setDisassembler(disassembler);
 
     ui->tvFunctions->setModel(m_gotomodel);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);

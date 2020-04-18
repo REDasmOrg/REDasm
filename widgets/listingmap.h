@@ -1,8 +1,7 @@
-#ifndef LISTINGMAP_H
-#define LISTINGMAP_H
+#pragma once
 
 #include <QWidget>
-#include <redasm/disassembler/disassembler.h>
+#include <rdapi/rdapi.h>
 
 class ListingMap : public QWidget
 {
@@ -10,7 +9,7 @@ class ListingMap : public QWidget
 
     public:
         explicit ListingMap(QWidget *parent = 0);
-        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
+        void setDisassembler(RDDisassembler* disassembler);
         QSize sizeHint() const override;
 
     private:
@@ -29,8 +28,8 @@ class ListingMap : public QWidget
         void resizeEvent(QResizeEvent* e) override;
 
     private:
-        REDasm::DisassemblerPtr m_disassembler;
-        s32 m_orientation, m_totalsize;
+        RDDisassembler* m_disassembler{nullptr};
+        RDDocument* m_document{nullptr};
+        s32 m_orientation{Qt::Vertical};
+        size_t m_totalsize{0};
 };
-
-#endif // LISTINGMAP_H

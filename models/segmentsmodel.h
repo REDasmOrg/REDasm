@@ -1,5 +1,4 @@
-#ifndef SEGMENTSMODEL_H
-#define SEGMENTSMODEL_H
+#pragma once
 
 #include "listingitemmodel.h"
 
@@ -16,7 +15,5 @@ class SegmentsModel : public ListingItemModel
         int columnCount(const QModelIndex&) const override;
 
     private:
-        static QString segmentFlags(const REDasm::Segment* segment);
+        static QString segmentFlags(const RDSegment& segment);
 };
-
-#endif // SEGMENTSMODEL_H

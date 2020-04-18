@@ -1,22 +1,20 @@
 #include "loaderdialog.h"
 #include "ui_loaderdialog.h"
-#include "../convert.h"
-#include <redasm/plugins/loader/loader.h>
-#include <redasm/context.h>
 #include <QPushButton>
 
-LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(request)
+LoaderDialog::LoaderDialog(const RDLoaderRequest* request, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(request)
 {
     ui->setupUi(this);
 
-    m_loaders = r_pm->getLoaders(request);
+    RD_GetLoaders(request, [](RDLoaderPlugin* descriptor, void* userdata) {
+        LoaderDialog* thethis = reinterpret_cast<LoaderDialog*>(userdata);
+        thethis->m_loaders.push_back(descriptor);
+    }, this);
+
     m_loadersmodel = new QStandardItemModel(ui->lvLoaders);
 
-    for(size_t i = 0; i < m_loaders.size(); i++)
-    {
-        const REDasm::PluginInstance* pi = m_loaders.at(i);
-        m_loadersmodel->appendRow(new QStandardItem(Convert::to_qstring(pi->descriptor->description)));
-    }
+    for(const RDLoaderPlugin* d : m_loaders)
+        m_loadersmodel->appendRow(new QStandardItem(d->header.name));
 
     ui->lvLoaders->setModel(m_loadersmodel);
     ui->lvLoaders->setCurrentIndex(m_loadersmodel->index(0, 0));
@@ -27,18 +25,9 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) 
     this->syncAssembler();
 
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &LoaderDialog::onAccepted);
-
-    connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&)  {
-        this->validateInput();
-    });
-
-    connect(ui->leEntryPoint, &QLineEdit::textEdited, this, [&](const QString&)  {
-        this->validateInput();
-    });
-
-    connect(ui->leOffset, &QLineEdit::textEdited, this, [&](const QString&)  {
-        this->validateInput();
-    });
+    connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&) { this->validateInput(); });
+    connect(ui->leEntryPoint, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateInput(); });
+    connect(ui->leOffset, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateInput(); });
 
     connect(ui->lvLoaders, &QListView::clicked, this, [&](const QModelIndex&) {
         this->checkFlags();
@@ -50,38 +39,34 @@ LoaderDialog::LoaderDialog(const REDasm::LoadRequest& request, QWidget *parent) 
 LoaderDialog::~LoaderDialog()
 {
     if(!m_assemblers.empty() && this->selectedAssembler())
-    {
-        m_assemblers.erase(this->selectedLoader()); // Keep selected assembler
-        r_pm->unload(m_assemblers);
-    }
+        m_assemblers.removeOne(this->selectedAssembler()); // Keep selected assembler
 
     if(!m_loaders.empty())
-    {
-        m_loaders.erase(this->selectedLoader());   // Keep selected loader
-        r_pm->unload(m_loaders);
-    }
+        m_loaders.removeOne(this->selectedLoader()); // Keep selected loader
+
+    std::for_each(m_loaders.begin(), m_loaders.end(), [](RDLoaderPlugin* plugin) {
+        RDPlugin_Free(&plugin->header);
+    });
+
+    std::for_each(m_assemblers.begin(), m_assemblers.end(), [](RDAssemblerPlugin* plugin) {
+        RDPlugin_Free(&plugin->header);
+    });
 
     delete ui;
 }
 
-const REDasm::PluginInstance *LoaderDialog::selectedLoader() const
+RDLoaderPlugin *LoaderDialog::selectedLoader() const
 {
     QModelIndex index = ui->lvLoaders->currentIndex();
-
-    if(!index.isValid())
-        return nullptr;
-
+    if(!index.isValid()) return nullptr;
     return m_loaders.at(index.row());
 }
 
-const REDasm::PluginInstance* LoaderDialog::selectedAssembler() const
+RDAssemblerPlugin* LoaderDialog::selectedAssembler() const
 {
     flag_t flags = this->selectedLoaderFlags();
-
-    if(flags & REDasm::Loader::CustomAssembler)
-        return m_assemblers.at(ui->cbAssembler->currentIndex());
-
-    return nullptr;
+    if(flags & LoaderFlags_CustomAssembler) return m_assemblers.at(ui->cbAssembler->currentIndex());
+    return RDLoader_GetAssembler(this->selectedLoader());
 }
 
 address_t LoaderDialog::baseAddress() const { return ui->leBaseAddress->text().toULongLong(nullptr, 16); }
@@ -91,12 +76,7 @@ offset_t LoaderDialog::offset() const { return ui->leOffset->text().toULongLong(
 flag_t LoaderDialog::selectedLoaderFlags() const
 {
     QModelIndex index = ui->lvLoaders->currentIndex();
-
-    if(!index.isValid())
-        return REDasm::Loader::None;
-
-    const REDasm::PluginInstance* pi = m_loaders.at(index.row());
-    return plugin_cast<REDasm::Loader>(pi)->flags();
+    return index.isValid() ? m_loaders[index.row()]->flags : LoaderFlags_None;
 }
 
 void LoaderDialog::checkFlags()
@@ -112,8 +92,8 @@ void LoaderDialog::checkFlags()
     }
 
     flag_t flags = this->selectedLoaderFlags();
-    ui->cbAssembler->setEnabled(flags & REDasm::Loader::CustomAssembler);
-    ui->tabAddressing->setEnabled(flags & REDasm::Loader::CustomAddressing);
+    ui->cbAssembler->setEnabled(flags & LoaderFlags_CustomAssembler);
+    ui->tabAddressing->setEnabled(flags & LoaderFlags_CustomAddressing);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
@@ -122,9 +102,9 @@ void LoaderDialog::validateInput()
     bool okenabled = true;
     flag_t flags = this->selectedLoaderFlags();
 
-    if(flags & REDasm::Loader::CustomAddressing)
+    if(flags & LoaderFlags_CustomAddressing)
     {
-        if(ui->leOffset->text().isEmpty() || (this->offset() >= m_request.buffer()->size()))
+        if(ui->leOffset->text().isEmpty() || (this->offset() >= RDBuffer_Size(m_request->buffer)))
             okenabled = false;
         if((ui->leEntryPoint->text().isEmpty() || ui->leBaseAddress->text().isEmpty()) || (this->entryPoint() > this->baseAddress()))
             okenabled = false;
@@ -147,42 +127,33 @@ void LoaderDialog::updateInputMask()
 
 void LoaderDialog::syncAssembler()
 {
-    const REDasm::PluginInstance* pi = this->selectedLoader();
+    const RDLoaderPlugin* ploader = this->selectedLoader();
+    if(!ploader) return;
 
-    if(!pi)
-        return;
-
-    auto* loader = plugin_cast<REDasm::Loader>(pi);
-
-    for(size_t i = 0; i < m_assemblers.size(); i++)
-    {
-        if(loader->assembler().id != m_assemblers.at(i)->descriptor->id)
-            continue;
-
-        ui->cbAssembler->setCurrentText(Convert::to_qstring(m_assemblers.at(i)->descriptor->description));
-        break;
-    }
+    const RDAssemblerPlugin* selassembler = RDLoader_GetAssembler(ploader);
+    if(selassembler) ui->cbAssembler->setCurrentText(selassembler->header.name);
+    else ui->cbAssembler->setCurrentIndex(-1);
 }
 
 void LoaderDialog::populateAssemblers()
 {
-    m_assemblers = r_pm->getAssemblers();
+    ui->cbAssembler->addItem(QString()); // Empty placeholder
 
-    for(size_t i = 0; i < m_assemblers.size(); i++)
-    {
-        const REDasm::PluginInstance* pi = m_assemblers.at(i);
-        ui->cbAssembler->addItem(Convert::to_qstring(pi->descriptor->description), Convert::to_qstring(pi->descriptor->id));
-    }
+    RD_GetAssemblers([](RDAssemblerPlugin* plugin, void* userdata) {
+        LoaderDialog* thethis = reinterpret_cast<LoaderDialog*>(userdata);
+        thethis->m_assemblers.push_back(plugin);
+        thethis->ui->cbAssembler->addItem(plugin->header.name, plugin->header.id);
+    }, this);
 }
 
 void LoaderDialog::onAccepted()
 {
-    flag_t flags = REDasm::Context::None;
+    flag_t flags = ContextFlag_None;
 
-    if(ui->chkNoCFG->isChecked()) flags |= REDasm::Context::DisableCFG;
-    if(ui->chkNoAnalysis->isChecked()) flags |= REDasm::Context::DisableAnalyzer;
-    if(ui->chkNoSignatures->isChecked()) flags |= REDasm::Context::DisableSignature;
-    if(ui->chkNoUnexplored->isChecked()) flags |= REDasm::Context::DisableUnexplored;
+    if(ui->chkNoCFG->isChecked()) flags |= ContextFlag_DisableCFG;
+    if(ui->chkNoAnalysis->isChecked()) flags |= ContextFlag_DisableAnalyzer;
+    if(ui->chkNoSignatures->isChecked()) flags |= ContextFlag_DisableSignature;
+    if(ui->chkNoUnexplored->isChecked()) flags |= ContextFlag_DisableUnexplored;
 
-    r_ctx->flags(flags);
+    RD_SetContextFlags(flags);
 }

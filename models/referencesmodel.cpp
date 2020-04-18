@@ -1,58 +1,56 @@
 #include "referencesmodel.h"
-#include <redasm/disassembler/listing/backend/referencetable.h>
-#include <redasm/plugins/assembler/assembler.h>
-#include <redasm/plugins/loader/loader.h>
-#include <redasm/support/utils.h>
-#include <redasm/redasm.h>
 #include "../themeprovider.h"
 #include "../convert.h"
 
-ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent) { m_printer = r_asm->createPrinter(); }
+ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent) { }
+ReferencesModel::~ReferencesModel() { if(m_renderer) RD_Free(m_renderer); }
+
+void ReferencesModel::setDisassembler(RDDisassembler* disassembler)
+{
+    DisassemblerModel::setDisassembler(disassembler);
+    m_renderer = RDRenderer_Create(m_disassembler, nullptr, RendererFlags_Simplified);
+}
 
 void ReferencesModel::clear()
 {
     this->beginResetModel();
-    m_references.clear();
+    m_cursor = nullptr;
+    m_referencescount = 0;
+    m_references = nullptr;
     this->endResetModel();
 }
 
-void ReferencesModel::xref(address_t address)
+void ReferencesModel::xref(address_t address, const RDCursor* cursor)
 {
-    if(!r_disasm || r_disasm->busy())
-        return;
+    if(!m_disassembler || RD_IsBusy()) return;
 
     this->beginResetModel();
-    m_references = r_disasm->getReferences(address);
+    m_cursor = cursor;
+    m_referencescount = RDDisassembler_GetReferences(m_disassembler, address, &m_references);
     this->endResetModel();
-}
-
-QModelIndex ReferencesModel::index(int row, int column, const QModelIndex &) const
-{
-    if(row >= static_cast<int>(m_references.size()))
-        return QModelIndex();
-
-    return this->createIndex(row, column, m_references[row].toU64());
 }
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 {
-    if(!r_disasm || r_disasm->busy()) return QVariant();
+    if(!m_disassembler || !m_renderer || RD_IsBusy()) return QVariant();
 
-    REDasm::ListingItem item = r_doc->itemInstruction(m_references[index.row()].toU64());
-    if(!item.isValid()) item = r_doc->itemSymbol(m_references[index.row()].toU64());
-    if(!item.isValid()) return QVariant();
+    RDDocument* doc = RDDisassembler_GetDocument(m_disassembler);
+    RDDocumentItem item;
+
+    if(!RDDocument_GetInstructionItem(doc, m_references[index.row()], &item))
+    {
+        if(!RDDocument_GetSymbolItem(doc, m_references[index.row()], &item))
+            return QVariant();
+    }
 
     if(role == Qt::DisplayRole)
     {
-        if(index.column() == 0) return Convert::to_qstring(REDasm::String::hex(item.address, r_asm->bits()));
-        else if(index.column() == 1) return this->direction(item.address);
+        if(index.column() == 0) return RD_ToHex(item.address);
+        else if(index.column() == 1) return this->direction(doc, item.address);
         else if(index.column() == 2)
         {
-            if(item.is(REDasm::ListingItem::InstructionItem))
-                return Convert::to_qstring(m_printer->out(r_doc->instruction(item.address)).simplified());
-            else if(item.is(REDasm::ListingItem::SymbolItem)) {
-                return Convert::to_qstring(r_doc->symbol(item.address)->name);
-            }
+            if(item.type == DocumentItemType_Instruction) return RDRenderer_GetInstruction(m_renderer, item.address);
+            else if(item.type == DocumentItemType_Symbol) return RDDocument_GetSymbolName(doc, item.address);
         }
     }
     else if(role == Qt::ForegroundRole)
@@ -61,19 +59,21 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 
         if(index.column() == 2)
         {
-            if(item.is(REDasm::ListingItem::InstructionItem))
+            if(item.type == DocumentItemType_Instruction)
             {
-                REDasm::CachedInstruction instruction = r_doc->instruction(item.address);
+                InstructionLock instruction(doc, item.address);
+                if(!instruction) return QVariant();
 
-                if(!instruction->isConditional()) return THEME_VALUE("instruction_jmp_c");
-                else if(instruction->isJump()) return THEME_VALUE("instruction_jmp");
-                else if(instruction->isCall()) return THEME_VALUE("instruction_call");
+                if(instruction->flags & InstructionFlags_Conditional) return THEME_VALUE("instruction_jmp_c");
+                else if(instruction->type == InstructionType_Jump) return THEME_VALUE("instruction_jmp");
+                else if(instruction->type == InstructionType_Call) return THEME_VALUE("instruction_call");
             }
-            else if(item.is(REDasm::ListingItem::SymbolItem))
+            else if(item.type == DocumentItemType_Symbol)
             {
-                const REDasm::Symbol* symbol = r_doc->symbol(item.address);
-                if(symbol->isData()) return THEME_VALUE("data_fg");
-                else if(symbol->isString()) return THEME_VALUE("string_fg");
+                RDSymbol symbol;
+                if(!RDDocument_GetSymbolByAddress(doc, item.address, &symbol)) return QVariant();
+                if(symbol.type == SymbolType_Data) return THEME_VALUE("data_fg");
+                else if(symbol.type == SymbolType_String) return THEME_VALUE("string_fg");
             }
         }
     }
@@ -93,18 +93,17 @@ QVariant ReferencesModel::headerData(int section, Qt::Orientation orientation, i
     return QVariant();
 }
 
-int ReferencesModel::rowCount(const QModelIndex &) const { return static_cast<int>(m_references.size()); }
+int ReferencesModel::rowCount(const QModelIndex &) const { return static_cast<int>(m_referencescount); }
 int ReferencesModel::columnCount(const QModelIndex &) const { return 3; }
 
-QString ReferencesModel::direction(address_t address) const
+QString ReferencesModel::direction(RDDocument* doc, address_t address) const
 {
-    REDasm::ListingItem item = r_doc->itemAt(r_doc->cursor().currentLine());
+    if(!m_cursor) return QString();
 
-    if(item.isValid())
-    {
-        if(address > item.address) return "Down";
-        if(address < item.address) return "Up";
-    }
+    RDDocumentItem item;
+    if(!RDDocument_GetItemAt(doc, RDCursor_CurrentLine(m_cursor), &item)) return QString();
 
+    if(address > item.address) return "Down";
+    if(address < item.address) return "Up";
     return "---";
 }

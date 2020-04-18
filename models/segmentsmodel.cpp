@@ -2,6 +2,7 @@
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/utils.h>
+#include <rdapi/support.h>
 #include <QColor>
 #include "../themeprovider.h"
 #include "../convert.h"
@@ -12,26 +13,26 @@ SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(REDasm::Listing
 
 QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 {
-    if(!m_disassembler)
-        return QVariant();
+    if(!m_document) return QVariant();
 
     if(role == Qt::DisplayRole)
     {
-        const REDasm::Assembler* assembler = m_disassembler->assembler();
-        const REDasm::Segment* segment = m_disassembler->document()->segments()->at(index.row());
+        const RDDocumentItem& item = this->item(index);
+        RDSegment segment;
+        RDDocument_GetSegmentAddress(m_document, item.address, &segment);
 
         switch(index.column())
         {
-            case 0: return Convert::to_qstring(REDasm::String::hex(segment->address, assembler->bits()));
-            case 1: return Convert::to_qstring(REDasm::String::hex(segment->endaddress, assembler->bits()));
-            case 2: return Convert::to_qstring(REDasm::String::hex(segment->size(), assembler->bits()));
-            case 3: return Convert::to_qstring(REDasm::String::hex(segment->offset, assembler->bits()));
-            case 4: return Convert::to_qstring(REDasm::String::hex(segment->endoffset, assembler->bits()));
-            case 5: return Convert::to_qstring(REDasm::String::hex(segment->rawSize(), assembler->bits()));
-            case 6: return Convert::to_qstring(segment->name());
+            case 0: return QString::fromUtf8(RD_ToHexBits(segment.address, RDDisassembler_Bits(m_disassembler), false));
+            case 1: return QString::fromUtf8(RD_ToHexBits(segment.endaddress, RDDisassembler_Bits(m_disassembler), false));
+            case 2: return QString::fromUtf8(RD_ToHexBits(RDSegment_Size(&segment), RDDisassembler_Bits(m_disassembler), false));
+            case 3: return QString::fromUtf8(RD_ToHexBits(segment.offset, RDDisassembler_Bits(m_disassembler), false));
+            case 4: return QString::fromUtf8(RD_ToHexBits(segment.endoffset, RDDisassembler_Bits(m_disassembler), false));
+            case 5: return QString::fromUtf8(RD_ToHexBits(RDSegment_RawSize(&segment), RDDisassembler_Bits(m_disassembler), false));
+            case 6: return QString::fromUtf8(segment.name);
             case 7: return SegmentsModel::segmentFlags(segment);
-            case 8: return (segment->coveragebytes == REDasm::npos) ? "N/A" : (QString::number((static_cast<double>(segment->coveragebytes) /
-                                                                                                static_cast<double>(segment->rawSize())) * 100, 'g', 3) + "%");
+            //case 8: return (segment->coveragebytes == REDasm::npos) ? "N/A" : (QString::number((static_cast<double>(segment->coveragebytes) /
+                                                                                                         //static_cast<double>(segment->rawSize())) * 100, 'g', 3) + "%");
             default: break;
         }
     }
@@ -74,18 +75,11 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
 
 int SegmentsModel::columnCount(const QModelIndex &) const { return 9; }
 
-QString SegmentsModel::segmentFlags(const REDasm::Segment *segment)
+QString SegmentsModel::segmentFlags(const RDSegment& segment)
 {
     QString s;
-
-    if(segment->is(REDasm::Segment::T_Code))
-        ADD_SEGMENT_TYPE(s, "CODE")
-
-    if(segment->is(REDasm::Segment::T_Data))
-        ADD_SEGMENT_TYPE(s, "DATA")
-
-    if(segment->is(REDasm::Segment::T_Bss))
-        ADD_SEGMENT_TYPE(s, "BSS")
-
+    if(segment.type & SegmentType_Code) ADD_SEGMENT_TYPE(s, "CODE")
+    if(segment.type & SegmentType_Data) ADD_SEGMENT_TYPE(s, "DATA")
+    if(segment.type & SegmentType_Bss)  ADD_SEGMENT_TYPE(s, "BSS")
     return s;
 }

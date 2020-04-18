@@ -1,6 +1,7 @@
 #include "disassemblercolumnview.h"
 #include "../../themeprovider.h"
-#include <redasm/context.h>
+#include "disassemblertextview.h"
+#include <QScrollBar>
 #include <QPainter>
 
 DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
@@ -9,7 +10,29 @@ DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
     this->setAutoFillBackground(true);
 }
 
-void DisassemblerColumnView::setDisassembler(const REDasm::DisassemblerPtr& disassembler) { m_disassembler = disassembler; }
+DisassemblerColumnView::~DisassemblerColumnView() { std::for_each(m_events.begin(), m_events.end(), RDEvent_Unsubscribe); }
+
+void DisassemblerColumnView::linkTo(DisassemblerTextView* textview)
+{
+    m_textview = textview;
+    m_cursor = textview->activeCursor();
+    m_disassembler = textview->disassembler();
+    m_document = RDDisassembler_GetDocument(m_disassembler);
+
+    connect(m_textview->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderArrows(); });
+
+    m_events.insert(RDEvent_Subscribe(Event_DisassemblerBusyChanged, [](const RDEventArgs*, void* userdata) {
+        if(RD_IsBusy()) return;
+        auto* thethis = reinterpret_cast<DisassemblerColumnView*>(userdata);
+        QMetaObject::invokeMethod(thethis, "renderArrows", Qt::QueuedConnection);
+    }, this));
+
+    m_events.insert(RDEvent_Subscribe(Event_CursorPositionChanged, [](const RDEventArgs*, void* userdata) {
+        if(RD_IsBusy()) return;
+        auto* thethis = reinterpret_cast<DisassemblerColumnView*>(userdata);
+        QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
+    }, this));
+}
 
 void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 {
@@ -19,53 +42,55 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
     m_paths.clear();
     m_done.clear();
 
-    if(r_disasm->busy())
-        return;
+    if(RD_IsBusy()) return;
 
     for(size_t i = 0; i < count; i++, start++)
     {
-        if(start >= r_doc->itemsCount())
-            break;
+        if(start >= RDDocument_ItemsCount(m_document)) break;
 
-        REDasm::ListingItem item = r_doc->itemAt(start);
+        RDDocumentItem item;
+        if(!RDDocument_GetItemAt(m_document, start, &item)) continue;
 
-        if(item.is(REDasm::ListingItem::InstructionItem))
+        if(item.type == DocumentItemType_Instruction)
         {
-            REDasm::CachedInstruction instruction = r_doc->instruction(item.address);
-            if(!instruction->isJump()) continue;
+            InstructionLock instruction(m_document, item.address);
+            if(instruction->type != InstructionType_Jump) continue;
 
-            REDasm::SortedSet targets = r_disasm->getTargets(instruction->address);
+            const address_t* targets = nullptr;
+            size_t c = RDDisassembler_GetTargets(m_disassembler, instruction->address, &targets);
 
-            for(size_t i = 0; i < targets.size(); i++)
+            for(size_t i = 0; i < c; i++)
             {
-                address_t target = targets[i].toU64();
+                address_t target = targets[i];
                 if(target == instruction->address) continue;
 
-                size_t idx = r_doc->itemInstructionIndex(target);
-                if(idx >= r_doc->itemsCount()) continue;
-
+                size_t idx = RDDocument_InstructionIndex(m_document, target);
+                if(idx >= RDDocument_ItemsCount(m_document)) continue;
                 this->insertPath(item, start, idx);
             }
         }
-        else if(item.is(REDasm::ListingItem::SymbolItem))
+        else if(item.type == DocumentItemType_Symbol)
         {
-            const REDasm::Symbol* symbol = r_doc->symbol(item.address);
-            if(!symbol || !symbol->isLabel()) continue;
+            RDSymbol symbol;
+            if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol) || (symbol.type != SymbolType_Label)) continue;
 
-            size_t toidx = r_doc->itemInstructionIndex(item.address);
-            if(toidx >= r_doc->itemsCount()) continue;
+            size_t toidx = RDDocument_InstructionIndex(m_document, item.address);
+            if(toidx >= RDDocument_ItemsCount(m_document)) continue;
 
-            REDasm::SortedSet refs = m_disassembler->getReferences(item.address);
+            const address_t* references = nullptr;
+            size_t c = RDDisassembler_GetReferences(m_disassembler, item.address, &references);
 
-            for(size_t i = 0; i < refs.size(); i++)
+            for(size_t i = 0; i < c; i++)
             {
-                address_t ref = refs[i].toU64();
+                address_t ref = references[i];
                 if(ref == item.address) continue;
 
-                size_t idx = r_doc->itemInstructionIndex(ref);
-                if(idx >= r_doc->itemsCount()) continue;
+                size_t idx = RDDocument_InstructionIndex(m_document, ref);
+                if(idx >= RDDocument_ItemsCount(m_document)) continue;
 
-                this->insertPath(r_doc->itemAt(idx), idx, toidx);
+                RDDocumentItem item;
+                RDDocument_GetItemAt(m_document, idx, &item);
+                this->insertPath(item, idx, toidx);
             }
         }
     }
@@ -77,9 +102,15 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
     this->update();
 }
 
+void DisassemblerColumnView::renderArrows()
+{
+    if(RD_IsBusy() || !m_textview) return;
+    this->renderArrows(m_textview->firstVisibleLine(), m_textview->visibleLines());
+}
+
 void DisassemblerColumnView::paintEvent(QPaintEvent*)
 {
-    if(!r_disasm || m_paths.empty())
+    if(!m_disassembler || m_paths.empty())
         return;
 
     QPainter painter(this);
@@ -123,7 +154,7 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
 
 bool DisassemblerColumnView::isPathSelected(const DisassemblerColumnView::ArrowPath &path) const
 {
-    size_t line = r_doc->cursor().currentLine();
+    size_t line = RDCursor_CurrentLine(m_cursor);
     return (line == path.startidx) || (line == path.endidx);
 }
 
@@ -147,28 +178,24 @@ void DisassemblerColumnView::fillArrow(QPainter* painter, int y, const QFontMetr
     painter->fillPath(path, painter->pen().brush());
 }
 
-void DisassemblerColumnView::insertPath(const REDasm::ListingItem& fromitem, size_t fromidx, size_t toidx)
+void DisassemblerColumnView::insertPath(const RDDocumentItem& fromitem, size_t fromidx, size_t toidx)
 {
     auto pair = qMakePair(fromidx, toidx);
-    REDasm::CachedInstruction frominstruction = r_doc->instruction(fromitem.address);
+    InstructionLock frominstruction(m_document, fromitem.address);
 
-    if(!frominstruction || !frominstruction->isJump() || m_done.contains(pair))
+    if(!frominstruction || (frominstruction->type != InstructionType_Jump) || m_done.contains(pair))
         return;
 
     m_done.insert(pair);
 
     if(fromidx > toidx) // Loop
     {
-        if(frominstruction->isConditional())
-            m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_loop_c") });
-        else
-            m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_loop") });
-
-        return;
+        if(frominstruction->flags & InstructionFlags_Conditional) m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_loop_c") });
+        else m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_loop") });
     }
-
-    if(frominstruction->isConditional())
-        m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_false") });
     else
-        m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge") });
+    {
+        if(frominstruction->flags & InstructionFlags_Conditional) m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_false") });
+        else m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge") });
+    }
 }

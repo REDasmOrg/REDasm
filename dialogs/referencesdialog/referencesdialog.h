@@ -12,7 +12,7 @@ class ReferencesDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit ReferencesDialog(const REDasm::Symbol *symbol, QWidget *parent = nullptr);
+        explicit ReferencesDialog(RDDisassembler* disassembler, const RDSymbol *symbol, const RDCursor* cursor, QWidget *parent = nullptr);
         ~ReferencesDialog();
 
     signals:

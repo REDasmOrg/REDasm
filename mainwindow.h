@@ -14,6 +14,8 @@ namespace Ui {
 class MainWindow;
 }
 
+struct RDBuffer;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -47,13 +49,14 @@ class MainWindow : public QMainWindow
 
     private:
         DisassemblerView* currentDisassemblerView() const;
-        REDasm::Disassembler* currentDisassembler() const;
+        RDDisassembler* currentDisassembler() const;
+        void initializeLibrary();
         void loadWindowState();
         bool loadDatabase(const QString& filepath);
         void load(const QString &filepath);
         void checkCommandLine();
-        void showDisassemblerView(REDasm::Disassembler *disassembler);
-        void selectLoader(const REDasm::LoadRequest &request);
+        void showDisassemblerView(RDDisassembler* disassembler);
+        void selectLoader(const QString& filepath, RDBuffer* buffer);
         void setViewWidgetsVisible(bool b);
         void configureWebEngine();
         bool canClose();

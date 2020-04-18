@@ -2,7 +2,6 @@
 #include "ui_aboutdialog.h"
 #include "../../themeprovider.h"
 #include "../../convert.h"
-#include <redasm/context.h>
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDialog)
 {
@@ -26,10 +25,7 @@ AboutDialog::~AboutDialog() { delete ui; }
 
 void AboutDialog::initItems()
 {
-    QString csversion = Convert::to_qstring(r_ctx->capstoneVersion());
-
     m_depends.push_back({ "Qt",           QT_VERSION_STR, "https://www.qt.io" });
-    m_depends.push_back({ "Capstone",     csversion,      "https://www.capstone-engine.org" });
     m_depends.push_back({ "JSON",         "---",          "https://github.com/nlohmann/json" });
     m_depends.push_back({ "UndName",      "---",          "https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c" });
     m_depends.push_back({ "Libiberty",    "---",          "https://github.com/bminor/binutils-gdb/tree/master/libiberty" });

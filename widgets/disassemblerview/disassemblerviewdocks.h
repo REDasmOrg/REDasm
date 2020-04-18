@@ -5,7 +5,7 @@
 #include <QTabWidget>
 #include <QTableView>
 #include <QTreeView>
-#include <redasm/disassembler/disassembler.h>
+#include <rdapi/rdapi.h>
 #include "../../models/listingfiltermodel.h"
 #include "../../models/calltreemodel.h"
 #include "../../models/referencesmodel.h"
@@ -17,7 +17,8 @@ class DisassemblerViewDocks : public QObject
 
     public:
         explicit DisassemblerViewDocks(QObject *parent = nullptr);
-        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
+        ~DisassemblerViewDocks();
+        void setDisassembler(RDDisassembler* disassembler);
 
     public:
         ListingFilterModel* functionsModel() const;
@@ -39,7 +40,8 @@ class DisassemblerViewDocks : public QObject
         void createListingMap();
 
     private:
-        std::shared_ptr<REDasm::Disassembler> m_disassembler;
+        QSet<event_t> m_events;
+        RDDisassembler* m_disassembler{nullptr};
         QDockWidget *m_dockfunctions, *m_dockcalltree, *m_dockreferences, *m_docklistingmap;
         QTreeView *m_referencesview, *m_calltreeview;
         QTableView* m_functionsview;

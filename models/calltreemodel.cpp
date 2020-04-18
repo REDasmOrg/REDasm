@@ -1,8 +1,4 @@
 #include "calltreemodel.h"
-#include <redasm/plugins/assembler/assembler.h>
-#include <redasm/plugins/loader/loader.h>
-#include <redasm/support/utils.h>
-#include <redasm/redasm.h>
 #include "../themeprovider.h"
 #include "../convert.h"
 #include <QFontDatabase>
@@ -16,19 +12,19 @@ const REDasm::ListingItem& CallTreeModel::item(const QModelIndex& index) const
     return node->data;
 }
 
-void CallTreeModel::setDisassembler(const REDasm::DisassemblerPtr&) { m_printer = r_asm->createPrinter(); }
+void CallTreeModel::setDisassembler(RDDisassembler* disassembler) { m_disassembler = disassembler; /* m_printer = r_asm->createPrinter(); */ }
 
 void CallTreeModel::initializeGraph(address_t address)
 {
-    REDasm::ListingItem item = r_doc->functionStart(address);
-    if(m_currentitem == item) return;
+    // REDasm::ListingItem item = r_doc->functionStart(address);
+    // if(m_currentitem == item) return;
 
-    this->beginResetModel();
+    // this->beginResetModel();
 
-    if(item.isValid()) m_calltree = std::make_unique<REDasm::CallTree>(item);
-    else m_calltree = nullptr;
+    // if(item.isValid()) m_calltree = std::make_unique<REDasm::CallTree>(item);
+    // else m_calltree = nullptr;
 
-    this->endResetModel();
+    // this->endResetModel();
 }
 
 void CallTreeModel::populateCallGraph(const QModelIndex &index)
@@ -44,35 +40,34 @@ void CallTreeModel::populateCallGraph(const QModelIndex &index)
 
 bool CallTreeModel::hasChildren(const QModelIndex& parentindex) const
 {
-    if(!r_disasm || r_disasm->busy() || !m_calltree) return QAbstractItemModel::hasChildren(parentindex);
+    //if(!r_disasm || r_disasm->busy() || !m_calltree) return QAbstractItemModel::hasChildren(parentindex);
 
-    REDasm::CallNode* parentnode = reinterpret_cast<REDasm::CallNode*>(parentindex.internalPointer());
-    if(!parentnode) return true;
-    return parentnode->hasCalls();
+    //REDasm::CallNode* parentnode = reinterpret_cast<REDasm::CallNode*>(parentindex.internalPointer());
+    //if(!parentnode) return true;
+    //return parentnode->hasCalls();
 }
 
 QModelIndex CallTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if(!r_disasm || r_disasm->busy() || !m_calltree) return QModelIndex();
+    //if(!r_disasm || r_disasm->busy() || !m_calltree) return QModelIndex();
 
-    REDasm::CallNode* parentnode = reinterpret_cast<REDasm::CallNode*>(parent.internalPointer());
-    if(!parentnode) return this->createIndex(row, column, m_calltree.get());
-    return this->createIndex(row, column, parentnode->at(row));
+    //REDasm::CallNode* parentnode = reinterpret_cast<REDasm::CallNode*>(parent.internalPointer());
+    //if(!parentnode) return this->createIndex(row, column, m_calltree.get());
+    //return this->createIndex(row, column, parentnode->at(row));
 }
 
 QModelIndex CallTreeModel::parent(const QModelIndex &child) const
 {
-    if(!r_disasm || r_disasm->busy() || !m_calltree) return QModelIndex();
+    //if(!r_disasm || r_disasm->busy() || !m_calltree) return QModelIndex();
 
-    REDasm::CallNode* childnode = reinterpret_cast<REDasm::CallNode*>(child.internalPointer());
-    if(childnode == m_calltree.get()) return QModelIndex();
-    return this->createIndex(childnode->parent()->index(), 0, childnode->parent());
+    //REDasm::CallNode* childnode = reinterpret_cast<REDasm::CallNode*>(child.internalPointer());
+    //if(childnode == m_calltree.get()) return QModelIndex();
+    //return this->createIndex(childnode->parent()->index(), 0, childnode->parent());
 }
 
 QVariant CallTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if(orientation != Qt::Horizontal)
-        return QVariant();
+    if(orientation != Qt::Horizontal) return QVariant();
 
     if(role == Qt::DisplayRole)
     {
@@ -88,35 +83,35 @@ QVariant CallTreeModel::headerData(int section, Qt::Orientation orientation, int
 
 QVariant CallTreeModel::data(const QModelIndex &index, int role) const
 {
-    if(!r_disasm || r_disasm->busy() || !m_calltree)
-        return QVariant();
+    // if(!r_disasm || r_disasm->busy() || !m_calltree)
+    //     return QVariant();
 
-    REDasm::CallNode* node = reinterpret_cast<REDasm::CallNode*>(index.internalPointer());
-    if(!node) return QVariant();
+    // REDasm::CallNode* node = reinterpret_cast<REDasm::CallNode*>(index.internalPointer());
+    // if(!node) return QVariant();
 
-    const REDasm::ListingItem& item = node->data;
-    const REDasm::Symbol* symbol = r_doc->symbol(item.address);
+    // const REDasm::ListingItem& item = node->data;
+    // const REDasm::Symbol* symbol = r_doc->symbol(item.address);
 
-    if(item.is(REDasm::ListingItem::InstructionItem))
-    {
-        REDasm::SortedSet refs = r_disasm->getTargets(item.address);
-        if(!refs.empty()) symbol = r_doc->symbol(refs.first().toU64());
-    }
+    // if(item.is(REDasm::ListingItem::InstructionItem))
+    // {
+    //     REDasm::SortedSet refs = r_disasm->getTargets(item.address);
+    //     if(!refs.empty()) symbol = r_doc->symbol(refs.first().toU64());
+    // }
 
-    if(role == Qt::DisplayRole)
-    {
-        if(index.column() == 0)
-            return Convert::to_qstring(REDasm::String::hex(item.address, r_asm->bits()));
-        else if(index.column() == 1)
-        {
-            if(item.is(REDasm::ListingItem::FunctionItem)) return Convert::to_qstring(symbol->name);
-            return Convert::to_qstring(m_printer->out(r_doc->instruction(item.address)));
-        }
-        else if(index.column() == 2)
-            return node == m_calltree.get() ? "---" : QString::number(r_disasm->getReferencesCount(item.address));
-    }
-    else if((role == Qt::ForegroundRole) && (index.column() == 0)) return THEME_VALUE("address_fg");
-    else if((role == Qt::TextAlignmentRole) && (index.column() == 2)) return Qt::AlignCenter;
+    // if(role == Qt::DisplayRole)
+    // {
+    //     if(index.column() == 0)
+    //         return Convert::to_qstring(REDasm::String::hex(item.address, r_asm->bits()));
+    //     else if(index.column() == 1)
+    //     {
+    //         if(item.is(REDasm::ListingItem::FunctionItem)) return Convert::to_qstring(symbol->name);
+    //         return Convert::to_qstring(m_printer->out(r_doc->instruction(item.address)));
+    //     }
+    //     else if(index.column() == 2)
+    //         return node == m_calltree.get() ? "---" : QString::number(r_disasm->getReferencesCount(item.address));
+    // }
+    // else if((role == Qt::ForegroundRole) && (index.column() == 0)) return THEME_VALUE("address_fg");
+    // else if((role == Qt::TextAlignmentRole) && (index.column() == 2)) return Qt::AlignCenter;
 
     return QVariant();
 }
@@ -125,8 +120,9 @@ int CallTreeModel::columnCount(const QModelIndex &parent) const { Q_UNUSED(paren
 
 int CallTreeModel::rowCount(const QModelIndex &parent) const
 {
-    if(!r_disasm|| r_disasm->busy() || !m_calltree) return 0;
-    REDasm::CallNode* parentnode = reinterpret_cast<REDasm::CallNode*>(parent.internalPointer());
-    if(!parentnode) return 1;
-    return parentnode->size();
+    //if(!r_disasm|| r_disasm->busy() || !m_calltree) return 0;
+    //REDasm::CallNode* parentnode = reinterpret_cast<REDasm::CallNode*>(parent.internalPointer());
+    //if(!parentnode) return 1;
+    //return parentnode->size();
+    return 0;
 }

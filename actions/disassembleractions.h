@@ -1,23 +1,24 @@
 ﻿#pragma once
 
-#include <QAction>
 #include <QObject>
+#include <QAction>
 #include <QMenu>
 #include <redasm/disassembler/listing/listingrenderer.h>
+#include "renderer/painterrenderer.h"
 
 class DisassemblerActions : public QObject
 {
     Q_OBJECT
 
     public:
-        enum { Rename = 0, XRefs, Follow, FollowPointerHexDump,
-               CallGraph, Goto, HexDump, HexDumpFunction, Comment, CreateFunction,
-               Back, Forward, Copy,
-               ItemInformation };
+        enum { Action_Rename = 0, Action_XRefs, Action_Follow, Action_FollowPointerHexDump,
+               Action_CallGraph, Action_Goto, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction,
+               Action_Back, Action_Forward, Action_Copy,
+               Action_ItemInformation };
 
     public:
         explicit DisassemblerActions(QWidget *parent = nullptr);
-        explicit DisassemblerActions(REDasm::ListingRenderer *renderer, QWidget *parent = nullptr);
+        explicit DisassemblerActions(PainterRenderer *renderer, QWidget *parent = nullptr);
         void setCurrentRenderer(REDasm::ListingRenderer* renderer);
         REDasm::ListingRenderer* renderer() const;
 
@@ -54,7 +55,7 @@ class DisassemblerActions : public QObject
         void switchToHexDump();
 
     private:
-        REDasm::ListingRenderer* m_renderer{nullptr};
         QHash<int, QAction*> m_actions;
+        PainterRenderer* m_renderer{nullptr};
         QMenu* m_contextmenu{nullptr};
 };

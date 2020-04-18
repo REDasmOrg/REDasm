@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include <rdapi/rdapi.h>
 
 class BlockListModel : public QAbstractListModel
 {
@@ -14,7 +15,11 @@ class BlockListModel : public QAbstractListModel
         int rowCount(const QModelIndex&) const override;
 
     private:
-        QString symbolName(const QModelIndex& index) const;
+        QString blockType(const RDBlock* block) const;
+        QString symbolName(const RDBlock* block) const;
         QString segmentName(int section) const;
+
+    private:
+        RDDocument* m_document;
 };
 

@@ -113,35 +113,35 @@ string DisassemblerTest::replaceAll(std::string str, const std::string &from, co
 
 void DisassemblerTest::runCurrentTest(const String& filepath, const TestCallback &cb)
 {
-    LoadRequest request(filepath, m_buffer);
-    REDasm::PluginList loaders = r_pm->getLoaders(request); //, true);
-    TEST("Loader", !loaders.empty());
+    // LoadRequest request(filepath, m_buffer);
+    // REDasm::PluginList loaders = r_pm->getLoaders(request); //, true);
+    // TEST("Loader", !loaders.empty());
 
-    if(loaders.empty())
-        return;
+    // if(loaders.empty())
+    //     return;
 
-    const PluginInstance *assemblerpi = nullptr, *loaderpi = loaders.first();
-    REDasm::Loader* loader = plugin_cast<REDasm::Loader>(loaderpi);
-    loader->init(request);
+    // const PluginInstance *assemblerpi = nullptr, *loaderpi = loaders.first();
+    // REDasm::Loader* loader = plugin_cast<REDasm::Loader>(loaderpi);
+    // loader->init(request);
 
-    assemblerpi = r_pm->findAssembler(loader->assembler().id);
-    TEST("Assembler", assemblerpi);
+    // assemblerpi = r_pm->findAssembler(loader->assembler().id);
+    // TEST("Assembler", assemblerpi);
 
-    if(!assemblerpi)
-        return;
+    // if(!assemblerpi)
+    //     return;
 
-    REDasm::Assembler* assembler = plugin_cast<REDasm::Assembler>(assemblerpi);
-    assembler->init(loader->assembler());
+    // REDasm::Assembler* assembler = plugin_cast<REDasm::Assembler>(assemblerpi);
+    // assembler->init(loader->assembler());
 
-    m_disassembler = std::make_unique<Disassembler>(assembler, loader);
-    m_document = m_disassembler->document();
+    // m_disassembler = std::make_unique<Disassembler>(assembler, loader);
+    // m_document = m_disassembler->document();
 
-    cout << "->> Disassembler...";
-    m_disassembler->disassemble();
-    cout << TEST_OK << endl;
+    // cout << "->> Disassembler...";
+    // m_disassembler->disassemble();
+    // cout << TEST_OK << endl;
 
-    if(cb)
-        cb();
+    // if(cb)
+    //     cb();
 }
 
 void DisassemblerTest::testTrampolines(const std::map<address_t, String> &trampolines)

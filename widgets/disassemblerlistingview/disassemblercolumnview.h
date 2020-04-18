@@ -1,10 +1,12 @@
 #pragma once
 
-#include <redasm/disassembler/disassembler.h>
+#include <rdapi/rdapi.h>
 #include <QWidget>
 #include <QList>
 #include <QPair>
 #include <QSet>
+
+class DisassemblerTextView;
 
 class DisassemblerColumnView : public QWidget
 {
@@ -15,20 +17,28 @@ class DisassemblerColumnView : public QWidget
 
     public:
         explicit DisassemblerColumnView(QWidget *parent = nullptr);
-        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
-        void renderArrows(size_t start, size_t count);
+        ~DisassemblerColumnView();
+        void linkTo(DisassemblerTextView* textview);
 
     protected:
-        virtual void paintEvent(QPaintEvent*);
+        void paintEvent(QPaintEvent*) override;
 
     private:
         bool isPathSelected(const ArrowPath& path) const;
         void fillArrow(QPainter* painter, int y, const QFontMetrics &fm);
-        void insertPath(const REDasm::ListingItem& fromitem, size_t fromidx, size_t toidx);
+        void insertPath(const RDDocumentItem& fromitem, size_t fromidx, size_t toidx);
+        void renderArrows(size_t start, size_t count);
+
+    private slots:
+        void renderArrows();
 
     private:
-        REDasm::DisassemblerPtr m_disassembler;
+        DisassemblerTextView* m_textview{nullptr};
+        RDDisassembler* m_disassembler{nullptr};
+        RDDocument* m_document{nullptr};
+        RDCursor* m_cursor{nullptr};
+        QSet<event_t> m_events;
         QList<ArrowPath> m_paths;
         QSet<QPair<size_t, size_t>> m_done;
-        size_t m_first{REDasm::npos}, m_last{REDasm::npos};
+        size_t m_first{RD_NPOS}, m_last{RD_NPOS};
 };

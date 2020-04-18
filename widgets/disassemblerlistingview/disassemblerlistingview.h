@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QSplitter>
-#include <redasm/disassembler/disassembler.h>
+#include <rdapi/rdapi.h>
 #include "disassemblercolumnview.h"
 #include "disassemblertextview.h"
 
@@ -14,13 +14,10 @@ class DisassemblerListingView : public QSplitter
         ~DisassemblerListingView();
         DisassemblerColumnView* columnView();
         DisassemblerTextView* textView();
-        void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
-
-    private slots:
-        void renderArrows();
+        void setDisassembler(RDDisassembler* disassembler);
 
     private:
-        REDasm::DisassemblerPtr m_disassembler;
+        RDDisassembler* m_disassembler;
         DisassemblerColumnView* m_disassemblercolumnview;
         DisassemblerTextView* m_disassemblertextview;
 };

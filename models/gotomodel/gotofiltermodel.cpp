@@ -8,24 +8,24 @@ GotoFilterModel::GotoFilterModel(QObject *parent) : QSortFilterProxyModel(parent
     this->setSourceModel(new GotoModel(this));
 }
 
-void GotoFilterModel::setDisassembler(const REDasm::DisassemblerPtr &disassembler) { static_cast<GotoModel*>(this->sourceModel())->setDisassembler(disassembler); }
+void GotoFilterModel::setDisassembler(RDDisassembler* disassembler) { static_cast<GotoModel*>(this->sourceModel())->setDisassembler(disassembler); }
 
 bool GotoFilterModel::filterAcceptsRow(int sourcerow, const QModelIndex &sourceparent) const
 {
-    const GotoModel* gotomodel = static_cast<const GotoModel*>(this->sourceModel());
-    REDasm::ListingItem item = gotomodel->disassembler()->document()->items()->at(sourcerow);
-    if(!item.isValid()) return false;
+    // const GotoModel* gotomodel = static_cast<const GotoModel*>(this->sourceModel());
+    // REDasm::ListingItem item = gotomodel->disassembler()->document()->items()->at(sourcerow);
+    // if(!item.isValid()) return false;
 
-    switch(item.type)
-    {
-        case REDasm::ListingItem::SegmentItem:
-        case REDasm::ListingItem::FunctionItem:
-        case REDasm::ListingItem::SymbolItem:
-        case REDasm::ListingItem::TypeItem:
-            return QSortFilterProxyModel::filterAcceptsRow(sourcerow, sourceparent);
+    // switch(item.type)
+    // {
+    //     case REDasm::ListingItem::SegmentItem:
+    //     case REDasm::ListingItem::FunctionItem:
+    //     case REDasm::ListingItem::SymbolItem:
+    //     case REDasm::ListingItem::TypeItem:
+    //         return QSortFilterProxyModel::filterAcceptsRow(sourcerow, sourceparent);
 
-        default: break;
-    }
+    //     default: break;
+    // }
 
     return false;
 }

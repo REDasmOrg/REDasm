@@ -2,6 +2,7 @@
 #include "../../themeprovider.h"
 #include <redasm/context.h>
 #include <QPainter>
+#include <QPainterPath>
 
 DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
 {

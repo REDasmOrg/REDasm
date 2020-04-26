@@ -3,6 +3,7 @@
 #include "disassemblertextview.h"
 #include <QScrollBar>
 #include <QPainter>
+#include <QPainterPath>
 
 DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
 {

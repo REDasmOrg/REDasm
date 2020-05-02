@@ -55,6 +55,8 @@ LoaderDialog::~LoaderDialog()
     delete ui;
 }
 
+RDLoaderBuildRequest LoaderDialog::buildRequest() const { return { this->offset(), this->baseAddress(), this->entryPoint() }; }
+
 RDLoaderPlugin *LoaderDialog::selectedLoader() const
 {
     QModelIndex index = ui->lvLoaders->currentIndex();

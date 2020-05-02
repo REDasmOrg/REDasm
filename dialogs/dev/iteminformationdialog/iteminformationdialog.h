@@ -1,8 +1,7 @@
-#ifndef ITEMINFORMATIONDIALOG_H
-#define ITEMINFORMATIONDIALOG_H
+#pragma once
 
 #include <QDialog>
-#include <redasm/disassembler/disassembler.h>
+#include <rdapi/rdapi.h>
 
 namespace Ui {
 class ItemInformationDialog;
@@ -13,7 +12,7 @@ class ItemInformationDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit ItemInformationDialog(const REDasm::DisassemblerPtr& disassembler, QWidget *parent = nullptr);
+        explicit ItemInformationDialog(RDDisassembler* disassembler, QWidget *parent = nullptr);
         ~ItemInformationDialog();
 
     private:
@@ -21,7 +20,7 @@ class ItemInformationDialog : public QDialog
         ItemInformationDialog& line(const QString& s = QString());
         ItemInformationDialog& header(const QString& s = QString());
         ItemInformationDialog& string(const QString& k, const QString& s);
-        QString itemType(const REDasm::ListingItem* item) const;
+        //QString itemType(const REDasm::ListingItem* item) const;
         void displayInformation();
 
     private:
@@ -30,7 +29,7 @@ class ItemInformationDialog : public QDialog
 
     private:
         Ui::ItemInformationDialog *ui;
-        REDasm::DisassemblerPtr m_disassembler;
+        RDDisassembler* m_disassembler;
 };
 
 template<typename Iterator, typename Func> ItemInformationDialog& ItemInformationDialog::array(Iterator begin, Iterator end, const Func& cb) { return this->array(QString(), begin, end, cb); }
@@ -50,5 +49,3 @@ template<typename Iterator, typename Func> ItemInformationDialog& ItemInformatio
     return k.isEmpty() ? this->line("[" + s + "]") :
                          this->line(k, "[" + s + "]");
 }
-
-#endif // ITEMINFORMATIONDIALOG_H

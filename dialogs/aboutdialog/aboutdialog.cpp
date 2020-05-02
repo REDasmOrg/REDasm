@@ -1,7 +1,6 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 #include "../../themeprovider.h"
-#include "../../convert.h"
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDialog)
 {

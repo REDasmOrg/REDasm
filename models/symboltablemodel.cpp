@@ -1,5 +1,4 @@
 #include "symboltablemodel.h"
-#include <redasm/context.h>
 
 SymbolTableModel::SymbolTableModel(type_t itemtype, QObject *parent): ListingItemModel(itemtype, parent) { }
 void SymbolTableModel::setSymbolType(type_t type) { m_symboltype = type; }

@@ -1,8 +1,7 @@
-#ifndef SIGNATURESMODEL_H
-#define SIGNATURESMODEL_H
+#pragma once
 
 #include <QAbstractListModel>
-#include <redasm/database/signaturedb.h>
+//#include <redasm/database/signaturedb.h>
 
 class SignaturesModel : public QAbstractListModel
 {
@@ -10,7 +9,7 @@ class SignaturesModel : public QAbstractListModel
 
     public:
         explicit SignaturesModel(QObject *parent = nullptr);
-        void setSignature(const REDasm::SignatureDB* sigdb);
+        //void setSignature(const REDasm::SignatureDB* sigdb);
 
     public:
         QVariant data(const QModelIndex &index, int role) const override;
@@ -19,7 +18,5 @@ class SignaturesModel : public QAbstractListModel
         int columnCount(const QModelIndex& = QModelIndex()) const override;
 
     private:
-        const REDasm::SignatureDB* m_signaturedb;
+        //const REDasm::SignatureDB* m_signaturedb;
 };
-
-#endif // SIGNATURESMODEL_H

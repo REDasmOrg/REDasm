@@ -4,27 +4,28 @@
 // - https://github.com/x64dbg/x64dbg/blob/development/src/gui/Src/Gui/DisassemblerGraphView.h
 // - https://github.com/x64dbg/x64dbg/blob/development/src/gui/Src/Gui/DisassemblerGraphView.cpp
 
-#include <QAbstractScrollArea>
 #include <QVector>
 #include <QList>
 #include <unordered_map>
-#include <redasm/disassembler/disassembler.h>
-#include <redasm/graph/graph.h>
+#include <utility>
+#include <rdapi/rdapi.h>
+#include <rdapi/graph/graph.h>
+#include "../cursorscrollarea.h"
+#include "../../hooks/idisassemblercommand.h"
 #include "../../themeprovider.h"
 #include "graphviewitem.h"
 
-class GraphView : public QAbstractScrollArea
+class GraphView : public CursorScrollArea
 {
     Q_OBJECT
 
     public:
-        explicit GraphView(QWidget *parent = nullptr);
-        virtual void setDisassembler(const REDasm::DisassemblerPtr &disassembler);
-        void setGraph(REDasm::Graph* graph);
+        explicit GraphView(IDisassemblerCommand* command, QWidget *parent = nullptr);
+        void setGraph(RDGraph* graph);
         void setSelectedBlock(GraphViewItem* item);
         void setFocusOnSelection(bool b);
         GraphViewItem* selectedItem() const;
-        REDasm::Graph* graph() const;
+        RDGraph* graph() const;
 
     public slots:
         void focusSelectedBlock();
@@ -39,7 +40,7 @@ class GraphView : public QAbstractScrollArea
         void mouseMoveEvent(QMouseEvent* e) override;
         void wheelEvent(QWheelEvent* e) override;
         void resizeEvent(QResizeEvent* e) override;
-        void paintEvent(QPaintEvent* e) override;
+        void paintEvent(QPaintEvent*) override;
         void showEvent(QShowEvent* e) override;
         virtual void selectedItemChangedEvent();
         virtual void computeLayout();
@@ -49,22 +50,22 @@ class GraphView : public QAbstractScrollArea
         void zoomOut(const QPoint& cursorpos);
         void zoomIn(const QPoint& cursorpos);
         void adjustSize(int vpw, int vph, const QPoint& cursorpos = QPoint(), bool fit = false);
-        void precomputeArrow(const REDasm::Edge &e);
-        void precomputeLine(const REDasm::Edge &e);
+        void precomputeArrow(const RDGraphEdge& e);
+        void precomputeLine(const RDGraphEdge& e);
         bool updateSelectedItem(QMouseEvent* e);
 
     signals:
         void selectedItemChanged();
 
     protected:
-        REDasm::DisassemblerPtr m_disassembler;
-        QHash<REDasm::Node, GraphViewItem*> m_items;
+        IDisassemblerCommand* m_command;
+        RDGraph* m_graph{nullptr};
+        QHash<RDGraphNode, GraphViewItem*> m_items;
 
     private:
         GraphViewItem* m_selecteditem{nullptr};
-        REDasm::Graph* m_graph{nullptr};
-        std::unordered_map< REDasm::Edge, QVector<QLine> > m_lines;
-        std::unordered_map<REDasm::Edge, QPolygon> m_arrows;
+        std::unordered_map<RDGraphEdge, QVector<QLine>> m_lines;
+        std::unordered_map<RDGraphEdge, QPolygon> m_arrows;
         QPoint m_renderoffset, m_scrollbase;
         QSize m_rendersize;
         qreal m_scalefactor{1.0}, m_scalestep{0.1}, m_prevscalefactor{0};

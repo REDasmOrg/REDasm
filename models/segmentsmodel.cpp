@@ -1,15 +1,11 @@
 #include "segmentsmodel.h"
-#include <redasm/plugins/assembler/assembler.h>
-#include <redasm/plugins/loader/loader.h>
-#include <redasm/support/utils.h>
 #include <rdapi/support.h>
 #include <QColor>
 #include "../themeprovider.h"
-#include "../convert.h"
 
 #define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 
-SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(REDasm::ListingItem::SegmentItem, parent) { }
+SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(DocumentItemType_Segment, parent) { }
 
 QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 {

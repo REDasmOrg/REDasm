@@ -1,9 +1,8 @@
-#ifndef DIALOGUI_H
-#define DIALOGUI_H
+#pragma once
 
 #include <QListView>
 #include <QDialog>
-#include <redasm/ui.h>
+//#include <redasm/ui.h>
 #include "models/checkeditemsmodel.h"
 #include "models/listitemsmodel.h"
 
@@ -22,8 +21,8 @@ class DialogUI : public QDialog
     public:
         int selectedIndex() const;
         void setText(const QString& s);
-        void selectableItems(const REDasm::List& items);
-        void setItems(REDasm::UI::CheckList& items);
+        //void selectableItems(const REDasm::List& items);
+        //void setItems(REDasm::UI::CheckList& items);
 
     private:
         void hideFilter();
@@ -34,5 +33,3 @@ class DialogUI : public QDialog
         Ui::DialogUI *ui;
         int m_selectedindex;
 };
-
-#endif // DIALOGUI_H

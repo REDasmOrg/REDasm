@@ -1,16 +1,16 @@
 #pragma once
 
 #include <QWidget>
-#include <redasm/disassembler/disassembler.h>
-#include "../../renderer/listingdocumentrenderer.h"
+#include <memory>
+#include <rdapi/rdapi.h>
+#include "../../renderer/documentrenderer.h"
 #include "disassemblerpopupwidget.h"
 
 class DisassemblerPopup : public QWidget
 {
     public:
-        explicit DisassemblerPopup(const REDasm::DisassemblerPtr& disassembler, QWidget* parent = nullptr);
-        ~DisassemblerPopup();
-        void popup(const REDasm::String &word, size_t line);
+        explicit DisassemblerPopup(RDDisassembler* disassembler, QWidget* parent = nullptr);
+        void popup(const QString& word, size_t line);
 
     protected:
         void mouseMoveEvent(QMouseEvent *e) override;
@@ -20,9 +20,8 @@ class DisassemblerPopup : public QWidget
         void updateGeometry();
 
     private:
+        QTextDocument* m_textdocument;
         DisassemblerPopupWidget* m_popupwidget;
-        ListingDocumentRenderer* m_documentrenderer;
-
-    private:
+        std::unique_ptr<DocumentRenderer> m_renderer;
         QPoint m_lastpos;
 };

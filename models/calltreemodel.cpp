@@ -1,15 +1,14 @@
 #include "calltreemodel.h"
 #include "../themeprovider.h"
-#include "../convert.h"
 #include <QFontDatabase>
 #include <QColor>
 
 CallTreeModel::CallTreeModel(QObject *parent) : QAbstractItemModel(parent) { }
 
-const REDasm::ListingItem& CallTreeModel::item(const QModelIndex& index) const
+const RDDocumentItem& CallTreeModel::item(const QModelIndex& index) const
 {
-    REDasm::CallNode* node = reinterpret_cast<REDasm::CallNode*>(index.internalPointer());
-    return node->data;
+    //REDasm::CallNode* node = reinterpret_cast<REDasm::CallNode*>(index.internalPointer());
+    //return node->data;
 }
 
 void CallTreeModel::setDisassembler(RDDisassembler* disassembler) { m_disassembler = disassembler; /* m_printer = r_asm->createPrinter(); */ }
@@ -29,13 +28,13 @@ void CallTreeModel::initializeGraph(address_t address)
 
 void CallTreeModel::populateCallGraph(const QModelIndex &index)
 {
-    REDasm::CallNode* node = reinterpret_cast<REDasm::CallNode*>(index.internalPointer());
-    if(!node->empty()) return;
+    //REDasm::CallNode* node = reinterpret_cast<REDasm::CallNode*>(index.internalPointer());
+    //if(!node->empty()) return;
 
-    size_t c = node->populate();
-    if(!c) return;
-    this->beginInsertRows(index, 0, c);
-    this->endInsertRows();
+    //size_t c = node->populate();
+    //if(!c) return;
+    //this->beginInsertRows(index, 0, c);
+    //this->endInsertRows();
 }
 
 bool CallTreeModel::hasChildren(const QModelIndex& parentindex) const

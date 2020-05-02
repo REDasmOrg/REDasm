@@ -1,13 +1,19 @@
 #include "disassemblerpopup.h"
+#include <QPlainTextDocumentLayout>
 #include <QLayout>
 #include <cmath>
 
 #define POPUP_MARGIN 16
 
-DisassemblerPopup::DisassemblerPopup(const REDasm::DisassemblerPtr &disassembler, QWidget *parent): QWidget(parent)
+DisassemblerPopup::DisassemblerPopup(RDDisassembler* disassembler, QWidget *parent): QWidget(parent)
 {
-    m_documentrenderer = new ListingDocumentRenderer();
-    m_popupwidget = new DisassemblerPopupWidget(m_documentrenderer, disassembler, this);
+    m_textdocument = new QTextDocument(this);
+    m_textdocument->setDocumentLayout(new QPlainTextDocumentLayout(m_textdocument));
+
+    m_renderer = std::make_unique<DocumentRenderer>(m_textdocument, disassembler, nullptr,
+                                                    RendererFlags_NoAddress | RendererFlags_NoHighlightWords | RendererFlags_NoCursor);
+
+    m_popupwidget = new DisassemblerPopupWidget(m_renderer.get(), disassembler, this);
 
     QVBoxLayout* vboxlayout = new QVBoxLayout(this);
     vboxlayout->setContentsMargins(0, 0, 0, 0);
@@ -21,9 +27,7 @@ DisassemblerPopup::DisassemblerPopup(const REDasm::DisassemblerPtr &disassembler
     this->setMinimumWidth(0);
 }
 
-DisassemblerPopup::~DisassemblerPopup() { delete m_documentrenderer; }
-
-void DisassemblerPopup::popup(const REDasm::String &word, size_t line)
+void DisassemblerPopup::popup(const QString &word, size_t line)
 {
     if(!m_popupwidget->renderPopup(word, line))
     {
@@ -53,10 +57,8 @@ void DisassemblerPopup::wheelEvent(QWheelEvent* e)
     m_lastpos = e->globalPos();
     QPoint delta = e->angleDelta();
 
-    if(delta.y() > 0)
-        m_popupwidget->lessRows();
-    else
-        m_popupwidget->moreRows();
+    if(delta.y() > 0) m_popupwidget->lessRows();
+    else m_popupwidget->moreRows();
 
     this->updateGeometry();
     QWidget::wheelEvent(e);
@@ -64,6 +66,6 @@ void DisassemblerPopup::wheelEvent(QWheelEvent* e)
 
 void DisassemblerPopup::updateGeometry()
 {
-    this->setFixedWidth(m_documentrenderer->maxWidth());
-    this->setFixedHeight(m_popupwidget->rows() * std::ceil(m_documentrenderer->fontMetrics().height()));
+    this->setFixedWidth(m_renderer->maxWidth());
+    this->setFixedHeight(m_popupwidget->rows() * std::ceil(m_renderer->fontMetrics().height()));
 }

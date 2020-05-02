@@ -20,8 +20,14 @@
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonTextBesideIcon</enum>
   </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_6">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -38,292 +44,80 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QStackedWidget" name="stackView">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="page">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Drag a file here</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
+     <widget class="DisassemblerTabs" name="tabs"/>
     </item>
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QDockWidget" name="dockListingMap">
-   <property name="features">
-    <set>QDockWidget::DockWidgetMovable</set>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1118</width>
+     <height>21</height>
+    </rect>
    </property>
-   <property name="windowTitle">
-    <string>Map</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>4</number>
-   </attribute>
-   <widget class="ListingMap" name="listingMap"/>
-  </widget>
-  <widget class="QDockWidget" name="dockFunctions">
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <property name="windowTitle">
-    <string>Functions</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_3">
-    <layout class="QVBoxLayout" name="verticalLayout_3">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QTableView" name="tvFunctions">
-       <property name="contextMenuPolicy">
-        <enum>Qt::CustomContextMenu</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
-       </property>
-       <property name="lineWidth">
-        <number>0</number>
-       </property>
-       <property name="editTriggers">
-        <set>QAbstractItemView::NoEditTriggers</set>
-       </property>
-       <property name="selectionMode">
-        <enum>QAbstractItemView::SingleSelection</enum>
-       </property>
-       <property name="selectionBehavior">
-        <enum>QAbstractItemView::SelectRows</enum>
-       </property>
-       <property name="horizontalScrollMode">
-        <enum>QAbstractItemView::ScrollPerPixel</enum>
-       </property>
-       <property name="showGrid">
-        <bool>false</bool>
-       </property>
-       <property name="wordWrap">
-        <bool>false</bool>
-       </property>
-       <property name="cornerButtonEnabled">
-        <bool>false</bool>
-       </property>
-       <attribute name="horizontalHeaderHighlightSections">
-        <bool>false</bool>
-       </attribute>
-      </widget>
-     </item>
-    </layout>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Open"/>
+    <addaction name="action_Save"/>
+    <addaction name="action_Save_As"/>
+    <addaction name="action_Recent_Files"/>
+    <addaction name="action_Close"/>
+    <addaction name="separator"/>
+    <addaction name="action_Exit"/>
    </widget>
-  </widget>
-  <widget class="QDockWidget" name="dockCallTree">
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <property name="windowTitle">
-    <string>Call Tree</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_8">
-    <layout class="QVBoxLayout" name="verticalLayout_4">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QTreeView" name="tvCallTree">
-       <property name="contextMenuPolicy">
-        <enum>Qt::CustomContextMenu</enum>
-       </property>
-       <attribute name="headerStretchLastSection">
-        <bool>false</bool>
-       </attribute>
-      </widget>
-     </item>
-    </layout>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>&amp;?</string>
+    </property>
+    <addaction name="action_Telegram"/>
+    <addaction name="action_Reddit"/>
+    <addaction name="separator"/>
+    <addaction name="action_Report_an_Issue"/>
+    <addaction name="action_About"/>
    </widget>
-  </widget>
-  
-  <widget class="QDockWidget" name="dockOutput">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <property name="windowTitle">
-    <string>Output</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>8</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="OutputWidget" name="pteOutput">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="leFilter">
-       <property name="placeholderText">
-        <string>Insert Symbol or Address (press ESC to hide)...</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+   <widget class="QMenu" name="menu_Window">
+    <property name="title">
+     <string>&amp;Window</string>
+    </property>
+    <addaction name="action_Reset_Layout"/>
    </widget>
-  </widget>
-<widget class="QDockWidget" name="dockReferences">
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <property name="windowTitle">
-    <string>References</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>8</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_7">
-    <layout class="QVBoxLayout" name="verticalLayout_5">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QTreeView" name="tvReferences">
-       <property name="lineWidth">
-        <number>0</number>
-       </property>
-       <property name="editTriggers">
-        <set>QAbstractItemView::NoEditTriggers</set>
-       </property>
-       <property name="selectionBehavior">
-        <enum>QAbstractItemView::SelectRows</enum>
-       </property>
-       <property name="rootIsDecorated">
-        <bool>false</bool>
-       </property>
-       <property name="uniformRowHeights">
-        <bool>true</bool>
-       </property>
-       <property name="itemsExpandable">
-        <bool>false</bool>
-       </property>
-       <property name="expandsOnDoubleClick">
-        <bool>false</bool>
-       </property>
-       <attribute name="headerStretchLastSection">
-        <bool>false</bool>
-       </attribute>
-      </widget>
-     </item>
-    </layout>
+   <widget class="QMenu" name="menu_Views">
+    <property name="title">
+     <string>&amp;Views</string>
+    </property>
+    <addaction name="action_Segments"/>
+    <addaction name="action_Functions"/>
+    <addaction name="action_Listing"/>
+    <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menu_REDasm">
+    <property name="title">
+     <string>&amp;REDasm</string>
+    </property>
+    <widget class="QMenu" name="menu_Development">
+     <property name="title">
+      <string>&amp;Development</string>
+     </property>
+     <addaction name="action_Blocks"/>
+     <addaction name="action_Graphs"/>
+    </widget>
+    <addaction name="action_Goto"/>
+    <addaction name="action_Filter"/>
+    <addaction name="action_Signatures"/>
+    <addaction name="separator"/>
+    <addaction name="menu_Development"/>
+    <addaction name="action_Settings"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_REDasm"/>
+   <addaction name="menu_Views"/>
+   <addaction name="menu_Window"/>
+   <addaction name="menu"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -331,6 +125,12 @@
    </property>
    <property name="movable">
     <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
    </property>
    <property name="floatable">
     <bool>false</bool>
@@ -341,19 +141,133 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_Open"/>
+   <addaction name="action_Save"/>
+   <addaction name="action_Back"/>
+   <addaction name="action_Forward"/>
+   <addaction name="action_Goto"/>
+   <addaction name="action_Filter"/>
   </widget>
+  <action name="action_Open">
+   <property name="text">
+    <string>&amp;Open</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="action_Telegram">
+   <property name="text">
+    <string>&amp;Telegram</string>
+   </property>
+  </action>
+  <action name="action_Reddit">
+   <property name="text">
+    <string>&amp;Reddit</string>
+   </property>
+  </action>
+  <action name="action_Report_an_Issue">
+   <property name="text">
+    <string>&amp;Report an Issue</string>
+   </property>
+  </action>
+  <action name="action_Save">
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+  </action>
+  <action name="action_Exit">
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+  </action>
+  <action name="action_Save_As">
+   <property name="text">
+    <string>&amp;Save As</string>
+   </property>
+  </action>
+  <action name="action_Close">
+   <property name="text">
+    <string>&amp;Close</string>
+   </property>
+  </action>
+  <action name="action_Recent_Files">
+   <property name="text">
+    <string>&amp;Recent Files</string>
+   </property>
+  </action>
+  <action name="action_Reset_Layout">
+   <property name="text">
+    <string>&amp;Reset Layout</string>
+   </property>
+  </action>
+  <action name="action_Settings">
+   <property name="text">
+    <string>&amp;Settings</string>
+   </property>
+  </action>
+  <action name="action_Segments">
+   <property name="text">
+    <string>&amp;Segments</string>
+   </property>
+  </action>
+  <action name="action_Functions">
+   <property name="text">
+    <string>&amp;Functions</string>
+   </property>
+  </action>
+  <action name="action_Listing">
+   <property name="text">
+    <string>&amp;Listing</string>
+   </property>
+  </action>
+  <action name="action_Signatures">
+   <property name="text">
+    <string>&amp;Signatures</string>
+   </property>
+  </action>
+  <action name="action_Blocks">
+   <property name="text">
+    <string>&amp;Blocks</string>
+   </property>
+  </action>
+  <action name="action_Back">
+   <property name="text">
+    <string>&amp;Back</string>
+   </property>
+  </action>
+  <action name="action_Forward">
+   <property name="text">
+    <string>&amp;Forward</string>
+   </property>
+  </action>
+  <action name="action_Goto">
+   <property name="text">
+    <string>&amp;Goto</string>
+   </property>
+  </action>
+  <action name="action_Filter">
+   <property name="text">
+    <string>&amp;Filter</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
+  </action>
+  <action name="action_Graphs">
+   <property name="text">
+    <string>&amp;Graphs</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>OutputWidget</class>
-   <extends>QPlainTextEdit</extends>
-   <header>widgets/outputwidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ListingMap</class>
-   <extends>QWidget</extends>
-   <header>widgets/listingmap.h</header>
+   <class>DisassemblerTabs</class>
+   <extends>QTabWidget</extends>
+   <header>widgets/disassemblertabs/disassemblertabs.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

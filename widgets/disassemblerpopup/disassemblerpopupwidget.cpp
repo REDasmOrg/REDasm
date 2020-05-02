@@ -1,6 +1,5 @@
 #include "disassemblerpopupwidget.h"
 #include "../../redasmsettings.h"
-#include <redasm/context.h>
 #include <QGraphicsDropShadowEffect>
 #include <QFontDatabase>
 #include <QFontMetrics>
@@ -8,8 +7,11 @@
 
 #define DEFAULT_ROW_COUNT 10
 
-DisassemblerPopupWidget::DisassemblerPopupWidget(ListingDocumentRenderer *documentrenderer, const REDasm::DisassemblerPtr &disassembler, QWidget *parent): QPlainTextEdit(parent), m_disassembler(disassembler), m_documentrenderer(documentrenderer), m_index(-1), m_rows(DEFAULT_ROW_COUNT)
+DisassemblerPopupWidget::DisassemblerPopupWidget(DocumentRenderer* renderer, RDDisassembler* disassembler, QWidget *parent): QPlainTextEdit(parent), m_disassembler(disassembler), m_renderer(renderer), m_rows(DEFAULT_ROW_COUNT)
 {
+    this->setDocument(renderer->textDocument());
+    m_document = RDDisassembler_GetDocument(disassembler);
+
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, palette.color(QPalette::ToolTipBase));
     this->setPalette(palette);
@@ -31,11 +33,11 @@ DisassemblerPopupWidget::DisassemblerPopupWidget(ListingDocumentRenderer *docume
     this->setGraphicsEffect(dropshadow);
 }
 
-bool DisassemblerPopupWidget::renderPopup(const REDasm::String &word, size_t line)
+bool DisassemblerPopupWidget::renderPopup(const QString& word, size_t line)
 {
     m_index = this->getIndexOfWord(word);
 
-    if((m_index == REDasm::npos) || (m_index == line))
+    if((m_index == RD_NPOS) || (m_index == line))
         return false;
 
     m_rows = DEFAULT_ROW_COUNT;
@@ -45,34 +47,26 @@ bool DisassemblerPopupWidget::renderPopup(const REDasm::String &word, size_t lin
 
 void DisassemblerPopupWidget::moreRows()
 {
-    if((m_index + m_rows) > r_doc->itemsCount())
-        return;
-
+    if((m_index + m_rows) > RDDocument_ItemsCount(m_document)) return;
     m_rows++;
     this->renderPopup();
 }
 
 void DisassemblerPopupWidget::lessRows()
 {
-    if(m_rows == 1)
-        return;
-
+    if(m_rows == 1) return;
     m_rows--;
     this->renderPopup();
 }
 
 int DisassemblerPopupWidget::rows() const { return m_rows; }
+void DisassemblerPopupWidget::renderPopup() { m_renderer->render(m_index, m_index + m_rows); }
 
-void DisassemblerPopupWidget::renderPopup()
+size_t DisassemblerPopupWidget::getIndexOfWord(const QString& word) const
 {
-    this->clear();
-    m_documentrenderer->render(m_index, m_rows, this->document());
-}
+    RDSymbol symbol;
+    if(!RDDocument_GetSymbolByName(m_document, qUtf8Printable(word), &symbol)) return RD_NPOS;
 
-size_t DisassemblerPopupWidget::getIndexOfWord(const REDasm::String &word) const
-{
-    const REDasm::Symbol* symbol = r_doc->symbol(word);
-    if(!symbol) return REDasm::npos;
-    if(symbol->isFunction()) return r_doc->itemFunctionIndex(symbol->address);
-    return r_doc->itemSymbolIndex(symbol->address);
+    if(symbol.type == SymbolType_Function) return RDDocument_FunctionIndex(m_document, symbol.address);
+    return RDDocument_SymbolIndex(m_document, symbol.address);
 }

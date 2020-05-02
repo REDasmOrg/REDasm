@@ -1,25 +1,21 @@
-#ifndef SIGNATUREFILESMODEL_H
-#define SIGNATUREFILESMODEL_H
+#pragma once
 
 #include <QAbstractListModel>
-#include <redasm/disassembler/disassembler.h>
-#include <redasm/database/signaturedb.h>
-#include <redasm/plugins/loader/loader.h>
-#include <redasm/libs/nlohmann/json.hpp>
+#include <rdapi/disassembler.h>
 
 class SignatureFilesModel : public QAbstractListModel
 {
     Q_OBJECT
 
     public:
-        explicit SignatureFilesModel(REDasm::Disassembler* disassembler, QObject *parent = nullptr);
-        const REDasm::SignatureDB* load(const QModelIndex& index);
-        const REDasm::String& signatureId(const QModelIndex& index) const;
-        const REDasm::String& signaturePath(const QModelIndex& index) const;
-        bool isLoaded(const QModelIndex& index) const;
-        bool contains(const REDasm::String& sigid) const;
-        void add(const REDasm::String& sigid, const REDasm::String& sigpath);
-        void mark(const QModelIndex& index);
+        explicit SignatureFilesModel(RDDisassembler* disassembler, QObject *parent = nullptr);
+        //const REDasm::SignatureDB* load(const QModelIndex& index);
+        //const REDasm::String& signatureId(const QModelIndex& index) const;
+        //const REDasm::String& signaturePath(const QModelIndex& index) const;
+        //bool isLoaded(const QModelIndex& index) const;
+        //bool contains(const REDasm::String& sigid) const;
+        //void add(const REDasm::String& sigid, const REDasm::String& sigpath);
+        //void mark(const QModelIndex& index);
 
     public:
         QVariant data(const QModelIndex &index, int role) const override;
@@ -28,9 +24,7 @@ class SignatureFilesModel : public QAbstractListModel
         int columnCount(const QModelIndex& = QModelIndex()) const override;
 
     private:
-        QList< QPair<REDasm::String, REDasm::String> > m_signaturefiles;
-        QHash<int, REDasm::SignatureDB> m_loadedsignatures;
-        REDasm::Disassembler* m_disassembler;
+        //QList< QPair<REDasm::String, REDasm::String> > m_signaturefiles;
+        //QHash<int, REDasm::SignatureDB> m_loadedsignatures;
+        RDDisassembler* m_disassembler;
 };
-
-#endif // SIGNATUREFILESMODEL_H

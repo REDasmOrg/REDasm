@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "themeprovider.h"
+#include "redasmsettings.h"
+#include <cstring>
+#include <rdapi/rdapi.h>
 #include <QApplication>
 #include <QStyleFactory>
-#include "redasmsettings.h"
 
 #ifdef QT_DEBUG
     #include "unittest/unittest.h"

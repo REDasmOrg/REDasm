@@ -15,14 +15,15 @@ class LoaderDialog : public QDialog
     public:
         explicit LoaderDialog(const RDLoaderRequest *request, QWidget *parent = nullptr);
         ~LoaderDialog();
+        RDLoaderBuildRequest buildRequest() const;
         RDLoaderPlugin* selectedLoader() const;
         RDAssemblerPlugin* selectedAssembler() const;
+
+    private:
         flag_t selectedLoaderFlags() const;
         address_t baseAddress() const;
         address_t entryPoint() const;
         offset_t offset() const;
-
-    private:
         void unloadLoaders();
         void unloadAssemblers();
         void checkFlags();

@@ -1,5 +1,5 @@
 #include "gotofiltermodel.h"
-#include <redasm/disassembler/listing/document/listingdocument.h>
+#include <rdapi/rdapi.h>
 
 GotoFilterModel::GotoFilterModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
@@ -12,20 +12,22 @@ void GotoFilterModel::setDisassembler(RDDisassembler* disassembler) { static_cas
 
 bool GotoFilterModel::filterAcceptsRow(int sourcerow, const QModelIndex &sourceparent) const
 {
-    // const GotoModel* gotomodel = static_cast<const GotoModel*>(this->sourceModel());
-    // REDasm::ListingItem item = gotomodel->disassembler()->document()->items()->at(sourcerow);
-    // if(!item.isValid()) return false;
+    const GotoModel* gotomodel = static_cast<const GotoModel*>(this->sourceModel());
+    RDDocument* doc = RDDisassembler_GetDocument(gotomodel->disassembler());
 
-    // switch(item.type)
-    // {
-    //     case REDasm::ListingItem::SegmentItem:
-    //     case REDasm::ListingItem::FunctionItem:
-    //     case REDasm::ListingItem::SymbolItem:
-    //     case REDasm::ListingItem::TypeItem:
-    //         return QSortFilterProxyModel::filterAcceptsRow(sourcerow, sourceparent);
+    RDDocumentItem item;
+    if(!RDDocument_GetItemAt(doc, sourcerow, &item)) return false;
 
-    //     default: break;
-    // }
+    switch(item.type)
+    {
+        case DocumentItemType_Segment:
+        case DocumentItemType_Function:
+        case DocumentItemType_Symbol:
+        case DocumentItemType_Type:
+            return QSortFilterProxyModel::filterAcceptsRow(sourcerow, sourceparent);
+
+        default: break;
+    }
 
     return false;
 }

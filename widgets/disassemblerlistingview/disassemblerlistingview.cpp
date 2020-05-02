@@ -1,18 +1,16 @@
 #include "disassemblerlistingview.h"
 #include "../../themeprovider.h"
 #include "../../redasmsettings.h"
-#include <redasm/context.h>
-#include <QScrollBar>
 
-DisassemblerListingView::DisassemblerListingView(QWidget *parent): QSplitter(parent), m_disassembler(nullptr)
+DisassemblerListingView::DisassemblerListingView(RDDisassembler* disassembler, QWidget *parent): QSplitter(Qt::Horizontal, parent), m_disassembler(nullptr)
 {
-    this->setOrientation(Qt::Horizontal);
     this->setStyleSheet("QSplitter::handle { background-color: " + THEME_VALUE_COLOR("seek") + "; }");
 
     m_disassemblertextview = new DisassemblerTextView(this);
-    m_disassemblercolumnview = new DisassemblerColumnView(this);
-
     m_disassemblertextview->setFont(REDasmSettings::font());
+    m_disassemblertextview->setDisassembler(disassembler);
+
+    m_disassemblercolumnview = new DisassemblerColumnView(this);
     m_disassemblercolumnview->setFont(m_disassemblertextview->font()); // Apply same font
 
     this->addWidget(m_disassemblercolumnview);
@@ -23,7 +21,6 @@ DisassemblerListingView::DisassemblerListingView(QWidget *parent): QSplitter(par
     this->setHandleWidth(4);
 }
 
-DisassemblerListingView::~DisassemblerListingView() { r_evt::ungroup(this); }
 DisassemblerColumnView *DisassemblerListingView::columnView() { return m_disassemblercolumnview; }
 DisassemblerTextView *DisassemblerListingView::textView() { return m_disassemblertextview; }
 

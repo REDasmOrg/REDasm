@@ -15,7 +15,6 @@ class ListingItemModel : public DisassemblerModel
         virtual ~ListingItemModel();
         void setDisassembler(RDDisassembler* disassembler) override;
         const RDDocumentItem& item(const QModelIndex& index) const;
-        //address_location address(const QModelIndex& index) const;
 
     public:
         int rowCount(const QModelIndex& = QModelIndex()) const override;
@@ -28,12 +27,10 @@ class ListingItemModel : public DisassemblerModel
 
     private:
         static QString escapeString(const QString& s);
+        void insertItem(const RDDocumentItem& item);
         void onItemChanged(const RDEventArgs* e);
         void onItemInserted(const RDEventArgs* e);
         void onItemRemoved(const RDEventArgs* e);
-
-    protected:
-        RDDocument* m_document{nullptr};
 
     private:
         QList<RDDocumentItem> m_items;

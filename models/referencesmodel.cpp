@@ -1,8 +1,7 @@
 #include "referencesmodel.h"
 #include "../themeprovider.h"
-#include "../convert.h"
 
-ReferencesModel::ReferencesModel(QObject *parent): DisassemblerModel(parent) { }
+ReferencesModel::ReferencesModel(const IDisassemblerCommand* command, QObject *parent): DisassemblerModel(parent), m_command(command) { }
 ReferencesModel::~ReferencesModel() { if(m_renderer) RD_Free(m_renderer); }
 
 void ReferencesModel::setDisassembler(RDDisassembler* disassembler)
@@ -14,20 +13,25 @@ void ReferencesModel::setDisassembler(RDDisassembler* disassembler)
 void ReferencesModel::clear()
 {
     this->beginResetModel();
-    m_cursor = nullptr;
     m_referencescount = 0;
     m_references = nullptr;
     this->endResetModel();
 }
 
-void ReferencesModel::xref(address_t address, const RDCursor* cursor)
+void ReferencesModel::xref(address_t address)
 {
     if(!m_disassembler || RD_IsBusy()) return;
 
     this->beginResetModel();
-    m_cursor = cursor;
     m_referencescount = RDDisassembler_GetReferences(m_disassembler, address, &m_references);
     this->endResetModel();
+}
+
+QModelIndex ReferencesModel::index(int row, int column, const QModelIndex&) const
+{
+    if(row >= static_cast<int>(m_referencescount)) return QModelIndex();
+
+    return this->createIndex(row, column, m_references[row]);
 }
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
@@ -98,10 +102,10 @@ int ReferencesModel::columnCount(const QModelIndex &) const { return 3; }
 
 QString ReferencesModel::direction(RDDocument* doc, address_t address) const
 {
-    if(!m_cursor) return QString();
+    if(!m_command) return QString();
 
     RDDocumentItem item;
-    if(!RDDocument_GetItemAt(doc, RDCursor_CurrentLine(m_cursor), &item)) return QString();
+    if(!RDDocument_GetItemAt(doc, m_command->currentPosition()->line, &item)) return QString();
 
     if(address > item.address) return "Down";
     if(address < item.address) return "Up";

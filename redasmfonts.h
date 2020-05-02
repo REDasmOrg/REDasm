@@ -34,5 +34,6 @@ class REDasmFonts
 };
 
 #define FA_FONT        REDasmFonts::instance()->faFont()
+#define FAB_FONT       REDasmFonts::instance()->faBrandsFont()
 #define FA_ICON(code)  REDasmFonts::instance()->icon(code)
-#define FA_BRAND(code) REDasmFonts::instance()->brand(code)
+#define FAB_ICON(code) REDasmFonts::instance()->brand(code)

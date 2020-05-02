@@ -1,10 +1,6 @@
 #include "gotomodel.h"
 #include "../../themeprovider.h"
-#include "../../../convert.h"
-#include <redasm/plugins/assembler/assembler.h>
-#include <redasm/support/demangler.h>
-#include <redasm/support/utils.h>
-#include <redasm/context.h>
+#include <rdapi/support.h>
 
 GotoModel::GotoModel(QObject *parent) : DisassemblerModel(parent) { }
 
@@ -17,33 +13,26 @@ void GotoModel::setDisassembler(RDDisassembler* disassembler)
 
 QVariant GotoModel::data(const QModelIndex &index, int role) const
 {
-    if(!m_disassembler)
-        return QVariant();
+    if(!m_disassembler) return QVariant();
 
-    // REDasm::ListingItem item = m_disassembler->document()->items()->at(index.row());
+    RDDocumentItem item;
+    RDDocument_GetItemAt(m_document, index.row(), &item);
 
-    // if(role == Qt::DisplayRole)
-    // {
-    //     if(index.column() == 0)
-    //         return Convert::to_qstring(REDasm::String::hex(item.address, r_asm->bits()));
-    //     if(index.column() == 1)
-    //         return this->itemName(item);
-    //     if(index.column() == 2)
-    //         return this->itemType(item);
-    // }
-    // else if(role == Qt::TextAlignmentRole)
-    // {
-    //     if(index.column() == 2)
-    //         return Qt::AlignCenter;
-    // }
-    // else if(role == Qt::ForegroundRole)
-    // {
-    //     if(index.column() == 0)
-    //         return THEME_VALUE("address_list_fg");
-
-    //     if(index.column() == 1)
-    //         return this->itemColor(item);
-    // }
+    if(role == Qt::DisplayRole)
+    {
+        if(index.column() == 0) return RD_ToHex(item.address);
+        if(index.column() == 1) return this->itemName(item);
+        if(index.column() == 2) return this->itemType(item);
+    }
+    else if(role == Qt::TextAlignmentRole)
+    {
+        if(index.column() == 2) return Qt::AlignCenter;
+    }
+    else if(role == Qt::ForegroundRole)
+    {
+        if(index.column() == 0) return THEME_VALUE("address_list_fg");
+        if(index.column() == 1) return this->itemColor(item);
+    }
 
     return QVariant();
 }
@@ -64,52 +53,55 @@ QVariant GotoModel::headerData(int section, Qt::Orientation orientation, int rol
 }
 
 int GotoModel::columnCount(const QModelIndex &) const { return 3; }
-int GotoModel::rowCount(const QModelIndex &) const { return 0; } //return r_disasm ? r_doc->items()->size() : 0; }
+int GotoModel::rowCount(const QModelIndex &) const { return m_document ? RDDocument_ItemsCount(m_document) : 0; }
 
-QColor GotoModel::itemColor(const REDasm::ListingItem& item) const
+QColor GotoModel::itemColor(const RDDocumentItem& item) const
 {
-    if(item.is(REDasm::ListingItem::SegmentItem))  return THEME_VALUE("segment_fg");
-    if(item.is(REDasm::ListingItem::FunctionItem)) return THEME_VALUE("function_fg");
-    if(item.is(REDasm::ListingItem::TypeItem))     return THEME_VALUE("type_fg");
+    RDSymbol symbol;
 
-    // if(item.is(REDasm::ListingItem::SymbolItem))
-    // {
-    //     const REDasm::Symbol* symbol = r_doc->symbol(item.address);
+    switch(item.type)
+    {
+        case DocumentItemType_Segment:  return THEME_VALUE("segment_fg");
+        case DocumentItemType_Function: return THEME_VALUE("function_fg");
+        case DocumentItemType_Type:     return THEME_VALUE("type_fg");
 
-    //     if(!symbol) return QColor();
-    //     if(symbol->isString()) return THEME_VALUE("string_fg");
-    //     return THEME_VALUE("data_fg");
-    // }
+        case DocumentItemType_Symbol:
+            if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol)) return QColor();
+            if(symbol.type == SymbolType_String) return THEME_VALUE("string_fg");
+            return THEME_VALUE("data_fg");
+
+        default: break;
+    }
 
     return QColor();
 }
 
-QString GotoModel::itemName(const REDasm::ListingItem& item) const
+QString GotoModel::itemName(const RDDocumentItem& item) const
 {
-    // if(item.is(REDasm::ListingItem::SegmentItem))
-    // {
-    //     const REDasm::Segment* segment = r_doc->segment(item.address);
-    //     if(segment) return Convert::to_qstring(segment->name());
-    // }
-    // else if(item.is(REDasm::ListingItem::FunctionItem) || item.is(REDasm::ListingItem::SymbolItem))
-    // {
-    //     const REDasm::Symbol* symbol = r_doc->symbol(item.address);
-    //     if(symbol) return Convert::to_qstring(REDasm::Demangler::demangled(symbol->name));
-    // }
-    // else if(item.type == REDasm::ListingItem::TypeItem)
-    //     return Convert::to_qstring(r_doc->type(item.address));
+    if(item.type == DocumentItemType_Segment)
+    {
+        RDSegment segment;
+        if(RDDocument_GetSegmentAddress(m_document, item.address, &segment)) return segment.name;
+    }
+    else if((item.type == DocumentItemType_Function) || (item.type == DocumentItemType_Symbol))
+    {
+        const char* name = RDDocument_GetSymbolName(m_document, item.address);
+        if(name) return RD_Demangle(name);
+    }
+    else if(item.type == DocumentItemType_Type)
+        return "TODO"; //TODO: Convert::to_qstring(r_doc->type(item.address));
 
-    // return QString();
+    return QString();
 }
 
-QString GotoModel::itemType(const REDasm::ListingItem& item) const
+QString GotoModel::itemType(const RDDocumentItem& item) const
 {
     switch(item.type)
     {
-        case REDasm::ListingItem::SegmentItem:  return "SEGMENT";
-        case REDasm::ListingItem::FunctionItem: return "FUNCTION";
-        case REDasm::ListingItem::TypeItem:     return "TYPE";
-        case REDasm::ListingItem::SymbolItem:   return "SYMBOL";
+        case DocumentItemType_Segment:  return "SEGMENT";
+        case DocumentItemType_Function: return "FUNCTION";
+        case DocumentItemType_Type:     return "TYPE";
+        case DocumentItemType_Symbol:   return "SYMBOL";
         default: break;
     }
 

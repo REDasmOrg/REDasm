@@ -16,7 +16,6 @@ DisassemblerColumnView::~DisassemblerColumnView() { std::for_each(m_events.begin
 void DisassemblerColumnView::linkTo(DisassemblerTextView* textview)
 {
     m_textview = textview;
-    m_cursor = textview->activeCursor();
     m_disassembler = textview->disassembler();
     m_document = RDDisassembler_GetDocument(m_disassembler);
 
@@ -155,7 +154,7 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
 
 bool DisassemblerColumnView::isPathSelected(const DisassemblerColumnView::ArrowPath &path) const
 {
-    size_t line = RDCursor_CurrentLine(m_cursor);
+    size_t line = m_textview->currentPosition()->line;
     return (line == path.startidx) || (line == path.endidx);
 }
 

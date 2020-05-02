@@ -1,76 +1,11 @@
 #include "painterrenderer.h"
-#include "../redasmsettings.h"
 #include "../themeprovider.h"
-#include <algorithm>
-#include <cstring>
-#include <limits>
-#include <cmath>
 #include <QApplication>
 #include <QPainter>
-#include <QDebug>
+#include <algorithm>
+#include <cstring>
 
-PainterRenderer::PainterRenderer(RDDisassembler* disassembler, flag_t flags): m_fontmetrics(REDasmSettings::font())
-{
-    m_document = RDDisassembler_GetDocument(disassembler);
-    m_cursor = RDCursor_Create(m_document);
-    m_renderer = RDRenderer_Create(disassembler, m_cursor, flags);
-}
-
-PainterRenderer::~PainterRenderer()
-{
-    RD_Free(m_renderer);
-    RD_Free(m_cursor);
-}
-
-QString PainterRenderer::currentWord() const { return RDRenderer_GetCurrentWord(m_renderer); }
-QString PainterRenderer::selectedText() const { return RDRenderer_GetSelectedText(m_renderer); }
-bool PainterRenderer::selectedSymbol(RDSymbol* symbol) const { return RDRenderer_GetSelectedSymbol(m_renderer, symbol); }
-const QFontMetricsF PainterRenderer::fontMetrics() const { return m_fontmetrics; }
-const RDRenderer* PainterRenderer::handle() const { return m_renderer; }
-RDCursor* PainterRenderer::cursor() const { return m_cursor; }
-
-void PainterRenderer::moveTo(const QPointF& p)
-{
-    RDCursorPos pos = this->hitTest(p);
-    RDCursor_MoveTo(m_cursor, pos.line, pos.column);
-}
-
-void PainterRenderer::select(const QPointF& p)
-{
-    RDCursorPos pos = this->hitTest(p);
-    RDCursor_Select(m_cursor, pos.line, pos.column);
-}
-
-RDCursorPos PainterRenderer::hitTest(const QPointF& p)
-{
-    RDCursorPos cp;
-    cp.line = std::min(static_cast<size_t>(std::floor(p.y() / m_fontmetrics.height())), RDDocument_ItemsCount(m_document) - 1);
-    cp.column = std::numeric_limits<size_t>::max();
-
-    rd_ptr<RDRendererItem> ritem(RDRender_CreateItem());
-    if(!RDRenderer_GetItem(m_renderer, cp.line, ritem.get())) cp.column = 0;
-
-    QString s = RDRendererItem_GetItemText(ritem.get());
-    qreal x = 0;
-
-    for(int i = 0; i < s.size(); i++)
-    {
-        qreal w = m_fontmetrics.width(s[i]);
-
-        if(x >= p.x())
-        {
-            cp.column = static_cast<size_t>(std::max(0, i - 1));
-            break;
-        }
-
-        x += w;
-    }
-
-    if(cp.column == std::numeric_limits<size_t>::max())
-        cp.column = static_cast<size_t>(std::max(0, s.size() - 1));
-
-    return cp;
-}
+PainterRenderer::PainterRenderer(RDDisassembler* disassembler, flag_t flags): QtRenderer(disassembler, nullptr, flags) { }
 
 void PainterRenderer::render(QPainter* painter, size_t first, size_t last)
 {

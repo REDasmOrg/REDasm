@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QSortFilterProxyModel>
 #include <QDialog>
 #include "../../../models/dev/functionlistmodel.h"
 #include "../../../models/dev/functiongraphmodel.h"
@@ -15,13 +16,15 @@ class FunctionGraphDialog : public QDialog
     public:
         explicit FunctionGraphDialog(QWidget *parent = nullptr);
         ~FunctionGraphDialog();
+        void setDisassembler(RDDisassembler* disassembler);
 
     private slots:
         void showGraph(const QModelIndex& current, const QModelIndex&);
 
     private:
         Ui::FunctionGraphDialog *ui;
-        FunctionListModel* m_functionlistmodel;
-        FunctionGraphModel* m_functiongraphmodel;
+        FunctionListModel* m_functionlistmodel{nullptr};
+        QSortFilterProxyModel* m_sortedblocksmodel{nullptr};
+        FunctionGraphModel* m_functiongraphmodel{nullptr};
 };
 

@@ -13,27 +13,27 @@ DialogUI::~DialogUI() { delete ui; }
 int DialogUI::selectedIndex() const { return m_selectedindex; }
 void DialogUI::setText(const QString &s) { ui->lblTitle->setText(s); }
 
-void DialogUI::selectableItems(const REDasm::List &items)
-{
-    this->hideFilter();
-    this->createList(new ListItemsModel(items));
-}
-
-void DialogUI::setItems(REDasm::UI::CheckList &items)
-{
-    this->createList(new CheckedItemsModel(items));
-
-    connect(ui->pbApply, &QPushButton::clicked, this, [&]() {
-        QListView* lvitems = static_cast<QListView*>(ui->stackedWidget->currentWidget());
-        QSortFilterProxyModel* filtermodel = static_cast<QSortFilterProxyModel*>(lvitems->model());
-        CheckedItemsModel* checkeditemsmodel = static_cast<CheckedItemsModel*>(filtermodel->sourceModel());
-
-        checkeditemsmodel->uncheckAll();
-
-        for(int i = 0; i < filtermodel->rowCount(); i++)
-            filtermodel->setData(filtermodel->index(i, 0), Qt::Checked, Qt::CheckStateRole);
-    });
-}
+// void DialogUI::selectableItems(const REDasm::List &items)
+// {
+//     this->hideFilter();
+//     this->createList(new ListItemsModel(items));
+// }
+//
+// void DialogUI::setItems(REDasm::UI::CheckList &items)
+// {
+//     this->createList(new CheckedItemsModel(items));
+//
+//     connect(ui->pbApply, &QPushButton::clicked, this, [&]() {
+//         QListView* lvitems = static_cast<QListView*>(ui->stackedWidget->currentWidget());
+//         QSortFilterProxyModel* filtermodel = static_cast<QSortFilterProxyModel*>(lvitems->model());
+//         CheckedItemsModel* checkeditemsmodel = static_cast<CheckedItemsModel*>(filtermodel->sourceModel());
+//
+//         checkeditemsmodel->uncheckAll();
+//
+//         for(int i = 0; i < filtermodel->rowCount(); i++)
+//             filtermodel->setData(filtermodel->index(i, 0), Qt::Checked, Qt::CheckStateRole);
+//     });
+// }
 
 void DialogUI::hideFilter()
 {

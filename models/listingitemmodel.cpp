@@ -12,7 +12,20 @@ ListingItemModel::~ListingItemModel() { std::for_each(m_events.begin(), m_events
 void ListingItemModel::setDisassembler(RDDisassembler* disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
-    m_document = RDDisassembler_GetDocument(disassembler);
+
+    // Prepopulate model with allowed items, if any
+    this->beginResetModel();
+
+    size_t c = RDDocument_ItemsCount(m_document);
+
+    for(size_t i = 0; i < c; i++)
+    {
+        RDDocumentItem item;
+        RDDocument_GetItemAt(m_document, i, &item);
+        this->insertItem(item);
+    }
+
+    this->endResetModel();
 
     m_events.insert(RDEvent_Subscribe(Event_DocumentChanged, [](const RDEventArgs* e, void* userdata) {
         const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
@@ -28,16 +41,6 @@ void ListingItemModel::setDisassembler(RDDisassembler* disassembler)
 }
 
 const RDDocumentItem& ListingItemModel::item(const QModelIndex &index) const { return m_items[index.row()]; }
-
-//address_location ListingItemModel::address(const QModelIndex &index) const
-//{
-    //if(!index.isValid() || (index.row() < 0) || (index.row() >= m_items.size()))
-        //return REDasm::invalid_location<address_t>();
-
-    //return REDasm::make_location(m_items[index.row()].toU64());
-    //return { };
-//}
-
 int ListingItemModel::rowCount(const QModelIndex &) const { return m_document ? m_items.size() : 0; }
 int ListingItemModel::columnCount(const QModelIndex &) const { return 4; }
 
@@ -134,6 +137,21 @@ QString ListingItemModel::escapeString(const QString& s)
     return res;
 }
 
+void ListingItemModel::insertItem(const RDDocumentItem& item)
+{
+    if(!this->isItemAllowed(item)) return;
+
+    auto it = std::upper_bound(m_items.begin(), m_items.end(), item, [](const auto& item1, const auto& item2) {
+        return item1.address < item2.address;
+    });
+
+    int idx = static_cast<int>(std::distance(m_items.begin(), it));
+
+    this->beginInsertRows(QModelIndex(), idx, idx);
+    m_items.insert(it, item);
+    this->endInsertRows();
+}
+
 void ListingItemModel::onItemChanged(const RDEventArgs* e)
 {
     const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
@@ -153,17 +171,7 @@ void ListingItemModel::onItemChanged(const RDEventArgs* e)
 void ListingItemModel::onItemInserted(const RDEventArgs* e)
 {
     const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
-    if(!this->isItemAllowed(de->item)) return;
-
-    auto it = std::upper_bound(m_items.begin(), m_items.end(), de->item, [](const auto& item1, const auto& item2) {
-        return item1.address < item2.address;
-    });
-
-    int idx = static_cast<int>(std::distance(m_items.begin(), it));
-
-    this->beginInsertRows(QModelIndex(), idx, idx);
-    m_items.insert(it, de->item);
-    this->endInsertRows();
+    this->insertItem(de->item);
 }
 
 void ListingItemModel::onItemRemoved(const RDEventArgs* e)

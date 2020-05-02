@@ -1,7 +1,8 @@
 #pragma once
 
 #include <QDialog>
-#include <redasm/disassembler/disassembler.h>
+#include <rdapi/rdapi.h>
+#include "../../hooks/idisassemblercommand.h"
 #include "../../models/gotomodel/gotofiltermodel.h"
 
 namespace Ui {
@@ -13,25 +14,22 @@ class GotoDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit GotoDialog(const REDasm::DisassemblerPtr &disassembler, QWidget *parent = nullptr);
-        bool hasValidAddress() const;
-        address_t address() const;
+        explicit GotoDialog(IDisassemblerCommand* command, QWidget *parent = nullptr);
         ~GotoDialog();
 
     private:
+        bool hasValidAddress() const;
         void validateEntry();
 
     private slots:
+        void onGotoClicked();
         void onItemSelected(const QModelIndex& index);
-
-    signals:
-        void gotoAddress(address_t address);
-        void symbolSelected(const QModelIndex& index);
 
     private:
         Ui::GotoDialog *ui;
-        REDasm::DisassemblerPtr m_disassembler;
+        IDisassemblerCommand* m_command;
+        RDDocument* m_document;
         GotoFilterModel* m_gotomodel;
-        address_t m_address;
-        bool m_validaddress;
+        address_t m_address{0};
+        bool m_validaddress{false};
 };

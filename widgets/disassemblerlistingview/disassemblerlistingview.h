@@ -10,8 +10,7 @@ class DisassemblerListingView : public QSplitter
     Q_OBJECT
 
     public:
-        explicit DisassemblerListingView(QWidget *parent = nullptr);
-        ~DisassemblerListingView();
+        explicit DisassemblerListingView(RDDisassembler* disassembler, QWidget *parent = nullptr);
         DisassemblerColumnView* columnView();
         DisassemblerTextView* textView();
         void setDisassembler(RDDisassembler* disassembler);

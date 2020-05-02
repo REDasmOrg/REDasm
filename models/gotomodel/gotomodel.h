@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../listingitemmodel.h"
-#include <redasm/disassembler/listing/document/listingitem.h>
+#include <rdapi/rdapi.h>
 
 class GotoModel : public DisassemblerModel
 {
@@ -18,7 +18,7 @@ class GotoModel : public DisassemblerModel
         int rowCount(const QModelIndex&) const override;
 
     private:
-        QColor itemColor(const REDasm::ListingItem& item) const;
-        QString itemName(const REDasm::ListingItem& item) const;
-        QString itemType(const REDasm::ListingItem& item) const;
+        QColor itemColor(const RDDocumentItem& item) const;
+        QString itemName(const RDDocumentItem& item) const;
+        QString itemType(const RDDocumentItem& item) const;
 };

@@ -16,5 +16,6 @@ class DisassemblerModel : public QAbstractListModel
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
     protected:
-        RDDisassembler* m_disassembler;
+        RDDisassembler* m_disassembler{nullptr};
+        RDDocument* m_document{nullptr};
 };

@@ -1,47 +1,26 @@
 #include "functionlistmodel.h"
-#include <redasm/plugins/assembler/assembler.h>
-#include <redasm/disassembler/disassembler.h>
-#include <redasm/context.h>
-#include "themeprovider.h"
-#include "convert.h"
+#include "../../themeprovider.h"
 
-FunctionListModel::FunctionListModel(QObject *parent) : QAbstractListModel(parent) { }
+FunctionListModel::FunctionListModel(QObject *parent) : ListingItemModel(DocumentItemType_Function, parent) { }
 
-QVariant FunctionListModel::headerData(int section, Qt::Orientation orientation, int role) const
+const RDGraph* FunctionListModel::graph(const QModelIndex& index) const
 {
-    if((orientation != Qt::Horizontal) || (role != Qt::DisplayRole)) return QVariant();
+    const RDDocumentItem& item = this->item(index);
+    RDGraph* graph = nullptr;
 
-    if(section == 0) return "Address";
-    if(section == 1) return "Name";
-    return QVariant();
+    if(!RDDocument_GetFunctionGraph(m_document, item.address, &graph)) return nullptr;
+    return graph;
 }
 
 QVariant FunctionListModel::data(const QModelIndex& index, int role) const
 {
-    if(role == Qt::DisplayRole)
+    if((role == Qt::ForegroundRole) && (index.column() == 1))
     {
-        address_t address = r_doc->functionAt(index.row());
+        const RDDocumentItem& item = this->item(index);
 
-        if(index.column() == 0)
-            return Convert::to_qstring(REDasm::String::hex(address, r_asm->bits()));
-
-        if(index.column() == 1)
-        {
-            auto* symbol = r_doc->symbol(address);
-            return symbol ? Convert::to_qstring(symbol->name) : "";
-        }
-
-    }
-    else if(role == Qt::ForegroundRole)
-    {
-        if(index.column() == 0) return THEME_VALUE("address_list_fg");
-
-        address_t address = r_doc->functionAt(index.row());
-        if(!r_doc->graph(address)) return THEME_VALUE("graph_edge_false");
+        if(!RDDocument_GetFunctionGraph(m_document, item.address, nullptr))
+            return THEME_VALUE("graph_edge_false");
     }
 
-    return QVariant();
+    return ListingItemModel::data(index, role);
 }
-
-int FunctionListModel::columnCount(const QModelIndex& parent) const { return 2; }
-int FunctionListModel::rowCount(const QModelIndex& parent) const { return r_doc->functions()->size(); }

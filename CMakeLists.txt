@@ -50,7 +50,7 @@ add_subdirectory(LibREDasm)
 add_subdirectory(QHexView)
 
 # FindREDasm.config
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/LibREDasm/redasm")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/LibREDasm/rdapi")
 
 add_subdirectory(submodules/plugins)
 add_subdirectory(submodules/assemblers)
@@ -76,13 +76,17 @@ file(GLOB_RECURSE DIALOGS_UIS     dialogs/*.ui)
 file(GLOB_RECURSE MODELS_HEADERS models/*.h)
 file(GLOB_RECURSE MODELS_SOURCES models/*.cpp)
 
+# Delegates
+file(GLOB_RECURSE DELEGATES_HEADERS delegates/*.h)
+file(GLOB_RECURSE DELEGATES_SOURCES delegates/*.cpp)
+
 # Renderer
 file(GLOB_RECURSE RENDERER_HEADERS renderer/*.h)
 file(GLOB_RECURSE RENDERER_SOURCES renderer/*.cpp)
 
-# Actions
-file(GLOB_RECURSE ACTIONS_HEADERS actions/*.h)
-file(GLOB_RECURSE ACTIONS_SOURCES actions/*.cpp)
+# Hooks
+file(GLOB_RECURSE HOOKS_HEADERS hooks/*.h)
+file(GLOB_RECURSE HOOKS_SOURCES hooks/*.cpp)
 
 # UI
 file(GLOB_RECURSE UI_HEADERS ui/*.h)
@@ -95,10 +99,10 @@ SET(HEADERS
     ${WIDGETS_HEADERS}
     ${DIALOGS_HEADERS}
     ${MODELS_HEADERS}
-    ${ACTIONS_HEADERS}
+    ${DELEGATES_HEADERS}
+    ${HOOKS_HEADERS}
     ${RENDERER_HEADERS}
     ${UI_HEADERS}
-    convert.h
     mainwindow.h
     themeprovider.h
     redasmsettings.h
@@ -110,7 +114,8 @@ SET(SOURCES
     ${WIDGETS_SOURCES}
     ${DIALOGS_SOURCES}
     ${MODELS_SOURCES}
-    ${ACTIONS_SOURCES}
+    ${DELEGATES_SOURCES}
+    ${HOOKS_SOURCES}
     ${RENDERER_SOURCES}
     ${UI_SOURCES}
     main.cpp

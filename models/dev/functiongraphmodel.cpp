@@ -1,13 +1,12 @@
 #include "functiongraphmodel.h"
-#include <redasm/plugins/assembler/assembler.h>
-#include <redasm/disassembler/disassembler.h>
-#include <redasm/context.h>
-#include "themeprovider.h"
-#include "convert.h"
+#include "../../themeprovider.h"
 
-FunctionGraphModel::FunctionGraphModel(QObject *parent) : QAbstractListModel(parent) { }
+FunctionGraphModel::FunctionGraphModel(RDDisassembler* disassembler, QObject *parent) : QAbstractListModel(parent), m_disassembler(disassembler)
+{
+    m_document = RDDisassembler_GetDocument(disassembler);
+}
 
-void FunctionGraphModel::setGraph(const REDasm::FunctionGraph* graph)
+void FunctionGraphModel::setGraph(const RDGraph* graph)
 {
     this->beginResetModel();
     m_graph = graph;
@@ -35,21 +34,37 @@ QVariant FunctionGraphModel::data(const QModelIndex& index, int role) const
 {
     if(!m_graph) return QVariant();
 
+    if((role == Qt::UserRole) && (index.column() == 0))
+    {
+        const RDFunctionBasicBlock* fbb = nullptr;
+        auto node = this->getBasicBlock(index, &fbb);
+        if(!node) return QVariant();
+
+        RDDocumentItem startitem;
+        if(RDFunctionBasicBlock_GetStartItem(fbb, &startitem)) return QVariant::fromValue(startitem.address);
+        return QVariant();
+    }
+
     if(role == Qt::DisplayRole)
     {
-        auto n = m_graph->nodes().at(index.row());
-        const auto* fbb = variant_object<REDasm::FunctionBasicBlock>(m_graph->data(n));
-        const auto& startitem = fbb->startItem();
-        const auto& enditem = fbb->endItem();
-        const auto* symbol = r_doc->symbol(startitem.address);
+        const RDFunctionBasicBlock* fbb = nullptr;
+        auto node = this->getBasicBlock(index, &fbb);
+        if(!node) return QVariant();
+
+        RDDocumentItem startitem, enditem;
+
+        if(!RDFunctionBasicBlock_GetStartItem(fbb, &startitem) || !RDFunctionBasicBlock_GetEndItem(fbb, &enditem))
+            return QVariant();
+
+        const char* symbolname = RDDocument_GetSymbolName(m_document, startitem.address);
 
         switch(index.column())
         {
-            case 0: return Convert::to_qstring(REDasm::String::hex(startitem.address, r_asm->bits()));
-            case 1: return Convert::to_qstring(REDasm::String::hex(enditem.address, r_asm->bits()));
-            case 2: return QString::number(m_graph->incoming(n).size());
-            case 3: return QString::number(m_graph->outgoing(n).size());
-            case 4: return symbol ? Convert::to_qstring(symbol->name) : QString();
+            case 0: return RD_ToHex(startitem.address);
+            case 1: return RD_ToHex(enditem.address);
+            case 2: return QString::number(RDGraph_GetIncoming(m_graph, *node, nullptr));
+            case 3: return QString::number(RDGraph_GetOutgoing(m_graph, *node, nullptr));
+            case 4: return symbolname ? symbolname : QString();
             default: break;
         }
     }
@@ -62,5 +77,15 @@ QVariant FunctionGraphModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-int FunctionGraphModel::columnCount(const QModelIndex& parent) const { return 5; }
-int FunctionGraphModel::rowCount(const QModelIndex& parent) const { return m_graph ? m_graph->nodes().size() : 0; }
+int FunctionGraphModel::columnCount(const QModelIndex&) const { return 5; }
+int FunctionGraphModel::rowCount(const QModelIndex&) const { return m_graph ? RDGraph_GetNodes(m_graph, nullptr) : 0; }
+
+std::optional<RDGraphNode> FunctionGraphModel::getBasicBlock(const QModelIndex& index, const RDFunctionBasicBlock** fbb) const
+{
+    const RDGraphNode* nodes = nullptr;
+    size_t c = RDGraph_GetNodes(m_graph, &nodes);
+    if(static_cast<size_t>(index.row()) >= c) return std::nullopt;
+
+    if(!RDFunctionGraph_GetBasicBlock(m_graph, nodes[index.row()], fbb)) return std::nullopt;
+    return nodes[index.row()];
+}

@@ -1,26 +1,27 @@
 #pragma once
 
 #include <QPlainTextEdit>
-#include <redasm/disassembler/disassembler.h>
-#include "../../renderer/listingdocumentrenderer.h"
+#include <rdapi/disassembler.h>
+#include "../../renderer/documentrenderer.h"
 
 class DisassemblerPopupWidget : public QPlainTextEdit
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerPopupWidget(ListingDocumentRenderer* documentrenderer, const REDasm::DisassemblerPtr& disassembler, QWidget *parent = nullptr);
-        bool renderPopup(const REDasm::String& word, size_t line);
+        explicit DisassemblerPopupWidget(DocumentRenderer* renderer, RDDisassembler* disassembler, QWidget *parent = nullptr);
+        bool renderPopup(const QString& word, size_t line);
         void moreRows();
         void lessRows();
         int rows() const;
 
     private:
         void renderPopup();
-        size_t getIndexOfWord(const REDasm::String &word) const;
+        size_t getIndexOfWord(const QString& word) const;
 
     private:
-        REDasm::DisassemblerPtr m_disassembler;
-        ListingDocumentRenderer* m_documentrenderer;
-        size_t m_index, m_rows;
+        RDDisassembler* m_disassembler;
+        RDDocument* m_document;
+        DocumentRenderer* m_renderer;
+        size_t m_index{RD_NPOS}, m_rows;
 };

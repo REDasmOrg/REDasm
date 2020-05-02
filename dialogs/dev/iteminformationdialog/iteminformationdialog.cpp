@@ -2,15 +2,14 @@
 #include "ui_iteminformationdialog.h"
 #include "../../../redasmsettings.h"
 #include "../logsyntaxhighlighter.h"
-#include "../convert.h"
-#include <redasm/support/utils.h>
+//#include <redasm/support/utils.h>
 
 #define ITEM_TYPE(x)  #x
 #define HEADER_STRING "="
 #define HEADER_WIDTH  20
 #define HEADER_PART   QString(HEADER_STRING).repeated(HEADER_WIDTH)
 
-ItemInformationDialog::ItemInformationDialog(const REDasm::DisassemblerPtr &disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::ItemInformationDialog), m_disassembler(disassembler)
+ItemInformationDialog::ItemInformationDialog(RDDisassembler* disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::ItemInformationDialog), m_disassembler(disassembler)
 {
     ui->setupUi(this);
     ui->pteInfo->setFont(REDasmSettings::font());
@@ -36,25 +35,25 @@ ItemInformationDialog &ItemInformationDialog::header(const QString &s)
 
 ItemInformationDialog &ItemInformationDialog::string(const QString &k, const QString &s) { return this->line(k, QString("\"%1\"").arg(s)); }
 
-QString ItemInformationDialog::itemType(const REDasm::ListingItem *item) const
-{
-    if(item->type == REDasm::ListingItem::SegmentItem)
-        return ITEM_TYPE(REDasm::ListingItem::SegmentItem);
-    if(item->type == REDasm::ListingItem::EmptyItem)
-        return ITEM_TYPE(REDasm::ListingItem::EmptyItem);
-    if(item->type == REDasm::ListingItem::FunctionItem)
-        return ITEM_TYPE(REDasm::ListingItem::FunctionItem);
-    if(item->type == REDasm::ListingItem::TypeItem)
-        return ITEM_TYPE(REDasm::ListingItem::TypeItem);
-    if(item->type == REDasm::ListingItem::SymbolItem)
-        return ITEM_TYPE(REDasm::ListingItem::SymbolItem);
-    if(item->type == REDasm::ListingItem::MetaItem)
-        return ITEM_TYPE(REDasm::ListingItem::MetaItem);
-    if(item->type == REDasm::ListingItem::InstructionItem)
-        return ITEM_TYPE(REDasm::ListingItem::InstructionItem);
-
-    return QString::number(static_cast<size_t>(item->type));
-}
+//QString ItemInformationDialog::itemType(const REDasm::ListingItem *item) const
+//{
+    //if(item->type == REDasm::ListingItem::SegmentItem)
+        //return ITEM_TYPE(REDasm::ListingItem::SegmentItem);
+    //if(item->type == REDasm::ListingItem::EmptyItem)
+        //return ITEM_TYPE(REDasm::ListingItem::EmptyItem);
+    //if(item->type == REDasm::ListingItem::FunctionItem)
+        //return ITEM_TYPE(REDasm::ListingItem::FunctionItem);
+    //if(item->type == REDasm::ListingItem::TypeItem)
+        //return ITEM_TYPE(REDasm::ListingItem::TypeItem);
+    //if(item->type == REDasm::ListingItem::SymbolItem)
+        //return ITEM_TYPE(REDasm::ListingItem::SymbolItem);
+    //if(item->type == REDasm::ListingItem::MetaItem)
+        //return ITEM_TYPE(REDasm::ListingItem::MetaItem);
+    //if(item->type == REDasm::ListingItem::InstructionItem)
+        //return ITEM_TYPE(REDasm::ListingItem::InstructionItem);
+//
+    //return QString::number(static_cast<size_t>(item->type));
+//}
 
 void ItemInformationDialog::displayInformation()
 {

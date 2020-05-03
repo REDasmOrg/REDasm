@@ -80,6 +80,12 @@ void DisassemblerTextView::setDisassembler(RDDisassembler* disassembler)
         if(RD_IsBusy()) return;
         DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(userdata);
         thethis->adjustScrollBars();
+
+        RDDocument* doc = RDDisassembler_GetDocument(thethis->disassembler());
+        RDLocation loc = RDDocument_EntryPoint(doc);
+
+        if(loc.valid) thethis->gotoAddress(loc.address);
+        else thethis->update();
     }, this));
 
     m_events.insert(RDEvent_Subscribe(Event_DocumentChanged, [](const RDEventArgs* e, void* userdata) {

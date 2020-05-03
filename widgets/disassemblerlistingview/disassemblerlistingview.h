@@ -17,6 +17,6 @@ class DisassemblerListingView : public QSplitter
 
     private:
         RDDisassembler* m_disassembler;
-        DisassemblerColumnView* m_disassemblercolumnview;
-        DisassemblerTextView* m_disassemblertextview;
+        DisassemblerColumnView* m_columnview;
+        DisassemblerTextView* m_textview;
 };

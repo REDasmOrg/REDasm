@@ -6,27 +6,28 @@ DisassemblerListingView::DisassemblerListingView(RDDisassembler* disassembler, Q
 {
     this->setStyleSheet("QSplitter::handle { background-color: " + THEME_VALUE_COLOR("seek") + "; }");
 
-    m_disassemblertextview = new DisassemblerTextView(this);
-    m_disassemblertextview->setFont(REDasmSettings::font());
-    m_disassemblertextview->setDisassembler(disassembler);
+    m_textview = new DisassemblerTextView(this);
+    m_textview->setFont(REDasmSettings::font());
+    m_textview->setDisassembler(disassembler);
 
-    m_disassemblercolumnview = new DisassemblerColumnView(this);
-    m_disassemblercolumnview->setFont(m_disassemblertextview->font()); // Apply same font
+    m_columnview = new DisassemblerColumnView(this);
+    m_columnview->setFont(m_textview->font()); // Apply same font
+    m_columnview->linkTo(m_textview);
 
-    this->addWidget(m_disassemblercolumnview);
-    this->addWidget(m_disassemblertextview);
+    this->addWidget(m_columnview);
+    this->addWidget(m_textview);
 
     this->setStretchFactor(0, 2);
     this->setStretchFactor(1, 10);
     this->setHandleWidth(4);
 }
 
-DisassemblerColumnView *DisassemblerListingView::columnView() { return m_disassemblercolumnview; }
-DisassemblerTextView *DisassemblerListingView::textView() { return m_disassemblertextview; }
+DisassemblerColumnView *DisassemblerListingView::columnView() { return m_columnview; }
+DisassemblerTextView *DisassemblerListingView::textView() { return m_textview; }
 
 void DisassemblerListingView::setDisassembler(RDDisassembler* disassembler)
 {
     m_disassembler = disassembler;
-    m_disassemblertextview->setDisassembler(m_disassembler);
-    m_disassemblercolumnview->linkTo(m_disassemblertextview);
+    m_textview->setDisassembler(m_disassembler);
+    m_columnview->linkTo(m_textview);
 }

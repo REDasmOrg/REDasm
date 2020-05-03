@@ -90,10 +90,12 @@
     <property name="title">
      <string>&amp;Views</string>
     </property>
+    <addaction name="action_Listing"/>
     <addaction name="action_Segments"/>
     <addaction name="action_Functions"/>
-    <addaction name="action_Listing"/>
-    <addaction name="separator"/>
+    <addaction name="action_Exports"/>
+    <addaction name="action_Imports"/>
+    <addaction name="action_Strings"/>
    </widget>
    <widget class="QMenu" name="menu_REDasm">
     <property name="title">
@@ -259,6 +261,21 @@
   <action name="action_Graphs">
    <property name="text">
     <string>&amp;Graphs</string>
+   </property>
+  </action>
+  <action name="action_Exports">
+   <property name="text">
+    <string>&amp;Exports</string>
+   </property>
+  </action>
+  <action name="action_Imports">
+   <property name="text">
+    <string>&amp;Imports</string>
+   </property>
+  </action>
+  <action name="action_Strings">
+   <property name="text">
+    <string>&amp;Strings</string>
    </property>
   </action>
  </widget>

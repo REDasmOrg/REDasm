@@ -20,7 +20,7 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         size_t lastVisibleLine() const;
         void setDisassembler(RDDisassembler* disassembler);
 
-    public: // IDisassemblerCommand implementation
+    public: // IDisassemblerCommand interface
         void goBack() override;
         void goForward() override;
         bool gotoAddress(address_t address) override;

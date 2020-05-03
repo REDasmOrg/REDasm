@@ -25,7 +25,12 @@ ListingTab::ListingTab(RDDisassembler* disassembler, QWidget* parent) : QWidget(
     m_listingview->textView()->setFocus();
 }
 
-IDisassemblerCommand* ListingTab::command() const { return m_listingview->textView(); }
+IDisassemblerCommand* ListingTab::command() const
+{
+    if(m_graphview->isVisible()) return m_graphview;
+    return m_listingview->textView();
+}
+
 QWidget* ListingTab::widget() { return this; }
 
 void ListingTab::switchToGraph()

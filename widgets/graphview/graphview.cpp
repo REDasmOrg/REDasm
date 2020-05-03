@@ -4,12 +4,11 @@
 #include <QPainter>
 #include <cmath>
 
-GraphView::GraphView(IDisassemblerCommand* command, QWidget *parent): CursorScrollArea(parent), m_command(command)
+GraphView::GraphView(QWidget *parent): CursorScrollArea(parent)
 {
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, THEME_VALUE("graph_bg"));
 
-    this->setBlinkCursor(command->cursor());
     this->horizontalScrollBar()->setSingleStep(this->fontMetrics().height());
     this->verticalScrollBar()->setSingleStep(this->fontMetrics().height());
     this->setFrameShape(QFrame::NoFrame);
@@ -84,9 +83,7 @@ void GraphView::mouseDoubleClickEvent(QMouseEvent* e)
     if(m_selecteditem && (e->buttons() == Qt::LeftButton))
         m_selecteditem->mouseDoubleClickEvent(e);
 
-    if(updated)
-        this->selectedItemChangedEvent();
-
+    if(updated) this->selectedItemChangedEvent();
     CursorScrollArea::mouseDoubleClickEvent(e);
 }
 
@@ -406,10 +403,13 @@ bool GraphView::updateSelectedItem(QMouseEvent *e)
     {
         olditem->itemSelectionChanged(false);
         olditem->invalidate();
-     }
+    }
 
     if(m_selecteditem)
-        m_selecteditem->itemSelectionChanged(false);
+    {
+        m_selecteditem->itemSelectionChanged(true);
+        m_selecteditem->invalidate();
+    }
 
     return olditem != m_selecteditem;
 }

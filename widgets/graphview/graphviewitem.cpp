@@ -14,6 +14,6 @@ void GraphViewItem::itemSelectionChanged(bool selected) { }
 QPoint GraphViewItem::mapToItem(const QPoint &p) const { return QPoint(p.x() - m_pos.x(), p.y() - m_pos.y()); }
 int GraphViewItem::currentLine() const { return 0; }
 void GraphViewItem::mouseDoubleClickEvent(QMouseEvent *e) { }
-void GraphViewItem::mousePressEvent(QMouseEvent* e) { if(e->buttons() == Qt::RightButton) emit menuRequested();  }
+void GraphViewItem::mousePressEvent(QMouseEvent* e) { }
 void GraphViewItem::mouseMoveEvent(QMouseEvent *e) { }
 void GraphViewItem::invalidate(bool notify) { if(notify) emit invalidated(); }

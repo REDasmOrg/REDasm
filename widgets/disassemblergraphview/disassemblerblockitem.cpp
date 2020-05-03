@@ -23,16 +23,12 @@ DisassemblerBlockItem::DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, ID
     m_cursorevent = RDEvent_Subscribe(Event_CursorPositionChanged, [](const RDEventArgs* e, void* userdata) {
         DisassemblerBlockItem* thethis = reinterpret_cast<DisassemblerBlockItem*>(userdata);
         if(e->sender != thethis->m_command->cursor()) return;
-
-        RDDocumentItem item;
-        if(!thethis->m_command->getCurrentItem(&item)) return;
-        if(!RDFunctionBasicBlock_Contains(thethis->m_basicblock, item.address)) return;
-
         thethis->invalidate();
     }, this);
 }
 
 DisassemblerBlockItem::~DisassemblerBlockItem() { RDEvent_Unsubscribe(m_cursorevent); }
+DocumentRenderer* DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
 bool DisassemblerBlockItem::containsItem(const RDDocumentItem& item) const { return RDFunctionBasicBlock_Contains(m_basicblock, item.address); }
 
 int DisassemblerBlockItem::currentLine() const
@@ -51,12 +47,7 @@ int DisassemblerBlockItem::currentLine() const
 }
 
 QSize DisassemblerBlockItem::size() const { return this->documentSize(); }
-
-void DisassemblerBlockItem::mouseDoubleClickEvent(QMouseEvent *e)
-{
-    emit followRequested(e->localPos());
-    e->accept();
-}
+void DisassemblerBlockItem::mouseDoubleClickEvent(QMouseEvent*) { emit followRequested(this); }
 
 void DisassemblerBlockItem::mousePressEvent(QMouseEvent *e)
 {

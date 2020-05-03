@@ -1,30 +1,81 @@
 #include "disassemblergraphview.h"
+#include "../../hooks/disassemblerhooks.h"
 #include "../../models/disassemblermodel.h"
 #include "../../redasmsettings.h"
+#include "disassemblerblockitem.h"
 #include <rdapi/graph/functiongraph.h>
 #include <rdapi/graph/layout.h>
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QPainter>
 #include <QAction>
+#include <QMenu>
 
-DisassemblerGraphView::DisassemblerGraphView(IDisassemblerCommand* command, QWidget *parent): GraphView(command, parent)
+DisassemblerGraphView::DisassemblerGraphView(IDisassemblerCommand* command, QWidget *parent): GraphView(parent), m_command(command)
 {
     this->setFocusPolicy(Qt::StrongFocus);
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    this->setBlinkCursor(command->cursor());
 
-    //r_evt::subscribe(REDasm::StandardEvents::Cursor_PositionChanged, this, [&](const REDasm::EventArgs*) {
-        //if(!this->isVisible()) return;
-        //this->renderGraph();
-        //if(!this->hasFocus()) this->focusCurrentBlock();
-    //});
+    connect(this, &DisassemblerGraphView::customContextMenuRequested, this, [&](const QPoint&) {
+        RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
+        if(RDDocument_ItemsCount(doc)) m_contextmenu->popup(QCursor::pos());
+    });
 }
 
-DisassemblerGraphView::~DisassemblerGraphView()
+void DisassemblerGraphView::goBack()
 {
-    //r_evt::ungroup(this);
+    m_command->goBack();
+
+    RDDocumentItem item;
+    if(m_command->getCurrentItem(&item)) this->updateGraph(item.address);
 }
 
-bool DisassemblerGraphView::isCursorInGraph() const { return this->itemFromCurrentLine() != nullptr; }
+void DisassemblerGraphView::goForward()
+{
+    m_command->goForward();
+
+    RDDocumentItem item;
+    if(m_command->getCurrentItem(&item)) this->updateGraph(item.address);
+}
+
+void DisassemblerGraphView::copy() const
+{
+    DisassemblerBlockItem* blockitem = static_cast<DisassemblerBlockItem*>(this->selectedItem());
+    if(blockitem) return blockitem->renderer()->copy();
+}
+
+bool DisassemblerGraphView::gotoAddress(address_t address)
+{
+    if(!m_command->gotoAddress(address)) return false;
+    return this->updateGraph(address);
+}
+
+bool DisassemblerGraphView::gotoItem(const RDDocumentItem& item)
+{
+    if(!m_command->gotoItem(item)) return false;
+    return this->updateGraph(item.address);
+}
+
+bool DisassemblerGraphView::hasSelection() const { return m_command->hasSelection(); }
+bool DisassemblerGraphView::canGoBack() const { return m_command->canGoBack(); }
+bool DisassemblerGraphView::canGoForward() const { return m_command->canGoForward(); }
+bool DisassemblerGraphView::getCurrentItem(RDDocumentItem* item) const { return m_command->getCurrentItem(item); }
+
+bool DisassemblerGraphView::getSelectedSymbol(RDSymbol* symbol) const
+{
+    DisassemblerBlockItem* blockitem = static_cast<DisassemblerBlockItem*>(this->selectedItem());
+    if(blockitem) return blockitem->renderer()->selectedSymbol(symbol);
+    return false;
+}
+
+bool DisassemblerGraphView::ownsCursor(const RDCursor* cursor) const { return m_command->ownsCursor(cursor); }
+const RDCursorPos* DisassemblerGraphView::currentPosition() const { return m_command->currentPosition(); }
+const RDCursorPos* DisassemblerGraphView::currentSelection() const { return m_command->currentSelection(); }
+QString DisassemblerGraphView::currentWord() const { return m_command->currentWord(); }
+RDDisassembler* DisassemblerGraphView::disassembler() const { return m_command->disassembler(); }
+RDCursor* DisassemblerGraphView::cursor() const { return m_command->cursor(); }
+QWidget* DisassemblerGraphView::widget() { return this; }
 
 void DisassemblerGraphView::computeLayout()
 {
@@ -39,7 +90,6 @@ void DisassemblerGraphView::computeLayout()
 
         auto* dbi = new DisassemblerBlockItem(fbb, m_command, n, this->viewport());
         connect(dbi, &DisassemblerBlockItem::followRequested, this, &DisassemblerGraphView::onFollowRequested);
-        connect(dbi, &DisassemblerBlockItem::menuRequested, this, &DisassemblerGraphView::onMenuRequested);
 
         m_items[n] = dbi;
         RDGraph_SetWidth(m_graph, n, dbi->width());
@@ -61,24 +111,11 @@ void DisassemblerGraphView::computeLayout()
     this->focusCurrentBlock();
 }
 
-void DisassemblerGraphView::onFollowRequested(const QPointF& localpos)
+void DisassemblerGraphView::onFollowRequested(DisassemblerBlockItem* block)
 {
-    //if(!m_disassembleractions->renderer()) return;
-
-    //if(!m_disassembleractions->followUnderCursor()) static_cast<ListingRendererCommon*>(m_disassembleractions->renderer())->selectWordAt(localpos);
-    //else this->focusCurrentBlock();
-}
-
-void DisassemblerGraphView::onMenuRequested()
-{
-    //if(!m_disassembleractions->renderer()) return;
-    //m_disassembleractions->popup(QCursor::pos());
-}
-
-void DisassemblerGraphView::goTo(address_t address)
-{
-    m_command->gotoAddress(address);
-    this->renderGraph();
+    RDSymbol symbol;
+    if(!block->renderer()->selectedSymbol(&symbol)) return;
+    this->gotoAddress(symbol.address);
 }
 
 void DisassemblerGraphView::focusCurrentBlock()
@@ -90,8 +127,18 @@ void DisassemblerGraphView::focusCurrentBlock()
     this->setSelectedBlock(item);
 }
 
+bool DisassemblerGraphView::updateGraph(address_t address)
+{
+    if(!RDFunctionGraph_Contains(m_graph, address)) return this->renderGraph();
+    this->focusCurrentBlock();
+    return true;
+}
+
 bool DisassemblerGraphView::renderGraph()
 {
+    if(!m_contextmenu)
+        m_contextmenu = DisassemblerHooks::instance()->createActions(this);
+
     RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
 
     RDDocumentItem item;
@@ -101,7 +148,10 @@ bool DisassemblerGraphView::renderGraph()
     if(!loc.valid) return false;
 
     if(m_currentfunction && (loc.address == m_currentfunction->address)) // Don't render graph again
+    {
+        this->focusCurrentBlock();
         return true;
+    }
 
     if(!RDDocument_GetInstructionItem(doc, loc.address, &item)) return false;
 
@@ -130,18 +180,6 @@ void DisassemblerGraphView::onCursorBlink()
 {
     GraphViewItem* item = this->selectedItem();
     if(item) item->invalidate();
-}
-
-void DisassemblerGraphView::selectedItemChangedEvent()
-{
-    GraphViewItem* selecteditem = this->selectedItem();
-
-    // if(selecteditem)
-    //     m_disassembleractions->setCurrentRenderer(static_cast<DisassemblerBlockItem*>(selecteditem)->renderer());
-    // else
-    //     m_disassembleractions->setCurrentRenderer(nullptr);
-
-    GraphView::selectedItemChangedEvent();
 }
 
 QColor DisassemblerGraphView::getEdgeColor(const RDGraphEdge& e) const
@@ -196,17 +234,4 @@ GraphViewItem *DisassemblerGraphView::itemFromCurrentLine() const
     }
 
     return nullptr;
-}
-
-void DisassemblerGraphView::mousePressEvent(QMouseEvent *e)
-{
-    //r_doc->cursor().disable();
-    GraphView::mousePressEvent(e);
-}
-
-void DisassemblerGraphView::mouseMoveEvent(QMouseEvent *e)
-{
-    GraphView::mouseMoveEvent(e);
-    //GraphViewItem* item = this->selectedItem();
-    //if(item) r_doc->cursor().enable();
 }

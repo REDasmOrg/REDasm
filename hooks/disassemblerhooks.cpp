@@ -500,8 +500,8 @@ void DisassemblerHooks::addWelcomeTab() { m_disassemblertabs->addTab(new Welcome
 
 QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
 {
-    std::unordered_map<int, QAction*> actions;
     QMenu* contextmenu = new QMenu(command->widget());
+    std::unordered_map<int, QAction*> actions;
 
     actions[DisassemblerHooks::Action_Rename] = contextmenu->addAction("Rename", this, [&, command]() {
 

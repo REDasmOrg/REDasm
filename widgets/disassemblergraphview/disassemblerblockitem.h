@@ -14,6 +14,7 @@ class DisassemblerBlockItem : public GraphViewItem
     public:
         explicit DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, IDisassemblerCommand* command, RDGraphNode node, QWidget *parent = nullptr);
         virtual ~DisassemblerBlockItem();
+        DocumentRenderer* renderer() const;
         bool containsItem(const RDDocumentItem& item) const;
 
     public:
@@ -22,7 +23,7 @@ class DisassemblerBlockItem : public GraphViewItem
         QSize size() const override;
 
     protected:
-        void mouseDoubleClickEvent(QMouseEvent *e) override;
+        void mouseDoubleClickEvent(QMouseEvent *) override;
         void mousePressEvent(QMouseEvent *e) override;
         void mouseMoveEvent(QMouseEvent *e) override;
         void invalidate(bool notify = true) override;
@@ -32,7 +33,7 @@ class DisassemblerBlockItem : public GraphViewItem
         void setupDocument();
 
     signals:
-        void followRequested(const QPointF& localpos);
+        void followRequested(DisassemblerBlockItem* block);
 
     private:
         event_t m_cursorevent;

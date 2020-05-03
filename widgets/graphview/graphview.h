@@ -11,7 +11,6 @@
 #include <rdapi/rdapi.h>
 #include <rdapi/graph/graph.h>
 #include "../cursorscrollarea.h"
-#include "../../hooks/idisassemblercommand.h"
 #include "../../themeprovider.h"
 #include "graphviewitem.h"
 
@@ -20,7 +19,7 @@ class GraphView : public CursorScrollArea
     Q_OBJECT
 
     public:
-        explicit GraphView(IDisassemblerCommand* command, QWidget *parent = nullptr);
+        explicit GraphView(QWidget *parent = nullptr);
         void setGraph(RDGraph* graph);
         void setSelectedBlock(GraphViewItem* item);
         void setFocusOnSelection(bool b);
@@ -58,7 +57,6 @@ class GraphView : public CursorScrollArea
         void selectedItemChanged();
 
     protected:
-        IDisassemblerCommand* m_command;
         RDGraph* m_graph{nullptr};
         QHash<RDGraphNode, GraphViewItem*> m_items;
 

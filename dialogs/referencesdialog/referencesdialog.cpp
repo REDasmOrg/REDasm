@@ -1,7 +1,7 @@
 #include "referencesdialog.h"
 #include "ui_referencesdialog.h"
 
-ReferencesDialog::ReferencesDialog(IDisassemblerCommand* command, const RDSymbol* symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog)
+ReferencesDialog::ReferencesDialog(IDisassemblerCommand* command, const RDSymbol* symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog), m_command(command)
 {
     ui->setupUi(this);
 
@@ -22,6 +22,6 @@ void ReferencesDialog::on_tvReferences_doubleClicked(const QModelIndex &index)
     if(!index.isValid() || !index.internalId())
         return;
 
-    emit jumpTo(index.internalId());
+    m_command->gotoAddress(static_cast<address_t>(index.internalId()));
     this->accept();
 }

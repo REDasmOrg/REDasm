@@ -199,21 +199,6 @@ void DisassemblerHooks::showReferences(IDisassemblerCommand* command, address_t 
     }
 
     ReferencesDialog dlgreferences(command, &symbol, m_mainwindow);
-
-    // connect(&dlgreferences, &ReferencesDialog::jumpTo, this, [&](address_t address) {
-    //     if(ui->stackedWidget->currentWidget() == m_graphview) {
-    //         if(r_doc->itemInstruction(address).isValid()) {
-    //             m_graphview->goTo(address);
-    //             return;
-    //         }
-
-    //         this->switchGraphListing();
-    //     }
-
-    //     r_doc->goTo(address);
-    //     ui->tabView->setCurrentWidget(ui->tabListing);
-    // });
-
     dlgreferences.exec();
 }
 

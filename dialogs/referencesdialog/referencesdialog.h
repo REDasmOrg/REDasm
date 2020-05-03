@@ -16,13 +16,11 @@ class ReferencesDialog : public QDialog
         explicit ReferencesDialog(IDisassemblerCommand* command, const RDSymbol *symbol, QWidget *parent = nullptr);
         ~ReferencesDialog();
 
-    signals:
-        void jumpTo(address_t address);
-
     private slots:
         void on_tvReferences_doubleClicked(const QModelIndex &index);
 
     private:
         Ui::ReferencesDialog *ui;
         ReferencesModel* m_referencesmodel;
+        IDisassemblerCommand* m_command;
 };

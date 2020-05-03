@@ -18,13 +18,24 @@ CursorScrollArea::~CursorScrollArea()
 
 void CursorScrollArea::onCursorBlink() { }
 
-void CursorScrollArea::blinkCursor()
+void CursorScrollArea::stopTimer()
 {
     if(m_blinktimer)
     {
         this->killTimer(m_blinktimer);
         m_blinktimer = 0;
     }
+}
+
+void CursorScrollArea::stopBlinkCursor()
+{
+    this->stopTimer();
+    if(m_cursor) RDCursor_Disable(m_cursor);
+}
+
+void CursorScrollArea::blinkCursor()
+{
+    this->stopTimer();
 
     if(!m_cursor || !this->isVisible()) return;
 
@@ -58,6 +69,6 @@ void CursorScrollArea::mousePressEvent(QMouseEvent* e)
 bool CursorScrollArea::event(QEvent* e)
 {
     if(m_cursor && (e->type() == QEvent::FocusIn)) this->blinkCursor();
-    else if(m_cursor && (e->type() == QEvent::FocusOut)) RDCursor_Disable(m_cursor);
+    else if(m_cursor && (e->type() == QEvent::FocusOut)) this->stopBlinkCursor();
     return QAbstractScrollArea::event(e);
 }

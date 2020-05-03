@@ -21,6 +21,10 @@ class CursorScrollArea : public QAbstractScrollArea
         virtual void onCursorBlink();
 
     private:
+        void stopTimer();
+        void stopBlinkCursor();
+
+    private:
         RDCursor* m_cursor{nullptr};
         int m_blinktimer{0};
 };

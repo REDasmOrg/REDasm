@@ -58,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Open, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::open);
     connect(ui->action_Save, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::save);
     connect(ui->action_Save_As, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::saveAs);
-    connect(ui->action_Close, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::close);
+    connect(ui->action_Close, &QAction::triggered, DisassemblerHooks::instance(), qOverload<>(&DisassemblerHooks::close));
     connect(ui->action_Settings, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::settings);
     connect(ui->action_Blocks, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::showDevBlocks);
     connect(ui->action_Graphs, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::showDevGraphs);

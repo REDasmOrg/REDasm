@@ -56,30 +56,7 @@ void DisassemblerHooks::open()
     if(!s.isEmpty()) this->load(s);
 }
 
-void DisassemblerHooks::close()
-{
-    while(m_disassemblertabs->count()) {
-        QWidget* w = m_disassemblertabs->widget(0);
-        m_disassemblertabs->removeTab(0);
-        w->deleteLater();
-    }
-
-    auto docks = m_mainwindow->findChildren<QDockWidget*>(QString(), Qt::FindDirectChildrenOnly);
-
-    for(const auto& child : docks) {
-        if(dynamic_cast<OutputDock*>(child)) continue;
-        this->undock(child);
-    }
-
-    RD_Status("");
-    this->enableViewCommands(false);
-
-    if(!m_disassemblerview) return;
-    m_disassemblerview->deleteLater();
-    m_disassemblerview = nullptr;
-
-    this->addWelcomeTab();
-}
+void DisassemblerHooks::close() { this->close(true); }
 
 void DisassemblerHooks::save()
 {
@@ -412,8 +389,8 @@ TableTab* DisassemblerHooks::createTable(ICommandTab* commandtab, ListingItemMod
 
 void DisassemblerHooks::loadDisassemblerView(RDDisassembler* disassembler, const RDLoaderBuildRequest& req)
 {
-    this->close();       // Remove old docks
-    this->clearOutput(); // Clear output
+    this->close(false);       // Remove old docks
+    this->clearOutput();      // Clear output
 
     m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow);
 
@@ -596,7 +573,10 @@ void DisassemblerHooks::loadRecents()
 
         QAction* action = recentsmenu->addAction(QString("%1 - %2").arg(i).arg(recents[i]));
         action->setData(recents[i]);
-        connect(action, &QAction::triggered, this, [=]() { this->load(action->data().toString()); });
+
+        connect(action, &QAction::triggered, this, [=]() {
+            this->load(action->data().toString());
+        });
     }
 
     if(actrecents->menu()) actrecents->menu()->deleteLater();
@@ -644,6 +624,31 @@ void DisassemblerHooks::dock(Qt::DockWidgetArea area, QWidget* w)
 }
 
 OutputDock* DisassemblerHooks::outputDock() const { return m_mainwindow->findChild<OutputDock*>(QString(), Qt::FindDirectChildrenOnly); }
+
+void DisassemblerHooks::close(bool showwelcome)
+{
+    while(m_disassemblertabs->count()) {
+        QWidget* w = m_disassemblertabs->widget(0);
+        m_disassemblertabs->removeTab(0);
+        w->deleteLater();
+    }
+
+    auto docks = m_mainwindow->findChildren<QDockWidget*>(QString(), Qt::FindDirectChildrenOnly);
+
+    for(const auto& child : docks) {
+        if(dynamic_cast<OutputDock*>(child)) continue;
+        this->undock(child);
+    }
+
+    RD_Status("");
+    this->enableViewCommands(false);
+
+    if(!m_disassemblerview) return;
+    m_disassemblerview->deleteLater();
+    m_disassemblerview = nullptr;
+
+    if(showwelcome) this->addWelcomeTab();
+}
 
 void DisassemblerHooks::clearOutput()
 {

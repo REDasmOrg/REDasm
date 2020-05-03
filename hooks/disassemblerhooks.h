@@ -76,6 +76,7 @@ class DisassemblerHooks: public QObject
     private:
         TableTab* createTable(ICommandTab* commandtab, ListingItemModel* model, const QString& title);
         OutputDock* outputDock() const;
+        void close(bool showwelcome);
         void clearOutput();
         void enableViewCommands(bool enable);
         void enableMenu(QMenu* menu, bool enable);

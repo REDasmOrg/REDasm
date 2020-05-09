@@ -11,7 +11,6 @@
 #include <QMessageBox>
 #include <QtGui>
 #include <rdapi/rdapi.h>
-#include <rdapi/support.h>
 
 #define PLUGINS_FOLDER_NAME "plugins"
 
@@ -285,8 +284,6 @@ void MainWindow::showProblems() { ProblemsDialog dlgproblems(this); dlgproblems.
 
 void MainWindow::initializeLibrary()
 {
-    RD_SetTempPath(qUtf8Printable(QStandardPaths::writableLocation(QStandardPaths::TempLocation)));
-    RD_SetRuntimePath(qUtf8Printable(QDir::currentPath()));
     //ctxsettings.ui = std::make_shared<REDasmUI>(this);
 
     RD_SetLogCallback([](const char* s, void*) {

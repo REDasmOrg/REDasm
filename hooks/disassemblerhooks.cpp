@@ -52,7 +52,6 @@ void DisassemblerHooks::resetLayout()
 void DisassemblerHooks::open()
 {
     QString s = QFileDialog::getOpenFileName(m_mainwindow, "Disassemble file...");
-
     if(!s.isEmpty()) this->load(s);
 }
 
@@ -433,7 +432,8 @@ void DisassemblerHooks::hook()
 
 void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
 {
-    RDLoaderRequest req = {qUtf8Printable(filepath), buffer};
+    QByteArray rawfilepath = filepath.toUtf8();
+    RDLoaderRequest req = { rawfilepath.data(), buffer };
 
     LoaderDialog dlgloader(&req, m_mainwindow);
     if(dlgloader.exec() != LoaderDialog::Accepted) return;

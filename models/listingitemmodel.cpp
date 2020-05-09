@@ -1,6 +1,5 @@
 #include "listingitemmodel.h"
 #include "../themeprovider.h"
-#include <rdapi/support.h>
 #include <algorithm>
 #include <cassert>
 #include <tuple>

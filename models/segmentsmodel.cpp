@@ -1,5 +1,4 @@
 #include "segmentsmodel.h"
-#include <rdapi/support.h>
 #include <QColor>
 #include "../themeprovider.h"
 

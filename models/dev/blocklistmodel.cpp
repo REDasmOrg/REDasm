@@ -1,6 +1,5 @@
 #include "blocklistmodel.h"
 #include "../../themeprovider.h"
-#include <rdapi/support.h>
 
 BlockListModel::BlockListModel(QObject *parent) : QAbstractListModel(parent), m_document(RD_GetDocument()) { }
 

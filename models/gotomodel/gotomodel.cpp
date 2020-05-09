@@ -1,6 +1,5 @@
 #include "gotomodel.h"
 #include "../../themeprovider.h"
-#include <rdapi/support.h>
 
 GotoModel::GotoModel(QObject *parent) : DisassemblerModel(parent) { }
 

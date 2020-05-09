@@ -6,7 +6,7 @@ void SymbolTableModel::setSymbolFlags(flag_t flags) { m_symbolflags = flags; }
 
 bool SymbolTableModel::isItemAllowed(const RDDocumentItem& item) const
 {
-    if(!ListingItemModel::isItemAllowed(item) || ((item.type != DocumentItemType_Function) && (item.type != DocumentItemType_Symbol)))
+    if(!ListingItemModel::isItemAllowed(item) || (!IS_TYPE(&item, DocumentItemType_Function) && !IS_TYPE(&item, DocumentItemType_Symbol)))
         return false;
 
     RDSymbol symbol;

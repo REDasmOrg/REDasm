@@ -27,7 +27,7 @@
     "displacement_fg": "#8e725e",
 
     "instruction_invalid": "#bdc3c7",
-    "instruction_stop": "#c0392b",
+    "instruction_ret": "#d35400",
     "instruction_nop": "#7f8c8d",
     "instruction_compare": "#d45c9e",
     "instruction_call": "#2ecc71",

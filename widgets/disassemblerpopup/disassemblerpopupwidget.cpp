@@ -67,6 +67,6 @@ size_t DisassemblerPopupWidget::getIndexOfWord(const QString& word) const
     RDSymbol symbol;
     if(!RDDocument_GetSymbolByName(m_document, qUtf8Printable(word), &symbol)) return RD_NPOS;
 
-    if(symbol.type == SymbolType_Function) return RDDocument_FunctionIndex(m_document, symbol.address);
+    if(IS_TYPE(&symbol, SymbolType_Function)) return RDDocument_FunctionIndex(m_document, symbol.address);
     return RDDocument_SymbolIndex(m_document, symbol.address);
 }

@@ -306,7 +306,7 @@ void DisassemblerHooks::adjustActions()
             address_t currentaddress = command->currentWord().toUInt(&ok, 16);
             bool hascurrentsegment = ok ? RDDocument_GetSegmentAddress(doc, currentaddress, &currentsegment) : false;
 
-            actions[DisassemblerHooks::Action_CreateFunction]->setVisible(hascurrentsegment && (currentsegment.type & SegmentType_Code));
+            actions[DisassemblerHooks::Action_CreateFunction]->setVisible(hascurrentsegment && HAS_FLAG(&currentsegment, SegmentFlags_Code));
 
             if(hascurrentsegment)
                 actions[DisassemblerHooks::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHex(currentaddress)));
@@ -317,7 +317,7 @@ void DisassemblerHooks::adjustActions()
         if(funcname)
             actions[DisassemblerHooks::Action_CallGraph]->setText(QString("Callgraph %1").arg(funcname));
 
-        actions[DisassemblerHooks::Action_CallGraph]->setVisible(funcname && hassymbolsegment && (symbolsegment.type & SegmentType_Code));
+        actions[DisassemblerHooks::Action_CallGraph]->setVisible(funcname && hassymbolsegment && HAS_FLAG(&symbolsegment, SegmentFlags_Code));
         actions[DisassemblerHooks::Action_HexDumpFunction]->setVisible(funcname);
         actions[DisassemblerHooks::Action_HexDump]->setVisible(true);
         return;
@@ -329,29 +329,29 @@ void DisassemblerHooks::adjustActions()
 
     actions[DisassemblerHooks::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHex(symbol.address)));
 
-    actions[DisassemblerHooks::Action_CreateFunction]->setVisible(!RD_IsBusy() && (hassymbolsegment && (symbolsegment.type & SegmentType_Code)) &&
-                                                                    ((symbol.flags & SymbolFlags_Weak) && (symbol.type != SymbolType_Function)));
+    actions[DisassemblerHooks::Action_CreateFunction]->setVisible(!RD_IsBusy() && (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
+                                                                    (HAS_FLAG(&symbol, SymbolFlags_Weak) && !IS_TYPE(&symbol, SymbolType_Function)));
 
 
     actions[DisassemblerHooks::Action_FollowPointerHexDump]->setText(QString("Follow %1 pointer in Hex Dump").arg(symbolname));
-    actions[DisassemblerHooks::Action_FollowPointerHexDump]->setVisible(symbol.flags & SymbolFlags_Pointer);
+    actions[DisassemblerHooks::Action_FollowPointerHexDump]->setVisible(HAS_FLAG(&symbol, SymbolFlags_Pointer));
 
     actions[DisassemblerHooks::Action_XRefs]->setText(QString("Cross Reference %1").arg(symbolname));
     actions[DisassemblerHooks::Action_XRefs]->setVisible(!RD_IsBusy());
 
     actions[DisassemblerHooks::Action_Rename]->setText(QString("Rename %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_Rename]->setVisible(!RD_IsBusy() && (symbol.flags & SymbolFlags_Weak));
+    actions[DisassemblerHooks::Action_Rename]->setVisible(!RD_IsBusy() && HAS_FLAG(&symbol, SymbolFlags_Weak));
 
     actions[DisassemblerHooks::Action_CallGraph]->setText(QString("Callgraph %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_CallGraph]->setVisible(!RD_IsBusy() && (symbol.type == SymbolType_Function));
+    actions[DisassemblerHooks::Action_CallGraph]->setVisible(!RD_IsBusy() && IS_TYPE(&symbol, SymbolType_Function));
 
     actions[DisassemblerHooks::Action_Follow]->setText(QString("Follow %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_Follow]->setVisible(symbol.type == SymbolType_Label);
+    actions[DisassemblerHooks::Action_Follow]->setVisible(IS_TYPE(&symbol, SymbolType_Label));
 
-    actions[DisassemblerHooks::Action_Comment]->setVisible(!RD_IsBusy() && (item.type == DocumentItemType_Instruction));
+    actions[DisassemblerHooks::Action_Comment]->setVisible(!RD_IsBusy() && IS_TYPE(&item, DocumentItemType_Instruction));
 
-    actions[DisassemblerHooks::Action_HexDump]->setVisible(hassymbolsegment && (symbolsegment.type & SegmentType_Bss));
-    actions[DisassemblerHooks::Action_HexDumpFunction]->setVisible(hasitemsegment && !(itemsegment.type & SegmentType_Bss) && itemsegment.type & SegmentType_Code);
+    actions[DisassemblerHooks::Action_HexDump]->setVisible(hassymbolsegment && HAS_FLAG(&symbolsegment, SegmentFlags_Bss));
+    actions[DisassemblerHooks::Action_HexDumpFunction]->setVisible(hasitemsegment && !HAS_FLAG(&itemsegment, SegmentFlags_Bss) && HAS_FLAG(&itemsegment, SegmentFlags_Code));
 }
 
 void DisassemblerHooks::onBackClicked()

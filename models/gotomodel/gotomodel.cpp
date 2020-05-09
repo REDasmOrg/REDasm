@@ -66,7 +66,7 @@ QColor GotoModel::itemColor(const RDDocumentItem& item) const
 
         case DocumentItemType_Symbol:
             if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol)) return QColor();
-            if(symbol.type == SymbolType_String) return THEME_VALUE("string_fg");
+            if(IS_TYPE(&symbol, SymbolType_String)) return THEME_VALUE("string_fg");
             return THEME_VALUE("data_fg");
 
         default: break;
@@ -77,17 +77,17 @@ QColor GotoModel::itemColor(const RDDocumentItem& item) const
 
 QString GotoModel::itemName(const RDDocumentItem& item) const
 {
-    if(item.type == DocumentItemType_Segment)
+    if(IS_TYPE(&item, DocumentItemType_Segment))
     {
         RDSegment segment;
         if(RDDocument_GetSegmentAddress(m_document, item.address, &segment)) return segment.name;
     }
-    else if((item.type == DocumentItemType_Function) || (item.type == DocumentItemType_Symbol))
+    else if(IS_TYPE(&item, DocumentItemType_Function) || IS_TYPE(&item, DocumentItemType_Symbol))
     {
         const char* name = RDDocument_GetSymbolName(m_document, item.address);
         if(name) return RD_Demangle(name);
     }
-    else if(item.type == DocumentItemType_Type)
+    else if(IS_TYPE(&item, DocumentItemType_Type))
         return "TODO"; //TODO: Convert::to_qstring(r_doc->type(item.address));
 
     return QString();

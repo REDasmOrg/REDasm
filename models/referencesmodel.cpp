@@ -53,8 +53,8 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         else if(index.column() == 1) return this->direction(doc, item.address);
         else if(index.column() == 2)
         {
-            if(item.type == DocumentItemType_Instruction) return RDRenderer_GetInstruction(m_renderer, item.address);
-            else if(item.type == DocumentItemType_Symbol) return RDDocument_GetSymbolName(doc, item.address);
+            if(IS_TYPE(&item, DocumentItemType_Instruction)) return RDRenderer_GetInstruction(m_renderer, item.address);
+            else if(IS_TYPE(&item, DocumentItemType_Symbol)) return RDDocument_GetSymbolName(doc, item.address);
         }
     }
     else if(role == Qt::ForegroundRole)
@@ -63,7 +63,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 
         if(index.column() == 2)
         {
-            if(item.type == DocumentItemType_Instruction)
+            if(IS_TYPE(&item, DocumentItemType_Instruction))
             {
                 InstructionLock instruction(doc, item.address);
                 if(!instruction) return QVariant();
@@ -72,12 +72,12 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
                 else if(instruction->type == InstructionType_Jump) return THEME_VALUE("instruction_jmp");
                 else if(instruction->type == InstructionType_Call) return THEME_VALUE("instruction_call");
             }
-            else if(item.type == DocumentItemType_Symbol)
+            else if(IS_TYPE(&item, DocumentItemType_Symbol))
             {
                 RDSymbol symbol;
                 if(!RDDocument_GetSymbolByAddress(doc, item.address, &symbol)) return QVariant();
-                if(symbol.type == SymbolType_Data) return THEME_VALUE("data_fg");
-                else if(symbol.type == SymbolType_String) return THEME_VALUE("string_fg");
+                if(IS_TYPE(&symbol, SymbolType_Data)) return THEME_VALUE("data_fg");
+                else if(IS_TYPE(&symbol, SymbolType_String)) return THEME_VALUE("string_fg");
             }
         }
     }

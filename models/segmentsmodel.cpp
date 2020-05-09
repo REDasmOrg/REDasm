@@ -73,8 +73,8 @@ int SegmentsModel::columnCount(const QModelIndex &) const { return 9; }
 QString SegmentsModel::segmentFlags(const RDSegment& segment)
 {
     QString s;
-    if(segment.type & SegmentType_Code) ADD_SEGMENT_TYPE(s, "CODE")
-    if(segment.type & SegmentType_Data) ADD_SEGMENT_TYPE(s, "DATA")
-    if(segment.type & SegmentType_Bss)  ADD_SEGMENT_TYPE(s, "BSS")
+    if(HAS_FLAG(&segment, SegmentFlags_Code)) ADD_SEGMENT_TYPE(s, "CODE")
+    if(HAS_FLAG(&segment, SegmentFlags_Data)) ADD_SEGMENT_TYPE(s, "DATA")
+    if(HAS_FLAG(&segment, SegmentFlags_Bss))  ADD_SEGMENT_TYPE(s, "BSS")
     return s;
 }

@@ -221,7 +221,7 @@ GraphViewItem *DisassemblerGraphView::itemFromCurrentLine() const
     RDDocumentItem item;
     if(!m_command->getCurrentItem(&item)) return nullptr;
 
-    if(item.type != DocumentItemType_Function) // Adjust to instruction
+    if(!IS_TYPE(&item, DocumentItemType_Function)) // Adjust to instruction
     {
         RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
         if(!RDDocument_GetInstructionItem(doc, item.address, &item)) return nullptr;

@@ -71,14 +71,14 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
         if(index.column() == 1)
         {
-            if(symbol.type == SymbolType_String)
+            if(IS_TYPE(&symbol, SymbolType_String))
             {
                 RDBlock block;
                 if(!RDDocument_GetBlock(m_document, symbol.address, &block)) return QVariant();
 
                 size_t len = RDBlock_Size(&block);
 
-                if(symbol.flags & SymbolFlags_WideString)
+                if(HAS_FLAG(&symbol, SymbolFlags_WideString))
                 {
                     auto* wptr = RD_ReadWString(m_disassembler, symbol.address, &len);
                     return wptr ? ListingItemModel::escapeString(QString::fromUtf16(wptr, len)) : QVariant();
@@ -101,12 +101,12 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::BackgroundRole)
     {
-        if(symbol.flags & SymbolFlags_EntryPoint) return THEME_VALUE("entrypoint_bg");
+        if(HAS_FLAG(&symbol, SymbolFlags_EntryPoint)) return THEME_VALUE("entrypoint_bg");
     }
     else if(role == Qt::ForegroundRole)
     {
         if(index.column() == 0) return THEME_VALUE("address_list_fg");
-        if(symbol.type == SymbolType_String && (index.column() == 1)) return THEME_VALUE("string_fg");
+        if(IS_TYPE(&symbol, SymbolType_String) && (index.column() == 1)) return THEME_VALUE("string_fg");
     }
 
     return QVariant();

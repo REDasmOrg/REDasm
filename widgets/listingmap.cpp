@@ -58,7 +58,7 @@ void ListingMap::drawLabels(QPainter* painter)
     {
         RDSegment segment;
         assert(RDDocument_GetSegmentAt(m_document, i, &segment));
-        if(segment.type & SegmentType_Bss) continue;
+        if(HAS_FLAG(&segment, SegmentFlags_Bss)) continue;
 
         int pos = this->calculatePosition(segment.offset);
         int segmentsize = this->calculateSize(RDSegment_Size(&segment));
@@ -93,12 +93,12 @@ void ListingMap::renderSegments(QPainter* painter)
     {
         RDSegment segment;
         assert(RDDocument_GetSegmentAt(m_document, i, &segment));
-        if(segment.type & SegmentType_Bss) continue;
+        if(HAS_FLAG(&segment, SegmentFlags_Bss)) continue;
 
         QRect r = this->buildRect(this->calculatePosition(segment.offset),
                                   this->calculateSize(RDSegment_Size(&segment)));
 
-        if(segment.type & SegmentType_Code) painter->fillRect(r, THEME_VALUE("label_fg"));
+        if(HAS_FLAG(&segment, SegmentFlags_Code)) painter->fillRect(r, THEME_VALUE("label_fg"));
         else painter->fillRect(r, THEME_VALUE("data_fg"));
     }
 }

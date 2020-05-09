@@ -51,10 +51,10 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
         RDDocumentItem item;
         if(!RDDocument_GetItemAt(m_document, start, &item)) continue;
 
-        if(item.type == DocumentItemType_Instruction)
+        if(IS_TYPE(&item, DocumentItemType_Instruction))
         {
             InstructionLock instruction(m_document, item.address);
-            if(instruction->type != InstructionType_Jump) continue;
+            if(!IS_TYPE(*instruction, InstructionType_Jump)) continue;
 
             const address_t* targets = nullptr;
             size_t c = RDDisassembler_GetTargets(m_disassembler, instruction->address, &targets);
@@ -69,10 +69,10 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
                 this->insertPath(item, start, idx);
             }
         }
-        else if(item.type == DocumentItemType_Symbol)
+        else if(IS_TYPE(&item, DocumentItemType_Symbol))
         {
             RDSymbol symbol;
-            if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol) || (symbol.type != SymbolType_Label)) continue;
+            if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol) || !IS_TYPE(&symbol, SymbolType_Label)) continue;
 
             size_t toidx = RDDocument_InstructionIndex(m_document, item.address);
             if(toidx >= RDDocument_ItemsCount(m_document)) continue;

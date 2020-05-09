@@ -97,7 +97,7 @@ TableTab* DisassemblerHooks::showSegments(ICommandTab* commandtab, Qt::DockWidge
     tabletab->setSectionResizeMode(7, QHeaderView::Stretch);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
-    else this->dock(area, tabletab);
+    else this->dock(tabletab, area);
     return tabletab;
 }
 
@@ -111,7 +111,7 @@ TableTab* DisassemblerHooks::showFunctions(ICommandTab* commandtab, Qt::DockWidg
     tabletab->moveSection(2, 1);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
-    else this->dock(area, tabletab);
+    else this->dock(tabletab, area);
     return tabletab;
 }
 
@@ -127,7 +127,7 @@ TableTab* DisassemblerHooks::showExports(ICommandTab* commandtab, Qt::DockWidget
     tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
-    else this->dock(area, tabletab);
+    else this->dock(tabletab, area);
     return tabletab;
 }
 
@@ -142,7 +142,7 @@ TableTab* DisassemblerHooks::showImports(ICommandTab* commandtab, Qt::DockWidget
     tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
-    else this->dock(area, tabletab);
+    else this->dock(tabletab, area);
     return tabletab;
 }
 
@@ -157,7 +157,7 @@ TableTab* DisassemblerHooks::showStrings(ICommandTab* commandtab, Qt::DockWidget
     tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
-    else this->dock(area, tabletab);
+    else this->dock(tabletab, area);
     return tabletab;
 }
 
@@ -424,7 +424,7 @@ void DisassemblerHooks::hook()
     connect(actions[4], &QAction::triggered, this, &DisassemblerHooks::onGotoClicked);
     connect(actions[5], &QAction::triggered, this, &DisassemblerHooks::onFilterClicked);
 
-    this->dock(Qt::BottomDockWidgetArea, new OutputDock(m_mainwindow));
+    this->dock(new OutputDock(m_mainwindow), Qt::BottomDockWidgetArea);
     this->enableCommands(nullptr);
     this->enableViewCommands(false);
     this->loadRecents();
@@ -608,7 +608,7 @@ void DisassemblerHooks::tabify(QDockWidget* first, QDockWidget* second)
     m_mainwindow->tabifyDockWidget(first, second);
 }
 
-void DisassemblerHooks::dock(Qt::DockWidgetArea area, QWidget* w)
+void DisassemblerHooks::dock(QWidget* w, Qt::DockWidgetArea area)
 {
     QDockWidget* dw = dynamic_cast<QDockWidget*>(w);
 

@@ -1,10 +1,13 @@
 #include "listingmap.h"
-#include "../themeprovider.h"
+#include "../../../themeprovider.h"
+#include <rdapi/graph/functiongraph.h>
+#include <QApplication>
 #include <QPainter>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 
-#define LISTINGMAP_SIZE 32
+#define LISTINGMAP_SIZE 64
 
 ListingMap::ListingMap(QWidget *parent) : QWidget(parent)
 {
@@ -12,21 +15,25 @@ ListingMap::ListingMap(QWidget *parent) : QWidget(parent)
     this->setAutoFillBackground(true);
 }
 
-void ListingMap::setDisassembler(RDDisassembler* disassembler)
+ListingMap::~ListingMap() { std::for_each(m_events.begin(), m_events.end(), &RDEvent_Unsubscribe); }
+
+void ListingMap::linkTo(IDisassemblerCommand* command)
 {
-    m_disassembler = disassembler;
-    m_document = RDDisassembler_GetDocument(disassembler);
-    m_totalsize = RDBuffer_Size(RDDisassembler_GetBuffer(disassembler));
+    m_command = command;
+    m_document = RDDisassembler_GetDocument(command->disassembler());
+    m_totalsize = RDBuffer_Size(RDDisassembler_GetBuffer(command->disassembler()));
     this->update();
 
-    // r_evt::subscribe(REDasm::StandardEvents::Cursor_PositionChanged, this, [=](const REDasm::EventArgs*) {
-    //     if(r_disasm->busy()) return;
-    //     QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
-    // });
+    m_events.insert(RDEvent_Subscribe(Event_CursorPositionChanged, [](const RDEventArgs* e, void* userdata) {
+        ListingMap* thethis = reinterpret_cast<ListingMap*>(userdata);
+        if(RD_IsBusy() || (thethis->m_command->cursor() != e->sender)) return;
+        thethis->update();
+    }, this));
 
-    // r_evt::subscribe(REDasm::StandardEvents::Disassembler_BusyChanged, this, [=](const REDasm::EventArgs*) {
-    //     if(!r_disasm->busy()) QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
-    // });
+    m_events.insert(RDEvent_Subscribe(Event_DisassemblerBusyChanged, [](const RDEventArgs*, void* userdata) {
+        ListingMap* thethis = reinterpret_cast<ListingMap*>(userdata);
+        if(!RD_IsBusy()) thethis->update();
+    }, this));
 }
 
 QSize ListingMap::sizeHint() const { return { LISTINGMAP_SIZE, LISTINGMAP_SIZE }; }
@@ -49,10 +56,8 @@ bool ListingMap::checkOrientation()
 
 void ListingMap::drawLabels(QPainter* painter)
 {
-    QPalette palette = this->palette();
     QFontMetrics fm = painter->fontMetrics();
-
-    painter->setPen(palette.color(QPalette::HighlightedText));
+    painter->setPen(qApp->palette().color(QPalette::HighlightedText));
 
     for(size_t i = 0; i < RDDocument_SegmentsCount(m_document); i++)
     {
@@ -105,55 +110,61 @@ void ListingMap::renderSegments(QPainter* painter)
 
 void ListingMap::renderFunctions(QPainter *painter)
 {
-//    auto lock = REDasm::s_lock_safe_ptr(r_doc);
-//    size_t fsize = (m_orientation == Qt::Horizontal ? this->height() : this->width()) / 2;
-//
-//    for(size_t i = 0; i < lock->functionsCount(); i++)
-//    {
-//        address_t address = lock->functionAt(i);
-//        const REDasm::Symbol* symbol = lock->symbol(address);
-//        const REDasm::FunctionGraph* g = lock->graph(address);
-//        if(!g) continue;
-//
-//        g->nodes().each([&](REDasm::Node n) {
-//            const REDasm::FunctionBasicBlock* fbb = variant_object<REDasm::FunctionBasicBlock>(g->data(n));
-//            if(!fbb) return;
-//
-//            REDasm::ListingItem startitem = fbb->startItem();
-//            QRect r = this->buildRect(this->calculatePosition(r_ldr->offset(startitem.address)), this->calculateSize(fbb->count()));
-//
-//            if(m_orientation == Qt::Horizontal) r.setHeight(fsize);
-//            else r.setWidth(fsize);
-//
-//            painter->fillRect(r, THEME_VALUE("function_fg"));
-//        });
-//    }
+    size_t fsize = (m_orientation == Qt::Horizontal ? this->height() : this->width()) / 2;
+    size_t c = RDDocument_FunctionsCount(m_document);
+    RDLoader* loader = RDDisassembler_GetLoader(m_command->disassembler());
+
+    for(size_t i = 0; i < c; i++)
+    {
+        RDLocation loc = RDDocument_GetFunctionAt(m_document, i);
+
+        RDGraph* graph = nullptr;
+        if(!RDDocument_GetFunctionGraph(m_document, loc.address, &graph)) continue;
+
+        const RDGraphNode* nodes = nullptr;
+        size_t nc = RDGraph_GetNodes(graph, &nodes);
+
+        for(size_t j = 0; j < nc; j++)
+        {
+            const RDFunctionBasicBlock* fbb = nullptr;
+            if(!RDFunctionGraph_GetBasicBlock(graph, nodes[j], &fbb)) continue;
+
+            RDDocumentItem item;
+            if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) continue;
+
+            RDLocation loc = RD_Offset(loader, item.address);
+            if(!loc.valid) continue;
+
+            QRect r = this->buildRect(this->calculatePosition(loc.address), this->calculateSize(RDFunctionBasicBlock_ItemsCount(fbb)));
+            if(m_orientation == Qt::Horizontal) r.setHeight(fsize);
+            else r.setWidth(fsize);
+
+            painter->fillRect(r, THEME_VALUE("function_fg"));
+        }
+    }
 }
 
 void ListingMap::renderSeek(QPainter *painter)
 {
-//    REDasm::ListingItem item = r_doc->currentItem();
-//    if(!item.isValid()) return;
-//
-//    offset_location offset  = r_ldr->offset(item.address);
-//    if(!offset.valid) return;
-//
-//    QColor seekcolor = THEME_VALUE("seek");
-//    seekcolor.setAlphaF(0.4);
-//
-//    QRect r;
-//
-//    if(m_orientation == Qt::Horizontal)
-//       r = QRect(this->calculatePosition(offset), 0, this->width() * 0.05, this->height());
-//    else
-//       r = QRect(0, this->calculatePosition(offset), this->width(), this->height() * 0.05);
-//
-//    painter->fillRect(r, seekcolor);
+    RDDocumentItem item;
+    if(!m_command->getCurrentItem(&item)) return;
+
+    RDLoader* loader = RDDisassembler_GetLoader(m_command->disassembler());
+    RDLocation offset  = RD_Offset(loader, item.address);
+    if(!offset.valid) return;
+
+    QColor seekcolor = THEME_VALUE("seek");
+    seekcolor.setAlphaF(0.4);
+
+    QRect r;
+    if(m_orientation == Qt::Horizontal) r = QRect(this->calculatePosition(offset.value), 0, this->width() * 0.05, this->height());
+    else r = QRect(0, this->calculatePosition(offset.value), this->width(), this->height() * 0.05);
+    painter->fillRect(r, seekcolor);
 }
 
 void ListingMap::paintEvent(QPaintEvent *)
 {
-   if(!m_disassembler) return;
+   if(!m_command) return;
    this->checkOrientation();
 
    QPainter painter(this);
@@ -161,14 +172,9 @@ void ListingMap::paintEvent(QPaintEvent *)
    painter.fillRect(this->rect(), Qt::gray);
 
    this->renderSegments(&painter);
-
-   // if(!r_disasm->busy()) // Don't render functions when disassembler is busy
-   //     this->renderFunctions(&painter);
-
+   if(!RD_IsBusy())  this->renderFunctions(&painter); // Don't render functions when disassembler is busy
    this->drawLabels(&painter);
-
-   // if(!r_disasm->busy()) // Don't render seek when disassembler is busy
-   //     this->renderSeek(&painter);
+   if(!RD_IsBusy()) this->renderSeek(&painter);       // Don't render seek when disassembler is busy
 }
 
 void ListingMap::resizeEvent(QResizeEvent *e)

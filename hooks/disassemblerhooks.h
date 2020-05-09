@@ -63,7 +63,7 @@ class DisassemblerHooks: public QObject
         void load(const QString& filepath);
         void tab(QWidget* w);
         void tabify(QDockWidget* first, QDockWidget* second);
-        void dock(Qt::DockWidgetArea area, QWidget* w);
+        void dock(QWidget* w, Qt::DockWidgetArea area);
         void undock(QDockWidget* dw);
 
     private slots:

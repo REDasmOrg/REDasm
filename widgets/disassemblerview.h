@@ -4,6 +4,7 @@
 #include <rdapi/rdapi.h>
 
 struct RDDisassembler;
+class ListingMapDock;
 class ListingTab;
 
 class DisassemblerView : public QObject
@@ -17,6 +18,7 @@ class DisassemblerView : public QObject
 
     private:
         RDDisassembler* m_disassembler;
+        ListingMapDock* m_listingmapdock;
         ListingTab* m_listingtab;
         event_t m_cursorevent;
 };

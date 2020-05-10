@@ -14,7 +14,7 @@ LoaderDialog::LoaderDialog(const RDLoaderRequest* request, QWidget *parent) : QD
     m_loadersmodel = new QStandardItemModel(ui->lvLoaders);
 
     for(const RDLoaderPlugin* d : m_loaders)
-        m_loadersmodel->appendRow(new QStandardItem(d->header.name));
+        m_loadersmodel->appendRow(new QStandardItem(d->name));
 
     ui->lvLoaders->setModel(m_loadersmodel);
     ui->lvLoaders->setCurrentIndex(m_loadersmodel->index(0, 0));
@@ -45,11 +45,11 @@ LoaderDialog::~LoaderDialog()
         m_loaders.removeOne(this->selectedLoader()); // Keep selected loader
 
     std::for_each(m_loaders.begin(), m_loaders.end(), [](RDLoaderPlugin* plugin) {
-        RDPlugin_Free(&plugin->header);
+        RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(plugin));
     });
 
     std::for_each(m_assemblers.begin(), m_assemblers.end(), [](RDAssemblerPlugin* plugin) {
-        RDPlugin_Free(&plugin->header);
+        RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(plugin));
     });
 
     delete ui;
@@ -133,7 +133,7 @@ void LoaderDialog::syncAssembler()
     if(!ploader) return;
 
     const RDAssemblerPlugin* selassembler = RDLoader_GetAssembler(ploader);
-    if(selassembler) ui->cbAssembler->setCurrentText(selassembler->header.name);
+    if(selassembler) ui->cbAssembler->setCurrentText(selassembler->name);
     else ui->cbAssembler->setCurrentIndex(-1);
 }
 
@@ -144,7 +144,7 @@ void LoaderDialog::populateAssemblers()
     RD_GetAssemblers([](RDAssemblerPlugin* plugin, void* userdata) {
         LoaderDialog* thethis = reinterpret_cast<LoaderDialog*>(userdata);
         thethis->m_assemblers.push_back(plugin);
-        thethis->ui->cbAssembler->addItem(plugin->header.name, plugin->header.id);
+        thethis->ui->cbAssembler->addItem(plugin->name, plugin->id);
     }, this);
 }
 

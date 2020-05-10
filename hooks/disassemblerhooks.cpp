@@ -443,16 +443,16 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
 
     if(!passembler)
     {
-        QMessageBox::information(m_mainwindow, "Assembler Error",  QString("Invalid Assembler for '%1'").arg(ploader->header.name));
+        QMessageBox::information(m_mainwindow, "Assembler Error",  QString("Invalid Assembler for '%1'").arg(ploader->name));
 
         connect(&dlgloader, &LoaderDialog::destroyed, this, [ploader]() {
-            RDPlugin_Free(&ploader->header);
+            RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(ploader));
         });
 
         return;
     }
 
-    rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(ploader->header.name, passembler->header.name)));
+    rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(ploader->name, passembler->name)));
 
     RDDisassembler* disassembler = RDDisassembler_Create(&req, ploader, passembler);
     this->loadDisassemblerView(disassembler, dlgloader.buildRequest());

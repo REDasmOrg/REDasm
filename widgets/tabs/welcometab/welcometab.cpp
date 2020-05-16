@@ -48,7 +48,7 @@ WelcomeTab::WelcomeTab(QWidget *parent) : QWidget(parent), ui(new Ui::WelcomeTab
     ui->pbAbout->setCursor(Qt::PointingHandCursor);
     ui->pbAbout->setStyleSheet(borderedstylesheet);
 
-    this->styleSocialButton(ui->pbREDasmIO, FAB_ICON(0xf015));
+    this->styleSocialButton(ui->pbREDasmIO, FA_ICON(0xf015));
     this->styleSocialButton(ui->pbTelegram, FAB_ICON(0xf3fe));
     this->styleSocialButton(ui->pbReddit, FAB_ICON(0xf281));
     this->styleSocialButton(ui->pbGitHub, FAB_ICON(0xf113));

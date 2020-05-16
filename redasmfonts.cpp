@@ -45,12 +45,15 @@ QIconEngine* REDasmFontIconEngine::clone() const
 
 REDasmFonts::REDasmFonts()
 {
-    QFontDatabase::addApplicationFont(":/res/fonts/FontAwesomeBrands.otf");
-    QFontDatabase::addApplicationFont(":/res/fonts/FontAwesome.otf");
+    int id = QFontDatabase::addApplicationFont(":/res/fonts/FontAwesomeBrands.otf");
+    if(id != -1) m_fabfamilies = QFontDatabase::applicationFontFamilies(id);
+
+    id = QFontDatabase::addApplicationFont(":/res/fonts/FontAwesome.otf");
+    if(id != -1) m_fafamilies = QFontDatabase::applicationFontFamilies(id);
 }
 
-QFont REDasmFonts::faFont() const { return QFont("FontAwesome"); }
-QFont REDasmFonts::faBrandsFont() const { return QFont("FontAwesomeBrands"); }
+QFont REDasmFonts::faFont() const { QFont f(m_fafamilies.front()); f.setStyleStrategy(QFont::NoFontMerging); return f; }
+QFont REDasmFonts::faBrandsFont() const { QFont f(m_fabfamilies.front()); f.setStyleStrategy(QFont::NoFontMerging); return f; }
 
 QIcon REDasmFonts::icon(const QChar& code)
 {

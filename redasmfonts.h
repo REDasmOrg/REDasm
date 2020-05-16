@@ -31,6 +31,9 @@ class REDasmFonts
         QIcon icon(const QChar& code);
         QIcon brand(const QChar& code);
         static REDasmFonts* instance();
+
+    private:
+        QStringList m_fafamilies, m_fabfamilies;
 };
 
 #define FA_FONT        REDasmFonts::instance()->faFont()

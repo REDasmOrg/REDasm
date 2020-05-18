@@ -32,7 +32,8 @@
 
 DisassemblerHooks DisassemblerHooks::m_instance;
 
-DisassemblerHooks::DisassemblerHooks(QObject* parent): QObject(parent) {  }
+DisassemblerHooks::DisassemblerHooks(QObject* parent): QObject(parent) { }
+DisassemblerHooks::~DisassemblerHooks() { if(m_busyevent) RDEvent_Unsubscribe(m_busyevent); }
 
 void DisassemblerHooks::initialize(QMainWindow* mainwindow)
 {
@@ -79,10 +80,7 @@ void DisassemblerHooks::about()
     dlgabout.exec();
 }
 
-void DisassemblerHooks::exit()
-{
-    qApp->exit();
-}
+void DisassemblerHooks::exit() { qApp->exit(); }
 
 TableTab* DisassemblerHooks::showSegments(ICommandTab* commandtab, Qt::DockWidgetArea area)
 {
@@ -239,8 +237,8 @@ void DisassemblerHooks::statusAddress(const IDisassemblerCommand* command) const
     RDLocation offset = RD_Offset(ldr, item.address);
 
     QString segm = hassegment ? segment.name : "UNKNOWN",
-            offs = hassegment && offset.valid ? RD_ToHex(offset.value) : "UNKNOWN",
-            addr = RD_ToHex(item.address);
+            offs = hassegment && offset.valid ? RD_ToHexAuto(offset.value) : "UNKNOWN",
+            addr = RD_ToHexAuto(item.address);
 
     QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
@@ -309,7 +307,7 @@ void DisassemblerHooks::adjustActions()
             actions[DisassemblerHooks::Action_CreateFunction]->setVisible(hascurrentsegment && HAS_FLAG(&currentsegment, SegmentFlags_Code));
 
             if(hascurrentsegment)
-                actions[DisassemblerHooks::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHex(currentaddress)));
+                actions[DisassemblerHooks::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(currentaddress)));
         }
         else
             actions[DisassemblerHooks::Action_CreateFunction]->setVisible(false);
@@ -327,7 +325,7 @@ void DisassemblerHooks::adjustActions()
     const char* symbolname = RDDocument_GetSymbolName(doc, symbol.address);
     bool hassymbolsegment = RDDocument_GetSegmentAddress(doc, symbol.address, &symbolsegment);
 
-    actions[DisassemblerHooks::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHex(symbol.address)));
+    actions[DisassemblerHooks::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(symbol.address)));
 
     actions[DisassemblerHooks::Action_CreateFunction]->setVisible(!RD_IsBusy() && (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
                                                                     (HAS_FLAG(&symbol, SymbolFlags_Weak) && !IS_TYPE(&symbol, SymbolType_Function)));
@@ -392,27 +390,28 @@ void DisassemblerHooks::loadDisassemblerView(RDDisassembler* disassembler, const
     this->clearOutput();      // Clear output
 
     m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow);
-
     auto* futurewatcher = new QFutureWatcher<void>(this);
     connect(futurewatcher, &QFutureWatcher<void>::finished, futurewatcher, &QFutureWatcher<void>::deleteLater);
 
-    futurewatcher->setFuture(QtConcurrent::run([disassembler, req]() {
+    futurewatcher->setFuture(QtConcurrent::run([&, disassembler, req]() {
         RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
 
         if(RDLoader_GetFlags(ldr) & LoaderFlags_CustomAddressing) RDLoader_Build(ldr, &req);
         else RDLoader_Load(ldr);
 
         RD_Disassemble(disassembler);
-        DisassemblerHooks::instance()->enableViewCommands(true);
+        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
     }));
 }
 
 void DisassemblerHooks::hook()
 {
-    m_mnuviews = m_mainwindow->findChild<QMenu*>("menu_Views");
-    m_mnudev = m_mainwindow->findChild<QMenu*>("menu_Development");
-    m_toolbar = m_mainwindow->findChild<QToolBar*>("toolBar");
-    m_disassemblertabs = m_mainwindow->findChild<DisassemblerTabs*>("tabs");
+    m_lblstatusicon = m_mainwindow->findChild<QLabel*>(HOOK_STATUS_ICON);
+    m_pbproblems = m_mainwindow->findChild<QPushButton*>(HOOK_PROBLEMS);
+    m_mnuviews = m_mainwindow->findChild<QMenu*>(HOOK_MENU_VIEWS);
+    m_mnudev = m_mainwindow->findChild<QMenu*>(HOOK_MENU_DEVELOPMENT);
+    m_toolbar = m_mainwindow->findChild<QToolBar*>(HOOK_TOOLBAR);
+    m_disassemblertabs = m_mainwindow->findChild<DisassemblerTabs*>(HOOK_TABS);
     this->addWelcomeTab();
 
     auto actions = m_mnudev->actions();
@@ -428,6 +427,11 @@ void DisassemblerHooks::hook()
     this->enableCommands(nullptr);
     this->enableViewCommands(false);
     this->loadRecents();
+
+    m_busyevent = RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
+        auto* thethis = reinterpret_cast<DisassemblerHooks*>(userdata);
+        QMetaObject::invokeMethod(thethis, "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RD_IsBusy()));
+    }, this);
 }
 
 void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
@@ -439,7 +443,7 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
     if(dlgloader.exec() != LoaderDialog::Accepted) return;
 
     RDLoaderPlugin* ploader = dlgloader.selectedLoader();
-    RDAssemblerPlugin* passembler = passembler = dlgloader.selectedAssembler();
+    RDAssemblerPlugin* passembler = dlgloader.selectedAssembler();
 
     if(!passembler)
     {
@@ -454,6 +458,7 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
 
     rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(ploader->name, passembler->name)));
 
+    m_fileinfo = QFileInfo(filepath);
     RDDisassembler* disassembler = RDDisassembler_Create(&req, ploader, passembler);
     this->loadDisassemblerView(disassembler, dlgloader.buildRequest());
 }
@@ -551,7 +556,7 @@ void DisassemblerHooks::focusOn(QWidget* w) { m_disassemblertabs->setCurrentWidg
 
 void DisassemblerHooks::loadRecents()
 {
-    QAction* actrecents = m_mainwindow->findChild<QAction*>("action_Recent_Files");
+    QAction* actrecents = m_mainwindow->findChild<QAction*>(HOOK_ACTION_RECENT_FILES);
     if(!actrecents) return;
 
     REDasmSettings settings;
@@ -678,11 +683,37 @@ void DisassemblerHooks::enableViewCommands(bool enable)
     auto actions = m_toolbar->actions();
     actions[1]->setEnabled(enable);
 
-    QAction* act = m_mainwindow->findChild<QAction*>("action_Save_As");
+    QAction* act = m_mainwindow->findChild<QAction*>(HOOK_ACTION_SAVE_AS);
     act->setEnabled(enable);
 
-    act = m_mainwindow->findChild<QAction*>("action_Close");
+    act = m_mainwindow->findChild<QAction*>(HOOK_ACTION_CLOSE);
     act->setEnabled(enable);
+}
+
+void DisassemblerHooks::updateViewWidgets(bool busy)
+{
+    if(!m_disassemblerview)
+    {
+        m_lblstatusicon->setVisible(false);
+        m_pbproblems->setVisible(false);
+        m_mainwindow->setWindowTitle(QString());
+        return;
+    }
+
+    if(busy)
+    {
+        m_mainwindow->setWindowTitle(QString("%1 (Working)").arg(m_fileinfo.fileName()));
+        m_lblstatusicon->setStyleSheet("color: red;");
+    }
+    else
+    {
+        m_mainwindow->setWindowTitle(m_fileinfo.fileName());
+        m_lblstatusicon->setStyleSheet("color: green;");
+    }
+
+    m_lblstatusicon->setVisible(true);
+    m_pbproblems->setVisible(!busy && RD_HasProblems());
+    m_pbproblems->setText(QString::number(RD_ProblemsCount()) + " problem(s)");
 }
 
 void DisassemblerHooks::enableCommands(QWidget* w)

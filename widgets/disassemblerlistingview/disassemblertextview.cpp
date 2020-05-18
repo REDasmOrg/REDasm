@@ -76,7 +76,7 @@ void DisassemblerTextView::setDisassembler(RDDisassembler* disassembler)
     m_renderer = std::make_unique<PainterRenderer>(disassembler);
     this->setBlinkCursor(m_renderer->cursor());
 
-    m_events.insert(RDEvent_Subscribe(Event_DisassemblerBusyChanged, [](const RDEventArgs*, void* userdata) {
+    m_events.insert(RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
         if(RD_IsBusy()) return;
         DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(userdata);
         thethis->adjustScrollBars();

@@ -60,8 +60,8 @@ QVariant FunctionGraphModel::data(const QModelIndex& index, int role) const
 
         switch(index.column())
         {
-            case 0: return RD_ToHex(startitem.address);
-            case 1: return RD_ToHex(enditem.address);
+            case 0: return RD_ToHexAuto(startitem.address);
+            case 1: return RD_ToHexAuto(enditem.address);
             case 2: return QString::number(RDGraph_GetIncoming(m_graph, *node, nullptr));
             case 3: return QString::number(RDGraph_GetOutgoing(m_graph, *node, nullptr));
             case 4: return symbolname ? symbolname : QString();

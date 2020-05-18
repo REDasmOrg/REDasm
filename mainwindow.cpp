@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     this->setDockNestingEnabled(true);
     this->setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
-    DisassemblerHooks::initialize(this);
 
     m_lblstatus = new QLabel(this);
     m_lblprogress = new QLabel(this);
@@ -34,12 +33,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_lblprogress->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     m_lblstatusicon = new QLabel(this);
+    m_lblstatusicon->setObjectName(HOOK_STATUS_ICON);
     m_lblstatusicon->setFixedHeight(ui->statusBar->height() * 0.8);
     m_lblstatusicon->setFont(FA_FONT);
     m_lblstatusicon->setText("\uf017");
     m_lblstatusicon->setVisible(false);
 
     m_pbproblems = new QPushButton(this);
+    m_pbproblems->setObjectName(HOOK_PROBLEMS);
     m_pbproblems->setFixedHeight(ui->statusBar->height() * 0.8);
     m_pbproblems->setVisible(false);
     m_pbproblems->setFlat(true);
@@ -49,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->statusBar->addPermanentWidget(m_pbproblems);
     ui->statusBar->addPermanentWidget(m_lblstatusicon);
 
+    DisassemblerHooks::initialize(this);
     this->initializeLibrary();
     this->setAcceptDrops(true);
     this->loadWindowState();

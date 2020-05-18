@@ -21,7 +21,7 @@ void DisassemblerColumnView::linkTo(DisassemblerTextView* textview)
 
     connect(m_textview->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderArrows(); });
 
-    m_events.insert(RDEvent_Subscribe(Event_DisassemblerBusyChanged, [](const RDEventArgs*, void* userdata) {
+    m_events.insert(RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
         if(RD_IsBusy()) return;
         auto* thethis = reinterpret_cast<DisassemblerColumnView*>(userdata);
         QMetaObject::invokeMethod(thethis, "renderArrows", Qt::QueuedConnection);

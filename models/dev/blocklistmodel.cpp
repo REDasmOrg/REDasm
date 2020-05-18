@@ -34,9 +34,9 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
 
         switch(index.column())
         {
-            case 0: return RD_ToHex(block.start);
-            case 1: return RD_ToHex(block.end);
-            case 2: return RD_ToHex(RDBlock_Size(&block));
+            case 0: return RD_ToHexAuto(block.start);
+            case 1: return RD_ToHexAuto(block.end);
+            case 2: return RD_ToHexAuto(RDBlock_Size(&block));
             case 3: return this->blockType(&block);
             case 4: return this->symbolName(&block);
             default: break;

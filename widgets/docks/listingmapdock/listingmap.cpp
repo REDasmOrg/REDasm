@@ -30,7 +30,7 @@ void ListingMap::linkTo(IDisassemblerCommand* command)
         thethis->update();
     }, this));
 
-    m_events.insert(RDEvent_Subscribe(Event_DisassemblerBusyChanged, [](const RDEventArgs*, void* userdata) {
+    m_events.insert(RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
         ListingMap* thethis = reinterpret_cast<ListingMap*>(userdata);
         if(!RD_IsBusy()) thethis->update();
     }, this));

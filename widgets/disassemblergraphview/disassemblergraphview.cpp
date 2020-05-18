@@ -160,7 +160,7 @@ bool DisassemblerGraphView::renderGraph()
     if(!RDDocument_GetFunctionGraph(doc, loc.address, &graph))
     {
         m_currentfunction = std::nullopt;
-        RD_Log(qUtf8Printable(QString("Graph rendering failed @ %1").arg(RD_ToHex(loc.address))));
+        RD_Log(qUtf8Printable(QString("Graph rendering failed @ %1").arg(RD_ToHexAuto(loc.address))));
         return false;
     }
 

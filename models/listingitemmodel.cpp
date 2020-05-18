@@ -67,7 +67,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
     if(role == Qt::DisplayRole)
     {
-        if(index.column() == 0) return RD_ToHex(symbol.address);
+        if(index.column() == 0) return RD_ToHexAuto(symbol.address);
 
         if(index.column() == 1)
         {

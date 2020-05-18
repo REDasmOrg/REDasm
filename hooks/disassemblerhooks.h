@@ -1,6 +1,19 @@
 #pragma once
 
+#define HOOK_TOOLBAR             "toolBar"
+#define HOOK_TABS                "tabs"
+#define HOOK_STATUS_ICON         "lblStatusIcon"
+#define HOOK_PROBLEMS            "pbProblems"
+#define HOOK_MENU_VIEWS          "menu_Views"
+#define HOOK_MENU_DEVELOPMENT    "menu_Development"
+#define HOOK_ACTION_SAVE_AS      "action_Save_As"
+#define HOOK_ACTION_CLOSE        "action_Close"
+#define HOOK_ACTION_RECENT_FILES "action_Recent_Files"
+
 #include <QMainWindow>
+#include <QPushButton>
+#include <QLabel>
+#include <QFileInfo>
 #include <rdapi/rdapi.h>
 #include "icommandtab.h"
 
@@ -24,6 +37,7 @@ class DisassemblerHooks: public QObject
 
     private:
         DisassemblerHooks(QObject* parent = nullptr);
+        ~DisassemblerHooks();
 
     public:
         static void initialize(QMainWindow* mainwindow);
@@ -74,11 +88,12 @@ class DisassemblerHooks: public QObject
         void onFilterClicked();
 
     private:
+        Q_INVOKABLE void updateViewWidgets(bool busy);
+        Q_INVOKABLE void enableViewCommands(bool enable);
         TableTab* createTable(ICommandTab* commandtab, ListingItemModel* model, const QString& title);
         OutputDock* outputDock() const;
         void close(bool showwelcome);
         void clearOutput();
-        void enableViewCommands(bool enable);
         void enableMenu(QMenu* menu, bool enable);
         void loadDisassemblerView(RDDisassembler* disassembler, const RDLoaderBuildRequest& req);
         void showLoaders(const QString& filepath, RDBuffer* buffer);
@@ -90,7 +105,11 @@ class DisassemblerHooks: public QObject
         QMainWindow* m_mainwindow{nullptr};
         QToolBar* m_toolbar{nullptr};
         QMenu *m_mnuviews{nullptr}, *m_mnudev{nullptr};
+        QLabel* m_lblstatusicon{nullptr};
+        QPushButton* m_pbproblems{nullptr};
         DisassemblerView* m_disassemblerview{nullptr};
         DisassemblerTabs* m_disassemblertabs{nullptr};
+        QFileInfo m_fileinfo;
+        event_t m_busyevent{0};
         static DisassemblerHooks m_instance;
 };

@@ -49,7 +49,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 
     if(role == Qt::DisplayRole)
     {
-        if(index.column() == 0) return RD_ToHex(item.address);
+        if(index.column() == 0) return RD_ToHexAuto(item.address);
         else if(index.column() == 1) return this->direction(doc, item.address);
         else if(index.column() == 2)
         {

@@ -20,6 +20,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
 #include <QApplication>
+#include <QInputDialog>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -475,7 +476,19 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
     }, QKeySequence(Qt::Key_N));
 
     actions[DisassemblerHooks::Action_Comment] = contextmenu->addAction("Comment", this, [&, command]() {
+        RDDocumentItem item;
+        if(!command->getCurrentItem(&item)) return;
 
+        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
+
+        bool ok = false;
+        QString res = QInputDialog::getMultiLineText(command->widget(),
+                                                     "Comment @ " + QString::fromStdString(rd_tohexauto(item.address)),
+                                                     "Insert a comment (leave blank to remove):",
+                                                     RDDocument_GetComments(doc, item.address, "\n"), &ok);
+
+        if(!ok) return;
+        RDDocument_Comment(doc, item.address, qUtf8Printable(res));
     }, QKeySequence(Qt::Key_Semicolon));
 
     contextmenu->addSeparator();

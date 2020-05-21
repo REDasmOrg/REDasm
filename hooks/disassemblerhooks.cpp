@@ -448,7 +448,7 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
 
     if(!passembler)
     {
-        QMessageBox::information(m_mainwindow, "Assembler Error",  QString("Invalid Assembler for '%1'").arg(ploader->name));
+        QMessageBox::information(m_mainwindow, "Assembler Error",  QString("Cannot find assembler '%1' for '%2'").arg(RDLoader_GetAssemblerId(ploader), ploader->name));
 
         connect(&dlgloader, &LoaderDialog::destroyed, this, [ploader]() {
             RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(ploader));

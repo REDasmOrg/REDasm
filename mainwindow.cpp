@@ -307,6 +307,5 @@ void MainWindow::initializeLibrary()
     for(const QString& searchpaths : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation))
         RD_AddPluginPath(qUtf8Printable(QDir(searchpaths).absoluteFilePath(PLUGINS_FOLDER_NAME)));
 
-    RD_SetSync(true); // TODO: Disable
     RD_InitContext();
 }

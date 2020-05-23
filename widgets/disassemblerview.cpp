@@ -24,4 +24,9 @@ DisassemblerView::DisassemblerView(RDDisassembler* disassembler, QObject *parent
 }
 
 RDDisassembler* DisassemblerView::disassembler() const { return m_disassembler; }
-DisassemblerView::~DisassemblerView() { RDEvent_Unsubscribe(m_cursorevent); }
+
+DisassemblerView::~DisassemblerView()
+{
+    RDEvent_Unsubscribe(m_cursorevent);
+    RD_Free(m_disassembler);
+}

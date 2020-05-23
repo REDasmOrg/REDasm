@@ -12,8 +12,10 @@
 
 #include <QMainWindow>
 #include <QPushButton>
+#include <QSet>
 #include <QLabel>
 #include <QFileInfo>
+#include <future>
 #include <rdapi/rdapi.h>
 #include "icommandtab.h"
 
@@ -110,6 +112,7 @@ class DisassemblerHooks: public QObject
         DisassemblerView* m_disassemblerview{nullptr};
         DisassemblerTabs* m_disassemblertabs{nullptr};
         QFileInfo m_fileinfo;
-        event_t m_busyevent{0};
+        QSet<event_t> m_events;
+        std::future<void> m_worker;
         static DisassemblerHooks m_instance;
 };

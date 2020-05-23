@@ -17,8 +17,6 @@
 #include "../models/segmentsmodel.h"
 #include "../redasmsettings.h"
 #include "../redasmfonts.h"
-#include <QtConcurrent/QtConcurrent>
-#include <QFutureWatcher>
 #include <QApplication>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -27,6 +25,7 @@
 #include <QToolBar>
 #include <QMenuBar>
 #include <QMenu>
+#include <thread>
 #include <unordered_map>
 #include <type_traits>
 #include <rdapi/rdapi.h>
@@ -34,7 +33,12 @@
 DisassemblerHooks DisassemblerHooks::m_instance;
 
 DisassemblerHooks::DisassemblerHooks(QObject* parent): QObject(parent) { }
-DisassemblerHooks::~DisassemblerHooks() { if(m_busyevent) RDEvent_Unsubscribe(m_busyevent); }
+
+DisassemblerHooks::~DisassemblerHooks()
+{
+    std::for_each(m_events.begin(), m_events.end(), &RDEvent_Unsubscribe);
+    if(m_worker.valid()) m_worker.wait();
+}
 
 void DisassemblerHooks::initialize(QMainWindow* mainwindow)
 {
@@ -391,18 +395,21 @@ void DisassemblerHooks::loadDisassemblerView(RDDisassembler* disassembler, const
     this->clearOutput();      // Clear output
 
     m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow);
-    auto* futurewatcher = new QFutureWatcher<void>(this);
-    connect(futurewatcher, &QFutureWatcher<void>::finished, futurewatcher, &QFutureWatcher<void>::deleteLater);
 
-    futurewatcher->setFuture(QtConcurrent::run([&, disassembler, req]() {
-        RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
+    m_worker = std::async([&, disassembler, req]() {
+        try {
+            RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
 
-        if(RDLoader_GetFlags(ldr) & LoaderFlags_CustomAddressing) RDLoader_Build(ldr, &req);
-        else RDLoader_Load(ldr);
+            if(RDLoader_GetFlags(ldr) & LoaderFlags_CustomAddressing) RDLoader_Build(ldr, &req);
+            else RDLoader_Load(ldr);
 
-        RD_Disassemble(disassembler);
-        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
-    }));
+            RD_Disassemble(disassembler);
+            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
+        }
+        catch(const std::exception& e) {
+            rd_log("EXCEPTION: " + std::string(e.what()));
+        }
+    });
 }
 
 void DisassemblerHooks::hook()
@@ -429,10 +436,10 @@ void DisassemblerHooks::hook()
     this->enableViewCommands(false);
     this->loadRecents();
 
-    m_busyevent = RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
+    m_events.insert(RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
         auto* thethis = reinterpret_cast<DisassemblerHooks*>(userdata);
         QMetaObject::invokeMethod(thethis, "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RD_IsBusy()));
-    }, this);
+    }, this));
 }
 
 void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
@@ -707,6 +714,7 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
 {
     if(!m_disassemblerview)
     {
+        m_toolbar->actions()[4]->setEnabled(false);
         m_lblstatusicon->setVisible(false);
         m_pbproblems->setVisible(false);
         m_mainwindow->setWindowTitle(QString());
@@ -724,6 +732,7 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
         m_lblstatusicon->setStyleSheet("color: green;");
     }
 
+    m_toolbar->actions()[4]->setEnabled(false); // Goto
     m_lblstatusicon->setVisible(true);
     m_pbproblems->setVisible(!busy && RD_HasProblems());
     m_pbproblems->setText(QString::number(RD_ProblemsCount()) + " problem(s)");

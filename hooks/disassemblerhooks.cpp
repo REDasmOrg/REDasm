@@ -25,7 +25,6 @@
 #include <QToolBar>
 #include <QMenuBar>
 #include <QMenu>
-#include <thread>
 #include <unordered_map>
 #include <type_traits>
 #include <rdapi/rdapi.h>
@@ -37,7 +36,7 @@ DisassemblerHooks::DisassemblerHooks(QObject* parent): QObject(parent) { }
 DisassemblerHooks::~DisassemblerHooks()
 {
     std::for_each(m_events.begin(), m_events.end(), &RDEvent_Unsubscribe);
-    if(m_worker.valid()) m_worker.wait();
+    if(m_worker.joinable()) m_worker.join();
 }
 
 void DisassemblerHooks::initialize(QMainWindow* mainwindow)
@@ -389,18 +388,27 @@ TableTab* DisassemblerHooks::createTable(ICommandTab* commandtab, ListingItemMod
     return tabletab;
 }
 
-void DisassemblerHooks::loadDisassemblerView(RDDisassembler* disassembler, const RDLoaderBuildRequest& req)
+void DisassemblerHooks::loadDisassemblerView(RDLoaderPlugin* loader, RDAssemblerPlugin* assembler, const RDLoaderRequest& req, const RDLoaderBuildRequest& buildreq)
 {
     this->close(false);       // Remove old docks
     this->clearOutput();      // Clear output
 
+    if(m_worker.joinable())
+        m_worker.join();
+
+    m_events.insert(RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
+        auto* thethis = reinterpret_cast<DisassemblerHooks*>(userdata);
+        QMetaObject::invokeMethod(thethis, "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RD_IsBusy()));
+    }, this));
+
+    RDDisassembler* disassembler = RDDisassembler_Create(&req, loader, assembler);
     m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow);
 
-    m_worker = std::async([&, disassembler, req]() {
+    m_worker = std::thread([&, disassembler, buildreq]() {
         try {
             RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
 
-            if(RDLoader_GetFlags(ldr) & LoaderFlags_CustomAddressing) RDLoader_Build(ldr, &req);
+            if(RDLoader_GetFlags(ldr) & LoaderFlags_CustomAddressing) RDLoader_Build(ldr, &buildreq);
             else RDLoader_Load(ldr);
 
             RD_Disassemble(disassembler);
@@ -435,11 +443,6 @@ void DisassemblerHooks::hook()
     this->enableCommands(nullptr);
     this->enableViewCommands(false);
     this->loadRecents();
-
-    m_events.insert(RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
-        auto* thethis = reinterpret_cast<DisassemblerHooks*>(userdata);
-        QMetaObject::invokeMethod(thethis, "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RD_IsBusy()));
-    }, this));
 }
 
 void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
@@ -467,8 +470,7 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
     rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(ploader->name, passembler->name)));
 
     m_fileinfo = QFileInfo(filepath);
-    RDDisassembler* disassembler = RDDisassembler_Create(&req, ploader, passembler);
-    this->loadDisassemblerView(disassembler, dlgloader.buildRequest());
+    this->loadDisassemblerView(ploader, passembler, req, dlgloader.buildRequest());
 }
 
 void DisassemblerHooks::addWelcomeTab() { m_disassemblertabs->addTab(new WelcomeTab(), QString()); }
@@ -669,7 +671,7 @@ void DisassemblerHooks::close(bool showwelcome)
     this->enableViewCommands(false);
 
     if(!m_disassemblerview) return;
-    m_disassemblerview->deleteLater();
+    m_disassemblerview->dispose();
     m_disassemblerview = nullptr;
 
     if(showwelcome) this->addWelcomeTab();

@@ -17,6 +17,7 @@
 #include <QFileInfo>
 #include <future>
 #include <rdapi/rdapi.h>
+#include <thread>
 #include "icommandtab.h"
 
 class OutputDock;
@@ -97,7 +98,7 @@ class DisassemblerHooks: public QObject
         void close(bool showwelcome);
         void clearOutput();
         void enableMenu(QMenu* menu, bool enable);
-        void loadDisassemblerView(RDDisassembler* disassembler, const RDLoaderBuildRequest& req);
+        void loadDisassemblerView(RDLoaderPlugin* loader, RDAssemblerPlugin* assembler, const RDLoaderRequest& req, const RDLoaderBuildRequest& buildreq);
         void showLoaders(const QString& filepath, RDBuffer* buffer);
         void addWelcomeTab();
         void loadRecents();
@@ -113,6 +114,6 @@ class DisassemblerHooks: public QObject
         DisassemblerTabs* m_disassemblertabs{nullptr};
         QFileInfo m_fileinfo;
         QSet<event_t> m_events;
-        std::future<void> m_worker;
+        std::thread m_worker;
         static DisassemblerHooks m_instance;
 };

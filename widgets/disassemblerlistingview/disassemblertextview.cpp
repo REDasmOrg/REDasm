@@ -90,7 +90,6 @@ void DisassemblerTextView::setDisassembler(RDDisassembler* disassembler)
 
     m_events.insert(RDEvent_Subscribe(Event_DocumentChanged, [](const RDEventArgs* e, void* userdata) {
         DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(userdata);
-        if(e->sender != thethis->m_renderer->cursor()) return; // Ignore other cursors' events
         thethis->onDocumentChanged(e);
     }, this));
 
@@ -333,7 +332,7 @@ void DisassemblerTextView::onDocumentChanged(const RDEventArgs *e)
         if(de->index > this->lastVisibleLine()) // Don't care of out-of-screen Insertion/Deletion
             return;
 
-        QMetaObject::invokeMethod(this, "renderListing", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this->viewport(), "update", Qt::QueuedConnection);
     }
     else
         this->paintLine(de->index);

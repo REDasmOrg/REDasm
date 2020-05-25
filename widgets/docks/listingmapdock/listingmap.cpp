@@ -13,9 +13,23 @@ ListingMap::ListingMap(QWidget *parent) : QWidget(parent)
 {
     this->setBackgroundRole(QPalette::Base);
     this->setAutoFillBackground(true);
+
+    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
+        auto* thethis = reinterpret_cast<ListingMap*>(userdata);
+        if(RD_IsBusy() || !thethis->m_document) return;
+
+        switch(e->eventid) {
+            case Event_CursorPositionChanged:
+            case Event_BusyChanged:
+                thethis->update();
+                break;
+
+            default: break;
+        }
+    }, this);
 }
 
-ListingMap::~ListingMap() { std::for_each(m_events.begin(), m_events.end(), &RDEvent_Unsubscribe); }
+ListingMap::~ListingMap() { RDEvent_Unsubscribe(this); }
 
 void ListingMap::linkTo(IDisassemblerCommand* command)
 {
@@ -23,17 +37,6 @@ void ListingMap::linkTo(IDisassemblerCommand* command)
     m_document = RDDisassembler_GetDocument(command->disassembler());
     m_totalsize = RDBuffer_Size(RDDisassembler_GetBuffer(command->disassembler()));
     this->update();
-
-    m_events.insert(RDEvent_Subscribe(Event_CursorPositionChanged, [](const RDEventArgs* e, void* userdata) {
-        ListingMap* thethis = reinterpret_cast<ListingMap*>(userdata);
-        if(RD_IsBusy() || (thethis->m_command->cursor() != e->sender)) return;
-        thethis->update();
-    }, this));
-
-    m_events.insert(RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
-        ListingMap* thethis = reinterpret_cast<ListingMap*>(userdata);
-        if(!RD_IsBusy()) thethis->update();
-    }, this));
 }
 
 QSize ListingMap::sizeHint() const { return { LISTINGMAP_SIZE, LISTINGMAP_SIZE }; }

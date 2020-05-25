@@ -9,9 +9,33 @@ bool SymbolTableModel::isItemAllowed(const RDDocumentItem& item) const
     if(!ListingItemModel::isItemAllowed(item) || (!IS_TYPE(&item, DocumentItemType_Function) && !IS_TYPE(&item, DocumentItemType_Symbol)))
         return false;
 
-    RDSymbol symbol;
+    auto it = m_symbols.find(item.address);
+    if(it == m_symbols.end()) return false;
 
-    if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol) || (symbol.type != m_symboltype)) return false;
     if(m_symbolflags == SymbolType_None) return true;
-    return symbol.flags & m_symbolflags;
+    return it->second.flags & m_symbolflags;
+}
+
+void SymbolTableModel::onItemChanged(const RDDocumentEventArgs* e)
+{
+    RDSymbol symbol;
+    if(!RDDocument_GetSymbolByAddress(m_document, e->item.address, &symbol) || (symbol.type != m_symboltype)) return;
+    m_symbols[e->item.address] = symbol;
+
+    ListingItemModel::onItemChanged(e);
+}
+
+void SymbolTableModel::onItemRemoved(const RDDocumentEventArgs* e)
+{
+    ListingItemModel::onItemRemoved(e);
+    m_symbols.erase(e->item.address);
+}
+
+void SymbolTableModel::insertItem(const RDDocumentItem& item)
+{
+    RDSymbol symbol;
+    if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol) || (symbol.type != m_symboltype)) return;
+    m_symbols[item.address] = symbol;
+
+    ListingItemModel::insertItem(item);
 }

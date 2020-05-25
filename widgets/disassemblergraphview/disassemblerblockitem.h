@@ -36,7 +36,6 @@ class DisassemblerBlockItem : public GraphViewItem
         void followRequested(DisassemblerBlockItem* block);
 
     private:
-        event_t m_cursorevent;
         std::unique_ptr<DocumentRenderer> m_renderer;
         const RDFunctionBasicBlock* m_basicblock;
         IDisassemblerCommand* m_command;

@@ -9,9 +9,17 @@ DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
 {
     this->setBackgroundRole(QPalette::Base);
     this->setAutoFillBackground(true);
+
+    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
+        auto* thethis = reinterpret_cast<DisassemblerColumnView*>(userdata);
+        if(!thethis->m_disassembler || RD_IsBusy()) return;
+
+        if(e->eventid == Event_BusyChanged) QMetaObject::invokeMethod(thethis, "renderArrows", Qt::QueuedConnection);
+        else if(e->eventid == Event_CursorPositionChanged) QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
+    }, this);
 }
 
-DisassemblerColumnView::~DisassemblerColumnView() { std::for_each(m_events.begin(), m_events.end(), RDEvent_Unsubscribe); }
+DisassemblerColumnView::~DisassemblerColumnView() { RDEvent_Unsubscribe(this); }
 
 void DisassemblerColumnView::linkTo(DisassemblerTextView* textview)
 {
@@ -20,18 +28,6 @@ void DisassemblerColumnView::linkTo(DisassemblerTextView* textview)
     m_document = RDDisassembler_GetDocument(m_disassembler);
 
     connect(m_textview->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderArrows(); });
-
-    m_events.insert(RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
-        if(RD_IsBusy()) return;
-        auto* thethis = reinterpret_cast<DisassemblerColumnView*>(userdata);
-        QMetaObject::invokeMethod(thethis, "renderArrows", Qt::QueuedConnection);
-    }, this));
-
-    m_events.insert(RDEvent_Subscribe(Event_CursorPositionChanged, [](const RDEventArgs*, void* userdata) {
-        if(RD_IsBusy()) return;
-        auto* thethis = reinterpret_cast<DisassemblerColumnView*>(userdata);
-        QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
-    }, this));
 }
 
 void DisassemblerColumnView::renderArrows(size_t start, size_t count)

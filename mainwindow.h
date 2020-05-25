@@ -27,9 +27,7 @@ class MainWindow : public QMainWindow
         void onSaveAsClicked();
         void onSignaturesClicked();
         void onResetLayoutClicked();
-        void checkDisassemblerStatus();
         void showProblems();
-        void closeFile();
 
     private:
         void initializeLibrary();

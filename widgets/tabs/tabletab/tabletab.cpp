@@ -26,7 +26,6 @@ TableTab::TableTab(ICommandTab* commandtab, ListingItemModel* model, QWidget *pa
 
     ui->tbvTable->verticalHeader()->setDefaultSectionSize(ui->tbvTable->verticalHeader()->minimumSectionSize());
 
-
     m_filtermodel = new QSortFilterProxyModel();
     m_filtermodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_filtermodel->setFilterKeyColumn(-1);

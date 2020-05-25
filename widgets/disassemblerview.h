@@ -14,6 +14,7 @@ class DisassemblerView : public QObject, public IDisposable
 
     public:
         explicit DisassemblerView(RDDisassembler* disassembler, QObject *parent = nullptr);
+        virtual ~DisassemblerView();
         RDDisassembler* disassembler() const;
         void dispose() override;
 

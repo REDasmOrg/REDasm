@@ -20,14 +20,14 @@ DisassemblerBlockItem::DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, ID
     QFontMetricsF fm(m_textdocument.defaultFont());
     m_charheight = fm.height();
 
-    m_cursorevent = RDEvent_Subscribe(Event_CursorPositionChanged, [](const RDEventArgs* e, void* userdata) {
+    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
         DisassemblerBlockItem* thethis = reinterpret_cast<DisassemblerBlockItem*>(userdata);
-        if(e->sender != thethis->m_command->cursor()) return;
+        if((e->eventid != Event_CursorPositionChanged) || (e->sender != thethis->m_command->cursor())) return;
         thethis->invalidate();
     }, this);
 }
 
-DisassemblerBlockItem::~DisassemblerBlockItem() { RDEvent_Unsubscribe(m_cursorevent); }
+DisassemblerBlockItem::~DisassemblerBlockItem() { RDEvent_Unsubscribe(this); }
 DocumentRenderer* DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
 bool DisassemblerBlockItem::containsItem(const RDDocumentItem& item) const { return RDFunctionBasicBlock_Contains(m_basicblock, item.address); }
 

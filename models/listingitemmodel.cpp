@@ -1,12 +1,29 @@
 #include "listingitemmodel.h"
 #include "../themeprovider.h"
 #include <algorithm>
+#include <iostream>
 #include <cassert>
 #include <tuple>
 #include <QColor>
 
-ListingItemModel::ListingItemModel(type_t itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
-ListingItemModel::~ListingItemModel() { std::for_each(m_events.begin(), m_events.end(), RDEvent_Unsubscribe); }
+ListingItemModel::ListingItemModel(type_t itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype)
+{
+    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
+        if(e->eventid != Event_DocumentChanged) return;
+        ListingItemModel* thethis = reinterpret_cast<ListingItemModel*>(userdata);
+        const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
+
+        switch(de->action) {
+            case DocumentAction_ItemInserted: thethis->insertItem(de->item); break;
+            case DocumentAction_ItemRemoved:  thethis->onItemRemoved(de);    break;
+            case DocumentAction_ItemChanged:  thethis->onItemChanged(de);    break;
+            default: assert(false);
+        }
+
+    }, this);
+}
+
+ListingItemModel::~ListingItemModel() { RDEvent_Unsubscribe(this); }
 
 void ListingItemModel::setDisassembler(RDDisassembler* disassembler)
 {
@@ -14,6 +31,7 @@ void ListingItemModel::setDisassembler(RDDisassembler* disassembler)
 
     // Prepopulate model with allowed items, if any
     this->beginResetModel();
+    m_items.clear();
 
     size_t c = RDDocument_ItemsCount(m_document);
 
@@ -25,18 +43,6 @@ void ListingItemModel::setDisassembler(RDDisassembler* disassembler)
     }
 
     this->endResetModel();
-
-    m_events.insert(RDEvent_Subscribe(Event_DocumentChanged, [](const RDEventArgs* e, void* userdata) {
-        const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
-        ListingItemModel* thethis = reinterpret_cast<ListingItemModel*>(userdata);
-
-        switch(de->action) {
-            case DocumentAction_ItemChanged:  thethis->onItemChanged(e);  break;
-            case DocumentAction_ItemInserted: thethis->onItemInserted(e); break;
-            case DocumentAction_ItemRemoved:  thethis->onItemRemoved(e);  break;
-            default: assert(false);
-        }
-    }, this));
 }
 
 const RDDocumentItem& ListingItemModel::item(const QModelIndex &index) const { return m_items[index.row()]; }
@@ -63,7 +69,9 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     if(!m_document) return QVariant();
 
     RDSymbol symbol;
-    if(!RDDocument_GetSymbolByAddress(m_document, m_items[index.row()].address, &symbol)) return QVariant();
+
+    if(!RDDocument_GetSymbolByAddress(m_document, m_items[index.row()].address, &symbol))
+        return QVariant();
 
     if(role == Qt::DisplayRole)
     {
@@ -151,13 +159,12 @@ void ListingItemModel::insertItem(const RDDocumentItem& item)
     this->endInsertRows();
 }
 
-void ListingItemModel::onItemChanged(const RDEventArgs* e)
+void ListingItemModel::onItemChanged(const RDDocumentEventArgs* e)
 {
-    const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
-    if(!this->isItemAllowed(de->item)) return;
+    if(!this->isItemAllowed(e->item)) return;
 
-    auto it = std::find_if(m_items.begin(), m_items.end(), [&de](const auto& item) {
-        return std::tie(de->item.address, de->item.type, de->item.index) ==
+    auto it = std::find_if(m_items.begin(), m_items.end(), [&e](const auto& item) {
+        return std::tie(e->item.address, e->item.type, e->item.index) ==
                std::tie(item.address, item.type, item.index);
     });
 
@@ -167,19 +174,12 @@ void ListingItemModel::onItemChanged(const RDEventArgs* e)
     emit dataChanged(this->index(idx, 0), this->index(idx, this->columnCount() - 1));
 }
 
-void ListingItemModel::onItemInserted(const RDEventArgs* e)
+void ListingItemModel::onItemRemoved(const RDDocumentEventArgs* e)
 {
-    const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
-    this->insertItem(de->item);
-}
+    if(!this->isItemAllowed(e->item)) return;
 
-void ListingItemModel::onItemRemoved(const RDEventArgs* e)
-{
-    const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
-    if(!this->isItemAllowed(de->item)) return;
-
-    auto it = std::find_if(m_items.begin(), m_items.end(), [&de](const auto& item) {
-        return std::tie(de->item.address, de->item.type, de->item.index) ==
+    auto it = std::find_if(m_items.begin(), m_items.end(), [&e](const auto& item) {
+        return std::tie(e->item.address, e->item.type, e->item.index) ==
                std::tie(item.address, item.type, item.index);
     });
 

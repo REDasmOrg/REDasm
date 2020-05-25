@@ -32,7 +32,7 @@ DisassemblerTabButton::DisassemblerTabButton(QWidget* widget, QTabWidget* tabwid
     this->customizeBehavior();
 }
 
-DisassemblerTabButton::~DisassemblerTabButton() { if(m_cursorevent) RDEvent_Unsubscribe(m_cursorevent); }
+DisassemblerTabButton::~DisassemblerTabButton() { RDEvent_Unsubscribe(this); }
 
 void DisassemblerTabButton::closeTab()
 {
@@ -55,8 +55,13 @@ QPushButton* DisassemblerTabButton::createButton(const QIcon& icon)
 
 void DisassemblerTabButton::customizeBehavior()
 {
-    if(dynamic_cast<ICommandTab*>(m_widget))
-        m_cursorevent = RDEvent_Subscribe(Event_CursorStackChanged, &DisassemblerTabButton::onCursorStackChanged, this);
+    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
+        auto* thethis = reinterpret_cast<DisassemblerTabButton*>(userdata);
+
+        if((e->eventid == Event_CursorStackChanged) && dynamic_cast<ICommandTab*>(thethis->m_widget))
+            thethis->onCursorStackChanged(e);
+
+    }, this);
 }
 
 QMenu* DisassemblerTabButton::createMenu()
@@ -70,14 +75,13 @@ QMenu* DisassemblerTabButton::createMenu()
     return m;
 }
 
-void DisassemblerTabButton::onCursorStackChanged(const RDEventArgs* e, void* userdata)
+void DisassemblerTabButton::onCursorStackChanged(const RDEventArgs* e)
 {
-    auto* thethis = reinterpret_cast<DisassemblerTabButton*>(userdata);
-    auto* commandtab = dynamic_cast<ICommandTab*>(thethis->m_widget);
+    auto* commandtab = dynamic_cast<ICommandTab*>(m_widget);
     if(!commandtab) return;
 
     RDCursor* cursor = reinterpret_cast<RDCursor*>(e->sender);
     if(!commandtab->command()->ownsCursor(cursor)) return;
 
-    DisassemblerHooks::instance()->updateCommandStates(thethis->m_widget);
+    DisassemblerHooks::instance()->updateCommandStates(m_widget);
 }

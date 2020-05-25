@@ -17,7 +17,7 @@ class DisassemblerColumnView : public QWidget
 
     public:
         explicit DisassemblerColumnView(QWidget *parent = nullptr);
-        ~DisassemblerColumnView();
+        virtual ~DisassemblerColumnView();
         void linkTo(DisassemblerTextView* textview);
 
     protected:
@@ -36,7 +36,6 @@ class DisassemblerColumnView : public QWidget
         DisassemblerTextView* m_textview{nullptr};
         RDDisassembler* m_disassembler{nullptr};
         RDDocument* m_document{nullptr};
-        QSet<event_t> m_events;
         QList<ArrowPath> m_paths;
         QSet<QPair<size_t, size_t>> m_done;
         size_t m_first{RD_NPOS}, m_last{RD_NPOS};

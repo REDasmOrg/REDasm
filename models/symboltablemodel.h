@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_map>
 #include "listingitemmodel.h"
 
 class SymbolTableModel : public ListingItemModel
@@ -13,6 +14,12 @@ class SymbolTableModel : public ListingItemModel
 
     protected:
         bool isItemAllowed(const RDDocumentItem& item) const override;
+        void onItemChanged(const RDDocumentEventArgs* e) override;
+        void onItemRemoved(const RDDocumentEventArgs* e) override;
+        void insertItem(const RDDocumentItem& item) override;
+
+    protected:
+        std::unordered_map<address_t, RDSymbol> m_symbols;
 
     private:
         type_t m_symboltype{SymbolType_None};

@@ -26,7 +26,6 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <unordered_map>
-#include <type_traits>
 #include <rdapi/rdapi.h>
 
 DisassemblerHooks DisassemblerHooks::m_instance;
@@ -35,8 +34,8 @@ DisassemblerHooks::DisassemblerHooks(QObject* parent): QObject(parent) { }
 
 DisassemblerHooks::~DisassemblerHooks()
 {
-    std::for_each(m_events.begin(), m_events.end(), &RDEvent_Unsubscribe);
-    if(m_worker.joinable()) m_worker.join();
+    if(m_worker.valid()) m_worker.get();
+    RDEvent_Unsubscribe(this);
 }
 
 void DisassemblerHooks::initialize(QMainWindow* mainwindow)
@@ -380,6 +379,12 @@ void DisassemblerHooks::onFilterClicked()
     if(tabletab) tabletab->toggleFilter();
 }
 
+void DisassemblerHooks::listenEvents(const RDEventArgs* e, void*)
+{
+    if(e->eventid == Event_BusyChanged)
+        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RD_IsBusy()));
+}
+
 TableTab* DisassemblerHooks::createTable(ICommandTab* commandtab, ListingItemModel* model, const QString& title)
 {
     TableTab* tabletab = new TableTab(commandtab, model);
@@ -393,18 +398,13 @@ void DisassemblerHooks::loadDisassemblerView(RDLoaderPlugin* loader, RDAssembler
     this->close(false);       // Remove old docks
     this->clearOutput();      // Clear output
 
-    if(m_worker.joinable())
-        m_worker.join();
-
-    m_events.insert(RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
-        auto* thethis = reinterpret_cast<DisassemblerHooks*>(userdata);
-        QMetaObject::invokeMethod(thethis, "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RD_IsBusy()));
-    }, this));
+    if(m_worker.valid())
+        m_worker.get();
 
     RDDisassembler* disassembler = RDDisassembler_Create(&req, loader, assembler);
     m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow);
 
-    m_worker = std::thread([&, disassembler, buildreq]() {
+    m_worker = std::async([&, disassembler, buildreq]() {
         try {
             RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
 
@@ -443,6 +443,8 @@ void DisassemblerHooks::hook()
     this->enableCommands(nullptr);
     this->enableViewCommands(false);
     this->loadRecents();
+
+    RDEvent_Subscribe(this, &DisassemblerHooks::listenEvents, nullptr);
 }
 
 void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)

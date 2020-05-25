@@ -220,68 +220,6 @@ bool MainWindow::canClose()
     return true;
 }
 
-void MainWindow::closeFile()
-{
-    //RDDisassembler* disassembler = nullptr; //this->currentDisassembler();
-
-    // TODO: messageBox for confirmation?
-    //if(disassembler)
-    //{
-        //r_evt::unsubscribe();
-        //disassembler->stop();
-    //}
-
-    //DisassemblerView* oldview = nullptr; //this->currentDisassemblerView();
-
-    //if(oldview)
-    //{
-        //ui->stackView->removeWidget(oldview);
-        //oldview->hideActions();
-        //oldview->deleteLater();
-    //}
-
-    //ui->pteOutput->clear();
-    //m_tbactions->setActionEnabled(ToolBarActions::Close, false);
-    //m_lblstatus->clear();
-    //m_lblprogress->setVisible(false);
-    //m_lblstatusicon->setVisible(false);
-    //m_pbproblems->setVisible(false);
-    //m_tbactions->setStandardActionsEnabled(false);
-    //this->setViewWidgetsVisible(false);
-    //r_ctx->clearProblems();
-}
-
-void MainWindow::checkDisassemblerStatus()
-{
-    // if(!RD_GetDisassembler())
-    // {
-    //     m_tbactions->setActionEnabled(ToolBarActions::Close, false);
-    //     m_lblstatusicon->setVisible(false);
-    //     m_pbproblems->setVisible(false);
-    //     return;
-    // }
-
-    // if(RD_IsBusy())
-    // {
-    //     this->setWindowTitle(QString("%1 (Working)").arg(m_fileinfo.fileName()));
-    //     m_lblstatusicon->setStyleSheet("color: red;");
-    // }
-    // else
-    // {
-    //     this->setWindowTitle(m_fileinfo.fileName());
-    //     m_lblstatusicon->setStyleSheet("color: green;");
-    // }
-
-    //m_lblstatusicon->setVisible(true);
-    //m_lblprogress->setVisible(RD_IsBusy());
-    //m_pbproblems->setText(QString::number(r_ctx->problemsCount()) + " problem(s)");
-    //m_pbproblems->setVisible(!r_disasm->busy() && r_ctx->hasProblems());
-
-    // m_tbactions->setStandardActionsEnabled(!RD_IsBusy());
-    // m_tbactions->setDisassemblerActionsEnabled(!RD_IsBusy());
-    // m_tbactions->setActionEnabled(ToolBarActions::Close, true);
-}
-
 void MainWindow::showProblems() { ProblemsDialog dlgproblems(this); dlgproblems.exec(); }
 
 void MainWindow::initializeLibrary()

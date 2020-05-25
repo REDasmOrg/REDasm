@@ -74,7 +74,6 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         void addressChanged(address_t address);
 
     private:
-        QSet<event_t> m_events;
         std::unique_ptr<PainterRenderer> m_renderer;
         RDDisassembler* m_disassembler{nullptr};
         RDDocument* m_document{nullptr};

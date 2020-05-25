@@ -12,12 +12,10 @@
 
 #include <QMainWindow>
 #include <QPushButton>
-#include <QSet>
 #include <QLabel>
 #include <QFileInfo>
 #include <future>
 #include <rdapi/rdapi.h>
-#include <thread>
 #include "icommandtab.h"
 
 class OutputDock;
@@ -91,6 +89,7 @@ class DisassemblerHooks: public QObject
         void onFilterClicked();
 
     private:
+        static void listenEvents(const RDEventArgs* e, void*);
         Q_INVOKABLE void updateViewWidgets(bool busy);
         Q_INVOKABLE void enableViewCommands(bool enable);
         TableTab* createTable(ICommandTab* commandtab, ListingItemModel* model, const QString& title);
@@ -113,7 +112,6 @@ class DisassemblerHooks: public QObject
         DisassemblerView* m_disassemblerview{nullptr};
         DisassemblerTabs* m_disassemblertabs{nullptr};
         QFileInfo m_fileinfo;
-        QSet<event_t> m_events;
-        std::thread m_worker;
+        std::future<void> m_worker;
         static DisassemblerHooks m_instance;
 };

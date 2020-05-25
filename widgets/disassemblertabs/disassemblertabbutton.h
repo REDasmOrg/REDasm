@@ -12,22 +12,19 @@ class DisassemblerTabButton : public QWidget
 
     public:
         explicit DisassemblerTabButton(QWidget* widget, QTabWidget* tabwidget, QWidget *parent = nullptr);
-        ~DisassemblerTabButton();
+        virtual ~DisassemblerTabButton();
 
     private slots:
         void closeTab();
 
     private:
+        void onCursorStackChanged(const RDEventArgs* e);
         QPushButton* createButton(const QIcon& icon);
         QMenu* createMenu();
         void customizeBehavior();
 
     private:
-        static void onCursorStackChanged(const RDEventArgs* e, void* userdata);
-
-    private:
         QTabWidget* m_tabwidget;
         QWidget* m_widget;
-        event_t m_cursorevent{0};
 };
 

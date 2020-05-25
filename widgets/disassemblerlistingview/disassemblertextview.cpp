@@ -28,9 +28,32 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): CursorScrollArea(pa
     this->horizontalScrollBar()->setMinimum(0);
     this->horizontalScrollBar()->setValue(0);
     this->horizontalScrollBar()->setMaximum(maxwidth);
+
+    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
+        DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(userdata);
+        if(!thethis->m_renderer) return;
+
+        if(e->eventid == Event_BusyChanged) {
+            if(RD_IsBusy()) return;
+            thethis->adjustScrollBars();
+
+            RDDocument* doc = RDDisassembler_GetDocument(thethis->disassembler());
+            RDLocation loc = RDDocument_EntryPoint(doc);
+
+            if(loc.valid) thethis->gotoAddress(loc.address);
+            else thethis->update();
+
+        }
+        else if(e->eventid == Event_CursorPositionChanged)
+        {
+            if(e->sender != thethis->m_renderer->cursor()) return; // Ignore other cursors' events
+            thethis->moveToSelection();
+        }
+        else if(e->eventid == Event_DocumentChanged) thethis->onDocumentChanged(e);
+    }, this);
 }
 
-DisassemblerTextView::~DisassemblerTextView() { std::for_each(m_events.begin(), m_events.end(), &RDEvent_Unsubscribe); }
+DisassemblerTextView::~DisassemblerTextView() { RDEvent_Unsubscribe(this); }
 RDDisassembler* DisassemblerTextView::disassembler() const { return m_disassembler; }
 RDCursor* DisassemblerTextView::cursor() const { return m_renderer->cursor(); }
 QWidget* DisassemblerTextView::widget() { return this; }
@@ -76,33 +99,7 @@ void DisassemblerTextView::setDisassembler(RDDisassembler* disassembler)
     m_renderer = std::make_unique<PainterRenderer>(disassembler);
     this->setBlinkCursor(m_renderer->cursor());
 
-    m_events.insert(RDEvent_Subscribe(Event_BusyChanged, [](const RDEventArgs*, void* userdata) {
-        if(RD_IsBusy()) return;
-        DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(userdata);
-        thethis->adjustScrollBars();
-
-        RDDocument* doc = RDDisassembler_GetDocument(thethis->disassembler());
-        RDLocation loc = RDDocument_EntryPoint(doc);
-
-        if(loc.valid) thethis->gotoAddress(loc.address);
-        else thethis->update();
-    }, this));
-
-    m_events.insert(RDEvent_Subscribe(Event_DocumentChanged, [](const RDEventArgs* e, void* userdata) {
-        DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(userdata);
-        thethis->onDocumentChanged(e);
-    }, this));
-
-    m_events.insert(RDEvent_Subscribe(Event_CursorPositionChanged, [](const RDEventArgs* e, void* userdata) {
-        DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(userdata);
-        if(e->sender != thethis->m_renderer->cursor()) return; // Ignore other cursors' events
-        thethis->moveToSelection();
-    }, this));
-
-    this->adjustScrollBars();
-
     m_contextmenu = DisassemblerHooks::instance()->createActions(this);
-
     connect(this, &DisassemblerTextView::customContextMenuRequested, this, [&](const QPoint&) {
         if(RDDocument_ItemsCount(m_document)) m_contextmenu->popup(QCursor::pos());
     });

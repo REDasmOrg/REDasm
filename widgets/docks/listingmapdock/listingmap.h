@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QWidget>
-#include <QSet>
 #include "../../../hooks/idisassemblercommand.h"
 #include <rdapi/rdapi.h>
 
@@ -11,7 +10,7 @@ class ListingMap : public QWidget
 
     public:
         explicit ListingMap(QWidget *parent = 0);
-        ~ListingMap();
+        virtual ~ListingMap();
         void linkTo(IDisassemblerCommand* command);
         QSize sizeHint() const override;
 
@@ -32,7 +31,6 @@ class ListingMap : public QWidget
 
     private:
         IDisassemblerCommand* m_command{nullptr};
-        QSet<event_t> m_events;
         RDDocument* m_document{nullptr};
         s32 m_orientation{Qt::Vertical};
         size_t m_totalsize{0};

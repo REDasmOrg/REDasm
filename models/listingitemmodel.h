@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QList>
-#include <QSet>
 #include "disassemblermodel.h"
 #include <rdapi/document/document.h>
 #include <rdapi/events.h>
@@ -24,17 +23,15 @@ class ListingItemModel : public DisassemblerModel
 
     protected:
         virtual bool isItemAllowed(const RDDocumentItem& item) const;
+        virtual void onItemChanged(const RDDocumentEventArgs* e);
+        virtual void onItemRemoved(const RDDocumentEventArgs* e);
+        virtual void insertItem(const RDDocumentItem& item);
 
     private:
         static QString escapeString(const QString& s);
-        void insertItem(const RDDocumentItem& item);
-        void onItemChanged(const RDEventArgs* e);
-        void onItemInserted(const RDEventArgs* e);
-        void onItemRemoved(const RDEventArgs* e);
 
     private:
         QList<RDDocumentItem> m_items;
-        QSet<event_t> m_events;
         type_t m_itemtype;
 
     friend class ListingFilterModel;

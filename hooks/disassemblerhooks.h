@@ -4,7 +4,7 @@
 #define HOOK_TABS                "tabs"
 #define HOOK_STATUS_ICON         "lblStatusIcon"
 #define HOOK_PROBLEMS            "pbProblems"
-#define HOOK_MENU_VIEWS          "menu_Views"
+#define HOOK_MENU_WINDOW         "menu_Window"
 #define HOOK_MENU_DEVELOPMENT    "menu_Development"
 #define HOOK_ACTION_SAVE_AS      "action_Save_As"
 #define HOOK_ACTION_CLOSE        "action_Close"
@@ -45,7 +45,7 @@ class DisassemblerHooks: public QObject
         static DisassemblerHooks* instance();
 
     public slots:
-        void log(const QString& m_mnuviews);
+        void log(const QString& s);
         void clearLog();
         void resetLayout();
         void open();
@@ -107,7 +107,7 @@ class DisassemblerHooks: public QObject
     private:
         QMainWindow* m_mainwindow{nullptr};
         QToolBar* m_toolbar{nullptr};
-        QMenu *m_mnuviews{nullptr}, *m_mnudev{nullptr};
+        QMenu *m_mnuwindow{nullptr}, *m_mnudev{nullptr};
         QLabel* m_lblstatusicon{nullptr};
         QPushButton* m_pbproblems{nullptr};
         DisassemblerView* m_disassemblerview{nullptr};

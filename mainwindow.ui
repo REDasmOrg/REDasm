@@ -84,18 +84,14 @@
     <property name="title">
      <string>&amp;Window</string>
     </property>
-    <addaction name="action_Reset_Layout"/>
-   </widget>
-   <widget class="QMenu" name="menu_Views">
-    <property name="title">
-     <string>&amp;Views</string>
-    </property>
     <addaction name="action_Listing"/>
     <addaction name="action_Segments"/>
     <addaction name="action_Functions"/>
     <addaction name="action_Exports"/>
     <addaction name="action_Imports"/>
     <addaction name="action_Strings"/>
+    <addaction name="action_Reset_Layout"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menu_REDasm">
     <property name="title">
@@ -117,7 +113,6 @@
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_REDasm"/>
-   <addaction name="menu_Views"/>
    <addaction name="menu_Window"/>
    <addaction name="menu"/>
   </widget>

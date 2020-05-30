@@ -101,7 +101,7 @@ TableTab* DisassemblerHooks::showFunctions(ICommandTab* commandtab, Qt::DockWidg
     TableTab* tabletab = this->createTable(commandtab, new ListingItemModel(DocumentItemType_Function), "Functions");
     tabletab->setColumnHidden(1);
     tabletab->setColumnHidden(2);
-    connect(tabletab, &TableTab::resizeColumn, this, [tabletab]() { tabletab->resizeColumn(0); });
+    connect(tabletab, &TableTab::resizeColumns, this, [tabletab]() { tabletab->resizeColumn(0); });
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
@@ -419,7 +419,7 @@ void DisassemblerHooks::hook()
 {
     m_lblstatusicon = m_mainwindow->findChild<QLabel*>(HOOK_STATUS_ICON);
     m_pbproblems = m_mainwindow->findChild<QPushButton*>(HOOK_PROBLEMS);
-    m_mnuviews = m_mainwindow->findChild<QMenu*>(HOOK_MENU_VIEWS);
+    m_mnuwindow = m_mainwindow->findChild<QMenu*>(HOOK_MENU_WINDOW);
     m_mnudev = m_mainwindow->findChild<QMenu*>(HOOK_MENU_DEVELOPMENT);
     m_toolbar = m_mainwindow->findChild<QToolBar*>(HOOK_TOOLBAR);
     m_disassemblertabs = m_mainwindow->findChild<DisassemblerTabs*>(HOOK_TABS);
@@ -697,7 +697,7 @@ bool DisassemblerHooks::openDatabase(const QString& filepath)
 void DisassemblerHooks::enableViewCommands(bool enable)
 {
     this->enableMenu(m_mnudev, enable);
-    this->enableMenu(m_mnuviews, enable);
+    this->enableMenu(m_mnuwindow, enable);
 
     auto actions = m_toolbar->actions();
     actions[1]->setEnabled(enable);

@@ -10,10 +10,15 @@ ListingMapRenderer::ListingMapRenderer(IDisassemblerCommand* command, QObject* p
     m_totalsize = RDBuffer_Size(RDDisassembler_GetBuffer(command->disassembler()));
 }
 
-void ListingMapRenderer::renderMap() { this->schedule(ListingMapRenderer::LowPriority); }
+void ListingMapRenderer::renderMap()
+{
+    m_renderenabled.store(true);
+    this->schedule(ListingMapRenderer::LowPriority);
+}
 
 void ListingMapRenderer::onRender(QImage* image)
 {
+    m_renderenabled.store(false);
     this->checkOrientation();
 
     QPainter painter(image);
@@ -94,6 +99,8 @@ void ListingMapRenderer::calculateFunctions()
         }
     }
 }
+
+bool ListingMapRenderer::conditionWait() const { return m_renderenabled.load(); }
 
 void ListingMapRenderer::renderSegments(QPainter* painter)
 {

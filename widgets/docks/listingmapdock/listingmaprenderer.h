@@ -20,6 +20,7 @@ class ListingMapRenderer : public RendererAsync
         void calculateFunctions();
 
     protected:
+        bool conditionWait() const override;
         void onRender(QImage* image) override;
 
     private:
@@ -39,5 +40,6 @@ class ListingMapRenderer : public RendererAsync
         PreCalc<RDLocation, address_t> m_calcfunctions;
         s32 m_orientation{Qt::Vertical};
         size_t m_totalsize{0};
+        std::atomic_bool m_renderenabled{false};
 };
 

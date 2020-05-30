@@ -564,7 +564,20 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
     std::unordered_map<int, QAction*> actions;
 
     actions[DisassemblerHooks::Action_Rename] = contextmenu->addAction("Rename", this, [&, command]() {
+        RDSymbol symbol;
+        if(!command->getSelectedSymbol(&symbol)) return;
 
+        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
+        const char* symbolname = RDDocument_GetSymbolName(doc, symbol.address);
+        if(!symbolname) return;
+
+        bool ok = false;
+        QString res = QInputDialog::getText(command->widget(),
+                                            "Rename @ " + QString::fromStdString(rd_tohexauto(symbol.address)),
+                                            "Symbol name:", QLineEdit::Normal, symbolname, &ok);
+
+        if(!ok) return;
+        RDDocument_Rename(doc, symbol.address, qUtf8Printable(res));
     }, QKeySequence(Qt::Key_N));
 
     actions[DisassemblerHooks::Action_Comment] = contextmenu->addAction("Comment", this, [&, command]() {

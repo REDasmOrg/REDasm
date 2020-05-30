@@ -12,6 +12,7 @@ TableTab::TableTab(ICommandTab* commandtab, ListingItemModel* model, QWidget *pa
     model->setDisassembler(commandtab->command()->disassembler());
 
     ui->setupUi(this);
+    ui->tvTable->setUniformRowHeights(true);
     ui->leFilter->setVisible(false);
 
     ui->leFilter->setStyleSheet(QString("QLineEdit {"
@@ -24,24 +25,22 @@ TableTab::TableTab(ICommandTab* commandtab, ListingItemModel* model, QWidget *pa
     ui->pbClear->setText(QString());
     ui->pbClear->setIcon(FA_ICON(0xf00d));
 
-    ui->tbvTable->verticalHeader()->setDefaultSectionSize(ui->tbvTable->verticalHeader()->minimumSectionSize());
-
     m_filtermodel = new QSortFilterProxyModel();
     m_filtermodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_filtermodel->setFilterKeyColumn(-1);
     m_filtermodel->setSourceModel(model);
-    ui->tbvTable->setModel(m_filtermodel);
+    ui->tvTable->setModel(m_filtermodel);
 
     connect(ui->leFilter, &QLineEdit::textChanged, m_filtermodel, &QSortFilterProxyModel::setFilterFixedString);
-    connect(ui->tbvTable, &QTableView::doubleClicked, this, &TableTab::onTableDoubleClick);
+    connect(ui->tvTable, &QTreeView::doubleClicked, this, &TableTab::onTableDoubleClick);
     connect(ui->pbClear, &QPushButton::clicked, ui->leFilter, &QLineEdit::clear);
 }
 
 TableTab::~TableTab() { delete ui; }
 ListingItemModel* TableTab::model() const { return m_listingitemmodel; }
-void TableTab::setSectionResizeMode(int idx, QHeaderView::ResizeMode mode) { ui->tbvTable->horizontalHeader()->setSectionResizeMode(idx, mode); }
-void TableTab::setColumnHidden(int idx) { ui->tbvTable->setColumnHidden(idx, true); }
-void TableTab::moveSection(int from, int to) { ui->tbvTable->horizontalHeader()->moveSection(from, to); }
+void TableTab::setSectionResizeMode(int idx, QHeaderView::ResizeMode mode) { ui->tvTable->header()->setSectionResizeMode(idx, mode); }
+void TableTab::setColumnHidden(int idx) { ui->tvTable->setColumnHidden(idx, true); }
+void TableTab::moveSection(int from, int to) { ui->tvTable->header()->moveSection(from, to); }
 
 void TableTab::onTableDoubleClick(const QModelIndex& index)
 {

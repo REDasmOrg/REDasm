@@ -52,10 +52,8 @@ QColor ThemeProvider::themeValue(const QString &name)
             return QColor();
     }
 
-    if(m_theme.contains(name))
-        return QColor(m_theme[name].toString());
-
-    return QColor();
+    auto it = m_theme.find(name);
+    return (it != m_theme.end()) ? QColor(it.value().toString()) : QColor();
 }
 
 QIcon ThemeProvider::icon(const QString &name)

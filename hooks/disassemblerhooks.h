@@ -92,6 +92,7 @@ class DisassemblerHooks: public QObject
         static void listenEvents(const RDEventArgs* e, void*);
         Q_INVOKABLE void updateViewWidgets(bool busy);
         Q_INVOKABLE void enableViewCommands(bool enable);
+        Q_INVOKABLE void showMessage(const QString& title, const QString& msg, size_t icon);
         TableTab* createTable(ICommandTab* commandtab, ListingItemModel* model, const QString& title);
         OutputDock* outputDock() const;
         void close(bool showwelcome);

@@ -86,7 +86,12 @@ void DisassemblerGraphView::computeLayout()
     {
         RDGraphNode n = nodes[i];
         const RDFunctionBasicBlock* fbb = nullptr;
-        assert(RDFunctionGraph_GetBasicBlock(m_graph, n, &fbb));
+
+        if(!RDFunctionGraph_GetBasicBlock(m_graph, n, &fbb))
+        {
+            rd_log("Cannot find basic block");
+            return;
+        }
 
         auto* dbi = new DisassemblerBlockItem(fbb, m_command, n, this->viewport());
         connect(dbi, &DisassemblerBlockItem::followRequested, this, &DisassemblerGraphView::onFollowRequested);

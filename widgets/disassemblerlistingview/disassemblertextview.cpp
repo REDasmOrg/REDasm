@@ -1,6 +1,8 @@
 #include "disassemblertextview.h"
 #include "../../hooks/disassemblerhooks.h"
+#include "../../redasmfonts.h"
 #include <QScrollBar>
+#include <QPushButton>
 #include <QtGui>
 
 #define DOCUMENT_IDEAL_SIZE   10
@@ -15,6 +17,15 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): CursorScrollArea(pa
     this->viewport()->setFixedWidth(maxwidth);
     this->setPalette(qApp->palette()); // Don't inherit palette
 
+    QPushButton* tbscreenshot = new QPushButton();
+    tbscreenshot->setIcon(FA_ICON(0xf030));
+    tbscreenshot->setFlat(true);
+
+    connect(tbscreenshot, &QPushButton::clicked, this, [&]() {
+        if(!m_pixmap.isNull()) qApp->clipboard()->setPixmap(m_pixmap);
+    });
+
+    this->setCornerWidget(tbscreenshot);
     this->setFont(font);
     this->setCursor(Qt::ArrowCursor);
     this->setFrameStyle(QFrame::NoFrame);
@@ -41,7 +52,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): CursorScrollArea(pa
             RDLocation loc = RDDocument_EntryPoint(doc);
 
             if(loc.valid) thethis->gotoAddress(loc.address);
-            else thethis->update();
+            else thethis->requestRender();
 
         }
         else if(e->eventid == Event_CursorPositionChanged)
@@ -96,7 +107,8 @@ void DisassemblerTextView::setDisassembler(RDDisassembler* disassembler)
     m_disassembler = disassembler;
     m_document = RDDisassembler_GetDocument(disassembler);
 
-    m_renderer = std::make_unique<PainterRenderer>(disassembler);
+    m_renderer = new PainterRendererAsync(disassembler, RendererFlags_Normal, this);
+    connect(m_renderer, &PainterRendererAsync::renderCompleted, this, &DisassemblerTextView::onRenderCompleted);
     this->setBlinkCursor(m_renderer->cursor());
 
     m_contextmenu = DisassemblerHooks::instance()->createActions(this);
@@ -134,16 +146,24 @@ void DisassemblerTextView::goForward() { if(m_renderer) RDCursor_GoForward(m_ren
 bool DisassemblerTextView::hasSelection() const { return m_renderer ? RDCursor_HasSelection(m_renderer->cursor()) : false;  }
 void DisassemblerTextView::copy() const { if(m_renderer) m_renderer->copy(); }
 
+void DisassemblerTextView::onRenderCompleted(const QImage& img)
+{
+    m_pixmap = QPixmap::fromImage(img);
+    this->viewport()->update();
+}
+
 void DisassemblerTextView::scrollContentsBy(int dx, int dy)
 {
     if(dx)
     {
         QWidget* viewport = this->viewport();
         viewport->move(viewport->x() + dx, viewport->y());
-        return;
     }
 
-    CursorScrollArea::scrollContentsBy(dx, dy);
+    this->requestRender();
+
+    if(!dx)
+        CursorScrollArea::scrollContentsBy(dx, dy);
 }
 
 void DisassemblerTextView::paintEvent(QPaintEvent *e)
@@ -151,16 +171,15 @@ void DisassemblerTextView::paintEvent(QPaintEvent *e)
     Q_UNUSED(e)
     if(!m_disassembler || !m_renderer) return;
 
-    QFontMetrics fm = this->fontMetrics();
     QPainter painter(this->viewport());
-    painter.setFont(this->font());
-    m_renderer->render(&painter, this->firstVisibleLine(), this->lastVisibleLine());
+    painter.drawPixmap(this->viewport()->x(), this->viewport()->y(), m_pixmap);
 }
 
 void DisassemblerTextView::resizeEvent(QResizeEvent *e)
 {
     CursorScrollArea::resizeEvent(e);
     this->adjustScrollBars();
+    this->requestRender();
 }
 
 void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
@@ -207,6 +226,8 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
 
 void DisassemblerTextView::wheelEvent(QWheelEvent *e)
 {
+    CursorScrollArea::wheelEvent(e);
+
     if(e->orientation() == Qt::Vertical)
     {
         int value = this->verticalScrollBar()->value();
@@ -216,10 +237,8 @@ void DisassemblerTextView::wheelEvent(QWheelEvent *e)
         else if(e->delta() > 0) // Scroll Up
             this->verticalScrollBar()->setValue(value - DOCUMENT_WHEEL_LINES);
 
-        return;
+        this->requestRender();
     }
-
-    CursorScrollArea::wheelEvent(e);
 }
 
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
@@ -329,7 +348,7 @@ void DisassemblerTextView::onDocumentChanged(const RDEventArgs *e)
         if(de->index > this->lastVisibleLine()) // Don't care of out-of-screen Insertion/Deletion
             return;
 
-        QMetaObject::invokeMethod(this->viewport(), "update", Qt::QueuedConnection);
+        this->requestRender();
     }
     else
         this->paintLine(de->index);
@@ -403,21 +422,16 @@ QPointF DisassemblerTextView::viewportPoint(const QPointF& pt) const
     return vpt;
 }
 
+void DisassemblerTextView::requestRender()
+{
+    if(!m_renderer) return;
+    m_renderer->scheduleImage(this->firstVisibleLine(), this->lastVisibleLine());
+}
+
 void DisassemblerTextView::paintLine(size_t line)
 {
     if(!this->isLineVisible(line)) return;
-    this->paintLines(line, line);
-}
-
-void DisassemblerTextView::paintLines(size_t first, size_t last)
-{
-    first = std::max(first, this->firstVisibleLine());
-    last = std::min(last, this->lastVisibleLine());
-
-    QRect firstrect = this->lineRect(first);
-    QRect lastrect = this->lineRect(last);
-
-    this->viewport()->update(QRect(firstrect.topLeft(), lastrect.bottomRight()));
+    this->requestRender();
 }
 
 void DisassemblerTextView::adjustScrollBars()
@@ -448,7 +462,7 @@ void DisassemblerTextView::moveToSelection()
         vscrollbar->setValue(static_cast<int>(std::max<size_t>(0, (line - this->visibleLines() / 2))));
     }
     else
-        this->viewport()->update();
+        this->requestRender();
 
     this->ensureColumnVisible();
     if(line >= c) return;

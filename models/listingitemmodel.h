@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QList>
+#include <vector>
 #include "disassemblermodel.h"
 #include <rdapi/document/document.h>
 #include <rdapi/events.h>
@@ -31,7 +31,7 @@ class ListingItemModel : public DisassemblerModel
         static QString escapeString(const QString& s);
 
     private:
-        QList<RDDocumentItem> m_items;
+        std::vector<RDDocumentItem> m_items;
         type_t m_itemtype;
 
     friend class ListingFilterModel;

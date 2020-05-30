@@ -5,7 +5,7 @@
 #include <rdapi/rdapi.h>
 #include "../cursorscrollarea.h"
 #include "../../hooks/idisassemblercommand.h"
-#include "../../renderer/painterrenderer.h"
+#include "../../renderer/painterrendererasync.h"
 #include "../disassemblerpopup/disassemblerpopup.h"
 
 class DisassemblerTextView : public CursorScrollArea, public IDisassemblerCommand
@@ -40,6 +40,7 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         void copy() const override;
 
     private slots:
+        void onRenderCompleted(const QImage& img);
         void moveToSelection();
 
     protected:
@@ -57,8 +58,8 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
     private:
         QRect lineRect(size_t line) const;
         QPointF viewportPoint(const QPointF& pt) const;
+        void requestRender();
         void paintLine(size_t line);
-        void paintLines(size_t first, size_t last);
         void onDocumentChanged(const RDEventArgs* e);
         bool followUnderCursor();
         bool isLineVisible(size_t line) const;
@@ -74,11 +75,12 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         void addressChanged(address_t address);
 
     private:
-        std::unique_ptr<PainterRenderer> m_renderer;
+        PainterRendererAsync* m_renderer{nullptr};
         RDDisassembler* m_disassembler{nullptr};
         RDDocument* m_document{nullptr};
 
     private:
         DisassemblerPopup* m_disassemblerpopup{nullptr};
         QMenu* m_contextmenu{nullptr};
+        QPixmap m_pixmap;
 };

@@ -2,7 +2,6 @@
 #include "../themeprovider.h"
 #include <algorithm>
 #include <iostream>
-#include <cassert>
 #include <tuple>
 #include <QColor>
 
@@ -17,7 +16,7 @@ ListingItemModel::ListingItemModel(type_t itemtype, QObject *parent) : Disassemb
             case DocumentAction_ItemInserted: thethis->insertItem(de->item); break;
             case DocumentAction_ItemRemoved:  thethis->onItemRemoved(de);    break;
             case DocumentAction_ItemChanged:  thethis->onItemChanged(de);    break;
-            default: assert(false);
+            default: break;
         }
 
     }, this);

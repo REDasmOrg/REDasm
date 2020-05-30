@@ -17,6 +17,7 @@
 #include "../models/segmentsmodel.h"
 #include "../redasmsettings.h"
 #include "../redasmfonts.h"
+#include <QMessageBox>
 #include <QApplication>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -88,14 +89,14 @@ void DisassemblerHooks::exit() { qApp->exit(); }
 TableTab* DisassemblerHooks::showSegments(ICommandTab* commandtab, Qt::DockWidgetArea area)
 {
     TableTab* tabletab = this->createTable(commandtab, new SegmentsModel(), "Segments");
-    tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    tabletab->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-    tabletab->setSectionResizeMode(3, QHeaderView::ResizeToContents);
-    tabletab->setSectionResizeMode(4, QHeaderView::ResizeToContents);
-    tabletab->setSectionResizeMode(5, QHeaderView::ResizeToContents);
-    tabletab->setSectionResizeMode(6, QHeaderView::Stretch);
-    tabletab->setSectionResizeMode(7, QHeaderView::Stretch);
+    //tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(4, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(5, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(6, QHeaderView::Stretch);
+    //tabletab->setSectionResizeMode(7, QHeaderView::Stretch);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
@@ -105,8 +106,8 @@ TableTab* DisassemblerHooks::showSegments(ICommandTab* commandtab, Qt::DockWidge
 TableTab* DisassemblerHooks::showFunctions(ICommandTab* commandtab, Qt::DockWidgetArea area)
 {
     TableTab* tabletab = this->createTable(commandtab, new ListingItemModel(DocumentItemType_Function), "Functions");
-    tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
+    //tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
     tabletab->setColumnHidden(2);
     tabletab->setColumnHidden(3);
     tabletab->moveSection(2, 1);
@@ -123,9 +124,9 @@ TableTab* DisassemblerHooks::showExports(ICommandTab* commandtab, Qt::DockWidget
     model->setSymbolFlags(SymbolFlags_Export);
 
     TableTab* tabletab = this->createTable(commandtab, model, "Exports");
-    tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
-    tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
+    //tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
@@ -138,9 +139,9 @@ TableTab* DisassemblerHooks::showImports(ICommandTab* commandtab, Qt::DockWidget
     model->setSymbolType(SymbolType_Import);
 
     TableTab* tabletab = this->createTable(commandtab, model, "Imports");
-    tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
-    tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
+    //tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
@@ -153,9 +154,9 @@ TableTab* DisassemblerHooks::showStrings(ICommandTab* commandtab, Qt::DockWidget
     model->setSymbolType(SymbolType_String);
 
     TableTab* tabletab = this->createTable(commandtab, model, "Strings");
-    tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
-    tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    //tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
+    //tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
@@ -219,7 +220,9 @@ QWidget* DisassemblerHooks::currentTab() const { return m_disassemblertabs->curr
 void DisassemblerHooks::undock(QDockWidget* dw)
 {
     m_mainwindow->removeDockWidget(dw);
-    dw->deleteLater();
+
+    if(auto* d = dynamic_cast<IDisposable*>(dw)) d->dispose();
+    else dw->deleteLater();
 }
 
 void DisassemblerHooks::statusAddress(const IDisassemblerCommand* command) const
@@ -381,8 +384,20 @@ void DisassemblerHooks::onFilterClicked()
 
 void DisassemblerHooks::listenEvents(const RDEventArgs* e, void*)
 {
-    if(e->eventid == Event_BusyChanged)
-        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RD_IsBusy()));
+    switch(e->eventid)
+    {
+        case Event_BusyChanged:
+            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RD_IsBusy()));
+            break;
+
+        case Event_Error:
+            const auto* err = reinterpret_cast<const RDErrorEventArgs*>(e);
+            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "showMessage", Qt::QueuedConnection,
+                                      Q_ARG(QString, "Error"),
+                                      Q_ARG(QString, err->message),
+                                      Q_ARG(size_t, QMessageBox::Critical));
+            break;
+    }
 }
 
 TableTab* DisassemblerHooks::createTable(ICommandTab* commandtab, ListingItemModel* model, const QString& title)
@@ -405,18 +420,13 @@ void DisassemblerHooks::loadDisassemblerView(RDLoaderPlugin* loader, RDAssembler
     m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow);
 
     m_worker = std::async([&, disassembler, buildreq]() {
-        try {
-            RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
+        RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
 
-            if(RDLoader_GetFlags(ldr) & LoaderFlags_CustomAddressing) RDLoader_Build(ldr, &buildreq);
-            else RDLoader_Load(ldr);
+        if(RDLoader_GetFlags(ldr) & LoaderFlags_CustomAddressing) RDLoader_Build(ldr, &buildreq);
+        else RDLoader_Load(ldr);
 
-            RD_Disassemble(disassembler);
-            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
-        }
-        catch(const std::exception& e) {
-            rd_log("EXCEPTION: " + std::string(e.what()));
-        }
+        RD_Disassemble(disassembler);
+        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
     });
 }
 
@@ -712,6 +722,15 @@ void DisassemblerHooks::enableViewCommands(bool enable)
 
     act = m_mainwindow->findChild<QAction*>(HOOK_ACTION_CLOSE);
     act->setEnabled(enable);
+}
+
+void DisassemblerHooks::showMessage(const QString& title, const QString& msg, size_t icon)
+{
+    QMessageBox msgbox(m_mainwindow);
+    msgbox.setWindowTitle(title);
+    msgbox.setText(msg);
+    msgbox.setIcon(static_cast<QMessageBox::Icon>(icon));
+    msgbox.exec();
 }
 
 void DisassemblerHooks::updateViewWidgets(bool busy)

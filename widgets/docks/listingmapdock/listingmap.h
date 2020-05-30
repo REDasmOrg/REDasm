@@ -1,8 +1,10 @@
 #pragma once
 
 #include <QWidget>
-#include "../../../hooks/idisassemblercommand.h"
+#include <QPixmap>
 #include <rdapi/rdapi.h>
+#include "../../../hooks/idisassemblercommand.h"
+#include "listingmaprenderer.h"
 
 class ListingMap : public QWidget
 {
@@ -12,18 +14,11 @@ class ListingMap : public QWidget
         explicit ListingMap(QWidget *parent = 0);
         virtual ~ListingMap();
         void linkTo(IDisassemblerCommand* command);
+        void dispose();
         QSize sizeHint() const override;
 
-    private:
-        int calculateSize(u64 sz) const;
-        int calculatePosition(offset_t offset) const;
-        int itemSize() const;
-        QRect buildRect(int offset, int itemsize) const;
-        bool checkOrientation();
-        void drawLabels(QPainter *painter);
-        void renderSegments(QPainter *painter);
-        void renderFunctions(QPainter *painter);
-        void renderSeek(QPainter *painter);
+    private slots:
+        void onRenderCompleted(const QImage& image);
 
     protected:
         void paintEvent(QPaintEvent*) override;
@@ -31,7 +26,7 @@ class ListingMap : public QWidget
 
     private:
         IDisassemblerCommand* m_command{nullptr};
+        ListingMapRenderer* m_renderer{nullptr};
         RDDocument* m_document{nullptr};
-        s32 m_orientation{Qt::Vertical};
-        size_t m_totalsize{0};
+        QPixmap m_pixmap;
 };

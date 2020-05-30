@@ -20,7 +20,6 @@ class ThemeProvider
         static QStringList themes();
         static QString uiTheme(const QString& name);
         static QString theme(const QString& name);
-        static bool contains(const QString& name);
         static bool isDarkTheme();
         static QColor themeValue(const QString& name);
         static QIcon icon(const QString& name);

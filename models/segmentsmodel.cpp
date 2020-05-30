@@ -24,24 +24,25 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
             case 3: return QString::fromUtf8(RD_ToHexBits(segment.offset, RDDisassembler_Bits(m_disassembler), false));
             case 4: return QString::fromUtf8(RD_ToHexBits(segment.endoffset, RDDisassembler_Bits(m_disassembler), false));
             case 5: return QString::fromUtf8(RD_ToHexBits(RDSegment_RawSize(&segment), RDDisassembler_Bits(m_disassembler), false));
-            case 6: return QString::fromUtf8(segment.name);
-            case 7: return SegmentsModel::segmentFlags(segment);
-            //case 8: return (segment->coveragebytes == REDasm::npos) ? "N/A" : (QString::number((static_cast<double>(segment->coveragebytes) /
-                                                                                                         //static_cast<double>(segment->rawSize())) * 100, 'g', 3) + "%");
+            case 6: return SegmentsModel::segmentFlags(segment);
+
+            case 7:
+                if(segment.coveragebytes == RD_NPOS) return "N/A";
+                return QString::number((static_cast<double>(segment.coveragebytes) / static_cast<double>(RDSegment_RawSize(&segment))) * 100, 'g', 3) + "%";
+
+            case 8: return QString::fromUtf8(segment.name);
+
             default: break;
         }
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() == 6) return THEME_VALUE("segment_name_fg");
-        else if(index.column() == 7) return THEME_VALUE("segment_flags_fg");
-        return THEME_VALUE("address_list_fg");
+        if(index.column() == 6) return THEME_VALUE("segment_flags_fg");
+        if(index.column() == 8) return THEME_VALUE("segment_name_fg");
+        if(index.column() != 7) return THEME_VALUE("address_list_fg");
     }
     else if(role == Qt::TextAlignmentRole)
-    {
-        if(index.column() > 5) return Qt::AlignCenter;
-        else return Qt::AlignRight;
-    }
+        return Qt::AlignCenter;
 
     return QVariant();
 }
@@ -59,9 +60,9 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
         case 3: return "Offset";
         case 4: return "End Offset";
         case 5: return "Raw Size";
-        case 6: return "Name";
-        case 7: return "Type";
-        case 8: return "Coverage";
+        case 6: return "Flags";
+        case 7: return "Coverage";
+        case 8: return "Name";
         default: break;
     }
 

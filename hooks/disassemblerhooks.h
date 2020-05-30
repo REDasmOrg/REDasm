@@ -89,7 +89,7 @@ class DisassemblerHooks: public QObject
         void onFilterClicked();
 
     private:
-        static void listenEvents(const RDEventArgs* e, void*);
+        static void listenEvents(const RDEventArgs* e);
         Q_INVOKABLE void updateViewWidgets(bool busy);
         Q_INVOKABLE void enableViewCommands(bool enable);
         Q_INVOKABLE void showMessage(const QString& title, const QString& msg, size_t icon);

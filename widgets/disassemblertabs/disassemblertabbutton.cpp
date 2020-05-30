@@ -55,13 +55,13 @@ QPushButton* DisassemblerTabButton::createButton(const QIcon& icon)
 
 void DisassemblerTabButton::customizeBehavior()
 {
-    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
-        auto* thethis = reinterpret_cast<DisassemblerTabButton*>(userdata);
+    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
+        auto* thethis = reinterpret_cast<DisassemblerTabButton*>(e->owner);
 
         if((e->eventid == Event_CursorStackChanged) && dynamic_cast<ICommandTab*>(thethis->m_widget))
             thethis->onCursorStackChanged(e);
 
-    }, this);
+    }, nullptr);
 }
 
 QMenu* DisassemblerTabButton::createMenu()

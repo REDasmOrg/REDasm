@@ -12,6 +12,7 @@ TableTab::TableTab(ICommandTab* commandtab, ListingItemModel* model, QWidget *pa
     model->setDisassembler(commandtab->command()->disassembler());
 
     ui->setupUi(this);
+    ui->tvTable->header()->setStretchLastSection(true);
     ui->tvTable->setUniformRowHeights(true);
     ui->leFilter->setVisible(false);
 
@@ -34,13 +35,21 @@ TableTab::TableTab(ICommandTab* commandtab, ListingItemModel* model, QWidget *pa
     connect(ui->leFilter, &QLineEdit::textChanged, m_filtermodel, &QSortFilterProxyModel::setFilterFixedString);
     connect(ui->tvTable, &QTreeView::doubleClicked, this, &TableTab::onTableDoubleClick);
     connect(ui->pbClear, &QPushButton::clicked, ui->leFilter, &QLineEdit::clear);
+
+    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
+        auto* thethis = reinterpret_cast<TableTab*>(e->owner);
+        if((e->eventid != Event_BusyChanged) || RD_IsBusy()) return;
+        emit thethis->resizeColumns();
+    }, nullptr);
 }
 
-TableTab::~TableTab() { delete ui; }
+TableTab::~TableTab() { RDEvent_Unsubscribe(this); delete ui; }
 ListingItemModel* TableTab::model() const { return m_listingitemmodel; }
 void TableTab::setSectionResizeMode(int idx, QHeaderView::ResizeMode mode) { ui->tvTable->header()->setSectionResizeMode(idx, mode); }
 void TableTab::setColumnHidden(int idx) { ui->tvTable->setColumnHidden(idx, true); }
+void TableTab::resizeColumn(int idx) { ui->tvTable->resizeColumnToContents(idx); }
 void TableTab::moveSection(int from, int to) { ui->tvTable->header()->moveSection(from, to); }
+void TableTab::resizeAllColumns() { for(int i = 0; i < ui->tvTable->model()->columnCount(); i++) this->resizeColumn(i); }
 
 void TableTab::onTableDoubleClick(const QModelIndex& index)
 {

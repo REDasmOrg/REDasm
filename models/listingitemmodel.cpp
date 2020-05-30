@@ -7,9 +7,9 @@
 
 ListingItemModel::ListingItemModel(type_t itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype)
 {
-    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
+    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
         if(e->eventid != Event_DocumentChanged) return;
-        ListingItemModel* thethis = reinterpret_cast<ListingItemModel*>(userdata);
+        ListingItemModel* thethis = reinterpret_cast<ListingItemModel*>(e->owner);
         const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
 
         switch(de->action) {
@@ -19,7 +19,7 @@ ListingItemModel::ListingItemModel(type_t itemtype, QObject *parent) : Disassemb
             default: break;
         }
 
-    }, this);
+    }, nullptr);
 }
 
 ListingItemModel::~ListingItemModel() { RDEvent_Unsubscribe(this); }
@@ -54,10 +54,14 @@ QVariant ListingItemModel::headerData(int section, Qt::Orientation orientation, 
 
     if(role == Qt::DisplayRole)
     {
-        if(section == 0)      return "Address";
-        else if(section == 1) return "Symbol";
-        else if(section == 2) return "R";
-        else if(section == 3) return "Segment";
+        switch(section)
+        {
+            case 0: return "Address";
+            case 1: return "Segment";
+            case 2: return "R";
+            case 3: return "Symbol";
+            default: break;
+        }
     }
 
     return DisassemblerModel::headerData(section, orientation, role);
@@ -78,6 +82,14 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
         if(index.column() == 1)
         {
+            RDSegment segment;
+            return RDDocument_GetSegmentAddress(m_document, symbol.address, &segment) ? segment.name : "???";
+        }
+
+        if(index.column() == 2) return QString::number(RDDisassembler_GetReferencesCount(m_disassembler, symbol.address));
+
+        if(index.column() == 3)
+        {
             if(IS_TYPE(&symbol, SymbolType_String))
             {
                 RDBlock block;
@@ -97,14 +109,10 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
             return RD_Demangle(RDDocument_GetSymbolName(m_document, symbol.address));
         }
-
-        if(index.column() == 2) return QString::number(RDDisassembler_GetReferencesCount(m_disassembler, symbol.address));
-
-        if(index.column() == 3)
-        {
-            RDSegment segment;
-            return RDDocument_GetSegmentAddress(m_document, symbol.address, &segment) ? segment.name : "???";
-        }
+    }
+    else if(role == Qt::TextAlignmentRole)
+    {
+        return (index.column() < 3) ? Qt::AlignCenter : Qt::AlignLeft;
     }
     else if(role == Qt::BackgroundRole)
     {
@@ -113,7 +121,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     else if(role == Qt::ForegroundRole)
     {
         if(index.column() == 0) return THEME_VALUE("address_list_fg");
-        if(IS_TYPE(&symbol, SymbolType_String) && (index.column() == 1)) return THEME_VALUE("string_fg");
+        if(IS_TYPE(&symbol, SymbolType_String) && (index.column() == 3)) return THEME_VALUE("string_fg");
     }
 
     return QVariant();

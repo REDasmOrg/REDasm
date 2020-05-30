@@ -89,14 +89,7 @@ void DisassemblerHooks::exit() { qApp->exit(); }
 TableTab* DisassemblerHooks::showSegments(ICommandTab* commandtab, Qt::DockWidgetArea area)
 {
     TableTab* tabletab = this->createTable(commandtab, new SegmentsModel(), "Segments");
-    //tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    //tabletab->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    //tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-    //tabletab->setSectionResizeMode(3, QHeaderView::ResizeToContents);
-    //tabletab->setSectionResizeMode(4, QHeaderView::ResizeToContents);
-    //tabletab->setSectionResizeMode(5, QHeaderView::ResizeToContents);
-    //tabletab->setSectionResizeMode(6, QHeaderView::Stretch);
-    //tabletab->setSectionResizeMode(7, QHeaderView::Stretch);
+    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
@@ -106,11 +99,9 @@ TableTab* DisassemblerHooks::showSegments(ICommandTab* commandtab, Qt::DockWidge
 TableTab* DisassemblerHooks::showFunctions(ICommandTab* commandtab, Qt::DockWidgetArea area)
 {
     TableTab* tabletab = this->createTable(commandtab, new ListingItemModel(DocumentItemType_Function), "Functions");
-    //tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    //tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
+    tabletab->setColumnHidden(1);
     tabletab->setColumnHidden(2);
-    tabletab->setColumnHidden(3);
-    tabletab->moveSection(2, 1);
+    connect(tabletab, &TableTab::resizeColumn, this, [tabletab]() { tabletab->resizeColumn(0); });
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
@@ -124,9 +115,7 @@ TableTab* DisassemblerHooks::showExports(ICommandTab* commandtab, Qt::DockWidget
     model->setSymbolFlags(SymbolFlags_Export);
 
     TableTab* tabletab = this->createTable(commandtab, model, "Exports");
-    //tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    //tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
-    //tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
@@ -139,9 +128,7 @@ TableTab* DisassemblerHooks::showImports(ICommandTab* commandtab, Qt::DockWidget
     model->setSymbolType(SymbolType_Import);
 
     TableTab* tabletab = this->createTable(commandtab, model, "Imports");
-    //tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    //tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
-    //tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
@@ -154,9 +141,7 @@ TableTab* DisassemblerHooks::showStrings(ICommandTab* commandtab, Qt::DockWidget
     model->setSymbolType(SymbolType_String);
 
     TableTab* tabletab = this->createTable(commandtab, model, "Strings");
-    //tabletab->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    //tabletab->setSectionResizeMode(1, QHeaderView::Stretch);
-    //tabletab->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
@@ -382,7 +367,7 @@ void DisassemblerHooks::onFilterClicked()
     if(tabletab) tabletab->toggleFilter();
 }
 
-void DisassemblerHooks::listenEvents(const RDEventArgs* e, void*)
+void DisassemblerHooks::listenEvents(const RDEventArgs* e)
 {
     switch(e->eventid)
     {

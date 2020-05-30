@@ -20,11 +20,11 @@ DisassemblerBlockItem::DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, ID
     QFontMetricsF fm(m_textdocument.defaultFont());
     m_charheight = fm.height();
 
-    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
-        DisassemblerBlockItem* thethis = reinterpret_cast<DisassemblerBlockItem*>(userdata);
+    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
+        DisassemblerBlockItem* thethis = reinterpret_cast<DisassemblerBlockItem*>(e->owner);
         if((e->eventid != Event_CursorPositionChanged) || (e->sender != thethis->m_command->cursor())) return;
         thethis->invalidate();
-    }, this);
+    }, nullptr);
 }
 
 DisassemblerBlockItem::~DisassemblerBlockItem() { RDEvent_Unsubscribe(this); }

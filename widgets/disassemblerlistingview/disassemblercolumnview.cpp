@@ -10,13 +10,13 @@ DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
     this->setBackgroundRole(QPalette::Base);
     this->setAutoFillBackground(true);
 
-    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
-        auto* thethis = reinterpret_cast<DisassemblerColumnView*>(userdata);
+    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
+        auto* thethis = reinterpret_cast<DisassemblerColumnView*>(e->owner);
         if(!thethis->m_disassembler || RD_IsBusy()) return;
 
         if(e->eventid == Event_BusyChanged) QMetaObject::invokeMethod(thethis, "renderArrows", Qt::QueuedConnection);
         else if(e->eventid == Event_CursorPositionChanged) QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
-    }, this);
+    }, nullptr);
 }
 
 DisassemblerColumnView::~DisassemblerColumnView() { RDEvent_Unsubscribe(this); }

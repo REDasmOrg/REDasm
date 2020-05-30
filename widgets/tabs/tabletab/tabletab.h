@@ -18,11 +18,15 @@ class TableTab : public QWidget, public ITableTab
 
     public:
         explicit TableTab(ICommandTab* commandtab, ListingItemModel* model, QWidget *parent = nullptr);
-        ~TableTab();
+        virtual ~TableTab();
         ListingItemModel* model() const;
         void setSectionResizeMode(int idx, QHeaderView::ResizeMode mode);
         void setColumnHidden(int idx);
+        void resizeColumn(int idx);
         void moveSection(int from, int to);
+
+    public slots:
+        void resizeAllColumns();
 
     private slots:
         void onTableDoubleClick(const QModelIndex& index);
@@ -32,6 +36,9 @@ class TableTab : public QWidget, public ITableTab
 
     public: // ITableTab implementation
         void toggleFilter() override;
+
+    signals:
+        void resizeColumns();
 
     private:
         Ui::TableTab *ui;

@@ -10,8 +10,8 @@
 
 ListingMap::ListingMap(QWidget *parent) : QWidget(parent)
 {
-    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
-        auto* thethis = reinterpret_cast<ListingMap*>(userdata);
+    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
+        auto* thethis = reinterpret_cast<ListingMap*>(e->owner);
         if(RD_IsBusy() || !thethis->m_document) return;
 
         switch(e->eventid) {
@@ -19,7 +19,7 @@ ListingMap::ListingMap(QWidget *parent) : QWidget(parent)
             case Event_BusyChanged: thethis->m_renderer->renderMap(); break;
             default: break;
         }
-    }, this);
+    }, nullptr);
 }
 
 ListingMap::~ListingMap() { this->dispose(); }

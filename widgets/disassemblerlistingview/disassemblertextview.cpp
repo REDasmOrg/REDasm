@@ -40,8 +40,8 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): CursorScrollArea(pa
     this->horizontalScrollBar()->setValue(0);
     this->horizontalScrollBar()->setMaximum(maxwidth);
 
-    RDEvent_Subscribe(this, [](const RDEventArgs* e, void* userdata) {
-        DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(userdata);
+    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
+        DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(e->owner);
         if(!thethis->m_renderer) return;
 
         if(e->eventid == Event_BusyChanged) {
@@ -61,7 +61,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): CursorScrollArea(pa
             thethis->moveToSelection();
         }
         else if(e->eventid == Event_DocumentChanged) thethis->onDocumentChanged(e);
-    }, this);
+    }, nullptr);
 }
 
 DisassemblerTextView::~DisassemblerTextView() { RDEvent_Unsubscribe(this); }

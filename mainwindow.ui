@@ -90,8 +90,8 @@
     <addaction name="action_Exports"/>
     <addaction name="action_Imports"/>
     <addaction name="action_Strings"/>
-    <addaction name="action_Reset_Layout"/>
     <addaction name="separator"/>
+    <addaction name="action_Reset_Layout"/>
    </widget>
    <widget class="QMenu" name="menu_REDasm">
     <property name="title">

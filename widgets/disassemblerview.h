@@ -3,10 +3,10 @@
 #include <QObject>
 #include <rdapi/rdapi.h>
 #include "../hooks/idisposable.h"
+#include "../hooks/icommandtab.h"
 
 struct RDDisassembler;
 class ListingMapDock;
-class ListingTab;
 
 class DisassemblerView : public QObject, public IDisposable
 {
@@ -14,13 +14,14 @@ class DisassemblerView : public QObject, public IDisposable
 
     public:
         explicit DisassemblerView(RDDisassembler* disassembler, QObject *parent = nullptr);
-        virtual ~DisassemblerView();
         RDDisassembler* disassembler() const;
         void dispose() override;
+
+    public:
+        ICommandTab* showListing();
 
     private:
         RDDisassembler* m_disassembler;
         ListingMapDock* m_listingmapdock;
-        ListingTab* m_listingtab;
 };
 

@@ -9,7 +9,6 @@
 #include "../widgets/tabs/welcometab/welcometab.h"
 #include "../widgets/docks/outputdock/outputdock.h"
 #include "../widgets/tabs/tabletab/tabletab.h"
-#include "../widgets/disassemblertabs/disassemblertabs.h"
 #include "../widgets/disassemblerview.h"
 #include "../models/dev/blocklistmodel.h"
 #include "../models/listingitemmodel.h"
@@ -86,9 +85,15 @@ void DisassemblerHooks::about()
 
 void DisassemblerHooks::exit() { qApp->exit(); }
 
-TableTab* DisassemblerHooks::showSegments(ICommandTab* commandtab, Qt::DockWidgetArea area)
+ITableTab* DisassemblerHooks::showSegments(Qt::DockWidgetArea area)
 {
-    TableTab* tabletab = this->createTable(commandtab, new SegmentsModel(), "Segments");
+    if(auto* t = this->findModelInTabs<SegmentsModel>())
+    {
+        this->focusOn(dynamic_cast<QWidget*>(t));
+        return t;
+    }
+
+    TableTab* tabletab = this->createTable(new SegmentsModel(), "Segments");
     connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
@@ -96,9 +101,18 @@ TableTab* DisassemblerHooks::showSegments(ICommandTab* commandtab, Qt::DockWidge
     return tabletab;
 }
 
-TableTab* DisassemblerHooks::showFunctions(ICommandTab* commandtab, Qt::DockWidgetArea area)
+ITableTab* DisassemblerHooks::showFunctions(Qt::DockWidgetArea area)
 {
-    TableTab* tabletab = this->createTable(commandtab, new ListingItemModel(DocumentItemType_Function), "Functions");
+    if(auto* t = this->findModelInTabs<ListingItemModel>())
+    {
+        if(t->model()->itemType() == DocumentItemType_Function)
+        {
+            this->focusOn(dynamic_cast<QWidget*>(t));
+            return t;
+        }
+    }
+
+    TableTab* tabletab = this->createTable(new ListingItemModel(DocumentItemType_Function), "Functions");
     tabletab->setColumnHidden(1);
     tabletab->setColumnHidden(2);
     connect(tabletab, &TableTab::resizeColumns, this, [tabletab]() { tabletab->resizeColumn(0); });
@@ -108,13 +122,19 @@ TableTab* DisassemblerHooks::showFunctions(ICommandTab* commandtab, Qt::DockWidg
     return tabletab;
 }
 
-TableTab* DisassemblerHooks::showExports(ICommandTab* commandtab, Qt::DockWidgetArea area)
+ITableTab* DisassemblerHooks::showExports(Qt::DockWidgetArea area)
 {
+    if(auto* t = this->findSymbolModelInTabs(SymbolType_Function, SymbolFlags_Export))
+    {
+        this->focusOn(dynamic_cast<QWidget*>(t));
+        return t;
+    }
+
     auto* model = new SymbolTableModel(DocumentItemType_All);
     model->setSymbolType(SymbolType_Function);
     model->setSymbolFlags(SymbolFlags_Export);
 
-    TableTab* tabletab = this->createTable(commandtab, model, "Exports");
+    TableTab* tabletab = this->createTable(model, "Exports");
     connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
@@ -122,12 +142,18 @@ TableTab* DisassemblerHooks::showExports(ICommandTab* commandtab, Qt::DockWidget
     return tabletab;
 }
 
-TableTab* DisassemblerHooks::showImports(ICommandTab* commandtab, Qt::DockWidgetArea area)
+ITableTab* DisassemblerHooks::showImports(Qt::DockWidgetArea area)
 {
+    if(auto* t = this->findSymbolModelInTabs(SymbolType_Import, SymbolFlags_None))
+    {
+        this->focusOn(dynamic_cast<QWidget*>(t));
+        return t;
+    }
+
     auto* model = new SymbolTableModel(DocumentItemType_Symbol);
     model->setSymbolType(SymbolType_Import);
 
-    TableTab* tabletab = this->createTable(commandtab, model, "Imports");
+    TableTab* tabletab = this->createTable(model, "Imports");
     connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
@@ -135,12 +161,18 @@ TableTab* DisassemblerHooks::showImports(ICommandTab* commandtab, Qt::DockWidget
     return tabletab;
 }
 
-TableTab* DisassemblerHooks::showStrings(ICommandTab* commandtab, Qt::DockWidgetArea area)
+ITableTab* DisassemblerHooks::showStrings(Qt::DockWidgetArea area)
 {
+    if(auto* t = this->findSymbolModelInTabs(SymbolType_String, SymbolFlags_None))
+    {
+        this->focusOn(dynamic_cast<QWidget*>(t));
+        return t;
+    }
+
     auto* model = new SymbolTableModel(DocumentItemType_Symbol);
     model->setSymbolType(SymbolType_String);
 
-    TableTab* tabletab = this->createTable(commandtab, model, "Strings");
+    TableTab* tabletab = this->createTable(model, "Strings");
     connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
@@ -201,6 +233,13 @@ void DisassemblerHooks::showDevBlocks()
     td->show();
 }
 
+ICommandTab* DisassemblerHooks::activeCommandTab() const
+{
+    if(!m_activecommandtab) m_activecommandtab = m_disassemblerview->showListing();
+    return m_activecommandtab;
+}
+
+IDisassemblerCommand* DisassemblerHooks::activeCommand() const { return this->activeCommandTab()->command(); }
 QWidget* DisassemblerHooks::currentTab() const { return m_disassemblertabs->currentWidget(); }
 
 void DisassemblerHooks::undock(QDockWidget* dw)
@@ -209,6 +248,50 @@ void DisassemblerHooks::undock(QDockWidget* dw)
 
     if(auto* d = dynamic_cast<IDisposable*>(dw)) d->dispose();
     else dw->deleteLater();
+}
+
+void DisassemblerHooks::onToolBarActionTriggered(QAction* action)
+{
+    if(!m_activecommandtab) return;
+
+    int idx = m_toolbar->actions().indexOf(action);
+
+    switch(idx)
+    {
+        case 2: m_activecommandtab->command()->goBack(); break;
+        case 3: m_activecommandtab->command()->goForward(); break;
+        case 4: this->showGoto(m_activecommandtab->command()); break;
+
+        case 5: {
+            auto* tabletab = dynamic_cast<ITableTab*>(m_disassemblertabs->currentWidget());
+            if(tabletab) tabletab->toggleFilter();
+            break;
+        }
+
+        default: break;
+    }
+}
+
+void DisassemblerHooks::onWindowActionTriggered(QAction* action)
+{
+    int idx = m_mnuwindow->actions().indexOf(action);
+
+    switch(idx)
+    {
+        case 0: {
+            ICommandTab* tab = m_activecommandtab;
+            if(!tab) tab = m_disassemblerview->showListing();
+            this->focusOn(dynamic_cast<QWidget*>(tab));
+            break;
+        }
+
+        case 1: this->showSegments();  break;
+        case 2: this->showFunctions(); break;
+        case 3: this->showExports();   break;
+        case 4: this->showImports();   break;
+        case 5: this->showStrings();   break;
+        default: break;
+    }
 }
 
 void DisassemblerHooks::statusAddress(const IDisassemblerCommand* command) const
@@ -344,28 +427,20 @@ void DisassemblerHooks::adjustActions()
     actions[DisassemblerHooks::Action_HexDumpFunction]->setVisible(hasitemsegment && !HAS_FLAG(&itemsegment, SegmentFlags_Bss) && HAS_FLAG(&itemsegment, SegmentFlags_Code));
 }
 
-void DisassemblerHooks::onBackClicked()
+ITableTab* DisassemblerHooks::findSymbolModelInTabs(type_t type, flag_t flags) const
 {
-    auto* commandtab = dynamic_cast<ICommandTab*>(m_disassemblertabs->currentWidget());
-    if(commandtab) commandtab->command()->goBack();
-}
+    for(int i = 0; i < m_disassemblertabs->count(); i++)
+    {
+        auto* tabletab = dynamic_cast<ITableTab*>(m_disassemblertabs->widget(i));
+        if(!tabletab) continue;
 
-void DisassemblerHooks::onForwardClicked()
-{
-    auto* commandtab = dynamic_cast<ICommandTab*>(m_disassemblertabs->currentWidget());
-    if(commandtab) commandtab->command()->goForward();
-}
+        auto* symboltablemodel = dynamic_cast<SymbolTableModel*>(tabletab->model());
+        if(!symboltablemodel || (symboltablemodel->symbolType() != type)) continue;
+        if(symboltablemodel->symbolFlags() != flags) continue;
+        return tabletab;
+    }
 
-void DisassemblerHooks::onGotoClicked()
-{
-    auto* commandtab = dynamic_cast<ICommandTab*>(m_disassemblertabs->currentWidget());
-    if(commandtab) this->showGoto(commandtab->command());
-}
-
-void DisassemblerHooks::onFilterClicked()
-{
-    auto* tabletab = dynamic_cast<ITableTab*>(m_disassemblertabs->currentWidget());
-    if(tabletab) tabletab->toggleFilter();
+    return nullptr;
 }
 
 void DisassemblerHooks::listenEvents(const RDEventArgs* e)
@@ -376,19 +451,32 @@ void DisassemblerHooks::listenEvents(const RDEventArgs* e)
             QMetaObject::invokeMethod(DisassemblerHooks::instance(), "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RD_IsBusy()));
             break;
 
-        case Event_Error:
-            const auto* err = reinterpret_cast<const RDErrorEventArgs*>(e);
+        case Event_CursorPositionChanged: {
+            auto* hooks = DisassemblerHooks::instance();
+            const auto* ce  = reinterpret_cast<const RDCursorEventArgs*>(e);
+
+            if(hooks->m_activecommandtab) {
+                if(hooks->m_activecommandtab->command()->cursor() != ce->sender) return;
+                hooks->statusAddress(hooks->m_activecommandtab->command());
+            }
+            else rd_status(std::string());
+            break;
+        }
+
+        case Event_Error: {
+            const auto* ee = reinterpret_cast<const RDErrorEventArgs*>(e);
             QMetaObject::invokeMethod(DisassemblerHooks::instance(), "showMessage", Qt::QueuedConnection,
                                       Q_ARG(QString, "Error"),
-                                      Q_ARG(QString, err->message),
+                                      Q_ARG(QString, ee->message),
                                       Q_ARG(size_t, QMessageBox::Critical));
             break;
+        }
     }
 }
 
-TableTab* DisassemblerHooks::createTable(ICommandTab* commandtab, ListingItemModel* model, const QString& title)
+TableTab* DisassemblerHooks::createTable(ListingItemModel* model, const QString& title)
 {
-    TableTab* tabletab = new TableTab(commandtab, model);
+    TableTab* tabletab = new TableTab(model);
     model->setParent(tabletab);
     tabletab->setWindowTitle(title);
     return tabletab;
@@ -429,11 +517,8 @@ void DisassemblerHooks::hook()
     auto actions = m_mnudev->actions();
     for(int i = 0; i < actions.size(); i++) actions[i]->setShortcut(QKeySequence(QString("CTRL+SHIFT+F%1").arg(i + 1)));
 
-    actions = m_toolbar->actions();
-    connect(actions[2], &QAction::triggered, this, &DisassemblerHooks::onBackClicked);
-    connect(actions[3], &QAction::triggered, this, &DisassemblerHooks::onForwardClicked);
-    connect(actions[4], &QAction::triggered, this, &DisassemblerHooks::onGotoClicked);
-    connect(actions[5], &QAction::triggered, this, &DisassemblerHooks::onFilterClicked);
+    connect(m_toolbar, &QToolBar::actionTriggered, this, &DisassemblerHooks::onToolBarActionTriggered);
+    connect(m_mnuwindow, &QMenu::triggered, this, &DisassemblerHooks::onWindowActionTriggered);
 
     this->dock(new OutputDock(m_mainwindow), Qt::BottomDockWidgetArea);
     this->enableCommands(nullptr);
@@ -572,6 +657,7 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
     return contextmenu;
 }
 
+void DisassemblerHooks::setActiveCommandTab(ICommandTab* commandtab) { m_activecommandtab = commandtab; }
 void DisassemblerHooks::focusOn(QWidget* w) { m_disassemblertabs->setCurrentWidget(w); }
 
 void DisassemblerHooks::loadRecents()
@@ -624,7 +710,11 @@ void DisassemblerHooks::load(const QString& filepath)
     else if(buffer) RD_Free(buffer);
 }
 
-void DisassemblerHooks::tab(QWidget* w) { m_disassemblertabs->addTab(w, w->windowTitle()); }
+void DisassemblerHooks::tab(QWidget* w, int index)
+{
+    if(index != -1) m_disassemblertabs->insertTab(index, w, w->windowTitle());
+    else m_disassemblertabs->addTab(w, w->windowTitle());
+}
 
 void DisassemblerHooks::tabify(QDockWidget* first, QDockWidget* second)
 {
@@ -667,6 +757,7 @@ void DisassemblerHooks::close(bool showwelcome)
 
     RD_Status("");
     this->enableViewCommands(false);
+    m_activecommandtab = nullptr;
 
     if(!m_disassemblerview) return;
     m_disassemblerview->dispose();
@@ -741,7 +832,7 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
         m_lblstatusicon->setStyleSheet("color: green;");
     }
 
-    m_toolbar->actions()[4]->setEnabled(false); // Goto
+    m_toolbar->actions()[4]->setEnabled(!busy); // Goto
     m_lblstatusicon->setVisible(true);
     m_pbproblems->setVisible(!busy && RD_HasProblems());
     m_pbproblems->setText(QString::number(RD_ProblemsCount()) + " problem(s)");

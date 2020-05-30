@@ -17,9 +17,8 @@ class TableTab : public QWidget, public ITableTab
     Q_OBJECT
 
     public:
-        explicit TableTab(ICommandTab* commandtab, ListingItemModel* model, QWidget *parent = nullptr);
+        explicit TableTab(ListingItemModel* model, QWidget *parent = nullptr);
         virtual ~TableTab();
-        ListingItemModel* model() const;
         void setSectionResizeMode(int idx, QHeaderView::ResizeMode mode);
         void setColumnHidden(int idx);
         void resizeColumn(int idx);
@@ -36,13 +35,13 @@ class TableTab : public QWidget, public ITableTab
 
     public: // ITableTab implementation
         void toggleFilter() override;
+        ListingItemModel* model() const override;
 
     signals:
         void resizeColumns();
 
     private:
         Ui::TableTab *ui;
-        ICommandTab* m_commandtab;
         ListingItemModel* m_listingitemmodel;
         QSortFilterProxyModel* m_filtermodel;
 };

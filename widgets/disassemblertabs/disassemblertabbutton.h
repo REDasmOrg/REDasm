@@ -20,7 +20,6 @@ class DisassemblerTabButton : public QWidget
     private:
         void onCursorStackChanged(const RDEventArgs* e);
         QPushButton* createButton(const QIcon& icon);
-        QMenu* createMenu();
         void customizeBehavior();
 
     private:

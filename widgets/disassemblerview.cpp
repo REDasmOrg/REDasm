@@ -5,25 +5,23 @@
 
 DisassemblerView::DisassemblerView(RDDisassembler* disassembler, QObject *parent) : QObject(parent), m_disassembler(disassembler)
 {
-    m_listingtab = new ListingTab(disassembler);
-    m_listingmapdock = new ListingMapDock(m_listingtab->command());
+    ICommandTab* commantab = this->showListing();
+    m_listingmapdock = new ListingMapDock(commantab->command());
 
-    DisassemblerHooks::instance()->tab(m_listingtab);
-    DisassemblerHooks::instance()->showFunctions(m_listingtab, Qt::LeftDockWidgetArea);
-    DisassemblerHooks::instance()->showSegments(m_listingtab);
-    DisassemblerHooks::instance()->showExports(m_listingtab);
-    DisassemblerHooks::instance()->showImports(m_listingtab);
-    DisassemblerHooks::instance()->showStrings(m_listingtab);
+    DisassemblerHooks::instance()->showFunctions(Qt::LeftDockWidgetArea);
+    DisassemblerHooks::instance()->showSegments();
+    DisassemblerHooks::instance()->showExports();
+    DisassemblerHooks::instance()->showImports();
+    DisassemblerHooks::instance()->showStrings();
     DisassemblerHooks::instance()->dock(m_listingmapdock, Qt::RightDockWidgetArea);
-
-    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
-        if(e->eventid != Event_CursorPositionChanged) return;
-        DisassemblerView* thethis = reinterpret_cast<DisassemblerView*>(e->owner);
-        if(thethis->m_listingtab != DisassemblerHooks::instance()->currentTab()) return;
-        DisassemblerHooks::instance()->statusAddress(thethis->m_listingtab->command());
-    }, nullptr);
 }
 
-DisassemblerView::~DisassemblerView() { RDEvent_Unsubscribe(this); }
 RDDisassembler* DisassemblerView::disassembler() const { return m_disassembler; }
 void DisassemblerView::dispose() { RD_Free(m_disassembler); this->deleteLater(); }
+
+ICommandTab* DisassemblerView::showListing()
+{
+    auto* listingtab = new ListingTab(m_disassembler);
+    DisassemblerHooks::instance()->tab(listingtab, 0);
+    return listingtab;
+}

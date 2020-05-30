@@ -14,6 +14,7 @@ class ListingItemModel : public DisassemblerModel
         virtual ~ListingItemModel();
         void setDisassembler(RDDisassembler* disassembler) override;
         const RDDocumentItem& item(const QModelIndex& index) const;
+        type_t itemType() const;
 
     public:
         int rowCount(const QModelIndex& = QModelIndex()) const override;

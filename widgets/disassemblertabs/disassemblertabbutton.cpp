@@ -10,19 +10,13 @@
 
 DisassemblerTabButton::DisassemblerTabButton(QWidget* widget, QTabWidget* tabwidget, QWidget *parent) : QWidget(parent), m_tabwidget(tabwidget), m_widget(widget)
 {
-    QMenu* mnutab = this->createMenu();
-
     QLabel* lbltext = new QLabel(this);
-    lbltext->setAlignment(Qt::AlignVCenter);
+    lbltext->setAlignment(Qt::AlignCenter);
     lbltext->setText(widget->windowTitle());
 
-    QPushButton* btnmenu = this->createButton(FA_ICON(0xf0c9));
-    btnmenu->setMenu(mnutab);
-
     QHBoxLayout* hlayout = new QHBoxLayout();
-    hlayout->addWidget(btnmenu);
     hlayout->addWidget(lbltext);
-    hlayout->setContentsMargins(0, 0, 0, 0);
+    hlayout->setContentsMargins(10, 0, 0, 0);
     hlayout->setSpacing(10);
 
     if(dynamic_cast<ICommandTab*>(widget)) hlayout->setStretch(2, 1);
@@ -62,17 +56,6 @@ void DisassemblerTabButton::customizeBehavior()
             thethis->onCursorStackChanged(e);
 
     }, nullptr);
-}
-
-QMenu* DisassemblerTabButton::createMenu()
-{
-    QMenu* m = new QMenu(this);
-
-    m->addAction("Close", this, &DisassemblerTabButton::closeTab);
-    m->addAction("Detach");
-    m->addAction("Duplicate");
-
-    return m;
 }
 
 void DisassemblerTabButton::onCursorStackChanged(const RDEventArgs* e)

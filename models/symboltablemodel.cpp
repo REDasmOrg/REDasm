@@ -3,6 +3,8 @@
 SymbolTableModel::SymbolTableModel(type_t itemtype, QObject *parent): ListingItemModel(itemtype, parent) { }
 void SymbolTableModel::setSymbolType(type_t type) { m_symboltype = type; }
 void SymbolTableModel::setSymbolFlags(flag_t flags) { m_symbolflags = flags; }
+type_t SymbolTableModel::symbolType() const { return m_symboltype; }
+flag_t SymbolTableModel::symbolFlags() const { return m_symbolflags; }
 
 bool SymbolTableModel::isItemAllowed(const RDDocumentItem& item) const
 {

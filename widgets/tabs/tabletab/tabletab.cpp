@@ -7,9 +7,9 @@
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
 
-TableTab::TableTab(ICommandTab* commandtab, ListingItemModel* model, QWidget *parent): QWidget(parent), ui(new Ui::TableTab), m_commandtab(commandtab), m_listingitemmodel(model)
+TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), ui(new Ui::TableTab), m_listingitemmodel(model)
 {
-    model->setDisassembler(commandtab->command()->disassembler());
+    model->setDisassembler(DisassemblerHooks::instance()->activeCommand()->disassembler());
 
     ui->setupUi(this);
     ui->tvTable->header()->setStretchLastSection(true);
@@ -56,8 +56,8 @@ void TableTab::onTableDoubleClick(const QModelIndex& index)
     QModelIndex srcindex = m_filtermodel->mapToSource(index);
     const RDDocumentItem& item = m_listingitemmodel->item(srcindex);
 
-    m_commandtab->command()->gotoItem(item);
-    DisassemblerHooks::instance()->focusOn(m_commandtab->widget());
+    DisassemblerHooks::instance()->activeCommand()->gotoItem(item);
+    DisassemblerHooks::instance()->focusOn(DisassemblerHooks::instance()->activeCommandTab()->widget());
 }
 
 bool TableTab::event(QEvent* e)

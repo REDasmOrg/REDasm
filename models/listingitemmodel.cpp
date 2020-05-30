@@ -45,6 +45,7 @@ void ListingItemModel::setDisassembler(RDDisassembler* disassembler)
 }
 
 const RDDocumentItem& ListingItemModel::item(const QModelIndex &index) const { return m_items[index.row()]; }
+type_t ListingItemModel::itemType() const { return m_itemtype; }
 int ListingItemModel::rowCount(const QModelIndex &) const { return m_document ? m_items.size() : 0; }
 int ListingItemModel::columnCount(const QModelIndex &) const { return 4; }
 

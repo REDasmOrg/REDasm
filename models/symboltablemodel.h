@@ -11,6 +11,8 @@ class SymbolTableModel : public ListingItemModel
         explicit SymbolTableModel(type_t itemtype, QObject *parent = nullptr);
         void setSymbolType(type_t type);
         void setSymbolFlags(flag_t flags);
+        type_t symbolType() const;
+        flag_t symbolFlags() const;
 
     protected:
         bool isItemAllowed(const RDDocumentItem& item) const override;

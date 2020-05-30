@@ -196,7 +196,8 @@ void DisassemblerHooks::showDevBlocks()
         td->setButtonBoxVisible(false);
     }
 
-    td->setModel(new BlockListModel());
+    RDDisassembler* disassembler = m_disassemblerview->disassembler();
+    td->setModel(new BlockListModel(RDDisassembler_GetDocument(disassembler)));
     td->show();
 }
 

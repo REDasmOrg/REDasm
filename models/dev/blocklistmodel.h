@@ -8,7 +8,7 @@ class BlockListModel : public QAbstractListModel
     Q_OBJECT
 
     public:
-        explicit BlockListModel(QObject *parent = nullptr);
+        explicit BlockListModel(RDDocument* document, QObject *parent = nullptr);
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
         QVariant data(const QModelIndex &index, int role) const override;
         int columnCount(const QModelIndex&) const override;

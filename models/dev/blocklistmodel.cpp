@@ -1,7 +1,7 @@
 #include "blocklistmodel.h"
 #include "../../themeprovider.h"
 
-BlockListModel::BlockListModel(QObject *parent) : QAbstractListModel(parent), m_document(RD_GetDocument()) { }
+BlockListModel::BlockListModel(RDDocument* document, QObject *parent) : QAbstractListModel(parent), m_document(document) { }
 
 QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {

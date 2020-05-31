@@ -209,7 +209,7 @@ void ItemInformationDialog::displayInstructionInformation(RDDocument* doc, const
         this->line("flags", this->instructionFlags(*instruction));
         this->line("size", QString("%1 byte(s)").arg(instruction->size));
         this->line("operands", QString::number(instruction->operandscount));
-        this->line("hexdump", this->padHexDump(hexdump));
+        this->line("hexdump", hexdump);
         this->line("bits", this->getBits(dump));
         this->line();
     m_indent = 0;

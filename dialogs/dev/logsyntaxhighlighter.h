@@ -1,5 +1,4 @@
-#ifndef LOGSYNTAXHIGHLIGHTER_H
-#define LOGSYNTAXHIGHLIGHTER_H
+#pragma once
 
 #include <QSyntaxHighlighter>
 #include <QRegularExpression>
@@ -24,5 +23,3 @@ class LogSyntaxHighlighter : public QSyntaxHighlighter
     private:
         QLinkedList<Rule> m_rules;
 };
-
-#endif // LOGSYNTAXHIGHLIGHTER_H

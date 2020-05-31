@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include "../hooks/idisassemblercommand.h"
 #include <rdapi/rdapi.h>
 
 namespace Ui {
@@ -12,7 +13,7 @@ class ItemInformationDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit ItemInformationDialog(RDDisassembler* disassembler, QWidget *parent = nullptr);
+        explicit ItemInformationDialog(IDisassemblerCommand* command, QWidget *parent = nullptr);
         ~ItemInformationDialog();
 
     private:
@@ -20,7 +21,17 @@ class ItemInformationDialog : public QDialog
         ItemInformationDialog& line(const QString& s = QString());
         ItemInformationDialog& header(const QString& s = QString());
         ItemInformationDialog& string(const QString& k, const QString& s);
-        //QString itemType(const REDasm::ListingItem* item) const;
+        QString itemType(const RDDocumentItem& item) const;
+        QString segmentFlags(const RDSegment* segment) const;
+        QString instructionType(const RDInstruction* instruction) const;
+        QString instructionFlags(const RDInstruction* instruction) const;
+        QString operandType(const RDOperand* operand) const;
+        QString symbolType(const RDSymbol* symbol) const;
+        QString symbolFlags(const RDSymbol* symbol) const;
+        QString padHexDump(const QString& hexdump) const;
+        QString getBits(const QByteArray& ba) const;
+        void displayInstructionInformation(RDDocument* doc, const RDDocumentItem& item);
+        void displaySymbolInformation(RDDocument* doc, const RDDocumentItem& item);
         void displayInformation();
 
     private:
@@ -29,7 +40,8 @@ class ItemInformationDialog : public QDialog
 
     private:
         Ui::ItemInformationDialog *ui;
-        RDDisassembler* m_disassembler;
+        IDisassemblerCommand* m_command;
+        int m_indent{0};
 };
 
 template<typename Iterator, typename Func> ItemInformationDialog& ItemInformationDialog::array(Iterator begin, Iterator end, const Func& cb) { return this->array(QString(), begin, end, cb); }

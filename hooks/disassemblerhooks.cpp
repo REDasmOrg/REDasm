@@ -487,10 +487,9 @@ void DisassemblerHooks::loadDisassemblerView(RDLoaderPlugin* loader, RDAssembler
 {
     this->close(false);       // Remove old docks
     this->clearOutput();      // Clear output
+    if(m_worker.valid()) m_worker.get();
 
-    if(m_worker.valid())
-        m_worker.get();
-
+    RDEvent_Subscribe(this, &DisassemblerHooks::listenEvents, nullptr);
     RDDisassembler* disassembler = RDDisassembler_Create(&req, loader, assembler);
     m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow);
 
@@ -525,8 +524,6 @@ void DisassemblerHooks::hook()
     this->enableCommands(nullptr);
     this->enableViewCommands(false);
     this->loadRecents();
-
-    RDEvent_Subscribe(this, &DisassemblerHooks::listenEvents, nullptr);
 }
 
 void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)

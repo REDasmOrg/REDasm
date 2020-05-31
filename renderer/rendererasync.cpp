@@ -8,7 +8,6 @@ void RendererAsync::abort()
 {
     if(!this->isRunning() || m_abort.load()) return;
 
-    qDebug(__PRETTY_FUNCTION__);
     m_abort.store(true);
     m_cv.notify_one();
     this->wait();

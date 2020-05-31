@@ -5,6 +5,7 @@
 #include "../dialogs/loaderdialog/loaderdialog.h"
 #include "../dialogs/referencesdialog/referencesdialog.h"
 #include "../dialogs/gotodialog/gotodialog.h"
+#include "../dialogs/dev/iteminformationdialog/iteminformationdialog.h"
 #include "../dialogs/dev/functiongraphdialog/functiongraphdialog.h"
 #include "../widgets/tabs/welcometab/welcometab.h"
 #include "../widgets/docks/outputdock/outputdock.h"
@@ -631,7 +632,7 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
         if(!command->getCurrentItem(&item)) return;
 
         RDSymbol symbol;
-        const char* hexdump = RD_HexDump(command->disassembler(), item.address, &symbol);
+        const char* hexdump = RDDisassembler_FunctionHexDump(command->disassembler(), item.address, &symbol);
         if(!hexdump) return;
 
         RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
@@ -650,7 +651,8 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
     actions[DisassemblerHooks::Action_Copy] = contextmenu->addAction("Copy", this, [command]() { command->copy(); }, QKeySequence(QKeySequence::Copy));
 
     actions[DisassemblerHooks::Action_ItemInformation] = contextmenu->addAction("Item Information", this, [&, command]() {
-
+        ItemInformationDialog dlgiteminfo(command, m_mainwindow);
+        dlgiteminfo.exec();
     });
 
     for(auto& [type, action] : actions) action->setData(type);

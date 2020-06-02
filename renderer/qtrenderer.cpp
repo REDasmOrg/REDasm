@@ -55,9 +55,6 @@ RDCursorPos QtRenderer::hitTest(const QPointF& p)
         x += w;
     }
 
-    if(cp.column == std::numeric_limits<size_t>::max())
-        cp.column = static_cast<size_t>(std::max(0, s.size() - 1));
-
     return cp;
 }
 

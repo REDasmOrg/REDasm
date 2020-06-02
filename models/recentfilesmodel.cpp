@@ -1,5 +1,6 @@
 #include "recentfilesmodel.h"
 #include "../redasmsettings.h"
+#include <QFileInfo>
 
 RecentFilesModel::RecentFilesModel(QObject *parent) : QAbstractListModel(parent) { }
 const QString& RecentFilesModel::filePath(const QModelIndex& index) const { return m_recents[index.row()]; }
@@ -7,8 +8,16 @@ const QString& RecentFilesModel::filePath(const QModelIndex& index) const { retu
 void RecentFilesModel::update()
 {
     this->beginResetModel();
+
     REDasmSettings settings;
     m_recents = settings.recentFiles();
+
+    for(auto it = m_recents.begin(); it != m_recents.end(); )
+    {
+        if(!QFileInfo::exists(*it)) it = m_recents.erase(it);
+        else it++;
+    }
+
     this->endResetModel();
 }
 

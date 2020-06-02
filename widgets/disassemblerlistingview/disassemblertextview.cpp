@@ -329,7 +329,7 @@ bool DisassemblerTextView::event(QEvent *e)
     if(m_disassembler && !RD_IsBusy() && (e->type() == QEvent::ToolTip))
     {
         QHelpEvent* helpevent = static_cast<QHelpEvent*>(e);
-        this->showPopup(helpevent->pos());
+        this->showPopup(this->viewportPoint(helpevent->pos()));
         return true;
     }
 
@@ -487,7 +487,7 @@ void DisassemblerTextView::ensureColumnVisible()
     hscrollbar->setValue(static_cast<int>(xpos));
 }
 
-void DisassemblerTextView::showPopup(const QPoint& pt)
+void DisassemblerTextView::showPopup(const QPointF& pt)
 {
     if(!RDDocument_ItemsCount(m_document)) return;
 

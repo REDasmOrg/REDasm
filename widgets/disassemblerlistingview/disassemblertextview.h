@@ -66,7 +66,7 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         bool isColumnVisible(size_t column, size_t* xpos);
         void adjustScrollBars();
         void ensureColumnVisible();
-        void showPopup(const QPoint& pt);
+        void showPopup(const QPointF& pt);
 
     signals:
         void switchView();

@@ -485,22 +485,24 @@ TableTab* DisassemblerHooks::createTable(ListingItemModel* model, const QString&
 
 void DisassemblerHooks::loadDisassemblerView(RDLoaderPlugin* loader, RDAssemblerPlugin* assembler, const RDLoaderRequest& req, const RDLoaderBuildRequest& buildreq)
 {
-    this->close(false);       // Remove old docks
-    this->clearOutput();      // Clear output
-    if(m_worker.valid()) m_worker.get();
-
+    this->close(false);
     RDEvent_Subscribe(this, &DisassemblerHooks::listenEvents, nullptr);
     RDDisassembler* disassembler = RDDisassembler_Create(&req, loader, assembler);
     m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow);
 
     m_worker = std::async([&, disassembler, buildreq]() {
         RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
+        bool cancontinue = false;
 
-        if(RDLoader_GetFlags(ldr) & LoaderFlags_CustomAddressing) RDLoader_Build(ldr, &buildreq);
-        else RDLoader_Load(ldr);
+        if(RDLoader_GetFlags(ldr) & LoaderFlags_CustomAddressing) cancontinue = RDLoader_Build(ldr, &buildreq);
+        else cancontinue = RDLoader_Load(ldr);
 
-        RD_Disassemble(disassembler);
-        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
+        if(cancontinue) {
+            RD_Disassemble(disassembler);
+            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
+        }
+        else
+            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "close", Qt::QueuedConnection, Q_ARG(bool, true));
     });
 }
 
@@ -771,9 +773,14 @@ void DisassemblerHooks::close(bool showwelcome)
     this->enableViewCommands(false);
     m_activecommandtab = nullptr;
 
-    if(!m_disassemblerview) return;
-    m_disassemblerview->dispose();
-    m_disassemblerview = nullptr;
+    if(m_disassemblerview)
+    {
+        m_disassemblerview->dispose();
+        m_disassemblerview = nullptr;
+    }
+
+    if(m_worker.valid()) m_worker.get();
+    this->clearOutput();
 
     if(showwelcome) this->addWelcomeTab();
 }

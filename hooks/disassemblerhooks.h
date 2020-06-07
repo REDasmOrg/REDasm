@@ -97,9 +97,9 @@ class DisassemblerHooks: public QObject
         Q_INVOKABLE void updateViewWidgets(bool busy);
         Q_INVOKABLE void enableViewCommands(bool enable);
         Q_INVOKABLE void showMessage(const QString& title, const QString& msg, size_t icon);
+        Q_INVOKABLE void close(bool showwelcome);
         TableTab* createTable(ListingItemModel* model, const QString& title);
         OutputDock* outputDock() const;
-        void close(bool showwelcome);
         void clearOutput();
         void enableMenu(QMenu* menu, bool enable);
         void loadDisassemblerView(RDLoaderPlugin* loader, RDAssemblerPlugin* assembler, const RDLoaderRequest& req, const RDLoaderBuildRequest& buildreq);

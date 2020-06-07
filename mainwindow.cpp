@@ -6,7 +6,7 @@
 #include "widgets/disassemblerview.h"
 #include "dialogs/signaturesdialog/signaturesdialog.h"
 #include "dialogs/problemsdialog/problemsdialog.h"
-#include "ui/redasmui.h"
+#include "ui/qtui.h"
 #include "themeprovider.h"
 #include <QMessageBox>
 #include <QtGui>
@@ -224,8 +224,6 @@ void MainWindow::showProblems() { ProblemsDialog dlgproblems(this); dlgproblems.
 
 void MainWindow::initializeLibrary()
 {
-    //ctxsettings.ui = std::make_shared<REDasmUI>(this);
-
     RD_SetLogCallback([](const char* s, void*) {
         QMetaObject::invokeMethod(DisassemblerHooks::instance(), "log", Qt::QueuedConnection, Q_ARG(QString, QString::fromUtf8(s)));
     }, nullptr);
@@ -246,4 +244,5 @@ void MainWindow::initializeLibrary()
         RD_AddPluginPath(qUtf8Printable(QDir(searchpaths).absoluteFilePath(PLUGINS_FOLDER_NAME)));
 
     RD_InitContext();
+    QtUI::initialize();
 }

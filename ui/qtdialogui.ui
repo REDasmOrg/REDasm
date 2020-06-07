@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DialogUI</class>
- <widget class="QDialog" name="DialogUI">
+ <class>QtDialogUI</class>
+ <widget class="QDialog" name="QtDialogUI">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>DialogUI</string>
+   <string>QtDialogUI</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -65,7 +65,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>DialogUI</receiver>
+   <receiver>QtDialogUI</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -81,7 +81,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>DialogUI</receiver>
+   <receiver>QtDialogUI</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

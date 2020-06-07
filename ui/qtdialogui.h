@@ -2,27 +2,25 @@
 
 #include <QListView>
 #include <QDialog>
-//#include <redasm/ui.h>
+#include <rdapi/rdapi.h>
 #include "models/checkeditemsmodel.h"
-#include "models/listitemsmodel.h"
 
 namespace Ui {
-class DialogUI;
+class QtDialogUI;
 }
 
-class DialogUI : public QDialog
+class QtDialogUI : public QDialog
 {
     Q_OBJECT
 
     public:
-        explicit DialogUI(QWidget *parent = nullptr);
-        ~DialogUI();
+        explicit QtDialogUI(QWidget *parent = nullptr);
+        ~QtDialogUI();
 
     public:
         int selectedIndex() const;
         void setText(const QString& s);
-        //void selectableItems(const REDasm::List& items);
-        //void setItems(REDasm::UI::CheckList& items);
+        void setCheckedOptions(RDUIOptions* options, size_t c);
 
     private:
         void hideFilter();
@@ -30,6 +28,6 @@ class DialogUI : public QDialog
         void setCanAccept(bool b);
 
     private:
-        Ui::DialogUI *ui;
-        int m_selectedindex;
+        Ui::QtDialogUI *ui;
+        int m_selectedindex{-1};
 };

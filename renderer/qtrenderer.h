@@ -14,7 +14,7 @@ class QtRenderer
         const QFontMetricsF& fontMetrics() const;
         const RDRenderer* handle() const;
         RDCursor* cursor() const;
-        RDCursorPos hitTest(const QPointF& p);
+        RDCursorPos hitTest(const QPointF& p, bool screen = false);
         QString currentWord() const;
         QString selectedText() const;
         QString getWordFromPoint(const QPointF& pt, RDCursorRange* range);

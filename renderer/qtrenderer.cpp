@@ -4,6 +4,7 @@
 #include <QClipboard>
 #include <limits>
 #include <cmath>
+#include <iostream>
 
 QtRenderer::QtRenderer(RDDisassembler* disassembler, RDCursor* cursor, flag_t flags): m_fontmetrics(REDasmSettings::font())
 {
@@ -30,7 +31,7 @@ const QFontMetricsF& QtRenderer::fontMetrics() const { return m_fontmetrics; }
 const RDRenderer* QtRenderer::handle() const { return m_renderer; }
 RDCursor* QtRenderer::cursor() const { return m_cursor; }
 
-RDCursorPos QtRenderer::hitTest(const QPointF& p)
+RDCursorPos QtRenderer::hitTest(const QPointF& p, bool screen)
 {
     RDCursorPos cp;
     cp.line = std::min(m_offset + static_cast<size_t>(std::floor(p.y() / m_fontmetrics.height())), RDDocument_ItemsCount(m_document) - 1);
@@ -55,6 +56,9 @@ RDCursorPos QtRenderer::hitTest(const QPointF& p)
         x += w;
     }
 
+    if(!screen && (cp.column == std::numeric_limits<size_t>::max()))
+        cp.column = static_cast<size_t>(std::max(0, s.size() - 1));
+
     return cp;
 }
 
@@ -76,7 +80,7 @@ void QtRenderer::setStartOffset(size_t offset) { m_offset = offset; }
 
 QString QtRenderer::getWordFromPoint(const QPointF& pt, RDCursorRange* range)
 {
-    RDCursorPos pos = this->hitTest(pt);
+    RDCursorPos pos = this->hitTest(pt, true);
     return RDRenderer_GetWordFromPosition(m_renderer, &pos, range);
 }
 

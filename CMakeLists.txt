@@ -8,9 +8,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-option(DEBUG_STL_ITERATORS      "Enable iterator debugging in Debug mode (GCC only)" OFF)
-option(ENABLE_ADDRESS_SANITIZER "Enable Address Sanitizer"                           OFF)
-option(ENABLE_THREAD_SANITIZER  "Enable Thread Sanitizer"                            OFF)
 option(PORTABLE_MODE            "Enable Portable Mode"                               OFF)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
@@ -153,20 +150,8 @@ else()
     target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets pthread LibREDasm)
 endif()
 
-if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") AND DEBUG_STL_ITERATORS)
-    target_compile_options(${PROJECT_NAME} PRIVATE -D_GLIBCXX_DEBUG)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-missing-braces)
-endif()
-
-if(CMAKE_BUILD_TYPE MATCHES "Debug")
-    if(ENABLE_ADDRESS_SANITIZER)
-        target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fno-omit-frame-pointer)
-        target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fno-omit-frame-pointer)
-    elseif(ENABLE_THREAD_SANITIZER)
-        target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=thread -fno-omit-frame-pointer)
-        target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=thread -fno-omit-frame-pointer)
-    endif()
 endif()
 
 # Post build commands

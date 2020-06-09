@@ -1,13 +1,15 @@
 #include "qtui.h"
 #include "qtdialogui.h"
-#include <QMessageBox>
 #include <QInputDialog>
+#include <QMessageBox>
 #include <limits>
 
 RDUI QtUI::m_rdui{ };
 
 void QtUI::initialize()
 {
+    QtUI::instance(); // Initialize QtUI in UI thread
+
     m_rdui.message = &QtUI::message;
     m_rdui.confirm = &QtUI::confirm;
     m_rdui.getitem = &QtUI::getItem;
@@ -22,13 +24,110 @@ void QtUI::initialize()
 
 void QtUI::message(const char* title, const char* text)
 {
+    QMetaObject::invokeMethod(QtUI::instance(), "messageImpl", Qt::BlockingQueuedConnection,
+                              Q_ARG(const char*, title), Q_ARG(const char*, text));
+}
+
+bool QtUI::confirm(const char* title, const char* text)
+{
+    bool res = false;
+
+    QMetaObject::invokeMethod(QtUI::instance(), "confirmImpl", Qt::BlockingQueuedConnection,
+                              Q_RETURN_ARG(bool, res),
+                              Q_ARG(const char*, title), Q_ARG(const char*, text));
+
+    return res;
+}
+
+int QtUI::getItem(const char* title, const char* text, const RDUIOptions* options, size_t c)
+{
+    int res = -1;
+
+    QMetaObject::invokeMethod(QtUI::instance(), "getItemImpl", Qt::BlockingQueuedConnection,
+                              Q_RETURN_ARG(int, res),
+                              Q_ARG(const char*, title), Q_ARG(const char*, text),
+                              Q_ARG(const RDUIOptions*, options), Q_ARG(size_t, c));
+
+    return res;
+}
+
+bool QtUI::getChecked(const char* title, const char* text, RDUIOptions* options, size_t c)
+{
+    int res = false;
+
+    QMetaObject::invokeMethod(QtUI::instance(), "getCheckedImpl", Qt::BlockingQueuedConnection,
+                              Q_RETURN_ARG(int, res),
+                              Q_ARG(const char*, title), Q_ARG(const char*, text),
+                              Q_ARG(RDUIOptions*, options), Q_ARG(size_t, c));
+
+    return res;
+}
+
+bool QtUI::getText(const char* title, const char* text, char* outchar, size_t* size)
+{
+    bool res = false;
+
+    QMetaObject::invokeMethod(QtUI::instance(), "getTextImpl", Qt::BlockingQueuedConnection,
+                              Q_RETURN_ARG(bool, res),
+                              Q_ARG(const char*, title), Q_ARG(const char*, text),
+                              Q_ARG(char*, outchar), Q_ARG(size_t*, size));
+
+    return res;
+}
+
+bool QtUI::getDouble(const char* title, const char* text, double* outval)
+{
+    bool res = false;
+
+    QMetaObject::invokeMethod(QtUI::instance(), "getDoubleImpl", Qt::BlockingQueuedConnection,
+                              Q_RETURN_ARG(bool, res),
+                              Q_ARG(const char*, title), Q_ARG(const char*, text),
+                              Q_ARG(double*, outval));
+
+    return res;
+}
+
+bool QtUI::getSigned(const char* title, const char* text, intptr_t* outval)
+{
+    bool res = false;
+
+    QMetaObject::invokeMethod(QtUI::instance(), "getSignedImpl", Qt::BlockingQueuedConnection,
+                              Q_RETURN_ARG(bool, res),
+                              Q_ARG(const char*, title), Q_ARG(const char*, text),
+                              Q_ARG(intptr_t*, outval));
+
+    return res;
+}
+
+bool QtUI::getUnsigned(const char* title, const char* text, uintptr_t* outval)
+{
+    bool res = false;
+
+    QMetaObject::invokeMethod(QtUI::instance(), "getUnsignedImpl", Qt::BlockingQueuedConnection,
+                              Q_RETURN_ARG(bool, res),
+                              Q_ARG(const char*, title), Q_ARG(const char*, text),
+                              Q_ARG(uintptr_t*, outval));
+
+    return res;
+}
+
+QtUI::QtUI(QObject* parent): QObject(parent) { }
+
+QtUI* QtUI::instance()
+{
+    static QtUI m_qtui;
+    return &m_qtui;
+}
+
+void QtUI::messageImpl(const char* title, const char* text)
+{
     QMessageBox msgbox;
     msgbox.setWindowTitle(title);
     msgbox.setText(text);
     msgbox.exec();
 }
 
-bool QtUI::confirm(const char* title, const char* text)
+bool QtUI::confirmImpl(const char* title, const char* text)
 {
      int res = QMessageBox::question(nullptr, title, text,
                                      QMessageBox::Yes | QMessageBox::No);
@@ -36,7 +135,7 @@ bool QtUI::confirm(const char* title, const char* text)
      return res == QMessageBox::Yes;
 }
 
-int QtUI::getItem(const char* title, const char* text, const RDUIOptions* options, size_t c)
+int QtUI::getItemImpl(const char* title, const char* text, const RDUIOptions* options, size_t c)
 {
     int selectedidx = 0;
     QStringList items;
@@ -53,7 +152,7 @@ int QtUI::getItem(const char* title, const char* text, const RDUIOptions* option
     return items.indexOf(item);
 }
 
-bool QtUI::getChecked(const char* title, const char* text, RDUIOptions* options, size_t c)
+bool QtUI::getCheckedImpl(const char* title, const char* text, RDUIOptions* options, size_t c)
 {
     QtDialogUI dlgui;
     dlgui.setWindowTitle(title);
@@ -62,7 +161,7 @@ bool QtUI::getChecked(const char* title, const char* text, RDUIOptions* options,
     return dlgui.exec() == QtDialogUI::Accepted;
 }
 
-bool QtUI::getText(const char* title, const char* text, char* outchar, size_t* size)
+bool QtUI::getTextImpl(const char* title, const char* text, char* outchar, size_t* size)
 {
     bool ok = false;
 
@@ -77,7 +176,7 @@ bool QtUI::getText(const char* title, const char* text, char* outchar, size_t* s
     return ok;
 }
 
-bool QtUI::getDouble(const char* title, const char* text, double* outval)
+bool QtUI::getDoubleImpl(const char* title, const char* text, double* outval)
 {
     bool ok = false;
 
@@ -90,8 +189,9 @@ bool QtUI::getDouble(const char* title, const char* text, double* outval)
     return ok;
 }
 
-bool QtUI::getSigned(const char* title, const char* text, intptr_t* outval)
+bool QtUI::getSignedImpl(const char* title, const char* text, intptr_t* outval)
 {
+
     bool ok = false;
 
     intptr_t val = QInputDialog::getInt(nullptr, title, text, 0,
@@ -103,7 +203,7 @@ bool QtUI::getSigned(const char* title, const char* text, intptr_t* outval)
     return ok;
 }
 
-bool QtUI::getUnsigned(const char* title, const char* text, intptr_t* outval)
+bool QtUI::getUnsignedImpl(const char* title, const char* text, uintptr_t* outval)
 {
     bool ok = false;
 

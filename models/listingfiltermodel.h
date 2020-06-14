@@ -15,7 +15,7 @@ class ListingFilterModel : public QSortFilterProxyModel
 
     public:
         template<typename T> static ListingFilterModel* createFilter(QObject* parent);
-        template<typename T> static ListingFilterModel* createFilter(type_t filter, QObject* parent);
+        template<typename T> static ListingFilterModel* createFilter(rd_type filter, QObject* parent);
 };
 
 template<typename T>
@@ -27,7 +27,7 @@ ListingFilterModel *ListingFilterModel::createFilter(QObject *parent)
 }
 
 template<typename T>
-ListingFilterModel* ListingFilterModel::createFilter(type_t filter, QObject* parent)
+ListingFilterModel* ListingFilterModel::createFilter(rd_type filter, QObject* parent)
 {
     ListingFilterModel* filtermodel = new ListingFilterModel(parent);
     filtermodel->setSourceModel(new T(filter, filtermodel));

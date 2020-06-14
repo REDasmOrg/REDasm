@@ -22,6 +22,6 @@ void ReferencesDialog::on_tvReferences_doubleClicked(const QModelIndex &index)
     if(!index.isValid() || !index.internalId())
         return;
 
-    m_command->gotoAddress(static_cast<address_t>(index.internalId()));
+    m_command->gotoAddress(static_cast<rd_address>(index.internalId()));
     this->accept();
 }

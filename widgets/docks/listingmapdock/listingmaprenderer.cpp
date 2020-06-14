@@ -37,7 +37,7 @@ QRect ListingMapRenderer::buildRect(int p, int itemsize) const
     return QRect(0, p, this->widget()->width(), itemsize);
 }
 
-int ListingMapRenderer::calculatePosition(offset_t offset) const { return (offset * this->itemSize()) / m_totalsize; }
+int ListingMapRenderer::calculatePosition(rd_offset offset) const { return (offset * this->itemSize()) / m_totalsize; }
 int ListingMapRenderer::calculateSize(u64 sz) const { return std::max<int>(1, (sz * this->itemSize()) / m_totalsize); }
 int ListingMapRenderer::itemSize() const { return (m_orientation == Qt::Horizontal) ? this->widget()->width() : this->widget()->height(); }
 

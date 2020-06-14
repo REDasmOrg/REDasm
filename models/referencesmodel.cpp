@@ -18,7 +18,7 @@ void ReferencesModel::clear()
     this->endResetModel();
 }
 
-void ReferencesModel::xref(address_t address)
+void ReferencesModel::xref(rd_address address)
 {
     if(!m_disassembler || RD_IsBusy()) return;
 
@@ -100,7 +100,7 @@ QVariant ReferencesModel::headerData(int section, Qt::Orientation orientation, i
 int ReferencesModel::rowCount(const QModelIndex &) const { return static_cast<int>(m_referencescount); }
 int ReferencesModel::columnCount(const QModelIndex &) const { return 3; }
 
-QString ReferencesModel::direction(RDDocument* doc, address_t address) const
+QString ReferencesModel::direction(RDDocument* doc, rd_address address) const
 {
     if(!m_command) return QString();
 

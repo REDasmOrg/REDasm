@@ -8,11 +8,11 @@ class SymbolTableModel : public ListingItemModel
     Q_OBJECT
 
     public:
-        explicit SymbolTableModel(type_t itemtype, QObject *parent = nullptr);
-        void setSymbolType(type_t type);
-        void setSymbolFlags(flag_t flags);
-        type_t symbolType() const;
-        flag_t symbolFlags() const;
+        explicit SymbolTableModel(rd_type itemtype, QObject *parent = nullptr);
+        void setSymbolType(rd_type type);
+        void setSymbolFlags(rd_flag flags);
+        rd_type symbolType() const;
+        rd_flag symbolFlags() const;
 
     protected:
         bool isItemAllowed(const RDDocumentItem& item) const override;
@@ -21,9 +21,9 @@ class SymbolTableModel : public ListingItemModel
         void insertItem(const RDDocumentItem& item) override;
 
     protected:
-        std::unordered_map<address_t, RDSymbol> m_symbols;
+        std::unordered_map<rd_address, RDSymbol> m_symbols;
 
     private:
-        type_t m_symboltype{SymbolType_None};
-        flag_t m_symbolflags{SymbolFlags_None};
+        rd_type m_symboltype{SymbolType_None};
+        rd_flag m_symbolflags{SymbolFlags_None};
 };

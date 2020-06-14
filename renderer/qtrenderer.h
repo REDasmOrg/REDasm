@@ -9,7 +9,7 @@
 class QtRenderer
 {
     public:
-        QtRenderer(RDDisassembler* disassembler, RDCursor* cursor = nullptr, flag_t flags = RendererFlags_Normal);
+        QtRenderer(RDDisassembler* disassembler, RDCursor* cursor = nullptr, rd_flag flags = RendererFlags_Normal);
         ~QtRenderer();
         const QFontMetricsF& fontMetrics() const;
         const RDRenderer* handle() const;

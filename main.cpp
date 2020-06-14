@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 #endif // QT_DEBUG
 
     qRegisterMetaType<size_t>("size_t");
-    qRegisterMetaType<address_t>("address_t");
+    qRegisterMetaType<rd_address>("address_t");
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
     QApplication a(argc, argv);

@@ -52,12 +52,12 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
             InstructionLock instruction(m_document, item.address);
             if(!IS_TYPE(*instruction, InstructionType_Jump)) continue;
 
-            const address_t* targets = nullptr;
+            const rd_address* targets = nullptr;
             size_t c = RDDisassembler_GetTargets(m_disassembler, instruction->address, &targets);
 
             for(size_t i = 0; i < c; i++)
             {
-                address_t target = targets[i];
+                rd_address target = targets[i];
                 if(target == instruction->address) continue;
 
                 size_t idx = RDDocument_InstructionIndex(m_document, target);
@@ -73,12 +73,12 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
             size_t toidx = RDDocument_InstructionIndex(m_document, item.address);
             if(toidx >= RDDocument_ItemsCount(m_document)) continue;
 
-            const address_t* references = nullptr;
+            const rd_address* references = nullptr;
             size_t c = RDDisassembler_GetReferences(m_disassembler, item.address, &references);
 
             for(size_t i = 0; i < c; i++)
             {
-                address_t ref = references[i];
+                rd_address ref = references[i];
                 if(ref == item.address) continue;
 
                 size_t idx = RDDocument_InstructionIndex(m_document, ref);

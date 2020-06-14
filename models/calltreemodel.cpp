@@ -13,7 +13,7 @@ const RDDocumentItem& CallTreeModel::item(const QModelIndex& index) const
 
 void CallTreeModel::setDisassembler(RDDisassembler* disassembler) { m_disassembler = disassembler; /* m_printer = r_asm->createPrinter(); */ }
 
-void CallTreeModel::initializeGraph(address_t address)
+void CallTreeModel::initializeGraph(rd_address address)
 {
     // REDasm::ListingItem item = r_doc->functionStart(address);
     // if(m_currentitem == item) return;

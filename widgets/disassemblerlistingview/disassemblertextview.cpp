@@ -119,7 +119,7 @@ void DisassemblerTextView::setDisassembler(RDDisassembler* disassembler)
     m_disassemblerpopup = new DisassemblerPopup(m_disassembler, this);
 }
 
-bool DisassemblerTextView::gotoAddress(address_t address)
+bool DisassemblerTextView::gotoAddress(rd_address address)
 {
     if(!m_document) return false;
 

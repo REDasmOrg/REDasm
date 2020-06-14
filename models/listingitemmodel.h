@@ -10,11 +10,11 @@ class ListingItemModel : public DisassemblerModel
     Q_OBJECT
 
     public:
-        explicit ListingItemModel(type_t itemtype, QObject *parent = nullptr);
+        explicit ListingItemModel(rd_type itemtype, QObject *parent = nullptr);
         virtual ~ListingItemModel();
         void setDisassembler(RDDisassembler* disassembler) override;
         const RDDocumentItem& item(const QModelIndex& index) const;
-        type_t itemType() const;
+        rd_type itemType() const;
 
     public:
         int rowCount(const QModelIndex& = QModelIndex()) const override;
@@ -33,7 +33,7 @@ class ListingItemModel : public DisassemblerModel
 
     private:
         std::vector<RDDocumentItem> m_items;
-        type_t m_itemtype;
+        rd_type m_itemtype;
 
     friend class ListingFilterModel;
 };

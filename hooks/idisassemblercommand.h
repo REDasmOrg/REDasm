@@ -12,7 +12,7 @@ class IDisassemblerCommand
         virtual void goBack() = 0;
         virtual void goForward() = 0;
         virtual void copy() const = 0;
-        virtual bool gotoAddress(address_t address) = 0;
+        virtual bool gotoAddress(rd_address address) = 0;
         virtual bool gotoItem(const RDDocumentItem& item) = 0;
         virtual bool hasSelection() const = 0;
         virtual bool canGoBack() const = 0;

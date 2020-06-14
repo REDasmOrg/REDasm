@@ -66,16 +66,16 @@ RDLoaderPlugin *LoaderDialog::selectedLoader() const
 
 RDAssemblerPlugin* LoaderDialog::selectedAssembler() const
 {
-    flag_t flags = this->selectedLoaderFlags();
+    rd_flag flags = this->selectedLoaderFlags();
     if(flags & LoaderFlags_CustomAssembler) return m_assemblers.at(ui->cbAssembler->currentIndex());
     return RDLoader_GetAssembler(this->selectedLoader());
 }
 
-address_t LoaderDialog::baseAddress() const { return ui->leBaseAddress->text().toULongLong(nullptr, 16); }
-address_t LoaderDialog::entryPoint() const { return ui->leEntryPoint->text().toULongLong(nullptr, 16); }
-offset_t LoaderDialog::offset() const { return ui->leOffset->text().toULongLong(nullptr, 16); }
+rd_address LoaderDialog::baseAddress() const { return ui->leBaseAddress->text().toULongLong(nullptr, 16); }
+rd_address LoaderDialog::entryPoint() const { return ui->leEntryPoint->text().toULongLong(nullptr, 16); }
+rd_offset LoaderDialog::offset() const { return ui->leOffset->text().toULongLong(nullptr, 16); }
 
-flag_t LoaderDialog::selectedLoaderFlags() const
+rd_flag LoaderDialog::selectedLoaderFlags() const
 {
     QModelIndex index = ui->lvLoaders->currentIndex();
     return index.isValid() ? m_loaders[index.row()]->flags : LoaderFlags_None;
@@ -93,7 +93,7 @@ void LoaderDialog::checkFlags()
         return;
     }
 
-    flag_t flags = this->selectedLoaderFlags();
+    rd_flag flags = this->selectedLoaderFlags();
     ui->cbAssembler->setEnabled(flags & LoaderFlags_CustomAssembler);
     ui->tabAddressing->setEnabled(flags & LoaderFlags_CustomAddressing);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
@@ -102,7 +102,7 @@ void LoaderDialog::checkFlags()
 void LoaderDialog::validateInput()
 {
     bool okenabled = true;
-    flag_t flags = this->selectedLoaderFlags();
+    rd_flag flags = this->selectedLoaderFlags();
 
     if(flags & LoaderFlags_CustomAddressing)
     {
@@ -150,7 +150,7 @@ void LoaderDialog::populateAssemblers()
 
 void LoaderDialog::onAccepted()
 {
-    flag_t flags = ContextFlag_None;
+    rd_flag flags = ContextFlag_None;
 
     if(ui->chkNoCFG->isChecked()) flags |= ContextFlag_DisableCFG;
     if(ui->chkNoAnalysis->isChecked()) flags |= ContextFlag_DisableAnalyzer;

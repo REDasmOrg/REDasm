@@ -5,7 +5,7 @@
 #include <QPalette>
 #include <cstring>
 
-DocumentRenderer::DocumentRenderer(QTextDocument* textdocument, RDDisassembler* disassembler, RDCursor* cursor, flag_t flags): QtRenderer(disassembler, cursor, flags), m_textdocument(textdocument) { }
+DocumentRenderer::DocumentRenderer(QTextDocument* textdocument, RDDisassembler* disassembler, RDCursor* cursor, rd_flag flags): QtRenderer(disassembler, cursor, flags), m_textdocument(textdocument) { }
 QTextDocument* DocumentRenderer::textDocument() const { return m_textdocument; }
 qreal DocumentRenderer::maxWidth() const { return m_maxwidth; }
 

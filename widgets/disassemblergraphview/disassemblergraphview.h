@@ -17,7 +17,7 @@ class DisassemblerGraphView : public GraphView, public IDisassemblerCommand
         void goBack() override;
         void goForward() override;
         void copy() const override;
-        bool gotoAddress(address_t address) override;
+        bool gotoAddress(rd_address address) override;
         bool gotoItem(const RDDocumentItem& item) override;
         bool hasSelection() const override;
         bool canGoBack() const override;
@@ -37,7 +37,7 @@ class DisassemblerGraphView : public GraphView, public IDisassemblerCommand
 
     private:
         void focusCurrentBlock();
-        bool updateGraph(address_t address);
+        bool updateGraph(rd_address address);
         QColor getEdgeColor(const RDGraphEdge &e) const;
         QString getEdgeLabel(const RDGraphEdge &e) const;
         GraphViewItem* itemFromCurrentLine() const;

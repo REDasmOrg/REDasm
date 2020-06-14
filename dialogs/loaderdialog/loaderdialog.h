@@ -20,10 +20,10 @@ class LoaderDialog : public QDialog
         RDAssemblerPlugin* selectedAssembler() const;
 
     private:
-        flag_t selectedLoaderFlags() const;
-        address_t baseAddress() const;
-        address_t entryPoint() const;
-        offset_t offset() const;
+        rd_flag selectedLoaderFlags() const;
+        rd_address baseAddress() const;
+        rd_address entryPoint() const;
+        rd_offset offset() const;
         void unloadLoaders();
         void unloadAssemblers();
         void checkFlags();

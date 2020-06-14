@@ -23,7 +23,7 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
     public: // IDisassemblerCommand interface
         void goBack() override;
         void goForward() override;
-        bool gotoAddress(address_t address) override;
+        bool gotoAddress(rd_address address) override;
         bool gotoItem(const RDDocumentItem& item) override;
         bool hasSelection() const override;
         bool canGoBack() const override;
@@ -72,7 +72,7 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         void switchView();
         void canGoBackChanged();
         void canGoForwardChanged();
-        void addressChanged(address_t address);
+        void addressChanged(rd_address address);
 
     private:
         PainterRendererAsync* m_renderer{nullptr};

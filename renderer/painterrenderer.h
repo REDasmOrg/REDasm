@@ -7,7 +7,7 @@ class QPainter;
 class PainterRenderer: public QtRenderer
 {
     public:
-        PainterRenderer(RDDisassembler* disassembler, flag_t flags = RendererFlags_Normal);
+        PainterRenderer(RDDisassembler* disassembler, rd_flag flags = RendererFlags_Normal);
         void render(QPainter* painter, size_t first, size_t last);
 
     private:

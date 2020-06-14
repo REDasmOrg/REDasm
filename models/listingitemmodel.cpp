@@ -5,7 +5,7 @@
 #include <tuple>
 #include <QColor>
 
-ListingItemModel::ListingItemModel(type_t itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype)
+ListingItemModel::ListingItemModel(rd_type itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype)
 {
     RDEvent_Subscribe(this, [](const RDEventArgs* e) {
         if(e->eventid != Event_DocumentChanged) return;
@@ -45,7 +45,7 @@ void ListingItemModel::setDisassembler(RDDisassembler* disassembler)
 }
 
 const RDDocumentItem& ListingItemModel::item(const QModelIndex &index) const { return m_items[index.row()]; }
-type_t ListingItemModel::itemType() const { return m_itemtype; }
+rd_type ListingItemModel::itemType() const { return m_itemtype; }
 int ListingItemModel::rowCount(const QModelIndex &) const { return m_document ? m_items.size() : 0; }
 int ListingItemModel::columnCount(const QModelIndex &) const { return 4; }
 

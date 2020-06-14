@@ -12,7 +12,7 @@ class ReferencesModel : public DisassemblerModel
         explicit ReferencesModel(const IDisassemblerCommand* command, QObject *parent = nullptr);
         ~ReferencesModel();
         void setDisassembler(RDDisassembler* disassembler) override;
-        void xref(address_t address);
+        void xref(rd_address address);
 
     public:
         QModelIndex index(int row, int column, const QModelIndex&) const override;
@@ -25,11 +25,11 @@ class ReferencesModel : public DisassemblerModel
         void clear();
 
     private:
-        QString direction(RDDocument* doc, address_t address) const;
+        QString direction(RDDocument* doc, rd_address address) const;
 
     private:
         RDRenderer* m_renderer{nullptr};
         const IDisassemblerCommand* m_command;
-        const address_t* m_references{nullptr};
+        const rd_address* m_references{nullptr};
         size_t m_referencescount{0};
 };

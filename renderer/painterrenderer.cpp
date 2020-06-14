@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cstring>
 
-PainterRenderer::PainterRenderer(RDDisassembler* disassembler, flag_t flags): QtRenderer(disassembler, nullptr, flags) { }
+PainterRenderer::PainterRenderer(RDDisassembler* disassembler, rd_flag flags): QtRenderer(disassembler, nullptr, flags) { }
 
 void PainterRenderer::render(QPainter* painter, size_t first, size_t last)
 {

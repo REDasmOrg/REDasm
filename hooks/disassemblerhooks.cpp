@@ -181,7 +181,7 @@ ITableTab* DisassemblerHooks::showStrings(Qt::DockWidgetArea area)
     return tabletab;
 }
 
-void DisassemblerHooks::showReferences(IDisassemblerCommand* command, address_t address)
+void DisassemblerHooks::showReferences(IDisassemblerCommand* command, rd_address address)
 {
     RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
 
@@ -377,7 +377,7 @@ void DisassemblerHooks::adjustActions()
         {
             bool ok = false;
             RDSegment currentsegment;
-            address_t currentaddress = command->currentWord().toUInt(&ok, 16);
+            rd_address currentaddress = command->currentWord().toUInt(&ok, 16);
             bool hascurrentsegment = ok ? RDDocument_GetSegmentAddress(doc, currentaddress, &currentsegment) : false;
 
             actions[DisassemblerHooks::Action_CreateFunction]->setVisible(hascurrentsegment && HAS_FLAG(&currentsegment, SegmentFlags_Code));
@@ -428,7 +428,7 @@ void DisassemblerHooks::adjustActions()
     actions[DisassemblerHooks::Action_HexDumpFunction]->setVisible(hasitemsegment && !HAS_FLAG(&itemsegment, SegmentFlags_Bss) && HAS_FLAG(&itemsegment, SegmentFlags_Code));
 }
 
-ITableTab* DisassemblerHooks::findSymbolModelInTabs(type_t type, flag_t flags) const
+ITableTab* DisassemblerHooks::findSymbolModelInTabs(rd_type type, rd_flag flags) const
 {
     for(int i = 0; i < m_disassemblertabs->count(); i++)
     {

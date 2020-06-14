@@ -2,7 +2,7 @@
 #include <QPainter>
 #include <QWidget>
 
-PainterRendererAsync::PainterRendererAsync(RDDisassembler* disassembler, flag_t flags, QObject* parent): RendererAsync(parent), PainterRenderer(disassembler, flags) { }
+PainterRendererAsync::PainterRendererAsync(RDDisassembler* disassembler, rd_flag flags, QObject* parent): RendererAsync(parent), PainterRenderer(disassembler, flags) { }
 
 void PainterRendererAsync::scheduleImage(size_t first, size_t last)
 {

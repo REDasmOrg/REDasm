@@ -30,6 +30,6 @@ class GotoDialog : public QDialog
         IDisassemblerCommand* m_command;
         RDDocument* m_document;
         GotoFilterModel* m_gotomodel;
-        address_t m_address{0};
+        rd_address m_address{0};
         bool m_validaddress{false};
 };

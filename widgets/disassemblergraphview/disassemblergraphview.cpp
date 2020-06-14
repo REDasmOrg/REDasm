@@ -45,7 +45,7 @@ void DisassemblerGraphView::copy() const
     if(blockitem) return blockitem->renderer()->copy();
 }
 
-bool DisassemblerGraphView::gotoAddress(address_t address)
+bool DisassemblerGraphView::gotoAddress(rd_address address)
 {
     if(!m_command->gotoAddress(address)) return false;
     return this->updateGraph(address);
@@ -132,7 +132,7 @@ void DisassemblerGraphView::focusCurrentBlock()
     this->setSelectedBlock(item);
 }
 
-bool DisassemblerGraphView::updateGraph(address_t address)
+bool DisassemblerGraphView::updateGraph(rd_address address)
 {
     if(!RDFunctionGraph_Contains(m_graph, address)) return this->renderGraph();
     this->focusCurrentBlock();

@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iostream>
 
-QtRenderer::QtRenderer(RDDisassembler* disassembler, RDCursor* cursor, flag_t flags): m_fontmetrics(REDasmSettings::font())
+QtRenderer::QtRenderer(RDDisassembler* disassembler, RDCursor* cursor, rd_flag flags): m_fontmetrics(REDasmSettings::font())
 {
     m_document = RDDisassembler_GetDocument(disassembler);
 

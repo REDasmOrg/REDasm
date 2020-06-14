@@ -11,7 +11,7 @@ class CallTreeModel : public QAbstractItemModel
         explicit CallTreeModel(QObject *parent = nullptr);
         const RDDocumentItem& item(const QModelIndex& index) const;
         void setDisassembler(RDDisassembler* disassembler);
-        void initializeGraph(address_t address);
+        void initializeGraph(rd_address address);
 
     public:
         bool hasChildren(const QModelIndex& parentindex) const override;

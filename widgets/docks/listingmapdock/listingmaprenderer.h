@@ -25,7 +25,7 @@ class ListingMapRenderer : public RendererAsync
 
     private:
         QRect buildRect(int offset, int itemsize) const;
-        int calculatePosition(offset_t offset) const;
+        int calculatePosition(rd_offset offset) const;
         int calculateSize(u64 sz) const;
         int itemSize() const;
         void renderSegments(QPainter* painter);
@@ -37,7 +37,7 @@ class ListingMapRenderer : public RendererAsync
     private:
         IDisassemblerCommand* m_command;
         PreCalc<RDSegment, size_t> m_calcsegments;
-        PreCalc<RDLocation, address_t> m_calcfunctions;
+        PreCalc<RDLocation, rd_address> m_calcfunctions;
         s32 m_orientation{Qt::Vertical};
         size_t m_totalsize{0};
         std::atomic_bool m_renderenabled{false};

@@ -66,7 +66,7 @@ class DisassemblerHooks: public QObject
         QMenu* createActions(IDisassemblerCommand* command);
         void setActiveCommandTab(ICommandTab* commandtab);
         void focusOn(QWidget* w);
-        void showReferences(IDisassemblerCommand* command, address_t address);
+        void showReferences(IDisassemblerCommand* command, rd_address address);
         void showGoto(IDisassemblerCommand* command);
         void showDevGraphs();
         void showDevBlocks();
@@ -92,7 +92,7 @@ class DisassemblerHooks: public QObject
 
     private:
         template<typename T> ITableTab* findModelInTabs() const;
-        ITableTab* findSymbolModelInTabs(type_t type, flag_t flags) const;
+        ITableTab* findSymbolModelInTabs(rd_type type, rd_flag flags) const;
         static void listenEvents(const RDEventArgs* e);
         Q_INVOKABLE void updateViewWidgets(bool busy);
         Q_INVOKABLE void enableViewCommands(bool enable);

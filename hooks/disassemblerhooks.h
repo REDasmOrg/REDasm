@@ -35,7 +35,7 @@ class DisassemblerHooks: public QObject
         enum { Action_Rename = 0, Action_XRefs, Action_Follow, Action_FollowPointerHexDump,
                Action_CallGraph, Action_Goto, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction,
                Action_Back, Action_Forward, Action_Copy,
-               Action_ItemInformation };
+               Action_RDIL, Action_ItemInformation };
 
     private:
         DisassemblerHooks(QObject* parent = nullptr);

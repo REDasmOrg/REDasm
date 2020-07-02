@@ -222,7 +222,6 @@ void ItemInformationDialog::displayInstructionInformation(RDDocument* doc, const
 
         m_indent = INDENT_BASE;
 
-            this->line("pos", QString::number(op.pos));
             this->line("type", this->operandType(&op));
 
             switch(op.type)

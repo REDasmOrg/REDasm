@@ -12,6 +12,7 @@
 #include "../widgets/tabs/tabletab/tabletab.h"
 #include "../widgets/disassemblerview.h"
 #include "../models/dev/blocklistmodel.h"
+#include "../models/dev/rdilmodel.h"
 #include "../models/listingitemmodel.h"
 #include "../models/symboltablemodel.h"
 #include "../models/segmentsmodel.h"
@@ -352,13 +353,15 @@ void DisassemblerHooks::adjustActions()
     RDDocumentItem item;
     if(!command->getCurrentItem(&item)) return;
 
+    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
+
     actions[DisassemblerHooks::Action_Back]->setVisible(command->canGoBack());
     actions[DisassemblerHooks::Action_Forward]->setVisible(command->canGoForward());
     actions[DisassemblerHooks::Action_Copy]->setVisible(command->hasSelection());
     actions[DisassemblerHooks::Action_Goto]->setVisible(!RD_IsBusy());
+    actions[DisassemblerHooks::Action_RDIL]->setVisible(RDDocument_GetFunctionGraph(doc, item.address, nullptr));
     actions[DisassemblerHooks::Action_ItemInformation]->setVisible(!RD_IsBusy());
 
-    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
     RDSegment itemsegment, symbolsegment;
     RDSymbol symbol;
 
@@ -648,6 +651,12 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
     actions[DisassemblerHooks::Action_Forward] = contextmenu->addAction("Forward", this, [command]() { command->goForward(); }, QKeySequence(Qt::CTRL + Qt::Key_Right));
     contextmenu->addSeparator();
     actions[DisassemblerHooks::Action_Copy] = contextmenu->addAction("Copy", this, [command]() { command->copy(); }, QKeySequence(QKeySequence::Copy));
+
+    actions[DisassemblerHooks::Action_RDIL] = contextmenu->addAction("Show RDIL", this, [&, command]() {
+        TableDialog dlgrdil(m_mainwindow);
+        dlgrdil.setModel(new RDILModel(command));
+        dlgrdil.exec();
+    });
 
     actions[DisassemblerHooks::Action_ItemInformation] = contextmenu->addAction("Item Information", this, [&, command]() {
         ItemInformationDialog dlgiteminfo(command, m_mainwindow);

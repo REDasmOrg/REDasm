@@ -22,11 +22,13 @@ class DisassemblerBlockItem : public GraphViewItem
         void render(QPainter* painter, size_t state) override;
         QSize size() const override;
 
+    public slots:
+        void invalidate(bool notify = true) override;
+
     protected:
         void mouseDoubleClickEvent(QMouseEvent *) override;
         void mousePressEvent(QMouseEvent *e) override;
         void mouseMoveEvent(QMouseEvent *e) override;
-        void invalidate(bool notify = true) override;
 
     private:
         QSize documentSize() const;

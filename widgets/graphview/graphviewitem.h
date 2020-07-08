@@ -16,7 +16,6 @@ class GraphViewItem: public QObject
     public:
         explicit GraphViewItem(RDGraphNode node, QObject* parent = nullptr);
         virtual ~GraphViewItem() = default;
-        virtual void invalidate(bool notify = true);
         RDGraphNode node() const;
         int x() const;
         int y() const;
@@ -38,6 +37,9 @@ class GraphViewItem: public QObject
         virtual int currentLine() const;
         virtual void render(QPainter* painter, size_t state) = 0;
         virtual QSize size() const = 0;
+
+    public slots:
+        virtual void invalidate(bool notify = true);
 
     signals:
         void invalidated();

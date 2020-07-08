@@ -20,6 +20,7 @@ class FunctionGraphDialog : public QDialog
 
     private slots:
         void showGraph(const QModelIndex& current, const QModelIndex&);
+        void copyGraph() const;
 
     private:
         Ui::FunctionGraphDialog *ui;

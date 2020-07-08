@@ -19,11 +19,11 @@ QVariant FunctionGraphModel::headerData(int section, Qt::Orientation orientation
 
     switch(section)
     {
-        case 0: return "Start";
-        case 1: return "End";
-        case 2: return "Incoming";
-        case 3: return "Outgoing";
-        case 4: return "Symbol";
+        case 0: return "Symbol";
+        case 1: return "Start";
+        case 2: return "End";
+        case 3: return "Incoming";
+        case 4: return "Outgoing";
         default: break;
     }
 
@@ -60,18 +60,18 @@ QVariant FunctionGraphModel::data(const QModelIndex& index, int role) const
 
         switch(index.column())
         {
-            case 0: return RD_ToHexAuto(startitem.address);
-            case 1: return RD_ToHexAuto(enditem.address);
-            case 2: return QString::number(RDGraph_GetIncoming(m_graph, *node, nullptr));
-            case 3: return QString::number(RDGraph_GetOutgoing(m_graph, *node, nullptr));
-            case 4: return symbolname ? symbolname : QString();
+            case 0: return symbolname ? symbolname : QString();
+            case 1: return RD_ToHexAuto(startitem.address);
+            case 2: return RD_ToHexAuto(enditem.address);
+            case 3: return this->incomings(*node);
+            case 4: return this->outgoings(*node);
             default: break;
         }
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() < 2) return THEME_VALUE("address_list_fg");
-        else if(index.column() == 4) return THEME_VALUE("label_fg");
+        if((index.column() == 1) || (index.column() == 2)) return THEME_VALUE("address_list_fg");
+        else if(index.column() == 0) return THEME_VALUE("label_fg");
     }
 
     return QVariant();
@@ -88,4 +88,40 @@ std::optional<RDGraphNode> FunctionGraphModel::getBasicBlock(const QModelIndex& 
 
     if(!RDFunctionGraph_GetBasicBlock(m_graph, nodes[index.row()], fbb)) return std::nullopt;
     return nodes[index.row()];
+}
+
+QString FunctionGraphModel::incomings(RDGraphNode node) const
+{
+    const RDGraphEdge* edges = nullptr;
+    size_t c = RDGraph_GetIncoming(m_graph, node, &edges);
+
+    QString s;
+
+    for(size_t i = 0; i < c; i++)
+    {
+        const RDFunctionBasicBlock* fbb = nullptr;
+        if(!RDFunctionGraph_GetBasicBlock(m_graph, edges[i].source, &fbb)) continue;
+        if(!s.isEmpty()) s.append(", ");
+        s.append(RD_ToHex(RDFunctionBasicBlock_GetStartAddress(fbb)));
+    }
+
+    return s;
+}
+
+QString FunctionGraphModel::outgoings(RDGraphNode node) const
+{
+    const RDGraphEdge* edges = nullptr;
+    size_t c = RDGraph_GetOutgoing(m_graph, node, &edges);
+
+    QString s;
+
+    for(size_t i = 0; i < c; i++)
+    {
+        const RDFunctionBasicBlock* fbb = nullptr;
+        if(!RDFunctionGraph_GetBasicBlock(m_graph, edges[i].target, &fbb)) continue;
+        if(!s.isEmpty()) s.append(", ");
+        s.append(RD_ToHex(RDFunctionBasicBlock_GetStartAddress(fbb)));
+    }
+
+    return s;
 }

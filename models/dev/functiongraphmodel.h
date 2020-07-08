@@ -21,6 +21,8 @@ class FunctionGraphModel : public QAbstractListModel
 
     private:
         std::optional<RDGraphNode> getBasicBlock(const QModelIndex& index, const RDFunctionBasicBlock** fbb) const;
+        QString incomings(RDGraphNode node) const;
+        QString outgoings(RDGraphNode node) const;
 
     private:
         RDDisassembler* m_disassembler;

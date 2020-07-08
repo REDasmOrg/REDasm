@@ -2,7 +2,7 @@
 
 #include <QSyntaxHighlighter>
 #include <QRegularExpression>
-#include <QLinkedList>
+#include <list>
 
 class LogSyntaxHighlighter : public QSyntaxHighlighter
 {
@@ -21,5 +21,5 @@ class LogSyntaxHighlighter : public QSyntaxHighlighter
         void applyRule(const Rule& rule, const QString& text);
 
     private:
-        QLinkedList<Rule> m_rules;
+        std::list<Rule> m_rules;
 };

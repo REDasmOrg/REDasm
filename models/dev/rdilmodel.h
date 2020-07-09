@@ -14,8 +14,10 @@ class RDILModel : public QAbstractListModel
         QVariant data(const QModelIndex &index, int role) const override;
         int columnCount(const QModelIndex&) const override;
         int rowCount(const QModelIndex&) const override;
+        void update();
 
     private:
+        IDisassemblerCommand* m_command;
         std::vector<std::pair<RDILDisassembled, QString>> m_items;
         rd_ptr<RDRenderer> m_renderer;
 };

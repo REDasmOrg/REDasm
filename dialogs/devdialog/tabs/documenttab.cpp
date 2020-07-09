@@ -1,7 +1,7 @@
-#include "iteminformationdialog.h"
-#include "ui_iteminformationdialog.h"
-#include "../../../redasmsettings.h"
+#include "documenttab.h"
+#include "ui_documenttab.h"
 #include "../logsyntaxhighlighter.h"
+#include "../../../redasmsettings.h"
 #include <climits>
 
 #define INDENT_BASE   2
@@ -16,19 +16,29 @@
         s += #f; \
     }
 
-ItemInformationDialog::ItemInformationDialog(IDisassemblerCommand* command, QWidget *parent) : QDialog(parent), ui(new Ui::ItemInformationDialog), m_command(command)
+DocumentTab::DocumentTab(QWidget *parent) : QWidget(parent), ui(new Ui::DocumentTab)
 {
     ui->setupUi(this);
     ui->pteInfo->setFont(REDasmSettings::font());
 
     new LogSyntaxHighlighter(ui->pteInfo->document());
+}
+
+DocumentTab::~DocumentTab() { delete ui; }
+
+void DocumentTab::setCommand(IDisassemblerCommand* command)
+{
+    m_command = command;
+    this->updateInformation();
+}
+
+void DocumentTab::updateInformation()
+{
     this->displayInformation();
     ui->pteInfo->moveCursor(QTextCursor::Start);
 }
 
-ItemInformationDialog::~ItemInformationDialog() { delete ui; }
-
-ItemInformationDialog &ItemInformationDialog::line(const QString &s1, const QString &s2)
+DocumentTab &DocumentTab::line(const QString &s1, const QString &s2)
 {
     QString padding;
 
@@ -38,11 +48,11 @@ ItemInformationDialog &ItemInformationDialog::line(const QString &s1, const QStr
     return this->line(QString("%1%2:%3%4").arg(QString(" ").repeated(m_indent), s1, padding, s2));
 }
 
-ItemInformationDialog& ItemInformationDialog::line(const QString &s) { ui->pteInfo->appendPlainText(s); return *this; }
-ItemInformationDialog &ItemInformationDialog::header(const QString &s) { return this->line(s).line(QString(HEADER_STRING).repeated(s.size())); }
-ItemInformationDialog &ItemInformationDialog::string(const QString &k, const QString &s) { return this->line(k, QString("\"%1\"").arg(s)); }
+DocumentTab& DocumentTab::line(const QString &s) { ui->pteInfo->appendPlainText(s); return *this; }
+DocumentTab &DocumentTab::header(const QString &s) { return this->line(s).line(QString(HEADER_STRING).repeated(s.size())); }
+DocumentTab &DocumentTab::string(const QString &k, const QString &s) { return this->line(k, QString("\"%1\"").arg(s)); }
 
-QString ItemInformationDialog::itemType(const RDDocumentItem& item) const
+QString DocumentTab::itemType(const RDDocumentItem& item) const
 {
     switch(item.type)
     {
@@ -61,7 +71,7 @@ QString ItemInformationDialog::itemType(const RDDocumentItem& item) const
     return QString::number(item.type);
 }
 
-QString ItemInformationDialog::segmentFlags(const RDSegment* segment) const
+QString DocumentTab::segmentFlags(const RDSegment* segment) const
 {
     QString s;
     CHECK_FLAG(s, segment, SegmentFlags_Code);
@@ -70,7 +80,7 @@ QString ItemInformationDialog::segmentFlags(const RDSegment* segment) const
     return s.isEmpty() ? STR(SegmentFlags_None) : s;
 }
 
-QString ItemInformationDialog::instructionType(const RDInstruction* instruction) const
+QString DocumentTab::instructionType(const RDInstruction* instruction) const
 {
     switch(instruction->type)
     {
@@ -102,7 +112,7 @@ QString ItemInformationDialog::instructionType(const RDInstruction* instruction)
     return QString::number(instruction->type);
 }
 
-QString ItemInformationDialog::instructionFlags(const RDInstruction* instruction) const
+QString DocumentTab::instructionFlags(const RDInstruction* instruction) const
 {
     QString s;
     CHECK_FLAG(s, instruction, InstructionFlags_Weak);
@@ -112,7 +122,7 @@ QString ItemInformationDialog::instructionFlags(const RDInstruction* instruction
     return s.isEmpty() ? STR(InstructionFlags_None) : s;
 }
 
-QString ItemInformationDialog::operandType(const RDOperand* operand) const
+QString DocumentTab::operandType(const RDOperand* operand) const
 {
     switch(operand->type)
     {
@@ -128,7 +138,7 @@ QString ItemInformationDialog::operandType(const RDOperand* operand) const
     return QString::number(operand->type);
 }
 
-QString ItemInformationDialog::symbolType(const RDSymbol* symbol) const
+QString DocumentTab::symbolType(const RDSymbol* symbol) const
 {
     switch(symbol->type)
     {
@@ -144,7 +154,7 @@ QString ItemInformationDialog::symbolType(const RDSymbol* symbol) const
     return QString::number(symbol->type);
 }
 
-QString ItemInformationDialog::symbolFlags(const RDSymbol* symbol) const
+QString DocumentTab::symbolFlags(const RDSymbol* symbol) const
 {
     QString s;
     CHECK_FLAG(s, symbol, SymbolFlags_Weak);
@@ -157,7 +167,7 @@ QString ItemInformationDialog::symbolFlags(const RDSymbol* symbol) const
     return s.isEmpty() ? STR(InstructionFlags_None) : s;
 }
 
-QString ItemInformationDialog::padHexDump(const QString& hexdump) const
+QString DocumentTab::padHexDump(const QString& hexdump) const
 {
     if(hexdump.size() % 2) return hexdump;
 
@@ -172,7 +182,7 @@ QString ItemInformationDialog::padHexDump(const QString& hexdump) const
     return phexdump;
 }
 
-QString ItemInformationDialog::getBits(const QByteArray& ba) const
+QString DocumentTab::getBits(const QByteArray& ba) const
 {
     const int charbit_m = CHAR_BIT - 1;
 
@@ -191,7 +201,7 @@ QString ItemInformationDialog::getBits(const QByteArray& ba) const
     return bits;
 }
 
-void ItemInformationDialog::displayInstructionInformation(RDDocument* doc, const RDDocumentItem& item)
+void DocumentTab::displayInstructionInformation(RDDocument* doc, const RDDocumentItem& item)
 {
     InstructionLock instruction(doc, item.address);
     if(!instruction) return;
@@ -246,7 +256,7 @@ void ItemInformationDialog::displayInstructionInformation(RDDocument* doc, const
     }
 }
 
-void ItemInformationDialog::displaySymbolInformation(RDDocument* doc, const RDDocumentItem& item)
+void DocumentTab::displaySymbolInformation(RDDocument* doc, const RDDocumentItem& item)
 {
     RDSymbol symbol;
     if(!RDDocument_GetSymbolByAddress(doc, item.address, &symbol)) return;
@@ -264,8 +274,11 @@ void ItemInformationDialog::displaySymbolInformation(RDDocument* doc, const RDDo
     m_indent = 0;
 }
 
-void ItemInformationDialog::displayInformation()
+void DocumentTab::displayInformation()
 {
+    ui->pteInfo->clear();
+    if(!m_command) return;
+
     RDDocumentItem item;
     if(!m_command->getCurrentItem(&item)) return;
 
@@ -288,4 +301,3 @@ void ItemInformationDialog::displayInformation()
         default: break;
     }
 }
-

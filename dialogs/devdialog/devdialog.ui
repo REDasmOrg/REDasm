@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DevDialog</class>
+ <widget class="QDialog" name="DevDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>860</width>
+    <height>564</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Developer Tools</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="tabShape">
+      <enum>QTabWidget::Rounded</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="DocumentTab" name="tabDocument">
+      <attribute name="title">
+       <string>Document</string>
+      </attribute>
+     </widget>
+     <widget class="TableWidget" name="tabBlocks">
+      <attribute name="title">
+       <string>Blocks</string>
+      </attribute>
+     </widget>
+     <widget class="FunctionGraphTab" name="tabGraphs">
+      <attribute name="title">
+       <string>Graphs</string>
+      </attribute>
+     </widget>
+     <widget class="TableWidget" name="tabRDIL">
+      <attribute name="title">
+       <string>RDIL</string>
+      </attribute>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FunctionGraphTab</class>
+   <extends>QWidget</extends>
+   <header>dialogs/devdialog/tabs/functiongraphtab.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TableWidget</class>
+   <extends>QWidget</extends>
+   <header>widgets/tablewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DocumentTab</class>
+   <extends>QWidget</extends>
+   <header>dialogs/devdialog/tabs/documenttab.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,29 +1,34 @@
 #pragma once
 
 #include <QSortFilterProxyModel>
-#include <QDialog>
-#include "../../../models/dev/functionlistmodel.h"
+#include <QWidget>
 #include "../../../models/dev/functiongraphmodel.h"
+#include "../../../models/dev/functionlistmodel.h"
+#include "../../../hooks/idisassemblercommand.h"
 
 namespace Ui {
-class FunctionGraphDialog;
+class FunctionGraphTab;
 }
 
-class FunctionGraphDialog : public QDialog
+class FunctionGraphTab : public QWidget
 {
     Q_OBJECT
 
     public:
-        explicit FunctionGraphDialog(QWidget *parent = nullptr);
-        ~FunctionGraphDialog();
-        void setDisassembler(RDDisassembler* disassembler);
+        explicit FunctionGraphTab(QWidget *parent = nullptr);
+        ~FunctionGraphTab();
+        void setCommand(IDisassemblerCommand* command);
 
     private slots:
         void showGraph(const QModelIndex& current, const QModelIndex&);
         void copyGraph() const;
+        void copyHash() const;
 
     private:
-        Ui::FunctionGraphDialog *ui;
+        const RDGraph* getSelectedGraph() const;
+
+    private:
+        Ui::FunctionGraphTab *ui;
         FunctionListModel* m_functionlistmodel{nullptr};
         QSortFilterProxyModel* m_sortedblocksmodel{nullptr};
         FunctionGraphModel* m_functiongraphmodel{nullptr};

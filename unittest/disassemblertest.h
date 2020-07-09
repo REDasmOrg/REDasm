@@ -28,10 +28,7 @@ class DisassemblerTest
         //void testVBEvents(const std::map<address_t, REDasm::String> &vbevents);
 
     private: // Tests
-        //void testCavia();
-        //void testCM01();
         //void testOllyDump();
-        //void testSCrack();
         //void testVB5CrackMe();
         //void testIoliARM();
         //void testTn11();

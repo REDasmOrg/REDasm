@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QDialog>
 #include <QAbstractListModel>
+#include <QDialog>
 
 namespace Ui {
 class TableDialog;

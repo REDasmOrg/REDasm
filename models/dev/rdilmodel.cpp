@@ -1,18 +1,10 @@
 #include "rdilmodel.h"
 #include "../themeprovider.h"
 
-RDILModel::RDILModel(IDisassemblerCommand* command, QObject *parent) : QAbstractListModel(parent)
+RDILModel::RDILModel(IDisassemblerCommand* command, QObject *parent) : QAbstractListModel(parent), m_command(command)
 {
-    RDDocumentItem item;
-    if(!command->getCurrentItem(&item)) return;
-
     m_renderer.reset(RDRenderer_Create(command->disassembler(), nullptr, RendererFlags_Simplified));
-
-    RDIL_Disassemble(command->disassembler(), item.address, [](const RDILDisassembled* d, void* userdata) {
-        auto* thethis = reinterpret_cast<RDILModel*>(userdata);
-        if(!d->index) thethis->m_items.push_back({ *d, RDRenderer_GetInstruction(thethis->m_renderer.get(), d->address) });
-        else thethis->m_items.push_back({ *d, QString() });
-    }, this);
+    this->update();
 }
 
 QVariant RDILModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -57,3 +49,19 @@ QVariant RDILModel::data(const QModelIndex& index, int role) const
 
 int RDILModel::columnCount(const QModelIndex&) const { return 2; }
 int RDILModel::rowCount(const QModelIndex&) const { return m_items.size(); }
+
+void RDILModel::update()
+{
+    this->beginResetModel();
+    m_items.clear();
+
+    RDDocumentItem item;
+    if(!m_command->getCurrentItem(&item)) return;
+
+    RDIL_Disassemble(m_command->disassembler(), item.address, [](const RDILDisassembled* d, void* userdata) {
+        auto* thethis = reinterpret_cast<RDILModel*>(userdata);
+        if(!d->index) thethis->m_items.push_back({ *d, RDRenderer_GetInstruction(thethis->m_renderer.get(), d->address) });
+        else thethis->m_items.push_back({ *d, QString() });
+    }, this);
+    this->endResetModel();
+}

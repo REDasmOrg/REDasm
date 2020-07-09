@@ -1,19 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FunctionGraphDialog</class>
- <widget class="QDialog" name="FunctionGraphDialog">
+ <class>FunctionGraphTab</class>
+ <widget class="QWidget" name="FunctionGraphTab">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>757</width>
-    <height>453</height>
+    <width>812</width>
+    <height>448</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Function Graphs</string>
+   <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
@@ -45,7 +60,7 @@
        <bool>false</bool>
       </attribute>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QTableView" name="tbvGraph">
@@ -67,11 +82,22 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pbCopy">
-         <property name="text">
-          <string>Copy to Clipboard</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="pbCopyHash">
+           <property name="text">
+            <string>Copy Hash</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbCopyGraph">
+           <property name="text">
+            <string>Copy Graph</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

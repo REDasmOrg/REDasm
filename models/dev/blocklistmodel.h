@@ -2,13 +2,14 @@
 
 #include <QAbstractListModel>
 #include <rdapi/rdapi.h>
+#include "../hooks/idisassemblercommand.h"
 
 class BlockListModel : public QAbstractListModel
 {
     Q_OBJECT
 
     public:
-        explicit BlockListModel(RDDocument* document, QObject *parent = nullptr);
+        explicit BlockListModel(IDisassemblerCommand* command, QObject *parent = nullptr);
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
         QVariant data(const QModelIndex &index, int role) const override;
         int columnCount(const QModelIndex&) const override;
@@ -20,6 +21,7 @@ class BlockListModel : public QAbstractListModel
         QString segmentName(int section) const;
 
     private:
+        IDisassemblerCommand* m_command;
         RDDocument* m_document;
 };
 

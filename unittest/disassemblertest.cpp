@@ -39,13 +39,9 @@ using namespace std;
 
 DisassemblerTest::DisassemblerTest()
 {
-    //ADD_TEST("/home/davide/Programmazione/Cavia.exe", testCavia);
-
-    //ADD_TEST_PATH("PE Test/CM01.exe", testCM01);
     //ADD_TEST_PATH("PE Test/VB5CRKME.EXE", testVB5CrackMe);
     //ADD_TEST_PATH("PE Test/OllyDump.dll", testOllyDump);
     //ADD_TEST_PATH("PE Test/tn_11.exe", testTn11);
-    //ADD_TEST_PATH("PE Test/tn12/scrack.exe", testSCrack);
     //ADD_TEST_PATH("PE Test/HelloWorldMFC.exe", testHelloWorldMFC);
     //ADD_TEST_PATH("PE Test/TestRTTI.exe", testTestRTTI);
     //ADD_TEST_PATH("IOLI-crackme/bin-pocketPC/crackme0x01.arm.exe", testIoliARM);
@@ -166,36 +162,6 @@ string DisassemblerTest::replaceAll(std::string str, const std::string &from, co
 //}
 
 /*
-void DisassemblerTest::testCavia()
-{
-    const Symbol* symbol = m_document->symbol(0x00401000);
-    TEST_SYMBOL("EntryPoint", symbol, symbol->isFunction());
-
-    symbol = m_document->symbol(0x00401029);
-    TEST_SYMBOL_NAME("WndProc", symbol, symbol->isFunction(), "DlgProc_401029");
-}
-
-void DisassemblerTest::testCM01()
-{
-    // const Symbol* symbol = m_document->symbol(0x00401128);
-    // TEST_SYMBOL_NAME("Exported WndProc", symbol, symbol->isFunction() && symbol->is(Symbol::ExportFunction), "WndProc");
-
-    // symbol = m_document->symbol(0x00401253);
-    // TEST_SYMBOL_NAME("DlgProc @ 00401253", symbol, symbol->isFunction(), "DlgProc_401253");
-
-    // symbol = m_document->symbol(0x0040130A);
-    // TEST_SYMBOL_NAME("DlgProc @ 0040130A", symbol, symbol->isFunction(), "DlgProc_40130A");
-
-    // symbol = m_document->symbol(0x004020E7);
-    // TEST_SYMBOL("Ascii String @ 004020E7", symbol, symbol->is(Symbol::String));
-
-    // symbol = m_document->symbol(0x00402129);
-    // TEST_SYMBOL("Ascii String @ 00402129", symbol, symbol->is(Symbol::String));
-
-    // symbol = m_document->symbol(0x00402134);
-    // TEST_SYMBOL("Ascii String @ 00402134", symbol, symbol->is(Symbol::String));
-}
-
 void DisassemblerTest::testOllyDump()
 {
     // const Symbol* symbol = m_document->symbol(0x00403BDC);
@@ -217,35 +183,6 @@ void DisassemblerTest::testOllyDump()
 
     // symbol = m_disassembler->dereferenceSymbol(symbol);
     // TEST_SYMBOL("Checking if dereferenced pointer is a function", symbol, symbol->isFunction());
-}
-
-void DisassemblerTest::testSCrack()
-{
-   //  const Symbol* symbol = m_document->symbol(0x004013E4);
-   //  TEST_SYMBOL_NAME("Import VB6 ThunRTMain", symbol, symbol->isFunction(), "_msvbvm60.dll_ThunRTMain");
-
-   //  symbol = m_document->symbol(0x00402B1C);
-   //  TEST_SYMBOL("Wide String @ 0x00402b1c", symbol, symbol->is(Symbol::WideString));
-
-   //  symbol = m_document->symbol(0x00402B2C);
-   //  TEST_SYMBOL("Wide String @ 0x00402b2c", symbol, symbol->is(Symbol::WideString));
-
-   //  std::map<address_t, String> vbevents;
-   //  vbevents[0x00403BB0] = "main::about::Click";
-   //  vbevents[0x00403D20] = "main::about::GotFocus";
-   //  vbevents[0x00403DE0] = "main::about::LostFocus";
-   //  vbevents[0x00403EA0] = "main::register::Click";
-   //  vbevents[0x00404970] = "main::register::GotFocus";
-   //  vbevents[0x00404A30] = "main::register::LostFocus";
-   //  vbevents[0x00404AF0] = "main::sn::GotFocus";
-   //  vbevents[0x00404BB0] = "main::sn::LostFocus";
-   //  vbevents[0x00404C70] = "main::uname::GotFocus";
-   //  vbevents[0x00404D30] = "main::uname::LostFocus";
-   //  vbevents[0x00404DF0] = "aboutfrm::ok::Click";
-   //  vbevents[0x00404EE0] = "aboutfrm::pmode::Click";
-   //  vbevents[0x00404FE0] = "aboutfrm::uic::Click";
-
-   //  this->testVBEvents(vbevents);
 }
 
 void DisassemblerTest::testVB5CrackMe()

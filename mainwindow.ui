@@ -97,18 +97,11 @@
     <property name="title">
      <string>&amp;REDasm</string>
     </property>
-    <widget class="QMenu" name="menu_Development">
-     <property name="title">
-      <string>&amp;Development</string>
-     </property>
-     <addaction name="action_Blocks"/>
-     <addaction name="action_Graphs"/>
-    </widget>
     <addaction name="action_Goto"/>
     <addaction name="action_Filter"/>
     <addaction name="action_Signatures"/>
     <addaction name="separator"/>
-    <addaction name="menu_Development"/>
+    <addaction name="action_Developer_Tools"/>
     <addaction name="action_Settings"/>
    </widget>
    <addaction name="menu_File"/>
@@ -200,11 +193,6 @@
     <string>&amp;Reset Layout</string>
    </property>
   </action>
-  <action name="action_Settings">
-   <property name="text">
-    <string>&amp;Settings</string>
-   </property>
-  </action>
   <action name="action_Segments">
    <property name="text">
     <string>&amp;Segments</string>
@@ -253,11 +241,6 @@
     <string>F3</string>
    </property>
   </action>
-  <action name="action_Graphs">
-   <property name="text">
-    <string>&amp;Graphs</string>
-   </property>
-  </action>
   <action name="action_Exports">
    <property name="text">
     <string>&amp;Exports</string>
@@ -271,6 +254,19 @@
   <action name="action_Strings">
    <property name="text">
     <string>&amp;Strings</string>
+   </property>
+  </action>
+  <action name="action_Developer_Tools">
+   <property name="text">
+    <string>&amp;Developer Tools</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="action_Settings">
+   <property name="text">
+    <string>&amp;Settings</string>
    </property>
   </action>
  </widget>

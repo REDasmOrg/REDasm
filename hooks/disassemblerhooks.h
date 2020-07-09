@@ -5,10 +5,10 @@
 #define HOOK_STATUS_ICON         "lblStatusIcon"
 #define HOOK_PROBLEMS            "pbProblems"
 #define HOOK_MENU_WINDOW         "menu_Window"
-#define HOOK_MENU_DEVELOPMENT    "menu_Development"
 #define HOOK_ACTION_SAVE_AS      "action_Save_As"
 #define HOOK_ACTION_CLOSE        "action_Close"
 #define HOOK_ACTION_RECENT_FILES "action_Recent_Files"
+#define HOOK_ACTION_DEVTOOLS     "action_Developer_Tools"
 
 #include <QMainWindow>
 #include <QPushButton>
@@ -20,6 +20,7 @@
 #include "icommandtab.h"
 #include "itabletab.h"
 
+class DevDialog;
 class OutputDock;
 class DisassemblerView;
 class ListingItemModel;
@@ -34,8 +35,7 @@ class DisassemblerHooks: public QObject
     private:
         enum { Action_Rename = 0, Action_XRefs, Action_Follow, Action_FollowPointerHexDump,
                Action_CallGraph, Action_Goto, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction,
-               Action_Back, Action_Forward, Action_Copy,
-               Action_RDIL, Action_ItemInformation };
+               Action_Back, Action_Forward, Action_Copy };
 
     private:
         DisassemblerHooks(QObject* parent = nullptr);
@@ -68,8 +68,7 @@ class DisassemblerHooks: public QObject
         void focusOn(QWidget* w);
         void showReferences(IDisassemblerCommand* command, rd_address address);
         void showGoto(IDisassemblerCommand* command);
-        void showDevGraphs();
-        void showDevBlocks();
+        void showDeveloperTools();
 
     public:
         ICommandTab* activeCommandTab() const;
@@ -111,11 +110,12 @@ class DisassemblerHooks: public QObject
     private:
         QMainWindow* m_mainwindow{nullptr};
         QToolBar* m_toolbar{nullptr};
-        QMenu *m_mnuwindow{nullptr}, *m_mnudev{nullptr};
+        QMenu* m_mnuwindow{nullptr};
         QLabel* m_lblstatusicon{nullptr};
         QPushButton* m_pbproblems{nullptr};
         DisassemblerView* m_disassemblerview{nullptr};
         DisassemblerTabs* m_disassemblertabs{nullptr};
+        DevDialog* m_devdialog{nullptr};
         mutable ICommandTab* m_activecommandtab{nullptr};
         QFileInfo m_fileinfo;
         std::future<void> m_worker;

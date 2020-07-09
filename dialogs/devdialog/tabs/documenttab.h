@@ -1,26 +1,28 @@
 #pragma once
 
-#include <QDialog>
+#include <QWidget>
 #include "../hooks/idisassemblercommand.h"
 #include <rdapi/rdapi.h>
 
 namespace Ui {
-class ItemInformationDialog;
+class DocumentTab;
 }
 
-class ItemInformationDialog : public QDialog
+class DocumentTab : public QWidget
 {
     Q_OBJECT
 
     public:
-        explicit ItemInformationDialog(IDisassemblerCommand* command, QWidget *parent = nullptr);
-        ~ItemInformationDialog();
+        explicit DocumentTab(QWidget *parent = nullptr);
+        void setCommand(IDisassemblerCommand* command);
+        Q_INVOKABLE void updateInformation();
+        ~DocumentTab();
 
     private:
-        ItemInformationDialog& line(const QString& s1, const QString& s2);
-        ItemInformationDialog& line(const QString& s = QString());
-        ItemInformationDialog& header(const QString& s = QString());
-        ItemInformationDialog& string(const QString& k, const QString& s);
+        DocumentTab& line(const QString& s1, const QString& s2);
+        DocumentTab& line(const QString& s = QString());
+        DocumentTab& header(const QString& s = QString());
+        DocumentTab& string(const QString& k, const QString& s);
         QString itemType(const RDDocumentItem& item) const;
         QString segmentFlags(const RDSegment* segment) const;
         QString instructionType(const RDInstruction* instruction) const;
@@ -35,18 +37,18 @@ class ItemInformationDialog : public QDialog
         void displayInformation();
 
     private:
-        template<typename Iterator, typename Func> ItemInformationDialog& array(Iterator begin, Iterator end, const Func& cb);
-        template<typename Iterator, typename Func> ItemInformationDialog& array(const QString& k, Iterator begin, Iterator end, const Func& cb);
+        template<typename Iterator, typename Func> DocumentTab& array(Iterator begin, Iterator end, const Func& cb);
+        template<typename Iterator, typename Func> DocumentTab& array(const QString& k, Iterator begin, Iterator end, const Func& cb);
 
     private:
-        Ui::ItemInformationDialog *ui;
-        IDisassemblerCommand* m_command;
+        Ui::DocumentTab *ui;
+        IDisassemblerCommand* m_command{nullptr};
         int m_indent{0};
 };
 
-template<typename Iterator, typename Func> ItemInformationDialog& ItemInformationDialog::array(Iterator begin, Iterator end, const Func& cb) { return this->array(QString(), begin, end, cb); }
+template<typename Iterator, typename Func> DocumentTab& DocumentTab::array(Iterator begin, Iterator end, const Func& cb) { return this->array(QString(), begin, end, cb); }
 
-template<typename Iterator, typename Func> ItemInformationDialog& ItemInformationDialog::array(const QString& k, Iterator begin, Iterator end, const Func& cb)
+template<typename Iterator, typename Func> DocumentTab& DocumentTab::array(const QString& k, Iterator begin, Iterator end, const Func& cb)
 {
     QString s;
 

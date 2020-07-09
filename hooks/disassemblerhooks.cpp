@@ -5,8 +5,7 @@
 #include "../dialogs/loaderdialog/loaderdialog.h"
 #include "../dialogs/referencesdialog/referencesdialog.h"
 #include "../dialogs/gotodialog/gotodialog.h"
-#include "../dialogs/dev/iteminformationdialog/iteminformationdialog.h"
-#include "../dialogs/dev/functiongraphdialog/functiongraphdialog.h"
+#include "../dialogs/devdialog/devdialog.h"
 #include "../widgets/tabs/welcometab/welcometab.h"
 #include "../widgets/docks/outputdock/outputdock.h"
 #include "../widgets/tabs/tabletab/tabletab.h"
@@ -205,34 +204,13 @@ void DisassemblerHooks::showGoto(IDisassemblerCommand* command)
     dlggoto.exec();
 }
 
-void DisassemblerHooks::showDevGraphs()
+void DisassemblerHooks::showDeveloperTools()
 {
-    if(!m_disassemblerview) return;
+    if(!m_devdialog)
+        m_devdialog = new DevDialog(m_mainwindow);
 
-    static FunctionGraphDialog* dlgfuncgraph = nullptr;
-    if(!dlgfuncgraph) dlgfuncgraph = new FunctionGraphDialog(m_mainwindow);
-
-    dlgfuncgraph->setDisassembler(m_disassemblerview->disassembler());
-    dlgfuncgraph->show();
-}
-
-void DisassemblerHooks::showDevBlocks()
-{
-    if(!m_disassemblerview) return;
-
-    static TableDialog* td = nullptr;
-
-    if(!td)
-    {
-        td = new TableDialog(m_mainwindow);
-        td->setWindowTitle("Block List");
-        td->enableFiltering();
-        td->setButtonBoxVisible(false);
-    }
-
-    RDDisassembler* disassembler = m_disassemblerview->disassembler();
-    td->setModel(new BlockListModel(RDDisassembler_GetDocument(disassembler)));
-    td->show();
+    m_devdialog->setCommand(m_activecommandtab->command());
+    m_devdialog->show();
 }
 
 ICommandTab* DisassemblerHooks::activeCommandTab() const
@@ -359,8 +337,6 @@ void DisassemblerHooks::adjustActions()
     actions[DisassemblerHooks::Action_Forward]->setVisible(command->canGoForward());
     actions[DisassemblerHooks::Action_Copy]->setVisible(command->hasSelection());
     actions[DisassemblerHooks::Action_Goto]->setVisible(!RD_IsBusy());
-    actions[DisassemblerHooks::Action_RDIL]->setVisible(RDDocument_GetFunctionGraph(doc, item.address, nullptr));
-    actions[DisassemblerHooks::Action_ItemInformation]->setVisible(!RD_IsBusy());
 
     RDSegment itemsegment, symbolsegment;
     RDSymbol symbol;
@@ -514,13 +490,9 @@ void DisassemblerHooks::hook()
     m_lblstatusicon = m_mainwindow->findChild<QLabel*>(HOOK_STATUS_ICON);
     m_pbproblems = m_mainwindow->findChild<QPushButton*>(HOOK_PROBLEMS);
     m_mnuwindow = m_mainwindow->findChild<QMenu*>(HOOK_MENU_WINDOW);
-    m_mnudev = m_mainwindow->findChild<QMenu*>(HOOK_MENU_DEVELOPMENT);
     m_toolbar = m_mainwindow->findChild<QToolBar*>(HOOK_TOOLBAR);
     m_disassemblertabs = m_mainwindow->findChild<DisassemblerTabs*>(HOOK_TABS);
     this->addWelcomeTab();
-
-    auto actions = m_mnudev->actions();
-    for(int i = 0; i < actions.size(); i++) actions[i]->setShortcut(QKeySequence(QString("CTRL+SHIFT+F%1").arg(i + 1)));
 
     connect(m_toolbar, &QToolBar::actionTriggered, this, &DisassemblerHooks::onToolBarActionTriggered);
     connect(m_mnuwindow, &QMenu::triggered, this, &DisassemblerHooks::onWindowActionTriggered);
@@ -652,17 +624,6 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
     contextmenu->addSeparator();
     actions[DisassemblerHooks::Action_Copy] = contextmenu->addAction("Copy", this, [command]() { command->copy(); }, QKeySequence(QKeySequence::Copy));
 
-    actions[DisassemblerHooks::Action_RDIL] = contextmenu->addAction("Show RDIL", this, [&, command]() {
-        TableDialog dlgrdil(m_mainwindow);
-        dlgrdil.setModel(new RDILModel(command));
-        dlgrdil.exec();
-    });
-
-    actions[DisassemblerHooks::Action_ItemInformation] = contextmenu->addAction("Item Information", this, [&, command]() {
-        ItemInformationDialog dlgiteminfo(command, m_mainwindow);
-        dlgiteminfo.exec();
-    });
-
     for(auto& [type, action] : actions) action->setData(type);
 
     command->widget()->addAction(actions[DisassemblerHooks::Action_Rename]);
@@ -778,6 +739,9 @@ void DisassemblerHooks::close(bool showwelcome)
         this->undock(child);
     }
 
+    if(m_devdialog)
+        m_devdialog->dispose();
+
     RD_Status("");
     this->enableViewCommands(false);
     m_activecommandtab = nullptr;
@@ -816,7 +780,6 @@ bool DisassemblerHooks::openDatabase(const QString& filepath)
 
 void DisassemblerHooks::enableViewCommands(bool enable)
 {
-    this->enableMenu(m_mnudev, enable);
     this->enableMenu(m_mnuwindow, enable);
 
     auto actions = m_toolbar->actions();
@@ -868,6 +831,7 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
 
 void DisassemblerHooks::enableCommands(QWidget* w)
 {
+    QAction* act = m_mainwindow->findChild<QAction*>(HOOK_ACTION_DEVTOOLS);
     auto actions = m_toolbar->actions();
 
     if(!w)
@@ -875,10 +839,13 @@ void DisassemblerHooks::enableCommands(QWidget* w)
         for(int i = 2; i < actions.size(); i++)
             actions[i]->setVisible(false);
 
+        act->setVisible(false);
         return;
     }
 
     auto* commandtab = dynamic_cast<ICommandTab*>(w);
+    act->setVisible(commandtab);
+
     actions[2]->setVisible(commandtab); // Back
     actions[3]->setVisible(commandtab); // Forward
     actions[4]->setVisible(commandtab); // Goto

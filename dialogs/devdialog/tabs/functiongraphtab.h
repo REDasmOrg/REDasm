@@ -21,6 +21,7 @@ class FunctionGraphTab : public QWidget
 
     private slots:
         void showGraph(const QModelIndex& current, const QModelIndex&);
+        void copyUnitTests() const;
         void copyGraph() const;
         void copyHash() const;
 

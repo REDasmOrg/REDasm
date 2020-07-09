@@ -37,6 +37,7 @@ void FunctionGraphTab::setCommand(IDisassemblerCommand* command)
     ui->tbvGraph->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     connect(ui->tbvFunctions->selectionModel(), &QItemSelectionModel::currentChanged, this, &FunctionGraphTab::showGraph);
+    connect(ui->pbCopyUnitTest, &QPushButton::clicked, this, &FunctionGraphTab::copyUnitTests);
     connect(ui->pbCopyGraph, &QPushButton::clicked, this, &FunctionGraphTab::copyGraph);
     connect(ui->pbCopyHash, &QPushButton::clicked, this, &FunctionGraphTab::copyHash);
 }
@@ -46,6 +47,29 @@ void FunctionGraphTab::showGraph(const QModelIndex& current, const QModelIndex&)
     const RDGraph* graph = m_functionlistmodel->graph(current);
     m_functiongraphmodel->setGraph(graph);
     m_sortedblocksmodel->sort(0);
+}
+
+void FunctionGraphTab::copyUnitTests() const
+{
+    QString s = "{\n";
+
+    for(int i = 0; i < m_functionlistmodel->rowCount(); i++)
+    {
+        QModelIndex index = m_functionlistmodel->index(i);
+        if(!index.isValid()) continue;
+
+        const RDGraph* graph = m_functionlistmodel->graph(index);
+        if(!graph) continue;
+
+        rd_address startaddress = RDFunctionGraph_GetStartAddress(graph);
+        u32 hash = RDGraph_Hash(graph);
+
+        s += QString("\t{ %1, %2 },\n").arg(RD_ToHexBits(startaddress, 0, true))
+                                      .arg(RD_ToHexBits(hash, 32, true));
+    }
+
+    s += "};";
+    qApp->clipboard()->setText(s);
 }
 
 void FunctionGraphTab::copyGraph() const

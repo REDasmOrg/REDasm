@@ -27,7 +27,7 @@
        <string>Document</string>
       </attribute>
      </widget>
-     <widget class="TableWidget" name="tabBlocks">
+     <widget class="BlocksTab" name="tabBlocks">
       <attribute name="title">
        <string>Blocks</string>
       </attribute>
@@ -48,21 +48,27 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>FunctionGraphTab</class>
-   <extends>QWidget</extends>
-   <header>dialogs/devdialog/tabs/functiongraphtab.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>TableWidget</class>
    <extends>QWidget</extends>
    <header>widgets/tablewidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>FunctionGraphTab</class>
+   <extends>QWidget</extends>
+   <header>dialogs/devdialog/tabs/functiongraphtab.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>DocumentTab</class>
    <extends>QWidget</extends>
    <header>dialogs/devdialog/tabs/documenttab.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BlocksTab</class>
+   <extends>QWidget</extends>
+   <header>dialogs/devdialog/tabs/blockstab.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

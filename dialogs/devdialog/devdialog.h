@@ -24,7 +24,6 @@ class DevDialog : public QDialog, public IDisposable
     private:
         Ui::DevDialog *ui;
         RDILModel* m_rdilmodel{nullptr};
-        BlockListModel* m_blocklistmodel{nullptr};
         IDisassemblerCommand* m_command{nullptr};
 };
 

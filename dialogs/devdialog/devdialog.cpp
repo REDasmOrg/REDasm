@@ -1,6 +1,5 @@
 #include "devdialog.h"
 #include "ui_devdialog.h"
-#include "../models/dev/blocklistmodel.h"
 #include "../models/dev/rdilmodel.h"
 
 DevDialog::DevDialog(QWidget *parent) : QDialog(parent), ui(new Ui::DevDialog)
@@ -23,13 +22,11 @@ void DevDialog::setCommand(IDisassemblerCommand* command)
 {
     m_command = command;
 
-    m_blocklistmodel = new BlockListModel(command);
     m_rdilmodel = new RDILModel(command);
-
     ui->tabRDIL->setModel(m_rdilmodel);
-    ui->tabBlocks->setModel(m_blocklistmodel);
 
     ui->tabDocument->setCommand(command);
+    ui->tabBlocks->setCommand(command);
     ui->tabGraphs->setCommand(command);
 }
 

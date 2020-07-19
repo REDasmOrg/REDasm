@@ -23,7 +23,9 @@ void TableWidget::enableFiltering() { ui->leSearch->setVisible(true); }
 
 void TableWidget::setModel(QAbstractItemModel* model)
 {
+    if(ui->tbvTable->model()) ui->tbvTable->model()->deleteLater();
     if(!model->parent()) model->setParent(this);
+
     QSortFilterProxyModel* sfmodel = new QSortFilterProxyModel(this);
     sfmodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     sfmodel->setFilterKeyColumn(-1);

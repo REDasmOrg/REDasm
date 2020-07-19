@@ -1,7 +1,7 @@
 #include "blocklistmodel.h"
 #include "../../themeprovider.h"
 
-BlockListModel::BlockListModel(IDisassemblerCommand* command, QObject *parent) : QAbstractListModel(parent), m_command(command)
+BlockListModel::BlockListModel(IDisassemblerCommand* command, const RDBlockContainer* blocks, QObject *parent) : QAbstractListModel(parent), m_blocks(blocks), m_command(command)
 {
     m_document = RDDisassembler_GetDocument(command->disassembler());
 }
@@ -9,21 +9,17 @@ BlockListModel::BlockListModel(IDisassemblerCommand* command, QObject *parent) :
 QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(role != Qt::DisplayRole) return QVariant();
+    if(orientation != Qt::Horizontal) return QVariant();
 
-    if(orientation == Qt::Horizontal)
+    switch(section)
     {
-        switch(section)
-        {
-            case 0: return "Start Address";
-            case 1: return "End Address";
-            case 2: return "Size";
-            case 3: return "Type";
-            case 4: return "Symbol";
-            default: break;
-        }
+        case 0: return "Start Address";
+        case 1: return "End Address";
+        case 2: return "Size";
+        case 3: return "Type";
+        case 4: return "Symbol";
+        default: break;
     }
-    else
-        return this->segmentName(section);
 
     return QVariant();
 }
@@ -33,7 +29,7 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
     if(role == Qt::DisplayRole)
     {
         RDBlock block;
-        if(!RDDocument_GetBlockAt(m_document, index.row(), &block)) return QVariant();
+        if(!RDBlockContainer_Get(m_blocks, index.row(), &block)) return QVariant();
 
         switch(index.column())
         {
@@ -57,7 +53,7 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
 }
 
 int BlockListModel::columnCount(const QModelIndex&) const { return 5; }
-int BlockListModel::rowCount(const QModelIndex&) const { return m_document ? static_cast<int>(RDDocument_BlockCount(m_document)) : 0; }
+int BlockListModel::rowCount(const QModelIndex&) const { return m_blocks ? static_cast<int>(RDBlockContainer_Size(m_blocks)) : 0; }
 
 QString BlockListModel::blockType(const RDBlock* block) const
 {
@@ -74,17 +70,6 @@ QString BlockListModel::blockType(const RDBlock* block) const
 
 QString BlockListModel::symbolName(const RDBlock* block) const
 {
-    const char* name = RDDocument_GetSymbolName(m_document, block->start);
+    const char* name = RDDocument_GetSymbolName(m_document, block->address);
     return name ? name : QString();
-}
-
-QString BlockListModel::segmentName(int section) const
-{
-    RDBlock block;
-    if(!RDDocument_GetBlockAt(m_document, section, &block)) return QString();
-
-    RDSegment segment;
-    if(!RDDocument_GetSegmentAddress(m_document, block.start, &segment)) return QString();
-
-    return segment.name;
 }

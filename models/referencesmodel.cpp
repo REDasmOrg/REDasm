@@ -23,7 +23,9 @@ void ReferencesModel::xref(rd_address address)
     if(!m_disassembler || RD_IsBusy()) return;
 
     this->beginResetModel();
-    m_referencescount = RDDisassembler_GetReferences(m_disassembler, address, &m_references);
+    const RDNet* net = RDDisassembler_GetNet(m_disassembler);
+    m_referencescount = RDNet_GetRefs(net, address, &m_references);
+
     this->endResetModel();
 }
 
@@ -53,31 +55,31 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         else if(index.column() == 1) return this->direction(doc, item.address);
         else if(index.column() == 2)
         {
-            if(IS_TYPE(&item, DocumentItemType_Instruction)) return RDRenderer_GetInstruction(m_renderer, item.address);
+            if(IS_TYPE(&item, DocumentItemType_Instruction)) return RDRenderer_GetInstructionText(m_renderer, item.address);
             else if(IS_TYPE(&item, DocumentItemType_Symbol)) return RDDocument_GetSymbolName(doc, item.address);
         }
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() == 0) return THEME_VALUE("address_fg");
+        if(index.column() == 0) return THEME_VALUE(Theme_Address);
 
         if(index.column() == 2)
         {
             if(IS_TYPE(&item, DocumentItemType_Instruction))
             {
-                InstructionLock instruction(doc, item.address);
-                if(!instruction) return QVariant();
+                //FIXME: InstructionLock instruction(doc, item.address);
+                //FIXME: if(!instruction) return QVariant();
 
-                if(instruction->flags & InstructionFlags_Conditional) return THEME_VALUE("instruction_jmp_c");
-                else if(instruction->type == InstructionType_Jump) return THEME_VALUE("instruction_jmp");
-                else if(instruction->type == InstructionType_Call) return THEME_VALUE("instruction_call");
+                //FIXME: if(instruction->flags & InstructionFlags_Conditional) return THEME_VALUE(Theme_JumpCond);
+                //FIXME: else if(instruction->type == InstructionType_Jump) return THEME_VALUE(Theme_Jump);
+                //FIXME: else if(instruction->type == InstructionType_Call) return THEME_VALUE(Theme_Call);
             }
             else if(IS_TYPE(&item, DocumentItemType_Symbol))
             {
                 RDSymbol symbol;
                 if(!RDDocument_GetSymbolByAddress(doc, item.address, &symbol)) return QVariant();
-                if(IS_TYPE(&symbol, SymbolType_Data)) return THEME_VALUE("data_fg");
-                else if(IS_TYPE(&symbol, SymbolType_String)) return THEME_VALUE("string_fg");
+                if(IS_TYPE(&symbol, SymbolType_Data)) return THEME_VALUE(Theme_Data);
+                else if(IS_TYPE(&symbol, SymbolType_String)) return THEME_VALUE(Theme_String);
             }
         }
     }

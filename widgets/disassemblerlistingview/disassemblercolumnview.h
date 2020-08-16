@@ -26,7 +26,7 @@ class DisassemblerColumnView : public QWidget
     private:
         bool isPathSelected(const ArrowPath& path) const;
         void fillArrow(QPainter* painter, int y, const QFontMetrics &fm);
-        void insertPath(const RDDocumentItem& fromitem, size_t fromidx, size_t toidx);
+        void insertPath(const RDNet* net, const RDDocumentItem& fromitem, size_t fromidx, size_t toidx);
         void renderArrows(size_t start, size_t count);
 
     private slots:

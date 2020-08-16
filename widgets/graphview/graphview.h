@@ -30,9 +30,6 @@ class GraphView : public CursorScrollArea
         void focusSelectedBlock();
 
     protected:
-        void focusBlock(const GraphViewItem* item, bool force = false);
-
-    protected:
         void mouseDoubleClickEvent(QMouseEvent* e) override;
         void mousePressEvent(QMouseEvent* e) override;
         void mouseReleaseEvent(QMouseEvent* e) override;
@@ -41,11 +38,17 @@ class GraphView : public CursorScrollArea
         void resizeEvent(QResizeEvent* e) override;
         void paintEvent(QPaintEvent*) override;
         void showEvent(QShowEvent* e) override;
+        void focusBlock(const GraphViewItem* item, bool force = false);
         virtual void selectedItemChangedEvent();
+        virtual GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) const = 0;
+        virtual void computeEdge(const RDGraphEdge& e);
+        virtual void computeNode(GraphViewItem* item);
         virtual void computeLayout();
+        virtual void computed();
 
     private:
         GraphViewItem* itemFromMouseEvent(QMouseEvent *e) const;
+        void computeGraph();
         void zoomOut(const QPoint& cursorpos);
         void zoomIn(const QPoint& cursorpos);
         void adjustSize(int vpw, int vph, const QPoint& cursorpos = QPoint(), bool fit = false);

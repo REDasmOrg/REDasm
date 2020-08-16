@@ -12,7 +12,7 @@ class DisassemblerBlockItem : public GraphViewItem
     Q_OBJECT
 
     public:
-        explicit DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, IDisassemblerCommand* command, RDGraphNode node, QWidget *parent = nullptr);
+        explicit DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, IDisassemblerCommand* command, RDGraphNode node, const RDGraph* g, QWidget *parent = nullptr);
         virtual ~DisassemblerBlockItem();
         DocumentRenderer* renderer() const;
         bool containsItem(const RDDocumentItem& item) const;

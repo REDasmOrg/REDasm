@@ -14,8 +14,9 @@ class GraphViewItem: public QObject
         enum: size_t { None = 0, Selected, Focused };
 
     public:
-        explicit GraphViewItem(RDGraphNode node, QObject* parent = nullptr);
+        explicit GraphViewItem(RDGraphNode node, const RDGraph* g, QObject* parent = nullptr);
         virtual ~GraphViewItem() = default;
+        const RDGraph* graph() const;
         RDGraphNode node() const;
         int x() const;
         int y() const;
@@ -47,6 +48,7 @@ class GraphViewItem: public QObject
     private:
         QPoint m_pos;
         RDGraphNode m_node;
+        const RDGraph* m_graph;
 
     friend class GraphView;
 };

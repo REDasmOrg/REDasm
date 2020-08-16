@@ -45,7 +45,10 @@ class DisassemblerGraphView : public GraphView, public IDisassemblerCommand
     protected:
         void onCursorBlink() override;
         void showEvent(QShowEvent* e) override;
-        void computeLayout() override;
+        void computeEdge(const RDGraphEdge& e) override;
+        void computeNode(GraphViewItem* item) override;
+        GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) const override;
+        void computed() override;
 
     private slots:
         void onFollowRequested(DisassemblerBlockItem* block);

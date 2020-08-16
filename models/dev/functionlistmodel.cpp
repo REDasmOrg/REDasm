@@ -19,7 +19,7 @@ QVariant FunctionListModel::data(const QModelIndex& index, int role) const
         const RDDocumentItem& item = this->item(index);
 
         if(!RDDocument_GetFunctionGraph(m_document, item.address, nullptr))
-            return THEME_VALUE("graph_edge_false");
+            return THEME_VALUE(Theme_GraphEdgeFalse);
     }
 
     return ListingItemModel::data(index, role);

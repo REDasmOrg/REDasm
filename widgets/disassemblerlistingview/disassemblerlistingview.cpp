@@ -4,7 +4,7 @@
 
 DisassemblerListingView::DisassemblerListingView(RDDisassembler* disassembler, QWidget *parent): QSplitter(Qt::Horizontal, parent), m_disassembler(nullptr)
 {
-    this->setStyleSheet("QSplitter::handle { background-color: " + THEME_VALUE_COLOR("seek") + "; }");
+    this->setStyleSheet("QSplitter::handle { background-color: " + THEME_VALUE_COLOR(Theme_Seek) + "; }");
 
     m_textview = new DisassemblerTextView(this);
     m_textview->setFont(REDasmSettings::font());

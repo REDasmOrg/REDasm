@@ -8,9 +8,6 @@ namespace Ui {
 class DevDialog;
 }
 
-class RDILModel;
-class BlockListModel;
-
 class DevDialog : public QDialog, public IDisposable
 {
     Q_OBJECT
@@ -23,7 +20,6 @@ class DevDialog : public QDialog, public IDisposable
 
     private:
         Ui::DevDialog *ui;
-        RDILModel* m_rdilmodel{nullptr};
         IDisassemblerCommand* m_command{nullptr};
 };
 

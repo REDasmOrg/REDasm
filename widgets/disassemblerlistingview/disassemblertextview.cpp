@@ -44,23 +44,29 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): CursorScrollArea(pa
         DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(e->owner);
         if(!thethis->m_renderer) return;
 
-        if(e->eventid == Event_BusyChanged) {
-            if(RD_IsBusy()) return;
-            thethis->adjustScrollBars();
+        switch(e->eventid) {
+            case Event_BusyChanged: {
+                if(RD_IsBusy()) return;
+                thethis->adjustScrollBars();
 
-            RDDocument* doc = RDDisassembler_GetDocument(thethis->disassembler());
-            RDLocation loc = RDDocument_EntryPoint(doc);
+                RDDocument* doc = RDDisassembler_GetDocument(thethis->disassembler());
+                RDLocation loc = RDDocument_EntryPoint(doc);
 
-            if(loc.valid) thethis->gotoAddress(loc.address);
-            else thethis->requestRender();
+                if(loc.valid) thethis->gotoAddress(loc.address);
+                else thethis->requestRender();
+                break;
+            }
 
+            case Event_CursorPositionChanged: {
+                if(e->sender == thethis->m_renderer->cursor()) // Ignore other cursors' events
+                    thethis->moveToSelection();
+                break;
+            }
+
+            case Event_ContextFlagsChanged: thethis->requestRender(); break;
+            case Event_DocumentChanged: thethis->onDocumentChanged(e); break;
+            default: break;
         }
-        else if(e->eventid == Event_CursorPositionChanged)
-        {
-            if(e->sender != thethis->m_renderer->cursor()) return; // Ignore other cursors' events
-            thethis->moveToSelection();
-        }
-        else if(e->eventid == Event_DocumentChanged) thethis->onDocumentChanged(e);
     }, nullptr);
 }
 

@@ -40,5 +40,5 @@ class MainWindow : public QMainWindow
         Ui::MainWindow *ui;
         QLabel *m_lblstatus, *m_lblprogress, *m_lblstatusicon;
         QStringList m_recents;
-        QPushButton* m_pbproblems;
+        QPushButton *m_pbproblems, *m_pbrenderer;
 };

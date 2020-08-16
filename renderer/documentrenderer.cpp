@@ -42,22 +42,22 @@ void DocumentRenderer::render(const RDRendererItem* ritem, size_t index)
         const RDRendererFormat& rf = formats[i];
         QTextCharFormat charformat;
 
-        if(std::strlen(rf.fgstyle))
+        if(rf.fgtheme != Theme_Default)
         {
-            if(!std::strcmp(rf.fgstyle, "cursor_fg") || !std::strcmp(rf.fgstyle, "selection_fg"))
+            if((rf.fgtheme == Theme_CursorFg) || (rf.fgtheme == Theme_SelectionFg))
                 charformat.setForeground(qApp->palette().color(QPalette::HighlightedText));
             else
-                charformat.setForeground(THEME_VALUE(rf.fgstyle));
+                charformat.setForeground(THEME_VALUE(rf.fgtheme));
         }
 
-        if(std::strlen(rf.bgstyle))
+        if(rf.bgtheme != Theme_Default)
         {
-            if(!std::strcmp(rf.bgstyle, "cursor_bg"))
+            if(rf.bgtheme == Theme_CursorBg)
                 charformat.setBackground(qApp->palette().color(QPalette::WindowText));
-            else if(!std::strcmp(rf.bgstyle, "selection_bg"))
+            else if(rf.bgtheme == Theme_SelectionBg)
                 charformat.setBackground(qApp->palette().color(QPalette::Highlight));
             else
-                charformat.setBackground(THEME_VALUE(rf.bgstyle));
+                charformat.setBackground(THEME_VALUE(rf.bgtheme));
         }
 
         QString chunk = QString::fromLocal8Bit(text + rf.start, static_cast<int>(rf.end - rf.start) + 1);
@@ -68,6 +68,6 @@ void DocumentRenderer::render(const RDRendererItem* ritem, size_t index)
         return;
 
     QTextBlockFormat blockformat;
-    blockformat.setBackground(THEME_VALUE("seek"));
+    blockformat.setBackground(THEME_VALUE(Theme_Seek));
     textcursor.setBlockFormat(blockformat);
 }

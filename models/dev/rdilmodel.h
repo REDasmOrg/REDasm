@@ -18,7 +18,6 @@ class RDILModel : public QAbstractListModel
 
     private:
         IDisassemblerCommand* m_command;
-        std::vector<std::pair<RDILDisassembled, QString>> m_items;
         rd_ptr<RDRenderer> m_renderer;
 };
 

@@ -109,8 +109,8 @@ void ListingMapRenderer::renderSegments(QPainter* painter)
     for(const auto& [segment, size] : m_calcsegments)
     {
         QRect r = this->buildRect(this->calculatePosition(segment.offset), this->calculateSize(size));
-        if(HAS_FLAG(&segment, SegmentFlags_Code)) painter->fillRect(r, THEME_VALUE("label_fg"));
-        else painter->fillRect(r, THEME_VALUE("data_fg"));
+        if(HAS_FLAG(&segment, SegmentFlags_Code)) painter->fillRect(r, THEME_VALUE(Theme_Symbol));
+        else painter->fillRect(r, THEME_VALUE(Theme_Data));
     }
 }
 
@@ -126,7 +126,7 @@ void ListingMapRenderer::renderFunctions(QPainter* painter)
         QRect r = this->buildRect(this->calculatePosition(loc.offset), this->calculateSize(c));
         if(m_orientation == Qt::Horizontal) r.setHeight(fsize);
         else r.setWidth(fsize);
-        painter->fillRect(r, THEME_VALUE("function_fg"));
+        painter->fillRect(r, THEME_VALUE(Theme_Function));
     }
 }
 
@@ -139,7 +139,7 @@ void ListingMapRenderer::renderSeek(QPainter* painter) const
     RDLocation offset  = RD_Offset(loader, item.address);
     if(!offset.valid) return;
 
-    QColor seekcolor = THEME_VALUE("seek");
+    QColor seekcolor = THEME_VALUE(Theme_Seek);
     seekcolor.setAlphaF(0.4);
 
     QRect r;

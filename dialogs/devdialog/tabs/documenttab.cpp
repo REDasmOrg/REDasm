@@ -80,64 +80,6 @@ QString DocumentTab::segmentFlags(const RDSegment* segment) const
     return s.isEmpty() ? STR(SegmentFlags_None) : s;
 }
 
-QString DocumentTab::instructionType(const RDInstruction* instruction) const
-{
-    switch(instruction->type)
-    {
-        RETURN_CASE_OF(InstructionType_None);
-        RETURN_CASE_OF(InstructionType_Invalid);
-        RETURN_CASE_OF(InstructionType_Ret);
-        RETURN_CASE_OF(InstructionType_Nop);
-        RETURN_CASE_OF(InstructionType_Jump);
-        RETURN_CASE_OF(InstructionType_Call);
-        RETURN_CASE_OF(InstructionType_Add);
-        RETURN_CASE_OF(InstructionType_Sub);
-        RETURN_CASE_OF(InstructionType_Mul);
-        RETURN_CASE_OF(InstructionType_Div);
-        RETURN_CASE_OF(InstructionType_Mod);
-        RETURN_CASE_OF(InstructionType_Lsh);
-        RETURN_CASE_OF(InstructionType_Rsh);
-        RETURN_CASE_OF(InstructionType_And);
-        RETURN_CASE_OF(InstructionType_Or);
-        RETURN_CASE_OF(InstructionType_Xor);
-        RETURN_CASE_OF(InstructionType_Not);
-        RETURN_CASE_OF(InstructionType_Push);
-        RETURN_CASE_OF(InstructionType_Pop);
-        RETURN_CASE_OF(InstructionType_Compare);
-        RETURN_CASE_OF(InstructionType_Load);
-        RETURN_CASE_OF(InstructionType_Store);
-        default: break;
-    }
-
-    return QString::number(instruction->type);
-}
-
-QString DocumentTab::instructionFlags(const RDInstruction* instruction) const
-{
-    QString s;
-    CHECK_FLAG(s, instruction, InstructionFlags_Weak);
-    CHECK_FLAG(s, instruction, InstructionFlags_Conditional);
-    CHECK_FLAG(s, instruction, InstructionFlags_Privileged);
-    CHECK_FLAG(s, instruction, InstructionFlags_Stop);
-    return s.isEmpty() ? STR(InstructionFlags_None) : s;
-}
-
-QString DocumentTab::operandType(const RDOperand* operand) const
-{
-    switch(operand->type)
-    {
-        RETURN_CASE_OF(OperandType_Void);
-        RETURN_CASE_OF(OperandType_Constant);
-        RETURN_CASE_OF(OperandType_Register);
-        RETURN_CASE_OF(OperandType_Immediate);
-        RETURN_CASE_OF(OperandType_Memory);
-        RETURN_CASE_OF(OperandType_Displacement);
-        default: break;
-    }
-
-    return QString::number(operand->type);
-}
-
 QString DocumentTab::symbolType(const RDSymbol* symbol) const
 {
     switch(symbol->type)
@@ -203,57 +145,57 @@ QString DocumentTab::getBits(const QByteArray& ba) const
 
 void DocumentTab::displayInstructionInformation(RDDocument* doc, const RDDocumentItem& item)
 {
-    InstructionLock instruction(doc, item.address);
-    if(!instruction) return;
+    // FIXME: InstructionLock instruction(doc, item.address);
+    // FIXME: if(!instruction) return;
 
-    QString hexdump = RD_HexDump(m_command->disassembler(), item.address, instruction->size);
-    QByteArray dump = QByteArray::fromHex(hexdump.toUtf8());
+    // FIXME: QString hexdump = RD_HexDump(m_command->disassembler(), item.address, instruction->size);
+    // FIXME: QByteArray dump = QByteArray::fromHex(hexdump.toUtf8());
 
-    this->header("INSTRUCTION");
+    // FIXME: this->header("INSTRUCTION");
 
-    m_indent = INDENT_BASE;
-        this->line("id", QString::number(instruction->id, 16));
-        this->line("address", RD_ToHex(instruction->address));
-        this->string("mnemonic", instruction->mnemonic);
-        this->line("type", this->instructionType(*instruction));
-        this->line("flags", this->instructionFlags(*instruction));
-        this->line("size", QString("%1 byte(s)").arg(instruction->size));
-        this->line("operands", QString::number(instruction->operandscount));
-        this->line("hexdump", hexdump);
-        this->line("bits", this->getBits(dump));
-        this->line();
-    m_indent = 0;
+    // FIXME: m_indent = INDENT_BASE;
+    // FIXME:     this->line("id", QString::number(instruction->id, 16));
+    // FIXME:     this->line("address", RD_ToHex(instruction->address));
+    // FIXME:     this->string("mnemonic", instruction->mnemonic);
+    // FIXME:     this->line("type", this->instructionType(*instruction));
+    // FIXME:     this->line("flags", this->instructionFlags(*instruction));
+    // FIXME:     this->line("size", QString("%1 byte(s)").arg(instruction->size));
+    // FIXME:     this->line("operands", QString::number(instruction->operandscount));
+    // FIXME:     this->line("hexdump", hexdump);
+    // FIXME:     this->line("bits", this->getBits(dump));
+    // FIXME:     this->line();
+    // FIXME: m_indent = 0;
 
-    for(size_t i = 0; i < instruction->operandscount; i++)
-    {
-        if(i) this->line();
-        const RDOperand& op = instruction->operands[i];
-        this->header(QString("OPERAND %1").arg(i));
+    // FIXME: for(size_t i = 0; i < instruction->operandscount; i++)
+    // FIXME: {
+    // FIXME:     if(i) this->line();
+    // FIXME:     const RDOperand& op = instruction->operands[i];
+    // FIXME:     this->header(QString("OPERAND %1").arg(i));
 
-        m_indent = INDENT_BASE;
+    // FIXME:     m_indent = INDENT_BASE;
 
-            this->line("type", this->operandType(&op));
+    // FIXME:         this->line("type", this->operandType(&op));
 
-            switch(op.type)
-            {
-                case OperandType_Register: this->line("reg", QString::number(op.reg)); break;
+    // FIXME:         switch(op.type)
+    // FIXME:         {
+    // FIXME:             case OperandType_Register: this->line("reg", QString::number(op.reg)); break;
 
-                case OperandType_Constant:
-                case OperandType_Immediate:
-                case OperandType_Memory: this->line("u_value", QString::number(op.u_value, 16)); break;
+    // FIXME:             case OperandType_Constant:
+    // FIXME:             case OperandType_Immediate:
+    // FIXME:             case OperandType_Memory: this->line("u_value", QString::number(op.u_value, 16)); break;
 
-                case OperandType_Displacement:
-                    this->line("base", QString::number(op.base));
-                    this->line("index", QString::number(op.index));
-                    this->line("scale", QString::number(op.scale));
-                    this->line("displacement", QString::number(op.displacement, 16));
-                    break;
+    // FIXME:             case OperandType_Displacement:
+    // FIXME:                 this->line("base", QString::number(op.base));
+    // FIXME:                 this->line("index", QString::number(op.index));
+    // FIXME:                 this->line("scale", QString::number(op.scale));
+    // FIXME:                 this->line("displacement", QString::number(op.displacement, 16));
+    // FIXME:                 break;
 
-                default: break;
-            }
+    // FIXME:             default: break;
+    // FIXME:         }
 
-        m_indent = 0;
-    }
+    // FIXME:     m_indent = 0;
+    // FIXME: }
 }
 
 void DocumentTab::displaySymbolInformation(RDDocument* doc, const RDDocumentItem& item)

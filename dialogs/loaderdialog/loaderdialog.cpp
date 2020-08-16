@@ -68,7 +68,7 @@ RDAssemblerPlugin* LoaderDialog::selectedAssembler() const
 {
     rd_flag flags = this->selectedLoaderFlags();
     if(flags & LoaderFlags_CustomAssembler) return m_assemblers.at(ui->cbAssembler->currentIndex());
-    return RDLoader_GetAssembler(this->selectedLoader());
+    return RDLoader_GetAssemblerPlugin(this->selectedLoader());
 }
 
 rd_address LoaderDialog::baseAddress() const { return ui->leBaseAddress->text().toULongLong(nullptr, 16); }
@@ -132,7 +132,7 @@ void LoaderDialog::syncAssembler()
     const RDLoaderPlugin* ploader = this->selectedLoader();
     if(!ploader) return;
 
-    const RDAssemblerPlugin* selassembler = RDLoader_GetAssembler(ploader);
+    const RDAssemblerPlugin* selassembler = RDLoader_GetAssemblerPlugin(ploader);
     if(selassembler) ui->cbAssembler->setCurrentText(selassembler->name);
     else ui->cbAssembler->setCurrentIndex(-1);
 }
@@ -157,5 +157,5 @@ void LoaderDialog::onAccepted()
     if(ui->chkNoSignatures->isChecked()) flags |= ContextFlag_DisableSignature;
     if(ui->chkNoUnexplored->isChecked()) flags |= ContextFlag_DisableUnexplored;
 
-    RD_SetContextFlags(flags);
+    RD_InitContextFlags(flags);
 }

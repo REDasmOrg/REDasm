@@ -26,6 +26,8 @@ QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, in
 
 QVariant BlockListModel::data(const QModelIndex& index, int role) const
 {
+    if(!m_blocks) return QVariant();
+
     if(role == Qt::DisplayRole)
     {
         RDBlock block;
@@ -44,9 +46,9 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
     else if(role == Qt::TextAlignmentRole) return Qt::AlignCenter;
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() < 3)  return THEME_VALUE("address_list_fg");
-        if(index.column() == 3) return THEME_VALUE("type_fg");
-        if(index.column() == 4) return THEME_VALUE("label_fg");
+        if(index.column() < 3)  return THEME_VALUE(Theme_Address);
+        if(index.column() == 3) return THEME_VALUE(Theme_Type);
+        if(index.column() == 4) return THEME_VALUE(Theme_Symbol);
     }
 
     return QVariant();

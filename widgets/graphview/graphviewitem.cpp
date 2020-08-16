@@ -1,6 +1,7 @@
 #include "graphviewitem.h"
 
-GraphViewItem::GraphViewItem(RDGraphNode node, QObject *parent): QObject(parent), m_node(node) { }
+GraphViewItem::GraphViewItem(RDGraphNode node, const RDGraph* g, QObject *parent): QObject(parent), m_node(node), m_graph(g) { }
+const RDGraph* GraphViewItem::graph() const { return m_graph; }
 RDGraphNode GraphViewItem::node() const { return m_node; }
 int GraphViewItem::x() const { return this->position().x(); }
 int GraphViewItem::y() const { return this->position().y(); }

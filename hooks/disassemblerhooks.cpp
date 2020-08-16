@@ -188,7 +188,9 @@ void DisassemblerHooks::showReferences(IDisassemblerCommand* command, rd_address
     RDSymbol symbol;
     if(!RDDocument_GetSymbolByAddress(doc, address, &symbol)) return;
 
-    if(!RDDisassembler_GetReferencesCount(command->disassembler(), symbol.address))
+    const RDNet* net = RDDisassembler_GetNet(command->disassembler());
+
+    if(!RDNet_GetRefs(net, symbol.address, nullptr))
     {
         QMessageBox::information(nullptr, "No References", QString("There are no references to %1 ").arg(RDDocument_GetSymbolName(doc, symbol.address)));
         return;
@@ -488,6 +490,7 @@ void DisassemblerHooks::loadDisassemblerView(RDLoaderPlugin* loader, RDAssembler
 void DisassemblerHooks::hook()
 {
     m_lblstatusicon = m_mainwindow->findChild<QLabel*>(HOOK_STATUS_ICON);
+    m_pbrenderer = m_mainwindow->findChild<QPushButton*>(HOOK_RENDERER);
     m_pbproblems = m_mainwindow->findChild<QPushButton*>(HOOK_PROBLEMS);
     m_mnuwindow = m_mainwindow->findChild<QMenu*>(HOOK_MENU_WINDOW);
     m_toolbar = m_mainwindow->findChild<QToolBar*>(HOOK_TOOLBAR);
@@ -496,6 +499,11 @@ void DisassemblerHooks::hook()
 
     connect(m_toolbar, &QToolBar::actionTriggered, this, &DisassemblerHooks::onToolBarActionTriggered);
     connect(m_mnuwindow, &QMenu::triggered, this, &DisassemblerHooks::onWindowActionTriggered);
+
+    connect(m_pbrenderer, &QPushButton::clicked, this, [&]() {
+        RD_SetContextFlags(ContextFlag_ShowRDIL, !RD_ContextHasFlags(ContextFlag_ShowRDIL));
+        this->checkListingMode();
+    });
 
     this->dock(new OutputDock(m_mainwindow), Qt::BottomDockWidgetArea);
     this->enableCommands(nullptr);
@@ -724,6 +732,12 @@ void DisassemblerHooks::dock(QWidget* w, Qt::DockWidgetArea area)
 
 OutputDock* DisassemblerHooks::outputDock() const { return m_mainwindow->findChild<OutputDock*>(QString(), Qt::FindDirectChildrenOnly); }
 
+void DisassemblerHooks::checkListingMode()
+{
+    if(RD_ContextHasFlags(ContextFlag_ShowRDIL)) m_pbrenderer->setText("RDIL");
+    else m_pbrenderer->setText("Listing");
+}
+
 void DisassemblerHooks::close(bool showwelcome)
 {
     while(m_disassemblertabs->count()) {
@@ -840,10 +854,14 @@ void DisassemblerHooks::enableCommands(QWidget* w)
             actions[i]->setVisible(false);
 
         act->setVisible(false);
+        m_pbrenderer->setVisible(false);
         return;
     }
 
     auto* commandtab = dynamic_cast<ICommandTab*>(w);
+    this->checkListingMode();
+
+    m_pbrenderer->setVisible(commandtab);
     act->setVisible(commandtab);
 
     actions[2]->setVisible(commandtab); // Back

@@ -70,8 +70,8 @@ QVariant FunctionGraphModel::data(const QModelIndex& index, int role) const
     }
     else if(role == Qt::ForegroundRole)
     {
-        if((index.column() == 1) || (index.column() == 2)) return THEME_VALUE("address_list_fg");
-        else if(index.column() == 0) return THEME_VALUE("label_fg");
+        if((index.column() == 1) || (index.column() == 2)) return THEME_VALUE(Theme_Address);
+        else if(index.column() == 0) return THEME_VALUE(Theme_Symbol);
     }
 
     return QVariant();

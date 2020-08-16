@@ -34,10 +34,9 @@ void BlocksTab::showBlocks(const QModelIndex& current, const QModelIndex&)
     RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
 
     RDSegment segment;
-    if(!RDDocument_GetSegmentAt(doc, current.row(), &segment)) return;
 
-    const RDBlockContainer* blocks = RDDocument_GetBlocks(doc, segment.address);
-    if(!blocks) return;
-
-    ui->tableWidget->setModel(new BlockListModel(m_command, blocks));
+    if(RDDocument_GetSegmentAt(doc, current.row(), &segment))
+        ui->tableWidget->setModel(new BlockListModel(m_command, RDDocument_GetBlocks(doc, segment.address)));
+    else
+        ui->tableWidget->setModel(new BlockListModel(m_command, nullptr));
 }

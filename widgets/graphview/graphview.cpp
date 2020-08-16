@@ -1,4 +1,5 @@
 #include "graphview.h"
+#include <rdapi/graph/layout.h>
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QPainter>
@@ -7,7 +8,7 @@
 GraphView::GraphView(QWidget *parent): CursorScrollArea(parent)
 {
     QPalette palette = this->palette();
-    palette.setColor(QPalette::Base, THEME_VALUE("graph_bg"));
+    palette.setColor(QPalette::Base, THEME_VALUE(Theme_GraphBg));
 
     this->horizontalScrollBar()->setSingleStep(this->fontMetrics().height());
     this->verticalScrollBar()->setSingleStep(this->fontMetrics().height());
@@ -26,7 +27,7 @@ void GraphView::setGraph(RDGraph* graph)
     m_arrows.clear();
 
     m_graph = graph;
-    this->computeLayout();
+    this->computeGraph();
 }
 
 void GraphView::setSelectedBlock(GraphViewItem *item)
@@ -238,22 +239,50 @@ void GraphView::selectedItemChangedEvent()
     emit selectedItemChanged();
 }
 
-void GraphView::computeLayout()
+void GraphView::computeEdge(const RDGraphEdge& e) { }
+void GraphView::computeNode(GraphViewItem* item) { }
+
+void GraphView::computed()
+{
+    auto it = m_items.find(RDGraph_GetRoot(m_graph));
+    if(it != m_items.end()) this->focusBlock(it.value());
+}
+
+void GraphView::computeLayout() { RDGraphLayout_Layered(m_graph, LayeredLayoutType_Medium); }
+
+void GraphView::computeGraph()
 {
     const RDGraphNode* nodes = nullptr;
-    size_t c = RDGraph_GetNodes(m_graph, &nodes);
+    size_t nc = RDGraph_GetNodes(m_graph, &nodes);
 
-    for(size_t i = 0; i < c; i++)
+    for(size_t i = 0; i < nc; i++)
+    {
+        RDGraphNode n = nodes[i];
+        auto* item = this->createItem(n, m_graph);
+        if(!item) continue;
+
+        item->setParent(this); // Take Ownership
+        m_items[n] = item;
+        this->computeNode(item);
+
+        RDGraph_SetWidth(m_graph, item->node(), item->width());
+        RDGraph_SetHeight(m_graph, item->node(), item->height());
+    }
+
+    const RDGraphEdge* edges = nullptr;
+    size_t ec = RDGraph_GetEdges(m_graph, &edges);
+    for(size_t i = 0; i < ec; i++) this->computeEdge(edges[i]);
+
+    this->computeLayout();
+
+    for(size_t i = 0; i < nc; i++)
     {
         RDGraphNode n = nodes[i];
         m_items[n]->move(QPoint(RDGraph_GetX(m_graph, n), RDGraph_GetY(m_graph, n)));
         connect(m_items[n], &GraphViewItem::invalidated, this->viewport(), [&]() { this->viewport()->update(); });
     }
 
-    const RDGraphEdge* edges = nullptr;
-    c = RDGraph_GetEdges(m_graph, &edges);
-
-    for(size_t i = 0; i < c; i++)
+    for(size_t i = 0; i < ec; i++)
     {
         const RDGraphEdge& e = edges[i];
         this->precomputeLine(e);
@@ -270,6 +299,7 @@ void GraphView::computeLayout()
 
     this->adjustSize(areasize.width(), areasize.height());
     this->viewport()->update();
+    this->computed();
 }
 
 GraphViewItem *GraphView::itemFromMouseEvent(QMouseEvent *e) const

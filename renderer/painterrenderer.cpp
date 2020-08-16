@@ -26,7 +26,7 @@ void PainterRenderer::render(const RDRendererItem* item, size_t index)
     if(RDCursor_CurrentLine(m_cursor) == RDRendererItem_GetDocumentIndex(item))
     {
         QRect vpr = m_painter->viewport();
-        m_painter->fillRect(0, static_cast<int>(y), vpr.width(), fm.height(), THEME_VALUE("seek"));
+        m_painter->fillRect(0, static_cast<int>(y), vpr.width(), fm.height(), THEME_VALUE(Theme_Seek));
     }
 
     const RDRendererFormat* formats = nullptr;
@@ -37,12 +37,12 @@ void PainterRenderer::render(const RDRendererItem* item, size_t index)
     {
         const RDRendererFormat& rf = formats[i];
 
-        if(std::strlen(rf.fgstyle))
+        if(rf.fgtheme != Theme_Default)
         {
-            if(!std::strcmp(rf.fgstyle, "cursor_fg") || !std::strcmp(rf.fgstyle, "selection_fg"))
+            if((rf.fgtheme == Theme_CursorFg) || (rf.fgtheme == Theme_SelectionFg))
                 m_painter->setPen(qApp->palette().color(QPalette::HighlightedText));
             else
-                m_painter->setPen(THEME_VALUE(rf.fgstyle));
+                m_painter->setPen(THEME_VALUE(rf.fgtheme));
         }
         else
             m_painter->setPen(qApp->palette().color(QPalette::WindowText));
@@ -57,14 +57,14 @@ void PainterRenderer::render(const RDRendererItem* item, size_t index)
 
         QRectF chunkrect = m_painter->boundingRect(QRectF(x, y, w, fm.height()), Qt::TextIncludeTrailingSpaces, chunk);
 
-        if(std::strlen(rf.bgstyle))
+        if(rf.bgtheme != Theme_Default)
         {
-            if(!std::strcmp(rf.bgstyle, "cursor_bg"))
+            if(rf.bgtheme == Theme_CursorBg)
                 m_painter->fillRect(chunkrect, qApp->palette().color(QPalette::WindowText));
-            else if(!std::strcmp(rf.bgstyle, "selection_bg"))
+            else if(rf.bgtheme == Theme_SelectionBg)
                 m_painter->fillRect(chunkrect, qApp->palette().color(QPalette::Highlight));
             else
-                m_painter->fillRect(chunkrect, THEME_VALUE(rf.bgstyle));
+                m_painter->fillRect(chunkrect, THEME_VALUE(rf.bgtheme));
         }
 
         m_painter->drawText(chunkrect, Qt::TextSingleLine, chunk);

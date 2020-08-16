@@ -30,8 +30,9 @@ void FunctionGraphTab::setCommand(IDisassemblerCommand* command)
     ui->tbvFunctions->verticalHeader()->setDefaultSectionSize(ui->tbvFunctions->verticalHeader()->minimumSectionSize());
     ui->tbvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tbvFunctions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tbvFunctions->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    ui->tbvFunctions->horizontalHeader()->moveSection(3, 1);
     ui->tbvFunctions->horizontalHeader()->hideSection(2);
-    ui->tbvFunctions->horizontalHeader()->hideSection(3);
 
     ui->tbvGraph->verticalHeader()->setDefaultSectionSize(ui->tbvFunctions->verticalHeader()->minimumSectionSize());
     ui->tbvGraph->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);

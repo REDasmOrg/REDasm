@@ -25,9 +25,6 @@ class DocumentTab : public QWidget
         DocumentTab& string(const QString& k, const QString& s);
         QString itemType(const RDDocumentItem& item) const;
         QString segmentFlags(const RDSegment* segment) const;
-        QString instructionType(const RDInstruction* instruction) const;
-        QString instructionFlags(const RDInstruction* instruction) const;
-        QString operandType(const RDOperand* operand) const;
         QString symbolType(const RDSymbol* symbol) const;
         QString symbolFlags(const RDSymbol* symbol) const;
         QString padHexDump(const QString& hexdump) const;

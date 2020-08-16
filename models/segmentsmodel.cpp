@@ -37,9 +37,9 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() == 6) return THEME_VALUE("segment_flags_fg");
-        if(index.column() == 8) return THEME_VALUE("segment_name_fg");
-        if(index.column() != 7) return THEME_VALUE("address_list_fg");
+        if(index.column() == 6) return THEME_VALUE(Theme_Data);
+        if(index.column() == 8) return THEME_VALUE(Theme_Symbol);
+        if(index.column() != 7) return THEME_VALUE(Theme_Address);
     }
     else if(role == Qt::TextAlignmentRole)
         return Qt::AlignCenter;

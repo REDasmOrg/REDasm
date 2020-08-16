@@ -39,6 +39,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_lblstatusicon->setText("\uf017");
     m_lblstatusicon->setVisible(false);
 
+    m_pbrenderer = new QPushButton(this);
+    m_pbrenderer->setObjectName(HOOK_RENDERER);
+    m_pbrenderer->setFixedHeight(ui->statusBar->height() * 0.8);
+    m_pbrenderer->setVisible(false);
+    m_pbrenderer->setFlat(true);
+
     m_pbproblems = new QPushButton(this);
     m_pbproblems->setObjectName(HOOK_PROBLEMS);
     m_pbproblems->setFixedHeight(ui->statusBar->height() * 0.8);
@@ -47,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     ui->statusBar->addPermanentWidget(m_lblstatus, 70);
     ui->statusBar->addPermanentWidget(m_lblprogress, 30);
+    ui->statusBar->addPermanentWidget(m_pbrenderer);
     ui->statusBar->addPermanentWidget(m_pbproblems);
     ui->statusBar->addPermanentWidget(m_lblstatusicon);
 

@@ -29,7 +29,7 @@ QVariant GotoModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() == 0) return THEME_VALUE("address_list_fg");
+        if(index.column() == 0) return THEME_VALUE(Theme_Address);
         if(index.column() == 1) return this->itemColor(item);
     }
 
@@ -60,14 +60,14 @@ QColor GotoModel::itemColor(const RDDocumentItem& item) const
 
     switch(item.type)
     {
-        case DocumentItemType_Segment:  return THEME_VALUE("segment_fg");
-        case DocumentItemType_Function: return THEME_VALUE("function_fg");
-        case DocumentItemType_Type:     return THEME_VALUE("type_fg");
+        case DocumentItemType_Segment:  return THEME_VALUE(Theme_Segment);
+        case DocumentItemType_Function: return THEME_VALUE(Theme_Function);
+        case DocumentItemType_Type:     return THEME_VALUE(Theme_Type);
 
         case DocumentItemType_Symbol:
             if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol)) return QColor();
-            if(IS_TYPE(&symbol, SymbolType_String)) return THEME_VALUE("string_fg");
-            return THEME_VALUE("data_fg");
+            if(IS_TYPE(&symbol, SymbolType_String)) return THEME_VALUE(Theme_String);
+            return THEME_VALUE(Theme_Data);
 
         default: break;
     }

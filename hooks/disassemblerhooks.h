@@ -4,6 +4,7 @@
 #define HOOK_TABS                "tabs"
 #define HOOK_STATUS_ICON         "lblStatusIcon"
 #define HOOK_PROBLEMS            "pbProblems"
+#define HOOK_RENDERER            "pbRenderer"
 #define HOOK_MENU_WINDOW         "menu_Window"
 #define HOOK_ACTION_SAVE_AS      "action_Save_As"
 #define HOOK_ACTION_CLOSE        "action_Close"
@@ -99,6 +100,7 @@ class DisassemblerHooks: public QObject
         Q_INVOKABLE void close(bool showwelcome);
         TableTab* createTable(ListingItemModel* model, const QString& title);
         OutputDock* outputDock() const;
+        void checkListingMode();
         void clearOutput();
         void enableMenu(QMenu* menu, bool enable);
         void loadDisassemblerView(RDLoaderPlugin* loader, RDAssemblerPlugin* assembler, const RDLoaderRequest& req, const RDLoaderBuildRequest& buildreq);
@@ -110,9 +112,9 @@ class DisassemblerHooks: public QObject
     private:
         QMainWindow* m_mainwindow{nullptr};
         QToolBar* m_toolbar{nullptr};
-        QMenu* m_mnuwindow{nullptr};
+        QMenu *m_mnuwindow{nullptr};
         QLabel* m_lblstatusicon{nullptr};
-        QPushButton* m_pbproblems{nullptr};
+        QPushButton *m_pbproblems{nullptr}, *m_pbrenderer;
         DisassemblerView* m_disassemblerview{nullptr};
         DisassemblerTabs* m_disassemblertabs{nullptr};
         DevDialog* m_devdialog{nullptr};

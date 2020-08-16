@@ -37,7 +37,7 @@
        <string>Graphs</string>
       </attribute>
      </widget>
-     <widget class="TableWidget" name="tabRDIL">
+     <widget class="RDILTab" name="tabRDIL">
       <attribute name="title">
        <string>RDIL</string>
       </attribute>
@@ -47,12 +47,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>TableWidget</class>
-   <extends>QWidget</extends>
-   <header>widgets/tablewidget.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>FunctionGraphTab</class>
    <extends>QWidget</extends>
@@ -69,6 +63,12 @@
    <class>BlocksTab</class>
    <extends>QWidget</extends>
    <header>dialogs/devdialog/tabs/blockstab.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RDILTab</class>
+   <extends>QWidget</extends>
+   <header>dialogs/devdialog/tabs/rdiltab.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

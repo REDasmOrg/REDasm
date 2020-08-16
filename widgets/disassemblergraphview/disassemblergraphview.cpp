@@ -76,45 +76,7 @@ QString DisassemblerGraphView::currentWord() const { return m_command->currentWo
 RDDisassembler* DisassemblerGraphView::disassembler() const { return m_command->disassembler(); }
 RDCursor* DisassemblerGraphView::cursor() const { return m_command->cursor(); }
 QWidget* DisassemblerGraphView::widget() { return this; }
-
-void DisassemblerGraphView::computeLayout()
-{
-    const RDGraphNode* nodes = nullptr;
-    size_t c = RDGraph_GetNodes(m_graph, &nodes);
-
-    for(size_t i = 0; i < c; i++)
-    {
-        RDGraphNode n = nodes[i];
-        const RDFunctionBasicBlock* fbb = nullptr;
-
-        if(!RDFunctionGraph_GetBasicBlock(m_graph, n, &fbb))
-        {
-            rd_log("Cannot find basic block");
-            return;
-        }
-
-        auto* dbi = new DisassemblerBlockItem(fbb, m_command, n, this->viewport());
-        connect(dbi, &DisassemblerBlockItem::followRequested, this, &DisassemblerGraphView::onFollowRequested);
-
-        m_items[n] = dbi;
-        RDGraph_SetWidth(m_graph, n, dbi->width());
-        RDGraph_SetHeight(m_graph, n, dbi->height());
-    }
-
-    const RDGraphEdge* edges = nullptr;
-    c = RDGraph_GetEdges(m_graph, &edges);
-
-    for(size_t i = 0; i < c; i++)
-    {
-        const RDGraphEdge& e = edges[i];
-        RDGraph_SetColor(m_graph, &e, qUtf8Printable(this->getEdgeColor(e).name()));
-        RDGraph_SetLabel(m_graph, &e, qUtf8Printable(this->getEdgeLabel(e)));
-    }
-
-    RDGraphLayout_Layered(m_graph, LayeredLayoutType_Medium);
-    GraphView::computeLayout();
-    this->focusCurrentBlock();
-}
+void DisassemblerGraphView::computed() { this->focusCurrentBlock(); }
 
 void DisassemblerGraphView::onFollowRequested(DisassemblerBlockItem* block)
 {
@@ -181,6 +143,31 @@ void DisassemblerGraphView::showEvent(QShowEvent *e)
     this->focusCurrentBlock();
 }
 
+void DisassemblerGraphView::computeEdge(const RDGraphEdge& e)
+{
+    RDGraph_SetColor(m_graph, &e, qUtf8Printable(this->getEdgeColor(e).name()));
+    RDGraph_SetLabel(m_graph, &e, qUtf8Printable(this->getEdgeLabel(e)));
+}
+
+void DisassemblerGraphView::computeNode(GraphViewItem* item)
+{
+    auto* dbi = static_cast<DisassemblerBlockItem*>(item);
+    connect(dbi, &DisassemblerBlockItem::followRequested, this, &DisassemblerGraphView::onFollowRequested);
+}
+
+GraphViewItem* DisassemblerGraphView::createItem(RDGraphNode n, const RDGraph* g) const
+{
+    const RDFunctionBasicBlock* fbb = nullptr;
+
+    if(!RDFunctionGraph_GetBasicBlock(m_graph, n, &fbb))
+    {
+        rd_log("Cannot find basic block");
+        return nullptr;
+    }
+
+    return new DisassemblerBlockItem(fbb, m_command, n, g, this->viewport());
+}
+
 void DisassemblerGraphView::onCursorBlink()
 {
     GraphViewItem* item = this->selectedItem();
@@ -192,30 +179,30 @@ QColor DisassemblerGraphView::getEdgeColor(const RDGraphEdge& e) const
     const RDFunctionBasicBlock* fbb = nullptr;
     if(!RDFunctionGraph_GetBasicBlock(m_graph, e.source, &fbb)) return QColor();
 
-    const char* style = RDFunctionBasicBlock_GetStyle(fbb, e.target);
-    return style ? THEME_VALUE(style) : QColor();
+    rd_type theme = RDFunctionBasicBlock_GetTheme(fbb, e.target);
+    return (theme != Theme_Default) ? THEME_VALUE(theme) : QColor();
 }
 
 QString DisassemblerGraphView::getEdgeLabel(const RDGraphEdge& e) const
 {
-    const RDFunctionBasicBlock *fromfbb = nullptr, *tofbb = nullptr;;
-    if(!RDFunctionGraph_GetBasicBlock(m_graph, e.source, &fromfbb)) return QString();
-    if(!RDFunctionGraph_GetBasicBlock(m_graph, e.target, &tofbb)) return QString();
+    // const RDFunctionBasicBlock *fromfbb = nullptr, *tofbb = nullptr;;
+    // if(!RDFunctionGraph_GetBasicBlock(m_graph, e.source, &fromfbb)) return QString();
+    // if(!RDFunctionGraph_GetBasicBlock(m_graph, e.target, &tofbb)) return QString();
 
-    RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
-    InstructionLock instruction(doc, RDFunctionBasicBlock_GetEndAddress(fromfbb));
+    // RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
+    // InstructionLock instruction(doc, RDFunctionBasicBlock_GetEndAddress(fromfbb));
     QString label;
 
-    if(instruction && (instruction->flags & InstructionFlags_Conditional))
-    {
-        RDDocumentItem toitem;
-        if(!RDFunctionBasicBlock_GetStartItem(tofbb, &toitem)) return QString();
+    // if(instruction && (instruction->flags & InstructionFlags_Conditional))
+    // {
+    //     RDDocumentItem toitem;
+    //     if(!RDFunctionBasicBlock_GetStartItem(tofbb, &toitem)) return QString();
 
-        RDLocation loc = RDDisassembler_GetTarget(m_command->disassembler(), instruction->address);
-        if(loc.valid) label = (loc.address == RDFunctionBasicBlock_GetStartAddress(tofbb)) ? "TRUE" : "FALSE";
-    }
+    //     RDLocation loc = RDDisassembler_GetTarget(m_command->disassembler(), instruction->address);
+    //     if(loc.valid) label = (loc.address == RDFunctionBasicBlock_GetStartAddress(tofbb)) ? "TRUE" : "FALSE";
+    // }
 
-    if(!(RDFunctionBasicBlock_GetStartAddress(tofbb) > RDFunctionBasicBlock_GetStartAddress(fromfbb)))
+    // if(!(RDFunctionBasicBlock_GetStartAddress(tofbb) > RDFunctionBasicBlock_GetStartAddress(fromfbb)))
         label += !label.isEmpty() ? " (LOOP)" : "LOOP";
 
     return label;

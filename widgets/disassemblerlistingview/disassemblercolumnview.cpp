@@ -40,6 +40,8 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 
     if(RD_IsBusy()) return;
 
+    const RDNet* net = RDDisassembler_GetNet(m_disassembler);
+
     for(size_t i = 0; i < count; i++, start++)
     {
         if(start >= RDDocument_ItemsCount(m_document)) break;
@@ -49,20 +51,20 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 
         if(IS_TYPE(&item, DocumentItemType_Instruction))
         {
-            InstructionLock instruction(m_document, item.address);
-            if(!IS_TYPE(*instruction, InstructionType_Jump)) continue;
+            const RDNetNode* node = RDNet_FindNode(net, item.address);
+            if(!node) continue;
 
-            const rd_address* targets = nullptr;
-            size_t c = RDDisassembler_GetTargets(m_disassembler, instruction->address, &targets);
+            const rd_address* branches = nullptr;
+            size_t c = RDNetNode_GetBranchesTrue(node, &branches);
 
             for(size_t i = 0; i < c; i++)
             {
-                rd_address target = targets[i];
-                if(target == instruction->address) continue;
+                rd_address branch = branches[i];
+                if(branch == item.address) continue;
 
-                size_t idx = RDDocument_InstructionIndex(m_document, target);
+                size_t idx = RDDocument_InstructionIndex(m_document, branch);
                 if(idx >= RDDocument_ItemsCount(m_document)) continue;
-                this->insertPath(item, start, idx);
+                this->insertPath(net, item, start, idx);
             }
         }
         else if(IS_TYPE(&item, DocumentItemType_Symbol))
@@ -73,20 +75,20 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
             size_t toidx = RDDocument_InstructionIndex(m_document, item.address);
             if(toidx >= RDDocument_ItemsCount(m_document)) continue;
 
-            const rd_address* references = nullptr;
-            size_t c = RDDisassembler_GetReferences(m_disassembler, item.address, &references);
+            const rd_address* refs = nullptr;
+            size_t c = RDNet_GetRefs(net, item.address, &refs);
 
             for(size_t i = 0; i < c; i++)
             {
-                rd_address ref = references[i];
-                if(ref == item.address) continue;
+                rd_address r = refs[i];
+                if(r == item.address) continue;
 
-                size_t idx = RDDocument_InstructionIndex(m_document, ref);
+                size_t idx = RDDocument_InstructionIndex(m_document, r);
                 if(idx >= RDDocument_ItemsCount(m_document)) continue;
 
                 RDDocumentItem item;
                 RDDocument_GetItemAt(m_document, idx, &item);
-                this->insertPath(item, idx, toidx);
+                this->insertPath(net, item, idx, toidx);
             }
         }
     }
@@ -174,24 +176,24 @@ void DisassemblerColumnView::fillArrow(QPainter* painter, int y, const QFontMetr
     painter->fillPath(path, painter->pen().brush());
 }
 
-void DisassemblerColumnView::insertPath(const RDDocumentItem& fromitem, size_t fromidx, size_t toidx)
+void DisassemblerColumnView::insertPath(const RDNet* net, const RDDocumentItem& fromitem, size_t fromidx, size_t toidx)
 {
-    auto pair = qMakePair(fromidx, toidx);
-    InstructionLock frominstruction(m_document, fromitem.address);
+    const RDNetNode* node = RDNet_FindNode(net, fromitem.address);
+    if(!node) return;
 
-    if(!frominstruction || (frominstruction->type != InstructionType_Jump) || m_done.contains(pair))
-        return;
+    auto pair = qMakePair(fromidx, toidx);
+    if(m_done.contains(pair)) return;
 
     m_done.insert(pair);
 
     if(fromidx > toidx) // Loop
     {
-        if(frominstruction->flags & InstructionFlags_Conditional) m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_loop_c") });
-        else m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_loop") });
+        if(RDNetNode_GetBranchesFalse(node, nullptr)) m_paths.append({ fromidx, toidx, THEME_VALUE(Theme_GraphEdgeLoopCond) });
+        else m_paths.append({ fromidx, toidx, THEME_VALUE(Theme_GraphEdgeLoop) });
     }
     else
     {
-        if(frominstruction->flags & InstructionFlags_Conditional) m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge_false") });
-        else m_paths.append({ fromidx, toidx, THEME_VALUE("graph_edge") });
+        if(RDNetNode_GetBranchesFalse(node, nullptr)) m_paths.append({ fromidx, toidx, THEME_VALUE(Theme_GraphEdgeFalse) });
+        else m_paths.append({ fromidx, toidx, THEME_VALUE(Theme_GraphEdge) });
     }
 }

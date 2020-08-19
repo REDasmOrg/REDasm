@@ -30,14 +30,16 @@ class LoaderDialog : public QDialog
         void validateInput();
         void updateInputMask();
         void syncAssembler();
+        void syncAnalyzers();
         void populateAssemblers();
 
     private slots:
+        void onAnalyzerItemChanged(QStandardItem* item);
         void onAccepted();
 
     private:
         Ui::LoaderDialog *ui;
-        QStandardItemModel* m_loadersmodel;
+        QStandardItemModel *m_loadersmodel, *m_analyzersmodel;
         QList<RDLoaderPlugin*> m_loaders;
         QList<RDAssemblerPlugin*> m_assemblers;
         const RDLoaderRequest* m_request;

@@ -30,10 +30,11 @@ class LoaderDialog : public QDialog
         void validateInput();
         void updateInputMask();
         void syncAssembler();
-        void syncAnalyzers();
         void populateAssemblers();
+        void selectAnalyzers(bool select);
 
     private slots:
+        void syncAnalyzers();
         void onAnalyzerItemChanged(QStandardItem* item);
         void onAccepted();
 

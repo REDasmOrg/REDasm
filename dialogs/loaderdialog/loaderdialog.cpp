@@ -6,7 +6,6 @@
 LoaderDialog::LoaderDialog(const RDLoaderRequest* request, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(request)
 {
     ui->setupUi(this);
-    ui->splitter->setStretchFactor(1, 1);
 
     RD_GetLoaders(request, [](RDLoaderPlugin* descriptor, void* userdata) {
         LoaderDialog* thethis = reinterpret_cast<LoaderDialog*>(userdata);
@@ -30,6 +29,9 @@ LoaderDialog::LoaderDialog(const RDLoaderRequest* request, QWidget *parent) : QD
     this->syncAnalyzers();
 
     connect(m_analyzersmodel, &QStandardItemModel::itemChanged, this, &LoaderDialog::onAnalyzerItemChanged);
+    connect(ui->pbSelectAll, &QPushButton::clicked, this, [&]() { this->selectAnalyzers(true); });
+    connect(ui->pbUnselectAll, &QPushButton::clicked, this, [&]() { this->selectAnalyzers(false); });
+    connect(ui->pbRestoreDefaults, &QPushButton::clicked, this, &LoaderDialog::syncAnalyzers);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &LoaderDialog::onAccepted);
     connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&) { this->validateInput(); });
     connect(ui->leEntryPoint, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateInput(); });
@@ -175,6 +177,19 @@ void LoaderDialog::populateAssemblers()
         thethis->m_assemblers.push_back(plugin);
         thethis->ui->cbAssembler->addItem(plugin->name, plugin->id);
     }, this);
+}
+
+void LoaderDialog::selectAnalyzers(bool select)
+{
+    for(int i = 0; i < m_analyzersmodel->rowCount(); i++)
+    {
+        auto* item = m_analyzersmodel->item(i);
+        const auto* panalyzer = reinterpret_cast<const RDAnalyzerPlugin*>(item->data().value<void*>());
+        if(!panalyzer) continue;
+
+        item->setCheckState(select ? Qt::Checked : Qt::Unchecked);
+        RDAnalyzer_Select(panalyzer, select);
+    }
 }
 
 void LoaderDialog::onAnalyzerItemChanged(QStandardItem* item)

@@ -161,7 +161,6 @@ void LoaderDialog::syncAnalyzers()
         nameitem->setCheckState(HAS_FLAG(a, AnalyzerFlags_Selected) ? Qt::Checked : Qt::Unchecked);
         if(HAS_FLAG(a, AnalyzerFlags_Experimental)) nameitem->setForeground(THEME_VALUE(Theme_GraphEdgeFalse));
 
-        qDebug() << nameitem->text();
         thethis->m_analyzersmodel->appendRow({nameitem, descritem});
     }, this);
 

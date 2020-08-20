@@ -55,7 +55,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         else if(index.column() == 1) return this->direction(doc, item.address);
         else if(index.column() == 2)
         {
-            if(IS_TYPE(&item, DocumentItemType_Instruction)) return RDRenderer_GetInstructionText(m_renderer, item.address);
+            if(IS_TYPE(&item, DocumentItemType_Instruction)) return RDRenderer_GetInstruction(m_renderer, item.address);
             else if(IS_TYPE(&item, DocumentItemType_Symbol)) return RDDocument_GetSymbolName(doc, item.address);
         }
     }
@@ -67,12 +67,13 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         {
             if(IS_TYPE(&item, DocumentItemType_Instruction))
             {
-                //FIXME: InstructionLock instruction(doc, item.address);
-                //FIXME: if(!instruction) return QVariant();
+                const RDNet* net = RDDisassembler_GetNet(m_disassembler);
+                const RDNetNode* node = RDNet_FindNode(net, item.address);
+                if(!node) return QVariant();
 
-                //FIXME: if(instruction->flags & InstructionFlags_Conditional) return THEME_VALUE(Theme_JumpCond);
-                //FIXME: else if(instruction->type == InstructionType_Jump) return THEME_VALUE(Theme_Jump);
-                //FIXME: else if(instruction->type == InstructionType_Call) return THEME_VALUE(Theme_Call);
+                if(RDNetNode_IsConditional(node)) return THEME_VALUE(Theme_JumpCond);
+                if(RDNetNode_IsBranch(node)) return THEME_VALUE(Theme_Jump);
+                if(RDNetNode_IsCall(node)) return THEME_VALUE(Theme_Call);
             }
             else if(IS_TYPE(&item, DocumentItemType_Symbol))
             {

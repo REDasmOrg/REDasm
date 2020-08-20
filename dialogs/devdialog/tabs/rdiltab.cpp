@@ -21,7 +21,7 @@ void RDILTab::updateInformation()
         return;
     }
 
-    ui->lblTitle->setText(RDRenderer_GetInstructionText(m_renderer.get(), item.address));
+    ui->lblTitle->setText(RDRenderer_GetInstruction(m_renderer.get(), item.address));
 
     m_graph.reset(RDILGraph_Create(m_command->disassembler(), item.address));
     ui->graphView->setGraph(m_graph.get());

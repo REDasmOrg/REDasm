@@ -11,7 +11,6 @@
 #include "../widgets/tabs/tabletab/tabletab.h"
 #include "../widgets/disassemblerview.h"
 #include "../models/dev/blocklistmodel.h"
-#include "../models/dev/rdilmodel.h"
 #include "../models/listingitemmodel.h"
 #include "../models/symboltablemodel.h"
 #include "../models/segmentsmodel.h"

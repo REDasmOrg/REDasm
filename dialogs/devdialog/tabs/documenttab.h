@@ -39,6 +39,7 @@ class DocumentTab : public QWidget
 
     private:
         Ui::DocumentTab *ui;
+        rd_ptr<RDRenderer> m_renderer;
         IDisassemblerCommand* m_command{nullptr};
         int m_indent{0};
 };
@@ -49,11 +50,8 @@ template<typename Iterator, typename Func> DocumentTab& DocumentTab::array(const
 {
     QString s;
 
-    for(Iterator it = begin; it != end; it++)
-    {
-        if(!s.isEmpty())
-            s += ", ";
-
+    for(Iterator it = begin; it != end; it++) {
+        if(!s.isEmpty()) s += ", ";
         s += cb(*it);
     }
 

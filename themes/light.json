@@ -24,6 +24,8 @@
     "jump": "#00008b",
     "jump_c": "#c0392b",
 
+    "entry_bg": "#b8c9f1",
+
     "graph_bg": "azure",
     "graph_edge": "#00008b",
     "graph_edge_true": "#27ae60",

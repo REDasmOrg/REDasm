@@ -29,6 +29,7 @@ DocumentTab::~DocumentTab() { delete ui; }
 void DocumentTab::setCommand(IDisassemblerCommand* command)
 {
     m_command = command;
+    m_renderer.reset(RDRenderer_Create(command->disassembler(), nullptr, RendererFlags_Simplified));
     this->updateInformation();
 }
 
@@ -145,57 +146,21 @@ QString DocumentTab::getBits(const QByteArray& ba) const
 
 void DocumentTab::displayInstructionInformation(RDDocument* doc, const RDDocumentItem& item)
 {
-    // FIXME: InstructionLock instruction(doc, item.address);
-    // FIXME: if(!instruction) return;
+    RDBlock block;
+    if(!RDDocument_GetBlock(doc, item.address, &block)) return;
 
-    // FIXME: QString hexdump = RD_HexDump(m_command->disassembler(), item.address, instruction->size);
-    // FIXME: QByteArray dump = QByteArray::fromHex(hexdump.toUtf8());
+    QString hexdump = RD_HexDump(m_command->disassembler(), item.address, RDBlock_Size(&block));
+    QByteArray dump = QByteArray::fromHex(hexdump.toUtf8());
 
-    // FIXME: this->header("INSTRUCTION");
+    this->header("INSTRUCTION");
 
-    // FIXME: m_indent = INDENT_BASE;
-    // FIXME:     this->line("id", QString::number(instruction->id, 16));
-    // FIXME:     this->line("address", RD_ToHex(instruction->address));
-    // FIXME:     this->string("mnemonic", instruction->mnemonic);
-    // FIXME:     this->line("type", this->instructionType(*instruction));
-    // FIXME:     this->line("flags", this->instructionFlags(*instruction));
-    // FIXME:     this->line("size", QString("%1 byte(s)").arg(instruction->size));
-    // FIXME:     this->line("operands", QString::number(instruction->operandscount));
-    // FIXME:     this->line("hexdump", hexdump);
-    // FIXME:     this->line("bits", this->getBits(dump));
-    // FIXME:     this->line();
-    // FIXME: m_indent = 0;
-
-    // FIXME: for(size_t i = 0; i < instruction->operandscount; i++)
-    // FIXME: {
-    // FIXME:     if(i) this->line();
-    // FIXME:     const RDOperand& op = instruction->operands[i];
-    // FIXME:     this->header(QString("OPERAND %1").arg(i));
-
-    // FIXME:     m_indent = INDENT_BASE;
-
-    // FIXME:         this->line("type", this->operandType(&op));
-
-    // FIXME:         switch(op.type)
-    // FIXME:         {
-    // FIXME:             case OperandType_Register: this->line("reg", QString::number(op.reg)); break;
-
-    // FIXME:             case OperandType_Constant:
-    // FIXME:             case OperandType_Immediate:
-    // FIXME:             case OperandType_Memory: this->line("u_value", QString::number(op.u_value, 16)); break;
-
-    // FIXME:             case OperandType_Displacement:
-    // FIXME:                 this->line("base", QString::number(op.base));
-    // FIXME:                 this->line("index", QString::number(op.index));
-    // FIXME:                 this->line("scale", QString::number(op.scale));
-    // FIXME:                 this->line("displacement", QString::number(op.displacement, 16));
-    // FIXME:                 break;
-
-    // FIXME:             default: break;
-    // FIXME:         }
-
-    // FIXME:     m_indent = 0;
-    // FIXME: }
+    m_indent = INDENT_BASE;
+        this->line("assembler", RDRenderer_GetAssemblerInstruction(m_renderer.get(), block.address));
+        this->line("rdil", RDRenderer_GetRDILInstruction(m_renderer.get(), block.address));
+        this->line("hexdump", hexdump);
+        this->line("bits", this->getBits(dump));
+        this->line();
+    m_indent = 0;
 }
 
 void DocumentTab::displaySymbolInformation(RDDocument* doc, const RDDocumentItem& item)

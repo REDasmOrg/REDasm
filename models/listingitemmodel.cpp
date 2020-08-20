@@ -117,11 +117,12 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::BackgroundRole)
     {
-        //FIXME: if(HAS_FLAG(&symbol, SymbolFlags_EntryPoint)) return THEME_VALUE("entrypoint_bg");
+        if(HAS_FLAG(&symbol, SymbolFlags_EntryPoint)) return THEME_VALUE(Theme_EntryBg);
     }
     else if(role == Qt::ForegroundRole)
     {
         if(index.column() == 0) return THEME_VALUE(Theme_Address);
+        if(HAS_FLAG(&symbol, SymbolFlags_EntryPoint)) return THEME_VALUE(Theme_EntryFg);
         if(IS_TYPE(&symbol, SymbolType_String) && (index.column() == 3)) return THEME_VALUE(Theme_String);
     }
 

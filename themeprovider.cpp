@@ -114,6 +114,8 @@ void ThemeProvider::applyListingTheme()
         { "call", Theme_Call },
         { "jump", Theme_Jump },
         { "jump_c", Theme_JumpCond },
+        { "entry_fg", Theme_EntryFg },
+        { "entry_bg", Theme_EntryBg },
         { "graph_bg", Theme_GraphBg },
         { "graph_edge", Theme_GraphEdge },
         { "graph_edge_true", Theme_GraphEdgeTrue },

@@ -103,7 +103,7 @@ class DisassemblerHooks: public QObject
         void checkListingMode();
         void clearOutput();
         void enableMenu(QMenu* menu, bool enable);
-        void loadDisassemblerView(RDLoaderPlugin* loader, RDAssemblerPlugin* assembler, const RDLoaderRequest& req, const RDLoaderBuildRequest& buildreq);
+        void loadDisassemblerView(RDDisassembler* disassembler);
         void showLoaders(const QString& filepath, RDBuffer* buffer);
         void addWelcomeTab();
         void loadRecents();

@@ -2,6 +2,7 @@
 #include "../dialogs/tabledialog/tabledialog.h"
 #include "../dialogs/aboutdialog/aboutdialog.h"
 #include "../dialogs/settingsdialog/settingsdialog.h"
+#include "../dialogs/analyzerdialog/analyzerdialog.h"
 #include "../dialogs/loaderdialog/loaderdialog.h"
 #include "../dialogs/referencesdialog/referencesdialog.h"
 #include "../dialogs/gotodialog/gotodialog.h"
@@ -463,26 +464,15 @@ TableTab* DisassemblerHooks::createTable(ListingItemModel* model, const QString&
     return tabletab;
 }
 
-void DisassemblerHooks::loadDisassemblerView(RDLoaderPlugin* loader, RDAssemblerPlugin* assembler, const RDLoaderRequest& req, const RDLoaderBuildRequest& buildreq)
+void DisassemblerHooks::loadDisassemblerView(RDDisassembler* disassembler)
 {
     this->close(false);
     RDEvent_Subscribe(this, &DisassemblerHooks::listenEvents, nullptr);
-    RDDisassembler* disassembler = RDDisassembler_Create(&req, loader, assembler);
-    m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow);
+    m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow); // Takes ownership
 
-    m_worker = std::async([&, disassembler, buildreq]() {
-        RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
-        bool cancontinue = false;
-
-        if(RDLoader_GetFlags(ldr) & LoaderFlags_CustomAddressing) cancontinue = RDLoader_Build(ldr, &buildreq);
-        else cancontinue = RDLoader_Load(ldr);
-
-        if(cancontinue) {
-            RD_Disassemble(disassembler);
-            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
-        }
-        else
-            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "close", Qt::QueuedConnection, Q_ARG(bool, true));
+    m_worker = std::async([&, disassembler]() { // Capture 'disassembler' by value
+        RD_Disassemble(disassembler);
+        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
     });
 }
 
@@ -532,10 +522,35 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
         return;
     }
 
-    rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(ploader->name, passembler->name)));
+    RDDisassembler* disassembler = RDDisassembler_Create(&req, ploader, passembler);
+    RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
+    bool cancontinue = false;
 
+    if(HAS_FLAG(ploader, LoaderFlags_CustomAddressing))
+    {
+        RDLoaderBuildRequest buildreq = dlgloader.buildRequest();
+        cancontinue = RDLoader_Build(ldr, &buildreq);
+    }
+    else cancontinue = RDLoader_Load(ldr);
+
+    if(!cancontinue)
+    {
+        RD_Free(disassembler);
+        return;
+    }
+
+    AnalyzerDialog dlganalyzer(ploader, passembler, m_mainwindow);
+
+    if(dlganalyzer.exec() != AnalyzerDialog::Accepted)
+    {
+        RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(passembler));
+        RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(ploader));
+        return;
+    }
+
+    rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(ploader->name, passembler->name)));
     m_fileinfo = QFileInfo(filepath);
-    this->loadDisassemblerView(ploader, passembler, req, dlgloader.buildRequest());
+    this->loadDisassemblerView(disassembler);
 }
 
 void DisassemblerHooks::addWelcomeTab() { m_disassemblertabs->addTab(new WelcomeTab(), QString()); }

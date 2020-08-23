@@ -24,7 +24,6 @@ LoaderDialog::LoaderDialog(const RDLoaderRequest* request, QWidget *parent) : QD
     this->updateInputMask();
     this->syncAssembler();
 
-    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &LoaderDialog::onAccepted);
     connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&) { this->validateInput(); });
     connect(ui->leEntryPoint, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateInput(); });
     connect(ui->leOffset, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateInput(); });
@@ -88,14 +87,14 @@ void LoaderDialog::checkFlags()
     if(!index.isValid())
     {
         ui->cbAssembler->setEnabled(false);
-        ui->tabAddressing->setEnabled(false);
+        ui->widgetAddressing->setEnabled(false);
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
         return;
     }
 
     rd_flag flags = this->selectedLoaderFlags();
     ui->cbAssembler->setEnabled(flags & LoaderFlags_CustomAssembler);
-    ui->tabAddressing->setEnabled(flags & LoaderFlags_CustomAddressing);
+    ui->widgetAddressing->setEnabled(flags & LoaderFlags_CustomAddressing);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
@@ -146,16 +145,4 @@ void LoaderDialog::populateAssemblers()
         thethis->m_assemblers.push_back(plugin);
         thethis->ui->cbAssembler->addItem(plugin->name, plugin->id);
     }, this);
-}
-
-void LoaderDialog::onAccepted()
-{
-    rd_flag flags = ContextFlag_None;
-
-    if(ui->chkNoCFG->isChecked()) flags |= ContextFlag_DisableCFG;
-    if(ui->chkNoAnalysis->isChecked()) flags |= ContextFlag_DisableAnalyzer;
-    if(ui->chkNoSignatures->isChecked()) flags |= ContextFlag_DisableSignature;
-    if(ui->chkNoUnexplored->isChecked()) flags |= ContextFlag_DisableUnexplored;
-
-    RD_InitContextFlags(flags);
 }

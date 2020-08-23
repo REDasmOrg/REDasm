@@ -87,7 +87,11 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
             return RDDocument_GetSegmentAddress(m_document, symbol.address, &segment) ? segment.name : "???";
         }
 
-        if(index.column() == 2) return QString::number(RDDisassembler_GetReferencesCount(m_disassembler, symbol.address));
+        if(index.column() == 2)
+        {
+            const RDNet* net = RDDisassembler_GetNet(m_disassembler);
+            return QString::number(RDNet_GetReferences(net, symbol.address, nullptr));
+        }
 
         if(index.column() == 3)
         {

@@ -50,7 +50,7 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): CursorScrollArea(pa
                 thethis->adjustScrollBars();
 
                 RDDocument* doc = RDDisassembler_GetDocument(thethis->disassembler());
-                RDLocation loc = RDDocument_EntryPoint(doc);
+                RDLocation loc = RDDocument_GetEntryPoint(doc);
 
                 if(loc.valid) thethis->gotoAddress(loc.address);
                 else thethis->requestRender();

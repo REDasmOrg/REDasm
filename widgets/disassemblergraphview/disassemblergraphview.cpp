@@ -111,7 +111,7 @@ bool DisassemblerGraphView::renderGraph()
     RDDocumentItem item;
     if(!m_command->getCurrentItem(&item)) return false;
 
-    auto loc = RDDocument_FunctionStart(doc, item.address);
+    auto loc = RDDocument_GetFunctionStart(doc, item.address);
     if(!loc.valid) return false;
 
     if(m_currentfunction && (loc.address == m_currentfunction->address)) // Don't render graph again

@@ -24,7 +24,7 @@ void ReferencesModel::xref(rd_address address)
 
     this->beginResetModel();
     const RDNet* net = RDDisassembler_GetNet(m_disassembler);
-    m_referencescount = RDNet_GetRefs(net, address, &m_references);
+    m_referencescount = RDNet_GetReferences(net, address, &m_references);
 
     this->endResetModel();
 }

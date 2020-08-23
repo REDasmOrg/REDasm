@@ -76,7 +76,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
             if(toidx >= RDDocument_ItemsCount(m_document)) continue;
 
             const rd_address* refs = nullptr;
-            size_t c = RDNet_GetRefs(net, item.address, &refs);
+            size_t c = RDNet_GetReferences(net, item.address, &refs);
 
             for(size_t i = 0; i < c; i++)
             {

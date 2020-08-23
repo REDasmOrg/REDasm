@@ -190,7 +190,7 @@ void DisassemblerHooks::showReferences(IDisassemblerCommand* command, rd_address
 
     const RDNet* net = RDDisassembler_GetNet(command->disassembler());
 
-    if(!RDNet_GetRefs(net, symbol.address, nullptr))
+    if(!RDNet_GetReferences(net, symbol.address, nullptr))
     {
         QMessageBox::information(nullptr, "No References", QString("There are no references to %1 ").arg(RDDocument_GetSymbolName(doc, symbol.address)));
         return;
@@ -290,7 +290,7 @@ void DisassemblerHooks::statusAddress(const IDisassemblerCommand* command) const
     RDSegment segment;
     bool hassegment = RDDocument_GetSegmentAddress(doc, item.address, &segment);
 
-    RDLocation functionstart = RDDocument_FunctionStart(doc, item.address);
+    RDLocation functionstart = RDDocument_GetFunctionStart(doc, item.address);
     RDLocation offset = RD_Offset(ldr, item.address);
 
     QString segm = hassegment ? segment.name : "UNKNOWN",
@@ -346,7 +346,7 @@ void DisassemblerHooks::adjustActions()
     if(!command->getSelectedSymbol(&symbol))
     {
         bool hassymbolsegment = RDDocument_GetSegmentAddress(doc, item.address, &symbolsegment);
-        RDLocation funcstart = RDDocument_FunctionStart(doc, item.address);
+        RDLocation funcstart = RDDocument_GetFunctionStart(doc, item.address);
         const char* funcname = funcstart.valid ? RDDocument_GetSymbolName(doc, funcstart.value) : nullptr;
 
         actions[DisassemblerHooks::Action_Rename]->setVisible(false);

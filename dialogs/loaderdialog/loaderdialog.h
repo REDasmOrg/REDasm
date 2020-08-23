@@ -27,7 +27,7 @@ class LoaderDialog : public QDialog
         void unloadLoaders();
         void unloadAssemblers();
         void checkFlags();
-        void validateInput();
+        void validateFields();
         void updateInputMask();
         void syncAssembler();
         void populateAssemblers();

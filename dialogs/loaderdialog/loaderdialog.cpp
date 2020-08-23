@@ -24,14 +24,15 @@ LoaderDialog::LoaderDialog(const RDLoaderRequest* request, QWidget *parent) : QD
     this->updateInputMask();
     this->syncAssembler();
 
-    connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&) { this->validateInput(); });
-    connect(ui->leEntryPoint, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateInput(); });
-    connect(ui->leOffset, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateInput(); });
+    connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&) { this->validateFields(); });
+    connect(ui->leEntryPoint, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateFields(); });
+    connect(ui->leOffset, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateFields(); });
+    connect(ui->cbAssembler, qOverload<int>(&QComboBox::currentIndexChanged), this, [&](int) { this->validateFields(); });
 
     connect(ui->lvLoaders, &QListView::clicked, this, [&](const QModelIndex&) {
         this->checkFlags();
-        this->validateInput();
         this->syncAssembler();
+        this->validateFields();
     });
 }
 
@@ -48,7 +49,7 @@ LoaderDialog::~LoaderDialog()
     });
 
     std::for_each(m_assemblers.begin(), m_assemblers.end(), [](RDAssemblerPlugin* plugin) {
-        RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(plugin));
+        if(plugin) RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(plugin));
     });
 
     delete ui;
@@ -66,7 +67,13 @@ RDLoaderPlugin *LoaderDialog::selectedLoader() const
 RDAssemblerPlugin* LoaderDialog::selectedAssembler() const
 {
     rd_flag flags = this->selectedLoaderFlags();
-    if(flags & LoaderFlags_CustomAssembler) return m_assemblers.at(ui->cbAssembler->currentIndex());
+
+    if(flags & LoaderFlags_CustomAssembler)
+    {
+        int idx = ui->cbAssembler->currentIndex();
+        return (idx > 0) && (idx < m_assemblers.size()) ? m_assemblers.at(ui->cbAssembler->currentIndex()) : nullptr;
+    }
+
     return RDLoader_GetAssemblerPlugin(this->selectedLoader());
 }
 
@@ -98,7 +105,7 @@ void LoaderDialog::checkFlags()
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
-void LoaderDialog::validateInput()
+void LoaderDialog::validateFields()
 {
     bool okenabled = true;
     rd_flag flags = this->selectedLoaderFlags();
@@ -111,7 +118,7 @@ void LoaderDialog::validateInput()
             okenabled = false;
     }
 
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(okenabled);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(okenabled && (ui->cbAssembler->currentIndex() > 0));
 }
 
 void LoaderDialog::updateInputMask()
@@ -139,6 +146,7 @@ void LoaderDialog::syncAssembler()
 void LoaderDialog::populateAssemblers()
 {
     ui->cbAssembler->addItem(QString()); // Empty placeholder
+    m_assemblers.push_back(nullptr);     // Dummy assembler
 
     RD_GetAssemblers([](RDAssemblerPlugin* plugin, void* userdata) {
         LoaderDialog* thethis = reinterpret_cast<LoaderDialog*>(userdata);

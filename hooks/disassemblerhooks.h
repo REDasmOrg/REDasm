@@ -10,6 +10,7 @@
 #define HOOK_ACTION_CLOSE        "action_Close"
 #define HOOK_ACTION_RECENT_FILES "action_Recent_Files"
 #define HOOK_ACTION_DEVTOOLS     "action_Developer_Tools"
+#define HOOK_ACTION_DATABASE     "action_Database"
 
 #include <QMainWindow>
 #include <QPushButton>
@@ -70,6 +71,7 @@ class DisassemblerHooks: public QObject
         void showReferences(IDisassemblerCommand* command, rd_address address);
         void showGoto(IDisassemblerCommand* command);
         void showDeveloperTools();
+        void showDatabase();
 
     public:
         ICommandTab* activeCommandTab() const;

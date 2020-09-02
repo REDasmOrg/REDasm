@@ -7,6 +7,7 @@
 #include "../dialogs/referencesdialog/referencesdialog.h"
 #include "../dialogs/gotodialog/gotodialog.h"
 #include "../dialogs/devdialog/devdialog.h"
+#include "../dialogs/databasedialog/databasedialog.h"
 #include "../widgets/tabs/welcometab/welcometab.h"
 #include "../widgets/docks/outputdock/outputdock.h"
 #include "../widgets/tabs/tabletab/tabletab.h"
@@ -20,7 +21,6 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QInputDialog>
-#include <QMessageBox>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QToolBar>
@@ -213,6 +213,12 @@ void DisassemblerHooks::showDeveloperTools()
 
     m_devdialog->setCommand(m_activecommandtab->command());
     m_devdialog->show();
+}
+
+void DisassemblerHooks::showDatabase()
+{
+    DatabaseDialog dbdialog(m_mainwindow);
+    dbdialog.exec();
 }
 
 ICommandTab* DisassemblerHooks::activeCommandTab() const
@@ -485,6 +491,9 @@ void DisassemblerHooks::hook()
     m_toolbar = m_mainwindow->findChild<QToolBar*>(HOOK_TOOLBAR);
     m_disassemblertabs = m_mainwindow->findChild<DisassemblerTabs*>(HOOK_TABS);
     this->addWelcomeTab();
+
+    QAction* act = m_mainwindow->findChild<QAction*>(HOOK_ACTION_DATABASE);
+    connect(act, &QAction::triggered, this, [&]() { this->showDatabase(); });
 
     connect(m_toolbar, &QToolBar::actionTriggered, this, &DisassemblerHooks::onToolBarActionTriggered);
     connect(m_mnuwindow, &QMenu::triggered, this, &DisassemblerHooks::onWindowActionTriggered);

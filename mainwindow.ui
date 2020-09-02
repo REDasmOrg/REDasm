@@ -99,7 +99,7 @@
     </property>
     <addaction name="action_Goto"/>
     <addaction name="action_Filter"/>
-    <addaction name="action_Signatures"/>
+    <addaction name="action_Database"/>
     <addaction name="separator"/>
     <addaction name="action_Developer_Tools"/>
     <addaction name="action_Settings"/>
@@ -208,9 +208,9 @@
     <string>&amp;Listing</string>
    </property>
   </action>
-  <action name="action_Signatures">
+  <action name="action_Database">
    <property name="text">
-    <string>&amp;Signatures</string>
+    <string>&amp;Database</string>
    </property>
   </action>
   <action name="action_Blocks">

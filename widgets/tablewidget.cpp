@@ -13,6 +13,9 @@ TableWidget::TableWidget(QWidget *parent) : QWidget(parent), ui(new Ui::TableWid
 
     ThemeProvider::styleCornerButton(ui->tbvTable);
 
+    connect(ui->tbvTable, &QTableView::doubleClicked, this, &TableWidget::onTableDoubleClicked);
+    connect(ui->tbvTable, &QTableView::clicked, this, &TableWidget::onTableClicked);
+
     connect(ui->leSearch, &QLineEdit::textChanged, this, [&](const QString& s) {
         static_cast<QSortFilterProxyModel*>(ui->tbvTable->model())->setFilterFixedString(s);
     });
@@ -20,6 +23,8 @@ TableWidget::TableWidget(QWidget *parent) : QWidget(parent), ui(new Ui::TableWid
 
 TableWidget::~TableWidget() { delete ui; }
 void TableWidget::enableFiltering() { ui->leSearch->setVisible(true); }
+void TableWidget::setSelectionModel(QAbstractItemView::SelectionMode mode) { ui->tbvTable->setSelectionMode(mode); }
+void TableWidget::setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior) { ui->tbvTable->setSelectionBehavior(behavior); }
 
 void TableWidget::setModel(QAbstractItemModel* model)
 {
@@ -34,4 +39,22 @@ void TableWidget::setModel(QAbstractItemModel* model)
 
     for(int i = 0; i < model->columnCount(); i++)
         ui->tbvTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
+}
+
+QAbstractItemModel* TableWidget::model() const
+{
+    auto* sfmodel = static_cast<QSortFilterProxyModel*>(ui->tbvTable->model());
+    return sfmodel ? sfmodel->sourceModel() : nullptr;
+}
+
+void TableWidget::onTableDoubleClicked(const QModelIndex& index)
+{
+    auto* sfmodel = static_cast<QSortFilterProxyModel*>(ui->tbvTable->model());
+    emit doubleClicked(sfmodel->mapToSource(index));
+}
+
+void TableWidget::onTableClicked(const QModelIndex& index)
+{
+    auto* sfmodel = static_cast<QSortFilterProxyModel*>(ui->tbvTable->model());
+    emit clicked(sfmodel->mapToSource(index));
 }

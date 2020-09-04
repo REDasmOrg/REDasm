@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setOrganizationName("redasm.io");
     a.setApplicationName("redasm");
-    a.setApplicationDisplayName("REDasm 3.0-" + QString::fromUtf8(REDASM_VERSION));
+    a.setApplicationDisplayName("REDasm " + QString::fromUtf8(REDASM_VERSION));
 
     REDasmSettings::setDefaultFormat(REDasmSettings::IniFormat);
     ThemeProvider::applyTheme();

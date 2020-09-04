@@ -1,49 +1,44 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 #include "../../themeprovider.h"
+#include <QPushButton>
+#include <QPainter>
+#include <vector>
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDialog)
 {
     ui->setupUi(this);
-    ui->twDepends->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    ui->twDepends->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    ui->twDepends->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    ui->lblHeader->setText(QString(ui->lblHeader->text()).arg(REDASM_VERSION, QT_VERSION_STR));
 
-    this->initItems();
-    this->initDepends();
+    this->setStyleSheet("QTextEdit {"
+                            "background: transparent;"
+                            "border: 0;"
+                        "}");
 
-    if(ThemeProvider::isDarkTheme())
-        ui->lblLogo->setPixmap(QPixmap(QString::fromUtf8(":/res/logo_big_dark.png")));
-    else
-        ui->lblLogo->setPixmap(QPixmap(QString::fromUtf8(":/res/logo_big.png")));
+    this->initDependencies();
 
-    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &AboutDialog::accept);
+    if(ThemeProvider::isDarkTheme()) ui->lblLogo->setPixmap(QPixmap(":/res/logo_dark.png"));
+    else ui->lblLogo->setPixmap(QPixmap(":/res/logo.png"));
+
+    connect(ui->buttonBox, &QDialogButtonBox::clicked, this, &AboutDialog::accept);
 }
 
 AboutDialog::~AboutDialog() { delete ui; }
 
-void AboutDialog::initItems()
+void AboutDialog::initDependencies()
 {
-    m_depends.push_back({ "Qt",           QT_VERSION_STR, "https://www.qt.io" });
-    m_depends.push_back({ "JSON",         "---",          "https://github.com/nlohmann/json" });
-    m_depends.push_back({ "UndName",      "---",          "https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c" });
-    m_depends.push_back({ "Libiberty",    "---",          "https://github.com/bminor/binutils-gdb/tree/master/libiberty" });
-    m_depends.push_back({ "Visit-Struct", "---",          "https://github.com/cbeck88/visit_struct" });
-}
+    static const std::vector<std::pair<QString, QString>> DEPENDENCIES = {
+        {"JSON", "https://github.com/nlohmann/json" },
+        {"UndName", "https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c"},
+        {"Libiberty", "https://github.com/bminor/binutils-gdb/tree/master/libiberty"},
+    };
 
-void AboutDialog::initDepends()
-{
-    ui->twDepends->setRowCount(static_cast<int>(m_depends.size()));
+    QTextCursor cursor(ui->tbDependencies->document());
+    cursor.insertHtml("<b>Thanks to:</b><br>");
 
-    for(auto it = m_depends.begin(); it != m_depends.end(); it++)
+    for(const auto& [name, url] : DEPENDENCIES)
     {
-        int index = std::distance(m_depends.begin(), it);
-
-        ui->twDepends->setItem(index, 0, new QTableWidgetItem(it->name));
-        ui->twDepends->setItem(index, 1, new QTableWidgetItem(it->version));
-
-        auto urlitem = new QTableWidgetItem(it->url);
-        urlitem->setTextAlignment(Qt::AlignCenter);
-        ui->twDepends->setItem(index, 2, urlitem);
+        cursor.insertHtml(QString("- <a href='%1'>%2</a>").arg(url, name));
+        if(name != DEPENDENCIES.back().first) cursor.insertText("\n");
     }
 }

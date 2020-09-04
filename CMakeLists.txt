@@ -12,6 +12,7 @@ option(PORTABLE_MODE "Enable Portable Mode" OFF)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
+set(REDASM_VERSION_BASE "3.0")
 
 if(PORTABLE_MODE)
     add_definitions(-DREDASM_PORTABLE_MODE=1)
@@ -40,7 +41,7 @@ else()
 endif()
 
 set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
-add_definitions(-DREDASM_VERSION="${REDASM_BUILD_VERSION}")
+add_definitions(-DREDASM_VERSION="${REDASM_VERSION_BASE}-${REDASM_BUILD_VERSION}")
 
 add_subdirectory(LibREDasm)
 add_subdirectory(QHexView)

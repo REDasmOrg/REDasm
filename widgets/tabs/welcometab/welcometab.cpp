@@ -5,6 +5,7 @@
 #include "../../../hooks/disassemblerhooks.h"
 #include "../../../redasmsettings.h"
 #include "../../../redasmfonts.h"
+#include "../themeprovider.h"
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QUrl>
@@ -12,15 +13,10 @@
 WelcomeTab::WelcomeTab(QWidget *parent) : QWidget(parent), ui(new Ui::WelcomeTab)
 {
     ui->setupUi(this);
+    ui->lblVersion->setText(QString("Version %1").arg(REDASM_VERSION));
 
-    QString brandtext = QString("<p style='font-size: 60px; font-weight: bold;'>"
-                                    "<span style='color:#a80a2b;'>RE</span>"
-                                    "Dasm"
-                                "</p>"
-                                "<span>Version 3.0-%1</span>").arg(REDASM_VERSION);
-
-    ui->lblBrand->setFont(qApp->font());
-    ui->lblBrand->setText(brandtext);
+    if(ThemeProvider::isDarkTheme()) ui->lblBrand->setPixmap(QPixmap(":/res/logo_dark.png"));
+    else ui->lblBrand->setPixmap(QPixmap(":/res/logo.png"));
 
     ui->lvRecentFiles->viewport()->setAttribute(Qt::WA_Hover);
     ui->lvRecentFiles->viewport()->setBackgroundRole(QPalette::Window);

@@ -646,7 +646,13 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
     });
 
     actions[DisassemblerHooks::Action_CreateFunction] = contextmenu->addAction("Create Function", this, [&, command]() {
+        RDSymbol symbol;
+        if(!command->getSelectedSymbol(&symbol)) {
+            rd_log("Cannot create function @ " + rd_tohex(symbol.address));
+            return;
+        }
 
+        m_worker = std::async([&]() { RDDisassembler_CreateFunction(command->disassembler(), symbol.address, nullptr); });
     }, QKeySequence(Qt::SHIFT + Qt::Key_C));
 
     contextmenu->addSeparator();

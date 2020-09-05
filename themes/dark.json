@@ -1,6 +1,4 @@
 {
-    "dark": true,
-
     "Shadow": "#2b2b2b",
     "Base": "#303030",
     "AlternateBase": "#3b3b3b",
@@ -14,51 +12,38 @@
     "ToolTipBase": "#3b3b3b",
     "ToolTipText": "#ecf0f1",
 
-    "address_fg": "#6a89b4",
-    "segment_fg": "#2ecc71",
-    "function_fg": "#3498db",
-    "comment_fg": "#16a085",
-    "string_fg": "#a38671",
-    "data_fg": "#9b59b6",
-    "label_fg": "#b8c9f1",
-    "meta_fg": "#d95459",
-    "pointer_fg": "#d95459",
-    "type_fg": "#d95459",
-    "import_fg": "#745ec5",
+    "seek": "#3b3b3b",
+    "comment": "#16a085",
 
-    "strong_fg": "#d45c9e",
-    "strong_bg": "#34495e",
-    "marked_fg": "#d45c9e",
-    "marked_bg": "#34495e",
-    "entrypoint_fg": "#d45c9e",
-    "entrypoint_bg": "#2d5036",
     "highlight_fg": "#3b3b3b",
     "highlight_bg": "#2ecc71",
-    "seek": "#3b3b3b",
 
-    "register_fg": "#27ae60",
-    "immediate_fg": "#bdc3c7",
-    "memory_fg": "#d35400",
-    "displacement_fg": "#8e725e",
+    "segment": "#2ecc71",
+    "function": "#3498db",
 
-    "instruction_invalid": "#bdc3c7",
-    "instruction_ret": "#c0392b",
-    "instruction_nop": "#7f8c8d",
-    "instruction_compare": "#f47cc3",
-    "instruction_call": "#2ecc71",
-    "instruction_jmp": "#5065a1",
-    "instruction_jmp_c": "#e67e22",
+    "address": "#6a89b4",
+    "constant": "#bdc3c7",
+    "reg": "#27ae60",
+
+    "string": "#a38671",
+    "symbol": "#b8c9f1",
+    "data": "#9b59b6",
+    "pointer": "#d95459",
+    "import": "#745ec5",
+
+    "ret": "#c0392b",
+    "nop": "#7f8c8d",
+    "call": "#2ecc71",
+    "jump": "#5065a1",
+    "jump_c": "#e67e22",
+
+    "entry_fg": "#d45c9e",
+    "entry_bg": "#2d5036",
 
     "graph_bg": "#262626",
     "graph_edge": "#1abc9c",
     "graph_edge_true": "#2ecc71",
     "graph_edge_false": "#e74c3c",
     "graph_edge_loop": "#3498db",
-    "graph_edge_loop_c": "#f47cc3",
-
-    "address_list_fg": "#ef717a",
-    "segment_name_fg": "#2dcb71",
-    "segment_flags_fg": "#f47cc3",
-
-    "separator": "#34495e"
+    "graph_edge_loop_c": "#f47cc3"
 }

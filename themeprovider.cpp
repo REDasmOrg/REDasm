@@ -5,6 +5,7 @@
 #include <QVariant>
 #include <QFile>
 #include <QDir>
+#include <cmath>
 #include "redasmsettings.h"
 
 #define THEME_UI_SET_COLOR(palette, key) if(m_theme.contains(#key)) palette.setColor(QPalette::key, m_theme[#key].toString())
@@ -16,10 +17,14 @@ QString ThemeProvider::theme(const QString &name) { return QString(":/themes/%1.
 
 bool ThemeProvider::isDarkTheme()
 {
-    if(!m_theme.contains("dark"))
-        return false;
+    QPalette p = qApp->palette();
+    QColor c = p.window().color();
 
-    return m_theme["dark"] == true;
+    double hsp = std::sqrt(0.299 * (c.red() * c.red()) +
+                           0.587 * (c.green() * c.green()) +
+                           0.114 * (c.blue() * c.blue()));
+
+    return hsp <= 127.5;
 }
 
 bool ThemeProvider::loadTheme(const QString& theme)

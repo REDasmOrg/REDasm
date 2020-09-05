@@ -25,21 +25,15 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
             case 4: return QString::fromUtf8(RD_ToHexBits(segment.endoffset, RDDisassembler_Bits(m_disassembler), false));
             case 5: return QString::fromUtf8(RD_ToHexBits(RDSegment_RawSize(&segment), RDDisassembler_Bits(m_disassembler), false));
             case 6: return SegmentsModel::segmentFlags(segment);
-
-            case 7:
-                if(segment.coveragebytes == RD_NPOS) return "N/A";
-                return QString::number((static_cast<double>(segment.coveragebytes) / static_cast<double>(RDSegment_RawSize(&segment))) * 100, 'g', 3) + "%";
-
-            case 8: return QString::fromUtf8(segment.name);
-
+            case 7: return QString::fromUtf8(segment.name);
             default: break;
         }
     }
     else if(role == Qt::ForegroundRole)
     {
         if(index.column() == 6) return THEME_VALUE(Theme_Data);
-        if(index.column() == 8) return THEME_VALUE(Theme_Symbol);
-        if(index.column() != 7) return THEME_VALUE(Theme_Address);
+        if(index.column() == 7) return THEME_VALUE(Theme_Symbol);
+        if(index.column() < 6) return THEME_VALUE(Theme_Address);
     }
     else if(role == Qt::TextAlignmentRole)
         return Qt::AlignCenter;
@@ -61,15 +55,14 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
         case 4: return "End Offset";
         case 5: return "Raw Size";
         case 6: return "Flags";
-        case 7: return "Coverage";
-        case 8: return "Name";
+        case 7: return "Name";
         default: break;
     }
 
     return ListingItemModel::headerData(section, orientation, role);
 }
 
-int SegmentsModel::columnCount(const QModelIndex &) const { return 9; }
+int SegmentsModel::columnCount(const QModelIndex &) const { return 8; }
 
 QString SegmentsModel::segmentFlags(const RDSegment& segment)
 {

@@ -14,7 +14,7 @@ bool SymbolTableModel::isItemAllowed(const RDDocumentItem& item) const
     auto it = m_symbols.find(item.address);
     if(it == m_symbols.end()) return false;
 
-    if(m_symbolflags == SymbolType_None) return true;
+    if(m_symbolflags == SymbolFlags_None) return true;
     return it->second.flags & m_symbolflags;
 }
 
@@ -36,7 +36,8 @@ void SymbolTableModel::onItemRemoved(const RDDocumentEventArgs* e)
 void SymbolTableModel::insertItem(const RDDocumentItem& item)
 {
     RDSymbol symbol;
-    if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol) || (symbol.type != m_symboltype)) return;
+    if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol)) return;
+    if((m_symboltype != SymbolType_None) && !IS_TYPE(&symbol, m_symboltype)) return;
     m_symbols[item.address] = symbol;
 
     ListingItemModel::insertItem(item);

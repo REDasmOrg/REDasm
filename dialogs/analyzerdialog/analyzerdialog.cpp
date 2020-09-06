@@ -1,7 +1,9 @@
 #include "analyzerdialog.h"
 #include "ui_analyzerdialog.h"
+#include "../themeprovider.h"
+#include <rdapi/rdapi.h>
 
-AnalyzerDialog::AnalyzerDialog(const RDLoaderPlugin* ploader, const RDAssemblerPlugin* passembler, QWidget *parent) : QDialog(parent), ui(new Ui::AnalyzerDialog), m_ploader(ploader), m_passembler(passembler)
+AnalyzerDialog::AnalyzerDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AnalyzerDialog)
 {
     ui->setupUi(this);
     m_analyzersmodel = new QStandardItemModel(ui->tvAnalyzers);
@@ -41,7 +43,7 @@ void AnalyzerDialog::syncAnalyzers()
     m_analyzersmodel->clear();
     m_analyzersmodel->setHorizontalHeaderLabels({"Name", "Description"});
 
-    RD_GetAnalyzers(m_ploader, m_passembler, [](const RDAnalyzerPlugin* a, void* userdata) {
+    RD_GetEnabledAnalyzers([](const RDAnalyzerPlugin* a, void* userdata) {
         auto* thethis = reinterpret_cast<AnalyzerDialog*>(userdata);
         auto* nameitem = new QStandardItem(QString::fromUtf8(a->name));
         auto* descritem = new QStandardItem(QString::fromUtf8(a->description));

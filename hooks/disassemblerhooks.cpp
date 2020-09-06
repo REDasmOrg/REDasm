@@ -125,14 +125,13 @@ ITableTab* DisassemblerHooks::showFunctions(Qt::DockWidgetArea area)
 
 ITableTab* DisassemblerHooks::showExports(Qt::DockWidgetArea area)
 {
-    if(auto* t = this->findSymbolModelInTabs(SymbolType_Function, SymbolFlags_Export))
+    if(auto* t = this->findSymbolModelInTabs(SymbolType_None, SymbolFlags_Export))
     {
         this->focusOn(dynamic_cast<QWidget*>(t));
         return t;
     }
 
     auto* model = new SymbolTableModel(DocumentItemType_All);
-    model->setSymbolType(SymbolType_Function);
     model->setSymbolFlags(SymbolFlags_Export);
 
     TableTab* tabletab = this->createTable(model, "Exports");
@@ -517,6 +516,8 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
     LoaderDialog dlgloader(&req, m_mainwindow);
     if(dlgloader.exec() != LoaderDialog::Accepted) return;
 
+    this->clearOutput();
+
     RDLoaderPlugin* ploader = dlgloader.selectedLoader();
     RDAssemblerPlugin* passembler = dlgloader.selectedAssembler();
 
@@ -531,24 +532,18 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
         return;
     }
 
+    rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(ploader->name, passembler->name)));
+
     RDDisassembler* disassembler = RDDisassembler_Create(&req, ploader, passembler);
-    RDLoader* ldr = RDDisassembler_GetLoader(disassembler);
-    bool cancontinue = false;
+    RDLoaderBuildRequest buildreq = dlgloader.buildRequest();
 
-    if(HAS_FLAG(ploader, LoaderFlags_CustomAddressing))
-    {
-        RDLoaderBuildRequest buildreq = dlgloader.buildRequest();
-        cancontinue = RDLoader_Build(ldr, &buildreq);
-    }
-    else cancontinue = RDLoader_Load(ldr);
-
-    if(!cancontinue)
+    if(!RDDisassembler_Load(disassembler, &buildreq))
     {
         RD_Free(disassembler);
         return;
     }
 
-    AnalyzerDialog dlganalyzer(ploader, passembler, m_mainwindow);
+    AnalyzerDialog dlganalyzer(m_mainwindow);
 
     if(dlganalyzer.exec() != AnalyzerDialog::Accepted)
     {
@@ -557,7 +552,6 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
         return;
     }
 
-    rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(ploader->name, passembler->name)));
     m_fileinfo = QFileInfo(filepath);
     this->loadDisassemblerView(disassembler);
 }
@@ -796,8 +790,6 @@ void DisassemblerHooks::close(bool showwelcome)
     }
 
     if(m_worker.valid()) m_worker.get();
-    this->clearOutput();
-
     if(showwelcome) this->addWelcomeTab();
 }
 

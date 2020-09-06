@@ -20,10 +20,8 @@ class SymbolTableModel : public ListingItemModel
         void onItemRemoved(const RDDocumentEventArgs* e) override;
         void insertItem(const RDDocumentItem& item) override;
 
-    protected:
-        std::unordered_map<rd_address, RDSymbol> m_symbols;
-
     private:
+        std::unordered_map<rd_address, RDSymbol> m_symbols;
         rd_type m_symboltype{SymbolType_None};
         rd_flag m_symbolflags{SymbolFlags_None};
 };

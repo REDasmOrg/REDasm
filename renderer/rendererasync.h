@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <atomic>
 #include <mutex>
+#include "../hooks/idisassemblercommand.h"
 
 class RendererAsync: public QThread
 {
@@ -14,8 +15,8 @@ class RendererAsync: public QThread
         typedef std::unique_lock<std::mutex> renderer_lock;
 
     public:
-        RendererAsync(QObject* parent);
-        ~RendererAsync();
+        RendererAsync(const RDDisassemblerPtr& disassembler, QObject* parent);
+        virtual ~RendererAsync();
         void abort();
 
     signals:
@@ -27,6 +28,9 @@ class RendererAsync: public QThread
         virtual void onRender(QImage* image) = 0;
         void schedule(QThread::Priority priority = InheritPriority);
         void run() override;
+
+    protected:
+        RDDisassemblerPtr m_disassembler;
 
     private:
         std::atomic_bool m_abort{false}, m_painting{false};

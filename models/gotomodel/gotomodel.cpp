@@ -3,7 +3,7 @@
 
 GotoModel::GotoModel(QObject *parent) : DisassemblerModel(parent) { }
 
-void GotoModel::setDisassembler(RDDisassembler* disassembler)
+void GotoModel::setDisassembler(const RDDisassemblerPtr& disassembler)
 {
     this->beginResetModel();
     DisassemblerModel::setDisassembler(disassembler);

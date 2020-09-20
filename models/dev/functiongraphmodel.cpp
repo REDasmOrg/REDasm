@@ -1,9 +1,9 @@
 #include "functiongraphmodel.h"
 #include "../../themeprovider.h"
 
-FunctionGraphModel::FunctionGraphModel(RDDisassembler* disassembler, QObject *parent) : QAbstractListModel(parent), m_disassembler(disassembler)
+FunctionGraphModel::FunctionGraphModel(const RDDisassemblerPtr& disassembler, QObject *parent) : QAbstractListModel(parent), m_disassembler(disassembler)
 {
-    m_document = RDDisassembler_GetDocument(disassembler);
+    m_document = RDDisassembler_GetDocument(disassembler.get());
 }
 
 void FunctionGraphModel::setGraph(const RDGraph* graph)

@@ -1,14 +1,15 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <rdapi/disassembler.h>
+#include <rdapi/rdapi.h>
+#include "../hooks/idisassemblercommand.h"
 
 class SignatureFilesModel : public QAbstractListModel
 {
     Q_OBJECT
 
     public:
-        explicit SignatureFilesModel(RDDisassembler* disassembler, QObject *parent = nullptr);
+        explicit SignatureFilesModel(const RDDisassemblerPtr& disassembler, QObject *parent = nullptr);
         //const REDasm::SignatureDB* load(const QModelIndex& index);
         //const REDasm::String& signatureId(const QModelIndex& index) const;
         //const REDasm::String& signaturePath(const QModelIndex& index) const;
@@ -26,5 +27,5 @@ class SignatureFilesModel : public QAbstractListModel
     private:
         //QList< QPair<REDasm::String, REDasm::String> > m_signaturefiles;
         //QHash<int, REDasm::SignatureDB> m_loadedsignatures;
-        RDDisassembler* m_disassembler;
+        RDDisassemblerPtr m_disassembler;
 };

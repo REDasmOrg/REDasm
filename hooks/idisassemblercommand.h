@@ -1,9 +1,12 @@
 #pragma once
 
 #include <QString>
+#include <memory>
 #include <rdapi/rdapi.h>
 
 class QWidget;
+
+typedef std::shared_ptr<RDDisassembler> RDDisassemblerPtr;
 
 class IDisassemblerCommand
 {
@@ -23,7 +26,7 @@ class IDisassemblerCommand
         virtual const RDCursorPos* currentPosition() const = 0;
         virtual const RDCursorPos* currentSelection() const = 0;
         virtual QString currentWord() const = 0;
-        virtual RDDisassembler* disassembler() const = 0;
+        virtual const RDDisassemblerPtr& disassembler() const = 0;
         virtual RDCursor* cursor() const = 0;
         virtual QWidget* widget() = 0;
 };

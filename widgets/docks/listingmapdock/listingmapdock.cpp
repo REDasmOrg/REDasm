@@ -8,4 +8,3 @@ ListingMapDock::ListingMapDock(IDisassemblerCommand* command, QWidget *parent) :
 }
 
 ListingMap* ListingMapDock::listingMap() const { return m_listingmap; }
-void ListingMapDock::dispose() { m_listingmap->dispose(); this->deleteLater(); }

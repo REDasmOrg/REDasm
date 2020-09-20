@@ -28,7 +28,7 @@ class DisassemblerGraphView : public GraphView, public IDisassemblerCommand
         const RDCursorPos* currentPosition() const override;
         const RDCursorPos* currentSelection() const override;
         QString currentWord() const override;
-        RDDisassembler* disassembler() const override;
+        const RDDisassemblerPtr& disassembler() const override;
         RDCursor* cursor() const override;
         QWidget* widget() override;
 

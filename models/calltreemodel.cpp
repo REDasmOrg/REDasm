@@ -11,7 +11,7 @@ const RDDocumentItem& CallTreeModel::item(const QModelIndex& index) const
     //return node->data;
 }
 
-void CallTreeModel::setDisassembler(RDDisassembler* disassembler) { m_disassembler = disassembler; /* m_printer = r_asm->createPrinter(); */ }
+void CallTreeModel::setDisassembler(const RDDisassemblerPtr& disassembler) { m_disassembler = disassembler; /* m_printer = r_asm->createPrinter(); */ }
 
 void CallTreeModel::initializeGraph(rd_address address)
 {

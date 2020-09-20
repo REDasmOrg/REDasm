@@ -1,13 +1,14 @@
 #pragma once
 
 #include <QTabWidget>
+#include "../hooks/idisassemblercommand.h"
 
 class DisassemblerTabs : public QTabWidget
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerTabs(QWidget *parent = nullptr);
+        explicit DisassemblerTabs(const RDDisassemblerPtr& disassembler, QWidget *parent = nullptr);
         int tabHeight() const;
 
     protected:
@@ -16,4 +17,7 @@ class DisassemblerTabs : public QTabWidget
     private slots:
         void onTabChanged(int index);
         void onCloseClicked();
+
+    private:
+        RDDisassemblerPtr m_disassembler;
 };

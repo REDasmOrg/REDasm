@@ -4,14 +4,16 @@
 #include <QTabWidget>
 #include <QPushButton>
 #include <QLabel>
-#include <rdapi/rdapi.h>
+#include "../hooks/idisassemblercommand.h"
+
+struct RDEventArgs;
 
 class DisassemblerTabButton : public QWidget
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerTabButton(QWidget* widget, QTabWidget* tabwidget, QWidget *parent = nullptr);
+        explicit DisassemblerTabButton(const RDDisassemblerPtr& disassembler, QWidget* widget, QTabWidget* tabwidget, QWidget *parent = nullptr);
         virtual ~DisassemblerTabButton();
 
     private slots:
@@ -23,6 +25,7 @@ class DisassemblerTabButton : public QWidget
         void customizeBehavior();
 
     private:
+        RDDisassemblerPtr m_disassembler;
         QTabWidget* m_tabwidget;
         QWidget* m_widget;
 };

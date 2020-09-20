@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 #include <QKeyEvent>
 
-ListingTab::ListingTab(RDDisassembler* disassembler, QWidget* parent) : QWidget(parent)
+ListingTab::ListingTab(const RDDisassemblerPtr& disassembler, QWidget* parent) : QWidget(parent)
 {
     this->setWindowTitle("Listing");
 

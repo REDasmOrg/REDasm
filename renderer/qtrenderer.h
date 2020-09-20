@@ -2,15 +2,18 @@
 
 #include <rdapi/rdapi.h>
 #include <rdapi/renderer.h>
+#include "../hooks/idisassemblercommand.h"
 #include <QFontMetricsF>
 #include <QPointF>
 #include <QString>
 
-class QtRenderer
+class QtRenderer: public QObject
 {
+    Q_OBJECT
+
     public:
-        QtRenderer(RDDisassembler* disassembler, RDCursor* cursor = nullptr, rd_flag flags = RendererFlags_Normal);
-        ~QtRenderer();
+        QtRenderer(const RDDisassemblerPtr& disassembler, RDCursor* cursor = nullptr, rd_flag flags = RendererFlags_Normal, QObject* parent = 0);
+        virtual ~QtRenderer();
         const QFontMetricsF& fontMetrics() const;
         const RDRenderer* handle() const;
         RDCursor* cursor() const;
@@ -27,6 +30,7 @@ class QtRenderer
 
     protected:
         QFontMetricsF m_fontmetrics;
+        RDDisassemblerPtr m_disassembler;
         RDDocument* m_document;
         RDRenderer* m_renderer;
         RDCursor* m_cursor;

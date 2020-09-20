@@ -5,9 +5,14 @@
 #include <tuple>
 #include <QColor>
 
-ListingItemModel::ListingItemModel(rd_type itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype)
+ListingItemModel::ListingItemModel(rd_type itemtype, QObject *parent) : DisassemblerModel(parent), m_itemtype(itemtype) { }
+ListingItemModel::~ListingItemModel() { if(m_disassembler) RDDisassembler_Unsubscribe(m_disassembler.get(), this); }
+
+void ListingItemModel::setDisassembler(const RDDisassemblerPtr& disassembler)
 {
-    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
+    DisassemblerModel::setDisassembler(disassembler);
+
+    RDDisassembler_Subscribe(m_disassembler.get(), this, [](const RDEventArgs* e) {
         if(e->eventid != Event_DocumentChanged) return;
         ListingItemModel* thethis = reinterpret_cast<ListingItemModel*>(e->owner);
         const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
@@ -20,13 +25,6 @@ ListingItemModel::ListingItemModel(rd_type itemtype, QObject *parent) : Disassem
         }
 
     }, nullptr);
-}
-
-ListingItemModel::~ListingItemModel() { RDEvent_Unsubscribe(this); }
-
-void ListingItemModel::setDisassembler(RDDisassembler* disassembler)
-{
-    DisassemblerModel::setDisassembler(disassembler);
 
     // Prepopulate model with allowed items, if any
     this->beginResetModel();
@@ -89,7 +87,7 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
         if(index.column() == 2)
         {
-            const RDNet* net = RDDisassembler_GetNet(m_disassembler);
+            const RDNet* net = RDDisassembler_GetNet(m_disassembler.get());
             return QString::number(RDNet_GetReferences(net, symbol.address, nullptr));
         }
 
@@ -104,11 +102,11 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
                 if(HAS_FLAG(&symbol, SymbolFlags_WideString))
                 {
-                    auto* wptr = RD_ReadWString(m_disassembler, symbol.address, &len);
+                    auto* wptr = RD_ReadWString(m_disassembler.get(), symbol.address, &len);
                     return wptr ? ListingItemModel::escapeString(QString::fromUtf16(wptr, len)) : QVariant();
                 }
 
-                auto* ptr = RD_ReadString(m_disassembler, symbol.address, &len);
+                auto* ptr = RD_ReadString(m_disassembler.get(), symbol.address, &len);
                 return ptr ? ListingItemModel::escapeString(QString::fromLatin1(ptr, len)) : QVariant();
             }
 

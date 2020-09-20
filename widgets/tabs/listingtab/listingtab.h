@@ -12,7 +12,7 @@ class ListingTab : public QWidget, public ICommandTab
     Q_OBJECT
 
     public:
-        explicit ListingTab(RDDisassembler* disassembler, QWidget *parent = nullptr);
+        explicit ListingTab(const RDDisassemblerPtr& disassembler, QWidget *parent = nullptr);
         IDisassemblerCommand* command() const override;
         QWidget* widget() override;
 

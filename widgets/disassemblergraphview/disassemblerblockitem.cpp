@@ -9,7 +9,7 @@
 #define DROP_SHADOW_SIZE  10
 #define BLOCK_MARGINS     -BLOCK_MARGIN, 0, BLOCK_MARGIN, BLOCK_MARGIN
 
-DisassemblerBlockItem::DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, IDisassemblerCommand* command, RDGraphNode node, const RDGraph* g, QWidget *parent) : GraphViewItem(node, g, parent), m_basicblock(fbb), m_command(command)
+DisassemblerBlockItem::DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, IDisassemblerCommand* command, RDGraphNode node, const RDGraph* g, QWidget *parent) : GraphViewItem(node, g, parent), m_basicblock(fbb), m_command(command), m_disassembler(command->disassembler())
 {
     this->setupDocument();
 
@@ -20,14 +20,14 @@ DisassemblerBlockItem::DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, ID
     QFontMetricsF fm(m_textdocument.defaultFont());
     m_charheight = fm.height();
 
-    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
+    RDDisassembler_Subscribe(m_disassembler.get(), this, [](const RDEventArgs* e) {
         DisassemblerBlockItem* thethis = reinterpret_cast<DisassemblerBlockItem*>(e->owner);
         if((e->eventid != Event_CursorPositionChanged) || (e->sender != thethis->m_command->cursor())) return;
         QMetaObject::invokeMethod(thethis, "invalidate", Qt::QueuedConnection);
     }, nullptr);
 }
 
-DisassemblerBlockItem::~DisassemblerBlockItem() { RDEvent_Unsubscribe(this); }
+DisassemblerBlockItem::~DisassemblerBlockItem() { RDDisassembler_Unsubscribe(m_disassembler.get(), this); }
 DocumentRenderer* DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
 bool DisassemblerBlockItem::containsItem(const RDDocumentItem& item) const { return RDFunctionBasicBlock_Contains(m_basicblock, item.address); }
 
@@ -37,7 +37,7 @@ int DisassemblerBlockItem::currentLine() const
 
     if(m_command->getCurrentItem(&item) && this->containsItem(item))
     {
-        RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
+        RDDocument* doc = RDDisassembler_GetDocument(m_disassembler.get());
 
         if(RDFunctionBasicBlock_GetStartItem(m_basicblock, &item))
             return RDCursor_CurrentLine(m_command->cursor()) - RDDocument_ItemIndex(doc, &item);

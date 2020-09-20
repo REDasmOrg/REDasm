@@ -5,7 +5,7 @@
 #include "../redasmfonts.h"
 #include <QTabBar>
 
-DisassemblerTabs::DisassemblerTabs(QWidget *parent) : QTabWidget(parent)
+DisassemblerTabs::DisassemblerTabs(const RDDisassemblerPtr& disassembler, QWidget *parent) : QTabWidget(parent), m_disassembler(disassembler)
 {
     this->setTabBarAutoHide(true);
     this->setMovable(true);
@@ -18,7 +18,7 @@ int DisassemblerTabs::tabHeight() const { return 25; }
 void DisassemblerTabs::tabInserted(int index)
 {
     this->setTabText(index, QString());
-    this->tabBar()->setTabButton(index, QTabBar::LeftSide, new DisassemblerTabButton(this->widget(index), this));
+    this->tabBar()->setTabButton(index, QTabBar::LeftSide, new DisassemblerTabButton(m_disassembler, this->widget(index), this));
 
     QPushButton* btnclose = new QPushButton();
     btnclose->setFlat(true);

@@ -31,7 +31,7 @@ void BlocksTab::setCommand(IDisassemblerCommand* command)
 void BlocksTab::showBlocks(const QModelIndex& current, const QModelIndex&)
 {
     if(!current.isValid()) return;
-    RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
+    RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
 
     RDSegment segment;
 

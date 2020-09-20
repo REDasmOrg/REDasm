@@ -4,10 +4,10 @@
 ReferencesModel::ReferencesModel(const IDisassemblerCommand* command, QObject *parent): DisassemblerModel(parent), m_command(command) { }
 ReferencesModel::~ReferencesModel() { if(m_renderer) RD_Free(m_renderer); }
 
-void ReferencesModel::setDisassembler(RDDisassembler* disassembler)
+void ReferencesModel::setDisassembler(const RDDisassemblerPtr& disassembler)
 {
     DisassemblerModel::setDisassembler(disassembler);
-    m_renderer = RDRenderer_Create(m_disassembler, nullptr, RendererFlags_Simplified);
+    m_renderer = RDRenderer_Create(m_disassembler.get(), nullptr, RendererFlags_Simplified);
 }
 
 void ReferencesModel::clear()
@@ -20,10 +20,10 @@ void ReferencesModel::clear()
 
 void ReferencesModel::xref(rd_address address)
 {
-    if(!m_disassembler || RD_IsBusy()) return;
+    if(!m_disassembler || RDDisassembler_IsBusy(m_disassembler.get())) return;
 
     this->beginResetModel();
-    const RDNet* net = RDDisassembler_GetNet(m_disassembler);
+    const RDNet* net = RDDisassembler_GetNet(m_disassembler.get());
     m_referencescount = RDNet_GetReferences(net, address, &m_references);
 
     this->endResetModel();
@@ -38,9 +38,9 @@ QModelIndex ReferencesModel::index(int row, int column, const QModelIndex&) cons
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 {
-    if(!m_disassembler || !m_renderer || RD_IsBusy()) return QVariant();
+    if(!m_disassembler || !m_renderer || RDDisassembler_IsBusy(m_disassembler.get())) return QVariant();
 
-    RDDocument* doc = RDDisassembler_GetDocument(m_disassembler);
+    RDDocument* doc = RDDisassembler_GetDocument(m_disassembler.get());
     RDDocumentItem item;
 
     if(!RDDocument_GetInstructionItem(doc, m_references[index.row()], &item))
@@ -67,7 +67,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         {
             if(IS_TYPE(&item, DocumentItemType_Instruction))
             {
-                const RDNet* net = RDDisassembler_GetNet(m_disassembler);
+                const RDNet* net = RDDisassembler_GetNet(m_disassembler.get());
                 const RDNetNode* node = RDNet_FindNode(net, item.address);
                 if(!node) return QVariant();
 

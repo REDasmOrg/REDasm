@@ -8,14 +8,11 @@
 #include "../dialogs/gotodialog/gotodialog.h"
 #include "../dialogs/devdialog/devdialog.h"
 #include "../dialogs/databasedialog/databasedialog.h"
-#include "../widgets/tabs/welcometab/welcometab.h"
 #include "../widgets/docks/outputdock/outputdock.h"
-#include "../widgets/tabs/tabletab/tabletab.h"
 #include "../widgets/disassemblerview.h"
+#include "../widgets/welcomewidget.h"
 #include "../models/dev/blocklistmodel.h"
 #include "../models/listingitemmodel.h"
-#include "../models/symboltablemodel.h"
-#include "../models/segmentsmodel.h"
 #include "../redasmsettings.h"
 #include "../redasmfonts.h"
 #include <QMessageBox>
@@ -25,6 +22,7 @@
 #include <QFileInfo>
 #include <QToolBar>
 #include <QMenuBar>
+#include <QDebug>
 #include <QMenu>
 #include <unordered_map>
 #include <rdapi/rdapi.h>
@@ -33,12 +31,6 @@ DisassemblerHooks DisassemblerHooks::m_instance;
 
 DisassemblerHooks::DisassemblerHooks(QObject* parent): QObject(parent) { }
 
-DisassemblerHooks::~DisassemblerHooks()
-{
-    if(m_worker.valid()) m_worker.get();
-    RDEvent_Unsubscribe(this);
-}
-
 void DisassemblerHooks::initialize(QMainWindow* mainwindow)
 {
     DisassemblerHooks::m_instance.m_mainwindow = mainwindow;
@@ -46,6 +38,7 @@ void DisassemblerHooks::initialize(QMainWindow* mainwindow)
 }
 
 DisassemblerHooks* DisassemblerHooks::instance() { return &m_instance; }
+QMainWindow* DisassemblerHooks::mainWindow() const { return m_mainwindow; }
 void DisassemblerHooks::log(const QString& s) { this->outputDock()->log(s); }
 void DisassemblerHooks::clearLog() { this->outputDock()->clear(); }
 
@@ -86,108 +79,14 @@ void DisassemblerHooks::about()
 
 void DisassemblerHooks::exit() { qApp->exit(); }
 
-ITableTab* DisassemblerHooks::showSegments(Qt::DockWidgetArea area)
-{
-    if(auto* t = this->findModelInTabs<SegmentsModel>())
-    {
-        this->focusOn(dynamic_cast<QWidget*>(t));
-        return t;
-    }
-
-    TableTab* tabletab = this->createTable(new SegmentsModel(), "Segments");
-    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-
-    if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
-    else this->dock(tabletab, area);
-    return tabletab;
-}
-
-ITableTab* DisassemblerHooks::showFunctions(Qt::DockWidgetArea area)
-{
-    if(auto* t = this->findModelInTabs<ListingItemModel>())
-    {
-        if(t->model()->itemType() == DocumentItemType_Function)
-        {
-            this->focusOn(dynamic_cast<QWidget*>(t));
-            return t;
-        }
-    }
-
-    TableTab* tabletab = this->createTable(new ListingItemModel(DocumentItemType_Function), "Functions");
-    tabletab->setColumnHidden(1);
-    tabletab->setColumnHidden(2);
-    connect(tabletab, &TableTab::resizeColumns, this, [tabletab]() { tabletab->resizeColumn(0); });
-
-    if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
-    else this->dock(tabletab, area);
-    return tabletab;
-}
-
-ITableTab* DisassemblerHooks::showExports(Qt::DockWidgetArea area)
-{
-    if(auto* t = this->findSymbolModelInTabs(SymbolType_None, SymbolFlags_Export))
-    {
-        this->focusOn(dynamic_cast<QWidget*>(t));
-        return t;
-    }
-
-    auto* model = new SymbolTableModel(DocumentItemType_All);
-    model->setSymbolFlags(SymbolFlags_Export);
-
-    TableTab* tabletab = this->createTable(model, "Exports");
-    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-
-    if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
-    else this->dock(tabletab, area);
-    return tabletab;
-}
-
-ITableTab* DisassemblerHooks::showImports(Qt::DockWidgetArea area)
-{
-    if(auto* t = this->findSymbolModelInTabs(SymbolType_Import, SymbolFlags_None))
-    {
-        this->focusOn(dynamic_cast<QWidget*>(t));
-        return t;
-    }
-
-    auto* model = new SymbolTableModel(DocumentItemType_Symbol);
-    model->setSymbolType(SymbolType_Import);
-
-    TableTab* tabletab = this->createTable(model, "Imports");
-    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-
-    if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
-    else this->dock(tabletab, area);
-    return tabletab;
-}
-
-ITableTab* DisassemblerHooks::showStrings(Qt::DockWidgetArea area)
-{
-    if(auto* t = this->findSymbolModelInTabs(SymbolType_String, SymbolFlags_None))
-    {
-        this->focusOn(dynamic_cast<QWidget*>(t));
-        return t;
-    }
-
-    auto* model = new SymbolTableModel(DocumentItemType_Symbol);
-    model->setSymbolType(SymbolType_String);
-
-    TableTab* tabletab = this->createTable(model, "Strings");
-    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-
-    if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
-    else this->dock(tabletab, area);
-    return tabletab;
-}
-
 void DisassemblerHooks::showReferences(IDisassemblerCommand* command, rd_address address)
 {
-    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
+    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
 
     RDSymbol symbol;
     if(!RDDocument_GetSymbolByAddress(doc, address, &symbol)) return;
 
-    const RDNet* net = RDDisassembler_GetNet(command->disassembler());
+    const RDNet* net = RDDisassembler_GetNet(command->disassembler().get());
 
     if(!RDNet_GetReferences(net, symbol.address, nullptr))
     {
@@ -227,14 +126,11 @@ ICommandTab* DisassemblerHooks::activeCommandTab() const
 }
 
 IDisassemblerCommand* DisassemblerHooks::activeCommand() const { return this->activeCommandTab()->command(); }
-QWidget* DisassemblerHooks::currentTab() const { return m_disassemblertabs->currentWidget(); }
 
 void DisassemblerHooks::undock(QDockWidget* dw)
 {
     m_mainwindow->removeDockWidget(dw);
-
-    if(auto* d = dynamic_cast<IDisposable*>(dw)) d->dispose();
-    else dw->deleteLater();
+    dw->deleteLater();
 }
 
 void DisassemblerHooks::onToolBarActionTriggered(QAction* action)
@@ -250,7 +146,7 @@ void DisassemblerHooks::onToolBarActionTriggered(QAction* action)
         case 4: this->showGoto(m_activecommandtab->command()); break;
 
         case 5: {
-            auto* tabletab = dynamic_cast<ITableTab*>(m_disassemblertabs->currentWidget());
+            auto* tabletab = dynamic_cast<ITableTab*>(m_disassemblerview->currentWidget());
             if(tabletab) tabletab->toggleFilter();
             break;
         }
@@ -268,29 +164,29 @@ void DisassemblerHooks::onWindowActionTriggered(QAction* action)
         case 0: {
             ICommandTab* tab = m_activecommandtab;
             if(!tab) tab = m_disassemblerview->showListing();
-            this->focusOn(dynamic_cast<QWidget*>(tab));
+            //this->focusOn(dynamic_cast<QWidget*>(tab));
             break;
         }
 
-        case 1: this->showSegments();  break;
-        case 2: this->showFunctions(); break;
-        case 3: this->showExports();   break;
-        case 4: this->showImports();   break;
-        case 5: this->showStrings();   break;
+        case 1: m_disassemblerview->showSegments();  break;
+        case 2: m_disassemblerview->showFunctions(); break;
+        case 3: m_disassemblerview->showExports();   break;
+        case 4: m_disassemblerview->showImports();   break;
+        case 5: m_disassemblerview->showStrings();   break;
         default: break;
     }
 }
 
 void DisassemblerHooks::statusAddress(const IDisassemblerCommand* command) const
 {
-    if(RD_IsBusy()) return;
+    if(RDDisassembler_IsBusy(command->disassembler().get())) return;
 
-    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
+    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
 
     RDDocumentItem item;
     if(!command->getCurrentItem(&item)) return;
 
-    RDLoader* ldr = RDDisassembler_GetLoader(command->disassembler());
+    RDLoader* ldr = RDDisassembler_GetLoader(command->disassembler().get());
 
     RDSegment segment;
     bool hassegment = RDDocument_GetSegmentAddress(doc, item.address, &segment);
@@ -338,12 +234,12 @@ void DisassemblerHooks::adjustActions()
     RDDocumentItem item;
     if(!command->getCurrentItem(&item)) return;
 
-    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
+    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
 
     actions[DisassemblerHooks::Action_Back]->setVisible(command->canGoBack());
     actions[DisassemblerHooks::Action_Forward]->setVisible(command->canGoForward());
     actions[DisassemblerHooks::Action_Copy]->setVisible(command->hasSelection());
-    actions[DisassemblerHooks::Action_Goto]->setVisible(!RD_IsBusy());
+    actions[DisassemblerHooks::Action_Goto]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()));
 
     RDSegment itemsegment, symbolsegment;
     RDSymbol symbol;
@@ -359,7 +255,7 @@ void DisassemblerHooks::adjustActions()
         actions[DisassemblerHooks::Action_Follow]->setVisible(false);
         actions[DisassemblerHooks::Action_FollowPointerHexDump]->setVisible(false);
 
-        if(!RD_IsBusy())
+        if(!RDDisassembler_IsBusy(command->disassembler().get()))
         {
             bool ok = false;
             RDSegment currentsegment;
@@ -389,7 +285,7 @@ void DisassemblerHooks::adjustActions()
 
     actions[DisassemblerHooks::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(symbol.address)));
 
-    actions[DisassemblerHooks::Action_CreateFunction]->setVisible(!RD_IsBusy() && (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
+    actions[DisassemblerHooks::Action_CreateFunction]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()) && (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
                                                                     (HAS_FLAG(&symbol, SymbolFlags_Weak) && !IS_TYPE(&symbol, SymbolType_Function)));
 
 
@@ -397,88 +293,29 @@ void DisassemblerHooks::adjustActions()
     actions[DisassemblerHooks::Action_FollowPointerHexDump]->setVisible(HAS_FLAG(&symbol, SymbolFlags_Pointer));
 
     actions[DisassemblerHooks::Action_XRefs]->setText(QString("Cross Reference %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_XRefs]->setVisible(!RD_IsBusy());
+    actions[DisassemblerHooks::Action_XRefs]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()));
 
     actions[DisassemblerHooks::Action_Rename]->setText(QString("Rename %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_Rename]->setVisible(!RD_IsBusy() && HAS_FLAG(&symbol, SymbolFlags_Weak));
+    actions[DisassemblerHooks::Action_Rename]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()) && HAS_FLAG(&symbol, SymbolFlags_Weak));
 
     actions[DisassemblerHooks::Action_CallGraph]->setText(QString("Callgraph %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_CallGraph]->setVisible(!RD_IsBusy() && IS_TYPE(&symbol, SymbolType_Function));
+    actions[DisassemblerHooks::Action_CallGraph]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()) && IS_TYPE(&symbol, SymbolType_Function));
 
     actions[DisassemblerHooks::Action_Follow]->setText(QString("Follow %1").arg(symbolname));
     actions[DisassemblerHooks::Action_Follow]->setVisible(IS_TYPE(&symbol, SymbolType_Label));
 
-    actions[DisassemblerHooks::Action_Comment]->setVisible(!RD_IsBusy() && IS_TYPE(&item, DocumentItemType_Instruction));
+    actions[DisassemblerHooks::Action_Comment]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()) && IS_TYPE(&item, DocumentItemType_Instruction));
 
     actions[DisassemblerHooks::Action_HexDump]->setVisible(hassymbolsegment && HAS_FLAG(&symbolsegment, SegmentFlags_Bss));
     actions[DisassemblerHooks::Action_HexDumpFunction]->setVisible(hasitemsegment && !HAS_FLAG(&itemsegment, SegmentFlags_Bss) && HAS_FLAG(&itemsegment, SegmentFlags_Code));
 }
 
-ITableTab* DisassemblerHooks::findSymbolModelInTabs(rd_type type, rd_flag flags) const
-{
-    for(int i = 0; i < m_disassemblertabs->count(); i++)
-    {
-        auto* tabletab = dynamic_cast<ITableTab*>(m_disassemblertabs->widget(i));
-        if(!tabletab) continue;
-
-        auto* symboltablemodel = dynamic_cast<SymbolTableModel*>(tabletab->model());
-        if(!symboltablemodel || (symboltablemodel->symbolType() != type)) continue;
-        if(symboltablemodel->symbolFlags() != flags) continue;
-        return tabletab;
-    }
-
-    return nullptr;
-}
-
-void DisassemblerHooks::listenEvents(const RDEventArgs* e)
-{
-    switch(e->eventid)
-    {
-        case Event_BusyChanged:
-            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RD_IsBusy()));
-            break;
-
-        case Event_CursorPositionChanged: {
-            auto* hooks = DisassemblerHooks::instance();
-            const auto* ce  = reinterpret_cast<const RDCursorEventArgs*>(e);
-
-            if(hooks->m_activecommandtab) {
-                if(hooks->m_activecommandtab->command()->cursor() != ce->sender) return;
-                hooks->statusAddress(hooks->m_activecommandtab->command());
-            }
-            else rd_status(std::string());
-            break;
-        }
-
-        case Event_Error: {
-            const auto* ee = reinterpret_cast<const RDErrorEventArgs*>(e);
-            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "showMessage", Qt::QueuedConnection,
-                                      Q_ARG(QString, "Error"),
-                                      Q_ARG(QString, ee->message),
-                                      Q_ARG(size_t, QMessageBox::Critical));
-            break;
-        }
-    }
-}
-
-TableTab* DisassemblerHooks::createTable(ListingItemModel* model, const QString& title)
-{
-    TableTab* tabletab = new TableTab(model);
-    model->setParent(tabletab);
-    tabletab->setWindowTitle(title);
-    return tabletab;
-}
-
-void DisassemblerHooks::loadDisassemblerView(RDDisassembler* disassembler)
+void DisassemblerHooks::loadDisassemblerView(const RDDisassemblerPtr& disassembler)
 {
     this->close(false);
-    RDEvent_Subscribe(this, &DisassemblerHooks::listenEvents, nullptr);
-    m_disassemblerview = new DisassemblerView(disassembler, m_mainwindow); // Takes ownership
 
-    m_worker = std::async([&, disassembler]() { // Capture 'disassembler' by value
-        RD_Disassemble(disassembler);
-        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
-    });
+    m_disassemblerview = new DisassemblerView(disassembler);
+    this->replaceWidget(m_disassemblerview);
 }
 
 void DisassemblerHooks::hook()
@@ -488,8 +325,7 @@ void DisassemblerHooks::hook()
     m_pbproblems = m_mainwindow->findChild<QPushButton*>(HOOK_PROBLEMS);
     m_mnuwindow = m_mainwindow->findChild<QMenu*>(HOOK_MENU_WINDOW);
     m_toolbar = m_mainwindow->findChild<QToolBar*>(HOOK_TOOLBAR);
-    m_disassemblertabs = m_mainwindow->findChild<DisassemblerTabs*>(HOOK_TABS);
-    this->addWelcomeTab();
+    this->showWelcome();
 
     QAction* act = m_mainwindow->findChild<QAction*>(HOOK_ACTION_DATABASE);
     connect(act, &QAction::triggered, this, [&]() { this->showDatabase(); });
@@ -534,14 +370,9 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
 
     rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(ploader->name, passembler->name)));
 
-    RDDisassembler* disassembler = RDDisassembler_Create(&req, ploader, passembler);
+    RDDisassemblerPtr disassembler(RDDisassembler_Create(&req, ploader, passembler), RDObjectDeleter());
     RDLoaderBuildRequest buildreq = dlgloader.buildRequest();
-
-    if(!RDDisassembler_Load(disassembler, &buildreq))
-    {
-        RD_Free(disassembler);
-        return;
-    }
+    if(!RDDisassembler_Load(disassembler.get(), &buildreq)) return;
 
     AnalyzerDialog dlganalyzer(m_mainwindow);
 
@@ -556,7 +387,7 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
     this->loadDisassemblerView(disassembler);
 }
 
-void DisassemblerHooks::addWelcomeTab() { m_disassemblertabs->addTab(new WelcomeTab(), QString()); }
+void DisassemblerHooks::showWelcome() { this->replaceWidget(new WelcomeWidget()); }
 
 QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
 {
@@ -567,7 +398,7 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
         RDSymbol symbol;
         if(!command->getSelectedSymbol(&symbol)) return;
 
-        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
+        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
         const char* symbolname = RDDocument_GetSymbolName(doc, symbol.address);
         if(!symbolname) return;
 
@@ -584,7 +415,7 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
         RDDocumentItem item;
         if(!command->getCurrentItem(&item)) return;
 
-        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
+        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
 
         bool ok = false;
         QString res = QInputDialog::getMultiLineText(command->widget(),
@@ -631,10 +462,10 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
         if(!command->getCurrentItem(&item)) return;
 
         RDSymbol symbol;
-        const char* hexdump = RDDisassembler_FunctionHexDump(command->disassembler(), item.address, &symbol);
+        const char* hexdump = RDDisassembler_FunctionHexDump(command->disassembler().get(), item.address, &symbol);
         if(!hexdump) return;
 
-        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
+        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
         const char* name = RDDocument_GetSymbolName(doc, symbol.address);
         RD_Log(qUtf8Printable(QString("%1: %2").arg(name, hexdump)));
     });
@@ -646,7 +477,7 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
             return;
         }
 
-        m_worker = std::async([&]() { RDDisassembler_CreateFunction(command->disassembler(), symbol.address, nullptr); });
+        m_worker = std::async([&]() { RDDisassembler_CreateFunction(command->disassembler().get(), symbol.address, nullptr); });
     }, QKeySequence(Qt::SHIFT + Qt::Key_C));
 
     contextmenu->addSeparator();
@@ -673,7 +504,6 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
 }
 
 void DisassemblerHooks::setActiveCommandTab(ICommandTab* commandtab) { m_activecommandtab = commandtab; }
-void DisassemblerHooks::focusOn(QWidget* w) { m_disassemblertabs->setCurrentWidget(w); }
 
 void DisassemblerHooks::loadRecents()
 {
@@ -725,19 +555,6 @@ void DisassemblerHooks::load(const QString& filepath)
     else if(buffer) RD_Free(buffer);
 }
 
-void DisassemblerHooks::tab(QWidget* w, int index)
-{
-    if(index != -1) m_disassemblertabs->insertTab(index, w, w->windowTitle());
-    else m_disassemblertabs->addTab(w, w->windowTitle());
-}
-
-void DisassemblerHooks::tabify(QDockWidget* first, QDockWidget* second)
-{
-    first->setParent(m_mainwindow);  // Take ownership
-    second->setParent(m_mainwindow); // Take ownership
-    m_mainwindow->tabifyDockWidget(first, second);
-}
-
 void DisassemblerHooks::dock(QWidget* w, Qt::DockWidgetArea area)
 {
     QDockWidget* dw = dynamic_cast<QDockWidget*>(w);
@@ -763,34 +580,28 @@ void DisassemblerHooks::checkListingMode()
 
 void DisassemblerHooks::close(bool showwelcome)
 {
-    while(m_disassemblertabs->count()) {
-        QWidget* w = m_disassemblertabs->widget(0);
-        m_disassemblertabs->removeTab(0);
-        w->deleteLater();
-    }
-
-    auto docks = m_mainwindow->findChildren<QDockWidget*>(QString(), Qt::FindDirectChildrenOnly);
-
-    for(const auto& child : docks) {
-        if(dynamic_cast<OutputDock*>(child)) continue;
-        this->undock(child);
-    }
-
-    if(m_devdialog)
-        m_devdialog->dispose();
-
-    RD_Status("");
     this->enableViewCommands(false);
-    m_activecommandtab = nullptr;
+    this->enableCommands(nullptr);
 
-    if(m_disassemblerview)
+    if(showwelcome) this->showWelcome(); // Replaces central widget, if any
+    else if(m_disassemblerview) m_disassemblerview->deleteLater();
+    m_disassemblerview = nullptr;
+}
+
+void DisassemblerHooks::replaceWidget(QWidget* w)
+{
+    QWidget* oldw = m_mainwindow->centralWidget();
+
+    if(oldw)
     {
-        m_disassemblerview->dispose();
-        m_disassemblerview = nullptr;
-    }
+        connect(oldw, &QWidget::destroyed, this, [w, this]() {
+            m_mainwindow->setCentralWidget(w);
+        });
 
-    if(m_worker.valid()) m_worker.get();
-    if(showwelcome) this->addWelcomeTab();
+        oldw->deleteLater();
+    }
+    else
+        m_mainwindow->setCentralWidget(w);
 }
 
 void DisassemblerHooks::clearOutput()

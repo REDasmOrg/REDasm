@@ -6,7 +6,7 @@
 class DocumentRenderer : public QtRenderer
 {
     public:
-        DocumentRenderer(QTextDocument* textdocument, RDDisassembler* disassembler, RDCursor* cursor, rd_flag flags = RendererFlags_Normal);
+        DocumentRenderer(QTextDocument* textdocument, const RDDisassemblerPtr& disassembler, RDCursor* cursor, rd_flag flags = RendererFlags_Normal);
         QTextDocument* textDocument() const;
         qreal maxWidth() const;
         void render(size_t first, size_t last);

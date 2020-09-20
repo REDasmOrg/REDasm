@@ -5,7 +5,7 @@ GotoDialog::GotoDialog(IDisassemblerCommand* command, QWidget *parent) : QDialog
 {
     ui->setupUi(this);
 
-    m_document = RDDisassembler_GetDocument(command->disassembler());
+    m_document = RDDisassembler_GetDocument(command->disassembler().get());
 
     m_gotomodel = new GotoFilterModel(ui->tvFunctions);
     m_gotomodel->setDisassembler(command->disassembler());

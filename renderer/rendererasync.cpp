@@ -1,7 +1,7 @@
 #include "rendererasync.h"
 #include <QWidget>
 
-RendererAsync::RendererAsync(QObject* parent): QThread(parent) { }
+RendererAsync::RendererAsync(const RDDisassemblerPtr& disassembler, QObject* parent): QThread(parent), m_disassembler(disassembler) { }
 RendererAsync::~RendererAsync() { this->abort(); }
 
 void RendererAsync::abort()
@@ -9,7 +9,7 @@ void RendererAsync::abort()
     if(!this->isRunning() || m_abort.load()) return;
 
     m_abort.store(true);
-    m_cv.notify_one();
+    m_cv.notify_all();
     this->wait();
 }
 

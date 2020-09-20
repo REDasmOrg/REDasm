@@ -4,13 +4,14 @@
 #include <rdapi/graph/functiongraph.h>
 #include <rdapi/rdapi.h>
 #include <optional>
+#include "../hooks/idisassemblercommand.h"
 
 class FunctionGraphModel : public QAbstractListModel
 {
     Q_OBJECT
 
     public:
-        explicit FunctionGraphModel(RDDisassembler* disassembler, QObject *parent = nullptr);
+        explicit FunctionGraphModel(const RDDisassemblerPtr& disassembler, QObject *parent = nullptr);
         void setGraph(const RDGraph* graph);
 
     public:
@@ -25,7 +26,7 @@ class FunctionGraphModel : public QAbstractListModel
         QString outgoings(RDGraphNode node) const;
 
     private:
-        RDDisassembler* m_disassembler;
+        RDDisassemblerPtr m_disassembler;
         RDDocument* m_document;
         const RDGraph* m_graph{nullptr};
 

@@ -8,11 +8,23 @@
 
 #define LISTINGMAP_SIZE 64
 
-ListingMap::ListingMap(QWidget *parent) : QWidget(parent)
+ListingMap::ListingMap(QWidget *parent) : QWidget(parent) { }
+
+ListingMap::~ListingMap()
 {
-    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
+    if(m_disassembler) RDDisassembler_Unsubscribe(m_disassembler.get(), this);
+    if(m_renderer) m_renderer->abort();
+}
+
+void ListingMap::linkTo(IDisassemblerCommand* command)
+{
+    m_command = command;
+    m_disassembler = command->disassembler();
+    m_document = RDDisassembler_GetDocument(m_disassembler.get());
+
+    RDDisassembler_Subscribe(m_disassembler.get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<ListingMap*>(e->owner);
-        if(RD_IsBusy() || !thethis->m_document) return;
+        if(RDDisassembler_IsBusy(thethis->m_disassembler.get()) || !thethis->m_document) return;
 
         switch(e->eventid) {
             case Event_CursorPositionChanged: thethis->m_renderer->renderMap(); break;
@@ -20,25 +32,11 @@ ListingMap::ListingMap(QWidget *parent) : QWidget(parent)
             default: break;
         }
     }, nullptr);
-}
-
-ListingMap::~ListingMap() { this->dispose(); }
-
-void ListingMap::linkTo(IDisassemblerCommand* command)
-{
-    m_command = command;
-    m_document = RDDisassembler_GetDocument(command->disassembler());
 
     if(m_renderer) m_renderer->deleteLater();
     m_renderer = new ListingMapRenderer(command, this);
     connect(m_renderer, &ListingMapRenderer::renderCompleted, this, &ListingMap::onRenderCompleted);
     m_renderer->renderMap();
-}
-
-void ListingMap::dispose()
-{
-    RDEvent_Unsubscribe(this);
-    if(m_renderer) m_renderer->abort();
 }
 
 QSize ListingMap::sizeHint() const { return { LISTINGMAP_SIZE, LISTINGMAP_SIZE }; }

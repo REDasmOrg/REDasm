@@ -2,6 +2,7 @@
 
 #include <QAbstractListModel>
 #include <rdapi/rdapi.h>
+#include "../hooks/idisassemblercommand.h"
 
 class DisassemblerModel : public QAbstractListModel
 {
@@ -11,11 +12,11 @@ class DisassemblerModel : public QAbstractListModel
         explicit DisassemblerModel(QObject *parent = nullptr);
 
     public:
-        const RDDisassembler* disassembler() const;
-        virtual void setDisassembler(RDDisassembler* disassembler);
+        const RDDisassemblerPtr& disassembler() const;
+        virtual void setDisassembler(const RDDisassemblerPtr& disassembler);
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
     protected:
-        RDDisassembler* m_disassembler{nullptr};
+        RDDisassemblerPtr m_disassembler;
         RDDocument* m_document{nullptr};
 };

@@ -9,23 +9,23 @@ DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
 {
     this->setBackgroundRole(QPalette::Base);
     this->setAutoFillBackground(true);
-
-    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
-        auto* thethis = reinterpret_cast<DisassemblerColumnView*>(e->owner);
-        if(!thethis->m_disassembler || RD_IsBusy()) return;
-
-        if(e->eventid == Event_BusyChanged) QMetaObject::invokeMethod(thethis, "renderArrows", Qt::QueuedConnection);
-        else if(e->eventid == Event_CursorPositionChanged) QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
-    }, nullptr);
 }
 
-DisassemblerColumnView::~DisassemblerColumnView() { RDEvent_Unsubscribe(this); }
+DisassemblerColumnView::~DisassemblerColumnView() { if(m_disassembler) RDDisassembler_Unsubscribe(m_disassembler.get(), this); }
 
 void DisassemblerColumnView::linkTo(DisassemblerTextView* textview)
 {
     m_textview = textview;
     m_disassembler = textview->disassembler();
-    m_document = RDDisassembler_GetDocument(m_disassembler);
+    m_document = RDDisassembler_GetDocument(m_disassembler.get());
+
+    RDDisassembler_Subscribe(m_disassembler.get(), this, [](const RDEventArgs* e) {
+        auto* thethis = reinterpret_cast<DisassemblerColumnView*>(e->owner);
+        if(!thethis->m_disassembler || RDDisassembler_IsBusy(thethis->m_disassembler.get())) return;
+
+        if(e->eventid == Event_BusyChanged) QMetaObject::invokeMethod(thethis, "renderArrows", Qt::QueuedConnection);
+        else if(e->eventid == Event_CursorPositionChanged) QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
+    }, nullptr);
 
     connect(m_textview->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderArrows(); });
 }
@@ -38,9 +38,9 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
     m_paths.clear();
     m_done.clear();
 
-    if(RD_IsBusy()) return;
+    if(RDDisassembler_IsBusy(m_disassembler.get())) return;
 
-    const RDNet* net = RDDisassembler_GetNet(m_disassembler);
+    const RDNet* net = RDDisassembler_GetNet(m_disassembler.get());
 
     for(size_t i = 0; i < count; i++, start++)
     {
@@ -102,7 +102,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 
 void DisassemblerColumnView::renderArrows()
 {
-    if(RD_IsBusy() || !m_textview) return;
+    if(!m_disassembler || RDDisassembler_IsBusy(m_disassembler.get()) || !m_textview) return;
     this->renderArrows(m_textview->firstVisibleLine(), m_textview->visibleLines());
 }
 

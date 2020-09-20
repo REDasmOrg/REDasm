@@ -1,12 +1,12 @@
 #include "disassemblermodel.h"
 
 DisassemblerModel::DisassemblerModel(QObject *parent) : QAbstractListModel(parent) { }
-const RDDisassembler* DisassemblerModel::disassembler() const { return m_disassembler; }
+const RDDisassemblerPtr& DisassemblerModel::disassembler() const { return m_disassembler; }
 
-void DisassemblerModel::setDisassembler(RDDisassembler* disassembler)
+void DisassemblerModel::setDisassembler(const RDDisassemblerPtr& disassembler)
 {
     m_disassembler = disassembler;
-    m_document = RDDisassembler_GetDocument(disassembler);
+    m_document = RDDisassembler_GetDocument(disassembler.get());
 }
 
 QVariant DisassemblerModel::headerData(int section, Qt::Orientation orientation, int role) const

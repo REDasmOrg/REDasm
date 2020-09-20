@@ -5,6 +5,7 @@
 #include <QList>
 #include <QPair>
 #include <QSet>
+#include "../hooks/idisassemblercommand.h"
 
 class DisassemblerTextView;
 
@@ -34,7 +35,7 @@ class DisassemblerColumnView : public QWidget
 
     private:
         DisassemblerTextView* m_textview{nullptr};
-        RDDisassembler* m_disassembler{nullptr};
+        RDDisassemblerPtr m_disassembler;
         RDDocument* m_document{nullptr};
         QList<ArrowPath> m_paths;
         QSet<QPair<size_t, size_t>> m_done;

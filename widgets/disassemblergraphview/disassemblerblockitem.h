@@ -41,6 +41,7 @@ class DisassemblerBlockItem : public GraphViewItem
         std::unique_ptr<DocumentRenderer> m_renderer;
         const RDFunctionBasicBlock* m_basicblock;
         IDisassemblerCommand* m_command;
+        RDDisassemblerPtr m_disassembler;
         QTextDocument m_textdocument;
         qreal m_charheight;
         QFont m_font;

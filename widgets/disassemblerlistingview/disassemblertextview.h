@@ -18,7 +18,7 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         size_t visibleLines() const;
         size_t firstVisibleLine() const;
         size_t lastVisibleLine() const;
-        void setDisassembler(RDDisassembler* disassembler);
+        void setDisassembler(const RDDisassemblerPtr& disassembler);
 
     public: // IDisassemblerCommand interface
         void goBack() override;
@@ -34,7 +34,7 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         const RDCursorPos* currentPosition() const override;
         const RDCursorPos* currentSelection() const override;
         QString currentWord() const override;
-        RDDisassembler* disassembler() const override;
+        const RDDisassemblerPtr& disassembler() const override;
         RDCursor* cursor() const override;
         QWidget* widget() override;
         void copy() const override;
@@ -75,8 +75,8 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         void addressChanged(rd_address address);
 
     private:
-        PainterRendererAsync* m_renderer{nullptr};
-        RDDisassembler* m_disassembler{nullptr};
+        RDDisassemblerPtr m_disassembler;
+        PainterRendererAsync* m_rasync{nullptr};
         RDDocument* m_document{nullptr};
 
     private:

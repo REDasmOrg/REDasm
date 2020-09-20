@@ -9,7 +9,7 @@ class GotoModel : public DisassemblerModel
 
     public:
         explicit GotoModel(QObject *parent = nullptr);
-        void setDisassembler(RDDisassembler* disassembler) override;
+        void setDisassembler(const RDDisassemblerPtr& disassembler) override;
 
     public:
         QVariant data(const QModelIndex &index, int role) const override;

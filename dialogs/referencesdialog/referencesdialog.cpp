@@ -5,7 +5,7 @@ ReferencesDialog::ReferencesDialog(IDisassemblerCommand* command, const RDSymbol
 {
     ui->setupUi(this);
 
-    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler());
+    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
     this->setWindowTitle(QString("%1 References").arg(RDDocument_GetSymbolName(doc, symbol->address)));
 
     m_referencesmodel = new ReferencesModel(command, ui->tvReferences);

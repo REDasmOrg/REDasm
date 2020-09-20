@@ -6,9 +6,9 @@
 #include <cmath>
 #include <iostream>
 
-QtRenderer::QtRenderer(RDDisassembler* disassembler, RDCursor* cursor, rd_flag flags): m_fontmetrics(REDasmSettings::font())
+QtRenderer::QtRenderer(const RDDisassemblerPtr& disassembler, RDCursor* cursor, rd_flag flags, QObject* parent): QObject(parent), m_fontmetrics(REDasmSettings::font()), m_disassembler(disassembler)
 {
-    m_document = RDDisassembler_GetDocument(disassembler);
+    m_document = RDDisassembler_GetDocument(disassembler.get());
 
     if(cursor)
     {
@@ -18,13 +18,16 @@ QtRenderer::QtRenderer(RDDisassembler* disassembler, RDCursor* cursor, rd_flag f
     else
         m_cursor = RDCursor_Create(m_document);
 
-    m_renderer = RDRenderer_Create(disassembler, m_cursor, flags);
+    m_renderer = RDRenderer_Create(disassembler.get(), m_cursor, flags);
 }
 
 QtRenderer::~QtRenderer()
 {
     RD_Free(m_renderer);
     if(m_ownscursor) RD_Free(m_cursor);
+
+    m_renderer = nullptr;
+    m_cursor = nullptr;
 }
 
 const QFontMetricsF& QtRenderer::fontMetrics() const { return m_fontmetrics; }

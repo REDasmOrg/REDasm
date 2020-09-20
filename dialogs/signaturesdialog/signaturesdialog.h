@@ -3,6 +3,7 @@
 #include <QSortFilterProxyModel>
 #include <QDialog>
 #include <rdapi/rdapi.h>
+#include "../hooks/idisassemblercommand.h"
 #include "../models/signatures/signaturefilesmodel.h"
 #include "../models/signatures/signaturesmodel.h"
 
@@ -15,7 +16,7 @@ class SignaturesDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit SignaturesDialog(RDDisassembler* disassembler, QWidget *parent = nullptr);
+        explicit SignaturesDialog(const RDDisassemblerPtr& disassembler, QWidget *parent = nullptr);
         ~SignaturesDialog();
 
     private slots:
@@ -25,7 +26,7 @@ class SignaturesDialog : public QDialog
 
     private:
         Ui::SignaturesDialog *ui;
-        RDDisassembler* m_disassembler;
+        RDDisassemblerPtr m_disassembler;
         SignatureFilesModel* m_signaturefilesmodel;
         SignaturesModel* m_signaturesmodel;
         QSortFilterProxyModel* m_filtermodel;

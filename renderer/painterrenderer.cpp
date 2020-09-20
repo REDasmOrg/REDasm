@@ -5,10 +5,12 @@
 #include <algorithm>
 #include <cstring>
 
-PainterRenderer::PainterRenderer(RDDisassembler* disassembler, rd_flag flags): QtRenderer(disassembler, nullptr, flags) { }
+PainterRenderer::PainterRenderer(const RDDisassemblerPtr& disassembler, rd_flag flags, QObject* parent): QtRenderer(disassembler, nullptr, flags, parent) { }
 
 void PainterRenderer::render(QPainter* painter, size_t first, size_t last)
 {
+    if(!m_renderer) return;
+
     m_painter = painter;
     size_t count = (last - first) + 1;
 

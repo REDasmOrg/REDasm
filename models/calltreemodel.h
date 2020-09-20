@@ -2,6 +2,7 @@
 
 #include <QAbstractItemModel>
 #include <rdapi/rdapi.h>
+#include "../hooks/idisassemblercommand.h"
 
 class CallTreeModel : public QAbstractItemModel
 {
@@ -10,7 +11,7 @@ class CallTreeModel : public QAbstractItemModel
     public:
         explicit CallTreeModel(QObject *parent = nullptr);
         const RDDocumentItem& item(const QModelIndex& index) const;
-        void setDisassembler(RDDisassembler* disassembler);
+        void setDisassembler(const RDDisassemblerPtr& disassembler);
         void initializeGraph(rd_address address);
 
     public:
@@ -26,7 +27,7 @@ class CallTreeModel : public QAbstractItemModel
         void populateCallGraph(const QModelIndex& index);
 
     private:
-        RDDisassembler* m_disassembler{nullptr};
+        RDDisassemblerPtr m_disassembler;
         //REDasm::object_ptr<REDasm::Printer> m_printer;
         //std::unique_ptr<REDasm::CallTree> m_calltree;
         //REDasm::ListingItem m_currentitem;

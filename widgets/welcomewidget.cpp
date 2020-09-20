@@ -1,16 +1,16 @@
-#include "welcometab.h"
-#include "ui_welcometab.h"
-#include "../../../delegates/recentfilesdelegate.h"
-#include "../../../models/recentfilesmodel.h"
-#include "../../../hooks/disassemblerhooks.h"
-#include "../../../redasmsettings.h"
-#include "../../../redasmfonts.h"
+#include "welcomewidget.h"
+#include "ui_welcomewidget.h"
+#include "../delegates/recentfilesdelegate.h"
+#include "../models/recentfilesmodel.h"
+#include "../hooks/disassemblerhooks.h"
+#include "../redasmsettings.h"
+#include "../redasmfonts.h"
 #include "../themeprovider.h"
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QUrl>
 
-WelcomeTab::WelcomeTab(QWidget *parent) : QWidget(parent), ui(new Ui::WelcomeTab)
+WelcomeWidget::WelcomeWidget(QWidget *parent) : QWidget(parent), ui(new Ui::WelcomeWidget)
 {
     ui->setupUi(this);
     ui->lblVersion->setText(QString("Version %1").arg(REDASM_VERSION));
@@ -55,7 +55,7 @@ WelcomeTab::WelcomeTab(QWidget *parent) : QWidget(parent), ui(new Ui::WelcomeTab
     ui->lvRecentFiles->setItemDelegate(new RecentFilesDelegate(ui->lvRecentFiles));
     ui->lvRecentFiles->setModel(recentfilesmodel);
 
-    connect(ui->lvRecentFiles, &QListView::clicked, this, &WelcomeTab::onFileSelected);
+    connect(ui->lvRecentFiles, &QListView::clicked, this, &WelcomeWidget::onFileSelected);
     connect(ui->pbOpen, &QPushButton::clicked, DisassemblerHooks::instance(), &DisassemblerHooks::open);
     connect(ui->pbSettings, &QPushButton::clicked, DisassemblerHooks::instance(), &DisassemblerHooks::settings);
     connect(ui->pbAbout, &QPushButton::clicked, DisassemblerHooks::instance(), &DisassemblerHooks::about);
@@ -77,9 +77,9 @@ WelcomeTab::WelcomeTab(QWidget *parent) : QWidget(parent), ui(new Ui::WelcomeTab
     });
 }
 
-WelcomeTab::~WelcomeTab() { delete ui; }
+WelcomeWidget::~WelcomeWidget() { delete ui; }
 
-void WelcomeTab::styleSocialButton(QPushButton* button, const QIcon& icon) const
+void WelcomeWidget::styleSocialButton(QPushButton* button, const QIcon& icon) const
 {
     static QString socialstylesheet = QString("QPushButton {"
                                                   "text-align: left;"
@@ -92,7 +92,7 @@ void WelcomeTab::styleSocialButton(QPushButton* button, const QIcon& icon) const
     button->setIcon(icon);
 }
 
-void WelcomeTab::onFileSelected(const QModelIndex& index)
+void WelcomeWidget::onFileSelected(const QModelIndex& index)
 {
     const RecentFilesModel* recentfilesmodel = static_cast<const RecentFilesModel*>(index.model());
     DisassemblerHooks::instance()->load(recentfilesmodel->filePath(index));

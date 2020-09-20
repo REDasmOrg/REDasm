@@ -8,14 +8,13 @@ namespace Ui {
 class DevDialog;
 }
 
-class DevDialog : public QDialog, public IDisposable
+class DevDialog : public QDialog
 {
     Q_OBJECT
 
     public:
         explicit DevDialog(QWidget *parent = nullptr);
         void setCommand(IDisassemblerCommand* command);
-        void dispose() override;
         ~DevDialog();
 
     private:

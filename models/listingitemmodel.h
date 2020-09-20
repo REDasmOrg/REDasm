@@ -12,7 +12,7 @@ class ListingItemModel : public DisassemblerModel
     public:
         explicit ListingItemModel(rd_type itemtype, QObject *parent = nullptr);
         virtual ~ListingItemModel();
-        void setDisassembler(RDDisassembler* disassembler) override;
+        void setDisassembler(const RDDisassemblerPtr& disassembler) override;
         const RDDocumentItem& item(const QModelIndex& index) const;
         rd_type itemType() const;
 

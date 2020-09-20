@@ -7,7 +7,7 @@ RDILTab::~RDILTab() { delete ui; }
 void RDILTab::setCommand(IDisassemblerCommand* command)
 {
     m_command = command;
-    m_renderer.reset(RDRenderer_Create(m_command->disassembler(), nullptr, RendererFlags_Normal));
+    m_renderer.reset(RDRenderer_Create(m_command->disassembler().get(), nullptr, RendererFlags_Normal));
     this->updateInformation();
 }
 
@@ -23,6 +23,6 @@ void RDILTab::updateInformation()
 
     ui->lblTitle->setText(RDRenderer_GetInstruction(m_renderer.get(), item.address));
 
-    m_graph.reset(RDILGraph_Create(m_command->disassembler(), item.address));
+    m_graph.reset(RDILGraph_Create(m_command->disassembler().get(), item.address));
     ui->graphView->setGraph(m_graph.get());
 }

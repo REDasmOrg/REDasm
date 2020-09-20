@@ -39,60 +39,31 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): CursorScrollArea(pa
     this->horizontalScrollBar()->setMinimum(0);
     this->horizontalScrollBar()->setValue(0);
     this->horizontalScrollBar()->setMaximum(maxwidth);
-
-    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
-        DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(e->owner);
-        if(!thethis->m_renderer) return;
-
-        switch(e->eventid) {
-            case Event_BusyChanged: {
-                if(RD_IsBusy()) return;
-                thethis->adjustScrollBars();
-
-                RDDocument* doc = RDDisassembler_GetDocument(thethis->disassembler());
-                RDLocation loc = RDDocument_GetEntryPoint(doc);
-
-                if(loc.valid) thethis->gotoAddress(loc.address);
-                else thethis->requestRender();
-                break;
-            }
-
-            case Event_CursorPositionChanged: {
-                if(e->sender == thethis->m_renderer->cursor()) // Ignore other cursors' events
-                    thethis->moveToSelection();
-                break;
-            }
-
-            case Event_ContextFlagsChanged: thethis->requestRender(); break;
-            case Event_DocumentChanged: thethis->onDocumentChanged(e); break;
-            default: break;
-        }
-    }, nullptr);
 }
 
-DisassemblerTextView::~DisassemblerTextView() { RDEvent_Unsubscribe(this); }
-RDDisassembler* DisassemblerTextView::disassembler() const { return m_disassembler; }
-RDCursor* DisassemblerTextView::cursor() const { return m_renderer->cursor(); }
+DisassemblerTextView::~DisassemblerTextView() { if(m_disassembler) RDDisassembler_Unsubscribe(m_disassembler.get(), this); }
+RDCursor* DisassemblerTextView::cursor() const { return m_rasync->renderer()->cursor(); }
 QWidget* DisassemblerTextView::widget() { return this; }
-QString DisassemblerTextView::currentWord() const { return m_renderer ? m_renderer->currentWord() : QString(); }
-const RDCursorPos* DisassemblerTextView::currentPosition() const { return m_renderer ? RDCursor_GetPosition(m_renderer->cursor()) : nullptr; }
-const RDCursorPos* DisassemblerTextView::currentSelection() const { return m_renderer ? RDCursor_GetSelection(m_renderer->cursor()) : nullptr; }
-bool DisassemblerTextView::canGoBack() const { return m_renderer ? RDCursor_CanGoBack(m_renderer->cursor()) : false; }
-bool DisassemblerTextView::canGoForward() const { return m_renderer ? RDCursor_CanGoForward(m_renderer->cursor()) : false; }
+QString DisassemblerTextView::currentWord() const { return m_rasync ? m_rasync->renderer()->currentWord() : QString(); }
+const RDDisassemblerPtr& DisassemblerTextView::disassembler() const { return m_disassembler; }
+const RDCursorPos* DisassemblerTextView::currentPosition() const { return m_rasync ? RDCursor_GetPosition(m_rasync->renderer()->cursor()) : nullptr; }
+const RDCursorPos* DisassemblerTextView::currentSelection() const { return m_rasync ? RDCursor_GetSelection(m_rasync->renderer()->cursor()) : nullptr; }
+bool DisassemblerTextView::canGoBack() const { return m_rasync ? RDCursor_CanGoBack(m_rasync->renderer()->cursor()) : false; }
+bool DisassemblerTextView::canGoForward() const { return m_rasync ? RDCursor_CanGoForward(m_rasync->renderer()->cursor()) : false; }
 
 bool DisassemblerTextView::getCurrentItem(RDDocumentItem* item) const
 {
-    if(!m_renderer) return false;
-    return RDDocument_GetItemAt(m_document, RDCursor_CurrentLine(m_renderer->cursor()), item);
+    if(!m_rasync) return false;
+    return RDDocument_GetItemAt(m_document, RDCursor_CurrentLine(m_rasync->renderer()->cursor()), item);
 }
 
 bool DisassemblerTextView::getSelectedSymbol(RDSymbol* symbol) const
 {
-    if(!m_renderer) return false;
-    return m_renderer->selectedSymbol(symbol);
+    if(!m_rasync) return false;
+    return m_rasync->renderer()->selectedSymbol(symbol);
 }
 
-bool DisassemblerTextView::ownsCursor(const RDCursor* cursor) const { return m_renderer ? (m_renderer->cursor() == cursor) : false; }
+bool DisassemblerTextView::ownsCursor(const RDCursor* cursor) const { return m_rasync ? (m_rasync->renderer()->cursor() == cursor) : false; }
 
 size_t DisassemblerTextView::visibleLines() const
 {
@@ -108,14 +79,43 @@ size_t DisassemblerTextView::visibleLines() const
 size_t DisassemblerTextView::firstVisibleLine() const { return this->verticalScrollBar()->value(); }
 size_t DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines() - 1; }
 
-void DisassemblerTextView::setDisassembler(RDDisassembler* disassembler)
+void DisassemblerTextView::setDisassembler(const RDDisassemblerPtr& disassembler)
 {
     m_disassembler = disassembler;
-    m_document = RDDisassembler_GetDocument(disassembler);
+    m_document = RDDisassembler_GetDocument(disassembler.get());
 
-    m_renderer = new PainterRendererAsync(disassembler, RendererFlags_Normal, this);
-    connect(m_renderer, &PainterRendererAsync::renderCompleted, this, &DisassemblerTextView::onRenderCompleted);
-    this->setBlinkCursor(m_renderer->cursor());
+    RDDisassembler_Subscribe(m_disassembler.get(), this, [](const RDEventArgs* e) {
+        DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(e->owner);
+        if(!thethis->m_rasync) return;
+
+        switch(e->eventid) {
+            case Event_BusyChanged: {
+                if(RDDisassembler_IsBusy(thethis->m_disassembler.get())) return;
+                thethis->adjustScrollBars();
+
+                RDDocument* doc = RDDisassembler_GetDocument(thethis->m_disassembler.get());
+                RDLocation loc = RDDocument_GetEntryPoint(doc);
+
+                if(loc.valid) thethis->gotoAddress(loc.address);
+                else thethis->requestRender();
+                break;
+            }
+
+            case Event_CursorPositionChanged: {
+                if(e->sender == thethis->m_rasync->renderer()->cursor()) // Ignore other cursors' events
+                    thethis->moveToSelection();
+                break;
+            }
+
+            case Event_ContextFlagsChanged: thethis->requestRender(); break;
+            case Event_DocumentChanged: thethis->onDocumentChanged(e); break;
+            default: break;
+        }
+    }, nullptr);
+
+    m_rasync = new PainterRendererAsync(disassembler, RendererFlags_Normal, this);
+    connect(m_rasync, &PainterRendererAsync::renderCompleted, this, &DisassemblerTextView::onRenderCompleted);
+    this->setBlinkCursor(m_rasync->renderer()->cursor());
 
     m_contextmenu = DisassemblerHooks::instance()->createActions(this);
     connect(this, &DisassemblerTextView::customContextMenuRequested, this, [&](const QPoint&) {
@@ -143,14 +143,14 @@ bool DisassemblerTextView::gotoItem(const RDDocumentItem& item)
 
     size_t idx = RDDocument_ItemIndex(m_document, &item);
     if(idx == RD_NPOS) return false;
-    RDCursor_MoveTo(m_renderer->cursor(), idx, 0);
+    RDCursor_MoveTo(m_rasync->renderer()->cursor(), idx, 0);
     return true;
 }
 
-void DisassemblerTextView::goBack() { if(m_renderer) RDCursor_GoBack(m_renderer->cursor()); }
-void DisassemblerTextView::goForward() { if(m_renderer) RDCursor_GoForward(m_renderer->cursor()); }
-bool DisassemblerTextView::hasSelection() const { return m_renderer ? RDCursor_HasSelection(m_renderer->cursor()) : false;  }
-void DisassemblerTextView::copy() const { if(m_renderer) m_renderer->copy(); }
+void DisassemblerTextView::goBack() { if(m_rasync) RDCursor_GoBack(m_rasync->renderer()->cursor()); }
+void DisassemblerTextView::goForward() { if(m_rasync) RDCursor_GoForward(m_rasync->renderer()->cursor()); }
+bool DisassemblerTextView::hasSelection() const { return m_rasync ? RDCursor_HasSelection(m_rasync->renderer()->cursor()) : false;  }
+void DisassemblerTextView::copy() const { if(m_rasync) m_rasync->renderer()->copy(); }
 
 void DisassemblerTextView::onRenderCompleted(const QImage& img)
 {
@@ -175,7 +175,7 @@ void DisassemblerTextView::scrollContentsBy(int dx, int dy)
 void DisassemblerTextView::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e)
-    if(!m_disassembler || !m_renderer) return;
+    if(!m_disassembler || !m_rasync) return;
 
     QPainter painter(this->viewport());
     painter.drawPixmap(this->viewport()->x(), this->viewport()->y(), m_pixmap);
@@ -190,10 +190,10 @@ void DisassemblerTextView::resizeEvent(QResizeEvent *e)
 
 void DisassemblerTextView::mousePressEvent(QMouseEvent *e)
 {
-    if((e->button() == Qt::LeftButton) || (!RDCursor_HasSelection(m_renderer->cursor()) && (e->button() == Qt::RightButton)))
+    if((e->button() == Qt::LeftButton) || (!RDCursor_HasSelection(m_rasync->renderer()->cursor()) && (e->button() == Qt::RightButton)))
     {
         e->accept();
-        m_renderer->moveTo(this->viewportPoint(e->pos()));
+        m_rasync->renderer()->moveTo(this->viewportPoint(e->pos()));
     }
 
     CursorScrollArea::mousePressEvent(e);
@@ -204,13 +204,13 @@ void DisassemblerTextView::mouseMoveEvent(QMouseEvent *e)
     if(e->buttons() == Qt::LeftButton)
     {
         e->accept();
-        RDCursor_Disable(m_renderer->cursor());
+        RDCursor_Disable(m_rasync->renderer()->cursor());
 
         QPoint pt = e->pos();
         pt.rx() = std::max(0, pt.x());
         pt.ry() = std::max(0, pt.y());
 
-        m_renderer->select(this->viewportPoint(pt));
+        m_rasync->renderer()->select(this->viewportPoint(pt));
     }
     else
         CursorScrollArea::mouseMoveEvent(e);
@@ -221,7 +221,7 @@ void DisassemblerTextView::mouseDoubleClickEvent(QMouseEvent *e)
     if(e->button() == Qt::LeftButton)
     {
         if(!this->followUnderCursor())
-            m_renderer->selectWordFromPoint(e->pos());
+            m_rasync->renderer()->selectWordFromPoint(e->pos());
 
         e->accept();
         return;
@@ -249,39 +249,39 @@ void DisassemblerTextView::wheelEvent(QWheelEvent *e)
 
 void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 {
-    const RDCursorPos* pos = RDCursor_GetPosition(m_renderer->cursor());
+    const RDCursorPos* pos = RDCursor_GetPosition(m_rasync->renderer()->cursor());
     size_t c = RDDocument_ItemsCount(m_document);
 
     if(e->matches(QKeySequence::MoveToNextChar) || e->matches(QKeySequence::SelectNextChar))
     {
-        size_t len = RDRenderer_GetLastColumn(m_renderer->handle(), pos->line);
+        size_t len = RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), pos->line);
         if(len == pos->column) return;
 
-        if(e->matches(QKeySequence::MoveToNextChar)) RDCursor_MoveTo(m_renderer->cursor(), pos->line, std::min(len, pos->column + 1));
-        else RDCursor_Select(m_renderer->cursor(), pos->line, std::min(len, pos->column + 1));
+        if(e->matches(QKeySequence::MoveToNextChar)) RDCursor_MoveTo(m_rasync->renderer()->cursor(), pos->line, std::min(len, pos->column + 1));
+        else RDCursor_Select(m_rasync->renderer()->cursor(), pos->line, std::min(len, pos->column + 1));
     }
     else if(e->matches(QKeySequence::MoveToPreviousChar) || e->matches(QKeySequence::SelectPreviousChar))
     {
         if(!pos->column) return;
 
-        if(e->matches(QKeySequence::MoveToPreviousChar)) RDCursor_MoveTo(m_renderer->cursor(), pos->line, std::max<size_t>(0, pos->column - 1));
-        else RDCursor_Select(m_renderer->cursor(), pos->line, std::max<size_t>(0, pos->column - 1));
+        if(e->matches(QKeySequence::MoveToPreviousChar)) RDCursor_MoveTo(m_rasync->renderer()->cursor(), pos->line, std::max<size_t>(0, pos->column - 1));
+        else RDCursor_Select(m_rasync->renderer()->cursor(), pos->line, std::max<size_t>(0, pos->column - 1));
     }
     else if(e->matches(QKeySequence::MoveToNextLine) || e->matches(QKeySequence::SelectNextLine))
     {
         if((c - 1)  == pos->line) return;
 
         size_t nextline = pos->line + 1;
-        if(e->matches(QKeySequence::MoveToNextLine)) RDCursor_MoveTo(m_renderer->cursor(), nextline, std::min(pos->column, RDRenderer_GetLastColumn(m_renderer->handle(), nextline)));
-        else RDCursor_Select(m_renderer->cursor(), nextline, std::min(pos->column, RDRenderer_GetLastColumn(m_renderer->handle(), nextline)));
+        if(e->matches(QKeySequence::MoveToNextLine)) RDCursor_MoveTo(m_rasync->renderer()->cursor(), nextline, std::min(pos->column, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), nextline)));
+        else RDCursor_Select(m_rasync->renderer()->cursor(), nextline, std::min(pos->column, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), nextline)));
     }
     else if(e->matches(QKeySequence::MoveToPreviousLine) || e->matches(QKeySequence::SelectPreviousLine))
     {
         if(!pos->line) return;
 
         size_t prevline = pos->line - 1;
-        if(e->matches(QKeySequence::MoveToPreviousLine)) RDCursor_MoveTo(m_renderer->cursor(), prevline, std::min(pos->column, RDRenderer_GetLastColumn(m_renderer->handle(), prevline)));
-        else RDCursor_Select(m_renderer->cursor(), prevline, std::min(pos->column, RDRenderer_GetLastColumn(m_renderer->handle(), prevline)));
+        if(e->matches(QKeySequence::MoveToPreviousLine)) RDCursor_MoveTo(m_rasync->renderer()->cursor(), prevline, std::min(pos->column, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), prevline)));
+        else RDCursor_Select(m_rasync->renderer()->cursor(), prevline, std::min(pos->column, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), prevline)));
     }
     else if(e->matches(QKeySequence::MoveToNextPage) || e->matches(QKeySequence::SelectNextPage))
     {
@@ -289,8 +289,8 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 
         size_t pageline = std::min(c - 1, this->firstVisibleLine() + this->visibleLines());
 
-        if(e->matches(QKeySequence::MoveToNextPage)) RDCursor_MoveTo(m_renderer->cursor(), pageline, std::min(pos->column, RDRenderer_GetLastColumn(m_renderer->handle(), pageline)));
-        else RDCursor_Select(m_renderer->cursor(), pageline, std::min(pos->column, RDRenderer_GetLastColumn(m_renderer->handle(), pageline)));
+        if(e->matches(QKeySequence::MoveToNextPage)) RDCursor_MoveTo(m_rasync->renderer()->cursor(), pageline, std::min(pos->column, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), pageline)));
+        else RDCursor_Select(m_rasync->renderer()->cursor(), pageline, std::min(pos->column, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), pageline)));
     }
     else if(e->matches(QKeySequence::MoveToPreviousPage) || e->matches(QKeySequence::SelectPreviousPage))
     {
@@ -299,32 +299,32 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
         size_t pageline = 0;
         if(this->firstVisibleLine() > this->visibleLines()) pageline = std::max<size_t>(0, this->firstVisibleLine() - this->visibleLines());
 
-        if(e->matches(QKeySequence::MoveToPreviousPage)) RDCursor_MoveTo(m_renderer->cursor(), pageline, std::min(pos->column, RDRenderer_GetLastColumn(m_renderer->handle(), pageline)));
-        else RDCursor_Select(m_renderer->cursor(), pageline, std::min(pos->column, RDRenderer_GetLastColumn(m_renderer->handle(), pageline)));
+        if(e->matches(QKeySequence::MoveToPreviousPage)) RDCursor_MoveTo(m_rasync->renderer()->cursor(), pageline, std::min(pos->column, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), pageline)));
+        else RDCursor_Select(m_rasync->renderer()->cursor(), pageline, std::min(pos->column, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), pageline)));
     }
     else if(e->matches(QKeySequence::MoveToStartOfDocument) || e->matches(QKeySequence::SelectStartOfDocument))
     {
         if(!pos->line) return;
 
-        if(e->matches(QKeySequence::MoveToStartOfDocument)) RDCursor_MoveTo(m_renderer->cursor(), 0, 0);
-        else RDCursor_Select(m_renderer->cursor(), 0, 0);
+        if(e->matches(QKeySequence::MoveToStartOfDocument)) RDCursor_MoveTo(m_rasync->renderer()->cursor(), 0, 0);
+        else RDCursor_Select(m_rasync->renderer()->cursor(), 0, 0);
     }
     else if(e->matches(QKeySequence::MoveToEndOfDocument) || e->matches(QKeySequence::SelectEndOfDocument))
     {
         if((c - 1) == pos->line) return;
 
-        if(e->matches(QKeySequence::MoveToEndOfDocument)) RDCursor_MoveTo(m_renderer->cursor(), c - 1, RDRenderer_GetLastColumn(m_renderer->handle(), c - 1));
-        else RDCursor_Select(m_renderer->cursor(), c - 1, RDRenderer_GetLastColumn(m_renderer->handle(), c - 1));
+        if(e->matches(QKeySequence::MoveToEndOfDocument)) RDCursor_MoveTo(m_rasync->renderer()->cursor(), c - 1, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), c - 1));
+        else RDCursor_Select(m_rasync->renderer()->cursor(), c - 1, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), c - 1));
     }
     else if(e->matches(QKeySequence::MoveToStartOfLine) || e->matches(QKeySequence::SelectStartOfLine))
     {
-        if(e->matches(QKeySequence::MoveToStartOfLine)) RDCursor_MoveTo(m_renderer->cursor(), pos->line, 0);
-        else RDCursor_Select(m_renderer->cursor(), pos->line, 0);
+        if(e->matches(QKeySequence::MoveToStartOfLine)) RDCursor_MoveTo(m_rasync->renderer()->cursor(), pos->line, 0);
+        else RDCursor_Select(m_rasync->renderer()->cursor(), pos->line, 0);
     }
     else if(e->matches(QKeySequence::MoveToEndOfLine) || e->matches(QKeySequence::SelectEndOfLine))
     {
-        if(e->matches(QKeySequence::MoveToEndOfLine)) RDCursor_MoveTo(m_renderer->cursor(), pos->line, RDRenderer_GetLastColumn(m_renderer->handle(), pos->line));
-        else RDCursor_Select(m_renderer->cursor(), pos->line, RDRenderer_GetLastColumn(m_renderer->handle(), pos->line));
+        if(e->matches(QKeySequence::MoveToEndOfLine)) RDCursor_MoveTo(m_rasync->renderer()->cursor(), pos->line, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), pos->line));
+        else RDCursor_Select(m_rasync->renderer()->cursor(), pos->line, RDRenderer_GetLastColumn(m_rasync->renderer()->handle(), pos->line));
     }
     else if(e->key() == Qt::Key_Space) emit switchView();
     else CursorScrollArea::keyPressEvent(e);
@@ -332,7 +332,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 
 bool DisassemblerTextView::event(QEvent *e)
 {
-    if(m_disassembler && !RD_IsBusy() && (e->type() == QEvent::ToolTip))
+    if(m_disassembler && !RDDisassembler_IsBusy(m_disassembler.get()) && (e->type() == QEvent::ToolTip))
     {
         QHelpEvent* helpevent = static_cast<QHelpEvent*>(e);
         this->showPopup(this->viewportPoint(helpevent->pos()));
@@ -346,7 +346,7 @@ void DisassemblerTextView::onDocumentChanged(const RDEventArgs *e)
 {
     const auto* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
 
-    RDCursor_ClearSelection(m_renderer->cursor());
+    RDCursor_ClearSelection(m_rasync->renderer()->cursor());
     this->adjustScrollBars();
 
     if(de->action != DocumentAction_ItemChanged) // Insertion or Deletion
@@ -362,10 +362,10 @@ void DisassemblerTextView::onDocumentChanged(const RDEventArgs *e)
 
 bool DisassemblerTextView::followUnderCursor()
 {
-    if(!m_renderer) return false;
+    if(!m_rasync) return false;
 
     RDSymbol symbol;
-    if(!m_renderer->selectedSymbol(&symbol)) return false;
+    if(!m_rasync->renderer()->selectedSymbol(&symbol)) return false;
     this->gotoAddress(symbol.address);
     return true;
 }
@@ -424,14 +424,14 @@ QPointF DisassemblerTextView::viewportPoint(const QPointF& pt) const
 {
     QPointF vpt;
     vpt.rx() = pt.x();
-    vpt.ry() = pt.y() + (this->firstVisibleLine() * m_renderer->fontMetrics().height());
+    vpt.ry() = pt.y() + (this->firstVisibleLine() * m_rasync->renderer()->fontMetrics().height());
     return vpt;
 }
 
 void DisassemblerTextView::requestRender()
 {
-    if(!m_renderer) return;
-    m_renderer->scheduleImage(this->firstVisibleLine(), this->lastVisibleLine());
+    if(!m_rasync) return;
+    m_rasync->scheduleImage(this->firstVisibleLine(), this->lastVisibleLine());
 }
 
 void DisassemblerTextView::paintLine(size_t line)
@@ -460,7 +460,7 @@ void DisassemblerTextView::moveToSelection()
     size_t c = RDDocument_ItemsCount(m_document);
     if(!c) return;
 
-    size_t line = RDCursor_CurrentLine(m_renderer->cursor());
+    size_t line = RDCursor_CurrentLine(m_rasync->renderer()->cursor());
 
     if(!this->isLineVisible(line)) // Center on selection
     {
@@ -479,14 +479,14 @@ void DisassemblerTextView::moveToSelection()
         emit addressChanged(item.address);
 }
 
-void DisassemblerTextView::onCursorBlink() { this->paintLine(RDCursor_CurrentLine(m_renderer->cursor())); }
+void DisassemblerTextView::onCursorBlink() { this->paintLine(RDCursor_CurrentLine(m_rasync->renderer()->cursor())); }
 
 void DisassemblerTextView::ensureColumnVisible()
 {
     if(!m_document) return;
     size_t xpos = 0;
 
-    if(this->isColumnVisible(RDCursor_CurrentColumn(m_renderer->cursor()), &xpos))
+    if(this->isColumnVisible(RDCursor_CurrentColumn(m_rasync->renderer()->cursor()), &xpos))
         return;
 
     QScrollBar* hscrollbar = this->horizontalScrollBar();
@@ -497,11 +497,11 @@ void DisassemblerTextView::showPopup(const QPointF& pt)
 {
     if(!RDDocument_ItemsCount(m_document)) return;
 
-    QString word = m_renderer->getWordFromPoint(pt, nullptr);
+    QString word = m_rasync->renderer()->getWordFromPoint(pt, nullptr);
 
     if(!word.isEmpty())
     {
-        RDCursorPos pos = m_renderer->hitTest(pt);
+        RDCursorPos pos = m_rasync->renderer()->hitTest(pt);
         m_disassemblerpopup->popup(word, pos.line);
         return;
     }

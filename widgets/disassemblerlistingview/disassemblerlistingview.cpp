@@ -2,7 +2,7 @@
 #include "../../themeprovider.h"
 #include "../../redasmsettings.h"
 
-DisassemblerListingView::DisassemblerListingView(RDDisassembler* disassembler, QWidget *parent): QSplitter(Qt::Horizontal, parent), m_disassembler(nullptr)
+DisassemblerListingView::DisassemblerListingView(const RDDisassemblerPtr& disassembler, QWidget *parent): QSplitter(Qt::Horizontal, parent), m_disassembler(nullptr)
 {
     this->setStyleSheet("QSplitter::handle { background-color: " + THEME_VALUE_COLOR(Theme_Seek) + "; }");
 
@@ -24,10 +24,3 @@ DisassemblerListingView::DisassemblerListingView(RDDisassembler* disassembler, Q
 
 DisassemblerColumnView *DisassemblerListingView::columnView() { return m_columnview; }
 DisassemblerTextView *DisassemblerListingView::textView() { return m_textview; }
-
-void DisassemblerListingView::setDisassembler(RDDisassembler* disassembler)
-{
-    m_disassembler = disassembler;
-    m_textview->setDisassembler(m_disassembler);
-    m_columnview->linkTo(m_textview);
-}

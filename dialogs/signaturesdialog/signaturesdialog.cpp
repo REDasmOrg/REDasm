@@ -3,7 +3,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-SignaturesDialog::SignaturesDialog(RDDisassembler* disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::SignaturesDialog), m_disassembler(disassembler)
+SignaturesDialog::SignaturesDialog(const RDDisassemblerPtr& disassembler, QWidget *parent) : QDialog(parent), ui(new Ui::SignaturesDialog), m_disassembler(disassembler)
 {
     ui->setupUi(this);
     ui->leFilter->setEnabled(false);

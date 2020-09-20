@@ -11,7 +11,7 @@ class ReferencesModel : public DisassemblerModel
     public:
         explicit ReferencesModel(const IDisassemblerCommand* command, QObject *parent = nullptr);
         ~ReferencesModel();
-        void setDisassembler(RDDisassembler* disassembler) override;
+        void setDisassembler(const RDDisassemblerPtr& disassembler) override;
         void xref(rd_address address);
 
     public:

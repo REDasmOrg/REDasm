@@ -18,7 +18,7 @@ DisassemblerGraphView::DisassemblerGraphView(IDisassemblerCommand* command, QWid
     this->setBlinkCursor(command->cursor());
 
     connect(this, &DisassemblerGraphView::customContextMenuRequested, this, [&](const QPoint&) {
-        RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
+        RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
         if(RDDocument_ItemsCount(doc)) m_contextmenu->popup(QCursor::pos());
     });
 }
@@ -73,7 +73,7 @@ bool DisassemblerGraphView::ownsCursor(const RDCursor* cursor) const { return m_
 const RDCursorPos* DisassemblerGraphView::currentPosition() const { return m_command->currentPosition(); }
 const RDCursorPos* DisassemblerGraphView::currentSelection() const { return m_command->currentSelection(); }
 QString DisassemblerGraphView::currentWord() const { return m_command->currentWord(); }
-RDDisassembler* DisassemblerGraphView::disassembler() const { return m_command->disassembler(); }
+const RDDisassemblerPtr& DisassemblerGraphView::disassembler() const { return m_command->disassembler(); }
 RDCursor* DisassemblerGraphView::cursor() const { return m_command->cursor(); }
 QWidget* DisassemblerGraphView::widget() { return this; }
 void DisassemblerGraphView::computed() { this->focusCurrentBlock(); }
@@ -106,7 +106,7 @@ bool DisassemblerGraphView::renderGraph()
     if(!m_contextmenu)
         m_contextmenu = DisassemblerHooks::instance()->createActions(this);
 
-    RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
+    RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
 
     RDDocumentItem item;
     if(!m_command->getCurrentItem(&item)) return false;
@@ -215,7 +215,7 @@ GraphViewItem *DisassemblerGraphView::itemFromCurrentLine() const
 
     if(!IS_TYPE(&item, DocumentItemType_Function)) // Adjust to instruction
     {
-        RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
+        RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
         if(!RDDocument_GetInstructionItem(doc, item.address, &item)) return nullptr;
     }
 

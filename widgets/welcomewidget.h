@@ -3,18 +3,18 @@
 #include <QWidget>
 
 namespace Ui {
-class WelcomeTab;
+class WelcomeWidget;
 }
 
 class QPushButton;
 
-class WelcomeTab : public QWidget
+class WelcomeWidget : public QWidget
 {
     Q_OBJECT
 
     public:
-        explicit WelcomeTab(QWidget *parent = nullptr);
-        ~WelcomeTab();
+        explicit WelcomeWidget(QWidget *parent = nullptr);
+        ~WelcomeWidget();
 
     private:
         void styleSocialButton(QPushButton* button, const QIcon& icon) const;
@@ -23,5 +23,5 @@ class WelcomeTab : public QWidget
         void onFileSelected(const QModelIndex& index);
 
     private:
-        Ui::WelcomeTab *ui;
+        Ui::WelcomeWidget *ui;
 };

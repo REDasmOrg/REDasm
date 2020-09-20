@@ -26,7 +26,7 @@ TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), u
     ui->pbClear->setText(QString());
     ui->pbClear->setIcon(FA_ICON(0xf00d));
 
-    m_filtermodel = new QSortFilterProxyModel();
+    m_filtermodel = new QSortFilterProxyModel(this);
     m_filtermodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_filtermodel->setFilterKeyColumn(-1);
     m_filtermodel->setSourceModel(model);
@@ -36,14 +36,14 @@ TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), u
     connect(ui->tvTable, &QTreeView::doubleClicked, this, &TableTab::onTableDoubleClick);
     connect(ui->pbClear, &QPushButton::clicked, ui->leFilter, &QLineEdit::clear);
 
-    RDEvent_Subscribe(this, [](const RDEventArgs* e) {
+    RDDisassembler_Subscribe(model->disassembler().get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<TableTab*>(e->owner);
-        if((e->eventid != Event_BusyChanged) || RD_IsBusy()) return;
+        if((e->eventid != Event_BusyChanged) || RDDisassembler_IsBusy(thethis->m_listingitemmodel->disassembler().get())) return;
         emit thethis->resizeColumns();
     }, nullptr);
 }
 
-TableTab::~TableTab() { RDEvent_Unsubscribe(this); delete ui; }
+TableTab::~TableTab() { RDDisassembler_Unsubscribe(m_listingitemmodel->disassembler().get(), this); delete ui; }
 ListingItemModel* TableTab::model() const { return m_listingitemmodel; }
 void TableTab::setSectionResizeMode(int idx, QHeaderView::ResizeMode mode) { ui->tvTable->header()->setSectionResizeMode(idx, mode); }
 void TableTab::setColumnHidden(int idx) { ui->tvTable->setColumnHidden(idx, true); }
@@ -57,7 +57,7 @@ void TableTab::onTableDoubleClick(const QModelIndex& index)
     const RDDocumentItem& item = m_listingitemmodel->item(srcindex);
 
     DisassemblerHooks::instance()->activeCommand()->gotoItem(item);
-    DisassemblerHooks::instance()->focusOn(DisassemblerHooks::instance()->activeCommandTab()->widget());
+    //DisassemblerHooks::instance()->focusOn(DisassemblerHooks::instance()->activeCommandTab()->widget());
 }
 
 bool TableTab::event(QEvent* e)

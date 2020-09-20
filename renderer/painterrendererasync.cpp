@@ -2,7 +2,10 @@
 #include <QPainter>
 #include <QWidget>
 
-PainterRendererAsync::PainterRendererAsync(RDDisassembler* disassembler, rd_flag flags, QObject* parent): RendererAsync(parent), PainterRenderer(disassembler, flags) { }
+PainterRendererAsync::PainterRendererAsync(const RDDisassemblerPtr& disassembler, rd_flag flags, QObject* parent): RendererAsync(disassembler, parent)
+{
+    m_painterrenderer = new PainterRenderer(disassembler, flags, this);
+}
 
 void PainterRendererAsync::scheduleImage(size_t first, size_t last)
 {
@@ -11,6 +14,7 @@ void PainterRendererAsync::scheduleImage(size_t first, size_t last)
     this->schedule();
 }
 
+PainterRenderer* PainterRendererAsync::renderer() const { return m_painterrenderer; }
 bool PainterRendererAsync::conditionWait() const { return m_first != m_last; }
 
 void PainterRendererAsync::onRender(QImage* image)
@@ -21,5 +25,5 @@ void PainterRendererAsync::onRender(QImage* image)
 
     QPainter painter(image);
     painter.setFont(this->widget()->font());
-    this->render(&painter, first, last);
+    m_painterrenderer->render(&painter, first, last);
 }

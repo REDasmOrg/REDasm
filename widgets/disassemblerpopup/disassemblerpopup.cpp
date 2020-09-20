@@ -5,7 +5,7 @@
 
 #define POPUP_MARGIN 16
 
-DisassemblerPopup::DisassemblerPopup(RDDisassembler* disassembler, QWidget *parent): QWidget(parent)
+DisassemblerPopup::DisassemblerPopup(const RDDisassemblerPtr& disassembler, QWidget *parent): QWidget(parent), m_disassembler(disassembler)
 {
     m_textdocument = new QTextDocument(this);
     m_textdocument->setDocumentLayout(new QPlainTextDocumentLayout(m_textdocument));

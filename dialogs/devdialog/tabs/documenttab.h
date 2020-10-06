@@ -14,7 +14,7 @@ class DocumentTab : public QWidget
 
     public:
         explicit DocumentTab(QWidget *parent = nullptr);
-        void setCommand(IDisassemblerCommand* command);
+        void setCommand(ICommand* command);
         Q_INVOKABLE void updateInformation();
         ~DocumentTab();
 
@@ -40,7 +40,7 @@ class DocumentTab : public QWidget
     private:
         Ui::DocumentTab *ui;
         rd_ptr<RDRenderer> m_renderer;
-        IDisassemblerCommand* m_command{nullptr};
+        ICommand* m_command{nullptr};
         int m_indent{0};
 };
 

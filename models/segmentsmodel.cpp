@@ -18,12 +18,12 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 
         switch(index.column())
         {
-            case 0: return QString::fromUtf8(RD_ToHexBits(segment.address, RDDisassembler_Bits(m_disassembler.get()), false));
-            case 1: return QString::fromUtf8(RD_ToHexBits(segment.endaddress, RDDisassembler_Bits(m_disassembler.get()), false));
-            case 2: return QString::fromUtf8(RD_ToHexBits(RDSegment_Size(&segment), RDDisassembler_Bits(m_disassembler.get()), false));
-            case 3: return QString::fromUtf8(RD_ToHexBits(segment.offset, RDDisassembler_Bits(m_disassembler.get()), false));
-            case 4: return QString::fromUtf8(RD_ToHexBits(segment.endoffset, RDDisassembler_Bits(m_disassembler.get()), false));
-            case 5: return QString::fromUtf8(RD_ToHexBits(RDSegment_RawSize(&segment), RDDisassembler_Bits(m_disassembler.get()), false));
+            case 0: return QString::fromUtf8(RD_ToHexBits(segment.address, RDContext_GetBits(m_context.get()), false));
+            case 1: return QString::fromUtf8(RD_ToHexBits(segment.endaddress, RDContext_GetBits(m_context.get()), false));
+            case 2: return QString::fromUtf8(RD_ToHexBits(RDSegment_Size(&segment), RDContext_GetBits(m_context.get()), false));
+            case 3: return QString::fromUtf8(RD_ToHexBits(segment.offset, RDContext_GetBits(m_context.get()), false));
+            case 4: return QString::fromUtf8(RD_ToHexBits(segment.endoffset, RDContext_GetBits(m_context.get()), false));
+            case 5: return QString::fromUtf8(RD_ToHexBits(RDSegment_RawSize(&segment), RDContext_GetBits(m_context.get()), false));
             case 6: return SegmentsModel::segmentFlags(segment);
             case 7: return QString::fromUtf8(segment.name);
             default: break;

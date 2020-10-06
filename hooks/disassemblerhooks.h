@@ -60,20 +60,20 @@ class DisassemblerHooks: public QObject
         void exit();
 
     public:
-        QMenu* createActions(IDisassemblerCommand* command);
+        QMenu* createActions(ICommand* command);
         void setActiveCommandTab(ICommandTab* commandtab);
-        void showReferences(IDisassemblerCommand* command, rd_address address);
-        void showGoto(IDisassemblerCommand* command);
+        void showReferences(ICommand* command, rd_address address);
+        void showGoto(ICommand* command);
         void showDeveloperTools();
         void showDatabase();
 
     public:
         ICommandTab* activeCommandTab() const;
-        IDisassemblerCommand* activeCommand() const;
+        ICommand* activeCommand() const;
         bool openDatabase(const QString& filepath);
         void enableCommands(QWidget* w);
         void updateCommandStates(QWidget* w) const;
-        void statusAddress(const IDisassemblerCommand* command) const;
+        void statusAddress(const ICommand* command) const;
         void load(const QString& filepath);
 
     private slots:
@@ -90,7 +90,7 @@ class DisassemblerHooks: public QObject
         void checkListingMode();
         void clearOutput();
         void enableMenu(QMenu* menu, bool enable);
-        void loadDisassemblerView(const RDDisassemblerPtr& disassembler);
+        void loadDisassemblerView(const RDContextPtr& ctx);
         void showLoaders(const QString& filepath, RDBuffer* buffer);
         void showWelcome();
         void loadRecents();

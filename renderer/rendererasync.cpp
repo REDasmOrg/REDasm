@@ -1,15 +1,19 @@
 #include "rendererasync.h"
 #include <QWidget>
 
-RendererAsync::RendererAsync(const RDDisassemblerPtr& disassembler, QObject* parent): QThread(parent), m_disassembler(disassembler) { }
+RendererAsync::RendererAsync(const RDContextPtr& ctx, QObject* parent): QThread(parent), m_context(ctx) { }
 RendererAsync::~RendererAsync() { this->abort(); }
 
 void RendererAsync::abort()
 {
     if(!this->isRunning() || m_abort.load()) return;
 
-    m_abort.store(true);
-    m_cv.notify_all();
+    {
+        renderer_lock lock(m_mutex);
+        m_abort.store(true);
+        m_cv.notify_one();
+    }
+
     this->wait();
 }
 

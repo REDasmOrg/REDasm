@@ -1,18 +1,18 @@
 #include "gotomodel.h"
 #include "../../themeprovider.h"
 
-GotoModel::GotoModel(QObject *parent) : DisassemblerModel(parent) { }
+GotoModel::GotoModel(QObject *parent) : ContextModel(parent) { }
 
-void GotoModel::setDisassembler(const RDDisassemblerPtr& disassembler)
+void GotoModel::setContext(const RDContextPtr& disassembler)
 {
     this->beginResetModel();
-    DisassemblerModel::setDisassembler(disassembler);
+    ContextModel::setContext(disassembler);
     this->endResetModel();
 }
 
 QVariant GotoModel::data(const QModelIndex &index, int role) const
 {
-    if(!m_disassembler) return QVariant();
+    if(!m_context) return QVariant();
 
     RDDocumentItem item;
     RDDocument_GetItemAt(m_document, index.row(), &item);
@@ -48,7 +48,7 @@ QVariant GotoModel::headerData(int section, Qt::Orientation orientation, int rol
         else if(section == 2) return "Type";
     }
 
-    return DisassemblerModel::headerData(section, orientation, role);
+    return ContextModel::headerData(section, orientation, role);
 }
 
 int GotoModel::columnCount(const QModelIndex &) const { return 3; }

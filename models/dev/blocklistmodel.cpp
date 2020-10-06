@@ -1,9 +1,9 @@
 #include "blocklistmodel.h"
 #include "../../themeprovider.h"
 
-BlockListModel::BlockListModel(IDisassemblerCommand* command, const RDBlockContainer* blocks, QObject *parent) : QAbstractListModel(parent), m_blocks(blocks), m_command(command)
+BlockListModel::BlockListModel(ICommand* command, const RDBlockContainer* blocks, QObject *parent) : QAbstractListModel(parent), m_blocks(blocks), m_command(command)
 {
-    m_document = RDDisassembler_GetDocument(command->disassembler().get());
+    m_document = RDContext_GetDocument(command->context().get());
 }
 
 QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, int role) const

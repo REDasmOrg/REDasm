@@ -6,12 +6,12 @@
 
 class QWidget;
 
-typedef std::shared_ptr<RDDisassembler> RDDisassemblerPtr;
+typedef std::shared_ptr<RDContext> RDContextPtr;
 
-class IDisassemblerCommand
+class ICommand
 {
     public:
-        virtual ~IDisassemblerCommand() = default;
+        virtual ~ICommand() = default;
         virtual void goBack() = 0;
         virtual void goForward() = 0;
         virtual void copy() const = 0;
@@ -26,7 +26,10 @@ class IDisassemblerCommand
         virtual const RDCursorPos* currentPosition() const = 0;
         virtual const RDCursorPos* currentSelection() const = 0;
         virtual QString currentWord() const = 0;
-        virtual const RDDisassemblerPtr& disassembler() const = 0;
+        virtual const RDContextPtr& context() const = 0;
         virtual RDCursor* cursor() const = 0;
         virtual QWidget* widget() = 0;
+
+    public:
+        inline RDDisassembler* disassembler() const { return RDContext_GetDisassembler(this->context().get()); }
 };

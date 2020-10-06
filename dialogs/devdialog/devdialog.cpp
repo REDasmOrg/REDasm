@@ -7,11 +7,11 @@ DevDialog::DevDialog(QWidget *parent) : QDialog(parent), ui(new Ui::DevDialog)
     ui->tabWidget->setStyleSheet("QTabWidget::pane { border: 0; }");
 }
 
-void DevDialog::setCommand(IDisassemblerCommand* command)
+void DevDialog::setCommand(ICommand* command)
 {
     m_command = command;
 
-    RDDisassembler_Subscribe(command->disassembler().get(), this, [](const RDEventArgs* e) {
+    RDContext_Subscribe(command->context().get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<DevDialog*>(e->owner);
         if(!thethis->m_command || !thethis->isVisible()) return;
         if(e->eventid != Event_CursorPositionChanged) return;
@@ -29,6 +29,6 @@ void DevDialog::setCommand(IDisassemblerCommand* command)
 
 DevDialog::~DevDialog()
 {
-    if(m_command) RDDisassembler_Unsubscribe(m_command->disassembler().get(), this);
+    if(m_command) RDContext_Unsubscribe(m_command->context().get(), this);
     delete ui;
 }

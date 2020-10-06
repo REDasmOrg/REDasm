@@ -6,9 +6,9 @@
 #include <cmath>
 #include <iostream>
 
-QtRenderer::QtRenderer(const RDDisassemblerPtr& disassembler, RDCursor* cursor, rd_flag flags, QObject* parent): QObject(parent), m_fontmetrics(REDasmSettings::font()), m_disassembler(disassembler)
+QtRenderer::QtRenderer(const RDContextPtr& ctx, RDCursor* cursor, rd_flag flags, QObject* parent): QObject(parent), m_fontmetrics(REDasmSettings::font()), m_context(ctx)
 {
-    m_document = RDDisassembler_GetDocument(disassembler.get());
+    m_document = RDContext_GetDocument(ctx.get());
 
     if(cursor)
     {
@@ -18,7 +18,7 @@ QtRenderer::QtRenderer(const RDDisassemblerPtr& disassembler, RDCursor* cursor, 
     else
         m_cursor = RDCursor_Create(m_document);
 
-    m_renderer = RDRenderer_Create(disassembler.get(), m_cursor, flags);
+    m_renderer = RDRenderer_Create(ctx.get(), m_cursor, flags);
 }
 
 QtRenderer::~QtRenderer()

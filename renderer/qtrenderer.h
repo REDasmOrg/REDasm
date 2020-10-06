@@ -12,7 +12,7 @@ class QtRenderer: public QObject
     Q_OBJECT
 
     public:
-        QtRenderer(const RDDisassemblerPtr& disassembler, RDCursor* cursor = nullptr, rd_flag flags = RendererFlags_Normal, QObject* parent = 0);
+        QtRenderer(const RDContextPtr& ctx, RDCursor* cursor = nullptr, rd_flag flags = RendererFlags_Normal, QObject* parent = 0);
         virtual ~QtRenderer();
         const QFontMetricsF& fontMetrics() const;
         const RDRenderer* handle() const;
@@ -30,7 +30,7 @@ class QtRenderer: public QObject
 
     protected:
         QFontMetricsF m_fontmetrics;
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
         RDDocument* m_document;
         RDRenderer* m_renderer;
         RDCursor* m_cursor;

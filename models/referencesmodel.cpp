@@ -1,13 +1,13 @@
 #include "referencesmodel.h"
 #include "../themeprovider.h"
 
-ReferencesModel::ReferencesModel(const IDisassemblerCommand* command, QObject *parent): DisassemblerModel(parent), m_command(command) { }
+ReferencesModel::ReferencesModel(const ICommand* command, QObject *parent): ContextModel(parent), m_command(command) { }
 ReferencesModel::~ReferencesModel() { if(m_renderer) RD_Free(m_renderer); }
 
-void ReferencesModel::setDisassembler(const RDDisassemblerPtr& disassembler)
+void ReferencesModel::setContext(const RDContextPtr& disassembler)
 {
-    DisassemblerModel::setDisassembler(disassembler);
-    m_renderer = RDRenderer_Create(m_disassembler.get(), nullptr, RendererFlags_Simplified);
+    ContextModel::setContext(disassembler);
+    m_renderer = RDRenderer_Create(m_context.get(), nullptr, RendererFlags_Simplified);
 }
 
 void ReferencesModel::clear()
@@ -20,10 +20,10 @@ void ReferencesModel::clear()
 
 void ReferencesModel::xref(rd_address address)
 {
-    if(!m_disassembler || RDDisassembler_IsBusy(m_disassembler.get())) return;
+    if(!m_context || RDContext_IsBusy(m_context.get())) return;
 
     this->beginResetModel();
-    const RDNet* net = RDDisassembler_GetNet(m_disassembler.get());
+    const RDNet* net = RDContext_GetNet(m_context.get());
     m_referencescount = RDNet_GetReferences(net, address, &m_references);
 
     this->endResetModel();
@@ -38,9 +38,9 @@ QModelIndex ReferencesModel::index(int row, int column, const QModelIndex&) cons
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 {
-    if(!m_disassembler || !m_renderer || RDDisassembler_IsBusy(m_disassembler.get())) return QVariant();
+    if(!m_context || !m_renderer || RDContext_IsBusy(m_context.get())) return QVariant();
 
-    RDDocument* doc = RDDisassembler_GetDocument(m_disassembler.get());
+    RDDocument* doc = RDContext_GetDocument(m_context.get());
     RDDocumentItem item;
 
     if(!RDDocument_GetInstructionItem(doc, m_references[index.row()], &item))
@@ -67,7 +67,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         {
             if(IS_TYPE(&item, DocumentItemType_Instruction))
             {
-                const RDNet* net = RDDisassembler_GetNet(m_disassembler.get());
+                const RDNet* net = RDContext_GetNet(m_context.get());
                 const RDNetNode* node = RDNet_FindNode(net, item.address);
                 if(!node) return QVariant();
 

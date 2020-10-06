@@ -79,14 +79,14 @@ void DisassemblerHooks::about()
 
 void DisassemblerHooks::exit() { qApp->exit(); }
 
-void DisassemblerHooks::showReferences(IDisassemblerCommand* command, rd_address address)
+void DisassemblerHooks::showReferences(ICommand* command, rd_address address)
 {
-    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
+    RDDocument* doc = RDContext_GetDocument(command->context().get());
 
     RDSymbol symbol;
     if(!RDDocument_GetSymbolByAddress(doc, address, &symbol)) return;
 
-    const RDNet* net = RDDisassembler_GetNet(command->disassembler().get());
+    const RDNet* net = RDContext_GetNet(command->context().get());
 
     if(!RDNet_GetReferences(net, symbol.address, nullptr))
     {
@@ -98,7 +98,7 @@ void DisassemblerHooks::showReferences(IDisassemblerCommand* command, rd_address
     dlgreferences.exec();
 }
 
-void DisassemblerHooks::showGoto(IDisassemblerCommand* command)
+void DisassemblerHooks::showGoto(ICommand* command)
 {
     GotoDialog dlggoto(command);
     dlggoto.exec();
@@ -125,7 +125,7 @@ ICommandTab* DisassemblerHooks::activeCommandTab() const
     return m_activecommandtab;
 }
 
-IDisassemblerCommand* DisassemblerHooks::activeCommand() const { return this->activeCommandTab()->command(); }
+ICommand* DisassemblerHooks::activeCommand() const { return this->activeCommandTab()->command(); }
 
 void DisassemblerHooks::undock(QDockWidget* dw)
 {
@@ -177,16 +177,16 @@ void DisassemblerHooks::onWindowActionTriggered(QAction* action)
     }
 }
 
-void DisassemblerHooks::statusAddress(const IDisassemblerCommand* command) const
+void DisassemblerHooks::statusAddress(const ICommand* command) const
 {
-    if(RDDisassembler_IsBusy(command->disassembler().get())) return;
+    if(RDContext_IsBusy(command->context().get())) return;
 
-    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
+    RDDocument* doc = RDContext_GetDocument(command->context().get());
 
     RDDocumentItem item;
     if(!command->getCurrentItem(&item)) return;
 
-    RDLoader* ldr = RDDisassembler_GetLoader(command->disassembler().get());
+    RDLoader* ldr = RDContext_GetLoader(command->context().get());
 
     RDSegment segment;
     bool hassegment = RDDocument_GetSegmentAddress(doc, item.address, &segment);
@@ -230,16 +230,16 @@ void DisassemblerHooks::adjustActions()
         if(!data.isNull()) actions[data.toInt()] = action;
     }
 
-    IDisassemblerCommand* command = dynamic_cast<IDisassemblerCommand*>(menu->parentWidget());
+    ICommand* command = dynamic_cast<ICommand*>(menu->parentWidget());
     RDDocumentItem item;
     if(!command->getCurrentItem(&item)) return;
 
-    RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
+    RDDocument* doc = RDContext_GetDocument(command->context().get());
 
     actions[DisassemblerHooks::Action_Back]->setVisible(command->canGoBack());
     actions[DisassemblerHooks::Action_Forward]->setVisible(command->canGoForward());
     actions[DisassemblerHooks::Action_Copy]->setVisible(command->hasSelection());
-    actions[DisassemblerHooks::Action_Goto]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()));
+    actions[DisassemblerHooks::Action_Goto]->setVisible(!RDContext_IsBusy(command->context().get()));
 
     RDSegment itemsegment, symbolsegment;
     RDSymbol symbol;
@@ -255,7 +255,7 @@ void DisassemblerHooks::adjustActions()
         actions[DisassemblerHooks::Action_Follow]->setVisible(false);
         actions[DisassemblerHooks::Action_FollowPointerHexDump]->setVisible(false);
 
-        if(!RDDisassembler_IsBusy(command->disassembler().get()))
+        if(!RDContext_IsBusy(command->context().get()))
         {
             bool ok = false;
             RDSegment currentsegment;
@@ -285,7 +285,7 @@ void DisassemblerHooks::adjustActions()
 
     actions[DisassemblerHooks::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(symbol.address)));
 
-    actions[DisassemblerHooks::Action_CreateFunction]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()) && (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
+    actions[DisassemblerHooks::Action_CreateFunction]->setVisible(!RDContext_IsBusy(command->context().get()) && (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
                                                                     (HAS_FLAG(&symbol, SymbolFlags_Weak) && !IS_TYPE(&symbol, SymbolType_Function)));
 
 
@@ -293,28 +293,28 @@ void DisassemblerHooks::adjustActions()
     actions[DisassemblerHooks::Action_FollowPointerHexDump]->setVisible(HAS_FLAG(&symbol, SymbolFlags_Pointer));
 
     actions[DisassemblerHooks::Action_XRefs]->setText(QString("Cross Reference %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_XRefs]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()));
+    actions[DisassemblerHooks::Action_XRefs]->setVisible(!RDContext_IsBusy(command->context().get()));
 
     actions[DisassemblerHooks::Action_Rename]->setText(QString("Rename %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_Rename]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()) && HAS_FLAG(&symbol, SymbolFlags_Weak));
+    actions[DisassemblerHooks::Action_Rename]->setVisible(!RDContext_IsBusy(command->context().get()) && HAS_FLAG(&symbol, SymbolFlags_Weak));
 
     actions[DisassemblerHooks::Action_CallGraph]->setText(QString("Callgraph %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_CallGraph]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()) && IS_TYPE(&symbol, SymbolType_Function));
+    actions[DisassemblerHooks::Action_CallGraph]->setVisible(!RDContext_IsBusy(command->context().get()) && IS_TYPE(&symbol, SymbolType_Function));
 
     actions[DisassemblerHooks::Action_Follow]->setText(QString("Follow %1").arg(symbolname));
     actions[DisassemblerHooks::Action_Follow]->setVisible(IS_TYPE(&symbol, SymbolType_Label));
 
-    actions[DisassemblerHooks::Action_Comment]->setVisible(!RDDisassembler_IsBusy(command->disassembler().get()) && IS_TYPE(&item, DocumentItemType_Instruction));
+    actions[DisassemblerHooks::Action_Comment]->setVisible(!RDContext_IsBusy(command->context().get()) && IS_TYPE(&item, DocumentItemType_Instruction));
 
     actions[DisassemblerHooks::Action_HexDump]->setVisible(hassymbolsegment && HAS_FLAG(&symbolsegment, SegmentFlags_Bss));
     actions[DisassemblerHooks::Action_HexDumpFunction]->setVisible(hasitemsegment && !HAS_FLAG(&itemsegment, SegmentFlags_Bss) && HAS_FLAG(&itemsegment, SegmentFlags_Code));
 }
 
-void DisassemblerHooks::loadDisassemblerView(const RDDisassemblerPtr& disassembler)
+void DisassemblerHooks::loadDisassemblerView(const RDContextPtr& ctx)
 {
     this->close(false);
 
-    m_disassemblerview = new DisassemblerView(disassembler);
+    m_disassemblerview = new DisassemblerView(ctx);
     this->replaceWidget(m_disassemblerview);
 }
 
@@ -346,50 +346,33 @@ void DisassemblerHooks::hook()
 
 void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
 {
+    RDContextPtr ctx(RDContext_Create(), RDObjectDeleter());
     QByteArray rawfilepath = filepath.toUtf8();
-    RDLoaderRequest req = { rawfilepath.data(), buffer };
+    RDLoaderRequest req = { rawfilepath.data(), buffer, { } };
 
-    LoaderDialog dlgloader(&req, m_mainwindow);
+    LoaderDialog dlgloader(ctx, &req, m_mainwindow);
     if(dlgloader.exec() != LoaderDialog::Accepted) return;
 
     this->clearOutput();
 
-    RDLoaderPlugin* ploader = dlgloader.selectedLoader();
-    RDAssemblerPlugin* passembler = dlgloader.selectedAssembler();
+    req.buildparams = dlgloader.buildRequest();
+    RDDisassembler* disassembler = RDContext_BuildDisassembler(ctx.get(), &req, dlgloader.selectedLoaderEntry(), dlgloader.selectedAssemblerEntry());
+    if(!disassembler) return;
 
-    if(!passembler)
-    {
-        QMessageBox::information(m_mainwindow, "Assembler Error",  QString("Cannot find assembler '%1' for '%2'").arg(RDLoader_GetAssemblerId(ploader), ploader->name));
+    const RDLoader* loader = RDContext_GetLoader(ctx.get());
+    const RDAssembler* assembler = RDContext_GetAssembler(ctx.get());
+    rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(RDLoader_GetName(loader), RDAssembler_GetName(assembler))));
 
-        connect(&dlgloader, &LoaderDialog::destroyed, this, [ploader]() {
-            RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(ploader));
-        });
-
-        return;
-    }
-
-    rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(ploader->name, passembler->name)));
-
-    RDDisassemblerPtr disassembler(RDDisassembler_Create(&req, ploader, passembler), RDObjectDeleter());
-    RDLoaderBuildRequest buildreq = dlgloader.buildRequest();
-    if(!RDDisassembler_Load(disassembler.get(), &buildreq)) return;
-
-    AnalyzerDialog dlganalyzer(m_mainwindow);
-
-    if(dlganalyzer.exec() != AnalyzerDialog::Accepted)
-    {
-        RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(passembler));
-        RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(ploader));
-        return;
-    }
+    AnalyzerDialog dlganalyzer(ctx, m_mainwindow);
+    if(dlganalyzer.exec() != AnalyzerDialog::Accepted) return;
 
     m_fileinfo = QFileInfo(filepath);
-    this->loadDisassemblerView(disassembler);
+    this->loadDisassemblerView(ctx);
 }
 
 void DisassemblerHooks::showWelcome() { this->replaceWidget(new WelcomeWidget()); }
 
-QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
+QMenu* DisassemblerHooks::createActions(ICommand* command)
 {
     QMenu* contextmenu = new QMenu(command->widget());
     std::unordered_map<int, QAction*> actions;
@@ -398,7 +381,7 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
         RDSymbol symbol;
         if(!command->getSelectedSymbol(&symbol)) return;
 
-        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
+        RDDocument* doc = RDContext_GetDocument(command->context().get());
         const char* symbolname = RDDocument_GetSymbolName(doc, symbol.address);
         if(!symbolname) return;
 
@@ -415,7 +398,7 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
         RDDocumentItem item;
         if(!command->getCurrentItem(&item)) return;
 
-        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
+        RDDocument* doc = RDContext_GetDocument(command->context().get());
 
         bool ok = false;
         QString res = QInputDialog::getMultiLineText(command->widget(),
@@ -462,10 +445,10 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
         if(!command->getCurrentItem(&item)) return;
 
         RDSymbol symbol;
-        const char* hexdump = RDDisassembler_FunctionHexDump(command->disassembler().get(), item.address, &symbol);
+        const char* hexdump = RDDisassembler_FunctionHexDump(command->disassembler(), item.address, &symbol);
         if(!hexdump) return;
 
-        RDDocument* doc = RDDisassembler_GetDocument(command->disassembler().get());
+        RDDocument* doc = RDContext_GetDocument(command->context().get());
         const char* name = RDDocument_GetSymbolName(doc, symbol.address);
         RD_Log(qUtf8Printable(QString("%1: %2").arg(name, hexdump)));
     });
@@ -477,7 +460,7 @@ QMenu* DisassemblerHooks::createActions(IDisassemblerCommand* command)
             return;
         }
 
-        m_worker = std::async([&]() { RDDisassembler_CreateFunction(command->disassembler().get(), symbol.address, nullptr); });
+        m_worker = std::async([&]() { RDDisassembler_CreateFunction(command->disassembler(), symbol.address, nullptr); });
     }, QKeySequence(Qt::SHIFT + Qt::Key_C));
 
     contextmenu->addSeparator();
@@ -671,8 +654,8 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
 
     m_toolbar->actions()[4]->setEnabled(!busy); // Goto
     m_lblstatusicon->setVisible(true);
-    m_pbproblems->setVisible(!busy && RD_HasProblems());
-    m_pbproblems->setText(QString::number(RD_ProblemsCount()) + " problem(s)");
+    //FIXME: m_pbproblems->setVisible(!busy && RD_HasProblems());
+    //FIXME: m_pbproblems->setText(QString::number(RDContext_GetProblemsCount()) + " problem(s)");
 }
 
 void DisassemblerHooks::enableCommands(QWidget* w)

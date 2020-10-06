@@ -9,8 +9,7 @@ class PainterRendererAsync: public RendererAsync
     Q_OBJECT
 
     public:
-        PainterRendererAsync(const RDDisassemblerPtr& disassembler, rd_flag flags = RendererFlags_Normal, QObject* parent = nullptr);
-        virtual ~PainterRendererAsync() = default;
+        PainterRendererAsync(const RDContextPtr& disassembler, rd_flag flags = RendererFlags_Normal, QObject* parent = nullptr);
         void scheduleImage(size_t first, size_t last);
         PainterRenderer* renderer() const;
 

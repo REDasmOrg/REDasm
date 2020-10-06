@@ -10,13 +10,13 @@ BlocksTab::BlocksTab(QWidget *parent) : QWidget(parent), ui(new Ui::BlocksTab)
 
 BlocksTab::~BlocksTab() { delete ui; }
 
-void BlocksTab::setCommand(IDisassemblerCommand* command)
+void BlocksTab::setCommand(ICommand* command)
 {
     m_command = command;
     if(m_segmentsmodel) m_segmentsmodel->deleteLater();
 
     m_segmentsmodel = new SegmentsModel(ui->tvSegments);
-    m_segmentsmodel->setDisassembler(command->disassembler());
+    m_segmentsmodel->setContext(command->context());
 
     ui->tvSegments->setModel(m_segmentsmodel);
     ui->tvSegments->header()->moveSection(8, 0);
@@ -31,7 +31,7 @@ void BlocksTab::setCommand(IDisassemblerCommand* command)
 void BlocksTab::showBlocks(const QModelIndex& current, const QModelIndex&)
 {
     if(!current.isValid()) return;
-    RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
+    RDDocument* doc = RDContext_GetDocument(m_command->context().get());
 
     RDSegment segment;
 

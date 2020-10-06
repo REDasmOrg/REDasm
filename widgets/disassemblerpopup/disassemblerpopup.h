@@ -9,7 +9,7 @@
 class DisassemblerPopup : public QWidget
 {
     public:
-        explicit DisassemblerPopup(const RDDisassemblerPtr& disassembler, QWidget* parent = nullptr);
+        explicit DisassemblerPopup(const RDContextPtr& ctx, QWidget* parent = nullptr);
         void popup(const QString& word, size_t line);
 
     protected:
@@ -20,7 +20,7 @@ class DisassemblerPopup : public QWidget
         void updateGeometry();
 
     private:
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
         QTextDocument* m_textdocument;
         DisassemblerPopupWidget* m_popupwidget;
         std::unique_ptr<DocumentRenderer> m_renderer;

@@ -12,19 +12,19 @@ ListingMap::ListingMap(QWidget *parent) : QWidget(parent) { }
 
 ListingMap::~ListingMap()
 {
-    if(m_disassembler) RDDisassembler_Unsubscribe(m_disassembler.get(), this);
+    if(m_context) RDContext_Unsubscribe(m_context.get(), this);
     if(m_renderer) m_renderer->abort();
 }
 
-void ListingMap::linkTo(IDisassemblerCommand* command)
+void ListingMap::linkTo(ICommand* command)
 {
     m_command = command;
-    m_disassembler = command->disassembler();
-    m_document = RDDisassembler_GetDocument(m_disassembler.get());
+    m_context = command->context();
+    m_document = RDContext_GetDocument(m_context.get());
 
-    RDDisassembler_Subscribe(m_disassembler.get(), this, [](const RDEventArgs* e) {
+    RDContext_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<ListingMap*>(e->owner);
-        if(RDDisassembler_IsBusy(thethis->m_disassembler.get()) || !thethis->m_document) return;
+        if(RDContext_IsBusy(thethis->m_context.get()) || !thethis->m_document) return;
 
         switch(e->eventid) {
             case Event_CursorPositionChanged: thethis->m_renderer->renderMap(); break;

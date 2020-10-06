@@ -14,11 +14,11 @@ class DevDialog : public QDialog
 
     public:
         explicit DevDialog(QWidget *parent = nullptr);
-        void setCommand(IDisassemblerCommand* command);
+        void setCommand(ICommand* command);
         ~DevDialog();
 
     private:
         Ui::DevDialog *ui;
-        IDisassemblerCommand* m_command{nullptr};
+        ICommand* m_command{nullptr};
 };
 

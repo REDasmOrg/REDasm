@@ -5,14 +5,14 @@
 #include <rdapi/document/document.h>
 #include <rdapi/events.h>
 
-class ListingItemModel : public DisassemblerModel
+class ListingItemModel : public ContextModel
 {
     Q_OBJECT
 
     public:
         explicit ListingItemModel(rd_type itemtype, QObject *parent = nullptr);
         virtual ~ListingItemModel();
-        void setDisassembler(const RDDisassemblerPtr& disassembler) override;
+        void setContext(const RDContextPtr& disassembler) override;
         const RDDocumentItem& item(const QModelIndex& index) const;
         rd_type itemType() const;
 

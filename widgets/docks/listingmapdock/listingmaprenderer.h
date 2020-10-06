@@ -12,7 +12,7 @@ class ListingMapRenderer : public RendererAsync
         template<typename T1, typename T2> using PreCalc = std::vector<std::pair<T1, T2>>;
 
     public:
-        ListingMapRenderer(IDisassemblerCommand* command, QObject* parent);
+        ListingMapRenderer(ICommand* command, QObject* parent);
 
     public:
         void renderMap();
@@ -35,7 +35,7 @@ class ListingMapRenderer : public RendererAsync
         bool checkOrientation();
 
     private:
-        IDisassemblerCommand* m_command;
+        ICommand* m_command;
         PreCalc<RDSegment, size_t> m_calcsegments;
         PreCalc<RDLocation, rd_address> m_calcfunctions;
         s32 m_orientation{Qt::Vertical};

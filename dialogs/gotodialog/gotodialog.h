@@ -14,7 +14,7 @@ class GotoDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit GotoDialog(IDisassemblerCommand* command, QWidget *parent = nullptr);
+        explicit GotoDialog(ICommand* command, QWidget *parent = nullptr);
         ~GotoDialog();
 
     private:
@@ -27,7 +27,7 @@ class GotoDialog : public QDialog
 
     private:
         Ui::GotoDialog *ui;
-        IDisassemblerCommand* m_command;
+        ICommand* m_command;
         RDDocument* m_document;
         GotoFilterModel* m_gotomodel;
         rd_address m_address{0};

@@ -13,7 +13,7 @@ class ReferencesDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit ReferencesDialog(IDisassemblerCommand* command, const RDSymbol *symbol, QWidget *parent = nullptr);
+        explicit ReferencesDialog(ICommand* command, const RDSymbol *symbol, QWidget *parent = nullptr);
         ~ReferencesDialog();
 
     private slots:
@@ -22,5 +22,5 @@ class ReferencesDialog : public QDialog
     private:
         Ui::ReferencesDialog *ui;
         ReferencesModel* m_referencesmodel;
-        IDisassemblerCommand* m_command;
+        ICommand* m_command;
 };

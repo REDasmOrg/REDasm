@@ -41,11 +41,11 @@ DisassemblerTextView::DisassemblerTextView(QWidget *parent): CursorScrollArea(pa
     this->horizontalScrollBar()->setMaximum(maxwidth);
 }
 
-DisassemblerTextView::~DisassemblerTextView() { if(m_disassembler) RDDisassembler_Unsubscribe(m_disassembler.get(), this); }
+DisassemblerTextView::~DisassemblerTextView() { if(m_context) RDContext_Unsubscribe(m_context.get(), this); }
 RDCursor* DisassemblerTextView::cursor() const { return m_rasync->renderer()->cursor(); }
 QWidget* DisassemblerTextView::widget() { return this; }
 QString DisassemblerTextView::currentWord() const { return m_rasync ? m_rasync->renderer()->currentWord() : QString(); }
-const RDDisassemblerPtr& DisassemblerTextView::disassembler() const { return m_disassembler; }
+const RDContextPtr& DisassemblerTextView::context() const { return m_context; }
 const RDCursorPos* DisassemblerTextView::currentPosition() const { return m_rasync ? RDCursor_GetPosition(m_rasync->renderer()->cursor()) : nullptr; }
 const RDCursorPos* DisassemblerTextView::currentSelection() const { return m_rasync ? RDCursor_GetSelection(m_rasync->renderer()->cursor()) : nullptr; }
 bool DisassemblerTextView::canGoBack() const { return m_rasync ? RDCursor_CanGoBack(m_rasync->renderer()->cursor()) : false; }
@@ -79,21 +79,21 @@ size_t DisassemblerTextView::visibleLines() const
 size_t DisassemblerTextView::firstVisibleLine() const { return this->verticalScrollBar()->value(); }
 size_t DisassemblerTextView::lastVisibleLine() const { return this->firstVisibleLine() + this->visibleLines() - 1; }
 
-void DisassemblerTextView::setDisassembler(const RDDisassemblerPtr& disassembler)
+void DisassemblerTextView::setContext(const RDContextPtr& disassembler)
 {
-    m_disassembler = disassembler;
-    m_document = RDDisassembler_GetDocument(disassembler.get());
+    m_context = disassembler;
+    m_document = RDContext_GetDocument(disassembler.get());
 
-    RDDisassembler_Subscribe(m_disassembler.get(), this, [](const RDEventArgs* e) {
+    RDContext_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         DisassemblerTextView* thethis = reinterpret_cast<DisassemblerTextView*>(e->owner);
         if(!thethis->m_rasync) return;
 
         switch(e->eventid) {
             case Event_BusyChanged: {
-                if(RDDisassembler_IsBusy(thethis->m_disassembler.get())) return;
+                if(RDContext_IsBusy(thethis->m_context.get())) return;
                 thethis->adjustScrollBars();
 
-                RDDocument* doc = RDDisassembler_GetDocument(thethis->m_disassembler.get());
+                RDDocument* doc = RDContext_GetDocument(thethis->m_context.get());
                 RDLocation loc = RDDocument_GetEntryPoint(doc);
 
                 if(loc.valid) thethis->gotoAddress(loc.address);
@@ -122,7 +122,7 @@ void DisassemblerTextView::setDisassembler(const RDDisassemblerPtr& disassembler
         if(RDDocument_ItemsCount(m_document)) m_contextmenu->popup(QCursor::pos());
     });
 
-    m_disassemblerpopup = new DisassemblerPopup(m_disassembler, this);
+    m_disassemblerpopup = new DisassemblerPopup(m_context, this);
 }
 
 bool DisassemblerTextView::gotoAddress(rd_address address)
@@ -175,7 +175,7 @@ void DisassemblerTextView::scrollContentsBy(int dx, int dy)
 void DisassemblerTextView::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e)
-    if(!m_disassembler || !m_rasync) return;
+    if(!m_context || !m_rasync) return;
 
     QPainter painter(this->viewport());
     painter.drawPixmap(this->viewport()->x(), this->viewport()->y(), m_pixmap);
@@ -332,7 +332,7 @@ void DisassemblerTextView::keyPressEvent(QKeyEvent *e)
 
 bool DisassemblerTextView::event(QEvent *e)
 {
-    if(m_disassembler && !RDDisassembler_IsBusy(m_disassembler.get()) && (e->type() == QEvent::ToolTip))
+    if(m_context && !RDContext_IsBusy(m_context.get()) && (e->type() == QEvent::ToolTip))
     {
         QHelpEvent* helpevent = static_cast<QHelpEvent*>(e);
         this->showPopup(this->viewportPoint(helpevent->pos()));
@@ -442,7 +442,7 @@ void DisassemblerTextView::paintLine(size_t line)
 
 void DisassemblerTextView::adjustScrollBars()
 {
-    if(!m_disassembler) return;
+    if(!m_context) return;
 
     QScrollBar* vscrollbar = this->verticalScrollBar();
     size_t vl = this->visibleLines(), count = RDDocument_ItemsCount(m_document);

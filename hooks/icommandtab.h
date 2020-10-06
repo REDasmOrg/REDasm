@@ -5,6 +5,6 @@
 class ICommandTab
 {
     public:
-        virtual IDisassemblerCommand* command() const = 0;
+        virtual ICommand* command() const = 0;
         virtual QWidget* widget() = 0;
 };

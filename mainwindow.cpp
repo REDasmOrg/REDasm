@@ -58,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->statusBar->addPermanentWidget(m_lblstatusicon);
 
     DisassemblerHooks::initialize(this);
-    this->initializeLibrary();
+    this->initializeConfig();
     this->setAcceptDrops(true);
     this->loadWindowState();
     this->checkCommandLine();
@@ -228,27 +228,26 @@ bool MainWindow::canClose()
 
 void MainWindow::showProblems() { ProblemsDialog dlgproblems(this); dlgproblems.exec(); }
 
-void MainWindow::initializeLibrary()
+void MainWindow::initializeConfig()
 {
-    RD_SetLogCallback([](const char* s, void*) {
+    RDConfig_SetLogCallback([](const char* s, void*) {
         QMetaObject::invokeMethod(DisassemblerHooks::instance(), "log", Qt::QueuedConnection, Q_ARG(QString, QString::fromUtf8(s)));
     }, nullptr);
 
-    RD_SetStatusCallback([](const char* s, void* userdata) {
+    RDConfig_SetStatusCallback([](const char* s, void* userdata) {
         QLabel* lblstatus = reinterpret_cast<QLabel*>(userdata);
         QMetaObject::invokeMethod(lblstatus, "setText", Qt::QueuedConnection, Q_ARG(QString, QString::fromUtf8(s)));
     }, m_lblstatus);
 
-    RD_SetProgressCallback([](size_t pending, void* userdata) {
+    RDConfig_SetProgressCallback([](size_t pending, void* userdata) {
         QLabel* lblprogress = reinterpret_cast<QLabel*>(userdata);
         QMetaObject::invokeMethod(lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending)));
     }, m_lblprogress);
 
-    RD_AddPluginPath(qUtf8Printable(QDir(RD_RuntimePath()).absoluteFilePath(PLUGINS_FOLDER_NAME)));
+    RDConfig_AddPluginPath(qUtf8Printable(QDir(RDConfig_GetRuntimePath()).absoluteFilePath(PLUGINS_FOLDER_NAME)));
 
     for(const QString& searchpaths : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation))
-        RD_AddPluginPath(qUtf8Printable(QDir(searchpaths).absoluteFilePath(PLUGINS_FOLDER_NAME)));
+        RDConfig_AddPluginPath(qUtf8Printable(QDir(searchpaths).absoluteFilePath(PLUGINS_FOLDER_NAME)));
 
-    RD_InitContext();
     QtUI::initialize();
 }

@@ -5,15 +5,15 @@
 
 #define POPUP_MARGIN 16
 
-DisassemblerPopup::DisassemblerPopup(const RDDisassemblerPtr& disassembler, QWidget *parent): QWidget(parent), m_disassembler(disassembler)
+DisassemblerPopup::DisassemblerPopup(const RDContextPtr& ctx, QWidget *parent): QWidget(parent), m_context(ctx)
 {
     m_textdocument = new QTextDocument(this);
     m_textdocument->setDocumentLayout(new QPlainTextDocumentLayout(m_textdocument));
 
-    m_renderer = std::make_unique<DocumentRenderer>(m_textdocument, disassembler, nullptr,
+    m_renderer = std::make_unique<DocumentRenderer>(m_textdocument, ctx, nullptr,
                                                     RendererFlags_NoAddress | RendererFlags_NoHighlightWords | RendererFlags_NoCursor);
 
-    m_popupwidget = new DisassemblerPopupWidget(m_renderer.get(), disassembler, this);
+    m_popupwidget = new DisassemblerPopupWidget(m_renderer.get(), ctx, this);
 
     QVBoxLayout* vboxlayout = new QVBoxLayout(this);
     vboxlayout->setContentsMargins(0, 0, 0, 0);

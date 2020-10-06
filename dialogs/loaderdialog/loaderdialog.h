@@ -3,6 +3,7 @@
 #include <QStandardItemModel>
 #include <QDialog>
 #include <rdapi/rdapi.h>
+#include "../hooks/idisassemblercommand.h"
 
 namespace Ui {
 class LoaderDialog;
@@ -13,11 +14,11 @@ class LoaderDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit LoaderDialog(const RDLoaderRequest *request, QWidget *parent = nullptr);
+        explicit LoaderDialog(RDContextPtr& ctx, const RDLoaderRequest *req, QWidget *parent = nullptr);
         ~LoaderDialog();
-        RDLoaderBuildRequest buildRequest() const;
-        RDLoaderPlugin* selectedLoader() const;
-        RDAssemblerPlugin* selectedAssembler() const;
+        RDLoaderBuildParams buildRequest() const;
+        const RDEntryLoader* selectedLoaderEntry() const;
+        const RDEntryAssembler* selectedAssemblerEntry() const;
 
     private:
         rd_flag selectedLoaderFlags() const;
@@ -29,13 +30,13 @@ class LoaderDialog : public QDialog
         void checkFlags();
         void validateFields();
         void updateInputMask();
-        void syncAssembler();
-        void populateAssemblers();
+        void syncAssemblerEntry(const RDContextPtr& ctx);
+        void populateAssemblerEntries(const RDContextPtr& ctx);
 
     private:
         Ui::LoaderDialog *ui;
         QStandardItemModel *m_loadersmodel, *m_analyzersmodel;
-        QList<RDLoaderPlugin*> m_loaders;
-        QList<RDAssemblerPlugin*> m_assemblers;
+        QList<const RDEntryLoader*> m_loaders;
+        QList<const RDEntryAssembler*> m_assemblers;
         const RDLoaderRequest* m_request;
 };

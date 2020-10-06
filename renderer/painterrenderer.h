@@ -9,7 +9,7 @@ class PainterRenderer: public QtRenderer
     Q_OBJECT
 
     public:
-        PainterRenderer(const RDDisassemblerPtr& disassembler, rd_flag flags = RendererFlags_Normal, QObject* parent = 0);
+        PainterRenderer(const RDContextPtr& disassembler, rd_flag flags = RendererFlags_Normal, QObject* parent = 0);
         void render(QPainter* painter, size_t first, size_t last);
 
     private:

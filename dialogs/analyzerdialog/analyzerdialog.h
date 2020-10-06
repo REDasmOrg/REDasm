@@ -1,7 +1,9 @@
 #pragma once
 
+#include <rdapi/rdapi.h>
 #include <QStandardItemModel>
 #include <QDialog>
+#include "../hooks/idisassemblercommand.h"
 
 namespace Ui {
 class AnalyzerDialog;
@@ -12,7 +14,7 @@ class AnalyzerDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit AnalyzerDialog(QWidget *parent = nullptr);
+        explicit AnalyzerDialog(const RDContextPtr& ctx, QWidget *parent = nullptr);
         ~AnalyzerDialog();
 
     private:
@@ -20,10 +22,11 @@ class AnalyzerDialog : public QDialog
 
     private slots:
         void onAnalyzerItemChanged(QStandardItem* item);
-        void syncAnalyzers();
+        void getAnalyzers();
 
     private:
         Ui::AnalyzerDialog *ui;
         QStandardItemModel* m_analyzersmodel;
+        RDContextPtr m_context;
 };
 

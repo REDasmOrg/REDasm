@@ -43,7 +43,7 @@ bool ThemeProvider::loadTheme(const QString& theme)
 
 QColor ThemeProvider::themeValue(rd_type theme)
 {
-    auto* c = RDTheme_Get(theme);
+    auto* c = RDConfig_GetTheme(theme);
     return c ? QColor(c) : QColor();
 }
 
@@ -132,7 +132,7 @@ void ThemeProvider::applyListingTheme()
     {
         auto thit = themes.find(it.key().toStdString());
         if(thit == themes.end()) continue;
-        RDTheme_Set(thit->second, it.value().toString().toStdString().c_str());
+        RDConfig_SetTheme(thit->second, it.value().toString().toStdString().c_str());
     }
 }
 

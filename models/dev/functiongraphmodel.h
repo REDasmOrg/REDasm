@@ -11,7 +11,7 @@ class FunctionGraphModel : public QAbstractListModel
     Q_OBJECT
 
     public:
-        explicit FunctionGraphModel(const RDDisassemblerPtr& disassembler, QObject *parent = nullptr);
+        explicit FunctionGraphModel(const RDContextPtr& ctx, QObject *parent = nullptr);
         void setGraph(const RDGraph* graph);
 
     public:
@@ -26,7 +26,7 @@ class FunctionGraphModel : public QAbstractListModel
         QString outgoings(RDGraphNode node) const;
 
     private:
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
         RDDocument* m_document;
         const RDGraph* m_graph{nullptr};
 

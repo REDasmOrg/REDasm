@@ -9,7 +9,7 @@ class BlockListModel : public QAbstractListModel
     Q_OBJECT
 
     public:
-        explicit BlockListModel(IDisassemblerCommand* command, const RDBlockContainer* blocks, QObject *parent = nullptr);
+        explicit BlockListModel(ICommand* command, const RDBlockContainer* blocks, QObject *parent = nullptr);
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
         QVariant data(const QModelIndex &index, int role) const override;
         int columnCount(const QModelIndex&) const override;
@@ -21,7 +21,7 @@ class BlockListModel : public QAbstractListModel
 
     private:
         const RDBlockContainer* m_blocks;
-        IDisassemblerCommand* m_command;
+        ICommand* m_command;
         RDDocument* m_document;
 };
 

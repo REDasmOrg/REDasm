@@ -30,7 +30,7 @@ class MainWindow : public QMainWindow
         void showProblems();
 
     private:
-        void initializeLibrary();
+        void initializeConfig();
         void loadWindowState();
         void checkCommandLine();
         bool loadDatabase(const QString& filepath);

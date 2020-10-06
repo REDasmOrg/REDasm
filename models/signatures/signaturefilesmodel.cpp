@@ -3,7 +3,7 @@
 #include <QDirIterator>
 #include <QDir>
 
-SignatureFilesModel::SignatureFilesModel(const RDDisassemblerPtr& disassembler, QObject *parent): QAbstractListModel(parent), m_disassembler(disassembler)
+SignatureFilesModel::SignatureFilesModel(const RDContextPtr& ctx, QObject *parent): QAbstractListModel(parent), m_context(ctx)
 {
     //QDirIterator it(Convert::to_qstring(r_ctx->signaturedb(REDasm::String()).c_str()), {"*.json"}, QDir::Files);
 

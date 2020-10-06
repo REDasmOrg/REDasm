@@ -7,10 +7,10 @@
 
 #define DEFAULT_ROW_COUNT 10
 
-DisassemblerPopupWidget::DisassemblerPopupWidget(DocumentRenderer* renderer, const RDDisassemblerPtr& disassembler, QWidget *parent): QPlainTextEdit(parent), m_disassembler(disassembler), m_renderer(renderer), m_rows(DEFAULT_ROW_COUNT)
+DisassemblerPopupWidget::DisassemblerPopupWidget(DocumentRenderer* renderer, const RDContextPtr& ctx, QWidget *parent): QPlainTextEdit(parent), m_context(ctx), m_renderer(renderer), m_rows(DEFAULT_ROW_COUNT)
 {
     this->setDocument(renderer->textDocument());
-    m_document = RDDisassembler_GetDocument(disassembler.get());
+    m_document = RDContext_GetDocument(ctx.get());
 
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, palette.color(QPalette::ToolTipBase));

@@ -8,12 +8,12 @@ GotoFilterModel::GotoFilterModel(QObject *parent) : QSortFilterProxyModel(parent
     this->setSourceModel(new GotoModel(this));
 }
 
-void GotoFilterModel::setDisassembler(const RDDisassemblerPtr& disassembler) { static_cast<GotoModel*>(this->sourceModel())->setDisassembler(disassembler); }
+void GotoFilterModel::setDisassembler(const RDContextPtr& disassembler) { static_cast<GotoModel*>(this->sourceModel())->setContext(disassembler); }
 
 bool GotoFilterModel::filterAcceptsRow(int sourcerow, const QModelIndex &sourceparent) const
 {
     const GotoModel* gotomodel = static_cast<const GotoModel*>(this->sourceModel());
-    RDDocument* doc = RDDisassembler_GetDocument(gotomodel->disassembler().get());
+    RDDocument* doc = RDContext_GetDocument(gotomodel->context().get());
 
     RDDocumentItem item;
     if(!RDDocument_GetItemAt(doc, sourcerow, &item)) return false;

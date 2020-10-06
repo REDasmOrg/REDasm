@@ -5,9 +5,9 @@
 #include <rdapi/graph/functiongraph.h>
 #include "../../../themeprovider.h"
 
-ListingMapRenderer::ListingMapRenderer(IDisassemblerCommand* command, QObject* parent): RendererAsync(command->disassembler(), parent), m_command(command)
+ListingMapRenderer::ListingMapRenderer(ICommand* command, QObject* parent): RendererAsync(command->context(), parent), m_command(command)
 {
-    m_totalsize = RDBuffer_Size(RDDisassembler_GetBuffer(command->disassembler().get()));
+    m_totalsize = RDBuffer_Size(RDContext_GetBuffer(command->context().get()));
 }
 
 void ListingMapRenderer::renderMap()
@@ -26,9 +26,9 @@ void ListingMapRenderer::onRender(QImage* image)
     painter.fillRect(this->widget()->rect(), Qt::gray);
 
     this->renderSegments(&painter);
-    if(!RDDisassembler_IsBusy(m_command->disassembler().get())) this->renderFunctions(&painter); // Don't render functions when disassembler is busy
+    if(!RDContext_IsBusy(m_command->context().get())) this->renderFunctions(&painter); // Don't render functions when disassembler is busy
     this->renderLabels(&painter);
-    if(!RDDisassembler_IsBusy(m_command->disassembler().get())) this->renderSeek(&painter);      // Don't render seek when disassembler is busy
+    if(!RDContext_IsBusy(m_command->context().get())) this->renderSeek(&painter);      // Don't render seek when disassembler is busy
 }
 
 QRect ListingMapRenderer::buildRect(int p, int itemsize) const
@@ -50,7 +50,7 @@ bool ListingMapRenderer::checkOrientation()
 
 void ListingMapRenderer::calculateSegments()
 {
-    RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
+    RDDocument* doc = RDContext_GetDocument(m_command->context().get());
     size_t c = RDDocument_SegmentsCount(doc);
     m_calcsegments.clear();
     m_calcsegments.reserve(c);
@@ -67,12 +67,12 @@ void ListingMapRenderer::calculateSegments()
 
 void ListingMapRenderer::calculateFunctions()
 {
-    RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
+    RDDocument* doc = RDContext_GetDocument(m_command->context().get());
     size_t c = RDDocument_FunctionsCount(doc);
     m_calcfunctions.clear();
     m_calcfunctions.reserve(c);
 
-    RDLoader* loader = RDDisassembler_GetLoader(m_command->disassembler().get());
+    RDLoader* loader = RDContext_GetLoader(m_command->context().get());
 
     for(size_t i = 0; i < c; i++)
     {
@@ -135,7 +135,7 @@ void ListingMapRenderer::renderSeek(QPainter* painter) const
     RDDocumentItem item;
     if(!m_command->getCurrentItem(&item)) return;
 
-    RDLoader* loader = RDDisassembler_GetLoader(m_command->disassembler().get());
+    RDLoader* loader = RDContext_GetLoader(m_command->context().get());
     RDLocation offset  = RD_Offset(loader, item.address);
     if(!offset.valid) return;
 

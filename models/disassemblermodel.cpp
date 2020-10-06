@@ -1,15 +1,17 @@
 #include "disassemblermodel.h"
+#include <iostream>
 
-DisassemblerModel::DisassemblerModel(QObject *parent) : QAbstractListModel(parent) { }
-const RDDisassemblerPtr& DisassemblerModel::disassembler() const { return m_disassembler; }
+ContextModel::ContextModel(QObject *parent) : QAbstractListModel(parent) { }
+const RDContextPtr& ContextModel::context() const { return m_context; }
+RDDisassembler* ContextModel::disassembler() const { return RDContext_GetDisassembler(m_context.get()); }
 
-void DisassemblerModel::setDisassembler(const RDDisassemblerPtr& disassembler)
+void ContextModel::setContext(const RDContextPtr& context)
 {
-    m_disassembler = disassembler;
-    m_document = RDDisassembler_GetDocument(disassembler.get());
+    m_context = context;
+    m_document = RDContext_GetDocument(context.get());
 }
 
-QVariant DisassemblerModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ContextModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     Q_UNUSED(section)
 

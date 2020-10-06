@@ -11,14 +11,14 @@
 #include <QAction>
 #include <QMenu>
 
-DisassemblerGraphView::DisassemblerGraphView(IDisassemblerCommand* command, QWidget *parent): GraphView(parent), m_command(command)
+DisassemblerGraphView::DisassemblerGraphView(ICommand* command, QWidget *parent): GraphView(parent), m_command(command)
 {
     this->setFocusPolicy(Qt::StrongFocus);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setBlinkCursor(command->cursor());
 
     connect(this, &DisassemblerGraphView::customContextMenuRequested, this, [&](const QPoint&) {
-        RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
+        RDDocument* doc = RDContext_GetDocument(m_command->context().get());
         if(RDDocument_ItemsCount(doc)) m_contextmenu->popup(QCursor::pos());
     });
 }
@@ -73,7 +73,7 @@ bool DisassemblerGraphView::ownsCursor(const RDCursor* cursor) const { return m_
 const RDCursorPos* DisassemblerGraphView::currentPosition() const { return m_command->currentPosition(); }
 const RDCursorPos* DisassemblerGraphView::currentSelection() const { return m_command->currentSelection(); }
 QString DisassemblerGraphView::currentWord() const { return m_command->currentWord(); }
-const RDDisassemblerPtr& DisassemblerGraphView::disassembler() const { return m_command->disassembler(); }
+const RDContextPtr& DisassemblerGraphView::context() const { return m_command->context(); }
 RDCursor* DisassemblerGraphView::cursor() const { return m_command->cursor(); }
 QWidget* DisassemblerGraphView::widget() { return this; }
 void DisassemblerGraphView::computed() { this->focusCurrentBlock(); }
@@ -106,7 +106,7 @@ bool DisassemblerGraphView::renderGraph()
     if(!m_contextmenu)
         m_contextmenu = DisassemblerHooks::instance()->createActions(this);
 
-    RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
+    RDDocument* doc = RDContext_GetDocument(m_command->context().get());
 
     RDDocumentItem item;
     if(!m_command->getCurrentItem(&item)) return false;
@@ -189,7 +189,7 @@ QString DisassemblerGraphView::getEdgeLabel(const RDGraphEdge& e) const
     // if(!RDFunctionGraph_GetBasicBlock(m_graph, e.source, &fromfbb)) return QString();
     // if(!RDFunctionGraph_GetBasicBlock(m_graph, e.target, &tofbb)) return QString();
 
-    // RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler());
+    // RDDocument* doc = RDContext_GetDocument(m_command->disassembler());
     // InstructionLock instruction(doc, RDFunctionBasicBlock_GetEndAddress(fromfbb));
     QString label;
 
@@ -215,7 +215,7 @@ GraphViewItem *DisassemblerGraphView::itemFromCurrentLine() const
 
     if(!IS_TYPE(&item, DocumentItemType_Function)) // Adjust to instruction
     {
-        RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
+        RDDocument* doc = RDContext_GetDocument(m_command->context().get());
         if(!RDDocument_GetInstructionItem(doc, item.address, &item)) return nullptr;
     }
 

@@ -2,79 +2,54 @@
 #include "ui_loaderdialog.h"
 #include <QPushButton>
 
-LoaderDialog::LoaderDialog(const RDLoaderRequest* request, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(request)
+LoaderDialog::LoaderDialog(RDContextPtr& ctx, const RDLoaderRequest* req, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(req)
 {
     ui->setupUi(this);
 
-    RD_GetLoaders(request, [](RDLoaderPlugin* descriptor, void* userdata) {
+    RDContext_FindLoaderEntries(ctx.get(), req,[](const RDEntryLoader* entryloader, void* userdata) {
         LoaderDialog* thethis = reinterpret_cast<LoaderDialog*>(userdata);
-        thethis->m_loaders.push_back(descriptor);
+        thethis->m_loaders.push_back(entryloader);
     }, this);
 
     m_loadersmodel = new QStandardItemModel(ui->lvLoaders);
 
-    for(const RDLoaderPlugin* d : m_loaders)
+    for(const RDEntryLoader* d : m_loaders)
         m_loadersmodel->appendRow(new QStandardItem(d->name));
 
     ui->lvLoaders->setModel(m_loadersmodel);
     ui->lvLoaders->setCurrentIndex(m_loadersmodel->index(0, 0));
 
-    this->populateAssemblers();
+    this->populateAssemblerEntries(ctx);
     this->checkFlags();
     this->updateInputMask();
-    this->syncAssembler();
+    this->syncAssemblerEntry(ctx);
 
     connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&) { this->validateFields(); });
     connect(ui->leEntryPoint, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateFields(); });
     connect(ui->leOffset, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateFields(); });
     connect(ui->cbAssembler, qOverload<int>(&QComboBox::currentIndexChanged), this, [&](int) { this->validateFields(); });
 
-    connect(ui->lvLoaders, &QListView::clicked, this, [&](const QModelIndex&) {
+    connect(ui->lvLoaders, &QListView::clicked, this, [=](const QModelIndex&) {
         this->checkFlags();
-        this->syncAssembler();
+        this->syncAssemblerEntry(ctx);
         this->validateFields();
     });
 }
 
-LoaderDialog::~LoaderDialog()
-{
-    if(!m_assemblers.empty() && this->selectedAssembler())
-        m_assemblers.removeOne(this->selectedAssembler()); // Keep selected assembler
+LoaderDialog::~LoaderDialog() { delete ui; }
+RDLoaderBuildParams LoaderDialog::buildRequest() const { return { this->offset(), this->baseAddress(), this->entryPoint() }; }
 
-    if(!m_loaders.empty())
-        m_loaders.removeOne(this->selectedLoader()); // Keep selected loader
-
-    std::for_each(m_loaders.begin(), m_loaders.end(), [](RDLoaderPlugin* plugin) {
-        RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(plugin));
-    });
-
-    std::for_each(m_assemblers.begin(), m_assemblers.end(), [](RDAssemblerPlugin* plugin) {
-        if(plugin) RDPlugin_Free(reinterpret_cast<RDPluginHeader*>(plugin));
-    });
-
-    delete ui;
-}
-
-RDLoaderBuildRequest LoaderDialog::buildRequest() const { return { this->offset(), this->baseAddress(), this->entryPoint() }; }
-
-RDLoaderPlugin *LoaderDialog::selectedLoader() const
+const RDEntryLoader *LoaderDialog::selectedLoaderEntry() const
 {
     QModelIndex index = ui->lvLoaders->currentIndex();
     if(!index.isValid()) return nullptr;
     return m_loaders.at(index.row());
 }
 
-RDAssemblerPlugin* LoaderDialog::selectedAssembler() const
+const RDEntryAssembler* LoaderDialog::selectedAssemblerEntry() const
 {
-    rd_flag flags = this->selectedLoaderFlags();
-
-    if(flags & LoaderFlags_CustomAssembler)
-    {
-        int idx = ui->cbAssembler->currentIndex();
-        return (idx > 0) && (idx < m_assemblers.size()) ? m_assemblers.at(ui->cbAssembler->currentIndex()) : nullptr;
-    }
-
-    return RDLoader_GetAssemblerPlugin(this->selectedLoader());
+    int idx = ui->cbAssembler->currentIndex();
+    return (idx > 0) && (idx < m_assemblers.size()) ? m_assemblers.at(ui->cbAssembler->currentIndex()) : nullptr;
 }
 
 rd_address LoaderDialog::baseAddress() const { return ui->leBaseAddress->text().toULongLong(nullptr, 16); }
@@ -133,24 +108,24 @@ void LoaderDialog::updateInputMask()
     ui->leBaseAddress->setText(QString("0").repeated(16));
 }
 
-void LoaderDialog::syncAssembler()
+void LoaderDialog::syncAssemblerEntry(const RDContextPtr& ctx)
 {
-    const RDLoaderPlugin* ploader = this->selectedLoader();
-    if(!ploader) return;
+    const RDEntryLoader* entryloader = this->selectedLoaderEntry();
+    if(!entryloader) return;
 
-    const RDAssemblerPlugin* selassembler = RDLoader_GetAssemblerPlugin(ploader);
-    if(selassembler) ui->cbAssembler->setCurrentText(selassembler->name);
+    const RDEntryAssembler* entryassembler = RDContext_FindAssemblerEntry(ctx.get(), entryloader);
+    if(entryassembler) ui->cbAssembler->setCurrentText(entryassembler->name);
     else ui->cbAssembler->setCurrentIndex(-1);
 }
 
-void LoaderDialog::populateAssemblers()
+void LoaderDialog::populateAssemblerEntries(const RDContextPtr& ctx)
 {
     ui->cbAssembler->addItem(QString()); // Empty placeholder
     m_assemblers.push_back(nullptr);     // Dummy assembler
 
-    RD_GetAssemblers([](RDAssemblerPlugin* plugin, void* userdata) {
+    RDContext_FindAssemblerEntries(ctx.get(), [](const RDEntryAssembler* entry, void* userdata) {
         LoaderDialog* thethis = reinterpret_cast<LoaderDialog*>(userdata);
-        thethis->m_assemblers.push_back(plugin);
-        thethis->ui->cbAssembler->addItem(plugin->name, plugin->id);
+        thethis->m_assemblers.push_back(entry);
+        thethis->ui->cbAssembler->addItem(entry->name, entry->id);
     }, this);
 }

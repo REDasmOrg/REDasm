@@ -26,10 +26,10 @@ DocumentTab::DocumentTab(QWidget *parent) : QWidget(parent), ui(new Ui::Document
 
 DocumentTab::~DocumentTab() { delete ui; }
 
-void DocumentTab::setCommand(IDisassemblerCommand* command)
+void DocumentTab::setCommand(ICommand* command)
 {
     m_command = command;
-    m_renderer.reset(RDRenderer_Create(command->disassembler().get(), nullptr, RendererFlags_Simplified));
+    m_renderer.reset(RDRenderer_Create(command->context().get(), nullptr, RendererFlags_Simplified));
     this->updateInformation();
 }
 
@@ -149,7 +149,7 @@ void DocumentTab::displayInstructionInformation(RDDocument* doc, const RDDocumen
     RDBlock block;
     if(!RDDocument_GetBlock(doc, item.address, &block)) return;
 
-    QString hexdump = RD_HexDump(m_command->disassembler().get(), item.address, RDBlock_Size(&block));
+    QString hexdump = RD_HexDump(m_command->disassembler(), item.address, RDBlock_Size(&block));
     QByteArray dump = QByteArray::fromHex(hexdump.toUtf8());
 
     this->header("INSTRUCTION");
@@ -189,7 +189,7 @@ void DocumentTab::displayInformation()
     RDDocumentItem item;
     if(!m_command->getCurrentItem(&item)) return;
 
-    RDDocument* doc = RDDisassembler_GetDocument(m_command->disassembler().get());
+    RDDocument* doc = RDContext_GetDocument(m_command->context().get());
 
     this->header("ITEM");
 

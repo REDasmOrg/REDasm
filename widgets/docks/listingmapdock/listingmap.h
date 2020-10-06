@@ -13,7 +13,7 @@ class ListingMap : public QWidget
     public:
         explicit ListingMap(QWidget *parent = 0);
         virtual ~ListingMap();
-        void linkTo(IDisassemblerCommand* command);
+        void linkTo(ICommand* command);
         QSize sizeHint() const override;
 
     private slots:
@@ -24,8 +24,8 @@ class ListingMap : public QWidget
         void resizeEvent(QResizeEvent* e) override;
 
     private:
-        RDDisassemblerPtr m_disassembler;
-        IDisassemblerCommand* m_command{nullptr};
+        RDContextPtr m_context;
+        ICommand* m_command{nullptr};
         ListingMapRenderer* m_renderer{nullptr};
         RDDocument* m_document{nullptr};
         QPixmap m_pixmap;

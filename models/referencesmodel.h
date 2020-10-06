@@ -4,14 +4,14 @@
 #include "disassemblermodel.h"
 #include <rdapi/rdapi.h>
 
-class ReferencesModel : public DisassemblerModel
+class ReferencesModel : public ContextModel
 {
     Q_OBJECT
 
     public:
-        explicit ReferencesModel(const IDisassemblerCommand* command, QObject *parent = nullptr);
+        explicit ReferencesModel(const ICommand* command, QObject *parent = nullptr);
         ~ReferencesModel();
-        void setDisassembler(const RDDisassemblerPtr& disassembler) override;
+        void setContext(const RDContextPtr& disassembler) override;
         void xref(rd_address address);
 
     public:
@@ -29,7 +29,7 @@ class ReferencesModel : public DisassemblerModel
 
     private:
         RDRenderer* m_renderer{nullptr};
-        const IDisassemblerCommand* m_command;
+        const ICommand* m_command;
         const rd_address* m_references{nullptr};
         size_t m_referencescount{0};
 };

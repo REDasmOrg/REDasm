@@ -2,7 +2,7 @@
 #include <QPainter>
 #include <QWidget>
 
-PainterRendererAsync::PainterRendererAsync(const RDDisassemblerPtr& disassembler, rd_flag flags, QObject* parent): RendererAsync(disassembler, parent)
+PainterRendererAsync::PainterRendererAsync(const RDContextPtr& disassembler, rd_flag flags, QObject* parent): RendererAsync(disassembler, parent)
 {
     m_painterrenderer = new PainterRenderer(disassembler, flags, this);
 }

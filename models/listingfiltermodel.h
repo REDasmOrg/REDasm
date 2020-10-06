@@ -11,7 +11,7 @@ class ListingFilterModel : public QSortFilterProxyModel
         explicit ListingFilterModel(QObject *parent = nullptr);
         const QString& filter() const;
         const RDDocumentItem& item(const QModelIndex& index) const;
-        void setDisassembler(const RDDisassemblerPtr& disassembler);
+        void setDisassembler(const RDContextPtr& disassembler);
 
     public:
         template<typename T> static ListingFilterModel* createFilter(QObject* parent);

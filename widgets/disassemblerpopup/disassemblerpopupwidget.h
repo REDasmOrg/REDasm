@@ -9,7 +9,7 @@ class DisassemblerPopupWidget : public QPlainTextEdit
     Q_OBJECT
 
     public:
-        explicit DisassemblerPopupWidget(DocumentRenderer* renderer, const RDDisassemblerPtr& disassembler, QWidget *parent = nullptr);
+        explicit DisassemblerPopupWidget(DocumentRenderer* renderer, const RDContextPtr& ctx, QWidget *parent = nullptr);
         bool renderPopup(const QString& word, size_t line);
         void moreRows();
         void lessRows();
@@ -20,7 +20,7 @@ class DisassemblerPopupWidget : public QPlainTextEdit
         size_t getIndexOfWord(const QString& word) const;
 
     private:
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
         RDDocument* m_document;
         DocumentRenderer* m_renderer;
         size_t m_index{RD_NPOS}, m_rows;

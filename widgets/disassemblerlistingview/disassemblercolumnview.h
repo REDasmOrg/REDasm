@@ -35,7 +35,7 @@ class DisassemblerColumnView : public QWidget
 
     private:
         DisassemblerTextView* m_textview{nullptr};
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
         RDDocument* m_document{nullptr};
         QList<ArrowPath> m_paths;
         QSet<QPair<size_t, size_t>> m_done;

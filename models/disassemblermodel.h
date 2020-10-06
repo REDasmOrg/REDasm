@@ -4,19 +4,20 @@
 #include <rdapi/rdapi.h>
 #include "../hooks/idisassemblercommand.h"
 
-class DisassemblerModel : public QAbstractListModel
+class ContextModel : public QAbstractListModel
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerModel(QObject *parent = nullptr);
+        explicit ContextModel(QObject *parent = nullptr);
 
     public:
-        const RDDisassemblerPtr& disassembler() const;
-        virtual void setDisassembler(const RDDisassemblerPtr& disassembler);
+        const RDContextPtr& context() const;
+        RDDisassembler* disassembler() const;
+        virtual void setContext(const RDContextPtr& context);
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
     protected:
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
         RDDocument* m_document{nullptr};
 };

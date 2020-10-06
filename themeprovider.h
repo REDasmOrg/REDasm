@@ -8,7 +8,7 @@
 #include <QTableView>
 #include <QColor>
 #include <QIcon>
-#include <rdapi/theme.h>
+#include <rdapi/config.h>
 
 class ThemeProvider
 {

@@ -9,7 +9,7 @@
 
 TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), ui(new Ui::TableTab), m_listingitemmodel(model)
 {
-    model->setDisassembler(DisassemblerHooks::instance()->activeCommand()->disassembler());
+    model->setContext(DisassemblerHooks::instance()->activeCommand()->context());
 
     ui->setupUi(this);
     ui->tvTable->header()->setStretchLastSection(true);
@@ -36,14 +36,14 @@ TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), u
     connect(ui->tvTable, &QTreeView::doubleClicked, this, &TableTab::onTableDoubleClick);
     connect(ui->pbClear, &QPushButton::clicked, ui->leFilter, &QLineEdit::clear);
 
-    RDDisassembler_Subscribe(model->disassembler().get(), this, [](const RDEventArgs* e) {
+    RDContext_Subscribe(model->context().get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<TableTab*>(e->owner);
-        if((e->eventid != Event_BusyChanged) || RDDisassembler_IsBusy(thethis->m_listingitemmodel->disassembler().get())) return;
+        if((e->eventid != Event_BusyChanged) || RDContext_IsBusy(thethis->m_listingitemmodel->context().get())) return;
         emit thethis->resizeColumns();
     }, nullptr);
 }
 
-TableTab::~TableTab() { RDDisassembler_Unsubscribe(m_listingitemmodel->disassembler().get(), this); delete ui; }
+TableTab::~TableTab() { RDContext_Unsubscribe(m_listingitemmodel->context().get(), this); delete ui; }
 ListingItemModel* TableTab::model() const { return m_listingitemmodel; }
 void TableTab::setSectionResizeMode(int idx, QHeaderView::ResizeMode mode) { ui->tvTable->header()->setSectionResizeMode(idx, mode); }
 void TableTab::setColumnHidden(int idx) { ui->tvTable->setColumnHidden(idx, true); }

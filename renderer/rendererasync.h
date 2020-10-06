@@ -15,7 +15,7 @@ class RendererAsync: public QThread
         typedef std::unique_lock<std::mutex> renderer_lock;
 
     public:
-        RendererAsync(const RDDisassemblerPtr& disassembler, QObject* parent);
+        RendererAsync(const RDContextPtr& ctx, QObject* parent);
         virtual ~RendererAsync();
         void abort();
 
@@ -30,7 +30,7 @@ class RendererAsync: public QThread
         void run() override;
 
     protected:
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
 
     private:
         std::atomic_bool m_abort{false}, m_painting{false};

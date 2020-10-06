@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 #include <QKeyEvent>
 
-ListingTab::ListingTab(const RDDisassemblerPtr& disassembler, QWidget* parent) : QWidget(parent)
+ListingTab::ListingTab(const RDContextPtr& disassembler, QWidget* parent) : QWidget(parent)
 {
     this->setWindowTitle("Listing");
 
@@ -25,7 +25,7 @@ ListingTab::ListingTab(const RDDisassemblerPtr& disassembler, QWidget* parent) :
     m_listingview->textView()->setFocus();
 }
 
-IDisassemblerCommand* ListingTab::command() const
+ICommand* ListingTab::command() const
 {
     if(m_graphview->isVisible()) return m_graphview;
     return m_listingview->textView();

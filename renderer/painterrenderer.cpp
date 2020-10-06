@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cstring>
 
-PainterRenderer::PainterRenderer(const RDDisassemblerPtr& disassembler, rd_flag flags, QObject* parent): QtRenderer(disassembler, nullptr, flags, parent) { }
+PainterRenderer::PainterRenderer(const RDContextPtr& disassembler, rd_flag flags, QObject* parent): QtRenderer(disassembler, nullptr, flags, parent) { }
 
 void PainterRenderer::render(QPainter* painter, size_t first, size_t last)
 {

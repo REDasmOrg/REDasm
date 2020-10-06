@@ -8,9 +8,9 @@
 #include <QMessageBox>
 #include <QBoxLayout>
 
-DisassemblerView::DisassemblerView(const RDDisassemblerPtr& disassembler, QWidget *parent) : QWidget(parent), m_disassembler(disassembler)
+DisassemblerView::DisassemblerView(const RDContextPtr& ctx, QWidget *parent) : QWidget(parent), m_context(ctx)
 {   
-    m_disassemblertabs = new DisassemblerTabs(disassembler, this);
+    m_disassemblertabs = new DisassemblerTabs(ctx, this);
 
     QBoxLayout* boxlayout = new QBoxLayout(QBoxLayout::TopToBottom);
     boxlayout->setContentsMargins(0, 0, 0, 0);
@@ -28,17 +28,17 @@ DisassemblerView::DisassemblerView(const RDDisassemblerPtr& disassembler, QWidge
     this->showStrings();
     this->dock(m_listingmapdock, Qt::RightDockWidgetArea);
 
-    RDDisassembler_Subscribe(disassembler.get(), this, &DisassemblerView::listenEvents, this);
+    RDContext_Subscribe(ctx.get(), this, &DisassemblerView::listenEvents, this);
 
-    m_worker = std::async([&, disassembler]() { // Capture 'disassembler' by value
-        RD_Disassemble(disassembler.get());
+    m_worker = std::async([&, ctx]() { // Capture 'disassembler' by value
+        RDContext_Disassemble(ctx.get());
         QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
     });
 }
 
 DisassemblerView::~DisassemblerView()
 {
-    RDDisassembler_Unsubscribe(m_disassembler.get(), this);
+    RDContext_Unsubscribe(m_context.get(), this);
 
     if(m_worker.valid()) m_worker.get();
     while(!m_docks.empty()) this->undock(*m_docks.begin());
@@ -142,7 +142,7 @@ ITableTab* DisassemblerView::showStrings(Qt::DockWidgetArea area)
     return tabletab;
 }
 
-const RDDisassemblerPtr& DisassemblerView::disassembler() const { return m_disassembler; }
+const RDContextPtr& DisassemblerView::disassembler() const { return m_context; }
 
 ITableTab* DisassemblerView::findSymbolModelInTabs(rd_type type, rd_flag flags) const
 {
@@ -175,7 +175,7 @@ void DisassemblerView::listenEvents(const RDEventArgs* e)
     switch(e->eventid)
     {
         case Event_BusyChanged:
-            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RDDisassembler_IsBusy(thethis->m_disassembler.get())));
+            QMetaObject::invokeMethod(DisassemblerHooks::instance(), "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RDContext_IsBusy(thethis->m_context.get())));
             break;
 
         case Event_CursorPositionChanged: {
@@ -203,7 +203,7 @@ void DisassemblerView::listenEvents(const RDEventArgs* e)
 
 ICommandTab* DisassemblerView::showListing()
 {
-    auto* listingtab = new ListingTab(m_disassembler);
+    auto* listingtab = new ListingTab(m_context);
     m_disassemblertabs->insertTab(0, listingtab, listingtab->windowTitle());
     return listingtab;
 }

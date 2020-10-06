@@ -17,10 +17,10 @@ class DisassemblerView : public QWidget
     Q_OBJECT
 
     public:
-        explicit DisassemblerView(const RDDisassemblerPtr& disassembler, QWidget *parent = nullptr);
+        explicit DisassemblerView(const RDContextPtr& ctx, QWidget *parent = nullptr);
         virtual ~DisassemblerView();
         QWidget* currentWidget() const;
-        const RDDisassemblerPtr& disassembler() const;
+        const RDContextPtr& disassembler() const;
         ITableTab* showSegments(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
         ITableTab* showFunctions(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
         ITableTab* showExports(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
@@ -41,7 +41,7 @@ class DisassemblerView : public QWidget
         static void listenEvents(const RDEventArgs* e);
 
     private:
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
         DisassemblerTabs* m_disassemblertabs;
         ListingMapDock* m_listingmapdock;
         QSet<QDockWidget*> m_docks;

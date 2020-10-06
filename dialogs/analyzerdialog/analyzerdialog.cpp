@@ -3,18 +3,18 @@
 #include "../themeprovider.h"
 #include <rdapi/rdapi.h>
 
-AnalyzerDialog::AnalyzerDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AnalyzerDialog)
+AnalyzerDialog::AnalyzerDialog(const RDContextPtr& ctx, QWidget *parent) : QDialog(parent), ui(new Ui::AnalyzerDialog), m_context(ctx)
 {
     ui->setupUi(this);
     m_analyzersmodel = new QStandardItemModel(ui->tvAnalyzers);
     ui->tvAnalyzers->setModel(m_analyzersmodel);
 
-    this->syncAnalyzers();
+    this->getAnalyzers();
 
     connect(m_analyzersmodel, &QStandardItemModel::itemChanged, this, &AnalyzerDialog::onAnalyzerItemChanged);
     connect(ui->pbSelectAll, &QPushButton::clicked, this, [&]() { this->selectAnalyzers(true); });
     connect(ui->pbUnselectAll, &QPushButton::clicked, this, [&]() { this->selectAnalyzers(false); });
-    connect(ui->pbRestoreDefaults, &QPushButton::clicked, this, &AnalyzerDialog::syncAnalyzers);
+    connect(ui->pbRestoreDefaults, &QPushButton::clicked, this, &AnalyzerDialog::getAnalyzers);
 }
 
 AnalyzerDialog::~AnalyzerDialog() { delete ui; }
@@ -24,34 +24,34 @@ void AnalyzerDialog::selectAnalyzers(bool select)
     for(int i = 0; i < m_analyzersmodel->rowCount(); i++)
     {
         auto* item = m_analyzersmodel->item(i);
-        const auto* panalyzer = reinterpret_cast<const RDAnalyzerPlugin*>(item->data().value<void*>());
-        if(!panalyzer) continue;
+        const auto* analyzer = reinterpret_cast<const RDAnalyzer*>(item->data().value<void*>());
+        if(!analyzer) continue;
 
         item->setCheckState(select ? Qt::Checked : Qt::Unchecked);
-        RDAnalyzer_Select(panalyzer, select);
+        RDContext_SelectAnalyzer(m_context.get(), analyzer, select);
     }
 }
 
 void AnalyzerDialog::onAnalyzerItemChanged(QStandardItem* item)
 {
-    const auto* panalyzer = reinterpret_cast<const RDAnalyzerPlugin*>(item->data().value<void*>());
-    if(panalyzer) RDAnalyzer_Select(panalyzer, (item->checkState() == Qt::Checked));
+    const auto* analyzer = reinterpret_cast<const RDAnalyzer*>(item->data().value<void*>());
+    if(analyzer) RDContext_SelectAnalyzer(m_context.get(), analyzer, (item->checkState() == Qt::Checked));
 }
 
-void AnalyzerDialog::syncAnalyzers()
+void AnalyzerDialog::getAnalyzers()
 {
     m_analyzersmodel->clear();
     m_analyzersmodel->setHorizontalHeaderLabels({"Name", "Description"});
 
-    RD_GetEnabledAnalyzers([](const RDAnalyzerPlugin* a, void* userdata) {
+    RDContext_GetAnalyzers(m_context.get(), [](const RDAnalyzer* a, void* userdata) {
         auto* thethis = reinterpret_cast<AnalyzerDialog*>(userdata);
-        auto* nameitem = new QStandardItem(QString::fromUtf8(a->name));
-        auto* descritem = new QStandardItem(QString::fromUtf8(a->description));
+        auto* nameitem = new QStandardItem(QString::fromUtf8(RDAnalyzer_GetName(a)));
+        auto* descritem = new QStandardItem(QString::fromUtf8(RDAnalyzer_GetDescription(a)));
 
-        nameitem->setData(QVariant::fromValue(static_cast<void*>(const_cast<RDAnalyzerPlugin*>(a))));
+        nameitem->setData(QVariant::fromValue(static_cast<void*>(const_cast<RDAnalyzer*>(a))));
         nameitem->setCheckable(true);
-        nameitem->setCheckState(HAS_FLAG(a, AnalyzerFlags_Selected) ? Qt::Checked : Qt::Unchecked);
-        if(HAS_FLAG(a, AnalyzerFlags_Experimental)) nameitem->setForeground(THEME_VALUE(Theme_GraphEdgeFalse));
+        nameitem->setCheckState(RDAnalyzer_IsSelected(a) ? Qt::Checked : Qt::Unchecked);
+        if(RDAnalyzer_IsExperimental(a)) nameitem->setForeground(THEME_VALUE(Theme_GraphEdgeFalse));
 
         thethis->m_analyzersmodel->appendRow({nameitem, descritem});
     }, this);

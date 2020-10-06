@@ -11,17 +11,17 @@ DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
     this->setAutoFillBackground(true);
 }
 
-DisassemblerColumnView::~DisassemblerColumnView() { if(m_disassembler) RDDisassembler_Unsubscribe(m_disassembler.get(), this); }
+DisassemblerColumnView::~DisassemblerColumnView() { if(m_context) RDContext_Unsubscribe(m_context.get(), this); }
 
 void DisassemblerColumnView::linkTo(DisassemblerTextView* textview)
 {
     m_textview = textview;
-    m_disassembler = textview->disassembler();
-    m_document = RDDisassembler_GetDocument(m_disassembler.get());
+    m_context = textview->context();
+    m_document = RDContext_GetDocument(m_context.get());
 
-    RDDisassembler_Subscribe(m_disassembler.get(), this, [](const RDEventArgs* e) {
+    RDContext_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<DisassemblerColumnView*>(e->owner);
-        if(!thethis->m_disassembler || RDDisassembler_IsBusy(thethis->m_disassembler.get())) return;
+        if(!thethis->m_context || RDContext_IsBusy(thethis->m_context.get())) return;
 
         if(e->eventid == Event_BusyChanged) QMetaObject::invokeMethod(thethis, "renderArrows", Qt::QueuedConnection);
         else if(e->eventid == Event_CursorPositionChanged) QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
@@ -38,9 +38,9 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
     m_paths.clear();
     m_done.clear();
 
-    if(RDDisassembler_IsBusy(m_disassembler.get())) return;
+    if(RDContext_IsBusy(m_context.get())) return;
 
-    const RDNet* net = RDDisassembler_GetNet(m_disassembler.get());
+    const RDNet* net = RDContext_GetNet(m_context.get());
 
     for(size_t i = 0; i < count; i++, start++)
     {
@@ -102,13 +102,13 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 
 void DisassemblerColumnView::renderArrows()
 {
-    if(!m_disassembler || RDDisassembler_IsBusy(m_disassembler.get()) || !m_textview) return;
+    if(!m_context || RDContext_IsBusy(m_context.get()) || !m_textview) return;
     this->renderArrows(m_textview->firstVisibleLine(), m_textview->visibleLines());
 }
 
 void DisassemblerColumnView::paintEvent(QPaintEvent*)
 {
-    if(!m_disassembler || m_paths.empty())
+    if(!m_context || m_paths.empty())
         return;
 
     QPainter painter(this);

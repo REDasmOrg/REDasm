@@ -1,6 +1,6 @@
 #include "listingmapdock.h"
 
-ListingMapDock::ListingMapDock(IDisassemblerCommand* command, QWidget *parent) : QDockWidget(parent)
+ListingMapDock::ListingMapDock(ICommand* command, QWidget *parent) : QDockWidget(parent)
 {
     m_listingmap = new ListingMap(this);
     m_listingmap->linkTo(command);

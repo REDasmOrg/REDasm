@@ -11,7 +11,7 @@ class CallTreeModel : public QAbstractItemModel
     public:
         explicit CallTreeModel(QObject *parent = nullptr);
         const RDDocumentItem& item(const QModelIndex& index) const;
-        void setDisassembler(const RDDisassemblerPtr& disassembler);
+        void setContext(const RDContextPtr& disassembler);
         void initializeGraph(rd_address address);
 
     public:
@@ -27,7 +27,7 @@ class CallTreeModel : public QAbstractItemModel
         void populateCallGraph(const QModelIndex& index);
 
     private:
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
         //REDasm::object_ptr<REDasm::Printer> m_printer;
         //std::unique_ptr<REDasm::CallTree> m_calltree;
         //REDasm::ListingItem m_currentitem;

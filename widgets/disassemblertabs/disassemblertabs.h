@@ -8,7 +8,7 @@ class DisassemblerTabs : public QTabWidget
     Q_OBJECT
 
     public:
-        explicit DisassemblerTabs(const RDDisassemblerPtr& disassembler, QWidget *parent = nullptr);
+        explicit DisassemblerTabs(const RDContextPtr& ctx, QWidget *parent = nullptr);
         int tabHeight() const;
 
     protected:
@@ -19,5 +19,5 @@ class DisassemblerTabs : public QTabWidget
         void onCloseClicked();
 
     private:
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
 };

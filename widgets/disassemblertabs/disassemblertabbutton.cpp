@@ -9,7 +9,7 @@
 #include "../../hooks/itabletab.h"
 #include "../../redasmfonts.h"
 
-DisassemblerTabButton::DisassemblerTabButton(const RDDisassemblerPtr& disassembler, QWidget* widget, QTabWidget* tabwidget, QWidget *parent) : QWidget(parent), m_disassembler(disassembler), m_tabwidget(tabwidget), m_widget(widget)
+DisassemblerTabButton::DisassemblerTabButton(const RDContextPtr& ctx, QWidget* widget, QTabWidget* tabwidget, QWidget *parent) : QWidget(parent), m_context(ctx), m_tabwidget(tabwidget), m_widget(widget)
 {
     QLabel* lbltext = new QLabel(this);
     lbltext->setAlignment(Qt::AlignCenter);
@@ -27,7 +27,7 @@ DisassemblerTabButton::DisassemblerTabButton(const RDDisassemblerPtr& disassembl
     this->customizeBehavior();
 }
 
-DisassemblerTabButton::~DisassemblerTabButton() { RDDisassembler_Unsubscribe(m_disassembler.get(), this); }
+DisassemblerTabButton::~DisassemblerTabButton() { RDContext_Unsubscribe(m_context.get(), this); }
 
 void DisassemblerTabButton::closeTab()
 {
@@ -50,7 +50,7 @@ QPushButton* DisassemblerTabButton::createButton(const QIcon& icon)
 
 void DisassemblerTabButton::customizeBehavior()
 {
-    RDDisassembler_Subscribe(m_disassembler.get(), this, [](const RDEventArgs* e) {
+    RDContext_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<DisassemblerTabButton*>(e->owner);
 
         if((e->eventid == Event_CursorStackChanged) && dynamic_cast<ICommandTab*>(thethis->m_widget))

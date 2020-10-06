@@ -2,13 +2,13 @@
 #include "../../themeprovider.h"
 #include "../../redasmsettings.h"
 
-DisassemblerListingView::DisassemblerListingView(const RDDisassemblerPtr& disassembler, QWidget *parent): QSplitter(Qt::Horizontal, parent), m_disassembler(nullptr)
+DisassemblerListingView::DisassemblerListingView(const RDContextPtr& ctx, QWidget *parent): QSplitter(Qt::Horizontal, parent), m_context(ctx)
 {
     this->setStyleSheet("QSplitter::handle { background-color: " + THEME_VALUE_COLOR(Theme_Seek) + "; }");
 
     m_textview = new DisassemblerTextView(this);
     m_textview->setFont(REDasmSettings::font());
-    m_textview->setDisassembler(disassembler);
+    m_textview->setContext(ctx);
 
     m_columnview = new DisassemblerColumnView(this);
     m_columnview->setFont(m_textview->font()); // Apply same font

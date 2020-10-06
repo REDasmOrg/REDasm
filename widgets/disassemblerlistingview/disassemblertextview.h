@@ -8,7 +8,7 @@
 #include "../../renderer/painterrendererasync.h"
 #include "../disassemblerpopup/disassemblerpopup.h"
 
-class DisassemblerTextView : public CursorScrollArea, public IDisassemblerCommand
+class DisassemblerTextView : public CursorScrollArea, public ICommand
 {
     Q_OBJECT
 
@@ -18,7 +18,7 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         size_t visibleLines() const;
         size_t firstVisibleLine() const;
         size_t lastVisibleLine() const;
-        void setDisassembler(const RDDisassemblerPtr& disassembler);
+        void setContext(const RDContextPtr& disassembler);
 
     public: // IDisassemblerCommand interface
         void goBack() override;
@@ -34,7 +34,7 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         const RDCursorPos* currentPosition() const override;
         const RDCursorPos* currentSelection() const override;
         QString currentWord() const override;
-        const RDDisassemblerPtr& disassembler() const override;
+        const RDContextPtr& context() const override;
         RDCursor* cursor() const override;
         QWidget* widget() override;
         void copy() const override;
@@ -75,7 +75,7 @@ class DisassemblerTextView : public CursorScrollArea, public IDisassemblerComman
         void addressChanged(rd_address address);
 
     private:
-        RDDisassemblerPtr m_disassembler;
+        RDContextPtr m_context;
         PainterRendererAsync* m_rasync{nullptr};
         RDDocument* m_document{nullptr};
 

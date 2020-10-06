@@ -3,13 +3,13 @@
 #include "../listingitemmodel.h"
 #include <rdapi/rdapi.h>
 
-class GotoModel : public DisassemblerModel
+class GotoModel : public ContextModel
 {
     Q_OBJECT
 
     public:
         explicit GotoModel(QObject *parent = nullptr);
-        void setDisassembler(const RDDisassemblerPtr& disassembler) override;
+        void setContext(const RDContextPtr& disassembler) override;
 
     public:
         QVariant data(const QModelIndex &index, int role) const override;

@@ -9,7 +9,7 @@ class ListingMapDock : public QDockWidget
     Q_OBJECT
 
     public:
-        explicit ListingMapDock(IDisassemblerCommand* command, QWidget *parent = nullptr);
+        explicit ListingMapDock(ICommand* command, QWidget *parent = nullptr);
         ListingMap* listingMap() const;
 
     private:

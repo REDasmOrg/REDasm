@@ -19,7 +19,7 @@ void QtUI::initialize()
     m_rdui.getsigned = &QtUI::getSigned;
     m_rdui.getunsigned = &QtUI::getUnsigned;
 
-    RD_SetUI(&m_rdui);
+    RDConfig_SetUI(&m_rdui);
 }
 
 void QtUI::message(const char* title, const char* text)

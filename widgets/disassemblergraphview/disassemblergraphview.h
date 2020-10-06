@@ -6,12 +6,12 @@
 
 class DisassemblerBlockItem;
 
-class DisassemblerGraphView : public GraphView, public IDisassemblerCommand
+class DisassemblerGraphView : public GraphView, public ICommand
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerGraphView(IDisassemblerCommand* command, QWidget *parent = nullptr);
+        explicit DisassemblerGraphView(ICommand* command, QWidget *parent = nullptr);
 
     public: // IDisassemblerCommand interface
         void goBack() override;
@@ -28,7 +28,7 @@ class DisassemblerGraphView : public GraphView, public IDisassemblerCommand
         const RDCursorPos* currentPosition() const override;
         const RDCursorPos* currentSelection() const override;
         QString currentWord() const override;
-        const RDDisassemblerPtr& disassembler() const override;
+        const RDContextPtr& context() const override;
         RDCursor* cursor() const override;
         QWidget* widget() override;
 
@@ -54,7 +54,7 @@ class DisassemblerGraphView : public GraphView, public IDisassemblerCommand
         void onFollowRequested(DisassemblerBlockItem* block);
 
     private:
-        IDisassemblerCommand* m_command;
+        ICommand* m_command;
         std::optional<RDDocumentItem> m_currentfunction;
         QMenu* m_contextmenu{nullptr};
 };

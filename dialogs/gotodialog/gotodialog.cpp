@@ -1,14 +1,14 @@
 ﻿#include "gotodialog.h"
 #include "ui_gotodialog.h"
 
-GotoDialog::GotoDialog(IDisassemblerCommand* command, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_command(command)
+GotoDialog::GotoDialog(ICommand* command, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_command(command)
 {
     ui->setupUi(this);
 
-    m_document = RDDisassembler_GetDocument(command->disassembler().get());
+    m_document = RDContext_GetDocument(command->context().get());
 
     m_gotomodel = new GotoFilterModel(ui->tvFunctions);
-    m_gotomodel->setDisassembler(command->disassembler());
+    m_gotomodel->setDisassembler(command->context());
 
     ui->tvFunctions->setModel(m_gotomodel);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);

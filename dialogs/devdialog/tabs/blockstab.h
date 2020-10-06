@@ -15,7 +15,7 @@ class BlocksTab : public QWidget
     public:
         explicit BlocksTab(QWidget *parent = nullptr);
         ~BlocksTab();
-        void setCommand(IDisassemblerCommand* command);
+        void setCommand(ICommand* command);
 
     private slots:
         void showBlocks(const QModelIndex& current, const QModelIndex&);
@@ -23,6 +23,6 @@ class BlocksTab : public QWidget
     private:
         Ui::BlocksTab *ui;
         SegmentsModel* m_segmentsmodel{nullptr};
-        IDisassemblerCommand* m_command{nullptr};
+        ICommand* m_command{nullptr};
 };
 

@@ -1,6 +1,6 @@
 #include "disassemblergraphview.h"
 #include "../../hooks/disassemblerhooks.h"
-#include "../../models/disassemblermodel.h"
+#include "../../models/contextmodel.h"
 #include "../../redasmsettings.h"
 #include "disassemblerblockitem.h"
 #include <rdapi/graph/functiongraph.h>

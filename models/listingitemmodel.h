@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "disassemblermodel.h"
+#include "contextmodel.h"
 #include <rdapi/document/document.h>
 #include <rdapi/events.h>
 

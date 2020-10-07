@@ -1,4 +1,4 @@
-#include "disassemblermodel.h"
+#include "contextmodel.h"
 #include <iostream>
 
 ContextModel::ContextModel(QObject *parent) : QAbstractListModel(parent) { }

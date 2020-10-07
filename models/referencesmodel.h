@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../hooks/idisassemblercommand.h"
-#include "disassemblermodel.h"
+#include "contextmodel.h"
 #include <rdapi/rdapi.h>
 
 class ReferencesModel : public ContextModel

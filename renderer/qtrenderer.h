@@ -2,7 +2,7 @@
 
 #include <rdapi/rdapi.h>
 #include <rdapi/renderer.h>
-#include "../hooks/idisassemblercommand.h"
+#include "../hooks/icommand.h"
 #include <QFontMetricsF>
 #include <QPointF>
 #include <QString>

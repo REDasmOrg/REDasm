@@ -2,7 +2,7 @@
 
 #include <QDialog>
 #include "../../models/referencesmodel.h"
-#include "../../hooks/idisassemblercommand.h"
+#include "../../hooks/icommand.h"
 
 namespace Ui {
 class ReferencesDialog;

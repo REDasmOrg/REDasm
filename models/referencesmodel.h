@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../hooks/idisassemblercommand.h"
+#include "../hooks/icommand.h"
 #include "contextmodel.h"
 #include <rdapi/rdapi.h>
 

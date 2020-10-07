@@ -3,7 +3,7 @@
 #include <QTextDocument>
 #include <rdapi/graph/functiongraph.h>
 #include <rdapi/rdapi.h>
-#include "../../hooks/idisassemblercommand.h"
+#include "../../hooks/icommand.h"
 #include "../../renderer/documentrenderer.h"
 #include "../graphview/graphviewitem.h"
 

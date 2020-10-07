@@ -4,7 +4,7 @@
 #include <QMenu>
 #include <rdapi/rdapi.h>
 #include "../cursorscrollarea.h"
-#include "../../hooks/idisassemblercommand.h"
+#include "../../hooks/icommand.h"
 #include "../../renderer/painterrendererasync.h"
 #include "../disassemblerpopup/disassemblerpopup.h"
 

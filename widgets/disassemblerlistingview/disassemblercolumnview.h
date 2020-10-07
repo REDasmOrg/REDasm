@@ -5,7 +5,7 @@
 #include <QList>
 #include <QPair>
 #include <QSet>
-#include "../hooks/idisassemblercommand.h"
+#include "../hooks/icommand.h"
 
 class DisassemblerTextView;
 

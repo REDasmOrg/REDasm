@@ -3,7 +3,7 @@
 #include <QWidget>
 #include <QPixmap>
 #include <rdapi/rdapi.h>
-#include "../../../hooks/idisassemblercommand.h"
+#include "../../../hooks/icommand.h"
 #include "listingmaprenderer.h"
 
 class ListingMap : public QWidget

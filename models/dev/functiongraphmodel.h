@@ -4,7 +4,7 @@
 #include <rdapi/graph/functiongraph.h>
 #include <rdapi/rdapi.h>
 #include <optional>
-#include "../hooks/idisassemblercommand.h"
+#include "../hooks/icommand.h"
 
 class FunctionGraphModel : public QAbstractListModel
 {

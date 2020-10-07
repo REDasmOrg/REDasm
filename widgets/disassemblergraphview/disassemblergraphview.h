@@ -2,7 +2,7 @@
 
 #include <optional>
 #include "../graphview/graphview.h"
-#include "../../hooks/idisassemblercommand.h"
+#include "../../hooks/icommand.h"
 
 class DisassemblerBlockItem;
 

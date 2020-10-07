@@ -2,7 +2,7 @@
 
 #include <QAbstractItemModel>
 #include <rdapi/rdapi.h>
-#include "../hooks/idisassemblercommand.h"
+#include "../hooks/icommand.h"
 
 class CallTreeModel : public QAbstractItemModel
 {

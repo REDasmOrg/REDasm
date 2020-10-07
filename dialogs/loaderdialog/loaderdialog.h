@@ -3,7 +3,7 @@
 #include <QStandardItemModel>
 #include <QDialog>
 #include <rdapi/rdapi.h>
-#include "../hooks/idisassemblercommand.h"
+#include "../hooks/icommand.h"
 
 namespace Ui {
 class LoaderDialog;

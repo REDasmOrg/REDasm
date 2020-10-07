@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QDialog>
-#include "../hooks/idisassemblercommand.h"
+#include "../hooks/icommand.h"
 #include "../hooks/idisposable.h"
 
 namespace Ui {

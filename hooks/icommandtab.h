@@ -1,6 +1,6 @@
 #pragma once
 
-#include "idisassemblercommand.h"
+#include "icommand.h"
 
 class ICommandTab
 {

@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include "../../../models/segmentsmodel.h"
-#include "../../../hooks/idisassemblercommand.h"
+#include "../../../hooks/icommand.h"
 
 namespace Ui {
 class BlocksTab;

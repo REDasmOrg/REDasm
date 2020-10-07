@@ -3,7 +3,7 @@
 #include <rdapi/rdapi.h>
 #include <QStandardItemModel>
 #include <QDialog>
-#include "../hooks/idisassemblercommand.h"
+#include "../hooks/icommand.h"
 
 namespace Ui {
 class AnalyzerDialog;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QWidget>
-#include "../../../hooks/idisassemblercommand.h"
+#include "../../../hooks/icommand.h"
 
 namespace Ui {
 class RDILTab;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../renderer/rendererasync.h"
-#include "../hooks/idisassemblercommand.h"
+#include "../hooks/icommand.h"
 #include <rdapi/rdapi.h>
 
 class ListingMapRenderer : public RendererAsync

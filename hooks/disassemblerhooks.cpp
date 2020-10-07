@@ -351,7 +351,12 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
     RDLoaderRequest req = { rawfilepath.data(), buffer, { } };
 
     LoaderDialog dlgloader(ctx, &req, m_mainwindow);
-    if(dlgloader.exec() != LoaderDialog::Accepted) return;
+
+    if(dlgloader.exec() != LoaderDialog::Accepted)
+    {
+        RD_Free(buffer);
+        return;
+    }
 
     this->clearOutput();
 

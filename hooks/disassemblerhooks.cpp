@@ -126,6 +126,7 @@ ICommandTab* DisassemblerHooks::activeCommandTab() const
 }
 
 ICommand* DisassemblerHooks::activeCommand() const { return this->activeCommandTab()->command(); }
+const RDContextPtr& DisassemblerHooks::activeContext() const { return this->activeCommand()->context(); }
 
 void DisassemblerHooks::undock(QDockWidget* dw)
 {
@@ -334,7 +335,8 @@ void DisassemblerHooks::hook()
     connect(m_mnuwindow, &QMenu::triggered, this, &DisassemblerHooks::onWindowActionTriggered);
 
     connect(m_pbrenderer, &QPushButton::clicked, this, [&]() {
-        RD_SetContextFlags(ContextFlags_ShowRDIL, !RD_ContextHasFlags(ContextFlags_ShowRDIL));
+        const RDContextPtr& ctx = this->activeContext();
+        RDContext_SetFlags(ctx.get(), ContextFlags_ShowRDIL, !RDContext_HasFlags(ctx.get(), ContextFlags_ShowRDIL));
         this->checkListingMode();
     });
 
@@ -562,7 +564,7 @@ OutputDock* DisassemblerHooks::outputDock() const { return m_mainwindow->findChi
 
 void DisassemblerHooks::checkListingMode()
 {
-    if(RD_ContextHasFlags(ContextFlags_ShowRDIL)) m_pbrenderer->setText("RDIL");
+    if(RDContext_HasFlags(this->activeContext().get(), ContextFlags_ShowRDIL)) m_pbrenderer->setText("RDIL");
     else m_pbrenderer->setText("Listing");
 }
 

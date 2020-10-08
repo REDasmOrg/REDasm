@@ -70,6 +70,7 @@ class DisassemblerHooks: public QObject
     public:
         ICommandTab* activeCommandTab() const;
         ICommand* activeCommand() const;
+        const RDContextPtr& activeContext() const;
         bool openDatabase(const QString& filepath);
         void enableCommands(QWidget* w);
         void updateCommandStates(QWidget* w) const;

@@ -63,7 +63,7 @@
          <item>
           <widget class="QLabel" name="lblQuery">
            <property name="text">
-            <string>TextLabel</string>
+            <string/>
            </property>
           </widget>
          </item>

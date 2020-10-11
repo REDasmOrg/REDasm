@@ -62,11 +62,11 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Da
         f.write(decompiled);
     });
 
-    // FIXME: RD_GetDatabasePaths([](const char* path, void* userdata) {
-    // FIXME:     auto* thethis = reinterpret_cast<DatabaseDialog* >(userdata);
-    // FIXME:     QDirIterator it(path, {"*" DATABASE_RDB_EXT}, QDir::Files, QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
-    // FIXME:     while(it.hasNext()) thethis->checkDatabase(it.next());
-    // FIXME: }, this);
+    RDConfig_GetDatabasePaths([](const char* path, void* userdata) {
+        auto* thethis = reinterpret_cast<DatabaseDialog* >(userdata);
+        QDirIterator it(path, {"*" DATABASE_RDB_EXT}, QDir::Files, QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
+        while(it.hasNext()) thethis->checkDatabase(it.next());
+    }, this);
 }
 
 DatabaseDialog::~DatabaseDialog() { delete ui; }

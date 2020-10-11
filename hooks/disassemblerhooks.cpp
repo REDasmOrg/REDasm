@@ -106,9 +106,7 @@ void DisassemblerHooks::showGoto(ICommand* command)
 
 void DisassemblerHooks::showDeveloperTools()
 {
-    if(!m_devdialog)
-        m_devdialog = new DevDialog(m_mainwindow);
-
+    if(!m_devdialog) m_devdialog = new DevDialog(m_mainwindow);
     m_devdialog->setCommand(m_activecommandtab->command());
     m_devdialog->show();
 }

@@ -5,7 +5,6 @@
 #include "hooks/disassemblerhooks.h"
 #include "widgets/disassemblerview.h"
 #include "dialogs/signaturesdialog/signaturesdialog.h"
-#include "dialogs/problemsdialog/problemsdialog.h"
 #include "ui/qtui.h"
 #include "themeprovider.h"
 #include <QMessageBox>
@@ -72,7 +71,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Reset_Layout, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::resetLayout);
     connect(ui->action_About, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::about);
     connect(ui->action_Exit, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::exit);
-    connect(m_pbproblems, &QPushButton::clicked, this, &MainWindow::showProblems);
 }
 
 MainWindow::~MainWindow()
@@ -225,8 +223,6 @@ bool MainWindow::canClose()
     // settings.saveState(this);
     return true;
 }
-
-void MainWindow::showProblems() { ProblemsDialog dlgproblems(this); dlgproblems.exec(); }
 
 void MainWindow::initializeConfig()
 {

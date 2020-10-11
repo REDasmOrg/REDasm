@@ -1,6 +1,7 @@
 #include "disassemblerhooks.h"
 #include "../dialogs/tabledialog/tabledialog.h"
 #include "../dialogs/aboutdialog/aboutdialog.h"
+#include "../dialogs/problemsdialog/problemsdialog.h"
 #include "../dialogs/settingsdialog/settingsdialog.h"
 #include "../dialogs/analyzerdialog/analyzerdialog.h"
 #include "../dialogs/loaderdialog/loaderdialog.h"
@@ -116,6 +117,8 @@ void DisassemblerHooks::showDatabase()
     DatabaseDialog dbdialog(m_mainwindow);
     dbdialog.exec();
 }
+
+void DisassemblerHooks::showProblems() { ProblemsDialog dlgproblems(this->activeContext(), m_mainwindow); dlgproblems.exec(); }
 
 ICommandTab* DisassemblerHooks::activeCommandTab() const
 {
@@ -329,6 +332,7 @@ void DisassemblerHooks::hook()
     QAction* act = m_mainwindow->findChild<QAction*>(HOOK_ACTION_DATABASE);
     connect(act, &QAction::triggered, this, [&]() { this->showDatabase(); });
 
+    connect(m_pbproblems, &QPushButton::clicked, this, [&]() { this->showProblems(); });
     connect(m_toolbar, &QToolBar::actionTriggered, this, &DisassemblerHooks::onToolBarActionTriggered);
     connect(m_mnuwindow, &QMenu::triggered, this, &DisassemblerHooks::onWindowActionTriggered);
 
@@ -659,8 +663,14 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
 
     m_toolbar->actions()[4]->setEnabled(!busy); // Goto
     m_lblstatusicon->setVisible(true);
-    //FIXME: m_pbproblems->setVisible(!busy && RD_HasProblems());
-    //FIXME: m_pbproblems->setText(QString::number(RDContext_GetProblemsCount()) + " problem(s)");
+
+    if(this->activeContext())
+    {
+        m_pbproblems->setVisible(!busy && RDContext_HasProblems(this->activeContext().get()));
+        m_pbproblems->setText(QString::number(RDContext_GetProblemsCount(this->activeContext().get())) + " problem(s)");
+    }
+    else
+        m_pbproblems->setVisible(false);
 }
 
 void DisassemblerHooks::enableCommands(QWidget* w)

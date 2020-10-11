@@ -66,6 +66,7 @@ class DisassemblerHooks: public QObject
         void showGoto(ICommand* command);
         void showDeveloperTools();
         void showDatabase();
+        void showProblems();
 
     public:
         ICommandTab* activeCommandTab() const;

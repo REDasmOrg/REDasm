@@ -27,7 +27,6 @@ class MainWindow : public QMainWindow
         void onSaveAsClicked();
         void onSignaturesClicked();
         void onResetLayoutClicked();
-        void showProblems();
 
     private:
         void initializeConfig();

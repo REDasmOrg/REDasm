@@ -13,6 +13,12 @@ void DevDialog::setCommand(ICommand* command)
 
     RDContext_Subscribe(command->context().get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<DevDialog*>(e->owner);
+
+        if(e->eventid == Event_ContextFree) {
+            RDContext_Unsubscribe(reinterpret_cast<RDContext*>(e->sender), e->owner);
+            return;
+        }
+
         if(!thethis->m_command || !thethis->isVisible()) return;
         if(e->eventid != Event_CursorPositionChanged) return;
         if(e->sender != thethis->m_command->cursor()) return;
@@ -27,8 +33,4 @@ void DevDialog::setCommand(ICommand* command)
     ui->tabRDIL->setCommand(command);
 }
 
-DevDialog::~DevDialog()
-{
-    if(m_command) RDContext_Unsubscribe(m_command->context().get(), this);
-    delete ui;
-}
+DevDialog::~DevDialog() { delete ui; }

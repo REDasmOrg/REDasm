@@ -19,7 +19,7 @@ DisassemblerGraphView::DisassemblerGraphView(ICommand* command, QWidget *parent)
 
     connect(this, &DisassemblerGraphView::customContextMenuRequested, this, [&](const QPoint&) {
         RDDocument* doc = RDContext_GetDocument(m_command->context().get());
-        if(RDDocument_ItemsCount(doc)) m_contextmenu->popup(QCursor::pos());
+        if(RDDocument_GetSize(doc)) m_contextmenu->popup(QCursor::pos());
     });
 }
 
@@ -45,15 +45,15 @@ void DisassemblerGraphView::copy() const
     if(blockitem) return blockitem->renderer()->copy();
 }
 
-bool DisassemblerGraphView::gotoAddress(rd_address address)
+bool DisassemblerGraphView::goToAddress(rd_address address)
 {
-    if(!m_command->gotoAddress(address)) return false;
+    if(!m_command->goToAddress(address)) return false;
     return this->updateGraph(address);
 }
 
-bool DisassemblerGraphView::gotoItem(const RDDocumentItem& item)
+bool DisassemblerGraphView::goTo(const RDDocumentItem& item)
 {
-    if(!m_command->gotoItem(item)) return false;
+    if(!m_command->goTo(item)) return false;
     return this->updateGraph(item.address);
 }
 
@@ -82,7 +82,7 @@ void DisassemblerGraphView::onFollowRequested(DisassemblerBlockItem* block)
 {
     RDSymbol symbol;
     if(!block->renderer()->selectedSymbol(&symbol)) return;
-    this->gotoAddress(symbol.address);
+    this->goToAddress(symbol.address);
 }
 
 void DisassemblerGraphView::focusCurrentBlock()

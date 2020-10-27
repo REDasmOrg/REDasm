@@ -3,7 +3,7 @@
 #include <QDockWidget>
 #include <QSplitter>
 #include "../../disassemblerlistingview/disassemblerlistingview.h"
-#include "../../disassemblerlistingview/disassemblertextview.h"
+#include "../../disassemblerlistingview/listingtextview.h"
 #include "../../disassemblergraphview/disassemblergraphview.h"
 #include "../hooks/icommandtab.h"
 

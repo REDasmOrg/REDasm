@@ -1,18 +1,20 @@
 #pragma once
 
 #include <rdapi/rdapi.h>
-#include <rdapi/renderer.h>
+//#include <rdapi/renderer.h>
 #include "../hooks/icommand.h"
 #include <QFontMetricsF>
 #include <QPointF>
 #include <QString>
+
+struct RDRenderer;
 
 class QtRenderer: public QObject
 {
     Q_OBJECT
 
     public:
-        QtRenderer(const RDContextPtr& ctx, RDCursor* cursor = nullptr, rd_flag flags = RendererFlags_Normal, QObject* parent = 0);
+        QtRenderer(const RDContextPtr& ctx, RDCursor* cursor = nullptr, rd_flag flags = SurfaceFlags_Normal, QObject* parent = 0);
         virtual ~QtRenderer();
         const QFontMetricsF& fontMetrics() const;
         const RDRenderer* handle() const;

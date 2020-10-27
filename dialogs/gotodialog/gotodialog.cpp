@@ -8,7 +8,7 @@ GotoDialog::GotoDialog(ICommand* command, QWidget *parent) : QDialog(parent), ui
     m_document = RDContext_GetDocument(command->context().get());
 
     m_gotomodel = new GotoFilterModel(ui->tvFunctions);
-    m_gotomodel->setDisassembler(command->context());
+    m_gotomodel->setContext(command->context());
 
     ui->tvFunctions->setModel(m_gotomodel);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -45,9 +45,7 @@ void GotoDialog::validateEntry()
 
 void GotoDialog::onGotoClicked()
 {
-    if(this->hasValidAddress())
-        m_command->gotoAddress(m_address);
-
+    if(this->hasValidAddress()) m_command->goToAddress(m_address);
     this->accept();
 }
 
@@ -58,5 +56,5 @@ void GotoDialog::onItemSelected(const QModelIndex &index)
 
     RDDocumentItem item;
     if(!RDDocument_GetItemAt(m_document, srcindex.row(), &item)) return;
-    m_command->gotoItem(item);
+    m_command->goTo(item);
 }

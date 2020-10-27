@@ -6,7 +6,7 @@ DisassemblerListingView::DisassemblerListingView(const RDContextPtr& ctx, QWidge
 {
     this->setStyleSheet("QSplitter::handle { background-color: " + THEME_VALUE_COLOR(Theme_Seek) + "; }");
 
-    m_textview = new DisassemblerTextView(this);
+    m_textview = new ListingTextView(this);
     m_textview->setFont(REDasmSettings::font());
     m_textview->setContext(ctx);
 
@@ -23,4 +23,4 @@ DisassemblerListingView::DisassemblerListingView(const RDContextPtr& ctx, QWidge
 }
 
 DisassemblerColumnView *DisassemblerListingView::columnView() { return m_columnview; }
-DisassemblerTextView *DisassemblerListingView::textView() { return m_textview; }
+ListingTextView *DisassemblerListingView::textView() { return m_textview; }

@@ -7,7 +7,7 @@ RDILTab::~RDILTab() { delete ui; }
 void RDILTab::setCommand(ICommand* command)
 {
     m_command = command;
-    m_renderer.reset(RDRenderer_Create(m_command->context().get(), nullptr, RendererFlags_Normal));
+    //m_renderer.reset(RDRenderer_Create(m_command->context().get(), nullptr, RendererFlags_Normal));
     this->updateInformation();
 }
 
@@ -21,7 +21,7 @@ void RDILTab::updateInformation()
         return;
     }
 
-    ui->lblTitle->setText(RDRenderer_GetInstruction(m_renderer.get(), item.address));
+    //ui->lblTitle->setText(RDRenderer_GetInstruction(m_renderer.get(), item.address));
 
     m_graph.reset(RDILGraph_Create(m_command->context().get(), item.address));
     ui->graphView->setGraph(m_graph.get());

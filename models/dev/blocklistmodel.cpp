@@ -1,9 +1,15 @@
 #include "blocklistmodel.h"
 #include "../../themeprovider.h"
 
-BlockListModel::BlockListModel(ICommand* command, const RDBlockContainer* blocks, QObject *parent) : QAbstractListModel(parent), m_blocks(blocks), m_command(command)
+BlockListModel::BlockListModel(ICommand* command, const RDBlockContainer* blocks, QObject *parent) : QAbstractListModel(parent), m_blockcontainer(blocks), m_command(command)
 {
     m_document = RDContext_GetDocument(command->context().get());
+
+    RDBlockContainer_Each(blocks, [](const RDBlock* b, void* userdata) {
+       auto* thethis = reinterpret_cast<BlockListModel*>(userdata);
+       thethis->m_blocks.push_back(*b);
+       return true;
+    }, this);
 }
 
 QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -26,12 +32,11 @@ QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, in
 
 QVariant BlockListModel::data(const QModelIndex& index, int role) const
 {
-    if(!m_blocks) return QVariant();
+    if(!m_blockcontainer) return QVariant();
 
     if(role == Qt::DisplayRole)
     {
-        RDBlock block;
-        if(!RDBlockContainer_Get(m_blocks, index.row(), &block)) return QVariant();
+        const RDBlock& block = m_blocks[index.row()];
 
         switch(index.column())
         {
@@ -55,7 +60,7 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
 }
 
 int BlockListModel::columnCount(const QModelIndex&) const { return 5; }
-int BlockListModel::rowCount(const QModelIndex&) const { return m_blocks ? static_cast<int>(RDBlockContainer_Size(m_blocks)) : 0; }
+int BlockListModel::rowCount(const QModelIndex&) const { return m_blocks.size(); }
 
 QString BlockListModel::blockType(const RDBlock* block) const
 {

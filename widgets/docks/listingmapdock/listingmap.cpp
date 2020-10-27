@@ -12,7 +12,7 @@ ListingMap::ListingMap(QWidget *parent) : QWidget(parent) { }
 
 ListingMap::~ListingMap()
 {
-    if(m_context) RDContext_Unsubscribe(m_context.get(), this);
+    if(m_context) RDObject_Unsubscribe(m_context.get(), this);
     if(m_renderer) m_renderer->abort();
 }
 
@@ -22,7 +22,7 @@ void ListingMap::linkTo(ICommand* command)
     m_context = command->context();
     m_document = RDContext_GetDocument(m_context.get());
 
-    RDContext_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
+    RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<ListingMap*>(e->owner);
         if(RDContext_IsBusy(thethis->m_context.get()) || !thethis->m_document) return;
 

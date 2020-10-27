@@ -27,7 +27,7 @@ DisassemblerTabButton::DisassemblerTabButton(const RDContextPtr& ctx, QWidget* w
     this->customizeBehavior();
 }
 
-DisassemblerTabButton::~DisassemblerTabButton() { RDContext_Unsubscribe(m_context.get(), this); }
+DisassemblerTabButton::~DisassemblerTabButton() { RDObject_Unsubscribe(m_context.get(), this); }
 
 void DisassemblerTabButton::closeTab()
 {
@@ -50,7 +50,7 @@ QPushButton* DisassemblerTabButton::createButton(const QIcon& icon)
 
 void DisassemblerTabButton::customizeBehavior()
 {
-    RDContext_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
+    RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<DisassemblerTabButton*>(e->owner);
 
         if((e->eventid == Event_CursorStackChanged) && dynamic_cast<ICommandTab*>(thethis->m_widget))

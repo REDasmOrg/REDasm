@@ -47,7 +47,7 @@ bool DisassemblerPopupWidget::renderPopup(const QString& word, size_t line)
 
 void DisassemblerPopupWidget::moreRows()
 {
-    if((m_index + m_rows) > RDDocument_ItemsCount(m_document)) return;
+    if((m_index + m_rows) > RDDocument_GetSize(m_document)) return;
     m_rows++;
     this->renderPopup();
 }

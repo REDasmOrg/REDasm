@@ -28,7 +28,7 @@ class ReferencesModel : public ContextModel
         QString direction(RDDocument* doc, rd_address address) const;
 
     private:
-        RDRenderer* m_renderer{nullptr};
+        //RDRenderer* m_renderer{nullptr};
         const ICommand* m_command;
         const rd_address* m_references{nullptr};
         size_t m_referencescount{0};

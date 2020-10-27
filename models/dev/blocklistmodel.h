@@ -20,7 +20,8 @@ class BlockListModel : public QAbstractListModel
         QString symbolName(const RDBlock* block) const;
 
     private:
-        const RDBlockContainer* m_blocks;
+        const RDBlockContainer* m_blockcontainer;
+        QList<RDBlock> m_blocks;
         ICommand* m_command;
         RDDocument* m_document;
 };

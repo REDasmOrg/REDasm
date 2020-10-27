@@ -1,6 +1,6 @@
 #include "disassemblercolumnview.h"
 #include "../../themeprovider.h"
-#include "disassemblertextview.h"
+#include "listingtextview.h"
 #include <QScrollBar>
 #include <QPainter>
 #include <QPainterPath>
@@ -11,15 +11,15 @@ DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
     this->setAutoFillBackground(true);
 }
 
-DisassemblerColumnView::~DisassemblerColumnView() { if(m_context) RDContext_Unsubscribe(m_context.get(), this); }
+DisassemblerColumnView::~DisassemblerColumnView() { if(m_context) RDObject_Unsubscribe(m_context.get(), this); }
 
-void DisassemblerColumnView::linkTo(DisassemblerTextView* textview)
+void DisassemblerColumnView::linkTo(ListingTextView* textview)
 {
     m_textview = textview;
     m_context = textview->context();
     m_document = RDContext_GetDocument(m_context.get());
 
-    RDContext_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
+    RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<DisassemblerColumnView*>(e->owner);
         if(!thethis->m_context || RDContext_IsBusy(thethis->m_context.get())) return;
 
@@ -39,12 +39,11 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
     m_done.clear();
 
     if(RDContext_IsBusy(m_context.get())) return;
-
     const RDNet* net = RDContext_GetNet(m_context.get());
 
     for(size_t i = 0; i < count; i++, start++)
     {
-        if(start >= RDDocument_ItemsCount(m_document)) break;
+        if(start >= RDDocument_GetSize(m_document)) break;
 
         RDDocumentItem item;
         if(!RDDocument_GetItemAt(m_document, start, &item)) continue;
@@ -63,7 +62,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
                 if(branch == item.address) continue;
 
                 size_t idx = RDDocument_InstructionIndex(m_document, branch);
-                if(idx >= RDDocument_ItemsCount(m_document)) continue;
+                if(idx >= RDDocument_GetSize(m_document)) continue;
                 this->insertPath(net, item, start, idx);
             }
         }
@@ -73,7 +72,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
             if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol) || !IS_TYPE(&symbol, SymbolType_Label)) continue;
 
             size_t toidx = RDDocument_InstructionIndex(m_document, item.address);
-            if(toidx >= RDDocument_ItemsCount(m_document)) continue;
+            if(toidx >= RDDocument_GetSize(m_document)) continue;
 
             const rd_address* refs = nullptr;
             size_t c = RDNet_GetReferences(net, item.address, &refs);
@@ -84,7 +83,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
                 if(r == item.address) continue;
 
                 size_t idx = RDDocument_InstructionIndex(m_document, r);
-                if(idx >= RDDocument_ItemsCount(m_document)) continue;
+                if(idx >= RDDocument_GetSize(m_document)) continue;
 
                 RDDocumentItem item;
                 RDDocument_GetItemAt(m_document, idx, &item);
@@ -103,7 +102,7 @@ void DisassemblerColumnView::renderArrows(size_t start, size_t count)
 void DisassemblerColumnView::renderArrows()
 {
     if(!m_context || RDContext_IsBusy(m_context.get()) || !m_textview) return;
-    this->renderArrows(m_textview->firstVisibleLine(), m_textview->visibleLines());
+    //this->renderArrows(m_textview->firstVisibleLine(), m_textview->visibleLines());
 }
 
 void DisassemblerColumnView::paintEvent(QPaintEvent*)
@@ -152,7 +151,7 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
 
 bool DisassemblerColumnView::isPathSelected(const DisassemblerColumnView::ArrowPath &path) const
 {
-    size_t line = m_textview->currentPosition()->line;
+    size_t line = m_textview->currentPosition()->row;
     return (line == path.startidx) || (line == path.endidx);
 }
 

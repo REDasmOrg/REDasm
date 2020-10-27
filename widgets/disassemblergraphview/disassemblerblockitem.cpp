@@ -13,21 +13,21 @@ DisassemblerBlockItem::DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, IC
 {
     this->setupDocument();
 
-    m_renderer = std::make_unique<DocumentRenderer>(&m_textdocument, command->context(), command->cursor(), RendererFlags_NoSegment | RendererFlags_NoSeparators | RendererFlags_NoIndent);
+    //m_renderer = std::make_unique<DocumentRenderer>(&m_textdocument, command->context(), command->cursor(), RendererFlags_NoSegment | RendererFlags_NoSeparators | RendererFlags_NoIndent);
     m_renderer->setStartOffset(RDFunctionBasicBlock_GetStartIndex(fbb));
     this->invalidate(false);
 
     QFontMetricsF fm(m_textdocument.defaultFont());
     m_charheight = fm.height();
 
-    RDContext_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
+    RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         DisassemblerBlockItem* thethis = reinterpret_cast<DisassemblerBlockItem*>(e->owner);
         if((e->eventid != Event_CursorPositionChanged) || (e->sender != thethis->m_command->cursor())) return;
         QMetaObject::invokeMethod(thethis, "invalidate", Qt::QueuedConnection);
     }, nullptr);
 }
 
-DisassemblerBlockItem::~DisassemblerBlockItem() { RDContext_Unsubscribe(m_context.get(), this); }
+DisassemblerBlockItem::~DisassemblerBlockItem() { RDObject_Unsubscribe(m_context.get(), this); }
 DocumentRenderer* DisassemblerBlockItem::renderer() const { return m_renderer.get(); }
 bool DisassemblerBlockItem::containsItem(const RDDocumentItem& item) const { return RDFunctionBasicBlock_Contains(m_basicblock, item.address); }
 

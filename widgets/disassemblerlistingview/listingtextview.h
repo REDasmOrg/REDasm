@@ -3,28 +3,26 @@
 #include <QFontMetrics>
 #include <QMenu>
 #include <rdapi/rdapi.h>
-#include "../cursorscrollarea.h"
+#include <QAbstractScrollArea>
 #include "../../hooks/icommand.h"
 #include "../../renderer/painterrendererasync.h"
 #include "../disassemblerpopup/disassemblerpopup.h"
 
-class DisassemblerTextView : public CursorScrollArea, public ICommand
+class SurfaceRenderer;
+
+class ListingTextView : public QAbstractScrollArea, public ICommand
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerTextView(QWidget *parent = nullptr);
-        virtual ~DisassemblerTextView();
-        size_t visibleLines() const;
-        size_t firstVisibleLine() const;
-        size_t lastVisibleLine() const;
+        explicit ListingTextView(QWidget *parent = nullptr);
         void setContext(const RDContextPtr& disassembler);
 
     public: // IDisassemblerCommand interface
         void goBack() override;
         void goForward() override;
-        bool gotoAddress(rd_address address) override;
-        bool gotoItem(const RDDocumentItem& item) override;
+        bool goToAddress(rd_address address) override;
+        bool goTo(const RDDocumentItem& item) override;
         bool hasSelection() const override;
         bool canGoBack() const override;
         bool canGoForward() const override;
@@ -39,43 +37,32 @@ class DisassemblerTextView : public CursorScrollArea, public ICommand
         QWidget* widget() override;
         void copy() const override;
 
-    private slots:
-        void onRenderCompleted(const QImage& img);
-        void moveToSelection();
-
     protected:
-        void onCursorBlink() override;
         void scrollContentsBy(int dx, int dy) override;
-        void paintEvent(QPaintEvent* e) override;
-        void resizeEvent(QResizeEvent* e) override;
-        void mousePressEvent(QMouseEvent* e) override;
-        void mouseMoveEvent(QMouseEvent* e) override;
-        void mouseDoubleClickEvent(QMouseEvent* e) override;
-        void wheelEvent(QWheelEvent *e) override;
-        void keyPressEvent(QKeyEvent *e) override;
-        bool event(QEvent* e) override;
+        void focusInEvent(QFocusEvent *event) override;
+        void focusOutEvent(QFocusEvent *event) override;
+        void paintEvent(QPaintEvent* event) override;
+        void resizeEvent(QResizeEvent* event) override;
+        void mousePressEvent(QMouseEvent* event) override;
+        void mouseMoveEvent(QMouseEvent* event) override;
+        void mouseDoubleClickEvent(QMouseEvent* event) override;
+        void wheelEvent(QWheelEvent *event) override;
+        void keyPressEvent(QKeyEvent *event) override;
+        bool event(QEvent* event) override;
 
     private:
-        QRect lineRect(size_t line) const;
-        QPointF viewportPoint(const QPointF& pt) const;
-        void requestRender();
-        void paintLine(size_t line);
-        void onDocumentChanged(const RDEventArgs* e);
         bool followUnderCursor();
-        bool isLineVisible(size_t line) const;
-        bool isColumnVisible(size_t column, size_t* xpos);
         void adjustScrollBars();
-        void ensureColumnVisible();
         void showPopup(const QPointF& pt);
 
     signals:
         void switchView();
         void canGoBackChanged();
         void canGoForwardChanged();
-        void addressChanged(rd_address address);
 
     private:
         RDContextPtr m_context;
+        SurfaceRenderer* m_renderer{nullptr};
         PainterRendererAsync* m_rasync{nullptr};
         RDDocument* m_document{nullptr};
 

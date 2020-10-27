@@ -1,21 +1,13 @@
 #include "gotomodel.h"
 #include "../../themeprovider.h"
 
-GotoModel::GotoModel(QObject *parent) : ContextModel(parent) { }
-
-void GotoModel::setContext(const RDContextPtr& disassembler)
-{
-    this->beginResetModel();
-    ContextModel::setContext(disassembler);
-    this->endResetModel();
-}
+GotoModel::GotoModel(QObject *parent) : ListingItemModel(DocumentItemType_All, parent) { }
 
 QVariant GotoModel::data(const QModelIndex &index, int role) const
 {
     if(!m_context) return QVariant();
 
-    RDDocumentItem item;
-    RDDocument_GetItemAt(m_document, index.row(), &item);
+    const RDDocumentItem& item = this->item(index);
 
     if(role == Qt::DisplayRole)
     {
@@ -52,7 +44,6 @@ QVariant GotoModel::headerData(int section, Qt::Orientation orientation, int rol
 }
 
 int GotoModel::columnCount(const QModelIndex &) const { return 3; }
-int GotoModel::rowCount(const QModelIndex &) const { return m_document ? RDDocument_ItemsCount(m_document) : 0; }
 
 QColor GotoModel::itemColor(const RDDocumentItem& item) const
 {

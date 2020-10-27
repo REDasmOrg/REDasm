@@ -3,6 +3,7 @@
 
 ContextModel::ContextModel(QObject *parent) : QAbstractListModel(parent) { }
 const RDContextPtr& ContextModel::context() const { return m_context; }
+const RDDocument* ContextModel::document() const { return m_document; }
 RDDisassembler* ContextModel::disassembler() const { return RDContext_GetDisassembler(m_context.get()); }
 
 void ContextModel::setContext(const RDContextPtr& context)

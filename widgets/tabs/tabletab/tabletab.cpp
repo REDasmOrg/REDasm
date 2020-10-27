@@ -36,14 +36,14 @@ TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), u
     connect(ui->tvTable, &QTreeView::doubleClicked, this, &TableTab::onTableDoubleClick);
     connect(ui->pbClear, &QPushButton::clicked, ui->leFilter, &QLineEdit::clear);
 
-    RDContext_Subscribe(model->context().get(), this, [](const RDEventArgs* e) {
+    RDObject_Subscribe(model->context().get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<TableTab*>(e->owner);
         if((e->eventid != Event_BusyChanged) || RDContext_IsBusy(thethis->m_listingitemmodel->context().get())) return;
         emit thethis->resizeColumns();
     }, nullptr);
 }
 
-TableTab::~TableTab() { RDContext_Unsubscribe(m_listingitemmodel->context().get(), this); delete ui; }
+TableTab::~TableTab() { RDObject_Unsubscribe(m_listingitemmodel->context().get(), this); delete ui; }
 ListingItemModel* TableTab::model() const { return m_listingitemmodel; }
 void TableTab::setSectionResizeMode(int idx, QHeaderView::ResizeMode mode) { ui->tvTable->header()->setSectionResizeMode(idx, mode); }
 void TableTab::setColumnHidden(int idx) { ui->tvTable->setColumnHidden(idx, true); }
@@ -56,7 +56,7 @@ void TableTab::onTableDoubleClick(const QModelIndex& index)
     QModelIndex srcindex = m_filtermodel->mapToSource(index);
     const RDDocumentItem& item = m_listingitemmodel->item(srcindex);
 
-    DisassemblerHooks::instance()->activeCommand()->gotoItem(item);
+    DisassemblerHooks::instance()->activeCommand()->goTo(item);
     //DisassemblerHooks::instance()->focusOn(DisassemblerHooks::instance()->activeCommandTab()->widget());
 }
 

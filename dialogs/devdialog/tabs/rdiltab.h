@@ -20,7 +20,7 @@ class RDILTab : public QWidget
     private:
         Ui::RDILTab *ui;
         ICommand* m_command{nullptr};
-        rd_ptr<RDRenderer> m_renderer;
+        //rd_ptr<RDRenderer> m_renderer;
         rd_ptr<RDGraph> m_graph;
 };
 

@@ -6,13 +6,13 @@
 #include <QColor>
 
 ListingItemModel::ListingItemModel(rd_type itemtype, QObject *parent) : ContextModel(parent), m_itemtype(itemtype) { }
-ListingItemModel::~ListingItemModel() { if(m_context) RDContext_Unsubscribe(m_context.get(), this); }
+ListingItemModel::~ListingItemModel() { if(m_context) RDObject_Unsubscribe(m_context.get(), this); }
 
 void ListingItemModel::setContext(const RDContextPtr& disassembler)
 {
     ContextModel::setContext(disassembler);
 
-    RDContext_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
+    RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         if(e->eventid != Event_DocumentChanged) return;
         ListingItemModel* thethis = reinterpret_cast<ListingItemModel*>(e->owner);
         const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
@@ -30,18 +30,16 @@ void ListingItemModel::setContext(const RDContextPtr& disassembler)
     this->beginResetModel();
     m_items.clear();
 
-    size_t c = RDDocument_ItemsCount(m_document);
-
-    for(size_t i = 0; i < c; i++)
-    {
-        RDDocumentItem item;
-        RDDocument_GetItemAt(m_document, i, &item);
-        this->insertItem(item);
-    }
+    RDDocument_Each(m_document, [](const RDDocumentItem* item, void* userdata) {
+        auto* thethis = reinterpret_cast<ListingItemModel*>(userdata);
+        thethis->insertItem(*item);
+        return true;
+    }, this);
 
     this->endResetModel();
 }
 
+const RDDocumentItem& ListingItemModel::item(size_t index) const { return m_items[index]; }
 const RDDocumentItem& ListingItemModel::item(const QModelIndex &index) const { return m_items[index.row()]; }
 rd_type ListingItemModel::itemType() const { return m_itemtype; }
 int ListingItemModel::rowCount(const QModelIndex &) const { return m_document ? m_items.size() : 0; }

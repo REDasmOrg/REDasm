@@ -23,6 +23,6 @@ class DisassemblerPopup : public QWidget
         RDContextPtr m_context;
         QTextDocument* m_textdocument;
         DisassemblerPopupWidget* m_popupwidget;
-        std::unique_ptr<DocumentRenderer> m_renderer;
+        //std::unique_ptr<DocumentRenderer> m_renderer;
         QPoint m_lastpos;
 };

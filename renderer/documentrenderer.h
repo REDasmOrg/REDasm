@@ -3,10 +3,12 @@
 #include "qtrenderer.h"
 #include <QTextDocument>
 
+struct RDRendererItem;
+
 class DocumentRenderer : public QtRenderer
 {
     public:
-        DocumentRenderer(QTextDocument* textdocument, const RDContextPtr& ctx, RDCursor* cursor, rd_flag flags = RendererFlags_Normal);
+        DocumentRenderer(QTextDocument* textdocument, const RDContextPtr& ctx, RDCursor* cursor, rd_flag flags = SurfaceFlags_Normal);
         QTextDocument* textDocument() const;
         qreal maxWidth() const;
         void render(size_t first, size_t last);

@@ -2,12 +2,12 @@
 #include "../themeprovider.h"
 
 ReferencesModel::ReferencesModel(const ICommand* command, QObject *parent): ContextModel(parent), m_command(command) { }
-ReferencesModel::~ReferencesModel() { if(m_renderer) RD_Free(m_renderer); }
+ReferencesModel::~ReferencesModel() { /* if(m_renderer) RDObject_Free(m_renderer); */ }
 
 void ReferencesModel::setContext(const RDContextPtr& disassembler)
 {
     ContextModel::setContext(disassembler);
-    m_renderer = RDRenderer_Create(m_context.get(), nullptr, RendererFlags_Simplified);
+    //m_renderer = RDRenderer_Create(m_context.get(), nullptr, RendererFlags_Simplified);
 }
 
 void ReferencesModel::clear()
@@ -38,7 +38,7 @@ QModelIndex ReferencesModel::index(int row, int column, const QModelIndex&) cons
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 {
-    if(!m_context || !m_renderer || RDContext_IsBusy(m_context.get())) return QVariant();
+    if(!m_context /* || !m_renderer */ || RDContext_IsBusy(m_context.get())) return QVariant();
 
     RDDocument* doc = RDContext_GetDocument(m_context.get());
     RDDocumentItem item;
@@ -55,8 +55,8 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
         else if(index.column() == 1) return this->direction(doc, item.address);
         else if(index.column() == 2)
         {
-            if(IS_TYPE(&item, DocumentItemType_Instruction)) return RDRenderer_GetInstruction(m_renderer, item.address);
-            else if(IS_TYPE(&item, DocumentItemType_Symbol)) return RDDocument_GetSymbolName(doc, item.address);
+            //if(IS_TYPE(&item, DocumentItemType_Instruction)) return RDRenderer_GetInstruction(m_renderer, item.address);
+            //else if(IS_TYPE(&item, DocumentItemType_Symbol)) return RDDocument_GetSymbolName(doc, item.address);
         }
     }
     else if(role == Qt::ForegroundRole)
@@ -108,7 +108,7 @@ QString ReferencesModel::direction(RDDocument* doc, rd_address address) const
     if(!m_command) return QString();
 
     RDDocumentItem item;
-    if(!RDDocument_GetItemAt(doc, m_command->currentPosition()->line, &item)) return QString();
+    if(!RDDocument_GetItemAt(doc, m_command->currentPosition()->row, &item)) return QString();
 
     if(address > item.address) return "Down";
     if(address < item.address) return "Up";

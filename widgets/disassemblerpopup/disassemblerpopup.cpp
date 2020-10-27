@@ -10,14 +10,14 @@ DisassemblerPopup::DisassemblerPopup(const RDContextPtr& ctx, QWidget *parent): 
     m_textdocument = new QTextDocument(this);
     m_textdocument->setDocumentLayout(new QPlainTextDocumentLayout(m_textdocument));
 
-    m_renderer = std::make_unique<DocumentRenderer>(m_textdocument, ctx, nullptr,
-                                                    RendererFlags_NoAddress | RendererFlags_NoHighlightWords | RendererFlags_NoCursor);
+    //m_renderer = std::make_unique<DocumentRenderer>(m_textdocument, ctx, nullptr,
+                                                    //RendererFlags_NoAddress | RendererFlags_NoHighlightWords | RendererFlags_NoCursor);
 
-    m_popupwidget = new DisassemblerPopupWidget(m_renderer.get(), ctx, this);
+    //m_popupwidget = new DisassemblerPopupWidget(m_renderer.get(), ctx, this);
 
     QVBoxLayout* vboxlayout = new QVBoxLayout(this);
     vboxlayout->setContentsMargins(0, 0, 0, 0);
-    vboxlayout->addWidget(m_popupwidget);
+    //vboxlayout->addWidget(m_popupwidget);
     this->setLayout(vboxlayout);
 
     this->setAttribute(Qt::WA_TranslucentBackground);
@@ -66,6 +66,6 @@ void DisassemblerPopup::wheelEvent(QWheelEvent* e)
 
 void DisassemblerPopup::updateGeometry()
 {
-    this->setFixedWidth(m_renderer->maxWidth());
-    this->setFixedHeight(m_popupwidget->rows() * std::ceil(m_renderer->fontMetrics().height()));
+    //this->setFixedWidth(m_renderer->maxWidth());
+    //this->setFixedHeight(m_popupwidget->rows() * std::ceil(m_renderer->fontMetrics().height()));
 }

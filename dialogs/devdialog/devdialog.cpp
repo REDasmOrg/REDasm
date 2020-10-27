@@ -11,11 +11,11 @@ void DevDialog::setCommand(ICommand* command)
 {
     m_command = command;
 
-    RDContext_Subscribe(command->context().get(), this, [](const RDEventArgs* e) {
+    RDObject_Subscribe(command->context().get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<DevDialog*>(e->owner);
 
         if(e->eventid == Event_ContextFree) {
-            RDContext_Unsubscribe(reinterpret_cast<RDContext*>(e->sender), e->owner);
+            RDObject_Unsubscribe(reinterpret_cast<RDContext*>(e->sender), e->owner);
             return;
         }
 

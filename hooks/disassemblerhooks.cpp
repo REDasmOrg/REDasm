@@ -338,7 +338,7 @@ void DisassemblerHooks::hook()
 
     connect(m_pbrenderer, &QPushButton::clicked, this, [&]() {
         const RDContextPtr& ctx = this->activeContext();
-        RDContext_SetFlags(ctx.get(), ContextFlags_ShowRDIL, !RDContext_HasFlags(ctx.get(), ContextFlags_ShowRDIL));
+        RDContext_SetFlags(ctx.get(), ContextFlags_ShowRDIL, !RDContext_HasFlag(ctx.get(), ContextFlags_ShowRDIL));
         this->checkListingMode();
     });
 
@@ -358,7 +358,7 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
 
     if(dlgloader.exec() != LoaderDialog::Accepted)
     {
-        RD_Free(buffer);
+        RDObject_Free(buffer);
         return;
     }
 
@@ -430,7 +430,7 @@ QMenu* DisassemblerHooks::createActions(ICommand* command)
     actions[DisassemblerHooks::Action_Follow] = contextmenu->addAction("Follow", this, [command]() {
         RDSymbol symbol;
         if(!command->getSelectedSymbol(&symbol)) return false;
-        return command->gotoAddress(symbol.address);
+        return command->goToAddress(symbol.address);
     });
 
     actions[DisassemblerHooks::Action_FollowPointerHexDump] = contextmenu->addAction("Follow pointer in Hex Dump", this, [&, command]() {
@@ -544,7 +544,7 @@ void DisassemblerHooks::load(const QString& filepath)
 
     RDBuffer* buffer = RDBuffer_CreateFromFile(qUtf8Printable(filepath));
     if(buffer && RDBuffer_Size(buffer)) this->showLoaders(filepath, buffer);
-    else if(buffer) RD_Free(buffer);
+    else if(buffer) RDObject_Free(buffer);
 }
 
 void DisassemblerHooks::dock(QWidget* w, Qt::DockWidgetArea area)
@@ -566,7 +566,7 @@ OutputDock* DisassemblerHooks::outputDock() const { return m_mainwindow->findChi
 
 void DisassemblerHooks::checkListingMode()
 {
-    if(RDContext_HasFlags(this->activeContext().get(), ContextFlags_ShowRDIL)) m_pbrenderer->setText("RDIL");
+    if(RDContext_HasFlag(this->activeContext().get(), ContextFlags_ShowRDIL)) m_pbrenderer->setText("RDIL");
     else m_pbrenderer->setText("Listing");
 }
 

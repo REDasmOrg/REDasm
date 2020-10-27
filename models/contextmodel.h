@@ -13,6 +13,7 @@ class ContextModel : public QAbstractListModel
 
     public:
         const RDContextPtr& context() const;
+        const RDDocument* document() const;
         RDDisassembler* disassembler() const;
         virtual void setContext(const RDContextPtr& context);
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;

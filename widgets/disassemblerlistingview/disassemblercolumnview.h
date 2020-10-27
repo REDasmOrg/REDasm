@@ -7,7 +7,7 @@
 #include <QSet>
 #include "../hooks/icommand.h"
 
-class DisassemblerTextView;
+class ListingTextView;
 
 class DisassemblerColumnView : public QWidget
 {
@@ -19,7 +19,7 @@ class DisassemblerColumnView : public QWidget
     public:
         explicit DisassemblerColumnView(QWidget *parent = nullptr);
         virtual ~DisassemblerColumnView();
-        void linkTo(DisassemblerTextView* textview);
+        void linkTo(ListingTextView* textview);
 
     protected:
         void paintEvent(QPaintEvent*) override;
@@ -34,7 +34,7 @@ class DisassemblerColumnView : public QWidget
         void renderArrows();
 
     private:
-        DisassemblerTextView* m_textview{nullptr};
+        ListingTextView* m_textview{nullptr};
         RDContextPtr m_context;
         RDDocument* m_document{nullptr};
         QList<ArrowPath> m_paths;

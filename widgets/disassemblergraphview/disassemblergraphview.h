@@ -17,8 +17,8 @@ class DisassemblerGraphView : public GraphView, public ICommand
         void goBack() override;
         void goForward() override;
         void copy() const override;
-        bool gotoAddress(rd_address address) override;
-        bool gotoItem(const RDDocumentItem& item) override;
+        bool goToAddress(rd_address address) override;
+        bool goTo(const RDDocumentItem& item) override;
         bool hasSelection() const override;
         bool canGoBack() const override;
         bool canGoForward() const override;

@@ -13,6 +13,7 @@ class ListingItemModel : public ContextModel
         explicit ListingItemModel(rd_type itemtype, QObject *parent = nullptr);
         virtual ~ListingItemModel();
         void setContext(const RDContextPtr& disassembler) override;
+        const RDDocumentItem& item(size_t index) const;
         const RDDocumentItem& item(const QModelIndex& index) const;
         rd_type itemType() const;
 

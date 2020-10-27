@@ -5,6 +5,7 @@
 #include "tabs/tabletab/tabletab.h"
 #include "tabs/listingtab/listingtab.h"
 #include "docks/listingmapdock/listingmapdock.h"
+#include "surfaceview/surfaceview.h"
 #include <QMessageBox>
 #include <QBoxLayout>
 
@@ -19,16 +20,16 @@ DisassemblerView::DisassemblerView(const RDContextPtr& ctx, QWidget *parent) : Q
     this->setLayout(boxlayout);
 
     ICommandTab* commandtab = this->showListing();
-    m_listingmapdock = new ListingMapDock(commandtab->command());
+    //m_listingmapdock = new ListingMapDock(commandtab->command());
 
     this->showFunctions(Qt::LeftDockWidgetArea);
     this->showSegments();
     this->showExports();
     this->showImports();
     this->showStrings();
-    this->dock(m_listingmapdock, Qt::RightDockWidgetArea);
+    //this->dock(m_listingmapdock, Qt::RightDockWidgetArea);
 
-    RDContext_Subscribe(ctx.get(), this, &DisassemblerView::listenEvents, this);
+    RDObject_Subscribe(ctx.get(), this, &DisassemblerView::listenEvents, this);
 
     m_worker = std::async([&, ctx]() { // Capture 'disassembler' by value
         RDContext_Disassemble(ctx.get());
@@ -38,7 +39,7 @@ DisassemblerView::DisassemblerView(const RDContextPtr& ctx, QWidget *parent) : Q
 
 DisassemblerView::~DisassemblerView()
 {
-    RDContext_Unsubscribe(m_context.get(), this);
+    RDObject_Unsubscribe(m_context.get(), this);
 
     if(m_worker.valid()) m_worker.get();
     while(!m_docks.empty()) this->undock(*m_docks.begin());
@@ -177,18 +178,6 @@ void DisassemblerView::listenEvents(const RDEventArgs* e)
         case Event_BusyChanged:
             QMetaObject::invokeMethod(DisassemblerHooks::instance(), "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RDContext_IsBusy(thethis->m_context.get())));
             break;
-
-        case Event_CursorPositionChanged: {
-            auto* hooks = DisassemblerHooks::instance();
-            const auto* ce  = reinterpret_cast<const RDCursorEventArgs*>(e);
-
-            if(hooks->activeCommandTab()) {
-                if(hooks->activeCommandTab()->command()->cursor() != ce->sender) return;
-                hooks->statusAddress(hooks->activeCommandTab()->command());
-            }
-            else rd_status(std::string());
-            break;
-        }
 
         case Event_Error: {
             const auto* ee = reinterpret_cast<const RDErrorEventArgs*>(e);

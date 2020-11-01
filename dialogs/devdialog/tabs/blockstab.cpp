@@ -33,9 +33,10 @@ void BlocksTab::showBlocks(const QModelIndex& current, const QModelIndex&)
     if(!current.isValid()) return;
     RDDocument* doc = RDContext_GetDocument(m_command->context().get());
 
+    const RDDocumentItem& item = m_segmentsmodel->item(current);
     RDSegment segment;
 
-    if(RDDocument_GetSegmentAt(doc, current.row(), &segment))
+    if(RDDocument_GetSegmentAddress(doc, item.address, &segment))
         ui->tableWidget->setModel(new BlockListModel(m_command, RDDocument_GetBlocks(doc, segment.address)));
     else
         ui->tableWidget->setModel(new BlockListModel(m_command, nullptr));

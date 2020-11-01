@@ -27,6 +27,7 @@ class DisassemblerView : public QWidget
         ITableTab* showImports(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
         ITableTab* showStrings(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
         ICommandTab* showListing();
+        bool focusOn(QWidget* w);
 
     private:
         void tab(QWidget* w, int index = -1);

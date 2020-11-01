@@ -34,13 +34,13 @@ class GraphView : public CursorScrollArea
         void mousePressEvent(QMouseEvent* e) override;
         void mouseReleaseEvent(QMouseEvent* e) override;
         void mouseMoveEvent(QMouseEvent* e) override;
-        void wheelEvent(QWheelEvent* e) override;
+        void wheelEvent(QWheelEvent* event) override;
         void resizeEvent(QResizeEvent* e) override;
         void paintEvent(QPaintEvent*) override;
         void showEvent(QShowEvent* e) override;
         void focusBlock(const GraphViewItem* item, bool force = false);
         virtual void selectedItemChangedEvent();
-        virtual GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) const = 0;
+        virtual GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) = 0;
         virtual void computeEdge(const RDGraphEdge& e);
         virtual void computeNode(GraphViewItem* item);
         virtual void computeLayout();
@@ -49,9 +49,9 @@ class GraphView : public CursorScrollArea
     private:
         GraphViewItem* itemFromMouseEvent(QMouseEvent *e) const;
         void computeGraph();
-        void zoomOut(const QPoint& cursorpos);
-        void zoomIn(const QPoint& cursorpos);
-        void adjustSize(int vpw, int vph, const QPoint& cursorpos = QPoint(), bool fit = false);
+        void zoomOut(const QPointF& cursorpos);
+        void zoomIn(const QPointF& cursorpos);
+        void adjustSize(int vpw, int vph, const QPointF& cursorpos = QPoint(), bool fit = false);
         void precomputeArrow(const RDGraphEdge& e);
         void precomputeLine(const RDGraphEdge& e);
         bool updateSelectedItem(QMouseEvent* e);

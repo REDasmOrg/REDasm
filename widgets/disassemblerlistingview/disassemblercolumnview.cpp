@@ -11,7 +11,7 @@ DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
     this->setAutoFillBackground(true);
 }
 
-DisassemblerColumnView::~DisassemblerColumnView() { if(m_context) RDObject_Unsubscribe(m_context.get(), this); }
+DisassemblerColumnView::~DisassemblerColumnView() { if(m_textview) RDObject_Unsubscribe(m_textview->surface()->handle(), this); }
 
 void DisassemblerColumnView::linkTo(ListingTextView* textview)
 {
@@ -19,96 +19,20 @@ void DisassemblerColumnView::linkTo(ListingTextView* textview)
     m_context = textview->context();
     m_document = RDContext_GetDocument(m_context.get());
 
-    RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
+    RDObject_Subscribe(textview->surface()->handle(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<DisassemblerColumnView*>(e->owner);
-        if(!thethis->m_context || RDContext_IsBusy(thethis->m_context.get())) return;
-
-        if(e->eventid == Event_BusyChanged) QMetaObject::invokeMethod(thethis, "renderArrows", Qt::QueuedConnection);
-        else if(e->eventid == Event_CursorPositionChanged) QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
+        if(e->eventid != Event_SurfaceUpdated) return;
+        QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
     }, nullptr);
-
-    connect(m_textview->verticalScrollBar(), &QScrollBar::valueChanged, this, [&](int) { this->renderArrows(); });
-}
-
-void DisassemblerColumnView::renderArrows(size_t start, size_t count)
-{
-    m_first = start;
-    m_last = start + count - 1;
-
-    m_paths.clear();
-    m_done.clear();
-
-    if(RDContext_IsBusy(m_context.get())) return;
-    const RDNet* net = RDContext_GetNet(m_context.get());
-
-    for(size_t i = 0; i < count; i++, start++)
-    {
-        if(start >= RDDocument_GetSize(m_document)) break;
-
-        RDDocumentItem item;
-        if(!RDDocument_GetItemAt(m_document, start, &item)) continue;
-
-        if(IS_TYPE(&item, DocumentItemType_Instruction))
-        {
-            const RDNetNode* node = RDNet_FindNode(net, item.address);
-            if(!node) continue;
-
-            const rd_address* branches = nullptr;
-            size_t c = RDNetNode_GetBranchesTrue(node, &branches);
-
-            for(size_t i = 0; i < c; i++)
-            {
-                rd_address branch = branches[i];
-                if(branch == item.address) continue;
-
-                size_t idx = RDDocument_InstructionIndex(m_document, branch);
-                if(idx >= RDDocument_GetSize(m_document)) continue;
-                this->insertPath(net, item, start, idx);
-            }
-        }
-        else if(IS_TYPE(&item, DocumentItemType_Symbol))
-        {
-            RDSymbol symbol;
-            if(!RDDocument_GetSymbolByAddress(m_document, item.address, &symbol) || !IS_TYPE(&symbol, SymbolType_Label)) continue;
-
-            size_t toidx = RDDocument_InstructionIndex(m_document, item.address);
-            if(toidx >= RDDocument_GetSize(m_document)) continue;
-
-            const rd_address* refs = nullptr;
-            size_t c = RDNet_GetReferences(net, item.address, &refs);
-
-            for(size_t i = 0; i < c; i++)
-            {
-                rd_address r = refs[i];
-                if(r == item.address) continue;
-
-                size_t idx = RDDocument_InstructionIndex(m_document, r);
-                if(idx >= RDDocument_GetSize(m_document)) continue;
-
-                RDDocumentItem item;
-                RDDocument_GetItemAt(m_document, idx, &item);
-                this->insertPath(net, item, idx, toidx);
-            }
-        }
-    }
-
-    std::sort(m_paths.begin(), m_paths.end(), [](const ArrowPath& p1, const ArrowPath& p2) -> bool {
-        return p1.startidx < p2.startidx;
-    });
-
-    this->update();
-}
-
-void DisassemblerColumnView::renderArrows()
-{
-    if(!m_context || RDContext_IsBusy(m_context.get()) || !m_textview) return;
-    //this->renderArrows(m_textview->firstVisibleLine(), m_textview->visibleLines());
 }
 
 void DisassemblerColumnView::paintEvent(QPaintEvent*)
 {
-    if(!m_context || m_paths.empty())
-        return;
+    if(!m_context || !m_textview) return;
+
+    const RDPathItem* path = nullptr;
+    size_t c = RDSurface_GetPath(m_textview->surface()->handle(), &path);
+    if(!c) return;
 
     QPainter painter(this);
     QFontMetrics fm = this->fontMetrics();
@@ -119,40 +43,39 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
     int w = fm.width(" ");
 #endif
 
+    int rows = 0;
+    RDSurface_GetSize(m_textview->surface()->handle(), &rows, nullptr);
+
     int h = fm.height(), x = this->width() - (w * 2);
 
-    for(auto it = m_paths.begin(); it != m_paths.end(); it++, x -= w)
+    for(size_t i = 0; i < c; i++, x -= w, path++)
     {
-        const ArrowPath& path = *it;
-        int y1 = ((path.startidx - m_first) * h) + (h / 4);
-        int y2 = ((path.endidx - m_first) * h) + ((h * 3) / 4);
-        int y = ((path.endidx - m_first) * h);
+        int y1 = (path->fromrow * h) + (h / 4);
+        int y2 = (path->torow * h) + ((h * 3) / 4);
+        int y = (path->torow * h);
         int penwidth = this->isPathSelected(path) ? 3 : 2;
 
-        if(y2 > (y + (h / 2)))
-            y2 -= penwidth;
-        else if(y2 < (y + (h / 2)))
-            y2 += penwidth;
+        if(y2 > (y + (h / 2))) y2 -= penwidth;
+        else if(y2 < (y + (h / 2))) y2 += penwidth;
 
         QVector<QLine> points;
         points.push_back(QLine(this->width(), y1, x, y1));
         points.push_back(QLine(x, y1, x, y2));
         points.push_back(QLine(x, y2, this->width(), y2));
 
-        Qt::PenStyle penstyle = ((path.startidx < m_first) || (path.endidx > m_last)) ? Qt::DotLine : Qt::SolidLine;
-
-        painter.setPen(QPen(path.color, penwidth, penstyle));
+        Qt::PenStyle penstyle = ((path->fromrow == -1) || (path->torow > rows)) ? Qt::DotLine : Qt::SolidLine;
+        painter.setPen(QPen(THEME_VALUE(path->style), penwidth, penstyle));
         painter.drawLines(points);
 
-        painter.setPen(QPen(path.color, penwidth, Qt::SolidLine));
+        painter.setPen(QPen(THEME_VALUE(path->style), penwidth, Qt::SolidLine));
         this->fillArrow(&painter, y2, fm);
     }
 }
 
-bool DisassemblerColumnView::isPathSelected(const DisassemblerColumnView::ArrowPath &path) const
+bool DisassemblerColumnView::isPathSelected(const RDPathItem* item) const
 {
-    size_t line = m_textview->currentPosition()->row;
-    return (line == path.startidx) || (line == path.endidx);
+    int line = m_textview->currentPosition()->row;
+    return (line == item->fromrow) || (line == item->torow);
 }
 
 void DisassemblerColumnView::fillArrow(QPainter* painter, int y, const QFontMetrics& fm)

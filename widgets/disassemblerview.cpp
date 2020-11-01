@@ -5,7 +5,6 @@
 #include "tabs/tabletab/tabletab.h"
 #include "tabs/listingtab/listingtab.h"
 #include "docks/listingmapdock/listingmapdock.h"
-#include "surfaceview/surfaceview.h"
 #include <QMessageBox>
 #include <QBoxLayout>
 
@@ -195,6 +194,23 @@ ICommandTab* DisassemblerView::showListing()
     auto* listingtab = new ListingTab(m_context);
     m_disassemblertabs->insertTab(0, listingtab, listingtab->windowTitle());
     return listingtab;
+}
+
+bool DisassemblerView::focusOn(QWidget* w)
+{
+    QWidget* tw = nullptr;
+
+    for(int i = 0; i < m_disassemblertabs->count(); i++)
+    {
+        if(m_disassemblertabs->widget(i) != w) continue;
+
+        tw = w;
+        break;
+    }
+
+    if(!tw) return false;
+    m_disassemblertabs->setCurrentWidget(tw);
+    return true;
 }
 
 void DisassemblerView::tab(QWidget* w, int index)

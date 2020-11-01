@@ -39,43 +39,43 @@ ListingTextView::ListingTextView(QWidget *parent): QAbstractScrollArea(parent)
     this->horizontalScrollBar()->setMaximum(maxwidth);
 }
 
-RDCursor* ListingTextView::cursor() const { return m_rasync ? m_rasync->renderer()->cursor() : nullptr; }
 QWidget* ListingTextView::widget() { return this; }
 
 QString ListingTextView::currentWord() const
 {
-    if(!m_renderer) return QString();
-    const char* cw = RDSurface_GetCurrentWord(m_renderer->surface());
+    if(!m_surface) return QString();
+    const char* cw = RDSurface_GetCurrentWord(m_surface->handle());
     return cw ? cw : QString();
 }
 
 const RDContextPtr& ListingTextView::context() const { return m_context; }
-const RDCursorPos* ListingTextView::currentPosition() const { return m_renderer ? RDSurface_GetPosition(m_renderer->surface()) : nullptr; }
-const RDCursorPos* ListingTextView::currentSelection() const { return m_renderer ? RDSurface_GetSelection(m_renderer->surface()) : nullptr; }
-bool ListingTextView::canGoBack() const { return m_renderer ? RDSurface_CanGoBack(m_renderer->surface()) : false; }
-bool ListingTextView::canGoForward() const { return m_renderer ? RDSurface_CanGoForward(m_renderer->surface()) : false; }
+const RDSurfacePos* ListingTextView::currentPosition() const { return m_surface ? RDSurface_GetPosition(m_surface->handle()) : nullptr; }
+const RDSurfacePos* ListingTextView::currentSelection() const { return m_surface ? RDSurface_GetSelection(m_surface->handle()) : nullptr; }
+const RDDocumentItem* ListingTextView::firstItem() const { return RDSurface_GetFirstItem(m_surface->handle()); }
+const RDDocumentItem* ListingTextView::lastItem() const { return RDSurface_GetLastItem(m_surface->handle()); }
+SurfaceRenderer* ListingTextView::surface() const { return m_surface; }
+bool ListingTextView::canGoBack() const { return m_surface ? RDSurface_CanGoBack(m_surface->handle()) : false; }
+bool ListingTextView::canGoForward() const { return m_surface ? RDSurface_CanGoForward(m_surface->handle()) : false; }
 
 bool ListingTextView::getCurrentItem(RDDocumentItem* item) const
 {
-    if(!m_renderer) return false;
-    return RDSurface_GetCurrentItem(m_renderer->surface(), item);
+    if(!m_surface) return false;
+    return RDSurface_GetCurrentItem(m_surface->handle(), item);
 }
 
 bool ListingTextView::getSelectedSymbol(RDSymbol* symbol) const
 {
-    if(!m_renderer) return false;
-    return RDSurface_GetSelectedSymbol(m_renderer->surface(), symbol);
+    if(!m_surface) return false;
+    return RDSurface_GetCurrentSymbol(m_surface->handle(), symbol);
 }
 
-bool ListingTextView::ownsCursor(const RDCursor* cursor) const { return m_rasync ? (m_rasync->renderer()->cursor() == cursor) : false; }
-
-void ListingTextView::setContext(const RDContextPtr& disassembler)
+void ListingTextView::setContext(const RDContextPtr& ctx)
 {
-    m_context = disassembler;
-    m_document = RDContext_GetDocument(disassembler.get());
+    m_context = ctx;
+    m_document = RDContext_GetDocument(ctx.get());
 
-    m_renderer = new SurfaceRenderer(m_context, this);
-    connect(m_renderer, &SurfaceRenderer::renderCompleted, this, [&]() { this->viewport()->update(); });
+    m_surface = new SurfaceRenderer(m_context, RendererFlags_Normal, this);
+    connect(m_surface, &SurfaceRenderer::renderCompleted, this, [&]() { this->viewport()->update(); });
 
     m_contextmenu = DisassemblerHooks::instance()->createActions(this);
     connect(this, &ListingTextView::customContextMenuRequested, this, [&](const QPoint&) {
@@ -87,20 +87,20 @@ void ListingTextView::setContext(const RDContextPtr& disassembler)
 
 bool ListingTextView::goToAddress(rd_address address)
 {
-    if(!m_renderer) return false;
-    return RDSurface_GoToAddress(m_renderer->surface(), address);
+    if(!m_surface) return false;
+    return RDSurface_GoToAddress(m_surface->handle(), address);
 }
 
 bool ListingTextView::goTo(const RDDocumentItem& item)
 {
-    if(!m_renderer) return false;
-    return RDSurface_GoTo(m_renderer->surface(), &item);
+    if(!m_surface) return false;
+    return RDSurface_GoTo(m_surface->handle(), &item);
 }
 
-void ListingTextView::goBack() { if(m_renderer) RDSurface_GoBack(m_renderer->surface()); }
-void ListingTextView::goForward() { if(m_renderer) RDSurface_GoForward(m_renderer->surface()); }
-bool ListingTextView::hasSelection() const { return m_renderer ? RDSurface_HasSelection(m_renderer->surface()) : false;  }
-void ListingTextView::copy() const { if(m_rasync) m_rasync->renderer()->copy(); }
+void ListingTextView::goBack() { if(m_surface) RDSurface_GoBack(m_surface->handle()); }
+void ListingTextView::goForward() { if(m_surface) RDSurface_GoForward(m_surface->handle()); }
+bool ListingTextView::hasSelection() const { return m_surface ? RDSurface_HasSelection(m_surface->handle()) : false;  }
+void ListingTextView::copy() const { /* if(m_rasync) m_rasync->renderer()->copy(); */ }
 
 void ListingTextView::scrollContentsBy(int dx, int dy)
 {
@@ -108,40 +108,40 @@ void ListingTextView::scrollContentsBy(int dx, int dy)
 
 void ListingTextView::focusInEvent(QFocusEvent* event)
 {
-    if(m_renderer) RDSurface_EnableCursor(m_renderer->surface());
+    if(m_surface) RDSurface_Activate(m_surface->handle());
     QAbstractScrollArea::focusInEvent(event);
 }
 
 void ListingTextView::focusOutEvent(QFocusEvent* event)
 {
-    if(m_renderer) RDSurface_DisableCursor(m_renderer->surface());
+    if(m_surface) RDSurface_Deactivate(m_surface->handle());
     QAbstractScrollArea::focusOutEvent(event);
 }
 
 void ListingTextView::paintEvent(QPaintEvent *event)
 {
-    if(!m_renderer)
+    if(!m_surface)
     {
         QWidget::paintEvent(event);
         return;
     }
 
     QPainter painter(this->viewport());
-    painter.drawPixmap(QPoint(0, 0), m_renderer->pixmap());
+    painter.drawPixmap(QPoint(0, 0), m_surface->pixmap());
 }
 
 void ListingTextView::resizeEvent(QResizeEvent *event)
 {
     QAbstractScrollArea::resizeEvent(event);
     //this->adjustScrollBars();
-    if(m_renderer) m_renderer->resize();
+    if(m_surface) m_surface->resize();
 }
 
 void ListingTextView::mousePressEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        m_renderer->moveTo(event->pos());
+        m_surface->moveTo(event->pos());
         event->accept();
         return;
     }
@@ -151,9 +151,9 @@ void ListingTextView::mousePressEvent(QMouseEvent *event)
 
 void ListingTextView::mouseMoveEvent(QMouseEvent *event)
 {
-    if(m_renderer && (event->buttons() == Qt::LeftButton))
+    if(m_surface && (event->buttons() == Qt::LeftButton))
     {
-        m_renderer->select(event->pos());
+        m_surface->select(event->pos());
         event->accept();
         return;
     }
@@ -179,11 +179,11 @@ void ListingTextView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void ListingTextView::wheelEvent(QWheelEvent *event)
 {
-    if(m_renderer)
+    if(m_surface)
     {
         QPoint ndegrees = event->angleDelta() / 8;
         QPoint nsteps = ndegrees / 15;
-        m_renderer->scroll(-nsteps.y() * DOCUMENT_WHEEL_LINES, nsteps.x());
+        m_surface->scroll(-nsteps.y() * DOCUMENT_WHEEL_LINES, nsteps.x());
         event->accept();
         return;
     }
@@ -193,65 +193,65 @@ void ListingTextView::wheelEvent(QWheelEvent *event)
 
 void ListingTextView::keyPressEvent(QKeyEvent *event)
 {
-    if(!m_renderer)
+    if(!m_surface)
     {
         QAbstractScrollArea::keyPressEvent(event);
         return;
     }
 
-    const RDCursorPos* pos = RDSurface_GetPosition(m_renderer->surface());
+    const RDSurfacePos* pos = RDSurface_GetPosition(m_surface->handle());
 
     if(event->matches(QKeySequence::MoveToNextChar) || event->matches(QKeySequence::SelectNextChar))
     {
-        if(event->matches(QKeySequence::MoveToNextChar)) m_renderer->moveTo(pos->row, pos->column + 1);
-        else m_renderer->select(pos->row, pos->column + 1);
+        if(event->matches(QKeySequence::MoveToNextChar)) m_surface->moveTo(pos->row, pos->column + 1);
+        else m_surface->select(pos->row, pos->column + 1);
     }
     else if(event->matches(QKeySequence::MoveToPreviousChar) || event->matches(QKeySequence::SelectPreviousChar))
     {
-        if(event->matches(QKeySequence::MoveToPreviousChar)) m_renderer->moveTo(pos->row, pos->column - 1);
-        else m_renderer->select(pos->row, pos->column - 1);
+        if(event->matches(QKeySequence::MoveToPreviousChar)) m_surface->moveTo(pos->row, pos->column - 1);
+        else m_surface->select(pos->row, pos->column - 1);
     }
     else if(event->matches(QKeySequence::MoveToNextLine) || event->matches(QKeySequence::SelectNextLine))
     {
         int nextline = pos->row + 1;
-        if(event->matches(QKeySequence::MoveToNextLine)) m_renderer->moveTo(nextline, pos->column);
-        else m_renderer->select(nextline, pos->column);
+        if(event->matches(QKeySequence::MoveToNextLine)) m_surface->moveTo(nextline, pos->column);
+        else m_surface->select(nextline, pos->column);
     }
     else if(event->matches(QKeySequence::MoveToPreviousLine) || event->matches(QKeySequence::SelectPreviousLine))
     {
         int prevline = pos->row - 1;
-        if(event->matches(QKeySequence::MoveToPreviousLine)) m_renderer->moveTo(prevline, pos->column);
-        else m_renderer->select(prevline, pos->column);
+        if(event->matches(QKeySequence::MoveToPreviousLine)) m_surface->moveTo(prevline, pos->column);
+        else m_surface->select(prevline, pos->column);
     }
     else if(event->matches(QKeySequence::MoveToNextPage) || event->matches(QKeySequence::SelectNextPage))
     {
-        if(event->matches(QKeySequence::MoveToNextPage)) RDSurface_Scroll(m_renderer->surface(), m_renderer->rows(), 0);
-        else RDSurface_Select(m_renderer->surface(), m_renderer->rows(), pos->column);
+        if(event->matches(QKeySequence::MoveToNextPage)) RDSurface_Scroll(m_surface->handle(), m_surface->rows(), 0);
+        else RDSurface_Select(m_surface->handle(), m_surface->rows(), pos->column);
     }
     else if(event->matches(QKeySequence::MoveToPreviousPage) || event->matches(QKeySequence::SelectPreviousPage))
     {
-        if(event->matches(QKeySequence::MoveToPreviousPage)) RDSurface_Scroll(m_renderer->surface(), -m_renderer->rows(), 0);
-        else RDSurface_Select(m_renderer->surface(), -m_renderer->rows(), pos->column);
+        if(event->matches(QKeySequence::MoveToPreviousPage)) RDSurface_Scroll(m_surface->handle(), -m_surface->rows(), 0);
+        else RDSurface_Select(m_surface->handle(), -m_surface->rows(), pos->column);
     }
     else if(event->matches(QKeySequence::MoveToStartOfDocument) || event->matches(QKeySequence::SelectStartOfDocument))
     {
-        if(event->matches(QKeySequence::MoveToStartOfDocument)) m_renderer->moveTo(0, 0);
-        else m_renderer->select(0, 0);
+        if(event->matches(QKeySequence::MoveToStartOfDocument)) m_surface->moveTo(0, 0);
+        else m_surface->select(0, 0);
     }
     else if(event->matches(QKeySequence::MoveToEndOfDocument) || event->matches(QKeySequence::SelectEndOfDocument))
     {
-        if(event->matches(QKeySequence::MoveToEndOfDocument)) RDSurface_MoveTo(m_renderer->surface(), -1, pos->column);
-        else RDSurface_Select(m_renderer->surface(), -1, pos->column);
+        if(event->matches(QKeySequence::MoveToEndOfDocument)) RDSurface_MoveTo(m_surface->handle(), -1, pos->column);
+        else RDSurface_Select(m_surface->handle(), -1, pos->column);
     }
     else if(event->matches(QKeySequence::MoveToStartOfLine) || event->matches(QKeySequence::SelectStartOfLine))
     {
-        if(event->matches(QKeySequence::MoveToStartOfLine)) m_renderer->moveTo(pos->row, 0);
-        else m_renderer->select(pos->row, 0);
+        if(event->matches(QKeySequence::MoveToStartOfLine)) m_surface->moveTo(pos->row, 0);
+        else m_surface->select(pos->row, 0);
     }
     else if(event->matches(QKeySequence::MoveToEndOfLine) || event->matches(QKeySequence::SelectEndOfLine))
     {
-        if(event->matches(QKeySequence::MoveToEndOfLine)) RDSurface_MoveTo(m_renderer->surface(), pos->row, -1);
-        else RDSurface_Select(m_renderer->surface(), pos->row, -1);
+        if(event->matches(QKeySequence::MoveToEndOfLine)) RDSurface_MoveTo(m_surface->handle(), pos->row, -1);
+        else RDSurface_Select(m_surface->handle(), pos->row, -1);
     }
     else if(event->key() == Qt::Key_Space) emit switchView();
     else QAbstractScrollArea::keyPressEvent(event);
@@ -271,7 +271,7 @@ bool ListingTextView::event(QEvent *event)
 
 bool ListingTextView::followUnderCursor()
 {
-    if(!m_renderer) return false;
+    if(!m_surface) return false;
 
     RDSymbol symbol;
     if(!this->getSelectedSymbol(&symbol)) return false;
@@ -291,16 +291,16 @@ void ListingTextView::adjustScrollBars()
 
 void ListingTextView::showPopup(const QPointF& pt)
 {
-    if(!RDDocument_GetSize(m_document)) return;
+    if(!m_surface || !RDDocument_GetSize(m_document)) return;
+    auto [row, col] = m_surface->mapPoint(pt);
 
-    // QString word = m_rasync->renderer()->getWordFromPoint(pt, nullptr);
+    RDSymbol symbol;
 
-    // if(!word.isEmpty())
-    // {
-    //     RDCursorPos pos = m_rasync->renderer()->hitTest(pt);
-    //     m_disassemblerpopup->popup(word, pos.row);
-    //     return;
-    // }
+    if(RDSurface_GetSymbolAt(m_surface->handle(), row, col, &symbol))
+    {
+        m_disassemblerpopup->popup(&symbol);
+        return;
+    }
 
-    // m_disassemblerpopup->hide();
+    m_disassemblerpopup->hide();
 }

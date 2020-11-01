@@ -67,6 +67,7 @@ class DisassemblerHooks: public QObject
         void showDeveloperTools();
         void showDatabase();
         void showProblems();
+        void focusOn(QWidget* w);
 
     public:
         ICommandTab* activeCommandTab() const;

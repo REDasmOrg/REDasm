@@ -24,12 +24,13 @@ class DisassemblerGraphView : public GraphView, public ICommand
         bool canGoForward() const override;
         bool getCurrentItem(RDDocumentItem* item) const override;
         bool getSelectedSymbol(RDSymbol* symbol) const override;
-        bool ownsCursor(const RDCursor* cursor) const override;
-        const RDCursorPos* currentPosition() const override;
-        const RDCursorPos* currentSelection() const override;
+        const RDSurfacePos* currentPosition() const override;
+        const RDSurfacePos* currentSelection() const override;
+        const RDDocumentItem* firstItem() const override;
+        const RDDocumentItem* lastItem() const override;
+        SurfaceRenderer* surface() const override;
         QString currentWord() const override;
         const RDContextPtr& context() const override;
-        RDCursor* cursor() const override;
         QWidget* widget() override;
 
     public slots:
@@ -47,7 +48,7 @@ class DisassemblerGraphView : public GraphView, public ICommand
         void showEvent(QShowEvent* e) override;
         void computeEdge(const RDGraphEdge& e) override;
         void computeNode(GraphViewItem* item) override;
-        GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) const override;
+        GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) override;
         void computed() override;
 
     private slots:

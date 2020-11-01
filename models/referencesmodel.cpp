@@ -1,14 +1,8 @@
 #include "referencesmodel.h"
 #include "../themeprovider.h"
+#include <array>
 
 ReferencesModel::ReferencesModel(const ICommand* command, QObject *parent): ContextModel(parent), m_command(command) { }
-ReferencesModel::~ReferencesModel() { /* if(m_renderer) RDObject_Free(m_renderer); */ }
-
-void ReferencesModel::setContext(const RDContextPtr& disassembler)
-{
-    ContextModel::setContext(disassembler);
-    //m_renderer = RDRenderer_Create(m_context.get(), nullptr, RendererFlags_Simplified);
-}
 
 void ReferencesModel::clear()
 {
@@ -38,25 +32,26 @@ QModelIndex ReferencesModel::index(int row, int column, const QModelIndex&) cons
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 {
-    if(!m_context /* || !m_renderer */ || RDContext_IsBusy(m_context.get())) return QVariant();
+    static std::array<rd_type, 3> TYPES = { DocumentItemType_Instruction,
+                                            DocumentItemType_Symbol,
+                                            DocumentItemType_None };
+
+    if(!m_context || RDContext_IsBusy(m_context.get())) return QVariant();
 
     RDDocument* doc = RDContext_GetDocument(m_context.get());
     RDDocumentItem item;
 
-    if(!RDDocument_GetInstructionItem(doc, m_references[index.row()], &item))
-    {
-        if(!RDDocument_GetSymbolItem(doc, m_references[index.row()], &item))
-            return QVariant();
-    }
+    if(!RDDocument_GetAny(doc, m_references[index.row()], TYPES.data(), &item))
+        return QVariant();
 
     if(role == Qt::DisplayRole)
     {
         if(index.column() == 0) return RD_ToHexAuto(item.address);
-        else if(index.column() == 1) return this->direction(doc, item.address);
+        else if(index.column() == 1) return this->direction(item.address);
         else if(index.column() == 2)
         {
-            //if(IS_TYPE(&item, DocumentItemType_Instruction)) return RDRenderer_GetInstruction(m_renderer, item.address);
-            //else if(IS_TYPE(&item, DocumentItemType_Symbol)) return RDDocument_GetSymbolName(doc, item.address);
+            if(IS_TYPE(&item, DocumentItemType_Instruction)) return RD_GetInstruction(m_context.get(), item.address);
+            else if(IS_TYPE(&item, DocumentItemType_Symbol)) return RDDocument_GetSymbolName(doc, item.address);
         }
     }
     else if(role == Qt::ForegroundRole)
@@ -100,15 +95,15 @@ QVariant ReferencesModel::headerData(int section, Qt::Orientation orientation, i
     return QVariant();
 }
 
-int ReferencesModel::rowCount(const QModelIndex &) const { return static_cast<int>(m_referencescount); }
+int ReferencesModel::rowCount(const QModelIndex &) const { return m_referencescount; }
 int ReferencesModel::columnCount(const QModelIndex &) const { return 3; }
 
-QString ReferencesModel::direction(RDDocument* doc, rd_address address) const
+QString ReferencesModel::direction(rd_address address) const
 {
     if(!m_command) return QString();
 
     RDDocumentItem item;
-    if(!RDDocument_GetItemAt(doc, m_command->currentPosition()->row, &item)) return QString();
+    if(!m_command->getCurrentItem(&item)) return QString();
 
     if(address > item.address) return "Down";
     if(address < item.address) return "Up";

@@ -119,6 +119,7 @@ void DisassemblerHooks::showDatabase()
 }
 
 void DisassemblerHooks::showProblems() { ProblemsDialog dlgproblems(this->activeContext(), m_mainwindow); dlgproblems.exec(); }
+void DisassemblerHooks::focusOn(QWidget* w) { if(m_disassemblerview) m_disassemblerview->focusOn(w); }
 
 ICommandTab* DisassemblerHooks::activeCommandTab() const
 {
@@ -166,7 +167,7 @@ void DisassemblerHooks::onWindowActionTriggered(QAction* action)
         case 0: {
             ICommandTab* tab = m_activecommandtab;
             if(!tab) tab = m_disassemblerview->showListing();
-            //this->focusOn(dynamic_cast<QWidget*>(tab));
+            this->focusOn(dynamic_cast<QWidget*>(tab));
             break;
         }
 

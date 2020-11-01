@@ -9,6 +9,7 @@ GotoFilterModel::GotoFilterModel(QObject *parent) : QSortFilterProxyModel(parent
 }
 
 void GotoFilterModel::setContext(const RDContextPtr& ctx) { static_cast<GotoModel*>(this->sourceModel())->setContext(ctx); }
+const RDDocumentItem& GotoFilterModel::item(const QModelIndex& index) const { return static_cast<GotoModel*>(this->sourceModel())->item(this->mapToSource(index)); }
 
 bool GotoFilterModel::filterAcceptsRow(int sourcerow, const QModelIndex &sourceparent) const
 {

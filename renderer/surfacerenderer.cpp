@@ -2,14 +2,16 @@
 #include "../hooks/disassemblerhooks.h"
 #include "../hooks/icommand.h"
 #include "../themeprovider.h"
+#include <QAbstractScrollArea>
 #include <QApplication>
 #include <QPainter>
 #include <QWidget>
 #include <cmath>
 
-SurfaceRenderer::SurfaceRenderer(const RDContextPtr& ctx, QObject* parent): QObject(parent), m_context(ctx)
+SurfaceRenderer::SurfaceRenderer(const RDContextPtr& ctx, rd_flag flags, QObject* parent): QObject(parent), m_context(ctx)
 {
-    m_surface = rd_ptr<RDSurface>(RDSurface_Create(ctx.get(), SurfaceFlags_Normal));
+    m_basecolor = this->owner()->palette().color(QPalette::Base);
+    m_surface = rd_ptr<RDSurface>(RDSurface_Create(ctx.get(), flags));
 
     QFontMetricsF fm = this->fontMetrics();
     m_cellsize.rheight() = fm.height();
@@ -37,12 +39,30 @@ SurfaceRenderer::SurfaceRenderer(const RDContextPtr& ctx, QObject* parent): QObj
     }, nullptr);
 }
 
-RDSurface* SurfaceRenderer::surface() const { return m_surface.get(); }
 const QPixmap& SurfaceRenderer::pixmap() const { return m_pixmap; }
+RDSurface* SurfaceRenderer::handle() const { return m_surface.get(); }
+
+RDSurfacePos SurfaceRenderer::mapPoint(const QPointF& pt) const
+{
+    return { static_cast<int>(pt.y() / m_cellsize.height()),
+                static_cast<int>(pt.x() / m_cellsize.width()) };
+}
+
+const QColor& SurfaceRenderer::baseColor() const { return m_basecolor; }
+
+QSize SurfaceRenderer::size() const
+{
+    int rows = 0, cols = 0;
+    RDSurface_GetSize(m_surface.get(), &rows, &cols);
+    return QSize(cols * m_cellsize.width(), rows * m_cellsize.height());
+}
+
 int SurfaceRenderer::rows() const { return this->owner()->height() / m_cellsize.height(); }
-const QWidget* SurfaceRenderer::owner() const { return dynamic_cast<QWidget*>(this->parent()); }
+void SurfaceRenderer::setBaseColor(const QColor& c) { m_basecolor = c; }
+QWidget* SurfaceRenderer::owner() const { return dynamic_cast<QWidget*>(this->parent()); }
 QFontMetricsF SurfaceRenderer::fontMetrics() const { return QFontMetricsF(this->owner()->font()); }
 void SurfaceRenderer::scroll(int nrows, int ncols) { RDSurface_Scroll(m_surface.get(), nrows, ncols); }
+bool SurfaceRenderer::goToAddress(rd_address address) { return RDSurface_GoToAddress(m_surface.get(), address); }
 void SurfaceRenderer::moveTo(int row, int col) { RDSurface_MoveTo(m_surface.get(), row, col); }
 
 void SurfaceRenderer::moveTo(const QPointF& pt)
@@ -61,24 +81,25 @@ void SurfaceRenderer::select(const QPointF& pt)
                      pt.x() / m_cellsize.width());
 }
 
-void SurfaceRenderer::resize()
+void SurfaceRenderer::resize(int row, int cols) { this->resize({ cols * m_cellsize.width(), row * m_cellsize.height() }); }
+void SurfaceRenderer::resize() { this->resize({ static_cast<qreal>(this->owner()->width()), static_cast<qreal>(this->owner()->height()) }); }
+
+void SurfaceRenderer::resize(const QSizeF& size)
 {
-    QFontMetricsF fm(this->fontMetrics());
-    int w = this->owner()->width(), h = this->owner()->height();
-    m_image = QImage(QSize(w, h), QImage::Format_RGB32);
+    m_image = QImage(QSize(size.width(), size.height()), QImage::Format_RGB32);
 
     RDSurface_Resize(m_surface.get(),
-                     h / m_cellsize.height(),
-                     w / m_cellsize.width());
+                     size.height() / m_cellsize.height(),
+                     size.width() / m_cellsize.width());
 }
 
 void SurfaceRenderer::applyBackground(QPainter* painter, const RDSurfaceCell& cell) const
 {
     switch(cell.background)
     {
-        case Theme_Default: painter->setBackground(qApp->palette().brush(QPalette::Base)); break;
-        case Theme_CursorBg: painter->setBackground(qApp->palette().brush(QPalette::WindowText)); break;
-        case Theme_SelectionBg: painter->setBackground(qApp->palette().brush(QPalette::Highlight)); break;
+        case Theme_Default: painter->setBackground(m_basecolor); break;
+        case Theme_CursorBg: painter->setBackground(this->owner()->palette().brush(QPalette::WindowText)); break;
+        case Theme_SelectionBg: painter->setBackground(this->owner()->palette().brush(QPalette::Highlight)); break;
         default: painter->setBackground(THEME_VALUE(cell.background)); break;
     }
 }
@@ -128,5 +149,5 @@ void SurfaceRenderer::render()
     }
 
     m_pixmap = QPixmap::fromImage(m_image);
-    emit renderCompleted();
+    if(this->owner()) emit renderCompleted();
 }

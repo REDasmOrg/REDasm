@@ -53,7 +53,7 @@ void DisassemblerTabButton::customizeBehavior()
     RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<DisassemblerTabButton*>(e->owner);
 
-        if((e->eventid == Event_CursorStackChanged) && dynamic_cast<ICommandTab*>(thethis->m_widget))
+        if((e->eventid == Event_SurfaceCursorChanged) && dynamic_cast<ICommandTab*>(thethis->m_widget))
             thethis->onCursorStackChanged(e);
 
     }, nullptr);
@@ -64,8 +64,8 @@ void DisassemblerTabButton::onCursorStackChanged(const RDEventArgs* e)
     auto* commandtab = dynamic_cast<ICommandTab*>(m_widget);
     if(!commandtab) return;
 
-    RDCursor* cursor = reinterpret_cast<RDCursor*>(e->sender);
-    if(!commandtab->command()->ownsCursor(cursor)) return;
+    //RDCursor* cursor = reinterpret_cast<RDCursor*>(e->sender);
+    //if(!commandtab->command()->ownsCursor(cursor)) return;
 
     DisassemblerHooks::instance()->updateCommandStates(m_widget);
 }

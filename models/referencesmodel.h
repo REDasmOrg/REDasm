@@ -10,8 +10,6 @@ class ReferencesModel : public ContextModel
 
     public:
         explicit ReferencesModel(const ICommand* command, QObject *parent = nullptr);
-        ~ReferencesModel();
-        void setContext(const RDContextPtr& disassembler) override;
         void xref(rd_address address);
 
     public:
@@ -25,10 +23,9 @@ class ReferencesModel : public ContextModel
         void clear();
 
     private:
-        QString direction(RDDocument* doc, rd_address address) const;
+        QString direction(rd_address address) const;
 
     private:
-        //RDRenderer* m_renderer{nullptr};
         const ICommand* m_command;
         const rd_address* m_references{nullptr};
         size_t m_referencescount{0};

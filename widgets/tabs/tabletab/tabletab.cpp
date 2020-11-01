@@ -57,7 +57,7 @@ void TableTab::onTableDoubleClick(const QModelIndex& index)
     const RDDocumentItem& item = m_listingitemmodel->item(srcindex);
 
     DisassemblerHooks::instance()->activeCommand()->goTo(item);
-    //DisassemblerHooks::instance()->focusOn(DisassemblerHooks::instance()->activeCommandTab()->widget());
+    DisassemblerHooks::instance()->focusOn(DisassemblerHooks::instance()->activeCommandTab()->widget());
 }
 
 bool TableTab::event(QEvent* e)

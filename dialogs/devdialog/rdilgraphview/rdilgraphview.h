@@ -10,5 +10,5 @@ class RDILGraphView: public GraphView
         RDILGraphView(QWidget* parent = 0);
 
     protected:
-        GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) const override;
+        GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) override;
 };

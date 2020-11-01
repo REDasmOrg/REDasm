@@ -4,6 +4,7 @@
 #include <QScrollBar>
 #include <QPainter>
 #include <cmath>
+#include <iostream>
 
 GraphView::GraphView(QWidget *parent): CursorScrollArea(parent)
 {
@@ -145,28 +146,31 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
     CursorScrollArea::mouseMoveEvent(e);
 }
 
-void GraphView::wheelEvent(QWheelEvent *e)
+void GraphView::wheelEvent(QWheelEvent *event)
 {
-    if(e->modifiers() & Qt::ControlModifier)
+    if(event->modifiers() & Qt::ControlModifier)
     {
-        m_scaleboost = e->modifiers() & Qt::ShiftModifier ? 2 : 1;
+        m_scaleboost = event->modifiers() & Qt::ShiftModifier ? 2 : 1;
 
-        if(e->delta() > 0)
+        QPoint ndegrees = event->angleDelta() / 8;
+        QPoint nsteps = ndegrees / 15;
+
+        if(nsteps.y() > 0)
         {
             m_scaledirection = 1;
-            this->zoomIn(e->pos());
+            this->zoomIn(event->position());
         }
-        else if(e->delta() < 0)
+        else if(nsteps.y() < 0)
         {
             m_scaledirection = -1;
-            this->zoomOut(e->pos());
+            this->zoomOut(event->position());
         }
 
-        e->accept();
+        event->accept();
         return;
     }
 
-    CursorScrollArea::wheelEvent(e);
+    CursorScrollArea::wheelEvent(event);
 }
 
 void GraphView::resizeEvent(QResizeEvent *e) { this->adjustSize(e->size().width(), e->size().height()); }
@@ -177,6 +181,7 @@ void GraphView::paintEvent(QPaintEvent *)
                            m_renderoffset.y() - this->verticalScrollBar()->value() };
 
     QPainter painter(this->viewport());
+    painter.setBackgroundMode(Qt::OpaqueMode);
     painter.translate(translation);
     painter.scale(m_scalefactor, m_scalefactor);
 
@@ -321,7 +326,7 @@ GraphViewItem *GraphView::itemFromMouseEvent(QMouseEvent *e) const
     return nullptr;
 }
 
-void GraphView::zoomOut(const QPoint &cursorpos)
+void GraphView::zoomOut(const QPointF &cursorpos)
 {
     m_prevscalefactor = m_scalefactor;
 
@@ -335,7 +340,7 @@ void GraphView::zoomOut(const QPoint &cursorpos)
     this->viewport()->update();
 }
 
-void GraphView::zoomIn(const QPoint &cursorpos)
+void GraphView::zoomIn(const QPointF &cursorpos)
 {
     m_prevscalefactor = m_scalefactor;
 
@@ -349,7 +354,7 @@ void GraphView::zoomIn(const QPoint &cursorpos)
     this->viewport()->update();
 }
 
-void GraphView::adjustSize(int vpw, int vph, const QPoint &cursorpos, bool fit)
+void GraphView::adjustSize(int vpw, int vph, const QPointF &cursorpos, bool fit)
 {
     //bugfix - resize event (during several initial calls) may reset correct adjustment already made
     if(!m_graph || (vph < 30))

@@ -21,7 +21,7 @@ void DevDialog::setCommand(ICommand* command)
 
         if(!thethis->m_command || !thethis->isVisible()) return;
         if(e->eventid != Event_CursorPositionChanged) return;
-        if(e->sender != thethis->m_command->cursor()) return;
+        //if(e->sender != thethis->m_command->cursor()) return;
 
         QMetaObject::invokeMethod(thethis->ui->tabRDIL, "updateInformation", Qt::QueuedConnection);
         QMetaObject::invokeMethod(thethis->ui->tabDocument, "updateInformation", Qt::QueuedConnection);

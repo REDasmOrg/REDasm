@@ -1,11 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <QFontMetrics>
 #include <QMenu>
 #include <rdapi/rdapi.h>
 #include <QAbstractScrollArea>
 #include "../../hooks/icommand.h"
-#include "../../renderer/painterrendererasync.h"
 #include "../disassemblerpopup/disassemblerpopup.h"
 
 class SurfaceRenderer;
@@ -16,7 +15,7 @@ class ListingTextView : public QAbstractScrollArea, public ICommand
 
     public:
         explicit ListingTextView(QWidget *parent = nullptr);
-        void setContext(const RDContextPtr& disassembler);
+        void setContext(const RDContextPtr& ctx);
 
     public: // IDisassemblerCommand interface
         void goBack() override;
@@ -28,12 +27,13 @@ class ListingTextView : public QAbstractScrollArea, public ICommand
         bool canGoForward() const override;
         bool getCurrentItem(RDDocumentItem* item) const override;
         bool getSelectedSymbol(RDSymbol* symbol) const override;
-        bool ownsCursor(const RDCursor* cursor) const override;
-        const RDCursorPos* currentPosition() const override;
-        const RDCursorPos* currentSelection() const override;
+        const RDSurfacePos* currentPosition() const override;
+        const RDSurfacePos* currentSelection() const override;
+        const RDDocumentItem* firstItem() const override;
+        const RDDocumentItem* lastItem() const override;
+        SurfaceRenderer* surface() const override;
         QString currentWord() const override;
         const RDContextPtr& context() const override;
-        RDCursor* cursor() const override;
         QWidget* widget() override;
         void copy() const override;
 
@@ -57,13 +57,10 @@ class ListingTextView : public QAbstractScrollArea, public ICommand
 
     signals:
         void switchView();
-        void canGoBackChanged();
-        void canGoForwardChanged();
 
     private:
         RDContextPtr m_context;
-        SurfaceRenderer* m_renderer{nullptr};
-        PainterRendererAsync* m_rasync{nullptr};
+        SurfaceRenderer* m_surface{nullptr};
         RDDocument* m_document{nullptr};
 
     private:

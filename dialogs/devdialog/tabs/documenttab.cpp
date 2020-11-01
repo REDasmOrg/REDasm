@@ -194,7 +194,6 @@ void DocumentTab::displayInformation()
     this->header("ITEM");
 
     m_indent = INDENT_BASE;
-        this->line("document_index", QString::number(RDDocument_ItemIndex(doc, &item)));
         this->line("address", RD_ToHex(item.address));
         this->line("type", this->itemType(item));
         this->line("index", QString::number(item.index));

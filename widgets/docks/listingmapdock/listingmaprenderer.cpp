@@ -50,54 +50,54 @@ bool ListingMapRenderer::checkOrientation()
 
 void ListingMapRenderer::calculateSegments()
 {
-    RDDocument* doc = RDContext_GetDocument(m_command->context().get());
-    size_t c = RDDocument_SegmentsCount(doc);
-    m_calcsegments.clear();
-    m_calcsegments.reserve(c);
+    //FIXME: RDDocument* doc = RDContext_GetDocument(m_command->context().get());
+    //FIXME: size_t c = RDDocument_SegmentsCount(doc);
+    //FIXME: m_calcsegments.clear();
+    //FIXME: m_calcsegments.reserve(c);
 
-    for(size_t i = 0; i < c; i++)
-    {
-        RDSegment segment;
-        if(!RDDocument_GetSegmentAt(doc, i, &segment)) continue;
-        if(HAS_FLAG(&segment, SegmentFlags_Bss)) continue;
-
-        m_calcsegments.push_back({ segment, RDSegment_Size(&segment) });
-    }
+    //FIXME: for(size_t i = 0; i < c; i++)
+    //FIXME: {
+    //FIXME:     RDSegment segment;
+    //FIXME:     if(!RDDocument_GetSegmentAt(doc, i, &segment)) continue;
+    //FIXME:     if(HAS_FLAG(&segment, SegmentFlags_Bss)) continue;
+    //FIXME:
+    //FIXME:     m_calcsegments.push_back({ segment, RDSegment_Size(&segment) });
+    //FIXME: }
 }
 
 void ListingMapRenderer::calculateFunctions()
 {
-    RDDocument* doc = RDContext_GetDocument(m_command->context().get());
-    size_t c = RDDocument_FunctionsCount(doc);
-    m_calcfunctions.clear();
-    m_calcfunctions.reserve(c);
+    // FIXME: RDDocument* doc = RDContext_GetDocument(m_command->context().get());
+    // FIXME: size_t c = RDDocument_FunctionsCount(doc);
+    // FIXME: m_calcfunctions.clear();
+    // FIXME: m_calcfunctions.reserve(c);
 
-    RDLoader* loader = RDContext_GetLoader(m_command->context().get());
+    // FIXME: RDLoader* loader = RDContext_GetLoader(m_command->context().get());
 
-    for(size_t i = 0; i < c; i++)
-    {
-        RDLocation loc = RDDocument_GetFunctionAt(doc, i);
+    // FIXME: for(size_t i = 0; i < c; i++)
+    // FIXME: {
+    // FIXME:     RDLocation loc = RDDocument_GetFunctionAt(doc, i);
 
-        RDGraph* graph = nullptr;
-        if(!RDDocument_GetFunctionGraph(doc, loc.address, &graph)) continue;
+    // FIXME:     RDGraph* graph = nullptr;
+    // FIXME:     if(!RDDocument_GetFunctionGraph(doc, loc.address, &graph)) continue;
 
-        const RDGraphNode* nodes = nullptr;
-        size_t nc = RDGraph_GetNodes(graph, &nodes);
+    // FIXME:     const RDGraphNode* nodes = nullptr;
+    // FIXME:     size_t nc = RDGraph_GetNodes(graph, &nodes);
 
-        for(size_t j = 0; j < nc; j++)
-        {
-            const RDFunctionBasicBlock* fbb = nullptr;
-            if(!RDFunctionGraph_GetBasicBlock(graph, nodes[j], &fbb)) continue;
+    // FIXME:     for(size_t j = 0; j < nc; j++)
+    // FIXME:     {
+    // FIXME:         const RDFunctionBasicBlock* fbb = nullptr;
+    // FIXME:         if(!RDFunctionGraph_GetBasicBlock(graph, nodes[j], &fbb)) continue;
 
-            RDDocumentItem item;
-            if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) continue;
+    // FIXME:         RDDocumentItem item;
+    // FIXME:         if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) continue;
 
-            RDLocation loc = RD_Offset(loader, item.address);
-            if(!loc.valid) continue;
+    // FIXME:         RDLocation loc = RD_Offset(loader, item.address);
+    // FIXME:         if(!loc.valid) continue;
 
-            m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
-        }
-    }
+    // FIXME:         m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
+    // FIXME:     }
+    // FIXME: }
 }
 
 bool ListingMapRenderer::conditionWait() const { return m_renderenabled.load(); }

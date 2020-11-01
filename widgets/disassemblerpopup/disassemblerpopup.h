@@ -1,28 +1,21 @@
 #pragma once
 
 #include <QWidget>
-#include <memory>
 #include <rdapi/rdapi.h>
-#include "../../renderer/documentrenderer.h"
-#include "disassemblerpopupwidget.h"
+#include "disassemblerpopupview.h"
 
 class DisassemblerPopup : public QWidget
 {
     public:
         explicit DisassemblerPopup(const RDContextPtr& ctx, QWidget* parent = nullptr);
-        void popup(const QString& word, size_t line);
+        void popup(const RDSymbol* symbol);
 
     protected:
-        void mouseMoveEvent(QMouseEvent *e) override;
-        void wheelEvent(QWheelEvent* e) override;
+        void mouseMoveEvent(QMouseEvent *event) override;
+        void wheelEvent(QWheelEvent* event) override;
 
     private:
-        void updateGeometry();
-
-    private:
+        DisassemblerPopupView* m_popupview;
         RDContextPtr m_context;
-        QTextDocument* m_textdocument;
-        DisassemblerPopupWidget* m_popupwidget;
-        //std::unique_ptr<DocumentRenderer> m_renderer;
-        QPoint m_lastpos;
+        QPointF m_lastpos;
 };

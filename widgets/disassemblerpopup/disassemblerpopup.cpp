@@ -1,23 +1,15 @@
 #include "disassemblerpopup.h"
-#include <QPlainTextDocumentLayout>
+#include <QWheelEvent>
+#include <QMouseEvent>
 #include <QLayout>
-#include <cmath>
-
-#define POPUP_MARGIN 16
 
 DisassemblerPopup::DisassemblerPopup(const RDContextPtr& ctx, QWidget *parent): QWidget(parent), m_context(ctx)
 {
-    m_textdocument = new QTextDocument(this);
-    m_textdocument->setDocumentLayout(new QPlainTextDocumentLayout(m_textdocument));
-
-    //m_renderer = std::make_unique<DocumentRenderer>(m_textdocument, ctx, nullptr,
-                                                    //RendererFlags_NoAddress | RendererFlags_NoHighlightWords | RendererFlags_NoCursor);
-
-    //m_popupwidget = new DisassemblerPopupWidget(m_renderer.get(), ctx, this);
+    m_popupview = new DisassemblerPopupView(ctx, this);
 
     QVBoxLayout* vboxlayout = new QVBoxLayout(this);
     vboxlayout->setContentsMargins(0, 0, 0, 0);
-    //vboxlayout->addWidget(m_popupwidget);
+    vboxlayout->addWidget(m_popupview);
     this->setLayout(vboxlayout);
 
     this->setAttribute(Qt::WA_TranslucentBackground);
@@ -27,9 +19,9 @@ DisassemblerPopup::DisassemblerPopup(const RDContextPtr& ctx, QWidget *parent): 
     this->setMinimumWidth(0);
 }
 
-void DisassemblerPopup::popup(const QString &word, size_t line)
+void DisassemblerPopup::popup(const RDSymbol* symbol)
 {
-    if(!m_popupwidget->renderPopup(word, line))
+    if(!symbol || !m_popupview->renderPopup(symbol))
     {
         this->hide();
         return;
@@ -41,31 +33,25 @@ void DisassemblerPopup::popup(const QString &word, size_t line)
 
     this->move(pt);
     this->show();
-    this->updateGeometry();
 }
 
-void DisassemblerPopup::mouseMoveEvent(QMouseEvent* e)
+void DisassemblerPopup::mouseMoveEvent(QMouseEvent* event)
 {
-    if(m_lastpos != e->globalPos()) // WHEEL -> MOVE ?!?
+    if(m_lastpos != event->globalPos())
+    {
         this->hide();
-
-    QWidget::mouseMoveEvent(e);
+        event->accept();
+    }
+    else
+        QWidget::mouseMoveEvent(event);
 }
 
-void DisassemblerPopup::wheelEvent(QWheelEvent* e)
+void DisassemblerPopup::wheelEvent(QWheelEvent* event)
 {
-    m_lastpos = e->globalPos();
-    QPoint delta = e->angleDelta();
+    m_lastpos = event->globalPosition();
+    QPoint delta = event->angleDelta();
 
-    if(delta.y() > 0) m_popupwidget->lessRows();
-    else m_popupwidget->moreRows();
-
-    this->updateGeometry();
-    QWidget::wheelEvent(e);
-}
-
-void DisassemblerPopup::updateGeometry()
-{
-    //this->setFixedWidth(m_renderer->maxWidth());
-    //this->setFixedHeight(m_popupwidget->rows() * std::ceil(m_renderer->fontMetrics().height()));
+    if(delta.y() > 0) m_popupview->lessRows();
+    else m_popupview->moreRows();
+    event->accept();
 }

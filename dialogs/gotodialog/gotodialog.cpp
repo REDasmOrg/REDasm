@@ -52,9 +52,5 @@ void GotoDialog::onGotoClicked()
 void GotoDialog::onItemSelected(const QModelIndex &index)
 {
     QModelIndex srcindex = m_gotomodel->mapToSource(index);
-    if(!srcindex.isValid()) return;
-
-    RDDocumentItem item;
-    if(!RDDocument_GetItemAt(m_document, srcindex.row(), &item)) return;
-    m_command->goTo(item);
+    if(srcindex.isValid()) m_command->goTo(m_gotomodel->item(index));
 }

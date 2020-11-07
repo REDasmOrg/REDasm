@@ -2,12 +2,12 @@
 
 #include <QWidget>
 #include <rdapi/rdapi.h>
-#include "disassemblerpopupview.h"
+#include "listingpopupview.h"
 
-class DisassemblerPopup : public QWidget
+class ListingPopup : public QWidget
 {
     public:
-        explicit DisassemblerPopup(const RDContextPtr& ctx, QWidget* parent = nullptr);
+        explicit ListingPopup(const RDContextPtr& ctx, QWidget* parent = nullptr);
         void popup(const RDSymbol* symbol);
 
     protected:
@@ -15,7 +15,7 @@ class DisassemblerPopup : public QWidget
         void wheelEvent(QWheelEvent* event) override;
 
     private:
-        DisassemblerPopupView* m_popupview;
+        ListingPopupView* m_popupview;
         RDContextPtr m_context;
         QPointF m_lastpos;
 };

@@ -1,8 +1,8 @@
-#include "disassemblerlistingview.h"
+#include "listingview.h"
 #include "../../themeprovider.h"
 #include "../../redasmsettings.h"
 
-DisassemblerListingView::DisassemblerListingView(const RDContextPtr& ctx, QWidget *parent): QSplitter(Qt::Horizontal, parent), m_context(ctx)
+ListingView::ListingView(const RDContextPtr& ctx, QWidget *parent): QSplitter(Qt::Horizontal, parent), m_context(ctx)
 {
     this->setStyleSheet("QSplitter::handle { background-color: " + THEME_VALUE_COLOR(Theme_Seek) + "; }");
 
@@ -10,7 +10,7 @@ DisassemblerListingView::DisassemblerListingView(const RDContextPtr& ctx, QWidge
     m_textview->setFont(REDasmSettings::font());
     m_textview->setContext(ctx);
 
-    m_columnview = new DisassemblerColumnView(this);
+    m_columnview = new ListingPathView(this);
     m_columnview->setFont(m_textview->font()); // Apply same font
     m_columnview->linkTo(m_textview);
 
@@ -22,5 +22,5 @@ DisassemblerListingView::DisassemblerListingView(const RDContextPtr& ctx, QWidge
     this->setHandleWidth(4);
 }
 
-DisassemblerColumnView *DisassemblerListingView::columnView() { return m_columnview; }
-ListingTextView *DisassemblerListingView::textView() { return m_textview; }
+ListingPathView *ListingView::columnView() { return m_columnview; }
+ListingTextView *ListingView::textView() { return m_textview; }

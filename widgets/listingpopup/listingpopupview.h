@@ -1,18 +1,18 @@
 #pragma once
 
 #include <QWidget>
-#include "../../renderer/surfacerenderer.h"
+#include "../../renderer/surfacepainter.h"
 
 #define POPUP_START_COLUMNS 100
 #define POPUP_START_ROWS    10
 #define POPUP_MARGIN        16
 
-class DisassemblerPopupView : public QWidget
+class ListingPopupView : public QWidget
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerPopupView(const RDContextPtr& ctx, QWidget *parent = nullptr);
+        explicit ListingPopupView(const RDContextPtr& ctx, QWidget *parent = nullptr);
         bool renderPopup(const RDSymbol* symbol);
         void moreRows();
         void lessRows();
@@ -25,6 +25,6 @@ class DisassemblerPopupView : public QWidget
 
     private:
         RDContextPtr m_context;
-        SurfaceRenderer* m_surface;
+        SurfacePainter* m_surface;
         int m_rows{POPUP_START_ROWS}, m_maxcols{POPUP_START_COLUMNS};
 };

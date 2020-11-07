@@ -4,14 +4,14 @@
 #include "../graphview/graphview.h"
 #include "../../hooks/icommand.h"
 
-class DisassemblerBlockItem;
+class ListingBlockItem;
 
-class DisassemblerGraphView : public GraphView, public ICommand
+class ListingGraphView : public GraphView, public ICommand
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerGraphView(ICommand* command, QWidget *parent = nullptr);
+        explicit ListingGraphView(ICommand* command, QWidget *parent = nullptr);
 
     public: // IDisassemblerCommand interface
         void goBack() override;
@@ -23,12 +23,10 @@ class DisassemblerGraphView : public GraphView, public ICommand
         bool canGoBack() const override;
         bool canGoForward() const override;
         bool getCurrentItem(RDDocumentItem* item) const override;
-        bool getSelectedSymbol(RDSymbol* symbol) const override;
-        const RDSurfacePos* currentPosition() const override;
-        const RDSurfacePos* currentSelection() const override;
-        const RDDocumentItem* firstItem() const override;
-        const RDDocumentItem* lastItem() const override;
-        SurfaceRenderer* surface() const override;
+        bool getCurrentSymbol(RDSymbol* symbol) const override;
+        const RDSurfacePos* position() const override;
+        const RDSurfacePos* selection() const override;
+        SurfaceQt* surface() const override;
         QString currentWord() const override;
         const RDContextPtr& context() const override;
         QWidget* widget() override;
@@ -44,7 +42,6 @@ class DisassemblerGraphView : public GraphView, public ICommand
         GraphViewItem* itemFromCurrentLine() const;
 
     protected:
-        void onCursorBlink() override;
         void showEvent(QShowEvent* e) override;
         void computeEdge(const RDGraphEdge& e) override;
         void computeNode(GraphViewItem* item) override;
@@ -52,7 +49,7 @@ class DisassemblerGraphView : public GraphView, public ICommand
         void computed() override;
 
     private slots:
-        void onFollowRequested(DisassemblerBlockItem* block);
+        void onFollowRequested(ListingBlockItem* block);
 
     private:
         ICommand* m_command;

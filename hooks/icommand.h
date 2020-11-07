@@ -5,7 +5,7 @@
 #include <rdapi/rdapi.h>
 
 class QWidget;
-class SurfaceRenderer;
+class SurfaceQt;
 
 typedef std::shared_ptr<RDContext> RDContextPtr;
 
@@ -22,12 +22,10 @@ class ICommand
         virtual bool canGoBack() const = 0;
         virtual bool canGoForward() const = 0;
         virtual bool getCurrentItem(RDDocumentItem* item) const = 0;
-        virtual bool getSelectedSymbol(RDSymbol* symbol) const = 0;
-        virtual const RDSurfacePos* currentPosition() const = 0;
-        virtual const RDSurfacePos* currentSelection() const = 0;
-        virtual const RDDocumentItem* firstItem() const = 0;
-        virtual const RDDocumentItem* lastItem() const = 0;
-        virtual SurfaceRenderer* surface() const = 0;
+        virtual bool getCurrentSymbol(RDSymbol* symbol) const = 0;
+        virtual const RDSurfacePos* position() const = 0;
+        virtual const RDSurfacePos* selection() const = 0;
+        virtual SurfaceQt* surface() const = 0;
         virtual QString currentWord() const = 0;
         virtual const RDContextPtr& context() const = 0;
         virtual QWidget* widget() = 0;

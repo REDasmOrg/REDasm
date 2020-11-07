@@ -29,7 +29,6 @@ DocumentTab::~DocumentTab() { delete ui; }
 void DocumentTab::setCommand(ICommand* command)
 {
     m_command = command;
-    //FIXME: m_renderer.reset(RDRenderer_Create(command->context().get(), nullptr, RendererFlags_Simplified));
     this->updateInformation();
 }
 
@@ -155,8 +154,8 @@ void DocumentTab::displayInstructionInformation(RDDocument* doc, const RDDocumen
     this->header("INSTRUCTION");
 
     m_indent = INDENT_BASE;
-        //FIXME: this->line("assembler", RDRenderer_GetAssemblerInstruction(m_renderer.get(), block.address));
-        //FIXME: this->line("rdil", RDRenderer_GetRDILInstruction(m_renderer.get(), block.address));
+        this->line("assembler", RD_GetAssemblerInstruction(m_command->context().get(), block.address));
+        this->line("rdil", RD_GetRDILInstruction(m_command->context().get(), block.address));
         this->line("hexdump", hexdump);
         this->line("bits", this->getBits(dump));
         this->line();

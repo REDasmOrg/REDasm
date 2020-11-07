@@ -9,9 +9,9 @@ ListingTab::ListingTab(const RDContextPtr& disassembler, QWidget* parent) : QWid
 {
     this->setWindowTitle("Listing");
 
-    m_listingview = new DisassemblerListingView(disassembler, this);
+    m_listingview = new ListingView(disassembler, this);
 
-    m_graphview = new DisassemblerGraphView(m_listingview->textView(), this);
+    m_graphview = new ListingGraphView(m_listingview->textView(), this);
     m_graphview->setVisible(false);
 
     QVBoxLayout* vl = new QVBoxLayout();

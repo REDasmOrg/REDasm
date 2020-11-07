@@ -9,7 +9,7 @@
 
 class ListingTextView;
 
-class DisassemblerColumnView : public QWidget
+class ListingPathView : public QWidget
 {
     Q_OBJECT
 
@@ -17,8 +17,8 @@ class DisassemblerColumnView : public QWidget
         struct ArrowPath{ size_t startidx, endidx; QColor color; };
 
     public:
-        explicit DisassemblerColumnView(QWidget *parent = nullptr);
-        virtual ~DisassemblerColumnView();
+        explicit ListingPathView(QWidget *parent = nullptr);
+        virtual ~ListingPathView();
         void linkTo(ListingTextView* textview);
 
     protected:

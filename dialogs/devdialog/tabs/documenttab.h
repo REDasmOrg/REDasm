@@ -39,7 +39,6 @@ class DocumentTab : public QWidget
 
     private:
         Ui::DocumentTab *ui;
-        //FIXME: rd_ptr<RDRenderer> m_renderer;
         ICommand* m_command{nullptr};
         int m_indent{0};
 };

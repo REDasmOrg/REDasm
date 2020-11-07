@@ -1,13 +1,13 @@
 ﻿#pragma once
 
+#include <QAbstractScrollArea>
 #include <QFontMetrics>
 #include <QMenu>
 #include <rdapi/rdapi.h>
-#include <QAbstractScrollArea>
 #include "../../hooks/icommand.h"
-#include "../disassemblerpopup/disassemblerpopup.h"
+#include "../listingpopup/listingpopup.h"
 
-class SurfaceRenderer;
+class SurfacePainter;
 
 class ListingTextView : public QAbstractScrollArea, public ICommand
 {
@@ -26,12 +26,10 @@ class ListingTextView : public QAbstractScrollArea, public ICommand
         bool canGoBack() const override;
         bool canGoForward() const override;
         bool getCurrentItem(RDDocumentItem* item) const override;
-        bool getSelectedSymbol(RDSymbol* symbol) const override;
-        const RDSurfacePos* currentPosition() const override;
-        const RDSurfacePos* currentSelection() const override;
-        const RDDocumentItem* firstItem() const override;
-        const RDDocumentItem* lastItem() const override;
-        SurfaceRenderer* surface() const override;
+        bool getCurrentSymbol(RDSymbol* symbol) const override;
+        const RDSurfacePos* position() const override;
+        const RDSurfacePos* selection() const override;
+        SurfaceQt* surface() const override;
         QString currentWord() const override;
         const RDContextPtr& context() const override;
         QWidget* widget() override;
@@ -60,11 +58,8 @@ class ListingTextView : public QAbstractScrollArea, public ICommand
 
     private:
         RDContextPtr m_context;
-        SurfaceRenderer* m_surface{nullptr};
+        SurfacePainter* m_surface{nullptr};
         RDDocument* m_document{nullptr};
-
-    private:
-        DisassemblerPopup* m_disassemblerpopup{nullptr};
+        ListingPopup* m_disassemblerpopup{nullptr};
         QMenu* m_contextmenu{nullptr};
-        QPixmap m_pixmap;
 };

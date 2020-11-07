@@ -28,6 +28,8 @@
 #include <unordered_map>
 #include <rdapi/rdapi.h>
 
+#define MAX_FUNCTION_NAME 50
+
 DisassemblerHooks DisassemblerHooks::m_instance;
 
 DisassemblerHooks::DisassemblerHooks(QObject* parent): QObject(parent) { }
@@ -211,12 +213,15 @@ void DisassemblerHooks::statusAddress(const ICommand* command) const
     {
         QString func = functionstartname;
 
+        if(func.size() > MAX_FUNCTION_NAME)
+            func = func.left(MAX_FUNCTION_NAME) + "..."; // Elide long function names
+
         if(item.address > functionstart.value)
             func += "+" + QString::fromUtf8(RD_ToHexBits(item.address - functionstart.value, 8, false));
         else if(item.address < functionstart.value)
             func += QString::number(static_cast<std::make_signed<size_t>::type>(item.address - functionstart.value));
 
-        s = QString::fromWCharArray(L"<b>Function: </b>%1\u00A0\u00A0").arg(func) + s;
+        s = QString::fromWCharArray(L"<b>Function: </b>%1\u00A0\u00A0").arg(func.toHtmlEscaped()) + s;
     }
 
     RD_Status(qUtf8Printable(s));
@@ -247,7 +252,7 @@ void DisassemblerHooks::adjustActions()
     RDSegment itemsegment, symbolsegment;
     RDSymbol symbol;
 
-    if(!command->getSelectedSymbol(&symbol))
+    if(!command->getCurrentSymbol(&symbol))
     {
         bool hassymbolsegment = RDDocument_GetSegmentAddress(doc, item.address, &symbolsegment);
         RDLocation funcstart = RDDocument_GetFunctionStart(doc, item.address);
@@ -389,7 +394,7 @@ QMenu* DisassemblerHooks::createActions(ICommand* command)
 
     actions[DisassemblerHooks::Action_Rename] = contextmenu->addAction("Rename", this, [&, command]() {
         RDSymbol symbol;
-        if(!command->getSelectedSymbol(&symbol)) return;
+        if(!command->getCurrentSymbol(&symbol)) return;
 
         RDDocument* doc = RDContext_GetDocument(command->context().get());
         const char* symbolname = RDDocument_GetSymbolName(doc, symbol.address);
@@ -424,13 +429,13 @@ QMenu* DisassemblerHooks::createActions(ICommand* command)
 
     actions[DisassemblerHooks::Action_XRefs] = contextmenu->addAction("Cross References", this, [&, command]() {
         RDSymbol symbol;
-        if(!command->getSelectedSymbol(&symbol)) return;
+        if(!command->getCurrentSymbol(&symbol)) return;
         this->showReferences(command, symbol.address);
     }, QKeySequence(Qt::Key_X));
 
     actions[DisassemblerHooks::Action_Follow] = contextmenu->addAction("Follow", this, [command]() {
         RDSymbol symbol;
-        if(!command->getSelectedSymbol(&symbol)) return false;
+        if(!command->getCurrentSymbol(&symbol)) return false;
         return command->goToAddress(symbol.address);
     });
 
@@ -465,7 +470,7 @@ QMenu* DisassemblerHooks::createActions(ICommand* command)
 
     actions[DisassemblerHooks::Action_CreateFunction] = contextmenu->addAction("Create Function", this, [&, command]() {
         RDSymbol symbol;
-        if(!command->getSelectedSymbol(&symbol)) {
+        if(!command->getCurrentSymbol(&symbol)) {
             rd_log("Cannot create function @ " + rd_tohex(symbol.address));
             return;
         }

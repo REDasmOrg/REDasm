@@ -1,11 +1,11 @@
-#include "disassemblerpopup.h"
+#include "listingpopup.h"
 #include <QWheelEvent>
 #include <QMouseEvent>
 #include <QLayout>
 
-DisassemblerPopup::DisassemblerPopup(const RDContextPtr& ctx, QWidget *parent): QWidget(parent), m_context(ctx)
+ListingPopup::ListingPopup(const RDContextPtr& ctx, QWidget *parent): QWidget(parent), m_context(ctx)
 {
-    m_popupview = new DisassemblerPopupView(ctx, this);
+    m_popupview = new ListingPopupView(ctx, this);
 
     QVBoxLayout* vboxlayout = new QVBoxLayout(this);
     vboxlayout->setContentsMargins(0, 0, 0, 0);
@@ -19,7 +19,7 @@ DisassemblerPopup::DisassemblerPopup(const RDContextPtr& ctx, QWidget *parent): 
     this->setMinimumWidth(0);
 }
 
-void DisassemblerPopup::popup(const RDSymbol* symbol)
+void ListingPopup::popup(const RDSymbol* symbol)
 {
     if(!symbol || !m_popupview->renderPopup(symbol))
     {
@@ -35,7 +35,7 @@ void DisassemblerPopup::popup(const RDSymbol* symbol)
     this->show();
 }
 
-void DisassemblerPopup::mouseMoveEvent(QMouseEvent* event)
+void ListingPopup::mouseMoveEvent(QMouseEvent* event)
 {
     if(m_lastpos != event->globalPos())
     {
@@ -46,7 +46,7 @@ void DisassemblerPopup::mouseMoveEvent(QMouseEvent* event)
         QWidget::mouseMoveEvent(event);
 }
 
-void DisassemblerPopup::wheelEvent(QWheelEvent* event)
+void ListingPopup::wheelEvent(QWheelEvent* event)
 {
     m_lastpos = event->globalPosition();
     QPoint delta = event->angleDelta();

@@ -4,17 +4,17 @@
 // - https://github.com/x64dbg/x64dbg/blob/development/src/gui/Src/Gui/DisassemblerGraphView.h
 // - https://github.com/x64dbg/x64dbg/blob/development/src/gui/Src/Gui/DisassemblerGraphView.cpp
 
+#include <QAbstractScrollArea>
 #include <QVector>
 #include <QList>
 #include <unordered_map>
 #include <utility>
 #include <rdapi/rdapi.h>
 #include <rdapi/graph/graph.h>
-#include "../cursorscrollarea.h"
 #include "../../themeprovider.h"
 #include "graphviewitem.h"
 
-class GraphView : public CursorScrollArea
+class GraphView : public QAbstractScrollArea
 {
     Q_OBJECT
 
@@ -41,8 +41,8 @@ class GraphView : public CursorScrollArea
         void focusBlock(const GraphViewItem* item, bool force = false);
         virtual void selectedItemChangedEvent();
         virtual GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) = 0;
-        virtual void computeEdge(const RDGraphEdge& e);
-        virtual void computeNode(GraphViewItem* item);
+        virtual void computeEdge(const RDGraphEdge&);
+        virtual void computeNode(GraphViewItem*);
         virtual void computeLayout();
         virtual void computed();
 

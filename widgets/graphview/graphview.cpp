@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iostream>
 
-GraphView::GraphView(QWidget *parent): CursorScrollArea(parent)
+GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent)
 {
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, THEME_VALUE(Theme_GraphBg));
@@ -72,7 +72,7 @@ void GraphView::focusBlock(const GraphViewItem *item, bool force)
     if(force || !viewportrect.contains(r))
     {
         auto x = (item->x() + static_cast<int>(item->width() / 2)) * m_scalefactor;
-        auto y = (item->y() + (2 * fm.height()) + (item->currentLine() * fm.height())) * m_scalefactor;
+        auto y = (item->y() + (2 * fm.height()) + (item->currentRow() * fm.height())) * m_scalefactor;
         this->horizontalScrollBar()->setValue(x + m_renderoffset.x() - static_cast<int>(this->horizontalScrollBar()->pageStep() / 2));
         this->verticalScrollBar()->setValue(y + m_renderoffset.y() - static_cast<int>(this->verticalScrollBar()->pageStep() / 2));
     }
@@ -86,7 +86,7 @@ void GraphView::mouseDoubleClickEvent(QMouseEvent* e)
         m_selecteditem->mouseDoubleClickEvent(e);
 
     if(updated) this->selectedItemChangedEvent();
-    CursorScrollArea::mouseDoubleClickEvent(e);
+    QAbstractScrollArea::mouseDoubleClickEvent(e);
 }
 
 void GraphView::mousePressEvent(QMouseEvent *e)
@@ -105,7 +105,7 @@ void GraphView::mousePressEvent(QMouseEvent *e)
 
     this->viewport()->update();
     if(updated) this->selectedItemChangedEvent();
-    CursorScrollArea::mousePressEvent(e);
+    QAbstractScrollArea::mousePressEvent(e);
 }
 
 void GraphView::mouseReleaseEvent(QMouseEvent *e)
@@ -119,7 +119,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *e)
         this->viewport()->releaseMouse();
     }
 
-    CursorScrollArea::mouseReleaseEvent(e);
+    QAbstractScrollArea::mouseReleaseEvent(e);
 }
 
 void GraphView::mouseMoveEvent(QMouseEvent *e)
@@ -143,7 +143,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
         this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() + delta.y());
     }
 
-    CursorScrollArea::mouseMoveEvent(e);
+    QAbstractScrollArea::mouseMoveEvent(e);
 }
 
 void GraphView::wheelEvent(QWheelEvent *event)
@@ -170,7 +170,7 @@ void GraphView::wheelEvent(QWheelEvent *event)
         return;
     }
 
-    CursorScrollArea::wheelEvent(event);
+    QAbstractScrollArea::wheelEvent(event);
 }
 
 void GraphView::resizeEvent(QResizeEvent *e) { this->adjustSize(e->size().width(), e->size().height()); }
@@ -181,7 +181,6 @@ void GraphView::paintEvent(QPaintEvent *)
                            m_renderoffset.y() - this->verticalScrollBar()->value() };
 
     QPainter painter(this->viewport());
-    painter.setBackgroundMode(Qt::OpaqueMode);
     painter.translate(translation);
     painter.scale(m_scalefactor, m_scalefactor);
 
@@ -244,8 +243,8 @@ void GraphView::selectedItemChangedEvent()
     emit selectedItemChanged();
 }
 
-void GraphView::computeEdge(const RDGraphEdge& e) { }
-void GraphView::computeNode(GraphViewItem* item) { }
+void GraphView::computeEdge(const RDGraphEdge&) { }
+void GraphView::computeNode(GraphViewItem*) { }
 
 void GraphView::computed()
 {

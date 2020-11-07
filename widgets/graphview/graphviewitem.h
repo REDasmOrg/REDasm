@@ -35,7 +35,7 @@ class GraphViewItem: public QObject
 
     public:
         QPoint mapToItem(const QPoint& p) const;
-        virtual int currentLine() const;
+        virtual int currentRow() const;
         virtual void render(QPainter* painter, size_t state) = 0;
         virtual QSize size() const = 0;
 

@@ -3,34 +3,32 @@
 #include <rdapi/graph/functiongraph.h>
 #include <rdapi/rdapi.h>
 #include "../../hooks/icommand.h"
-#include "../../renderer/surfacerenderer.h"
+#include "../../renderer/surfacedocument.h"
 #include "../graphview/graphviewitem.h"
 
-class DisassemblerBlockItem : public GraphViewItem
+class ListingBlockItem : public GraphViewItem
 {
     Q_OBJECT
 
     public:
-        explicit DisassemblerBlockItem(const RDFunctionBasicBlock* fbb, ICommand* command, RDGraphNode node, const RDGraph* g, QWidget *parent = nullptr);
-        const SurfaceRenderer* renderer() const;
+        explicit ListingBlockItem(const RDFunctionBasicBlock* fbb, ICommand* command, RDGraphNode node, const RDGraph* g, QWidget *parent = nullptr);
+        const SurfaceQt* surface() const;
         bool containsItem(const RDDocumentItem& item) const;
-        int currentLine() const override;
+        int currentRow() const override;
         void render(QPainter* painter, size_t state) override;
         QSize size() const override;
 
     protected:
+        void itemSelectionChanged(bool selected) override;
         void mouseDoubleClickEvent(QMouseEvent *) override;
         void mousePressEvent(QMouseEvent *e) override;
         void mouseMoveEvent(QMouseEvent *e) override;
 
-    private:
-        QSize documentSize() const;
-
     signals:
-        void followRequested(DisassemblerBlockItem* block);
+        void followRequested(ListingBlockItem* block);
 
     private:
-        SurfaceRenderer* m_surface;
+        SurfaceDocument* m_surface;
         const RDFunctionBasicBlock* m_basicblock;
         ICommand* m_command;
         RDContextPtr m_context;

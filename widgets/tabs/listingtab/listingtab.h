@@ -2,9 +2,8 @@
 
 #include <QDockWidget>
 #include <QSplitter>
-#include "../../disassemblerlistingview/disassemblerlistingview.h"
-#include "../../disassemblerlistingview/listingtextview.h"
-#include "../../disassemblergraphview/disassemblergraphview.h"
+#include "../../listingview/listingview.h"
+#include "../../listinggraphview/listinggraphview.h"
 #include "../hooks/icommandtab.h"
 
 class ListingTab : public QWidget, public ICommandTab
@@ -25,6 +24,6 @@ class ListingTab : public QWidget, public ICommandTab
         bool eventFilter(QObject *object, QEvent *event) override;
 
     private:
-        DisassemblerListingView* m_listingview;
-        DisassemblerGraphView* m_graphview;
+        ListingView* m_listingview;
+        ListingGraphView* m_graphview;
 };

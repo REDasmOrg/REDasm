@@ -1,32 +1,32 @@
-#include "disassemblercolumnview.h"
+#include "listingpathview.h"
 #include "../../themeprovider.h"
 #include "listingtextview.h"
 #include <QScrollBar>
 #include <QPainter>
 #include <QPainterPath>
 
-DisassemblerColumnView::DisassemblerColumnView(QWidget *parent): QWidget(parent)
+ListingPathView::ListingPathView(QWidget *parent): QWidget(parent)
 {
     this->setBackgroundRole(QPalette::Base);
     this->setAutoFillBackground(true);
 }
 
-DisassemblerColumnView::~DisassemblerColumnView() { if(m_textview) RDObject_Unsubscribe(m_textview->surface()->handle(), this); }
+ListingPathView::~ListingPathView() { if(m_textview) RDObject_Unsubscribe(m_textview->surface()->handle(), this); }
 
-void DisassemblerColumnView::linkTo(ListingTextView* textview)
+void ListingPathView::linkTo(ListingTextView* textview)
 {
     m_textview = textview;
     m_context = textview->context();
     m_document = RDContext_GetDocument(m_context.get());
 
     RDObject_Subscribe(textview->surface()->handle(), this, [](const RDEventArgs* e) {
-        auto* thethis = reinterpret_cast<DisassemblerColumnView*>(e->owner);
+        auto* thethis = reinterpret_cast<ListingPathView*>(e->owner);
         if(e->eventid != Event_SurfaceUpdated) return;
         QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
     }, nullptr);
 }
 
-void DisassemblerColumnView::paintEvent(QPaintEvent*)
+void ListingPathView::paintEvent(QPaintEvent*)
 {
     if(!m_context || !m_textview) return;
 
@@ -51,8 +51,8 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
     for(size_t i = 0; i < c; i++, x -= w, path++)
     {
         int y1 = (path->fromrow * h) + (h / 4);
-        int y2 = (path->torow * h) + ((h * 3) / 4);
-        int y = (path->torow * h);
+        int y2 = (std::min(path->torow, rows + 1) * h) + ((h * 3) / 4);
+        int y = (std::min(path->torow, rows + 1) * h);
         int penwidth = this->isPathSelected(path) ? 3 : 2;
 
         if(y2 > (y + (h / 2))) y2 -= penwidth;
@@ -72,13 +72,13 @@ void DisassemblerColumnView::paintEvent(QPaintEvent*)
     }
 }
 
-bool DisassemblerColumnView::isPathSelected(const RDPathItem* item) const
+bool ListingPathView::isPathSelected(const RDPathItem* item) const
 {
-    int line = m_textview->currentPosition()->row;
+    int line = m_textview->position()->row;
     return (line == item->fromrow) || (line == item->torow);
 }
 
-void DisassemblerColumnView::fillArrow(QPainter* painter, int y, const QFontMetrics& fm)
+void ListingPathView::fillArrow(QPainter* painter, int y, const QFontMetrics& fm)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
     int w = fm.horizontalAdvance(" ") / 2;
@@ -98,7 +98,7 @@ void DisassemblerColumnView::fillArrow(QPainter* painter, int y, const QFontMetr
     painter->fillPath(path, painter->pen().brush());
 }
 
-void DisassemblerColumnView::insertPath(const RDNet* net, const RDDocumentItem& fromitem, size_t fromidx, size_t toidx)
+void ListingPathView::insertPath(const RDNet* net, const RDDocumentItem& fromitem, size_t fromidx, size_t toidx)
 {
     const RDNetNode* node = RDNet_FindNode(net, fromitem.address);
     if(!node) return;

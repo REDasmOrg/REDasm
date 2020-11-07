@@ -1,9 +1,9 @@
-#include "disassemblerpopupview.h"
+#include "listingpopupview.h"
 #include "../../redasmsettings.h"
 #include <QGraphicsDropShadowEffect>
 #include <QPainter>
 
-DisassemblerPopupView::DisassemblerPopupView(const RDContextPtr& ctx, QWidget *parent): QWidget(parent), m_context(ctx)
+ListingPopupView::ListingPopupView(const RDContextPtr& ctx, QWidget *parent): QWidget(parent), m_context(ctx)
 {
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, palette.color(QPalette::ToolTipBase));
@@ -15,11 +15,11 @@ DisassemblerPopupView::DisassemblerPopupView(const RDContextPtr& ctx, QWidget *p
     dropshadow->setBlurRadius(5);
     this->setGraphicsEffect(dropshadow);
 
-    m_surface = new SurfaceRenderer(ctx, RendererFlags_Simplified, this);
-    connect(m_surface, &SurfaceRenderer::renderCompleted, this, [&]() { this->update(); });
+    m_surface = new SurfacePainter(ctx, RendererFlags_Simplified, this);
+    connect(m_surface, &SurfacePainter::renderCompleted, this, [&]() { this->update(); });
 }
 
-bool DisassemblerPopupView::renderPopup(const RDSymbol* symbol)
+bool ListingPopupView::renderPopup(const RDSymbol* symbol)
 {
     if(!m_surface->goToAddress(symbol->address)) return false;
 
@@ -28,23 +28,23 @@ bool DisassemblerPopupView::renderPopup(const RDSymbol* symbol)
     return true;
 }
 
-void DisassemblerPopupView::moreRows()
+void ListingPopupView::moreRows()
 {
     m_rows++;
     this->renderPopup();
 }
 
-void DisassemblerPopupView::lessRows()
+void ListingPopupView::lessRows()
 {
     if(m_rows == 1) return;
     m_rows--;
     this->renderPopup();
 }
 
-void DisassemblerPopupView::renderPopup()
+void ListingPopupView::renderPopup()
 {
-    m_surface->resize(m_rows, m_maxcols);
-    m_maxcols = std::max(RDSurface_GetLastColumn(m_surface->handle()), m_maxcols);
+    m_surface->resize(m_rows, -1);
+    RDSurface_GetSize(m_surface->handle(), nullptr, &m_maxcols);
 
     QSize sz = m_surface->size();
     this->setFixedSize(sz);
@@ -55,7 +55,7 @@ void DisassemblerPopupView::renderPopup()
     this->parentWidget()->setFixedSize(sz);
 }
 
-void DisassemblerPopupView::paintEvent(QPaintEvent*)
+void ListingPopupView::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     painter.drawPixmap(QPoint(0, 0), m_surface->pixmap());

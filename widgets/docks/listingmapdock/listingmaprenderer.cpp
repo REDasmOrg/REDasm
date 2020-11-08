@@ -5,9 +5,9 @@
 #include <rdapi/graph/functiongraph.h>
 #include "../../../themeprovider.h"
 
-ListingMapRenderer::ListingMapRenderer(ICommand* command, QObject* parent): RendererAsync(command->context(), parent), m_command(command)
+ListingMapRenderer::ListingMapRenderer(const RDContextPtr& ctx, QObject* parent): RendererAsync(ctx, parent), m_context(ctx)
 {
-    m_totalsize = RDBuffer_Size(RDContext_GetBuffer(command->context().get()));
+    m_totalsize = RDBuffer_Size(RDContext_GetBuffer(ctx.get()));
 }
 
 void ListingMapRenderer::renderMap()
@@ -26,9 +26,9 @@ void ListingMapRenderer::onRender(QImage* image)
     painter.fillRect(this->widget()->rect(), Qt::gray);
 
     this->renderSegments(&painter);
-    if(!RDContext_IsBusy(m_command->context().get())) this->renderFunctions(&painter); // Don't render functions when disassembler is busy
+    if(!RDContext_IsBusy(m_context.get())) this->renderFunctions(&painter); // Don't render functions when disassembler is busy
     this->renderLabels(&painter);
-    if(!RDContext_IsBusy(m_command->context().get())) this->renderSeek(&painter);      // Don't render seek when disassembler is busy
+    if(!RDContext_IsBusy(m_context.get())) this->renderSeek(&painter);      // Don't render seek when disassembler is busy
 }
 
 QRect ListingMapRenderer::buildRect(int p, int itemsize) const
@@ -132,20 +132,20 @@ void ListingMapRenderer::renderFunctions(QPainter* painter)
 
 void ListingMapRenderer::renderSeek(QPainter* painter) const
 {
-    RDDocumentItem item;
-    if(!m_command->getCurrentItem(&item)) return;
+    // RDDocumentItem item;
+    // if(!m_context->getCurrentItem(&item)) return;
 
-    RDLoader* loader = RDContext_GetLoader(m_command->context().get());
-    RDLocation offset  = RD_Offset(loader, item.address);
-    if(!offset.valid) return;
+    // RDLoader* loader = RDContext_GetLoader(m_context->context().get());
+    // RDLocation offset  = RD_Offset(loader, item.address);
+    // if(!offset.valid) return;
 
-    QColor seekcolor = THEME_VALUE(Theme_Seek);
-    seekcolor.setAlphaF(0.4);
+    // QColor seekcolor = THEME_VALUE(Theme_Seek);
+    // seekcolor.setAlphaF(0.4);
 
-    QRect r;
-    if(m_orientation == Qt::Horizontal) r = QRect(this->calculatePosition(offset.value), 0, this->widget()->width() * 0.05, this->widget()->height());
-    else r = QRect(0, this->calculatePosition(offset.value), this->widget()->width(), this->widget()->height() * 0.05);
-    painter->fillRect(r, seekcolor);
+    // QRect r;
+    // if(m_orientation == Qt::Horizontal) r = QRect(this->calculatePosition(offset.value), 0, this->widget()->width() * 0.05, this->widget()->height());
+    // else r = QRect(0, this->calculatePosition(offset.value), this->widget()->width(), this->widget()->height() * 0.05);
+    // painter->fillRect(r, seekcolor);
 }
 
 void ListingMapRenderer::renderLabels(QPainter* painter)

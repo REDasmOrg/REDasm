@@ -1,28 +1,32 @@
 #include "rdiltab.h"
 #include "ui_rdiltab.h"
+#include "../../../renderer/surfaceqt.h"
 
 RDILTab::RDILTab(QWidget *parent) : QWidget(parent), ui(new Ui::RDILTab) { ui->setupUi(this); }
 RDILTab::~RDILTab() { delete ui; }
 
-void RDILTab::setCommand(ICommand* command)
+void RDILTab::setContext(const RDContextPtr& ctx)
 {
-    m_command = command;
-    //m_renderer.reset(RDRenderer_Create(m_command->context().get(), nullptr, RendererFlags_Normal));
+    m_context = ctx;
     this->updateInformation();
 }
 
 void RDILTab::updateInformation()
 {
     RDDocumentItem item;
+    const SurfaceQt* surface = nullptr;
 
-    if(!m_command->getCurrentItem(&item))
-    {
-        ui->lblTitle->clear();
-        return;
-    }
+    auto* activesurface = RDContext_GetActiveSurface(m_context.get());
+    if(!activesurface) goto notitle;
 
-    //ui->lblTitle->setText(RDRenderer_GetInstruction(m_renderer.get(), item.address));
+    surface = reinterpret_cast<const SurfaceQt*>(RDSurface_GetUserData(activesurface));
+    if(!surface->getCurrentItem(&item)) goto notitle;
 
-    m_graph.reset(RDILGraph_Create(m_command->context().get(), item.address));
+    ui->lblTitle->setText(RD_GetInstruction(m_context.get(), item.address));
+    m_graph.reset(RDILGraph_Create(m_context.get(), item.address));
     ui->graphView->setGraph(m_graph.get());
+    return;
+
+notitle:
+    ui->lblTitle->clear();
 }

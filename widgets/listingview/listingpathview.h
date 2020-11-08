@@ -35,5 +35,5 @@ class ListingPathView : public QWidget
         RDDocument* m_document{nullptr};
         QList<ArrowPath> m_paths;
         QSet<QPair<size_t, size_t>> m_done;
-        size_t m_first{RD_NPOS}, m_last{RD_NPOS};
+        size_t m_first{RD_NVAL}, m_last{RD_NVAL};
 };

@@ -53,7 +53,7 @@ void DisassemblerTabButton::customizeBehavior()
     RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<DisassemblerTabButton*>(e->owner);
 
-        if((e->eventid == Event_SurfaceStackChanged) && dynamic_cast<ICommandTab*>(thethis->m_widget))
+        if((e->id == Event_SurfaceStackChanged) && dynamic_cast<ICommandTab*>(thethis->m_widget))
             thethis->onStackChanged(e);
 
     }, nullptr);

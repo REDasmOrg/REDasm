@@ -8,35 +8,29 @@
 
 #define LISTINGMAP_SIZE 64
 
-ListingMap::ListingMap(QWidget *parent) : QWidget(parent) { }
-
-ListingMap::~ListingMap()
+ListingMap::ListingMap(const RDContextPtr& ctx, QWidget *parent) : QWidget(parent), m_context(ctx)
 {
-    if(m_context) RDObject_Unsubscribe(m_context.get(), this);
-    if(m_renderer) m_renderer->abort();
-}
-
-void ListingMap::linkTo(ICommand* command)
-{
-    m_command = command;
-    m_context = command->context();
-    m_document = RDContext_GetDocument(m_context.get());
+    m_renderer = new ListingMapRenderer(ctx, this);
 
     RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<ListingMap*>(e->owner);
-        if(RDContext_IsBusy(thethis->m_context.get()) || !thethis->m_document) return;
+        if(RDContext_IsBusy(thethis->m_context.get())) return;
 
-        switch(e->eventid) {
+        switch(e->id) {
             case Event_CursorPositionChanged: thethis->m_renderer->renderMap(); break;
             case Event_BusyChanged: thethis->m_renderer->renderMap(); break;
             default: break;
         }
     }, nullptr);
 
-    if(m_renderer) m_renderer->deleteLater();
-    m_renderer = new ListingMapRenderer(command, this);
     connect(m_renderer, &ListingMapRenderer::renderCompleted, this, &ListingMap::onRenderCompleted);
     m_renderer->renderMap();
+}
+
+ListingMap::~ListingMap()
+{
+    RDObject_Unsubscribe(m_context.get(), this);
+    if(m_renderer) m_renderer->abort();
 }
 
 QSize ListingMap::sizeHint() const { return { LISTINGMAP_SIZE, LISTINGMAP_SIZE }; }

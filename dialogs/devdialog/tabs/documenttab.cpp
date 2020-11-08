@@ -2,6 +2,7 @@
 #include "ui_documenttab.h"
 #include "../logsyntaxhighlighter.h"
 #include "../../../redasmsettings.h"
+#include "../../../renderer/surfaceqt.h"
 #include <climits>
 
 #define INDENT_BASE   2
@@ -26,9 +27,9 @@ DocumentTab::DocumentTab(QWidget *parent) : QWidget(parent), ui(new Ui::Document
 
 DocumentTab::~DocumentTab() { delete ui; }
 
-void DocumentTab::setCommand(ICommand* command)
+void DocumentTab::setContext(const RDContextPtr& ctx)
 {
-    m_command = command;
+    m_context = ctx;
     this->updateInformation();
 }
 
@@ -148,14 +149,14 @@ void DocumentTab::displayInstructionInformation(RDDocument* doc, const RDDocumen
     RDBlock block;
     if(!RDDocument_GetBlock(doc, item.address, &block)) return;
 
-    QString hexdump = RD_HexDump(m_command->disassembler(), item.address, RDBlock_Size(&block));
+    QString hexdump; // = RD_HexDump(m_context->disassembler(), item.address, RDBlock_Size(&block));
     QByteArray dump = QByteArray::fromHex(hexdump.toUtf8());
 
     this->header("INSTRUCTION");
 
     m_indent = INDENT_BASE;
-        this->line("assembler", RD_GetAssemblerInstruction(m_command->context().get(), block.address));
-        this->line("rdil", RD_GetRDILInstruction(m_command->context().get(), block.address));
+        this->line("assembler", RD_GetAssemblerInstruction(m_context.get(), block.address));
+        this->line("rdil", RD_GetRDILInstruction(m_context.get(), block.address));
         this->line("hexdump", hexdump);
         this->line("bits", this->getBits(dump));
         this->line();
@@ -183,13 +184,16 @@ void DocumentTab::displaySymbolInformation(RDDocument* doc, const RDDocumentItem
 void DocumentTab::displayInformation()
 {
     ui->pteInfo->clear();
-    if(!m_command) return;
+
+    RDSurface* activesurface = RDContext_GetActiveSurface(m_context.get());
+    if(!m_context || !activesurface) return;
+
+    const auto* surface = reinterpret_cast<const SurfaceQt*>(RDSurface_GetUserData(activesurface));
 
     RDDocumentItem item;
-    if(!m_command->getCurrentItem(&item)) return;
+    if(!surface->getCurrentItem(&item)) return;
 
-    RDDocument* doc = RDContext_GetDocument(m_command->context().get());
-
+    RDDocument* doc = RDContext_GetDocument(m_context.get());
     this->header("ITEM");
 
     m_indent = INDENT_BASE;

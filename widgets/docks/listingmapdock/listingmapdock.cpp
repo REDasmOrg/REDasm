@@ -1,9 +1,8 @@
 #include "listingmapdock.h"
 
-ListingMapDock::ListingMapDock(ICommand* command, QWidget *parent) : QDockWidget(parent)
+ListingMapDock::ListingMapDock(const RDContextPtr& ctx, QWidget *parent): QDockWidget(parent)
 {
-    m_listingmap = new ListingMap(this);
-    m_listingmap->linkTo(command);
+    m_listingmap = new ListingMap(ctx, this);
     this->setWidget(m_listingmap);
 }
 

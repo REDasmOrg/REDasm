@@ -17,7 +17,7 @@ class FunctionGraphTab : public QWidget
     public:
         explicit FunctionGraphTab(QWidget *parent = nullptr);
         ~FunctionGraphTab();
-        void setCommand(ICommand* command);
+        void setContext(const RDContextPtr& ctx);
 
     private slots:
         void showGraph(const QModelIndex& current, const QModelIndex&);

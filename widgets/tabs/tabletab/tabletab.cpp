@@ -38,7 +38,7 @@ TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), u
 
     RDObject_Subscribe(model->context().get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<TableTab*>(e->owner);
-        if((e->eventid != Event_BusyChanged) || RDContext_IsBusy(thethis->m_listingitemmodel->context().get())) return;
+        if((e->id != Event_BusyChanged) || RDContext_IsBusy(thethis->m_listingitemmodel->context().get())) return;
         emit thethis->resizeColumns();
     }, nullptr);
 }

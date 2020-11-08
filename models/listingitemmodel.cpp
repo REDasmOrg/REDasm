@@ -13,7 +13,7 @@ void ListingItemModel::setContext(const RDContextPtr& disassembler)
     ContextModel::setContext(disassembler);
 
     RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
-        if(e->eventid != Event_DocumentChanged) return;
+        if(e->id != Event_DocumentChanged) return;
         ListingItemModel* thethis = reinterpret_cast<ListingItemModel*>(e->owner);
         const RDDocumentEventArgs* de = reinterpret_cast<const RDDocumentEventArgs*>(e);
 

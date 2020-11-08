@@ -14,9 +14,9 @@ class DocumentTab : public QWidget
 
     public:
         explicit DocumentTab(QWidget *parent = nullptr);
-        void setCommand(ICommand* command);
-        Q_INVOKABLE void updateInformation();
         ~DocumentTab();
+        void setContext(const RDContextPtr& ctx);
+        void updateInformation();
 
     private:
         DocumentTab& line(const QString& s1, const QString& s2);
@@ -39,7 +39,7 @@ class DocumentTab : public QWidget
 
     private:
         Ui::DocumentTab *ui;
-        ICommand* m_command{nullptr};
+        RDContextPtr m_context;
         int m_indent{0};
 };
 

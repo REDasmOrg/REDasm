@@ -13,14 +13,13 @@ class RDILTab : public QWidget
 
     public:
         explicit RDILTab(QWidget *parent = nullptr);
-        void setCommand(ICommand* command);
+        void setContext(const RDContextPtr& ctx);
         Q_INVOKABLE void updateInformation();
         ~RDILTab();
 
     private:
         Ui::RDILTab *ui;
-        ICommand* m_command{nullptr};
-        //rd_ptr<RDRenderer> m_renderer;
+        RDContextPtr m_context;
         rd_ptr<RDGraph> m_graph;
 };
 

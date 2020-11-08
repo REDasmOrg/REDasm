@@ -11,9 +11,8 @@ class ListingMap : public QWidget
     Q_OBJECT
 
     public:
-        explicit ListingMap(QWidget *parent = 0);
+        explicit ListingMap(const RDContextPtr& ctx, QWidget *parent = 0);
         virtual ~ListingMap();
-        void linkTo(ICommand* command);
         QSize sizeHint() const override;
 
     private slots:

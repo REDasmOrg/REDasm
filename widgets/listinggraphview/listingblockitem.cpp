@@ -5,7 +5,7 @@
 
 #define BLOCK_MARGIN      4
 #define DROP_SHADOW_SIZE  10
-#define BLOCK_MARGINS     -BLOCK_MARGIN, 0, BLOCK_MARGIN, BLOCK_MARGIN
+#define BLOCK_MARGINS     -BLOCK_MARGIN, -BLOCK_MARGIN, BLOCK_MARGIN, BLOCK_MARGIN
 
 ListingBlockItem::ListingBlockItem(const RDFunctionBasicBlock* fbb, ICommand* command, RDGraphNode node, const RDGraph* g, QWidget *parent) : GraphViewItem(node, g, parent), m_basicblock(fbb), m_command(command), m_context(command->context())
 {

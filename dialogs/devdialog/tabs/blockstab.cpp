@@ -10,13 +10,13 @@ BlocksTab::BlocksTab(QWidget *parent) : QWidget(parent), ui(new Ui::BlocksTab)
 
 BlocksTab::~BlocksTab() { delete ui; }
 
-void BlocksTab::setCommand(ICommand* command)
+void BlocksTab::setContext(const RDContextPtr& ctx)
 {
-    m_command = command;
+    m_context = ctx;
     if(m_segmentsmodel) m_segmentsmodel->deleteLater();
 
     m_segmentsmodel = new SegmentsModel(ui->tvSegments);
-    m_segmentsmodel->setContext(command->context());
+    m_segmentsmodel->setContext(ctx);
 
     ui->tvSegments->setModel(m_segmentsmodel);
     ui->tvSegments->header()->moveSection(8, 0);
@@ -31,13 +31,13 @@ void BlocksTab::setCommand(ICommand* command)
 void BlocksTab::showBlocks(const QModelIndex& current, const QModelIndex&)
 {
     if(!current.isValid()) return;
-    RDDocument* doc = RDContext_GetDocument(m_command->context().get());
+    RDDocument* doc = RDContext_GetDocument(m_context.get());
 
     const RDDocumentItem& item = m_segmentsmodel->item(current);
     RDSegment segment;
 
     if(RDDocument_GetSegmentAddress(doc, item.address, &segment))
-        ui->tableWidget->setModel(new BlockListModel(m_command, RDDocument_GetBlocks(doc, segment.address)));
+        ui->tableWidget->setModel(new BlockListModel(m_context, RDDocument_GetBlocks(doc, segment.address)));
     else
-        ui->tableWidget->setModel(new BlockListModel(m_command, nullptr));
+        ui->tableWidget->setModel(new BlockListModel(m_context, nullptr));
 }

@@ -13,12 +13,11 @@ class DevDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit DevDialog(QWidget *parent = nullptr);
-        void setCommand(ICommand* command);
+        explicit DevDialog(const RDContextPtr& ctx, QWidget *parent = nullptr);
         ~DevDialog();
 
     private:
         Ui::DevDialog *ui;
-        ICommand* m_command{nullptr};
+        RDContextPtr m_context;
 };
 

@@ -107,12 +107,7 @@ void DisassemblerHooks::showGoto(ICommand* command)
     dlggoto.exec();
 }
 
-void DisassemblerHooks::showDeveloperTools()
-{
-    if(!m_devdialog) m_devdialog = new DevDialog(m_mainwindow);
-    m_devdialog->setCommand(m_activecommandtab->command());
-    m_devdialog->show();
-}
+void DisassemblerHooks::showDeveloperTools() { if(m_devdialog) m_devdialog->show(); }
 
 void DisassemblerHooks::showDatabase()
 {
@@ -322,6 +317,7 @@ void DisassemblerHooks::loadDisassemblerView(const RDContextPtr& ctx)
 {
     this->close(false);
 
+    m_devdialog = new DevDialog(ctx, m_mainwindow);
     m_disassemblerview = new DisassemblerView(ctx);
     this->replaceWidget(m_disassemblerview);
 }
@@ -580,6 +576,9 @@ void DisassemblerHooks::close(bool showwelcome)
 {
     this->enableViewCommands(false);
     this->enableCommands(nullptr);
+
+    if(m_devdialog) m_devdialog->deleteLater();
+    m_devdialog = nullptr;
 
     if(showwelcome) this->showWelcome(); // Replaces central widget, if any
     else if(m_disassemblerview) m_disassemblerview->deleteLater();

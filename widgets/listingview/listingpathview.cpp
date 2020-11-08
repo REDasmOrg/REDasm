@@ -21,7 +21,7 @@ void ListingPathView::linkTo(ListingTextView* textview)
 
     RDObject_Subscribe(textview->surface()->handle(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<ListingPathView*>(e->owner);
-        if(e->eventid != Event_SurfaceUpdated) return;
+        if(e->id != Event_SurfaceUpdated) return;
         QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
     }, nullptr);
 }

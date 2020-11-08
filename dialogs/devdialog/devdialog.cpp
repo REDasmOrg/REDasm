@@ -2,28 +2,33 @@
 #include "ui_devdialog.h"
 #include "../renderer/surfaceqt.h"
 
-DevDialog::DevDialog(QWidget *parent) : QDialog(parent), ui(new Ui::DevDialog)
+DevDialog::DevDialog(const RDContextPtr& ctx, QWidget *parent) : QDialog(parent), ui(new Ui::DevDialog), m_context(ctx)
 {
     ui->setupUi(this);
     ui->tabWidget->setStyleSheet("QTabWidget::pane { border: 0; }");
+
+    RDObject_Subscribe(ctx.get(), this, [](const RDEventArgs* e) {
+        switch(e->id) {
+            case Event_ContextSurfaceChanged:
+            case Event_SurfacePositionChanged: {
+                auto* thethis = reinterpret_cast<DevDialog*>(e->owner);
+                thethis->ui->tabDocument->updateInformation();
+                thethis->ui->tabRDIL->updateInformation();
+                break;
+            }
+
+            default: break;
+        }
+    }, nullptr);
+
+    ui->tabDocument->setContext(ctx);
+    ui->tabBlocks->setContext(ctx);
+    ui->tabGraphs->setContext(ctx);
+    ui->tabRDIL->setContext(ctx);
 }
 
-void DevDialog::setCommand(ICommand* command)
+DevDialog::~DevDialog()
 {
-    m_command = command;
-
-    if(m_command)
-        disconnect(m_command->surface(), &SurfaceQt::positionChanged, this, nullptr);
-
-    connect(m_command->surface(), &SurfaceQt::positionChanged, this, [&]() {
-        ui->tabDocument->updateInformation();
-        ui->tabRDIL->updateInformation();
-    });
-
-    ui->tabDocument->setCommand(command);
-    ui->tabBlocks->setCommand(command);
-    ui->tabGraphs->setCommand(command);
-    ui->tabRDIL->setCommand(command);
+    if(m_context) RDObject_Unsubscribe(m_context.get(), this);
+    delete ui;
 }
-
-DevDialog::~DevDialog() { delete ui; }

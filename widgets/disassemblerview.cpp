@@ -18,15 +18,15 @@ DisassemblerView::DisassemblerView(const RDContextPtr& ctx, QWidget *parent) : Q
     boxlayout->addWidget(m_disassemblertabs);
     this->setLayout(boxlayout);
 
-    ICommandTab* commandtab = this->showListing();
-    //m_listingmapdock = new ListingMapDock(commandtab->command());
+    this->showListing();
+    m_listingmapdock = new ListingMapDock(ctx);
 
     this->showFunctions(Qt::LeftDockWidgetArea);
     this->showSegments();
     this->showExports();
     this->showImports();
     this->showStrings();
-    //this->dock(m_listingmapdock, Qt::RightDockWidgetArea);
+    this->dock(m_listingmapdock, Qt::RightDockWidgetArea);
 
     RDObject_Subscribe(ctx.get(), this, &DisassemblerView::listenEvents, this);
 
@@ -172,7 +172,7 @@ void DisassemblerView::listenEvents(const RDEventArgs* e)
 {
     auto* thethis = reinterpret_cast<DisassemblerView*>(e->userdata);
 
-    switch(e->eventid)
+    switch(e->id)
     {
         case Event_BusyChanged:
             QMetaObject::invokeMethod(DisassemblerHooks::instance(), "updateViewWidgets", Qt::QueuedConnection, Q_ARG(bool, RDContext_IsBusy(thethis->m_context.get())));

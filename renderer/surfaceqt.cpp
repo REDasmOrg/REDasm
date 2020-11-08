@@ -8,7 +8,7 @@
 SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : QObject(parent), m_context(ctx)
 {
     m_basecolor = this->owner()->palette().color(QPalette::Base);
-    m_surface = rd_ptr<RDSurface>(RDSurface_Create(ctx.get(), flags));
+    m_surface = rd_ptr<RDSurface>(RDSurface_Create(ctx.get(), flags, reinterpret_cast<uintptr_t>(this)));
 
     QFontMetricsF fm = this->fontMetrics();
     m_cellsize.rheight() = fm.height();
@@ -22,7 +22,7 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
     RDObject_Subscribe(m_surface.get(), this, [](const RDEventArgs* event) {
         auto* thethis = reinterpret_cast<SurfaceQt*>(event->owner);
 
-        switch(event->eventid) {
+        switch(event->id) {
             case Event_SurfaceUpdated: thethis->render(); break;
 
             case Event_SurfacePositionChanged: {

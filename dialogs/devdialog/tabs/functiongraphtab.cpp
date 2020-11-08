@@ -11,15 +11,15 @@ FunctionGraphTab::FunctionGraphTab(QWidget *parent) : QWidget(parent), ui(new Ui
 
 FunctionGraphTab::~FunctionGraphTab() { delete ui; }
 
-void FunctionGraphTab::setCommand(ICommand* command)
+void FunctionGraphTab::setContext(const RDContextPtr& ctx)
 {
-    if(ui->tbvFunctions->selectionMode())
+    if(ui->tbvFunctions->selectionModel())
         disconnect(ui->tbvFunctions->selectionModel(), &QItemSelectionModel::currentChanged, this, nullptr);
 
     m_functionlistmodel = new FunctionListModel(ui->tbvFunctions);
-    m_functionlistmodel->setContext(command->context());
+    m_functionlistmodel->setContext(ctx);
 
-    m_functiongraphmodel = new FunctionGraphModel(command->context(), ui->tbvGraph);
+    m_functiongraphmodel = new FunctionGraphModel(ctx, ui->tbvGraph);
     m_sortedblocksmodel = new QSortFilterProxyModel(ui->tbvGraph);
     m_sortedblocksmodel->setSourceModel(m_functiongraphmodel);
     m_sortedblocksmodel->setSortRole(Qt::UserRole);

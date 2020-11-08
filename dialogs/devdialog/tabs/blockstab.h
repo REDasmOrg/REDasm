@@ -15,7 +15,7 @@ class BlocksTab : public QWidget
     public:
         explicit BlocksTab(QWidget *parent = nullptr);
         ~BlocksTab();
-        void setCommand(ICommand* command);
+        void setContext(const RDContextPtr& ctx);
 
     private slots:
         void showBlocks(const QModelIndex& current, const QModelIndex&);
@@ -23,6 +23,6 @@ class BlocksTab : public QWidget
     private:
         Ui::BlocksTab *ui;
         SegmentsModel* m_segmentsmodel{nullptr};
-        ICommand* m_command{nullptr};
+        RDContextPtr m_context;
 };
 

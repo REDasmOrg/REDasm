@@ -1,9 +1,9 @@
 #include "blocklistmodel.h"
 #include "../../themeprovider.h"
 
-BlockListModel::BlockListModel(ICommand* command, const RDBlockContainer* blocks, QObject *parent) : QAbstractListModel(parent), m_blockcontainer(blocks), m_command(command)
+BlockListModel::BlockListModel(const RDContextPtr& ctx, const RDBlockContainer* blocks, QObject *parent) : QAbstractListModel(parent), m_blockcontainer(blocks), m_context(ctx)
 {
-    m_document = RDContext_GetDocument(command->context().get());
+    m_document = RDContext_GetDocument(ctx.get());
 
     RDBlockContainer_Each(blocks, [](const RDBlock* b, void* userdata) {
        auto* thethis = reinterpret_cast<BlockListModel*>(userdata);

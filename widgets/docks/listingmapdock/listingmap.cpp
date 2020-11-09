@@ -17,7 +17,8 @@ ListingMap::ListingMap(const RDContextPtr& ctx, QWidget *parent) : QWidget(paren
         if(RDContext_IsBusy(thethis->m_context.get())) return;
 
         switch(e->id) {
-            case Event_CursorPositionChanged: thethis->m_renderer->renderMap(); break;
+            case Event_ContextSurfaceChanged:
+            case Event_SurfacePositionChanged:
             case Event_BusyChanged: thethis->m_renderer->renderMap(); break;
             default: break;
         }
@@ -43,9 +44,10 @@ void ListingMap::onRenderCompleted(const QImage& image)
 
 void ListingMap::paintEvent(QPaintEvent *)
 {
-   if(!m_command) return;
-   QPainter painter(this);
-   painter.drawPixmap(0, 0, m_pixmap);
+    if(m_pixmap.isNull()) return;
+
+    QPainter painter(this);
+    painter.drawPixmap(0, 0, m_pixmap);
 }
 
 void ListingMap::resizeEvent(QResizeEvent *e)

@@ -3,13 +3,14 @@
 #include "../renderer/rendererasync.h"
 #include "../hooks/icommand.h"
 #include <rdapi/rdapi.h>
+#include <deque>
 
 class ListingMapRenderer : public RendererAsync
 {
     Q_OBJECT
 
     private:
-        template<typename T1, typename T2> using PreCalc = std::vector<std::pair<T1, T2>>;
+        template<typename T1, typename T2> using PreCalc = std::deque<std::pair<T1, T2>>;
 
     public:
         ListingMapRenderer(const RDContextPtr& ctx, QObject* parent);
@@ -34,6 +35,8 @@ class ListingMapRenderer : public RendererAsync
 
     private:
         RDContextPtr m_context;
+        RDDocument* m_document;
+        RDLoader* m_loader;
         PreCalc<RDSegment, size_t> m_calcsegments;
         PreCalc<RDLocation, rd_address> m_calcfunctions;
         s32 m_orientation{Qt::Vertical};

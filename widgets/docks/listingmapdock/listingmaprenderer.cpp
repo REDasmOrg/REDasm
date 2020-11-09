@@ -3,11 +3,14 @@
 #include <QPainter>
 #include <QWidget>
 #include <rdapi/graph/functiongraph.h>
+#include "../../../renderer/surfaceqt.h"
 #include "../../../themeprovider.h"
 
 ListingMapRenderer::ListingMapRenderer(const RDContextPtr& ctx, QObject* parent): RendererAsync(ctx, parent), m_context(ctx)
 {
     m_totalsize = RDBuffer_Size(RDContext_GetBuffer(ctx.get()));
+    m_document = RDContext_GetDocument(m_context.get());
+    m_loader = RDContext_GetLoader(m_context.get());
 }
 
 void ListingMapRenderer::renderMap()
@@ -50,54 +53,43 @@ bool ListingMapRenderer::checkOrientation()
 
 void ListingMapRenderer::calculateSegments()
 {
-    //FIXME: RDDocument* doc = RDContext_GetDocument(m_command->context().get());
-    //FIXME: size_t c = RDDocument_SegmentsCount(doc);
-    //FIXME: m_calcsegments.clear();
-    //FIXME: m_calcsegments.reserve(c);
+    m_calcsegments.clear();
 
-    //FIXME: for(size_t i = 0; i < c; i++)
-    //FIXME: {
-    //FIXME:     RDSegment segment;
-    //FIXME:     if(!RDDocument_GetSegmentAt(doc, i, &segment)) continue;
-    //FIXME:     if(HAS_FLAG(&segment, SegmentFlags_Bss)) continue;
-    //FIXME:
-    //FIXME:     m_calcsegments.push_back({ segment, RDSegment_Size(&segment) });
-    //FIXME: }
+    RDDocument_EachSegment(m_document, [](const RDSegment* segment, void* userdata) {
+        auto* thethis = reinterpret_cast<ListingMapRenderer*>(userdata);
+
+        if(!HAS_FLAG(segment, SegmentFlags_Bss))
+            thethis->m_calcsegments.push_back({ *segment, RDSegment_Size(segment) });
+
+        return true;
+    }, this);
 }
 
 void ListingMapRenderer::calculateFunctions()
 {
-    // FIXME: RDDocument* doc = RDContext_GetDocument(m_command->context().get());
-    // FIXME: size_t c = RDDocument_FunctionsCount(doc);
-    // FIXME: m_calcfunctions.clear();
-    // FIXME: m_calcfunctions.reserve(c);
+    m_calcfunctions.clear();
 
-    // FIXME: RDLoader* loader = RDContext_GetLoader(m_command->context().get());
+    RDDocument_EachFunction(m_document, [](rd_address address, void* userdata) {
+        auto* thethis = reinterpret_cast<ListingMapRenderer*>(userdata);
 
-    // FIXME: for(size_t i = 0; i < c; i++)
-    // FIXME: {
-    // FIXME:     RDLocation loc = RDDocument_GetFunctionAt(doc, i);
+        RDGraph* graph = nullptr;
+        if(!RDDocument_GetFunctionGraph(thethis->m_document, address, &graph)) return true;
 
-    // FIXME:     RDGraph* graph = nullptr;
-    // FIXME:     if(!RDDocument_GetFunctionGraph(doc, loc.address, &graph)) continue;
+        const RDGraphNode* nodes = nullptr;
+        size_t c = RDGraph_GetNodes(graph, &nodes);
 
-    // FIXME:     const RDGraphNode* nodes = nullptr;
-    // FIXME:     size_t nc = RDGraph_GetNodes(graph, &nodes);
+        for(size_t i = 0; i < c; i++) {
+            const RDFunctionBasicBlock* fbb = nullptr;
+            if(!RDFunctionGraph_GetBasicBlock(graph, nodes[i], &fbb)) continue;
 
-    // FIXME:     for(size_t j = 0; j < nc; j++)
-    // FIXME:     {
-    // FIXME:         const RDFunctionBasicBlock* fbb = nullptr;
-    // FIXME:         if(!RDFunctionGraph_GetBasicBlock(graph, nodes[j], &fbb)) continue;
+            RDDocumentItem item;
+            if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) continue;
 
-    // FIXME:         RDDocumentItem item;
-    // FIXME:         if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) continue;
-
-    // FIXME:         RDLocation loc = RD_Offset(loader, item.address);
-    // FIXME:         if(!loc.valid) continue;
-
-    // FIXME:         m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
-    // FIXME:     }
-    // FIXME: }
+            RDLocation loc = RD_Offset(thethis->m_loader, item.address);
+            if(loc.valid) thethis->m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
+        }
+        return true;
+    }, this);
 }
 
 bool ListingMapRenderer::conditionWait() const { return m_renderenabled.load(); }
@@ -132,20 +124,25 @@ void ListingMapRenderer::renderFunctions(QPainter* painter)
 
 void ListingMapRenderer::renderSeek(QPainter* painter) const
 {
-    // RDDocumentItem item;
-    // if(!m_context->getCurrentItem(&item)) return;
+    auto* activesurface = RDContext_GetActiveSurface(m_context.get());
+    if(!activesurface) return;
 
-    // RDLoader* loader = RDContext_GetLoader(m_context->context().get());
-    // RDLocation offset  = RD_Offset(loader, item.address);
-    // if(!offset.valid) return;
+    auto* surface = reinterpret_cast<const SurfaceQt*>(RDSurface_GetUserData(activesurface));
+    if(!surface) return;
 
-    // QColor seekcolor = THEME_VALUE(Theme_Seek);
-    // seekcolor.setAlphaF(0.4);
+    RDDocumentItem item;
+    if(!surface->getCurrentItem(&item)) return;
 
-    // QRect r;
-    // if(m_orientation == Qt::Horizontal) r = QRect(this->calculatePosition(offset.value), 0, this->widget()->width() * 0.05, this->widget()->height());
-    // else r = QRect(0, this->calculatePosition(offset.value), this->widget()->width(), this->widget()->height() * 0.05);
-    // painter->fillRect(r, seekcolor);
+    RDLocation loc = RD_Offset(m_loader, item.address);
+    if(!loc.valid) return;
+
+    QColor seekcolor = THEME_VALUE(Theme_Seek);
+    seekcolor.setAlphaF(0.4);
+
+    QRect r;
+    if(m_orientation == Qt::Horizontal) r = QRect(this->calculatePosition(loc.offset), 0, this->widget()->width() * 0.05, this->widget()->height());
+    else r = QRect(0, this->calculatePosition(loc.offset), this->widget()->width(), this->widget()->height() * 0.05);
+    painter->fillRect(r, seekcolor);
 }
 
 void ListingMapRenderer::renderLabels(QPainter* painter)

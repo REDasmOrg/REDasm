@@ -3,7 +3,6 @@
 #include <QWidget>
 #include <QPixmap>
 #include <rdapi/rdapi.h>
-#include "../../../hooks/icommand.h"
 #include "listingmaprenderer.h"
 
 class ListingMap : public QWidget
@@ -24,7 +23,6 @@ class ListingMap : public QWidget
 
     private:
         RDContextPtr m_context;
-        ICommand* m_command{nullptr};
         ListingMapRenderer* m_renderer{nullptr};
         RDDocument* m_document{nullptr};
         QPixmap m_pixmap;

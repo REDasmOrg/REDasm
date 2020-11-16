@@ -33,7 +33,7 @@ class DisassemblerHooks: public QObject
 
     private:
         enum { Action_Rename = 0, Action_XRefs, Action_Follow, Action_FollowPointerHexDump,
-               Action_CallGraph, Action_Goto, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction,
+               Action_CallGraph, Action_Goto, Action_HSplit, Action_VSplit, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction,
                Action_Back, Action_Forward, Action_Copy };
 
     private:
@@ -60,23 +60,21 @@ class DisassemblerHooks: public QObject
         void exit();
 
     public:
-        QMenu* createActions(ICommand* command);
-        void setActiveCommandTab(ICommandTab* commandtab);
-        void showReferences(ICommand* command, rd_address address);
-        void showGoto(ICommand* command);
+        QMenu* createActions(ISurface* gurface);
+        void showReferences(rd_address address);
+        void showGoto();
         void showDeveloperTools();
         void showDatabase();
         void showProblems();
         void focusOn(QWidget* w);
 
     public:
-        ICommandTab* activeCommandTab() const;
-        ICommand* activeCommand() const;
-        const RDContextPtr& activeContext() const;
+        SurfaceQt* activeSurface() const;
+        RDContextPtr activeContext() const;
         bool openDatabase(const QString& filepath);
         void enableCommands(QWidget* w);
-        void updateCommandStates(QWidget* w) const;
-        void statusAddress(const ICommand* command) const;
+        void updateCommandStates() const;
+        void statusAddress(const SurfaceQt* surface) const;
         void load(const QString& filepath);
 
     private slots:
@@ -108,7 +106,6 @@ class DisassemblerHooks: public QObject
         QPushButton *m_pbproblems{nullptr}, *m_pbrenderer;
         DisassemblerView* m_disassemblerview{nullptr};
         DevDialog* m_devdialog{nullptr};
-        mutable ICommandTab* m_activecommandtab{nullptr};
         QFileInfo m_fileinfo;
         static DisassemblerHooks m_instance;
 };

@@ -7,7 +7,7 @@
 
 SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : QObject(parent), m_context(ctx)
 {
-    m_basecolor = this->owner()->palette().color(QPalette::Base);
+    m_basecolor = this->widget()->palette().color(QPalette::Base);
     m_surface = rd_ptr<RDSurface>(RDSurface_Create(ctx.get(), flags, reinterpret_cast<uintptr_t>(this)));
 
     QFontMetricsF fm = this->fontMetrics();
@@ -27,7 +27,7 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
 
             case Event_SurfacePositionChanged: {
                 auto* hooks = DisassemblerHooks::instance();
-                hooks->statusAddress(dynamic_cast<const ICommand*>(thethis->owner()));
+                hooks->statusAddress(thethis);
                 emit thethis->positionChanged();
                 break;
             }
@@ -38,7 +38,7 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
 }
 
 SurfaceQt::~SurfaceQt() { RDObject_Unsubscribe(m_surface.get(), this); }
-int SurfaceQt::rows() const { return this->owner()->height() / m_cellsize.height(); }
+int SurfaceQt::rows() const { return this->widget()->height() / m_cellsize.height(); }
 
 QSize SurfaceQt::size() const
 {
@@ -81,7 +81,9 @@ void SurfaceQt::selectAt(const QPointF& pt)
 }
 
 void SurfaceQt::resize(int row, int cols) { this->resize(QSizeF{ cols * m_cellsize.width(), row * m_cellsize.height() }); }
-void SurfaceQt::resize() { this->resize(QSizeF{ static_cast<qreal>(this->owner()->width()), static_cast<qreal>(this->owner()->height()) }); }
+void SurfaceQt::resize() { this->resize(QSizeF{ static_cast<qreal>(this->widget()->width()), static_cast<qreal>(this->widget()->height()) }); }
+void SurfaceQt::linkTo(SurfaceQt* s) { RDSurface_LinkTo(m_surface.get(), s->handle()); }
+void SurfaceQt::unlink() { RDSurface_Unlink(m_surface.get()); }
 
 void SurfaceQt::copy() const
 {
@@ -122,8 +124,8 @@ QColor SurfaceQt::getBackground(const RDSurfaceCell* cell) const
     switch(cell->background)
     {
         case Theme_Default: return this->baseColor();
-        case Theme_CursorBg: return this->owner()->palette().color(QPalette::WindowText);
-        case Theme_SelectionBg: return this->owner()->palette().color(QPalette::Highlight);
+        case Theme_CursorBg: return this->widget()->palette().color(QPalette::WindowText);
+        case Theme_SelectionBg: return this->widget()->palette().color(QPalette::Highlight);
         default: break;
     }
 
@@ -150,8 +152,8 @@ RDSurfacePos SurfaceQt::mapPoint(const QPointF& pt) const
                 static_cast<int>(pt.x() / m_cellsize.width()) };
 }
 
-QFontMetricsF SurfaceQt::fontMetrics() const { return QFontMetricsF(this->owner()->font()); }
-QWidget* SurfaceQt::owner() const { return dynamic_cast<QWidget*>(this->parent()); }
+QFontMetricsF SurfaceQt::fontMetrics() const { return QFontMetricsF(this->widget()->font()); }
+QWidget* SurfaceQt::widget() const { return dynamic_cast<QWidget*>(this->parent()); }
 
 void SurfaceQt::resize(const QSizeF& size)
 {

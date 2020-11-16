@@ -33,12 +33,8 @@ void DisassemblerTabs::tabInserted(int index)
 void DisassemblerTabs::onTabChanged(int index)
 {
     QWidget* w = this->widget(index);
-
-    if(auto* commandtab = dynamic_cast<ICommandTab*>(w))
-        DisassemblerHooks::instance()->setActiveCommandTab(commandtab);
-
     DisassemblerHooks::instance()->enableCommands(w);
-    DisassemblerHooks::instance()->updateCommandStates(w);
+    DisassemblerHooks::instance()->updateCommandStates();
 }
 
 void DisassemblerTabs::onCloseClicked()
@@ -48,12 +44,6 @@ void DisassemblerTabs::onCloseClicked()
     for(int i = 0; i < this->tabBar()->count(); i++)
     {
         if(this->tabBar()->tabButton(i, QTabBar::RightSide) != sender) continue;
-
-        auto* commandtab = dynamic_cast<ICommandTab*>(this->widget(i));
-
-        if(commandtab && (DisassemblerHooks::instance()->activeCommandTab() == commandtab))
-            DisassemblerHooks::instance()->setActiveCommandTab(nullptr);
-
         this->removeTab(i);
         break;
     }

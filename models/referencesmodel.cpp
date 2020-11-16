@@ -1,8 +1,12 @@
 #include "referencesmodel.h"
 #include "../themeprovider.h"
-#include <array>
+#include "../hooks/disassemblerhooks.h"
+#include "../renderer/surfaceqt.h"
 
-ReferencesModel::ReferencesModel(const ICommand* command, QObject *parent): ContextModel(parent), m_command(command) { }
+ReferencesModel::ReferencesModel(QObject *parent): ContextModel(parent)
+{
+    m_surface = DisassemblerHooks::instance()->activeSurface();
+}
 
 void ReferencesModel::clear()
 {
@@ -100,10 +104,10 @@ int ReferencesModel::columnCount(const QModelIndex &) const { return 3; }
 
 QString ReferencesModel::direction(rd_address address) const
 {
-    if(!m_command) return QString();
+    if(!m_surface) return QString();
 
     RDDocumentItem item;
-    if(!m_command->getCurrentItem(&item)) return QString();
+    if(!m_surface->getCurrentItem(&item)) return QString();
 
     if(address > item.address) return "Down";
     if(address < item.address) return "Up";

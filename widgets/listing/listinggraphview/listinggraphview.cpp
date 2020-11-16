@@ -1,85 +1,93 @@
 #include "listinggraphview.h"
-#include "../../hooks/disassemblerhooks.h"
-#include "../../models/contextmodel.h"
-#include "../../redasmsettings.h"
+#include "../../../hooks/disassemblerhooks.h"
+#include "../../../models/contextmodel.h"
+#include "../../../redasmsettings.h"
 #include "listingblockitem.h"
 #include <rdapi/graph/functiongraph.h>
 #include <rdapi/graph/layout.h>
+#include <QApplication>
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QPainter>
 #include <QAction>
 #include <QMenu>
 
-ListingGraphView::ListingGraphView(ICommand* command, QWidget *parent): GraphView(parent), m_command(command)
+ListingGraphView::ListingGraphView(const RDContextPtr& ctx, QWidget *parent): GraphView(parent), m_context(ctx)
 {
     this->setFocusPolicy(Qt::StrongFocus);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setFont(REDasmSettings::font());
 
     connect(this, &ListingGraphView::customContextMenuRequested, this, [&](const QPoint&) {
-        RDDocument* doc = RDContext_GetDocument(m_command->context().get());
+        RDDocument* doc = RDContext_GetDocument(m_context.get());
         if(RDDocument_GetSize(doc)) m_contextmenu->popup(QCursor::pos());
     });
 }
 
+void ListingGraphView::linkTo(ISurface* s) { /* m_surface->linkTo(s->surface()); */ }
+void ListingGraphView::unlink() { /* m_surface->unlink(); */ }
+
 void ListingGraphView::goBack()
 {
-    m_command->goBack();
+    m_surface->goBack();
 
     RDDocumentItem item;
-    if(m_command->getCurrentItem(&item)) this->updateGraph(item.address);
+    if(m_surface->getCurrentItem(&item)) this->renderGraph(&item);
 }
 
 void ListingGraphView::goForward()
 {
-    m_command->goForward();
+    m_surface->goForward();
 
     RDDocumentItem item;
-    if(m_command->getCurrentItem(&item)) this->updateGraph(item.address);
+    if(m_surface->getCurrentItem(&item)) this->renderGraph(&item);
 }
 
-void ListingGraphView::copy() const
-{
-    ListingBlockItem* blockitem = static_cast<ListingBlockItem*>(this->selectedItem());
-    //if(blockitem) return blockitem->renderer()->copy();
-}
+void ListingGraphView::copy() const { m_surface->copy(); }
 
 bool ListingGraphView::goToAddress(rd_address address)
 {
-    if(!m_command->goToAddress(address)) return false;
-    return this->updateGraph(address);
+    if(!m_surface->goToAddress(address)) return false;
+
+    RDDocumentItem item;
+    if(!m_surface->getCurrentItem(&item)) return false;
+
+    this->renderGraph(&item);
+    return true;
 }
 
-bool ListingGraphView::goTo(const RDDocumentItem& item)
+bool ListingGraphView::goTo(const RDDocumentItem* item)
 {
-    if(!m_command->goTo(item)) return false;
-    return this->updateGraph(item.address);
+    if(!m_surface->goTo(item)) return false;
+    return this->renderGraph(item);
 }
 
-bool ListingGraphView::hasSelection() const { return m_command->hasSelection(); }
-bool ListingGraphView::canGoBack() const { return m_command->canGoBack(); }
-bool ListingGraphView::canGoForward() const { return m_command->canGoForward(); }
-bool ListingGraphView::getCurrentItem(RDDocumentItem* item) const { return m_command->getCurrentItem(item); }
+bool ListingGraphView::hasSelection() const { return m_surface->hasSelection(); }
+bool ListingGraphView::canGoBack() const { return m_surface->canGoBack(); }
+bool ListingGraphView::canGoForward() const { return m_surface->canGoForward(); }
+
+bool ListingGraphView::getCurrentItem(RDDocumentItem* item) const
+{
+    auto* isurface = this->selectedSurface();
+    return isurface ? isurface->getCurrentItem(item) : false;
+}
 
 bool ListingGraphView::getCurrentSymbol(RDSymbol* symbol) const
 {
-    ListingBlockItem* blockitem = static_cast<ListingBlockItem*>(this->selectedItem());
-    return blockitem->surface()->getCurrentSymbol(symbol);
+    auto* isurface = this->selectedSurface();
+    return isurface ? isurface->getCurrentSymbol(symbol) : false;
 }
 
-const RDSurfacePos* ListingGraphView::position() const { return m_command->position(); }
-const RDSurfacePos* ListingGraphView::selection() const { return m_command->selection(); }
-SurfaceQt* ListingGraphView::surface() const { return nullptr; }
-QString ListingGraphView::currentWord() const { return m_command->currentWord(); }
-const RDContextPtr& ListingGraphView::context() const { return m_command->context(); }
+SurfaceQt* ListingGraphView::surface() const { return m_surface; }
+QString ListingGraphView::currentWord() const { return m_surface->getCurrentWord(); }
+const RDContextPtr& ListingGraphView::context() const { return m_context; }
 QWidget* ListingGraphView::widget() { return this; }
 void ListingGraphView::computed() { this->focusCurrentBlock(); }
 
-void ListingGraphView::onFollowRequested(ListingBlockItem* block)
+void ListingGraphView::onFollowRequested()
 {
     RDSymbol symbol;
-    //if(!block->renderer()->selectedSymbol(&symbol)) return;
+    if(!m_surface->getCurrentSymbol(&symbol)) return;
     this->goToAddress(symbol.address);
 }
 
@@ -92,22 +100,19 @@ void ListingGraphView::focusCurrentBlock()
     this->setSelectedBlock(item);
 }
 
-bool ListingGraphView::updateGraph(rd_address address)
+bool ListingGraphView::renderGraph(const RDDocumentItem* item)
 {
-    if(!RDFunctionGraph_Contains(m_graph, address)) return this->renderGraph();
-    this->focusCurrentBlock();
-    return true;
-}
+    if(!item) return false;
 
-bool ListingGraphView::renderGraph()
-{
+    if(m_graph && RDFunctionGraph_Contains(m_graph, item->address))
+    {
+        this->focusCurrentBlock();
+        return true;
+    }
+
     if(!m_contextmenu) m_contextmenu = DisassemblerHooks::instance()->createActions(this);
-    RDDocument* doc = RDContext_GetDocument(m_command->context().get());
 
-    RDDocumentItem item;
-    if(!m_command->getCurrentItem(&item)) return false;
-
-    auto loc = RDDocument_GetFunctionStart(doc, item.address);
+    auto loc = RDContext_GetFunctionStart(m_context.get(), item->address);
     if(!loc.valid) return false;
 
     if(m_currentfunction && (loc.address == m_currentfunction->address)) // Don't render graph again
@@ -116,9 +121,8 @@ bool ListingGraphView::renderGraph()
         return true;
     }
 
-    //FIXME: if(!RDDocument_GetInstructionItem(doc, loc.address, &item)) return false;
-
     RDGraph* graph = nullptr;
+    RDDocument* doc = RDContext_GetDocument(m_context.get());
 
     if(!RDDocument_GetFunctionGraph(doc, loc.address, &graph))
     {
@@ -127,7 +131,7 @@ bool ListingGraphView::renderGraph()
         return false;
     }
 
-    m_currentfunction = item;
+    m_currentfunction = *item;
     this->setGraph(graph);
     this->focusCurrentBlock();
     return true;
@@ -161,7 +165,7 @@ GraphViewItem* ListingGraphView::createItem(RDGraphNode n, const RDGraph* g)
         return nullptr;
     }
 
-    return new ListingBlockItem(fbb, m_command, n, g, this);
+    return new ListingBlockItem(m_context, fbb, n, g, this);
 }
 
 QColor ListingGraphView::getEdgeColor(const RDGraphEdge& e) const
@@ -200,14 +204,11 @@ QString ListingGraphView::getEdgeLabel(const RDGraphEdge& e) const
 
 GraphViewItem *ListingGraphView::itemFromCurrentLine() const
 {
-    RDDocumentItem item;
-    if(!m_command->getCurrentItem(&item)) return nullptr;
+    auto* surface = this->selectedSurface();
+    if(!surface) return nullptr;
 
-    if(!IS_TYPE(&item, DocumentItemType_Function)) // Adjust to instruction
-    {
-        RDDocument* doc = RDContext_GetDocument(m_command->context().get());
-        //FIXME: if(!RDDocument_GetInstructionItem(doc, item.address, &item)) return nullptr;
-    }
+    RDDocumentItem item;
+    if(!surface->getCurrentItem(&item)) return nullptr;
 
     for(const auto& gvi : m_items)
     {
@@ -216,4 +217,10 @@ GraphViewItem *ListingGraphView::itemFromCurrentLine() const
     }
 
     return nullptr;
+}
+
+SurfaceQt* ListingGraphView::selectedSurface() const
+{
+    auto* item = static_cast<ListingBlockItem*>(this->selectedItem());
+    return item ? item->surface() : nullptr;
 }

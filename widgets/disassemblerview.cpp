@@ -3,38 +3,12 @@
 #include "../models/symboltablemodel.h"
 #include "../models/segmentsmodel.h"
 #include "tabs/tabletab/tabletab.h"
-#include "tabs/listingtab/listingtab.h"
+#include "listing/listingview.h"
 #include "docks/listingmapdock/listingmapdock.h"
 #include <QMessageBox>
 #include <QBoxLayout>
 
-DisassemblerView::DisassemblerView(const RDContextPtr& ctx, QWidget *parent) : QWidget(parent), m_context(ctx)
-{   
-    m_disassemblertabs = new DisassemblerTabs(ctx, this);
-
-    QBoxLayout* boxlayout = new QBoxLayout(QBoxLayout::TopToBottom);
-    boxlayout->setContentsMargins(0, 0, 0, 0);
-    boxlayout->setSpacing(0);
-    boxlayout->addWidget(m_disassemblertabs);
-    this->setLayout(boxlayout);
-
-    this->showListing();
-    m_listingmapdock = new ListingMapDock(ctx);
-
-    this->showFunctions(Qt::LeftDockWidgetArea);
-    this->showSegments();
-    this->showExports();
-    this->showImports();
-    this->showStrings();
-    this->dock(m_listingmapdock, Qt::RightDockWidgetArea);
-
-    RDObject_Subscribe(ctx.get(), this, &DisassemblerView::listenEvents, this);
-
-    m_worker = std::async([&, ctx]() { // Capture 'disassembler' by value
-        RDContext_Disassemble(ctx.get());
-        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
-    });
-}
+DisassemblerView::DisassemblerView(QWidget *parent) : QWidget(parent) { }
 
 DisassemblerView::~DisassemblerView()
 {
@@ -142,7 +116,7 @@ ITableTab* DisassemblerView::showStrings(Qt::DockWidgetArea area)
     return tabletab;
 }
 
-const RDContextPtr& DisassemblerView::disassembler() const { return m_context; }
+const RDContextPtr& DisassemblerView::context() const { return m_context; }
 
 ITableTab* DisassemblerView::findSymbolModelInTabs(rd_type type, rd_flag flags) const
 {
@@ -189,11 +163,12 @@ void DisassemblerView::listenEvents(const RDEventArgs* e)
     }
 }
 
-ICommandTab* DisassemblerView::showListing()
+SurfaceQt* DisassemblerView::showListing()
 {
-    auto* listingtab = new ListingTab(m_context);
-    m_disassemblertabs->insertTab(0, listingtab, listingtab->windowTitle());
-    return listingtab;
+    auto* listingview = new ListingView(m_context);
+    m_disassemblertabs->insertTab(0, listingview, listingview->windowTitle());
+    //return listingcontainer->surface();
+    return nullptr;
 }
 
 bool DisassemblerView::focusOn(QWidget* w)
@@ -203,7 +178,6 @@ bool DisassemblerView::focusOn(QWidget* w)
     for(int i = 0; i < m_disassemblertabs->count(); i++)
     {
         if(m_disassemblertabs->widget(i) != w) continue;
-
         tw = w;
         break;
     }
@@ -211,6 +185,35 @@ bool DisassemblerView::focusOn(QWidget* w)
     if(!tw) return false;
     m_disassemblertabs->setCurrentWidget(tw);
     return true;
+}
+
+void DisassemblerView::setContext(const RDContextPtr& ctx)
+{
+    m_context = ctx;
+    m_disassemblertabs = new DisassemblerTabs(ctx, this);
+
+    QBoxLayout* boxlayout = new QBoxLayout(QBoxLayout::TopToBottom);
+    boxlayout->setContentsMargins(0, 0, 0, 0);
+    boxlayout->setSpacing(0);
+    boxlayout->addWidget(m_disassemblertabs);
+    this->setLayout(boxlayout);
+
+    this->showListing();
+    m_listingmapdock = new ListingMapDock(ctx);
+
+    this->showFunctions(Qt::LeftDockWidgetArea);
+    this->showSegments();
+    this->showExports();
+    this->showImports();
+    this->showStrings();
+    this->dock(m_listingmapdock, Qt::RightDockWidgetArea);
+
+    RDObject_Subscribe(ctx.get(), this, &DisassemblerView::listenEvents, this);
+
+    m_worker = std::async([&, ctx]() { // Capture 'disassembler' by value
+        RDContext_Disassemble(ctx.get());
+        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
+    });
 }
 
 void DisassemblerView::tab(QWidget* w, int index)

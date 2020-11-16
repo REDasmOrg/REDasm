@@ -1,15 +1,15 @@
 ﻿#include "listingtextview.h"
-#include "../../renderer/surfacepainter.h"
-#include "../../hooks/disassemblerhooks.h"
-#include "../../redasmsettings.h"
-#include "../../redasmfonts.h"
+#include "../../../renderer/surfacepainter.h"
+#include "../../../hooks/disassemblerhooks.h"
+#include "../../../redasmsettings.h"
+#include "../../../redasmfonts.h"
 #include <QScrollBar>
 #include <QPushButton>
 #include <QtGui>
 
 #define DOCUMENT_WHEEL_LINES 3
 
-ListingTextView::ListingTextView(QWidget *parent): QAbstractScrollArea(parent)
+ListingTextWidget::ListingTextWidget(QWidget *parent): QAbstractScrollArea(parent)
 {
     int maxwidth = qApp->primaryScreen()->size().width();
     this->viewport()->setFixedWidth(maxwidth);
@@ -40,35 +40,33 @@ ListingTextView::ListingTextView(QWidget *parent): QAbstractScrollArea(parent)
     this->horizontalScrollBar()->setMaximum(maxwidth);
 }
 
-QWidget* ListingTextView::widget() { return this; }
+QWidget* ListingTextWidget::widget() { return this; }
 
-QString ListingTextView::currentWord() const
+QString ListingTextWidget::currentWord() const
 {
     if(!m_surface) return QString();
     const char* cw = m_surface->getCurrentWord();
     return cw ? cw : QString();
 }
 
-const RDContextPtr& ListingTextView::context() const { return m_context; }
-const RDSurfacePos* ListingTextView::position() const { return m_surface ? m_surface->position() : nullptr; }
-const RDSurfacePos* ListingTextView::selection() const { return m_surface ? m_surface->selection() : nullptr; }
-SurfaceQt* ListingTextView::surface() const { return m_surface; }
-bool ListingTextView::canGoBack() const { return m_surface ? m_surface->canGoBack() : false; }
-bool ListingTextView::canGoForward() const { return m_surface ? m_surface->canGoForward() : false; }
+const RDContextPtr& ListingTextWidget::context() const { return m_context; }
+SurfaceQt* ListingTextWidget::surface() const { return m_surface; }
+bool ListingTextWidget::canGoBack() const { return m_surface ? m_surface->canGoBack() : false; }
+bool ListingTextWidget::canGoForward() const { return m_surface ? m_surface->canGoForward() : false; }
 
-bool ListingTextView::getCurrentItem(RDDocumentItem* item) const
+bool ListingTextWidget::getCurrentItem(RDDocumentItem* item) const
 {
     if(!m_surface) return false;
     return m_surface->getCurrentItem(item);
 }
 
-bool ListingTextView::getCurrentSymbol(RDSymbol* symbol) const
+bool ListingTextWidget::getCurrentSymbol(RDSymbol* symbol) const
 {
     if(!m_surface) return false;
     return m_surface->getCurrentSymbol(symbol);
 }
 
-void ListingTextView::setContext(const RDContextPtr& ctx)
+void ListingTextWidget::setContext(const RDContextPtr& ctx)
 {
     m_context = ctx;
     m_document = RDContext_GetDocument(ctx.get());
@@ -77,47 +75,50 @@ void ListingTextView::setContext(const RDContextPtr& ctx)
     connect(m_surface, &SurfacePainter::renderCompleted, this, [&]() { this->viewport()->update(); });
 
     m_contextmenu = DisassemblerHooks::instance()->createActions(this);
-    connect(this, &ListingTextView::customContextMenuRequested, this, [&](const QPoint&) {
+    connect(this, &ListingTextWidget::customContextMenuRequested, this, [&](const QPoint&) {
         if(RDDocument_GetSize(m_document)) m_contextmenu->popup(QCursor::pos());
     });
 
     m_disassemblerpopup = new ListingPopup(m_context, this);
+    m_surface->activateCursor(true);
 }
 
-bool ListingTextView::goToAddress(rd_address address)
+bool ListingTextWidget::goToAddress(rd_address address)
 {
     if(!m_surface) return false;
     return m_surface->goToAddress(address);
 }
 
-bool ListingTextView::goTo(const RDDocumentItem& item)
+bool ListingTextWidget::goTo(const RDDocumentItem* item)
 {
     if(!m_surface) return false;
-    return m_surface->goTo(&item);
+    return m_surface->goTo(item);
 }
 
-void ListingTextView::goBack() { if(m_surface) m_surface->goBack(); }
-void ListingTextView::goForward() { if(m_surface) m_surface->goForward(); }
-bool ListingTextView::hasSelection() const { return m_surface ? m_surface->hasSelection() : false;  }
-void ListingTextView::copy() const { if(m_surface) m_surface->copy(); }
+void ListingTextWidget::goBack() { if(m_surface) m_surface->goBack(); }
+void ListingTextWidget::goForward() { if(m_surface) m_surface->goForward(); }
+bool ListingTextWidget::hasSelection() const { return m_surface ? m_surface->hasSelection() : false;  }
+void ListingTextWidget::copy() const { if(m_surface) m_surface->copy(); }
+void ListingTextWidget::linkTo(ISurface* s) { if(m_surface) m_surface->linkTo(s->surface()); }
+void ListingTextWidget::unlink() { if(m_surface) m_surface->unlink(); }
 
-void ListingTextView::scrollContentsBy(int dx, int dy)
+void ListingTextWidget::scrollContentsBy(int dx, int dy)
 {
 }
 
-void ListingTextView::focusInEvent(QFocusEvent* event)
+void ListingTextWidget::focusInEvent(QFocusEvent* event)
 {
     if(m_surface) m_surface->activateCursor(true);
     QAbstractScrollArea::focusInEvent(event);
 }
 
-void ListingTextView::focusOutEvent(QFocusEvent* event)
+void ListingTextWidget::focusOutEvent(QFocusEvent* event)
 {
     if(m_surface) m_surface->activateCursor(false);
     QAbstractScrollArea::focusOutEvent(event);
 }
 
-void ListingTextView::paintEvent(QPaintEvent *event)
+void ListingTextWidget::paintEvent(QPaintEvent *event)
 {
     if(!m_surface)
     {
@@ -129,14 +130,14 @@ void ListingTextView::paintEvent(QPaintEvent *event)
     painter.drawPixmap(QPoint(0, 0), m_surface->pixmap());
 }
 
-void ListingTextView::resizeEvent(QResizeEvent *event)
+void ListingTextWidget::resizeEvent(QResizeEvent *event)
 {
     QAbstractScrollArea::resizeEvent(event);
     //this->adjustScrollBars();
     if(m_surface) m_surface->resize();
 }
 
-void ListingTextView::mousePressEvent(QMouseEvent *event)
+void ListingTextWidget::mousePressEvent(QMouseEvent *event)
 {
     if(m_surface)
     {
@@ -150,7 +151,7 @@ void ListingTextView::mousePressEvent(QMouseEvent *event)
     QWidget::mousePressEvent(event);
 }
 
-void ListingTextView::mouseMoveEvent(QMouseEvent *event)
+void ListingTextWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if(m_surface && (event->buttons() == Qt::LeftButton))
     {
@@ -162,7 +163,7 @@ void ListingTextView::mouseMoveEvent(QMouseEvent *event)
     QWidget::mouseMoveEvent(event);
 }
 
-void ListingTextView::mouseDoubleClickEvent(QMouseEvent *event)
+void ListingTextWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
     if(m_surface && (event->button() == Qt::LeftButton))
     {
@@ -176,7 +177,7 @@ void ListingTextView::mouseDoubleClickEvent(QMouseEvent *event)
     QAbstractScrollArea::mouseDoubleClickEvent(event);
 }
 
-void ListingTextView::wheelEvent(QWheelEvent *event)
+void ListingTextWidget::wheelEvent(QWheelEvent *event)
 {
     if(m_surface)
     {
@@ -190,7 +191,7 @@ void ListingTextView::wheelEvent(QWheelEvent *event)
     QAbstractScrollArea::wheelEvent(event);
 }
 
-void ListingTextView::keyPressEvent(QKeyEvent *event)
+void ListingTextWidget::keyPressEvent(QKeyEvent *event)
 {
     if(!m_surface)
     {
@@ -256,7 +257,7 @@ void ListingTextView::keyPressEvent(QKeyEvent *event)
     else QAbstractScrollArea::keyPressEvent(event);
 }
 
-bool ListingTextView::event(QEvent *event)
+bool ListingTextWidget::event(QEvent *event)
 {
     if(m_context && !RDContext_IsBusy(m_context.get()) && (event->type() == QEvent::ToolTip))
     {
@@ -268,7 +269,7 @@ bool ListingTextView::event(QEvent *event)
     return QAbstractScrollArea::event(event);
 }
 
-bool ListingTextView::followUnderCursor()
+bool ListingTextWidget::followUnderCursor()
 {
     if(!m_surface) return false;
 
@@ -277,7 +278,7 @@ bool ListingTextView::followUnderCursor()
     return this->goToAddress(symbol.address);
 }
 
-void ListingTextView::adjustScrollBars()
+void ListingTextWidget::adjustScrollBars()
 {
     if(!m_context) return;
 
@@ -288,7 +289,7 @@ void ListingTextView::adjustScrollBars()
     // else vscrollbar->setMaximum(static_cast<int>(count - vl + 1));
 }
 
-void ListingTextView::showPopup(const QPointF& pt)
+void ListingTextWidget::showPopup(const QPointF& pt)
 {
     if(!m_surface || !RDDocument_GetSize(m_document)) return;
 

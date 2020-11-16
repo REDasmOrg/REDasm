@@ -24,7 +24,7 @@ void RDILTab::updateInformation()
 
     ui->lblTitle->setText(RD_GetInstruction(m_context.get(), item.address));
     m_graph.reset(RDILGraph_Create(m_context.get(), item.address));
-    ui->graphView->setGraph(m_graph.get());
+    //ui->graphView->setGraph(m_graph.get());
     return;
 
 notitle:

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QWidget>
-#include "../../renderer/surfacepainter.h"
+#include "../../../renderer/surfacepainter.h"
 
 #define POPUP_START_COLUMNS 100
 #define POPUP_START_ROWS    10

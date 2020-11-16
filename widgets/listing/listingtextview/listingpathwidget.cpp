@@ -1,32 +1,32 @@
-#include "listingpathview.h"
-#include "../../themeprovider.h"
+#include "listingpathwidget.h"
+#include "../../../themeprovider.h"
 #include "listingtextview.h"
 #include <QScrollBar>
 #include <QPainter>
 #include <QPainterPath>
 
-ListingPathView::ListingPathView(QWidget *parent): QWidget(parent)
+ListingPathWidget::ListingPathWidget(QWidget *parent): QWidget(parent)
 {
     this->setBackgroundRole(QPalette::Base);
     this->setAutoFillBackground(true);
 }
 
-ListingPathView::~ListingPathView() { if(m_textview) RDObject_Unsubscribe(m_textview->surface()->handle(), this); }
+ListingPathWidget::~ListingPathWidget() { if(m_textview) RDObject_Unsubscribe(m_textview->surface()->handle(), this); }
 
-void ListingPathView::linkTo(ListingTextView* textview)
+void ListingPathWidget::linkTo(ListingTextWidget* textview)
 {
     m_textview = textview;
     m_context = textview->context();
     m_document = RDContext_GetDocument(m_context.get());
 
     RDObject_Subscribe(textview->surface()->handle(), this, [](const RDEventArgs* e) {
-        auto* thethis = reinterpret_cast<ListingPathView*>(e->owner);
+        auto* thethis = reinterpret_cast<ListingPathWidget*>(e->owner);
         if(e->id != Event_SurfaceUpdated) return;
         QMetaObject::invokeMethod(thethis, "update", Qt::QueuedConnection);
     }, nullptr);
 }
 
-void ListingPathView::paintEvent(QPaintEvent*)
+void ListingPathWidget::paintEvent(QPaintEvent*)
 {
     if(!m_context || !m_textview) return;
 
@@ -72,13 +72,13 @@ void ListingPathView::paintEvent(QPaintEvent*)
     }
 }
 
-bool ListingPathView::isPathSelected(const RDPathItem* item) const
+bool ListingPathWidget::isPathSelected(const RDPathItem* item) const
 {
-    int line = m_textview->position()->row;
+    int line = m_textview->surface()->position()->row;
     return (line == item->fromrow) || (line == item->torow);
 }
 
-void ListingPathView::fillArrow(QPainter* painter, int y, const QFontMetrics& fm)
+void ListingPathWidget::fillArrow(QPainter* painter, int y, const QFontMetrics& fm)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
     int w = fm.horizontalAdvance(" ") / 2;
@@ -98,7 +98,7 @@ void ListingPathView::fillArrow(QPainter* painter, int y, const QFontMetrics& fm
     painter->fillPath(path, painter->pen().brush());
 }
 
-void ListingPathView::insertPath(const RDNet* net, const RDDocumentItem& fromitem, size_t fromidx, size_t toidx)
+void ListingPathWidget::insertPath(const RDNet* net, const RDDocumentItem& fromitem, size_t fromidx, size_t toidx)
 {
     const RDNetNode* node = RDNet_FindNode(net, fromitem.address);
     if(!node) return;

@@ -14,6 +14,7 @@
 #include "../widgets/welcomewidget.h"
 #include "../models/dev/blocklistmodel.h"
 #include "../models/listingitemmodel.h"
+#include "../renderer/surfaceqt.h"
 #include "../redasmsettings.h"
 #include "../redasmfonts.h"
 #include <QMessageBox>
@@ -82,14 +83,17 @@ void DisassemblerHooks::about()
 
 void DisassemblerHooks::exit() { qApp->exit(); }
 
-void DisassemblerHooks::showReferences(ICommand* command, rd_address address)
+void DisassemblerHooks::showReferences(rd_address address)
 {
-    RDDocument* doc = RDContext_GetDocument(command->context().get());
+    auto context = this->activeContext();
+    if(!context) return;
+
+    RDDocument* doc = RDContext_GetDocument(context.get());
 
     RDSymbol symbol;
     if(!RDDocument_GetSymbolByAddress(doc, address, &symbol)) return;
 
-    const RDNet* net = RDContext_GetNet(command->context().get());
+    const RDNet* net = RDContext_GetNet(context.get());
 
     if(!RDNet_GetReferences(net, symbol.address, nullptr))
     {
@@ -97,13 +101,13 @@ void DisassemblerHooks::showReferences(ICommand* command, rd_address address)
         return;
     }
 
-    ReferencesDialog dlgreferences(command, &symbol, m_mainwindow);
+    ReferencesDialog dlgreferences(context, &symbol, m_mainwindow);
     dlgreferences.exec();
 }
 
-void DisassemblerHooks::showGoto(ICommand* command)
+void DisassemblerHooks::showGoto()
 {
-    GotoDialog dlggoto(command);
+    GotoDialog dlggoto(this->activeContext());
     dlggoto.exec();
 }
 
@@ -118,14 +122,16 @@ void DisassemblerHooks::showDatabase()
 void DisassemblerHooks::showProblems() { ProblemsDialog dlgproblems(this->activeContext(), m_mainwindow); dlgproblems.exec(); }
 void DisassemblerHooks::focusOn(QWidget* w) { if(m_disassemblerview) m_disassemblerview->focusOn(w); }
 
-ICommandTab* DisassemblerHooks::activeCommandTab() const
+SurfaceQt* DisassemblerHooks::activeSurface() const
 {
-    if(!m_activecommandtab) m_activecommandtab = m_disassemblerview->showListing();
-    return m_activecommandtab;
+    if(!m_disassemblerview) return nullptr;
+
+    auto* activesurface = RDContext_GetActiveSurface(m_disassemblerview->context().get());
+    if(!activesurface) return nullptr;
+    return reinterpret_cast<SurfaceQt*>(RDSurface_GetUserData(activesurface));
 }
 
-ICommand* DisassemblerHooks::activeCommand() const { return this->activeCommandTab()->command(); }
-const RDContextPtr& DisassemblerHooks::activeContext() const { return this->activeCommand()->context(); }
+RDContextPtr DisassemblerHooks::activeContext() const  {  return m_disassemblerview ? m_disassemblerview->context() : nullptr; }
 
 void DisassemblerHooks::undock(QDockWidget* dw)
 {
@@ -135,15 +141,16 @@ void DisassemblerHooks::undock(QDockWidget* dw)
 
 void DisassemblerHooks::onToolBarActionTriggered(QAction* action)
 {
-    if(!m_activecommandtab) return;
+    auto* surface = this->activeSurface();
+    if(!surface) return;
 
     int idx = m_toolbar->actions().indexOf(action);
 
     switch(idx)
     {
-        case 2: m_activecommandtab->command()->goBack(); break;
-        case 3: m_activecommandtab->command()->goForward(); break;
-        case 4: this->showGoto(m_activecommandtab->command()); break;
+        case 2: surface->goBack(); break;
+        case 3: surface->goForward(); break;
+        case 4: this->showGoto(); break;
 
         case 5: {
             auto* tabletab = dynamic_cast<ITableTab*>(m_disassemblerview->currentWidget());
@@ -162,9 +169,9 @@ void DisassemblerHooks::onWindowActionTriggered(QAction* action)
     switch(idx)
     {
         case 0: {
-            ICommandTab* tab = m_activecommandtab;
-            if(!tab) tab = m_disassemblerview->showListing();
-            this->focusOn(dynamic_cast<QWidget*>(tab));
+            auto* surface = this->activeSurface();
+            if(!surface) surface = m_disassemblerview->showListing();
+            if(surface) this->focusOn(surface->widget());
             break;
         }
 
@@ -177,21 +184,21 @@ void DisassemblerHooks::onWindowActionTriggered(QAction* action)
     }
 }
 
-void DisassemblerHooks::statusAddress(const ICommand* command) const
+void DisassemblerHooks::statusAddress(const SurfaceQt* surface) const
 {
-    if(RDContext_IsBusy(command->context().get())) return;
+    if(!surface || RDContext_IsBusy(surface->context().get())) return;
 
-    RDDocument* doc = RDContext_GetDocument(command->context().get());
+    RDDocument* doc = RDContext_GetDocument(surface->context().get());
 
     RDDocumentItem item;
-    if(!command->getCurrentItem(&item)) return;
+    if(!surface->getCurrentItem(&item)) return;
 
-    RDLoader* ldr = RDContext_GetLoader(command->context().get());
+    RDLoader* ldr = RDContext_GetLoader(surface->context().get());
 
     RDSegment segment;
     bool hassegment = RDDocument_GetSegmentAddress(doc, item.address, &segment);
 
-    RDLocation functionstart = RDDocument_GetFunctionStart(doc, item.address);
+    RDLocation functionstart = RDContext_GetFunctionStart(surface->context().get(), item.address);
     RDLocation offset = RD_Offset(ldr, item.address);
 
     QString segm = hassegment ? segment.name : "UNKNOWN",
@@ -233,24 +240,24 @@ void DisassemblerHooks::adjustActions()
         if(!data.isNull()) actions[data.toInt()] = action;
     }
 
-    ICommand* command = dynamic_cast<ICommand*>(menu->parentWidget());
+    ISurface* surface = dynamic_cast<ISurface*>(menu->parentWidget());
     RDDocumentItem item;
-    if(!command->getCurrentItem(&item)) return;
+    if(!surface->getCurrentItem(&item)) return;
 
-    RDDocument* doc = RDContext_GetDocument(command->context().get());
+    RDDocument* doc = RDContext_GetDocument(surface->context().get());
 
-    actions[DisassemblerHooks::Action_Back]->setVisible(command->canGoBack());
-    actions[DisassemblerHooks::Action_Forward]->setVisible(command->canGoForward());
-    actions[DisassemblerHooks::Action_Copy]->setVisible(command->hasSelection());
-    actions[DisassemblerHooks::Action_Goto]->setVisible(!RDContext_IsBusy(command->context().get()));
+    actions[DisassemblerHooks::Action_Back]->setVisible(surface->canGoBack());
+    actions[DisassemblerHooks::Action_Forward]->setVisible(surface->canGoForward());
+    actions[DisassemblerHooks::Action_Copy]->setVisible(surface->hasSelection());
+    actions[DisassemblerHooks::Action_Goto]->setVisible(!RDContext_IsBusy(surface->context().get()));
 
     RDSegment itemsegment, symbolsegment;
     RDSymbol symbol;
 
-    if(!command->getCurrentSymbol(&symbol))
+    if(!surface->getCurrentSymbol(&symbol))
     {
         bool hassymbolsegment = RDDocument_GetSegmentAddress(doc, item.address, &symbolsegment);
-        RDLocation funcstart = RDDocument_GetFunctionStart(doc, item.address);
+        RDLocation funcstart = RDContext_GetFunctionStart(surface->context().get(), item.address);
         const char* funcname = funcstart.valid ? RDDocument_GetSymbolName(doc, funcstart.value) : nullptr;
 
         actions[DisassemblerHooks::Action_Rename]->setVisible(false);
@@ -258,11 +265,11 @@ void DisassemblerHooks::adjustActions()
         actions[DisassemblerHooks::Action_Follow]->setVisible(false);
         actions[DisassemblerHooks::Action_FollowPointerHexDump]->setVisible(false);
 
-        if(!RDContext_IsBusy(command->context().get()))
+        if(!RDContext_IsBusy(surface->context().get()))
         {
             bool ok = false;
             RDSegment currentsegment;
-            rd_address currentaddress = command->currentWord().toUInt(&ok, 16);
+            rd_address currentaddress = surface->currentWord().toUInt(&ok, 16);
             bool hascurrentsegment = ok ? RDDocument_GetSegmentAddress(doc, currentaddress, &currentsegment) : false;
 
             actions[DisassemblerHooks::Action_CreateFunction]->setVisible(hascurrentsegment && HAS_FLAG(&currentsegment, SegmentFlags_Code));
@@ -288,7 +295,7 @@ void DisassemblerHooks::adjustActions()
 
     actions[DisassemblerHooks::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(symbol.address)));
 
-    actions[DisassemblerHooks::Action_CreateFunction]->setVisible(!RDContext_IsBusy(command->context().get()) && (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
+    actions[DisassemblerHooks::Action_CreateFunction]->setVisible(!RDContext_IsBusy(surface->context().get()) && (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
                                                                     (HAS_FLAG(&symbol, SymbolFlags_Weak) && !IS_TYPE(&symbol, SymbolType_Function)));
 
 
@@ -296,18 +303,18 @@ void DisassemblerHooks::adjustActions()
     actions[DisassemblerHooks::Action_FollowPointerHexDump]->setVisible(HAS_FLAG(&symbol, SymbolFlags_Pointer));
 
     actions[DisassemblerHooks::Action_XRefs]->setText(QString("Cross Reference %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_XRefs]->setVisible(!RDContext_IsBusy(command->context().get()));
+    actions[DisassemblerHooks::Action_XRefs]->setVisible(!RDContext_IsBusy(surface->context().get()));
 
     actions[DisassemblerHooks::Action_Rename]->setText(QString("Rename %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_Rename]->setVisible(!RDContext_IsBusy(command->context().get()) && HAS_FLAG(&symbol, SymbolFlags_Weak));
+    actions[DisassemblerHooks::Action_Rename]->setVisible(!RDContext_IsBusy(surface->context().get()) && HAS_FLAG(&symbol, SymbolFlags_Weak));
 
     actions[DisassemblerHooks::Action_CallGraph]->setText(QString("Callgraph %1").arg(symbolname));
-    actions[DisassemblerHooks::Action_CallGraph]->setVisible(!RDContext_IsBusy(command->context().get()) && IS_TYPE(&symbol, SymbolType_Function));
+    actions[DisassemblerHooks::Action_CallGraph]->setVisible(!RDContext_IsBusy(surface->context().get()) && IS_TYPE(&symbol, SymbolType_Function));
 
     actions[DisassemblerHooks::Action_Follow]->setText(QString("Follow %1").arg(symbolname));
     actions[DisassemblerHooks::Action_Follow]->setVisible(IS_TYPE(&symbol, SymbolType_Label));
 
-    actions[DisassemblerHooks::Action_Comment]->setVisible(!RDContext_IsBusy(command->context().get()) && IS_TYPE(&item, DocumentItemType_Instruction));
+    actions[DisassemblerHooks::Action_Comment]->setVisible(!RDContext_IsBusy(surface->context().get()) && IS_TYPE(&item, DocumentItemType_Instruction));
 
     actions[DisassemblerHooks::Action_HexDump]->setVisible(hassymbolsegment && HAS_FLAG(&symbolsegment, SegmentFlags_Bss));
     actions[DisassemblerHooks::Action_HexDumpFunction]->setVisible(hasitemsegment && !HAS_FLAG(&itemsegment, SegmentFlags_Bss) && HAS_FLAG(&itemsegment, SegmentFlags_Code));
@@ -318,7 +325,8 @@ void DisassemblerHooks::loadDisassemblerView(const RDContextPtr& ctx)
     this->close(false);
 
     m_devdialog = new DevDialog(ctx, m_mainwindow);
-    m_disassemblerview = new DisassemblerView(ctx);
+    m_disassemblerview = new DisassemblerView();
+    m_disassemblerview->setContext(ctx);
     this->replaceWidget(m_disassemblerview);
 }
 
@@ -383,21 +391,21 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
 
 void DisassemblerHooks::showWelcome() { this->replaceWidget(new WelcomeWidget()); }
 
-QMenu* DisassemblerHooks::createActions(ICommand* command)
+QMenu* DisassemblerHooks::createActions(ISurface* surface)
 {
-    QMenu* contextmenu = new QMenu(command->widget());
+    QMenu* contextmenu = new QMenu(surface->widget());
     std::unordered_map<int, QAction*> actions;
 
-    actions[DisassemblerHooks::Action_Rename] = contextmenu->addAction("Rename", this, [&, command]() {
+    actions[DisassemblerHooks::Action_Rename] = contextmenu->addAction("Rename", this, [&, surface]() {
         RDSymbol symbol;
-        if(!command->getCurrentSymbol(&symbol)) return;
+        if(!surface->getCurrentSymbol(&symbol)) return;
 
-        RDDocument* doc = RDContext_GetDocument(command->context().get());
+        RDDocument* doc = RDContext_GetDocument(surface->context().get());
         const char* symbolname = RDDocument_GetSymbolName(doc, symbol.address);
         if(!symbolname) return;
 
         bool ok = false;
-        QString res = QInputDialog::getText(command->widget(),
+        QString res = QInputDialog::getText(surface->widget(),
                                             "Rename @ " + QString::fromStdString(rd_tohexauto(symbol.address)),
                                             "Symbol name:", QLineEdit::Normal, symbolname, &ok);
 
@@ -405,14 +413,14 @@ QMenu* DisassemblerHooks::createActions(ICommand* command)
         RDDocument_Rename(doc, symbol.address, qUtf8Printable(res));
     }, QKeySequence(Qt::Key_N));
 
-    actions[DisassemblerHooks::Action_Comment] = contextmenu->addAction("Comment", this, [&, command]() {
+    actions[DisassemblerHooks::Action_Comment] = contextmenu->addAction("Comment", this, [&, surface]() {
         RDDocumentItem item;
-        if(!command->getCurrentItem(&item)) return;
+        if(!surface->getCurrentItem(&item)) return;
 
-        RDDocument* doc = RDContext_GetDocument(command->context().get());
+        RDDocument* doc = RDContext_GetDocument(surface->context().get());
 
         bool ok = false;
-        QString res = QInputDialog::getMultiLineText(command->widget(),
+        QString res = QInputDialog::getMultiLineText(surface->widget(),
                                                      "Comment @ " + QString::fromStdString(rd_tohexauto(item.address)),
                                                      "Insert a comment (leave blank to remove):",
                                                      RDDocument_GetComments(doc, item.address, "\n"), &ok);
@@ -423,81 +431,88 @@ QMenu* DisassemblerHooks::createActions(ICommand* command)
 
     contextmenu->addSeparator();
 
-    actions[DisassemblerHooks::Action_XRefs] = contextmenu->addAction("Cross References", this, [&, command]() {
+    actions[DisassemblerHooks::Action_XRefs] = contextmenu->addAction("Cross References", this, [&, surface]() {
         RDSymbol symbol;
-        if(!command->getCurrentSymbol(&symbol)) return;
-        this->showReferences(command, symbol.address);
+        if(!surface->getCurrentSymbol(&symbol)) return;
+        this->showReferences(symbol.address);
     }, QKeySequence(Qt::Key_X));
 
-    actions[DisassemblerHooks::Action_Follow] = contextmenu->addAction("Follow", this, [command]() {
+    actions[DisassemblerHooks::Action_Follow] = contextmenu->addAction("Follow", this, [surface]() {
         RDSymbol symbol;
-        if(!command->getCurrentSymbol(&symbol)) return false;
-        return command->goToAddress(symbol.address);
+        if(!surface->getCurrentSymbol(&symbol)) return false;
+        return surface->goToAddress(symbol.address);
     });
 
-    actions[DisassemblerHooks::Action_FollowPointerHexDump] = contextmenu->addAction("Follow pointer in Hex Dump", this, [&, command]() {
+    actions[DisassemblerHooks::Action_FollowPointerHexDump] = contextmenu->addAction("Follow pointer in Hex Dump", this, [&, surface]() {
     });
 
-    actions[DisassemblerHooks::Action_Goto] = contextmenu->addAction("Goto...", this, [&, command]() {
-        this->showGoto(command);
+    actions[DisassemblerHooks::Action_Goto] = contextmenu->addAction("Goto...", this, [&]() {
+        this->showGoto();
     }, QKeySequence(Qt::Key_G));
 
-    actions[DisassemblerHooks::Action_CallGraph] = contextmenu->addAction("Call Graph", this, [&, command]() {
+    actions[DisassemblerHooks::Action_CallGraph] = contextmenu->addAction("Call Graph", this, [&, surface]() {
 
     }, QKeySequence(Qt::CTRL + Qt::Key_G));
 
     contextmenu->addSeparator();
 
-    actions[DisassemblerHooks::Action_HexDump] = contextmenu->addAction("Show Hex Dump", this, [&, command]() {
+    actions[DisassemblerHooks::Action_HSplit] = contextmenu->addAction("Split Horizontally", this, [&]() {
     }, QKeySequence(Qt::CTRL + Qt::Key_H));
 
-    actions[DisassemblerHooks::Action_HexDumpFunction] = contextmenu->addAction("Hex Dump Function", this, [&, command]() {
+
+    actions[DisassemblerHooks::Action_VSplit] = contextmenu->addAction("Split Vertically", this, [&]() {
+    }, QKeySequence(Qt::CTRL + Qt::Key_V));
+
+    contextmenu->addSeparator();
+
+    actions[DisassemblerHooks::Action_HexDump] = contextmenu->addAction("Show Hex Dump", this, [&]() {
+    }, QKeySequence(Qt::CTRL + Qt::Key_X));
+
+    actions[DisassemblerHooks::Action_HexDumpFunction] = contextmenu->addAction("Hex Dump Function", this, [&, surface]() {
         RDDocumentItem item;
-        if(!command->getCurrentItem(&item)) return;
+        if(!surface->getCurrentItem(&item)) return;
 
         RDSymbol symbol;
-        const char* hexdump = RDDisassembler_FunctionHexDump(command->disassembler(), item.address, &symbol);
+        const char* hexdump = RDContext_FunctionHexDump(surface->context().get(), item.address, &symbol);
         if(!hexdump) return;
 
-        RDDocument* doc = RDContext_GetDocument(command->context().get());
+        RDDocument* doc = RDContext_GetDocument(surface->context().get());
         const char* name = RDDocument_GetSymbolName(doc, symbol.address);
         RD_Log(qUtf8Printable(QString("%1: %2").arg(name, hexdump)));
     });
 
-    actions[DisassemblerHooks::Action_CreateFunction] = contextmenu->addAction("Create Function", this, [&, command]() {
+    actions[DisassemblerHooks::Action_CreateFunction] = contextmenu->addAction("Create Function", this, [&, surface]() {
         RDSymbol symbol;
-        if(!command->getCurrentSymbol(&symbol)) {
+        if(!surface->getCurrentSymbol(&symbol)) {
             rd_log("Cannot create function @ " + rd_tohex(symbol.address));
             return;
         }
 
-        m_worker = std::async([&]() { RDDisassembler_CreateFunction(command->disassembler(), symbol.address, nullptr); });
+        m_worker = std::async([&]() { RDContext_CreateFunction(surface->context().get(), symbol.address, nullptr); });
     }, QKeySequence(Qt::SHIFT + Qt::Key_C));
 
     contextmenu->addSeparator();
-    actions[DisassemblerHooks::Action_Back] = contextmenu->addAction("Back", this, [command]() { command->goBack(); }, QKeySequence(Qt::CTRL + Qt::Key_Left));
-    actions[DisassemblerHooks::Action_Forward] = contextmenu->addAction("Forward", this, [command]() { command->goForward(); }, QKeySequence(Qt::CTRL + Qt::Key_Right));
+    actions[DisassemblerHooks::Action_Back] = contextmenu->addAction("Back", this, [surface]() { surface->goBack(); }, QKeySequence(Qt::CTRL + Qt::Key_Left));
+    actions[DisassemblerHooks::Action_Forward] = contextmenu->addAction("Forward", this, [surface]() { surface->goForward(); }, QKeySequence(Qt::CTRL + Qt::Key_Right));
     contextmenu->addSeparator();
-    actions[DisassemblerHooks::Action_Copy] = contextmenu->addAction("Copy", this, [command]() { command->copy(); }, QKeySequence(QKeySequence::Copy));
+    actions[DisassemblerHooks::Action_Copy] = contextmenu->addAction("Copy", this, [surface]() { surface->copy(); }, QKeySequence(QKeySequence::Copy));
 
     for(auto& [type, action] : actions) action->setData(type);
 
-    command->widget()->addAction(actions[DisassemblerHooks::Action_Rename]);
-    command->widget()->addAction(actions[DisassemblerHooks::Action_XRefs]);
-    command->widget()->addAction(actions[DisassemblerHooks::Action_Comment]);
-    command->widget()->addAction(actions[DisassemblerHooks::Action_Goto]);
-    command->widget()->addAction(actions[DisassemblerHooks::Action_CallGraph]);
-    command->widget()->addAction(actions[DisassemblerHooks::Action_HexDump]);
-    command->widget()->addAction(actions[DisassemblerHooks::Action_CreateFunction]);
-    command->widget()->addAction(actions[DisassemblerHooks::Action_Back]);
-    command->widget()->addAction(actions[DisassemblerHooks::Action_Forward]);
-    command->widget()->addAction(actions[DisassemblerHooks::Action_Copy]);
+    surface->widget()->addAction(actions[DisassemblerHooks::Action_Rename]);
+    surface->widget()->addAction(actions[DisassemblerHooks::Action_XRefs]);
+    surface->widget()->addAction(actions[DisassemblerHooks::Action_Comment]);
+    surface->widget()->addAction(actions[DisassemblerHooks::Action_Goto]);
+    surface->widget()->addAction(actions[DisassemblerHooks::Action_CallGraph]);
+    surface->widget()->addAction(actions[DisassemblerHooks::Action_HexDump]);
+    surface->widget()->addAction(actions[DisassemblerHooks::Action_CreateFunction]);
+    surface->widget()->addAction(actions[DisassemblerHooks::Action_Back]);
+    surface->widget()->addAction(actions[DisassemblerHooks::Action_Forward]);
+    surface->widget()->addAction(actions[DisassemblerHooks::Action_Copy]);
 
     connect(contextmenu, &QMenu::aboutToShow, this, &DisassemblerHooks::adjustActions);
     return contextmenu;
 }
-
-void DisassemblerHooks::setActiveCommandTab(ICommandTab* commandtab) { m_activecommandtab = commandtab; }
 
 void DisassemblerHooks::loadRecents()
 {
@@ -693,27 +708,24 @@ void DisassemblerHooks::enableCommands(QWidget* w)
         return;
     }
 
-    auto* commandtab = dynamic_cast<ICommandTab*>(w);
+    auto* surfacetab = dynamic_cast<ISurfaceTab*>(w);
     this->checkListingMode();
 
-    m_pbrenderer->setVisible(commandtab);
-    act->setVisible(commandtab);
+    m_pbrenderer->setVisible(surfacetab);
+    act->setVisible(surfacetab);
 
-    actions[2]->setVisible(commandtab); // Back
-    actions[3]->setVisible(commandtab); // Forward
-    actions[4]->setVisible(commandtab); // Goto
+    actions[2]->setVisible(surfacetab); // Back
+    actions[3]->setVisible(surfacetab); // Forward
+    actions[4]->setVisible(surfacetab); // Goto
 
     auto* tabletab = dynamic_cast<ITableTab*>(w);
     actions[5]->setVisible(tabletab); // Filter
 }
 
-void DisassemblerHooks::updateCommandStates(QWidget* w) const
+void DisassemblerHooks::updateCommandStates() const
 {
     auto actions = m_toolbar->actions();
-
-    if(auto* commandtab = dynamic_cast<ICommandTab*>(w))
-    {
-        actions[2]->setEnabled(commandtab->command()->canGoBack());
-        actions[3]->setEnabled(commandtab->command()->canGoForward());
-    }
+    auto* surface = this->activeSurface();
+    actions[2]->setEnabled(surface && surface->canGoBack());
+    actions[3]->setEnabled(surface && surface->canGoForward());
 }

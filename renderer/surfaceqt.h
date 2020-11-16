@@ -19,6 +19,7 @@ class SurfaceQt : public QObject
         QSize size() const;
         const QColor& baseColor() const;
         const RDContextPtr& context() const;
+        QWidget* widget() const;
         RDSurface* handle() const;
         void activateCursor(bool activate);
         bool canGoBack() const;
@@ -44,6 +45,8 @@ class SurfaceQt : public QObject
         void selectAt(const QPointF& pt);
         void resize(int row, int cols);
         void resize();
+        void linkTo(SurfaceQt* s);
+        void unlink();
         void copy() const;
 
     protected:
@@ -53,7 +56,6 @@ class SurfaceQt : public QObject
         qreal cellWidth() const;
         qreal cellHeight() const;
         QFontMetricsF fontMetrics() const;
-        QWidget* owner() const;
         virtual void render() = 0;
 
     private:

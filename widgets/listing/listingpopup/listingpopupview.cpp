@@ -1,5 +1,5 @@
 #include "listingpopupview.h"
-#include "../../redasmsettings.h"
+#include "../../../redasmsettings.h"
 #include <QGraphicsDropShadowEffect>
 #include <QPainter>
 

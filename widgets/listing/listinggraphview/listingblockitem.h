@@ -2,17 +2,16 @@
 
 #include <rdapi/graph/functiongraph.h>
 #include <rdapi/rdapi.h>
-#include "../../hooks/icommand.h"
-#include "../../renderer/surfacedocument.h"
-#include "../graphview/graphviewitem.h"
+#include "../../../renderer/surfacedocument.h"
+#include "../../graphview/graphviewitem.h"
 
 class ListingBlockItem : public GraphViewItem
 {
     Q_OBJECT
 
     public:
-        explicit ListingBlockItem(const RDFunctionBasicBlock* fbb, ICommand* command, RDGraphNode node, const RDGraph* g, QWidget *parent = nullptr);
-        const SurfaceQt* surface() const;
+        explicit ListingBlockItem(const RDContextPtr& ctx, const RDFunctionBasicBlock* fbb, RDGraphNode n, const RDGraph* g, QWidget *parent = nullptr);
+        SurfaceQt* surface();
         bool containsItem(const RDDocumentItem& item) const;
         int currentRow() const override;
         void render(QPainter* painter, size_t state) override;
@@ -25,11 +24,9 @@ class ListingBlockItem : public GraphViewItem
         void mouseMoveEvent(QMouseEvent *e) override;
 
     signals:
-        void followRequested(ListingBlockItem* block);
+        void followRequested();
 
     private:
-        SurfaceDocument* m_surface;
         const RDFunctionBasicBlock* m_basicblock;
-        ICommand* m_command;
-        RDContextPtr m_context;
+        SurfaceDocument* m_surface;
 };

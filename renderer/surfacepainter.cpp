@@ -18,11 +18,11 @@ void SurfacePainter::render()
     RDSurface_GetSize(this->handle(), &rows, &cols);
 
     m_image = QImage(QSize(cols * this->cellWidth(), rows * this->cellHeight()), QImage::Format_RGB32);
-    m_image.fill(this->owner()->palette().color(QPalette::Base));
+    m_image.fill(this->widget()->palette().color(QPalette::Base));
 
     QPainter painter(&m_image);
     painter.setBackgroundMode(Qt::OpaqueMode);
-    painter.setFont(this->owner()->font());
+    painter.setFont(this->widget()->font());
     QPointF pt(0, 0);
 
     const RDSurfaceCell* cells = nullptr;
@@ -42,5 +42,5 @@ void SurfacePainter::render()
     }
 
     m_pixmap = QPixmap::fromImage(m_image);
-    if(this->owner()) emit renderCompleted();
+    if(this->widget()) emit renderCompleted();
 }

@@ -1,10 +1,14 @@
 #pragma once
 
+#include <rdapi/rdapi.h>
 #include "icommand.h"
 
-class ICommandTab
+class SurfaceQt;
+
+typedef std::shared_ptr<RDContext> RDContextPtr;
+
+class ISurfaceTab
 {
     public:
-        virtual ICommand* command() const = 0;
-        virtual QWidget* widget() = 0;
+        virtual SurfaceQt* surface() const = 0;
 };

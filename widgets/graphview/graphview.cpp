@@ -256,6 +256,8 @@ void GraphView::computeLayout() { RDGraphLayout_Layered(m_graph, LayeredLayoutTy
 
 void GraphView::computeGraph()
 {
+    RDGraphNode root = RDGraph_GetRoot(m_graph);
+
     const RDGraphNode* nodes = nullptr;
     size_t nc = RDGraph_GetNodes(m_graph, &nodes);
 
@@ -264,6 +266,7 @@ void GraphView::computeGraph()
         RDGraphNode n = nodes[i];
         auto* item = this->createItem(n, m_graph);
         if(!item) continue;
+        if(n == root) m_selecteditem = item; // Focus on root
 
         item->setParent(this); // Take Ownership
         m_items[n] = item;

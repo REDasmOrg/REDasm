@@ -2,7 +2,6 @@
 
 #include <QDialog>
 #include <rdapi/rdapi.h>
-#include "../../hooks/icommand.h"
 #include "../../models/gotomodel/gotofiltermodel.h"
 
 namespace Ui {
@@ -14,7 +13,7 @@ class GotoDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit GotoDialog(ICommand* command, QWidget *parent = nullptr);
+        explicit GotoDialog(const RDContextPtr& ctx, QWidget *parent = nullptr);
         ~GotoDialog();
 
     private:
@@ -27,7 +26,7 @@ class GotoDialog : public QDialog
 
     private:
         Ui::GotoDialog *ui;
-        ICommand* m_command;
+        RDContextPtr m_context;
         RDDocument* m_document;
         GotoFilterModel* m_gotomodel;
         rd_address m_address{0};

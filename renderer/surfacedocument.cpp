@@ -7,7 +7,7 @@
 SurfaceDocument::SurfaceDocument(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : SurfaceQt(ctx, flags, parent)
 {
     m_document = new QTextDocument(this);
-    m_document->setDefaultFont(this->owner()->font());
+    m_document->setDefaultFont(this->widget()->font());
     m_document->setUndoRedoEnabled(false);
     m_document->setDocumentMargin(0);
 }

@@ -1,14 +1,15 @@
 ﻿#include "gotodialog.h"
 #include "ui_gotodialog.h"
+#include "../../hooks/disassemblerhooks.h"
+#include "../../renderer/surfaceqt.h"
 
-GotoDialog::GotoDialog(ICommand* command, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_command(command)
+GotoDialog::GotoDialog(const RDContextPtr& ctx, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_context(ctx)
 {
     ui->setupUi(this);
 
-    m_document = RDContext_GetDocument(command->context().get());
-
+    m_document = RDContext_GetDocument(ctx.get());
     m_gotomodel = new GotoFilterModel(ui->tvFunctions);
-    m_gotomodel->setContext(command->context());
+    m_gotomodel->setContext(ctx);
 
     ui->tvFunctions->setModel(m_gotomodel);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -45,12 +46,20 @@ void GotoDialog::validateEntry()
 
 void GotoDialog::onGotoClicked()
 {
-    if(this->hasValidAddress()) m_command->goToAddress(m_address);
+    if(this->hasValidAddress())
+    {
+        auto* surface = DisassemblerHooks::instance()->activeSurface();
+        if(surface) surface->goToAddress(m_address);
+    }
+
     this->accept();
 }
 
 void GotoDialog::onItemSelected(const QModelIndex &index)
 {
     QModelIndex srcindex = m_gotomodel->mapToSource(index);
-    if(srcindex.isValid()) m_command->goTo(m_gotomodel->item(index));
+    if(!srcindex.isValid()) return;
+
+    auto* surface = DisassemblerHooks::instance()->activeSurface();
+    if(surface) surface->goTo(std::addressof(m_gotomodel->item(index)));
 }

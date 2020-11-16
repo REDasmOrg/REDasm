@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../hooks/icommand.h"
 #include "contextmodel.h"
 #include <rdapi/rdapi.h>
 
@@ -9,7 +8,7 @@ class ReferencesModel : public ContextModel
     Q_OBJECT
 
     public:
-        explicit ReferencesModel(const ICommand* command, QObject *parent = nullptr);
+        explicit ReferencesModel(QObject *parent = nullptr);
         void xref(rd_address address);
 
     public:
@@ -26,7 +25,7 @@ class ReferencesModel : public ContextModel
         QString direction(rd_address address) const;
 
     private:
-        const ICommand* m_command;
+        SurfaceQt* m_surface;
         const rd_address* m_references{nullptr};
         size_t m_referencescount{0};
 };

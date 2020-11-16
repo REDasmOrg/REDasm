@@ -17,17 +17,18 @@ class DisassemblerView : public QWidget
     Q_OBJECT
 
     public:
-        explicit DisassemblerView(const RDContextPtr& ctx, QWidget *parent = nullptr);
+        explicit DisassemblerView(QWidget *parent = nullptr);
         virtual ~DisassemblerView();
         QWidget* currentWidget() const;
-        const RDContextPtr& disassembler() const;
+        const RDContextPtr& context() const;
         ITableTab* showSegments(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
         ITableTab* showFunctions(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
         ITableTab* showExports(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
         ITableTab* showImports(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
         ITableTab* showStrings(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
-        ICommandTab* showListing();
+        SurfaceQt* showListing();
         bool focusOn(QWidget* w);
+        void setContext(const RDContextPtr& ctx);
 
     private:
         void tab(QWidget* w, int index = -1);
@@ -43,8 +44,8 @@ class DisassemblerView : public QWidget
 
     private:
         RDContextPtr m_context;
-        DisassemblerTabs* m_disassemblertabs;
-        ListingMapDock* m_listingmapdock;
+        DisassemblerTabs* m_disassemblertabs{nullptr};
+        ListingMapDock* m_listingmapdock{nullptr};
         QSet<QDockWidget*> m_docks;
         std::future<void> m_worker;
 };

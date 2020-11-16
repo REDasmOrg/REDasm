@@ -5,11 +5,11 @@
 #include <QList>
 #include <QPair>
 #include <QSet>
-#include "../hooks/icommand.h"
+#include "../../../hooks/icommand.h"
 
-class ListingTextView;
+class ListingTextWidget;
 
-class ListingPathView : public QWidget
+class ListingPathWidget : public QWidget
 {
     Q_OBJECT
 
@@ -17,9 +17,9 @@ class ListingPathView : public QWidget
         struct ArrowPath{ size_t startidx, endidx; QColor color; };
 
     public:
-        explicit ListingPathView(QWidget *parent = nullptr);
-        virtual ~ListingPathView();
-        void linkTo(ListingTextView* textview);
+        explicit ListingPathWidget(QWidget *parent = nullptr);
+        virtual ~ListingPathWidget();
+        void linkTo(ListingTextWidget* textview);
 
     protected:
         void paintEvent(QPaintEvent*) override;
@@ -30,7 +30,7 @@ class ListingPathView : public QWidget
         void insertPath(const RDNet* net, const RDDocumentItem& fromitem, size_t fromidx, size_t toidx);
 
     private:
-        ListingTextView* m_textview{nullptr};
+        ListingTextWidget* m_textview{nullptr};
         RDContextPtr m_context;
         RDDocument* m_document{nullptr};
         QList<ArrowPath> m_paths;

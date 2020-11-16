@@ -4,36 +4,36 @@
 #include <QFontMetrics>
 #include <QMenu>
 #include <rdapi/rdapi.h>
-#include "../../hooks/icommand.h"
+#include "../../../hooks/icommand.h"
 #include "../listingpopup/listingpopup.h"
 
 class SurfacePainter;
 
-class ListingTextView : public QAbstractScrollArea, public ICommand
+class ListingTextWidget : public QAbstractScrollArea, public ISurface
 {
     Q_OBJECT
 
     public:
-        explicit ListingTextView(QWidget *parent = nullptr);
+        explicit ListingTextWidget(QWidget *parent = nullptr);
         void setContext(const RDContextPtr& ctx);
 
     public: // IDisassemblerCommand interface
         void goBack() override;
         void goForward() override;
         bool goToAddress(rd_address address) override;
-        bool goTo(const RDDocumentItem& item) override;
+        bool goTo(const RDDocumentItem* item) override;
         bool hasSelection() const override;
         bool canGoBack() const override;
         bool canGoForward() const override;
         bool getCurrentItem(RDDocumentItem* item) const override;
         bool getCurrentSymbol(RDSymbol* symbol) const override;
-        const RDSurfacePos* position() const override;
-        const RDSurfacePos* selection() const override;
         SurfaceQt* surface() const override;
         QString currentWord() const override;
         const RDContextPtr& context() const override;
         QWidget* widget() override;
         void copy() const override;
+        void linkTo(ISurface* s) override;
+        void unlink() override;
 
     protected:
         void scrollContentsBy(int dx, int dy) override;

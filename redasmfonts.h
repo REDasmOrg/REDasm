@@ -9,6 +9,7 @@ class REDasmFontIconEngine: public QIconEngine
         REDasmFontIconEngine();
         void setFont(const QFont& font);
         void setLetter(const QString& letter);
+        void setColor(const QColor& color);
 
     public:
         void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State) override;
@@ -18,6 +19,7 @@ class REDasmFontIconEngine: public QIconEngine
     private:
         QFont m_font;
         QString m_letter;
+        QColor m_color;
 };
 
 class REDasmFonts
@@ -28,7 +30,9 @@ class REDasmFonts
     public:
         QFont faFont() const;
         QFont faBrandsFont() const;
+        QIcon icon(const QChar& code, const QColor& color);
         QIcon icon(const QChar& code);
+        QIcon brand(const QChar& code, const QColor& color);
         QIcon brand(const QChar& code);
         static REDasmFonts* instance();
 
@@ -36,7 +40,9 @@ class REDasmFonts
         QStringList m_fafamilies, m_fabfamilies;
 };
 
-#define FA_FONT        REDasmFonts::instance()->faFont()
-#define FAB_FONT       REDasmFonts::instance()->faBrandsFont()
-#define FA_ICON(code)  REDasmFonts::instance()->icon(code)
-#define FAB_ICON(code) REDasmFonts::instance()->brand(code)
+#define FA_FONT                     REDasmFonts::instance()->faFont()
+#define FAB_FONT                    REDasmFonts::instance()->faBrandsFont()
+#define FA_ICON(code)               REDasmFonts::instance()->icon(code)
+#define FA_ICON_COLOR(code, color)  REDasmFonts::instance()->icon(code, color)
+#define FAB_ICON(code)              REDasmFonts::instance()->brand(code)
+#define FAB_ICON_COLOR(code, color) REDasmFonts::instance()->brand(code, color)

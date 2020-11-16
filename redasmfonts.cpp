@@ -8,6 +8,7 @@
 REDasmFontIconEngine::REDasmFontIconEngine(): QIconEngine() { }
 void REDasmFontIconEngine::setFont(const QFont& font) { m_font = font; }
 void REDasmFontIconEngine::setLetter(const QString& letter) { m_letter = letter; }
+void REDasmFontIconEngine::setColor(const QColor& color) { m_color = color; }
 
 void REDasmFontIconEngine::paint(QPainter* painter, const QRect& rect, QIcon::Mode mode, QIcon::State)
 {
@@ -15,7 +16,7 @@ void REDasmFontIconEngine::paint(QPainter* painter, const QRect& rect, QIcon::Mo
     int drawsize = qRound(rect.height() * 0.8);
     font.setPixelSize(drawsize);
 
-    QColor pc = qApp->palette().color(QPalette::Normal, QPalette::ButtonText);
+    QColor pc = m_color;
     if(mode == QIcon::Disabled) pc = qApp->palette().color(QPalette::Disabled, QPalette::ButtonText);
     if(mode == QIcon::Selected) pc = qApp->palette().color(QPalette::Active, QPalette::ButtonText);
 
@@ -55,20 +56,29 @@ REDasmFonts::REDasmFonts()
 QFont REDasmFonts::faFont() const { QFont f(m_fafamilies.front()); f.setStyleStrategy(QFont::NoFontMerging); return f; }
 QFont REDasmFonts::faBrandsFont() const { QFont f(m_fabfamilies.front()); f.setStyleStrategy(QFont::NoFontMerging); return f; }
 
-QIcon REDasmFonts::icon(const QChar& code)
+QIcon REDasmFonts::icon(const QChar& code, const QColor& color)
 {
     auto* engine = new REDasmFontIconEngine();
     engine->setFont(this->faFont());
     engine->setLetter(code);
+    engine->setColor(color);
+    return QIcon(engine);
+}
+
+QIcon REDasmFonts::icon(const QChar& code) { return this->icon(code, qApp->palette().color(QPalette::Normal, QPalette::ButtonText)); }
+
+QIcon REDasmFonts::brand(const QChar& code, const QColor& color)
+{
+    auto* engine = new REDasmFontIconEngine();
+    engine->setFont(this->faBrandsFont());
+    engine->setLetter(code);
+    engine->setColor(color);
     return QIcon(engine);
 }
 
 QIcon REDasmFonts::brand(const QChar& code)
 {
-    auto* engine = new REDasmFontIconEngine();
-    engine->setFont(this->faBrandsFont());
-    engine->setLetter(code);
-    return QIcon(engine);
+    return this->brand(code, qApp->palette().color(QPalette::Normal, QPalette::ButtonText));
 }
 
 REDasmFonts* REDasmFonts::instance()

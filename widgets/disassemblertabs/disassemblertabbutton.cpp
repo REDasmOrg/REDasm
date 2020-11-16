@@ -20,7 +20,7 @@ DisassemblerTabButton::DisassemblerTabButton(const RDContextPtr& ctx, QWidget* w
     hlayout->setContentsMargins(10, 0, 0, 0);
     hlayout->setSpacing(10);
 
-    if(dynamic_cast<ICommandTab*>(widget)) hlayout->setStretch(2, 1);
+    if(dynamic_cast<ISurfaceTab*>(widget)) hlayout->setStretch(2, 1);
     else hlayout->setStretch(hlayout->count() - 1, 1);
 
     this->setLayout(hlayout);
@@ -51,21 +51,6 @@ QPushButton* DisassemblerTabButton::createButton(const QIcon& icon)
 void DisassemblerTabButton::customizeBehavior()
 {
     RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
-        auto* thethis = reinterpret_cast<DisassemblerTabButton*>(e->owner);
-
-        if((e->id == Event_SurfaceStackChanged) && dynamic_cast<ICommandTab*>(thethis->m_widget))
-            thethis->onStackChanged(e);
-
+        if(e->id == Event_SurfaceStackChanged) DisassemblerHooks::instance()->updateCommandStates();
     }, nullptr);
-}
-
-void DisassemblerTabButton::onStackChanged(const RDEventArgs* e)
-{
-    auto* commandtab = dynamic_cast<ICommandTab*>(m_widget);
-    if(!commandtab) return;
-
-    //RDCursor* cursor = reinterpret_cast<RDCursor*>(e->sender);
-    //if(!commandtab->command()->ownsCursor(cursor)) return;
-
-    DisassemblerHooks::instance()->updateCommandStates(m_widget);
 }

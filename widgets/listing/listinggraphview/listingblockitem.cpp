@@ -7,35 +7,37 @@
 #define DROP_SHADOW_SIZE  10
 #define BLOCK_MARGINS     -BLOCK_MARGIN, 0, BLOCK_MARGIN, 0
 
-ListingBlockItem::ListingBlockItem(const RDFunctionBasicBlock* fbb, ICommand* command, RDGraphNode node, const RDGraph* g, QWidget *parent) : GraphViewItem(node, g, parent), m_basicblock(fbb), m_command(command), m_context(command->context())
+ListingBlockItem::ListingBlockItem(const RDContextPtr& ctx, const RDFunctionBasicBlock* fbb, RDGraphNode n, const RDGraph* g, QWidget *parent) : GraphViewItem(n, g, parent), m_basicblock(fbb)
 {
-    m_surface = new SurfaceDocument(command->context(), RendererFlags_NoSegment | RendererFlags_NoSeparators | RendererFlags_NoIndent, parent);
+    m_surface = new SurfaceDocument(ctx, RendererFlags_NoSegment | RendererFlags_NoSeparators | RendererFlags_NoIndent, parent);
     m_surface->setBaseColor(qApp->palette().color(QPalette::Base));
+
     connect(m_surface, &SurfaceDocument::renderCompleted, this, [&]() { this->invalidate(); }, Qt::QueuedConnection);
 
     RDDocumentItem item;
-    if(RDFunctionBasicBlock_GetStartItem(fbb, &item)) m_surface->goTo(&item);
-    else m_surface->goToAddress(RDFunctionBasicBlock_GetStartAddress(fbb));
+    if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) return;
 
-    m_surface->resize(RDFunctionBasicBlock_ItemsCount(m_basicblock), -1);
+    m_surface->goTo(&item);
+    m_surface->resize(RDFunctionBasicBlock_ItemsCount(fbb), -1);
 }
 
-const SurfaceQt* ListingBlockItem::surface() const { return m_surface; }
+SurfaceQt* ListingBlockItem::surface() { return m_surface; }
 bool ListingBlockItem::containsItem(const RDDocumentItem& item) const { return RDFunctionBasicBlock_Contains(m_basicblock, item.address); }
 
 int ListingBlockItem::currentRow() const
 {
-    RDDocumentItem item;
+    // RDDocumentItem item;
 
-    if(m_surface->getCurrentItem(&item) && this->containsItem(item))
-        return m_surface->position()->row;
+    // if(m_surface->getCurrentItem(&item) && this->containsItem(item))
+    //     return m_surface->position()->row;
 
-    return GraphViewItem::currentRow();
+    // return GraphViewItem::currentRow();
+    return 0;
 }
 
 QSize ListingBlockItem::size() const { return m_surface->size(); }
 void ListingBlockItem::itemSelectionChanged(bool selected) { m_surface->activateCursor(selected); }
-void ListingBlockItem::mouseDoubleClickEvent(QMouseEvent*) { emit followRequested(this); }
+void ListingBlockItem::mouseDoubleClickEvent(QMouseEvent*) { emit followRequested(); }
 
 void ListingBlockItem::mousePressEvent(QMouseEvent *e)
 {
@@ -67,7 +69,7 @@ void ListingBlockItem::render(QPainter *painter, size_t state)
         else
             painter->fillRect(r.adjusted(DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE), shadow);
 
-        painter->fillRect(r, m_surface->baseColor());
+        painter->fillRect(r, qApp->palette().color(QPalette::Base));
         if(m_surface) m_surface->renderTo(painter);
 
         if(state & ListingBlockItem::Selected)

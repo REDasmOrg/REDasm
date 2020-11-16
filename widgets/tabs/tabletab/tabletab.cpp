@@ -1,6 +1,7 @@
 #include "tabletab.h"
 #include "ui_tabletab.h"
 #include "../../../models/listingitemmodel.h"
+#include "../../../renderer/surfaceqt.h"
 #include "../hooks/disassemblerhooks.h"
 #include "../hooks/icommandtab.h"
 #include "../redasmfonts.h"
@@ -9,7 +10,7 @@
 
 TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), ui(new Ui::TableTab), m_listingitemmodel(model)
 {
-    model->setContext(DisassemblerHooks::instance()->activeCommand()->context());
+    model->setContext(DisassemblerHooks::instance()->activeContext());
 
     ui->setupUi(this);
     ui->tvTable->header()->setStretchLastSection(true);
@@ -56,8 +57,11 @@ void TableTab::onTableDoubleClick(const QModelIndex& index)
     QModelIndex srcindex = m_filtermodel->mapToSource(index);
     const RDDocumentItem& item = m_listingitemmodel->item(srcindex);
 
-    DisassemblerHooks::instance()->activeCommand()->goTo(item);
-    DisassemblerHooks::instance()->focusOn(DisassemblerHooks::instance()->activeCommandTab()->widget());
+    auto* surface = DisassemblerHooks::instance()->activeSurface();
+    if(!surface) return;
+
+    surface->goTo(&item);
+    DisassemblerHooks::instance()->focusOn(surface->widget());
 }
 
 bool TableTab::event(QEvent* e)

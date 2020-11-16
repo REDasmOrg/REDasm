@@ -177,8 +177,9 @@ void ListingView::adjustActions()
 
     actions[ListingView::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(symbol.address)));
 
-    actions[ListingView::Action_CreateFunction]->setVisible(!RDContext_IsBusy(surface->context().get()) && (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
-                                                                    (HAS_FLAG(&symbol, SymbolFlags_Weak) && !IS_TYPE(&symbol, SymbolType_Function)));
+    actions[ListingView::Action_CreateFunction]->setVisible(!RDContext_IsBusy(surface->context().get()) &&
+                                                            (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
+                                                            (HAS_FLAG(&symbol, SymbolFlags_Weak) && !IS_TYPE(&symbol, SymbolType_Function)));
 
 
     actions[ListingView::Action_FollowPointerHexDump]->setText(QString("Follow %1 pointer in Hex Dump").arg(symbolname));

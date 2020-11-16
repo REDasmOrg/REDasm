@@ -20,12 +20,14 @@ class ListingView : public QStackedWidget
     public:
         explicit ListingView(const RDContextPtr& ctx, QWidget *parent = nullptr);
         bool getCurrentItem(RDDocumentItem* item);
+        ISurface* currentISurface() const;
 
     public slots:
         void switchToGraph();
         void switchToListing();
         void switchToHex();
         void switchMode();
+        void showGoto();
 
     protected:
         bool eventFilter(QObject *object, QEvent *event) override;
@@ -34,11 +36,12 @@ class ListingView : public QStackedWidget
         void adjustActions();
 
     private:
-        ISurface* currentISurface() const;
         QMenu* createActions(ISurface* surface);
         void prepareHexDocument();
         void showReferences(rd_address address);
-        void showGoto();
+
+    signals:
+        void surfaceStackChanged();
 
     private:
         std::future<void> m_worker;

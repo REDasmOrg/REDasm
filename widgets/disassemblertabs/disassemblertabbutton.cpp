@@ -24,7 +24,6 @@ DisassemblerTabButton::DisassemblerTabButton(const RDContextPtr& ctx, QWidget* w
     else hlayout->setStretch(hlayout->count() - 1, 1);
 
     this->setLayout(hlayout);
-    this->customizeBehavior();
 }
 
 DisassemblerTabButton::~DisassemblerTabButton() { RDObject_Unsubscribe(m_context.get(), this); }
@@ -46,11 +45,4 @@ QPushButton* DisassemblerTabButton::createButton(const QIcon& icon)
     btn->setFlat(true);
     btn->setIcon(icon);
     return btn;
-}
-
-void DisassemblerTabButton::customizeBehavior()
-{
-    RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
-        if(e->id == Event_SurfaceStackChanged) DisassemblerHooks::instance()->updateCommandStates();
-    }, nullptr);
 }

@@ -51,7 +51,7 @@ const QColor& SurfaceQt::baseColor() const { return m_basecolor; }
 void SurfaceQt::setBaseColor(const QColor& c) { m_basecolor = c; }
 
 void SurfaceQt::scroll(int nrows, int ncols) { RDSurface_Scroll(m_surface.get(), nrows, ncols); }
-bool SurfaceQt::goTo(const RDDocumentItem* item) { return RDSurface_GoTo(m_surface.get(), item);     }
+bool SurfaceQt::goTo(const RDDocumentItem* item) { return RDSurface_GoTo(m_surface.get(), item); }
 bool SurfaceQt::goToAddress(rd_address address) { return RDSurface_GoToAddress(m_surface.get(), address); }
 void SurfaceQt::goBack() { RDSurface_GoBack(m_surface.get()); }
 void SurfaceQt::goForward() { RDSurface_GoForward(m_surface.get()); }

@@ -21,7 +21,6 @@ class DisassemblerTabButton : public QWidget
 
     private:
         QPushButton* createButton(const QIcon& icon);
-        void customizeBehavior();
 
     private:
         RDContextPtr m_context;

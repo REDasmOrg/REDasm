@@ -11,8 +11,7 @@
 
 ListingTextWidget::ListingTextWidget(QWidget *parent): QAbstractScrollArea(parent)
 {
-    int maxwidth = qApp->primaryScreen()->size().width();
-    this->viewport()->setFixedWidth(maxwidth);
+    this->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     this->setPalette(qApp->palette()); // Don't inherit palette
 
     QPushButton* tbscreenshot = new QPushButton();
@@ -37,6 +36,8 @@ ListingTextWidget::ListingTextWidget(QWidget *parent): QAbstractScrollArea(paren
     this->horizontalScrollBar()->setSingleStep(this->fontMetrics().boundingRect(" ").width());
     this->horizontalScrollBar()->setMinimum(0);
     this->horizontalScrollBar()->setValue(0);
+
+    int maxwidth = qApp->primaryScreen()->size().width();
     this->horizontalScrollBar()->setMaximum(maxwidth);
 }
 
@@ -73,12 +74,6 @@ void ListingTextWidget::setContext(const RDContextPtr& ctx)
 
     m_surface = new SurfacePainter(m_context, RendererFlags_Normal, this);
     connect(m_surface, &SurfacePainter::renderCompleted, this, [&]() { this->viewport()->update(); });
-
-    m_contextmenu = DisassemblerHooks::instance()->createActions(this);
-    connect(this, &ListingTextWidget::customContextMenuRequested, this, [&](const QPoint&) {
-        if(RDDocument_GetSize(m_document)) m_contextmenu->popup(QCursor::pos());
-    });
-
     m_disassemblerpopup = new ListingPopup(m_context, this);
     m_surface->activateCursor(true);
 }

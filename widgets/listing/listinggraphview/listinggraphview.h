@@ -53,5 +53,4 @@ class ListingGraphView : public GraphView, public ISurface
         RDContextPtr m_context;
         SurfaceDocument* m_surface;
         std::optional<RDDocumentItem> m_currentfunction;
-        QMenu* m_contextmenu{nullptr};
 };

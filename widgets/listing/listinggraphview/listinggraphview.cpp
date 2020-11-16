@@ -17,11 +17,6 @@ ListingGraphView::ListingGraphView(const RDContextPtr& ctx, QWidget *parent): Gr
     this->setFocusPolicy(Qt::StrongFocus);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setFont(REDasmSettings::font());
-
-    connect(this, &ListingGraphView::customContextMenuRequested, this, [&](const QPoint&) {
-        RDDocument* doc = RDContext_GetDocument(m_context.get());
-        if(RDDocument_GetSize(doc)) m_contextmenu->popup(QCursor::pos());
-    });
 }
 
 void ListingGraphView::linkTo(ISurface* s) { /* m_surface->linkTo(s->surface()); */ }
@@ -109,8 +104,6 @@ bool ListingGraphView::renderGraph(const RDDocumentItem* item)
         this->focusCurrentBlock();
         return true;
     }
-
-    if(!m_contextmenu) m_contextmenu = DisassemblerHooks::instance()->createActions(this);
 
     auto loc = RDContext_GetFunctionStart(m_context.get(), item->address);
     if(!loc.valid) return false;

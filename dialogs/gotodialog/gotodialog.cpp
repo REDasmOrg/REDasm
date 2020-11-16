@@ -3,7 +3,7 @@
 #include "../../hooks/disassemblerhooks.h"
 #include "../../renderer/surfaceqt.h"
 
-GotoDialog::GotoDialog(const RDContextPtr& ctx, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_context(ctx)
+GotoDialog::GotoDialog(const RDContextPtr& ctx, ISurface* surface, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_context(ctx), m_surface(surface)
 {
     ui->setupUi(this);
 
@@ -58,8 +58,5 @@ void GotoDialog::onGotoClicked()
 void GotoDialog::onItemSelected(const QModelIndex &index)
 {
     QModelIndex srcindex = m_gotomodel->mapToSource(index);
-    if(!srcindex.isValid()) return;
-
-    auto* surface = DisassemblerHooks::instance()->activeSurface();
-    if(surface) surface->goTo(std::addressof(m_gotomodel->item(index)));
+    if(srcindex.isValid()) m_surface->goTo(std::addressof(m_gotomodel->item(index)));
 }

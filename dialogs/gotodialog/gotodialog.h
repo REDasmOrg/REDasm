@@ -13,7 +13,7 @@ class GotoDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit GotoDialog(const RDContextPtr& ctx, QWidget *parent = nullptr);
+        explicit GotoDialog(const RDContextPtr& ctx, ISurface* surface, QWidget *parent = nullptr);
         ~GotoDialog();
 
     private:
@@ -27,6 +27,7 @@ class GotoDialog : public QDialog
     private:
         Ui::GotoDialog *ui;
         RDContextPtr m_context;
+        ISurface* m_surface;
         RDDocument* m_document;
         GotoFilterModel* m_gotomodel;
         rd_address m_address{0};

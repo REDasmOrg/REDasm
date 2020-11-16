@@ -2,7 +2,6 @@
 
 #include <QAbstractScrollArea>
 #include <QFontMetrics>
-#include <QMenu>
 #include <rdapi/rdapi.h>
 #include "../../../hooks/icommand.h"
 #include "../listingpopup/listingpopup.h"
@@ -61,5 +60,4 @@ class ListingTextWidget : public QAbstractScrollArea, public ISurface
         SurfacePainter* m_surface{nullptr};
         RDDocument* m_document{nullptr};
         ListingPopup* m_disassemblerpopup{nullptr};
-        QMenu* m_contextmenu{nullptr};
 };

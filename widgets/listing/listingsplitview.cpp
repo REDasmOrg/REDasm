@@ -27,9 +27,9 @@ void ListingSplitView::onItemCreated(SplitItem* item) const
 {
     //auto* listing = static_cast<ListingView*>(item->widget());
 
-    //auto* btnback = item->addButton(FA_ICON_COLOR(0xf053, THEME_VALUE_COLOR(Theme_GraphEdgeLoopCond)));
-    //auto* btnforward = item->addButton(FA_ICON_COLOR(0xf054, THEME_VALUE_COLOR(Theme_GraphEdgeLoopCond)));
-    //auto* btngoto = item->addButton(FA_ICON(0xf1e5));
+    auto* btnback = item->addButton(FA_ICON_COLOR(0xf053, THEME_VALUE_COLOR(Theme_GraphEdgeLoopCond)));
+    auto* btnforward = item->addButton(FA_ICON_COLOR(0xf054, THEME_VALUE_COLOR(Theme_GraphEdgeLoopCond)));
+    auto* btngoto = item->addButton(FA_ICON(0xf1e5));
 
     //connect(btnback, &QAction::triggered, listing->textWidget(), [=]() { listing->textWidget()->goBack(); });
     //connect(btnforward, &QAction::triggered, listing->textWidget(), [=]() { listing->textWidget()->goForward(); });

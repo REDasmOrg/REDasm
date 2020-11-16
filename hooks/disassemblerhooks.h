@@ -13,7 +13,6 @@
 
 #include <QMainWindow>
 #include <QPushButton>
-#include <future>
 #include <QLabel>
 #include <QFileInfo>
 #include <rdapi/rdapi.h>
@@ -33,7 +32,7 @@ class DisassemblerHooks: public QObject
 
     private:
         enum { Action_Rename = 0, Action_XRefs, Action_Follow, Action_FollowPointerHexDump,
-               Action_CallGraph, Action_Goto, Action_HSplit, Action_VSplit, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction,
+               Action_CallGraph, Action_Goto, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction,
                Action_Back, Action_Forward, Action_Copy };
 
     private:
@@ -60,9 +59,6 @@ class DisassemblerHooks: public QObject
         void exit();
 
     public:
-        QMenu* createActions(ISurface* gurface);
-        void showReferences(rd_address address);
-        void showGoto();
         void showDeveloperTools();
         void showDatabase();
         void showProblems();
@@ -78,7 +74,6 @@ class DisassemblerHooks: public QObject
         void load(const QString& filepath);
 
     private slots:
-        void adjustActions();
         void onToolBarActionTriggered(QAction* action);
         void onWindowActionTriggered(QAction* action);
 
@@ -98,7 +93,6 @@ class DisassemblerHooks: public QObject
         void hook();
 
     private:
-        std::future<void> m_worker;
         QMainWindow* m_mainwindow{nullptr};
         QToolBar* m_toolbar{nullptr};
         QMenu *m_mnuwindow{nullptr};

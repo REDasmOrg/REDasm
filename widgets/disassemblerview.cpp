@@ -3,7 +3,7 @@
 #include "../models/symboltablemodel.h"
 #include "../models/segmentsmodel.h"
 #include "tabs/tabletab/tabletab.h"
-#include "listing/listingview.h"
+#include "listing/listingsplitview.h"
 #include "docks/listingmapdock/listingmapdock.h"
 #include <QMessageBox>
 #include <QBoxLayout>
@@ -165,8 +165,8 @@ void DisassemblerView::listenEvents(const RDEventArgs* e)
 
 SurfaceQt* DisassemblerView::showListing()
 {
-    auto* listingview = new ListingView(m_context);
-    m_disassemblertabs->insertTab(0, listingview, listingview->windowTitle());
+    auto* listingsplitview = new ListingSplitView(m_context);
+    m_disassemblertabs->insertTab(0, listingsplitview, listingsplitview->windowTitle());
     //return listingcontainer->surface();
     return nullptr;
 }

@@ -3,7 +3,7 @@
 #include "../../hooks/disassemblerhooks.h"
 #include "../../renderer/surfaceqt.h"
 
-ReferencesDialog::ReferencesDialog(const RDContextPtr& ctx, const RDSymbol* symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog), m_context(ctx)
+ReferencesDialog::ReferencesDialog(const RDContextPtr& ctx, ISurface* surface, const RDSymbol* symbol, QWidget *parent) : QDialog(parent), ui(new Ui::ReferencesDialog), m_context(ctx), m_surface(surface)
 {
     ui->setupUi(this);
 
@@ -21,10 +21,7 @@ ReferencesDialog::~ReferencesDialog() { delete ui; }
 
 void ReferencesDialog::on_tvReferences_doubleClicked(const QModelIndex &index)
 {
-    if(!index.isValid() || !index.internalId())
-        return;
-
-    auto* surface = DisassemblerHooks::instance()->activeSurface();
-    if(surface) surface->goToAddress(static_cast<rd_address>(index.internalId()));
+    if(!index.isValid() || !index.internalId()) return;
+    m_surface->goToAddress(static_cast<rd_address>(index.internalId()));
     this->accept();
 }

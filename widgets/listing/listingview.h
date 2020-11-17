@@ -37,11 +37,11 @@ class ListingView : public QStackedWidget
 
     private:
         QMenu* createActions(ISurface* surface);
-        void prepareHexDocument();
         void showReferences(rd_address address);
+        void prepareHexDocument();
 
     signals:
-        void surfaceStackChanged();
+        void historyChanged();
 
     private:
         std::future<void> m_worker;

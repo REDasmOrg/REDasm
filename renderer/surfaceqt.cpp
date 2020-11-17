@@ -24,6 +24,7 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
 
         switch(event->id) {
             case Event_SurfaceUpdated: thethis->render(); break;
+            case Event_SurfaceHistoryChanged: emit thethis->historyChanged(); break;
 
             case Event_SurfacePositionChanged: {
                 auto* hooks = DisassemblerHooks::instance();

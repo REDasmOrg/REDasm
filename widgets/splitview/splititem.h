@@ -14,6 +14,7 @@ class SplitItem : public QWidget
         explicit SplitItem(QWidget* w, SplitView* view, QWidget* parent = nullptr);
         QWidget* widget() const;
         void setCanClose(bool b);
+        QAction* action(int idx) const;
         QAction* addButton(const QIcon& icon);
 
     private slots:

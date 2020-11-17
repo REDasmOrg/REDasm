@@ -13,8 +13,11 @@ class ListingSplitView : public SplitView
 
     protected:
         QWidget* createWidget() override;
-        void onItemSplit(const SplitItem* item, const SplitItem* newitem) const override;
-        void onItemCreated(SplitItem* item) const override;
+        void onItemSplit(SplitItem* item, SplitItem* newitem) override;
+        void onItemCreated(SplitItem* item) override;
+
+    private:
+        void checkActions(SplitItem* item) const;
 
     private:
         RDContextPtr m_context;

@@ -64,6 +64,7 @@ class SurfaceQt : public QObject
     signals:
         void renderCompleted();
         void positionChanged();
+        void historyChanged();
 
     private:
         QColor m_basecolor;

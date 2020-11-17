@@ -43,6 +43,9 @@ ListingView::ListingView(const RDContextPtr& ctx, QWidget *parent) : QStackedWid
             if(RDDocument_GetSize(doc)) item.second->popup(QCursor::pos());
         });
     }
+
+    connect(m_textview->surface(), &SurfaceQt::historyChanged, this, &ListingView::historyChanged);
+    //connect(m_graphview->surface(), &SurfaceQt::historyChanged, this, &ListingView::historyChanged);
 }
 
 bool ListingView::getCurrentItem(RDDocumentItem* item)

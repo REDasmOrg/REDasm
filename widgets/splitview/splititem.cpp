@@ -38,9 +38,16 @@ SplitItem::SplitItem(QWidget* w, SplitView* view, QWidget* parent) : QWidget(par
 QWidget* SplitItem::widget() const { return m_widget; }
 QAction* SplitItem::addButton(const QIcon& icon) { return m_tbactions->addAction(icon, QString()); }
 void SplitItem::setCanClose(bool b) { m_actclose->setVisible(b); }
+QAction* SplitItem::action(int idx) const { return m_tbactions->actions().at(idx); }
 void SplitItem::splitHorizontal() { return this->split(Qt::Horizontal); }
 void SplitItem::splitVertical() { return this->split(Qt::Vertical); }
-void SplitItem::unsplit() { this->hide(); this->deleteLater(); }
+
+void SplitItem::unsplit()
+{
+    m_view->onItemDestroyed(this);
+    this->hide();
+    this->deleteLater();
+}
 
 void SplitItem::createDefaultButtons()
 {

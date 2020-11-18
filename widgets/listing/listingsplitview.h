@@ -9,9 +9,10 @@ class ListingSplitView : public SplitView
     Q_OBJECT
 
     public:
-        explicit ListingSplitView(const RDContextPtr& ctx, QWidget *parent = nullptr);
+        Q_INVOKABLE explicit ListingSplitView(const RDContextPtr& ctx, QWidget *parent = nullptr);
 
     protected:
+        SplitView* createView() const override;
         QWidget* createWidget() override;
         void onItemSplit(SplitItem* item, SplitItem* newitem) override;
         void onItemCreated(SplitItem* item) override;

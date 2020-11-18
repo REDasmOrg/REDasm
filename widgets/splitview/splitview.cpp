@@ -22,6 +22,9 @@ SplitItem* SplitView::splitItem(QWidget* w) const
     return (it != m_items.end()) ? it.value() : nullptr;
 }
 
+SplitView* SplitView::createView() const { return new SplitView(); }
+QWidget* SplitView::createWidget() { return new QWidget(); }
+
 void SplitView::onItemSplit(SplitItem* item, SplitItem* newitem)
 {
     m_items[item->widget()] = item;

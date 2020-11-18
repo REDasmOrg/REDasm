@@ -5,6 +5,10 @@
 #include <QVBoxLayout>
 #include <QSplitter>
 #include <QToolBar>
+#include <QDialog>
+#include <QScreen>
+#include <QDebug>
+#include "../../hooks/icommand.h"
 #include "../../redasmfonts.h"
 
 SplitItem::SplitItem(QWidget* w, SplitView* view, QWidget* parent) : QWidget(parent), m_widget(w), m_view(view)
@@ -37,8 +41,23 @@ SplitItem::SplitItem(QWidget* w, SplitView* view, QWidget* parent) : QWidget(par
 
 QWidget* SplitItem::widget() const { return m_widget; }
 QAction* SplitItem::addButton(const QIcon& icon) { return m_tbactions->addAction(icon, QString()); }
-void SplitItem::setCanClose(bool b) { m_actclose->setVisible(b); }
+
+void SplitItem::splitInDialog()
+{
+    QVBoxLayout* l = new QVBoxLayout();
+    l->setSpacing(0);
+    l->setMargin(0);
+    l->addWidget(m_view->createView());
+
+    QDialog* dialog = new QDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setLayout(l);
+    dialog->resize(640, 480);
+    dialog->show();
+}
+
 QAction* SplitItem::action(int idx) const { return m_tbactions->actions().at(idx); }
+void SplitItem::setCanClose(bool b) { m_actclose->setVisible(b); }
 void SplitItem::splitHorizontal() { return this->split(Qt::Horizontal); }
 void SplitItem::splitVertical() { return this->split(Qt::Vertical); }
 
@@ -52,11 +71,12 @@ void SplitItem::unsplit()
 void SplitItem::createDefaultButtons()
 {
     QWidget* empty = new QWidget();
-    empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
+    empty->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_tbactions->addWidget(empty);
 
     connect(this->addButton(FA_ICON(0xf105)), &QAction::triggered, this, &SplitItem::splitHorizontal);
     connect(this->addButton(FA_ICON(0xf107)), &QAction::triggered, this, &SplitItem::splitVertical);
+    connect(this->addButton(FA_ICON(0xf2d2)), &QAction::triggered, this, &SplitItem::splitInDialog);
 
     m_actclose = this->addButton(FA_ICON(0xf00d));
     connect(m_actclose, &QAction::triggered, this, &SplitItem::unsplit);

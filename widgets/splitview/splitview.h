@@ -11,12 +11,13 @@ class SplitView : public QWidget
     Q_OBJECT
 
     public:
-        explicit SplitView(QWidget *parent = nullptr);
+        Q_INVOKABLE explicit SplitView(QWidget *parent = nullptr);
         void createFirst();
         SplitItem* splitItem(QWidget* w) const;
 
     protected:
-        virtual QWidget* createWidget() = 0;
+        virtual SplitView* createView() const;
+        virtual QWidget* createWidget();
         virtual void onItemSplit(SplitItem* item, SplitItem* newitem);
         virtual void onItemDestroyed(const SplitItem* item);
         virtual void onItemCreated(SplitItem* item);

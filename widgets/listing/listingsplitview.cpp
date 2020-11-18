@@ -10,6 +10,7 @@ ListingSplitView::ListingSplitView(const RDContextPtr& ctx, QWidget *parent) : S
     this->createFirst();
 }
 
+SplitView* ListingSplitView::createView() const { return new ListingSplitView(m_context); }
 QWidget* ListingSplitView::createWidget() { return new ListingView(m_context, this); }
 
 void ListingSplitView::onItemSplit(SplitItem* item, SplitItem* newitem)

@@ -13,11 +13,12 @@ class SplitItem : public QWidget
     public:
         explicit SplitItem(QWidget* w, SplitView* view, QWidget* parent = nullptr);
         QWidget* widget() const;
-        void setCanClose(bool b);
         QAction* action(int idx) const;
         QAction* addButton(const QIcon& icon);
+        void setCanClose(bool b);
 
     private slots:
+        void splitInDialog();
         void splitHorizontal();
         void splitVertical();
         void unsplit();

@@ -51,6 +51,6 @@ class ListingGraphView : public GraphView, public ISurface
 
     private:
         RDContextPtr m_context;
-        SurfaceDocument* m_surface;
+        SurfaceQt* m_rootsurface;
         std::optional<RDDocumentItem> m_currentfunction;
 };

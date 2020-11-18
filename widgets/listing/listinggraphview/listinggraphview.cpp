@@ -24,28 +24,28 @@ void ListingGraphView::unlink() { /* m_surface->unlink(); */ }
 
 void ListingGraphView::goBack()
 {
-    m_surface->goBack();
+    m_rootsurface->goBack();
 
     RDDocumentItem item;
-    if(m_surface->getCurrentItem(&item)) this->renderGraph(&item);
+    if(m_rootsurface->getCurrentItem(&item)) this->renderGraph(&item);
 }
 
 void ListingGraphView::goForward()
 {
-    m_surface->goForward();
+    m_rootsurface->goForward();
 
     RDDocumentItem item;
-    if(m_surface->getCurrentItem(&item)) this->renderGraph(&item);
+    if(m_rootsurface->getCurrentItem(&item)) this->renderGraph(&item);
 }
 
-void ListingGraphView::copy() const { m_surface->copy(); }
+void ListingGraphView::copy() const { m_rootsurface->copy(); }
 
 bool ListingGraphView::goToAddress(rd_address address)
 {
-    if(!m_surface->goToAddress(address)) return false;
+    if(!m_rootsurface->goToAddress(address)) return false;
 
     RDDocumentItem item;
-    if(!m_surface->getCurrentItem(&item)) return false;
+    if(!m_rootsurface->getCurrentItem(&item)) return false;
 
     this->renderGraph(&item);
     return true;
@@ -53,13 +53,13 @@ bool ListingGraphView::goToAddress(rd_address address)
 
 bool ListingGraphView::goTo(const RDDocumentItem* item)
 {
-    if(!m_surface->goTo(item)) return false;
+    if(!m_rootsurface->goTo(item)) return false;
     return this->renderGraph(item);
 }
 
-bool ListingGraphView::hasSelection() const { return m_surface->hasSelection(); }
-bool ListingGraphView::canGoBack() const { return m_surface->canGoBack(); }
-bool ListingGraphView::canGoForward() const { return m_surface->canGoForward(); }
+bool ListingGraphView::hasSelection() const { return m_rootsurface->hasSelection(); }
+bool ListingGraphView::canGoBack() const { return m_rootsurface->canGoBack(); }
+bool ListingGraphView::canGoForward() const { return m_rootsurface->canGoForward(); }
 
 bool ListingGraphView::getCurrentItem(RDDocumentItem* item) const
 {
@@ -73,8 +73,8 @@ bool ListingGraphView::getCurrentSymbol(RDSymbol* symbol) const
     return isurface ? isurface->getCurrentSymbol(symbol) : false;
 }
 
-SurfaceQt* ListingGraphView::surface() const { return m_surface; }
-QString ListingGraphView::currentWord() const { return m_surface->getCurrentWord(); }
+SurfaceQt* ListingGraphView::surface() const { return m_rootsurface; }
+QString ListingGraphView::currentWord() const { return m_rootsurface->getCurrentWord(); }
 const RDContextPtr& ListingGraphView::context() const { return m_context; }
 QWidget* ListingGraphView::widget() { return this; }
 void ListingGraphView::computed() { this->focusCurrentBlock(); }
@@ -82,7 +82,7 @@ void ListingGraphView::computed() { this->focusCurrentBlock(); }
 void ListingGraphView::onFollowRequested()
 {
     RDSymbol symbol;
-    if(!m_surface->getCurrentSymbol(&symbol)) return;
+    if(!m_rootsurface->getCurrentSymbol(&symbol)) return;
     this->goToAddress(symbol.address);
 }
 
@@ -125,6 +125,7 @@ bool ListingGraphView::renderGraph(const RDDocumentItem* item)
     }
 
     m_currentfunction = *item;
+    m_rootsurface = nullptr;
     this->setGraph(graph);
     this->focusCurrentBlock();
     return true;
@@ -158,7 +159,18 @@ GraphViewItem* ListingGraphView::createItem(RDGraphNode n, const RDGraph* g)
         return nullptr;
     }
 
-    return new ListingBlockItem(m_context, fbb, n, g, this);
+
+    auto* b = new ListingBlockItem(m_context, fbb, n, g, this);
+
+    if(n != RDGraph_GetRoot(g))
+    {
+        if(m_rootsurface)
+            b->surface()->linkTo(m_rootsurface); // Link all to root surface
+    }
+    else
+        m_rootsurface = b->surface();
+
+    return b;
 }
 
 QColor ListingGraphView::getEdgeColor(const RDGraphEdge& e) const

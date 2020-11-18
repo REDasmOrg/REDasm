@@ -1,5 +1,6 @@
 #include "splitview.h"
 #include <QVBoxLayout>
+#include <QDialog>
 
 SplitView::SplitView(QWidget *parent) : QWidget(parent)
 {
@@ -22,6 +23,7 @@ SplitItem* SplitView::splitItem(QWidget* w) const
     return (it != m_items.end()) ? it.value() : nullptr;
 }
 
+QDialog* SplitView::createDialog(QWidget* parent) const { return new QDialog(parent); }
 SplitView* SplitView::createView() const { return new SplitView(); }
 QWidget* SplitView::createWidget() { return new QWidget(); }
 

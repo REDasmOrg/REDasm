@@ -16,6 +16,7 @@ class SplitView : public QWidget
         SplitItem* splitItem(QWidget* w) const;
 
     protected:
+        virtual QDialog* createDialog(QWidget* parent = 0) const;
         virtual SplitView* createView() const;
         virtual QWidget* createWidget();
         virtual void onItemSplit(SplitItem* item, SplitItem* newitem);

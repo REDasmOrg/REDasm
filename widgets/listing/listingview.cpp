@@ -45,7 +45,6 @@ ListingView::ListingView(const RDContextPtr& ctx, QWidget *parent) : QStackedWid
     }
 
     connect(m_textview->surface(), &SurfaceQt::historyChanged, this, &ListingView::historyChanged);
-    //connect(m_graphview->surface(), &SurfaceQt::historyChanged, this, &ListingView::historyChanged);
 }
 
 bool ListingView::getCurrentItem(RDDocumentItem* item)
@@ -62,6 +61,11 @@ void ListingView::switchToGraph()
     this->setCurrentWidget(m_graphview);
     m_graphview->renderGraph(&item);
     m_graphview->setFocus();
+
+    if(m_graphview->surface()) // Connect to the new surface
+        connect(m_graphview->surface(), &SurfaceQt::historyChanged, this, &ListingView::historyChanged);
+
+    emit historyChanged();
 }
 
 void ListingView::switchToListing()
@@ -70,11 +74,13 @@ void ListingView::switchToListing()
     {
         RDDocumentItem item;
         if(!this->getCurrentItem(&item)) return;
+
+        this->setCurrentWidget(m_textview);
         m_textview->textWidget()->goTo(&item);
     }
 
-    this->setCurrentWidget(m_textview);
     m_textview->textWidget()->setFocus();
+    emit historyChanged();
 }
 
 void ListingView::switchToHex()
@@ -88,6 +94,8 @@ void ListingView::switchToHex()
 
     m_hexview->document()->cursor()->moveTo(loc.offset);
     this->setCurrentWidget(m_hexview);
+
+    emit historyChanged();
 }
 
 void ListingView::switchMode()

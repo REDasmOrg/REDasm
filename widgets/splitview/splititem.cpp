@@ -11,6 +11,9 @@
 #include "../../hooks/icommand.h"
 #include "../../redasmfonts.h"
 
+#define SPLIT_DIALOG_WIDTH  640
+#define SPLIT_DIALOG_HEIGHT 480
+
 SplitItem::SplitItem(QWidget* w, SplitView* view, QWidget* parent) : QWidget(parent), m_widget(w), m_view(view)
 {
     m_tbactions = new QToolBar();
@@ -49,10 +52,10 @@ void SplitItem::splitInDialog()
     l->setMargin(0);
     l->addWidget(m_view->createView());
 
-    QDialog* dialog = new QDialog(this);
+    QDialog* dialog = m_view->createDialog();
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setLayout(l);
-    dialog->resize(640, 480);
+    dialog->resize(SPLIT_DIALOG_WIDTH, SPLIT_DIALOG_HEIGHT);
     dialog->show();
 }
 

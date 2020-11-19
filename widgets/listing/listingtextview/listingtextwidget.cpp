@@ -90,6 +90,12 @@ bool ListingTextWidget::goTo(const RDDocumentItem* item)
     return m_surface->goTo(item);
 }
 
+bool ListingTextWidget::seek(const RDDocumentItem* item)
+{
+    if(!m_surface) return false;
+    return m_surface->seek(item);
+}
+
 void ListingTextWidget::goBack() { if(m_surface) m_surface->goBack(); }
 void ListingTextWidget::goForward() { if(m_surface) m_surface->goForward(); }
 bool ListingTextWidget::hasSelection() const { return m_surface ? m_surface->hasSelection() : false;  }

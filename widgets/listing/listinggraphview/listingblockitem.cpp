@@ -17,7 +17,7 @@ ListingBlockItem::ListingBlockItem(const RDContextPtr& ctx, const RDFunctionBasi
     RDDocumentItem item;
     if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) return;
 
-    m_surface->goTo(&item);
+    m_surface->seek(&item);
     m_surface->resize(RDFunctionBasicBlock_ItemsCount(fbb), -1);
 }
 

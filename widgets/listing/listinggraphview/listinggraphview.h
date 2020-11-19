@@ -21,6 +21,7 @@ class ListingGraphView : public GraphView, public ISurface
         void goForward() override;
         void copy() const override;
         bool goToAddress(rd_address address) override;
+        bool seek(const RDDocumentItem* item) override;
         bool goTo(const RDDocumentItem* item) override;
         bool hasSelection() const override;
         bool canGoBack() const override;

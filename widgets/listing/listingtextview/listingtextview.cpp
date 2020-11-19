@@ -30,7 +30,8 @@ void ListingTextView::unlink() { }
 void ListingTextView::goBack() { return m_textwidget->goBack(); }
 void ListingTextView::goForward() { return m_textwidget->goForward(); }
 bool ListingTextView::goToAddress(rd_address address) { return m_textwidget->goToAddress(address); }
-bool ListingTextView::goTo(const RDDocumentItem* item) {  return m_textwidget->goTo(item); }
+bool ListingTextView::goTo(const RDDocumentItem* item) { return m_textwidget->goTo(item); }
+bool ListingTextView::seek(const RDDocumentItem* item) { return m_textwidget->seek(item); }
 bool ListingTextView::hasSelection() const { return m_textwidget->hasSelection(); }
 bool ListingTextView::canGoBack() const { return m_textwidget->canGoBack(); }
 bool ListingTextView::canGoForward() const {  return m_textwidget->canGoForward(); }

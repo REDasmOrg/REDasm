@@ -153,6 +153,7 @@ RDSurfacePos SurfaceQt::mapPoint(const QPointF& pt) const
                 static_cast<int>(pt.x() / m_cellsize.width()) };
 }
 
+bool SurfaceQt::seek(const RDDocumentItem* item) { return RDSurface_Seek(m_surface.get(), item); }
 QFontMetricsF SurfaceQt::fontMetrics() const { return QFontMetricsF(this->widget()->font()); }
 QWidget* SurfaceQt::widget() const { return dynamic_cast<QWidget*>(this->parent()); }
 

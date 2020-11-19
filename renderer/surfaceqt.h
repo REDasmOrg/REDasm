@@ -32,6 +32,7 @@ class SurfaceQt : public QObject
         const RDSurfacePos* selection() const;
         const RDSurfacePos* position() const;
         RDSurfacePos mapPoint(const QPointF& pt) const;
+        bool seek(const RDDocumentItem* item);
         bool goTo(const RDDocumentItem* item);
         bool goToAddress(rd_address address);
         void goBack();

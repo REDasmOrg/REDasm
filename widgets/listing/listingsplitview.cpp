@@ -28,7 +28,7 @@ void ListingSplitView::onItemSplit(SplitItem* item, SplitItem* newitem)
     if(!newisurface) return;
 
     RDDocumentItem docitem;
-    if(isurface->getCurrentItem(&docitem)) newisurface->goTo(&docitem);
+    if(isurface->getCurrentItem(&docitem)) newisurface->seek(&docitem);
 }
 
 void ListingSplitView::onItemCreated(SplitItem* item)
@@ -55,8 +55,8 @@ void ListingSplitView::checkActions(ListingView* listing) const
 {
     auto* splititem = this->splitItem(listing);
     if(!splititem) return;
+
     auto* isurface = listing->currentISurface();
-    if(!isurface) return;
 
     splititem->action(0)->setVisible(isurface);
     splititem->action(1)->setVisible(isurface);

@@ -22,6 +22,7 @@ class ListingTextView : public QSplitter, public ISurface
         void goForward() override;
         bool goToAddress(rd_address address) override;
         bool goTo(const RDDocumentItem* item) override;
+        bool seek(const RDDocumentItem* item) override;
         bool hasSelection() const override;
         bool canGoBack() const override;
         bool canGoForward() const override;

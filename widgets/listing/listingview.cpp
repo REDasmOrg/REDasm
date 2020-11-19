@@ -76,7 +76,7 @@ void ListingView::switchToListing()
         if(!this->getCurrentItem(&item)) return;
 
         this->setCurrentWidget(m_textview);
-        m_textview->textWidget()->goTo(&item);
+        m_textview->textWidget()->seek(&item);
     }
 
     m_textview->textWidget()->setFocus();

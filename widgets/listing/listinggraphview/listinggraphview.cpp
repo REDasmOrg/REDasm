@@ -51,6 +51,12 @@ bool ListingGraphView::goToAddress(rd_address address)
     return true;
 }
 
+bool ListingGraphView::seek(const RDDocumentItem* item)
+{
+    if(!m_rootsurface->seek(item)) return false;
+    return this->renderGraph(item);
+}
+
 bool ListingGraphView::goTo(const RDDocumentItem* item)
 {
     if(!m_rootsurface->goTo(item)) return false;

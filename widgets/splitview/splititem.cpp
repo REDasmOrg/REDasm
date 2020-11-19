@@ -24,7 +24,6 @@ SplitItem::SplitItem(QWidget* w, SplitView* view, QWidget* parent) : QWidget(par
     auto* lcontent = new QVBoxLayout();
     lcontent->setSpacing(0);
     lcontent->setMargin(0);
-
     lcontent->addWidget(m_tbactions);
     lcontent->addWidget(w, 1);
 

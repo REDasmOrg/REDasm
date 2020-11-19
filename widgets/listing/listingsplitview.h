@@ -4,6 +4,8 @@
 #include "../hooks/icommand.h"
 #include "../splitview/splitview.h"
 
+class ListingView;
+
 class ListingSplitView : public SplitView
 {
     Q_OBJECT
@@ -18,7 +20,7 @@ class ListingSplitView : public SplitView
         void onItemCreated(SplitItem* item) override;
 
     private:
-        void checkActions(SplitItem* item) const;
+        void checkActions(ListingView* listing) const;
 
     private:
         RDContextPtr m_context;

@@ -3,6 +3,7 @@
 #include "../../themeprovider.h"
 #include "../../redasmfonts.h"
 #include "listingview.h"
+#include <QDebug>
 
 ListingSplitView::ListingSplitView(const RDContextPtr& ctx, QWidget *parent) : SplitView(parent), m_context(ctx)
 {
@@ -42,25 +43,27 @@ void ListingSplitView::onItemCreated(SplitItem* item)
     auto* btnforward = item->addButton(FA_ICON_COLOR(0xf054, THEME_VALUE_COLOR(Theme_GraphEdgeLoopCond)));
     auto* btngoto = item->addButton(FA_ICON(0xf1e5));
 
-    this->checkActions(item);
+    this->checkActions(listing);
 
-    connect(listing, &ListingView::historyChanged, this, [=]() { this->checkActions(item); });
-    connect(btnback, &QAction::triggered, listing, [=]() { isurface->goBack(); });
-    connect(btnforward, &QAction::triggered, listing, [=]() { isurface->goForward(); });
-    connect(btngoto, &QAction::triggered, listing, [=]() { listing->showGoto(); });
+    connect(listing, &ListingView::historyChanged, item, [=]() { this->checkActions(listing); });
+    connect(btnback, &QAction::triggered, item, [=]() { isurface->goBack(); });
+    connect(btnforward, &QAction::triggered, item, [=]() { isurface->goForward(); });
+    connect(btngoto, &QAction::triggered, item, [=]() { listing->showGoto(); });
 }
 
-void ListingSplitView::checkActions(SplitItem* item) const
+void ListingSplitView::checkActions(ListingView* listing) const
 {
-    auto* listing = static_cast<ListingView*>(item->widget());
+    auto* splititem = this->splitItem(listing);
+    if(!splititem) return;
     auto* isurface = listing->currentISurface();
-
-    item->action(0)->setVisible(isurface);
-    item->action(1)->setVisible(isurface);
-    item->action(2)->setVisible(isurface);
-    item->action(2)->setEnabled(isurface);
     if(!isurface) return;
 
-    item->action(0)->setEnabled(isurface->canGoBack());
-    item->action(1)->setEnabled(isurface->canGoForward());
+    splititem->action(0)->setVisible(isurface);
+    splititem->action(1)->setVisible(isurface);
+    splititem->action(2)->setVisible(isurface);
+    splititem->action(2)->setEnabled(isurface);
+    if(!isurface) return;
+
+    splititem->action(0)->setEnabled(isurface->canGoBack());
+    splititem->action(1)->setEnabled(isurface->canGoForward());
 }

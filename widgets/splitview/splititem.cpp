@@ -6,8 +6,6 @@
 #include <QSplitter>
 #include <QToolBar>
 #include <QDialog>
-#include <QScreen>
-#include <QDebug>
 #include "../../hooks/icommand.h"
 #include "../../redasmfonts.h"
 
@@ -59,7 +57,12 @@ void SplitItem::splitInDialog()
     dialog->show();
 }
 
-QAction* SplitItem::action(int idx) const { return m_tbactions->actions().at(idx); }
+QAction* SplitItem::action(int idx) const
+{
+    auto actions = m_tbactions->actions();
+    return actions.at(idx);
+}
+
 void SplitItem::setCanClose(bool b) { m_actclose->setVisible(b); }
 void SplitItem::splitHorizontal() { return this->split(Qt::Horizontal); }
 void SplitItem::splitVertical() { return this->split(Qt::Vertical); }
@@ -92,6 +95,8 @@ void SplitItem::split(Qt::Orientation orientation)
 
     this->layout()->removeWidget(m_container);
     m_container->deleteLater();
+    m_container = nullptr;
+    m_tbactions = nullptr;
 
     auto* item = new SplitItem(m_widget, m_view, this);
     auto* newitem = new SplitItem(m_view->createWidget(), m_view, this);

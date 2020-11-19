@@ -3,7 +3,6 @@
 #include <QToolBar>
 #include <QWidget>
 
-class QPushButton;
 class SplitView;
 
 class SplitItem : public QWidget

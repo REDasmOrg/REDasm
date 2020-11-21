@@ -163,12 +163,11 @@ void DisassemblerView::listenEvents(const RDEventArgs* e)
     }
 }
 
-SurfaceQt* DisassemblerView::showListing()
+QWidget* DisassemblerView::showListing()
 {
     auto* listingsplitview = new ListingSplitView(m_context);
     m_disassemblertabs->insertTab(0, listingsplitview, listingsplitview->windowTitle());
-    //return listingcontainer->surface();
-    return nullptr;
+    return listingsplitview;
 }
 
 bool DisassemblerView::focusOn(QWidget* w)
@@ -177,8 +176,9 @@ bool DisassemblerView::focusOn(QWidget* w)
 
     for(int i = 0; i < m_disassemblertabs->count(); i++)
     {
-        if(m_disassemblertabs->widget(i) != w) continue;
-        tw = w;
+        auto* cw = m_disassemblertabs->widget(i);
+        if((cw != w) && !cw->isAncestorOf(w)) continue;
+        tw = cw;
         break;
     }
 

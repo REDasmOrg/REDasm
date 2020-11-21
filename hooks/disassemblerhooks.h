@@ -22,9 +22,6 @@
 class DevDialog;
 class OutputDock;
 class DisassemblerView;
-class ListingItemModel;
-struct RDDisassembler;
-struct RDBuffer;
 
 class DisassemblerHooks: public QObject
 {

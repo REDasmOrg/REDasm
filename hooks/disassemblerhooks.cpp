@@ -113,8 +113,8 @@ void DisassemblerHooks::onWindowActionTriggered(QAction* action)
     {
         case 0: {
             auto* surface = this->activeSurface();
-            if(!surface) surface = m_disassemblerview->showListing();
             if(surface) this->focusOn(surface->widget());
+            else this->focusOn(m_disassemblerview->showListing());
             break;
         }
 

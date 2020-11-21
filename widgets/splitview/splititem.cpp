@@ -91,7 +91,7 @@ void SplitItem::createDefaultButtons()
     connect(m_tbactions->addAction(FA_ICON(0xf107), QString()), &QAction::triggered, this, &SplitItem::splitVertical);
     connect(m_tbactions->addAction(FA_ICON(0xf2d2), QString()), &QAction::triggered, this, &SplitItem::splitInDialog);
 
-    m_actclose = m_tbactions->addAction(FA_ICON(0xf00d), QString());
+    m_actclose = m_tbactions->addAction(FA_ICON(0xf057), QString());
     connect(m_actclose, &QAction::triggered, this, &SplitItem::unsplit);
 }
 

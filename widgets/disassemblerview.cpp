@@ -31,6 +31,7 @@ ITableTab* DisassemblerView::showSegments(Qt::DockWidgetArea area)
     }
 
     TableTab* tabletab = this->createTable(new SegmentsModel(), "Segments");
+    tabletab->moveSection(7, 0);
     connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);

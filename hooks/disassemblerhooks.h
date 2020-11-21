@@ -73,7 +73,6 @@ class DisassemblerHooks: public QObject
         void load(const QString& filepath);
 
     private slots:
-        void onToolBarActionTriggered(QAction* action);
         void onWindowActionTriggered(QAction* action);
 
     private:

@@ -18,7 +18,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
     ui->action_Open->setIcon(FA_ICON(0xf07c));
     ui->action_Save->setIcon(FA_ICON(0xf0c7));
-    ui->action_Filter->setIcon(FA_ICON(0xf0b0));
 
     this->setDockNestingEnabled(true);
     this->setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);

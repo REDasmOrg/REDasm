@@ -76,7 +76,6 @@
     <property name="title">
      <string>&amp;REDasm</string>
     </property>
-    <addaction name="action_Filter"/>
     <addaction name="action_Database"/>
     <addaction name="separator"/>
     <addaction name="action_Developer_Tools"/>
@@ -111,7 +110,6 @@
    </attribute>
    <addaction name="action_Open"/>
    <addaction name="action_Save"/>
-   <addaction name="action_Filter"/>
   </widget>
   <action name="action_Open">
    <property name="text">
@@ -186,14 +184,6 @@
   <action name="action_Database">
    <property name="text">
     <string>&amp;Database</string>
-   </property>
-  </action>
-  <action name="action_Filter">
-   <property name="text">
-    <string>&amp;Filter</string>
-   </property>
-   <property name="shortcut">
-    <string>F3</string>
    </property>
   </action>
   <action name="action_Exports">

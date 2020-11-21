@@ -105,29 +105,6 @@ void DisassemblerHooks::undock(QDockWidget* dw)
     dw->deleteLater();
 }
 
-void DisassemblerHooks::onToolBarActionTriggered(QAction* action)
-{
-    auto* surface = this->activeSurface();
-    if(!surface) return;
-
-    int idx = m_toolbar->actions().indexOf(action);
-
-    switch(idx)
-    {
-        case 2: surface->goBack(); break;
-        case 3: surface->goForward(); break;
-        //case 4: this->showGoto(); break;
-
-        case 5: {
-            auto* tabletab = dynamic_cast<ITableTab*>(m_disassemblerview->currentWidget());
-            if(tabletab) tabletab->toggleFilter();
-            break;
-        }
-
-        default: break;
-    }
-}
-
 void DisassemblerHooks::onWindowActionTriggered(QAction* action)
 {
     int idx = m_mnuwindow->actions().indexOf(action);
@@ -218,7 +195,6 @@ void DisassemblerHooks::hook()
     connect(act, &QAction::triggered, this, [&]() { this->showDatabase(); });
 
     connect(m_pbproblems, &QPushButton::clicked, this, [&]() { this->showProblems(); });
-    connect(m_toolbar, &QToolBar::actionTriggered, this, &DisassemblerHooks::onToolBarActionTriggered);
     connect(m_mnuwindow, &QMenu::triggered, this, &DisassemblerHooks::onWindowActionTriggered);
 
     connect(m_pbrenderer, &QPushButton::clicked, this, [&]() {
@@ -464,7 +440,4 @@ void DisassemblerHooks::enableCommands(QWidget* w)
 
     m_pbrenderer->setVisible(splitview);
     act->setVisible(splitview);
-
-    auto* tabletab = dynamic_cast<ITableTab*>(w);
-    actions[2]->setVisible(tabletab); // Filter
 }

@@ -16,7 +16,7 @@
 #include <QLabel>
 #include <QFileInfo>
 #include <rdapi/rdapi.h>
-#include "icommandtab.h"
+#include "isurface.h"
 #include "itabletab.h"
 
 class DevDialog;
@@ -69,7 +69,6 @@ class DisassemblerHooks: public QObject
         RDContextPtr activeContext() const;
         bool openDatabase(const QString& filepath);
         void enableCommands(QWidget* w);
-        void updateCommandStates() const;
         void statusAddress(const SurfaceQt* surface) const;
         void load(const QString& filepath);
 

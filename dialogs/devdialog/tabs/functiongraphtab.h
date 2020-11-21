@@ -4,7 +4,7 @@
 #include <QWidget>
 #include "../../../models/dev/functiongraphmodel.h"
 #include "../../../models/dev/functionlistmodel.h"
-#include "../../../hooks/icommand.h"
+#include "../../../hooks/isurface.h"
 
 namespace Ui {
 class FunctionGraphTab;

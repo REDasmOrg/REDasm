@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QWidget>
-#include "../../../hooks/icommand.h"
+#include "../../../hooks/isurface.h"
 
 namespace Ui {
 class RDILTab;

@@ -2,7 +2,7 @@
 
 #include <QPixmap>
 #include <QImage>
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 #include "surfaceqt.h"
 
 class SurfacePainter : public SurfaceQt

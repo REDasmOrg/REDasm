@@ -3,7 +3,7 @@
 #include <rdapi/rdapi.h>
 #include <QStandardItemModel>
 #include <QDialog>
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 
 namespace Ui {
 class AnalyzerDialog;

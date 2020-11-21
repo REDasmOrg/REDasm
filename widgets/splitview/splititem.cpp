@@ -6,7 +6,7 @@
 #include <QSplitter>
 #include <QToolBar>
 #include <QDialog>
-#include "../../hooks/icommand.h"
+#include "../../hooks/isurface.h"
 #include "../../redasmfonts.h"
 
 #define SPLIT_DIALOG_WIDTH  640

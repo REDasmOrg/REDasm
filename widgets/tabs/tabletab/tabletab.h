@@ -2,7 +2,6 @@
 
 #include <QWidget>
 #include <QHeaderView>
-#include "../hooks/icommandtab.h"
 #include "../hooks/itabletab.h"
 
 namespace Ui {

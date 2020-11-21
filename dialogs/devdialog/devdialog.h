@@ -1,8 +1,7 @@
 #pragma once
 
 #include <QDialog>
-#include "../hooks/icommand.h"
-#include "../hooks/idisposable.h"
+#include "../hooks/isurface.h"
 
 namespace Ui {
 class DevDialog;

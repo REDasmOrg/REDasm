@@ -4,7 +4,6 @@
 #include <QSet>
 #include <future>
 #include <rdapi/rdapi.h>
-#include "../hooks/icommandtab.h"
 #include "../hooks/itabletab.h"
 #include "disassemblertabs/disassemblertabs.h"
 

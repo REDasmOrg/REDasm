@@ -5,7 +5,7 @@
 #include <QList>
 #include <QPair>
 #include <QSet>
-#include "../../../hooks/icommand.h"
+#include "../../../hooks/isurface.h"
 
 class ListingTextWidget;
 

@@ -1,6 +1,6 @@
 #include "surfacepainter.h"
 #include "../hooks/disassemblerhooks.h"
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 #include "../themeprovider.h"
 #include <QAbstractScrollArea>
 #include <QApplication>

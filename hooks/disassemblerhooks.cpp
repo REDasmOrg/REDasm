@@ -7,6 +7,7 @@
 #include "../dialogs/loaderdialog/loaderdialog.h"
 #include "../dialogs/devdialog/devdialog.h"
 #include "../dialogs/databasedialog/databasedialog.h"
+#include "../widgets/listing/listingsplitview.h"
 #include "../widgets/docks/outputdock/outputdock.h"
 #include "../widgets/disassemblerview.h"
 #include "../widgets/welcomewidget.h"
@@ -432,7 +433,6 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
         m_lblstatusicon->setStyleSheet("color: green;");
     }
 
-    m_toolbar->actions()[4]->setEnabled(!busy); // Goto
     m_lblstatusicon->setVisible(true);
 
     if(this->activeContext())
@@ -459,24 +459,12 @@ void DisassemblerHooks::enableCommands(QWidget* w)
         return;
     }
 
-    auto* surfacetab = dynamic_cast<ISurfaceTab*>(w);
+    auto* splitview = dynamic_cast<ListingSplitView*>(w);
     this->checkListingMode();
 
-    m_pbrenderer->setVisible(surfacetab);
-    act->setVisible(surfacetab);
-
-    actions[2]->setVisible(surfacetab); // Back
-    actions[3]->setVisible(surfacetab); // Forward
-    actions[4]->setVisible(surfacetab); // Goto
+    m_pbrenderer->setVisible(splitview);
+    act->setVisible(splitview);
 
     auto* tabletab = dynamic_cast<ITableTab*>(w);
-    actions[5]->setVisible(tabletab); // Filter
-}
-
-void DisassemblerHooks::updateCommandStates() const
-{
-    auto actions = m_toolbar->actions();
-    auto* surface = this->activeSurface();
-    actions[2]->setEnabled(surface && surface->canGoBack());
-    actions[3]->setEnabled(surface && surface->canGoForward());
+    actions[2]->setVisible(tabletab); // Filter
 }

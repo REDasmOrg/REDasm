@@ -18,9 +18,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
     ui->action_Open->setIcon(FA_ICON(0xf07c));
     ui->action_Save->setIcon(FA_ICON(0xf0c7));
-    ui->action_Back->setIcon(FA_ICON(0xf053));
-    ui->action_Forward->setIcon(FA_ICON(0xf054));
-    ui->action_Goto->setIcon(FA_ICON(0xf1e5));
     ui->action_Filter->setIcon(FA_ICON(0xf0b0));
 
     this->setDockNestingEnabled(true);
@@ -73,11 +70,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->action_Exit, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::exit);
 }
 
-MainWindow::~MainWindow()
-{
-    //r_pm->shutdown();
-    delete ui;
-}
+MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {
@@ -152,7 +145,6 @@ void MainWindow::onResetLayoutClicked()
 {
     REDasmSettings settings;
     settings.defaultState(this);
-    //this->setViewWidgetsVisible(this->currentDisassembler());
 }
 
 void MainWindow::loadWindowState()
@@ -218,7 +210,6 @@ bool MainWindow::canClose()
             return false;
     }
 
-    // this->setViewWidgetsVisible(false);
     // REDasmSettings settings;
     // settings.saveState(this);
     return true;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QDockWidget>
-#include "../hooks/idisposable.h"
 #include "listingmap.h"
 
 class ListingMapDock : public QDockWidget

@@ -3,7 +3,7 @@
 #include <QAbstractScrollArea>
 #include <QFontMetrics>
 #include <rdapi/rdapi.h>
-#include "../../../hooks/icommand.h"
+#include "../../../hooks/isurface.h"
 #include "../listingpopup/listingpopup.h"
 
 class SurfacePainter;

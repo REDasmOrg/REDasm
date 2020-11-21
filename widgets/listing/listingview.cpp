@@ -258,14 +258,14 @@ QMenu* ListingView::createActions(ISurface* surface)
 
     actions[ListingView::Action_XRefs] = contextmenu->addAction("Cross References", this, [&, surface]() {
         RDSymbol symbol;
-        if(surface->getCurrentSymbol(&symbol)) return;
+        if(!surface->getCurrentSymbol(&symbol)) return;
         this->showReferences(symbol.address);
     }, QKeySequence(Qt::Key_X));
 
     actions[ListingView::Action_Follow] = contextmenu->addAction("Follow", this, [surface]() {
         RDSymbol symbol;
-        if(!surface->getCurrentSymbol(&symbol)) return false;
-        return surface->goToAddress(symbol.address);
+        if(!surface->getCurrentSymbol(&symbol)) return;
+        surface->goToAddress(symbol.address);
     });
 
     actions[ListingView::Action_FollowPointerHexDump] = contextmenu->addAction("Follow pointer in Hex Dump", this, [&, surface]() {

@@ -5,7 +5,7 @@
 #include <condition_variable>
 #include <atomic>
 #include <mutex>
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 
 class RendererAsync: public QThread
 {

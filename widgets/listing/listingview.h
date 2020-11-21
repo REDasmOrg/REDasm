@@ -5,7 +5,7 @@
 #include <rdapi/rdapi.h>
 #include "listinggraphview/listinggraphview.h"
 #include "listingtextview/listingtextview.h"
-#include "../../hooks/icommand.h"
+#include "../../hooks/isurface.h"
 #include "../QHexView/qhexview.h"
 
 class ListingView : public QStackedWidget

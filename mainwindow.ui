@@ -76,7 +76,6 @@
     <property name="title">
      <string>&amp;REDasm</string>
     </property>
-    <addaction name="action_Goto"/>
     <addaction name="action_Filter"/>
     <addaction name="action_Database"/>
     <addaction name="separator"/>
@@ -112,9 +111,6 @@
    </attribute>
    <addaction name="action_Open"/>
    <addaction name="action_Save"/>
-   <addaction name="action_Back"/>
-   <addaction name="action_Forward"/>
-   <addaction name="action_Goto"/>
    <addaction name="action_Filter"/>
   </widget>
   <action name="action_Open">
@@ -190,26 +186,6 @@
   <action name="action_Database">
    <property name="text">
     <string>&amp;Database</string>
-   </property>
-  </action>
-  <action name="action_Blocks">
-   <property name="text">
-    <string>&amp;Blocks</string>
-   </property>
-  </action>
-  <action name="action_Back">
-   <property name="text">
-    <string>&amp;Back</string>
-   </property>
-  </action>
-  <action name="action_Forward">
-   <property name="text">
-    <string>&amp;Forward</string>
-   </property>
-  </action>
-  <action name="action_Goto">
-   <property name="text">
-    <string>&amp;Goto</string>
    </property>
   </action>
   <action name="action_Filter">

@@ -2,7 +2,7 @@
 
 #include <QAbstractListModel>
 #include <rdapi/rdapi.h>
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 
 class BlockListModel : public QAbstractListModel
 {

@@ -3,7 +3,7 @@
 #include <QSortFilterProxyModel>
 #include <QDialog>
 #include <rdapi/rdapi.h>
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 #include "../models/signatures/signaturefilesmodel.h"
 #include "../models/signatures/signaturesmodel.h"
 

@@ -4,7 +4,7 @@
 #include <rdapi/graph/functiongraph.h>
 #include <rdapi/rdapi.h>
 #include <optional>
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 
 class FunctionGraphModel : public QAbstractListModel
 {

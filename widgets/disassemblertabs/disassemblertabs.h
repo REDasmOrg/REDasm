@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QTabWidget>
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 
 class DisassemblerTabs : public QTabWidget
 {

@@ -4,7 +4,7 @@
 #include <QColor>
 #include <QSizeF>
 #include <rdapi/rdapi.h>
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 
 class QFontMetricsF;
 

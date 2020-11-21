@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QSplitter>
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 #include "../splitview/splitview.h"
 
 class ListingView;

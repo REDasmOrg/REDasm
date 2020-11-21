@@ -3,7 +3,6 @@
 #include "../../../models/listingitemmodel.h"
 #include "../../../renderer/surfaceqt.h"
 #include "../hooks/disassemblerhooks.h"
-#include "../hooks/icommandtab.h"
 #include "../redasmfonts.h"
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>

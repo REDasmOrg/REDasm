@@ -1,7 +1,6 @@
 #include "disassemblertabs.h"
 #include "disassemblertabbutton.h"
 #include "../hooks/disassemblerhooks.h"
-#include "../hooks/icommandtab.h"
 #include "../redasmfonts.h"
 #include <QTabBar>
 
@@ -34,7 +33,6 @@ void DisassemblerTabs::onTabChanged(int index)
 {
     QWidget* w = this->widget(index);
     DisassemblerHooks::instance()->enableCommands(w);
-    DisassemblerHooks::instance()->updateCommandStates();
 }
 
 void DisassemblerTabs::onCloseClicked()

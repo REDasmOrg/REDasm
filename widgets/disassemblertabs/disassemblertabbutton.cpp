@@ -5,7 +5,6 @@
 #include <QMenu>
 #include <rdapi/rdapi.h>
 #include "../../hooks/disassemblerhooks.h"
-#include "../../hooks/icommandtab.h"
 #include "../../hooks/itabletab.h"
 #include "../../redasmfonts.h"
 
@@ -19,9 +18,7 @@ DisassemblerTabButton::DisassemblerTabButton(const RDContextPtr& ctx, QWidget* w
     hlayout->addWidget(lbltext);
     hlayout->setContentsMargins(10, 0, 0, 0);
     hlayout->setSpacing(10);
-
-    if(dynamic_cast<ISurfaceTab*>(widget)) hlayout->setStretch(2, 1);
-    else hlayout->setStretch(hlayout->count() - 1, 1);
+    hlayout->setStretch(hlayout->count() - 1, 1);
 
     this->setLayout(hlayout);
 }

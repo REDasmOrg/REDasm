@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../renderer/rendererasync.h"
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 #include <rdapi/rdapi.h>
 #include <deque>
 

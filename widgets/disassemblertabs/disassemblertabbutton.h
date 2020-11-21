@@ -4,7 +4,7 @@
 #include <QTabWidget>
 #include <QPushButton>
 #include <QLabel>
-#include "../hooks/icommand.h"
+#include "../hooks/isurface.h"
 
 struct RDEventArgs;
 

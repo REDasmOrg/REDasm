@@ -17,6 +17,8 @@ void SplitView::createFirst()
     m_layout->addWidget(si);
 }
 
+void SplitView::checkCanClose() { for(auto& si : m_items) si->setCanClose((m_items.size() > 1)); }
+
 SplitItem* SplitView::splitItem(QWidget* w) const
 {
     auto it = m_items.find(w);
@@ -33,5 +35,14 @@ void SplitView::onItemSplit(SplitItem* item, SplitItem* newitem)
     m_items[newitem->widget()] = newitem;
 }
 
-void SplitView::onItemDestroyed(const SplitItem* item) { m_items.remove(item->widget()); }
-void SplitView::onItemCreated(SplitItem* item) { m_items[item->widget()] = item; }
+void SplitView::onItemDestroyed(const SplitItem* item)
+{
+    m_items.remove(item->widget());
+    this->checkCanClose();
+}
+
+void SplitView::onItemCreated(SplitItem* item)
+{
+    m_items[item->widget()] = item;
+    this->checkCanClose();
+}

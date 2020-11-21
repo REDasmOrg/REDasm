@@ -17,9 +17,9 @@ SplitItem::SplitItem(QWidget* w, SplitView* view, QWidget* parent) : QWidget(par
     m_tbactions = new QToolBar();
     m_tbactions->setIconSize({16, 16});
     m_tbactions->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    this->createDefaultButtons();
 
     view->onItemCreated(this);
-    this->createDefaultButtons();
 
     auto* lcontent = new QVBoxLayout();
     lcontent->setSpacing(0);
@@ -40,7 +40,15 @@ SplitItem::SplitItem(QWidget* w, SplitView* view, QWidget* parent) : QWidget(par
 }
 
 QWidget* SplitItem::widget() const { return m_widget; }
-QAction* SplitItem::addButton(const QIcon& icon) { return m_tbactions->addAction(icon, QString()); }
+
+QAction* SplitItem::addButton(const QIcon& icon)
+{
+    if(!m_actfirstdefault) return m_tbactions->addAction(icon, QString());
+
+    auto* act = new QAction(icon, QString(), m_tbactions);
+    m_tbactions->insertAction(m_actfirstdefault, act);
+    return act;
+}
 
 void SplitItem::splitInDialog()
 {
@@ -77,13 +85,13 @@ void SplitItem::createDefaultButtons()
 {
     QWidget* empty = new QWidget();
     empty->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    m_tbactions->addWidget(empty);
+    m_actfirstdefault = m_tbactions->addWidget(empty);
 
-    connect(this->addButton(FA_ICON(0xf105)), &QAction::triggered, this, &SplitItem::splitHorizontal);
-    connect(this->addButton(FA_ICON(0xf107)), &QAction::triggered, this, &SplitItem::splitVertical);
-    connect(this->addButton(FA_ICON(0xf2d2)), &QAction::triggered, this, &SplitItem::splitInDialog);
+    connect(m_tbactions->addAction(FA_ICON(0xf105), QString()), &QAction::triggered, this, &SplitItem::splitHorizontal);
+    connect(m_tbactions->addAction(FA_ICON(0xf107), QString()), &QAction::triggered, this, &SplitItem::splitVertical);
+    connect(m_tbactions->addAction(FA_ICON(0xf2d2), QString()), &QAction::triggered, this, &SplitItem::splitInDialog);
 
-    m_actclose = this->addButton(FA_ICON(0xf00d));
+    m_actclose = m_tbactions->addAction(FA_ICON(0xf00d), QString());
     connect(m_actclose, &QAction::triggered, this, &SplitItem::unsplit);
 }
 

@@ -12,8 +12,8 @@ class SplitView : public QWidget
 
     public:
         Q_INVOKABLE explicit SplitView(QWidget *parent = nullptr);
-        void createFirst();
         SplitItem* splitItem(QWidget* w) const;
+        void createFirst();
 
     protected:
         virtual QDialog* createDialog(QWidget* parent = 0) const;
@@ -22,6 +22,9 @@ class SplitView : public QWidget
         virtual void onItemSplit(SplitItem* item, SplitItem* newitem);
         virtual void onItemDestroyed(const SplitItem* item);
         virtual void onItemCreated(SplitItem* item);
+
+    private:
+        void checkCanClose();
 
     private:
         QHash<QWidget*, SplitItem*> m_items;

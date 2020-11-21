@@ -29,7 +29,7 @@ class SplitItem : public QWidget
     private:
         QWidget *m_widget, *m_container;
         SplitView* m_view;
-        QAction* m_actclose;
+        QAction *m_actclose{nullptr}, *m_actfirstdefault{nullptr};
         QToolBar* m_tbactions;
 };
 

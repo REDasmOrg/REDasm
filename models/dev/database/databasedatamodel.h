@@ -1,9 +1,10 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <rdapi/rdapi.h>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <rdapi/rdapi.h>
+#include <filesystem>
 #include <stack>
 
 class DatabaseDataModel : public QAbstractListModel
@@ -30,7 +31,7 @@ class DatabaseDataModel : public QAbstractListModel
         void query();
 
     private:
-        void query(const std::string& q);
+        void query(const std::filesystem::path &q);
         QString objectValue(const QJsonValue& v) const;
         bool isClickable(const QModelIndex& index) const;
         QVariant objectData(const QModelIndex& index, int role) const;
@@ -43,9 +44,9 @@ class DatabaseDataModel : public QAbstractListModel
         void queryChanged(const QString& query);
 
     private:
-        std::stack<std::string> m_back, m_forward;
+        std::stack<std::filesystem::path> m_back, m_forward;
         RDDatabase* m_db;
-        std::string m_query;
+        std::filesystem::path m_query;
         QStringList m_objkeys;
         QJsonObject m_obj;
         QJsonArray m_arr;

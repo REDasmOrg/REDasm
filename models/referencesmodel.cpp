@@ -2,6 +2,7 @@
 #include "../themeprovider.h"
 #include "../hooks/disassemblerhooks.h"
 #include "../renderer/surfaceqt.h"
+#include <array>
 
 ReferencesModel::ReferencesModel(QObject *parent): ContextModel(parent)
 {

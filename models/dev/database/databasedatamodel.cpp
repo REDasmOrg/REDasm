@@ -1,7 +1,6 @@
 #include "databasedatamodel.h"
 #include <rdapi/rdapi.h>
 #include <QJsonDocument>
-#include <filesystem>
 #include <cstring>
 #include "../../../themeprovider.h"
 #include "../../../redasmfonts.h"
@@ -9,7 +8,7 @@
 namespace fs = std::filesystem;
 
 DatabaseDataModel::DatabaseDataModel(RDDatabase* db, QObject *parent): QAbstractListModel(parent), m_db(db), m_query("/") { }
-QString DatabaseDataModel::currentQuery() const { return QString::fromStdString(m_query); }
+QString DatabaseDataModel::currentQuery() const { return QString::fromStdString(m_query.string()); }
 QString DatabaseDataModel::databaseName() const { return RDDatabase_GetName(m_db); }
 
 QVariant DatabaseDataModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -49,7 +48,7 @@ void DatabaseDataModel::goForward()
 {
     if(m_forward.empty()) return;
 
-    std::string b = m_forward.top();
+    auto b = m_forward.top();
     m_forward.pop();
     m_back.push(m_query);
     this->query(b);
@@ -62,7 +61,7 @@ void DatabaseDataModel::goBack()
 {
     if(m_back.empty()) return;
 
-    std::string b = m_back.top();
+    auto b = m_back.top();
     m_back.pop();
     m_forward.push(m_query);
     this->query(b);
@@ -88,7 +87,7 @@ void DatabaseDataModel::query(const QModelIndex& index)
     this->query(fs::path(m_query) / this->data(idx).toString().toStdString());
 }
 
-void DatabaseDataModel::query(const std::string& q) { m_query = q; this->query(); }
+void DatabaseDataModel::query(const fs::path& q) { m_query = q; this->query(); }
 
 void DatabaseDataModel::query()
 {
@@ -99,7 +98,7 @@ void DatabaseDataModel::query()
 
     RDDatabaseValue val;
 
-    if(RDDatabase_Query(m_db, m_query.c_str(), &val))
+    if(RDDatabase_Query(m_db, m_query.string().c_str(), &val))
     {
         QJsonDocument doc;
 
@@ -121,7 +120,7 @@ void DatabaseDataModel::query()
     }
 
     this->endResetModel();
-    emit queryChanged(QString::fromStdString(m_query));
+    emit queryChanged(QString::fromStdString(m_query.string()));
 }
 
 QString DatabaseDataModel::objectValue(const QJsonValue& v) const

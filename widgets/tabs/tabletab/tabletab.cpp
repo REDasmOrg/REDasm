@@ -6,6 +6,7 @@
 #include "../redasmfonts.h"
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
+#include <QAction>
 
 TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), ui(new Ui::TableTab), m_listingitemmodel(model)
 {
@@ -35,6 +36,11 @@ TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), u
     connect(ui->leFilter, &QLineEdit::textChanged, m_filtermodel, &QSortFilterProxyModel::setFilterFixedString);
     connect(ui->tvTable, &QTreeView::doubleClicked, this, &TableTab::onTableDoubleClick);
     connect(ui->pbClear, &QPushButton::clicked, ui->leFilter, &QLineEdit::clear);
+
+    auto* actfilter = new QAction("Filter", ui->tvTable);
+    connect(actfilter, &QAction::triggered, this, [&]() { this->setFilterVisible(true); } );
+    ui->tvTable->setContextMenuPolicy(Qt::ActionsContextMenu);
+    ui->tvTable->addAction(actfilter);
 
     RDObject_Subscribe(model->context().get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<TableTab*>(e->owner);
@@ -69,21 +75,21 @@ bool TableTab::event(QEvent* e)
     {
         QKeyEvent* keyevent = static_cast<QKeyEvent*>(e);
 
-        if(keyevent->key() == Qt::Key_Escape)
+        switch(keyevent->key())
         {
-            ui->pbClear->setVisible(false);
-            ui->leFilter->setVisible(false);
-            ui->leFilter->clear();
+            case Qt::Key_Escape: this->setFilterVisible(false); return true;
+            case Qt::Key_F3: this->setFilterVisible(true); return true;
+            default: break;
         }
     }
 
     return QWidget::event(e);
 }
 
-void TableTab::toggleFilter()
+void TableTab::setFilterVisible(bool b)
 {
-    ui->pbClear->setVisible(!ui->pbClear->isVisible());
-    ui->leFilter->setVisible(!ui->leFilter->isVisible());
+    ui->pbClear->setVisible(b);
+    ui->leFilter->setVisible(b);
 
     if(ui->leFilter->isVisible()) ui->leFilter->setFocus();
     else ui->leFilter->clear();

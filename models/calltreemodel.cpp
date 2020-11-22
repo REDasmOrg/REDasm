@@ -5,10 +5,11 @@
 
 CallTreeModel::CallTreeModel(QObject *parent) : ContextModel(parent) { }
 
-const RDDocumentItem& CallTreeModel::item(const QModelIndex& index) const
+RDDocumentItem CallTreeModel::item(const QModelIndex& index) const
 {
     //REDasm::CallNode* node = reinterpret_cast<REDasm::CallNode*>(index.internalPointer());
     //return node->data;
+    return { };
 }
 
 void CallTreeModel::initializeGraph(rd_address address)
@@ -52,6 +53,7 @@ bool CallTreeModel::hasChildren(const QModelIndex& parentindex) const
     //REDasm::CallNode* parentnode = reinterpret_cast<REDasm::CallNode*>(parentindex.internalPointer());
     //if(!parentnode) return true;
     //return parentnode->hasCalls();
+    return false;
 }
 
 QModelIndex CallTreeModel::index(int row, int column, const QModelIndex &parent) const
@@ -61,6 +63,7 @@ QModelIndex CallTreeModel::index(int row, int column, const QModelIndex &parent)
     //REDasm::CallNode* parentnode = reinterpret_cast<REDasm::CallNode*>(parent.internalPointer());
     //if(!parentnode) return this->createIndex(row, column, m_calltree.get());
     //return this->createIndex(row, column, parentnode->at(row));
+    return QModelIndex();
 }
 
 QModelIndex CallTreeModel::parent(const QModelIndex &child) const
@@ -70,6 +73,7 @@ QModelIndex CallTreeModel::parent(const QModelIndex &child) const
     //REDasm::CallNode* childnode = reinterpret_cast<REDasm::CallNode*>(child.internalPointer());
     //if(childnode == m_calltree.get()) return QModelIndex();
     //return this->createIndex(childnode->parent()->index(), 0, childnode->parent());
+    return QModelIndex();
 }
 
 QVariant CallTreeModel::headerData(int section, Qt::Orientation orientation, int role) const

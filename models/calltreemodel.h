@@ -10,7 +10,7 @@ class CallTreeModel : public ContextModel
 
     public:
         explicit CallTreeModel(QObject *parent = nullptr);
-        const RDDocumentItem& item(const QModelIndex& index) const;
+        RDDocumentItem item(const QModelIndex& index) const;
         void initializeGraph(rd_address address);
 
     public:

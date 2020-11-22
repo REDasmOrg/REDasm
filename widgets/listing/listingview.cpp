@@ -331,7 +331,7 @@ void ListingView::prepareHexDocument()
 {
     auto* buffer = RDContext_GetBuffer(m_context.get());
     m_hexview->setDocument(QHexDocument::fromMemory<QMemoryRefBuffer>(reinterpret_cast<char*>(RDBuffer_Data(buffer)),
-                                                                      static_cast<int>(RDBuffer_Size(buffer))));
+                                                                      static_cast<int>(RDBuffer_Size(buffer)), m_hexview));
 }
 
 void ListingView::showReferences(rd_address address)

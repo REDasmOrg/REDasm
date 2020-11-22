@@ -22,12 +22,12 @@ DisassemblerView::~DisassemblerView()
 
 QWidget* DisassemblerView::currentWidget() const { return m_disassemblertabs->currentWidget(); }
 
-ITableTab* DisassemblerView::showSegments(Qt::DockWidgetArea area)
+void DisassemblerView::showSegments(Qt::DockWidgetArea area)
 {
     if(auto* t = this->findModelInTabs<SegmentsModel>())
     {
         m_disassemblertabs->setCurrentWidget(dynamic_cast<QWidget*>(t));
-        return t;
+        return;
     }
 
     TableTab* tabletab = this->createTable(new SegmentsModel(), "Segments");
@@ -36,17 +36,16 @@ ITableTab* DisassemblerView::showSegments(Qt::DockWidgetArea area)
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
-    return tabletab;
 }
 
-ITableTab* DisassemblerView::showFunctions(Qt::DockWidgetArea area)
+void DisassemblerView::showFunctions(Qt::DockWidgetArea area)
 {
     if(auto* t = this->findModelInTabs<ListingItemModel>())
     {
         if(t->model()->itemType() == DocumentItemType_Function)
         {
             m_disassemblertabs->setCurrentWidget(dynamic_cast<QWidget*>(t));
-            return t;
+            return;
         }
     }
 
@@ -57,15 +56,14 @@ ITableTab* DisassemblerView::showFunctions(Qt::DockWidgetArea area)
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
-    return tabletab;
 }
 
-ITableTab* DisassemblerView::showExports(Qt::DockWidgetArea area)
+void DisassemblerView::showExports(Qt::DockWidgetArea area)
 {
     if(auto* t = this->findSymbolModelInTabs(SymbolType_None, SymbolFlags_Export))
     {
         m_disassemblertabs->setCurrentWidget(dynamic_cast<QWidget*>(t));
-        return t;
+        return;
     }
 
     auto* model = new SymbolTableModel(DocumentItemType_All);
@@ -76,15 +74,14 @@ ITableTab* DisassemblerView::showExports(Qt::DockWidgetArea area)
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
-    return tabletab;
 }
 
-ITableTab* DisassemblerView::showImports(Qt::DockWidgetArea area)
+void DisassemblerView::showImports(Qt::DockWidgetArea area)
 {
     if(auto* t = this->findSymbolModelInTabs(SymbolType_Import, SymbolFlags_None))
     {
         m_disassemblertabs->setCurrentWidget(dynamic_cast<QWidget*>(t));
-        return t;
+        return;
     }
 
     auto* model = new SymbolTableModel(DocumentItemType_Symbol);
@@ -95,15 +92,14 @@ ITableTab* DisassemblerView::showImports(Qt::DockWidgetArea area)
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
-    return tabletab;
 }
 
-ITableTab* DisassemblerView::showStrings(Qt::DockWidgetArea area)
+void DisassemblerView::showStrings(Qt::DockWidgetArea area)
 {
     if(auto* t = this->findSymbolModelInTabs(SymbolType_String, SymbolFlags_None))
     {
         m_disassemblertabs->setCurrentWidget(dynamic_cast<QWidget*>(t));
-        return t;
+        return;
     }
 
     auto* model = new SymbolTableModel(DocumentItemType_Symbol);
@@ -114,16 +110,15 @@ ITableTab* DisassemblerView::showStrings(Qt::DockWidgetArea area)
 
     if(area == Qt::NoDockWidgetArea) this->tab(tabletab);
     else this->dock(tabletab, area);
-    return tabletab;
 }
 
 const RDContextPtr& DisassemblerView::context() const { return m_context; }
 
-ITableTab* DisassemblerView::findSymbolModelInTabs(rd_type type, rd_flag flags) const
+TableTab* DisassemblerView::findSymbolModelInTabs(rd_type type, rd_flag flags) const
 {
     for(int i = 0; i < m_disassemblertabs->count(); i++)
     {
-        auto* tabletab = dynamic_cast<ITableTab*>(m_disassemblertabs->widget(i));
+        auto* tabletab = dynamic_cast<TableTab*>(m_disassemblertabs->widget(i));
         if(!tabletab) continue;
 
         auto* symboltablemodel = dynamic_cast<SymbolTableModel*>(tabletab->model());

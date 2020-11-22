@@ -5,7 +5,6 @@
 #include <QMenu>
 #include <rdapi/rdapi.h>
 #include "../../hooks/disassemblerhooks.h"
-#include "../../hooks/itabletab.h"
 #include "../../redasmfonts.h"
 
 DisassemblerTabButton::DisassemblerTabButton(const RDContextPtr& ctx, QWidget* widget, QTabWidget* tabwidget, QWidget *parent) : QWidget(parent), m_context(ctx), m_tabwidget(tabwidget), m_widget(widget)

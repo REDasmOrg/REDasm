@@ -4,7 +4,7 @@
 #include <QSet>
 #include <future>
 #include <rdapi/rdapi.h>
-#include "../hooks/itabletab.h"
+#include "tabs/tabletab/tabletab.h"
 #include "disassemblertabs/disassemblertabs.h"
 
 class QDockWidget;
@@ -20,11 +20,11 @@ class DisassemblerView : public QWidget
         virtual ~DisassemblerView();
         QWidget* currentWidget() const;
         const RDContextPtr& context() const;
-        ITableTab* showSegments(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
-        ITableTab* showFunctions(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
-        ITableTab* showExports(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
-        ITableTab* showImports(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
-        ITableTab* showStrings(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
+        void showSegments(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
+        void showFunctions(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
+        void showExports(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
+        void showImports(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
+        void showStrings(Qt::DockWidgetArea area = Qt::NoDockWidgetArea);
         QWidget* showListing();
         bool focusOn(QWidget* w);
         void setContext(const RDContextPtr& ctx);
@@ -34,8 +34,8 @@ class DisassemblerView : public QWidget
         void tabify(QDockWidget* first, QDockWidget* second);
         void dock(QWidget* w, Qt::DockWidgetArea area);
         void undock(QDockWidget* dw);
-        template<typename T> ITableTab* findModelInTabs() const;
-        ITableTab* findSymbolModelInTabs(rd_type type, rd_flag flags) const;
+        template<typename T> TableTab* findModelInTabs() const;
+        TableTab* findSymbolModelInTabs(rd_type type, rd_flag flags) const;
         TableTab* createTable(ListingItemModel* model, const QString& title);
 
     private:
@@ -50,11 +50,9 @@ class DisassemblerView : public QWidget
 };
 
 template<typename T>
-ITableTab* DisassemblerView::findModelInTabs() const
-{
-    for(int i = 0; i < m_disassemblertabs->count(); i++)
-    {
-        auto* tabletab = dynamic_cast<ITableTab*>(m_disassemblertabs->widget(i));
+TableTab* DisassemblerView::findModelInTabs() const {
+    for(int i = 0; i < m_disassemblertabs->count(); i++) {
+        auto* tabletab = dynamic_cast<TableTab*>(m_disassemblertabs->widget(i));
         if(!tabletab) continue;
 
         if(dynamic_cast<T*>(tabletab->model())) return tabletab;

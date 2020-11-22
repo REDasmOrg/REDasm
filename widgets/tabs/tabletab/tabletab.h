@@ -2,7 +2,6 @@
 
 #include <QWidget>
 #include <QHeaderView>
-#include "../hooks/itabletab.h"
 
 namespace Ui {
 class TableTab;
@@ -11,17 +10,18 @@ class TableTab;
 class ListingItemModel;
 class QSortFilterProxyModel;
 
-class TableTab : public QWidget, public ITableTab
+class TableTab : public QWidget
 {
     Q_OBJECT
 
     public:
         explicit TableTab(ListingItemModel* model, QWidget *parent = nullptr);
-        virtual ~TableTab();
+        ~TableTab();
         void setSectionResizeMode(int idx, QHeaderView::ResizeMode mode);
         void setColumnHidden(int idx);
         void resizeColumn(int idx);
         void moveSection(int from, int to);
+        ListingItemModel* model() const;
 
     public slots:
         void resizeAllColumns();
@@ -32,9 +32,8 @@ class TableTab : public QWidget, public ITableTab
     protected:
         bool event(QEvent* e) override;
 
-    public: // ITableTab implementation
-        void toggleFilter() override;
-        ListingItemModel* model() const override;
+    private:
+        void setFilterVisible(bool b);
 
     signals:
         void resizeColumns();

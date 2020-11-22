@@ -17,7 +17,6 @@
 #include <QFileInfo>
 #include <rdapi/rdapi.h>
 #include "isurface.h"
-#include "itabletab.h"
 
 class DevDialog;
 class OutputDock;

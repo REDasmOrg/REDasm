@@ -3,7 +3,7 @@
 #include <QFontDatabase>
 #include <QColor>
 
-CallTreeModel::CallTreeModel(QObject *parent) : QAbstractItemModel(parent) { }
+CallTreeModel::CallTreeModel(QObject *parent) : ContextModel(parent) { }
 
 const RDDocumentItem& CallTreeModel::item(const QModelIndex& index) const
 {
@@ -11,19 +11,27 @@ const RDDocumentItem& CallTreeModel::item(const QModelIndex& index) const
     //return node->data;
 }
 
-void CallTreeModel::setContext(const RDContextPtr& ctx) { m_context = ctx; /* m_printer = r_asm->createPrinter(); */ }
-
 void CallTreeModel::initializeGraph(rd_address address)
 {
-    // REDasm::ListingItem item = r_doc->functionStart(address);
-    // if(m_currentitem == item) return;
+    if(!m_context) return;
 
-    // this->beginResetModel();
+    this->beginResetModel();
+
+    auto loc = RDContext_GetFunctionStart(m_context.get(), address);
+
+    if(loc.valid)
+    {
+
+    }
+    else
+    {
+
+    }
 
     // if(item.isValid()) m_calltree = std::make_unique<REDasm::CallTree>(item);
     // else m_calltree = nullptr;
 
-    // this->endResetModel();
+    this->endResetModel();
 }
 
 void CallTreeModel::populateCallGraph(const QModelIndex &index)
@@ -115,7 +123,7 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-int CallTreeModel::columnCount(const QModelIndex &parent) const { Q_UNUSED(parent) return 3; }
+int CallTreeModel::columnCount(const QModelIndex&) const { return 3; }
 
 int CallTreeModel::rowCount(const QModelIndex &parent) const
 {

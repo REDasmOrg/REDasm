@@ -233,5 +233,5 @@ GraphViewItem *ListingGraphView::itemFromCurrentLine() const
 SurfaceQt* ListingGraphView::selectedSurface() const
 {
     auto* item = static_cast<ListingBlockItem*>(this->selectedItem());
-    return item ? item->surface() : nullptr;
+    return item ? item->surface() : m_rootsurface;
 }

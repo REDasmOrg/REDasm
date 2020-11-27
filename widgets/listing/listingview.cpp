@@ -108,14 +108,14 @@ bool ListingView::eventFilter(QObject* object, QEvent* event)
 {
     if(event->type() != QEvent::KeyPress) return false;
 
+    QKeyEvent* keyevent = static_cast<QKeyEvent*>(event);
+    if(keyevent->key() != Qt::Key_Space) return false;
+
     std::unordered_set<QObject*> widgets = { m_textview->textWidget(),
                                              m_graphview,
                                              m_hexview };
 
     if(!widgets.count(object)) return false;
-
-    QKeyEvent* keyevent = static_cast<QKeyEvent*>(event);
-    if(keyevent->key() != Qt::Key_Space) return false;
 
     if(this->currentWidget() == m_hexview) this->switchToListing();
     else this->switchMode();

@@ -42,7 +42,9 @@ void DisassemblerTabs::onCloseClicked()
     for(int i = 0; i < this->tabBar()->count(); i++)
     {
         if(this->tabBar()->tabButton(i, QTabBar::RightSide) != sender) continue;
+        QWidget* w = this->widget(i);
         this->removeTab(i);
+        w->deleteLater();
         break;
     }
 }

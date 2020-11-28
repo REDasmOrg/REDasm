@@ -10,6 +10,11 @@ AnalyzerDialog::AnalyzerDialog(const RDContextPtr& ctx, QWidget *parent) : QDial
     ui->tvAnalyzers->setModel(m_analyzersmodel);
 
     this->getAnalyzers();
+    this->setOrderColumnVisible(false);
+
+    connect(ui->cbxShowOrder, &QCheckBox::stateChanged, this, [&](int state) {
+       this->setOrderColumnVisible(state == Qt::Checked);
+    });
 
     connect(m_analyzersmodel, &QStandardItemModel::itemChanged, this, &AnalyzerDialog::onAnalyzerItemChanged);
     connect(ui->pbSelectAll, &QPushButton::clicked, this, [&]() { this->selectAnalyzers(true); });
@@ -31,6 +36,8 @@ void AnalyzerDialog::selectAnalyzers(bool select)
         RDContext_SelectAnalyzer(m_context.get(), analyzer, select);
     }
 }
+
+void AnalyzerDialog::setOrderColumnVisible(bool v) { ui->tvAnalyzers->setColumnHidden(m_analyzersmodel->columnCount() - 1, !v); }
 
 void AnalyzerDialog::onAnalyzerItemChanged(QStandardItem* item)
 {

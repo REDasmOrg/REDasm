@@ -48,25 +48,6 @@
      <property name="spacing">
       <number>20</number>
      </property>
-     <property name="leftMargin">
-      <number>20</number>
-     </property>
-     <property name="rightMargin">
-      <number>20</number>
-     </property>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
      <item>
       <widget class="QPushButton" name="pbSelectAll">
        <property name="text">
@@ -100,6 +81,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cbxShowOrder">
+       <property name="text">
+        <string>Show Order</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

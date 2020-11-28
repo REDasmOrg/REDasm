@@ -19,6 +19,7 @@ class AnalyzerDialog : public QDialog
 
     private:
         void selectAnalyzers(bool select);
+        void setOrderColumnVisible(bool v);
 
     private slots:
         void onAnalyzerItemChanged(QStandardItem* item);

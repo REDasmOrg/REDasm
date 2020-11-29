@@ -57,9 +57,9 @@ void ListingView::switchToGraph()
 {
     RDDocumentItem item;
     if(!this->getCurrentItem(&item)) return;
+    if(!m_graphview->renderGraph(&item)) return;
 
     this->setCurrentWidget(m_graphview);
-    m_graphview->renderGraph(&item);
     m_graphview->setFocus();
 
     if(m_graphview->surface()) // Connect to the new surface

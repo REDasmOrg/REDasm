@@ -100,11 +100,11 @@ QVariant ListingItemModel::data(const QModelIndex &index, int role) const
 
                 if(HAS_FLAG(&symbol, SymbolFlags_WideString))
                 {
-                    auto* wptr = RD_ReadWString(this->disassembler(), symbol.address, &len);
+                    auto* wptr = RD_ReadWString(this->context().get(), symbol.address, &len);
                     return wptr ? ListingItemModel::escapeString(QString::fromUtf16(wptr, len)) : QVariant();
                 }
 
-                auto* ptr = RD_ReadString(this->disassembler(), symbol.address, &len);
+                auto* ptr = RD_ReadString(this->context().get(), symbol.address, &len);
                 return ptr ? ListingItemModel::escapeString(QString::fromLatin1(ptr, len)) : QVariant();
             }
 

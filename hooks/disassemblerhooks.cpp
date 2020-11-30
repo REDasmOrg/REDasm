@@ -226,8 +226,7 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
     this->clearOutput();
 
     req.buildparams = dlgloader.buildRequest();
-    RDDisassembler* disassembler = RDContext_BuildDisassembler(ctx.get(), &req, dlgloader.selectedLoaderEntry(), dlgloader.selectedAssemblerEntry());
-    if(!disassembler) return;
+    if(!RDContext_Bind(ctx.get(), &req, dlgloader.selectedLoaderEntry(), dlgloader.selectedAssemblerEntry())) return;
 
     const RDLoader* loader = RDContext_GetLoader(ctx.get());
     const RDAssembler* assembler = RDContext_GetAssembler(ctx.get());

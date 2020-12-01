@@ -5,14 +5,11 @@
 
 ListingPopupView::ListingPopupView(const RDContextPtr& ctx, QWidget *parent): QWidget(parent), m_context(ctx)
 {
-    QPalette palette = this->palette();
-    palette.setColor(QPalette::Base, palette.color(QPalette::ToolTipBase));
-    this->setPalette(palette);
     this->setFont(REDasmSettings::font());
     this->setCursor(Qt::ArrowCursor);
 
     QGraphicsDropShadowEffect* dropshadow = new QGraphicsDropShadowEffect(this);
-    dropshadow->setBlurRadius(5);
+    dropshadow->setBlurRadius(8);
     this->setGraphicsEffect(dropshadow);
 
     m_surface = new SurfacePainter(ctx, RendererFlags_Simplified, this);

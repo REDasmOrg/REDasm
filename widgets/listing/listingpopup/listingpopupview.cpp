@@ -1,15 +1,18 @@
 #include "listingpopupview.h"
 #include "../../../redasmsettings.h"
-#include <QGraphicsDropShadowEffect>
+#include "listingpopupshadow.h"
 #include <QPainter>
 
 ListingPopupView::ListingPopupView(const RDContextPtr& ctx, QWidget *parent): QWidget(parent), m_context(ctx)
 {
     this->setFont(REDasmSettings::font());
     this->setCursor(Qt::ArrowCursor);
+    this->setAutoFillBackground(true);
 
-    QGraphicsDropShadowEffect* dropshadow = new QGraphicsDropShadowEffect(this);
-    dropshadow->setBlurRadius(8);
+    auto* dropshadow = new ListingPopupShadow(this);
+    dropshadow->setBlurRadius(20.0);
+    dropshadow->setDistance(6.0);
+    dropshadow->setColor(QColor(0, 0, 0, 80));
     this->setGraphicsEffect(dropshadow);
 
     m_surface = new SurfacePainter(ctx, RendererFlags_Simplified, this);
@@ -47,8 +50,8 @@ void ListingPopupView::renderPopup()
     this->setFixedSize(sz);
 
     // Resize and offset parent
-    sz.rwidth() += POPUP_MARGIN;
-    sz.rheight() += POPUP_MARGIN;
+    sz.rwidth() += POPUP_MARGIN * 2;
+    sz.rheight() += POPUP_MARGIN * 2;
     this->parentWidget()->setFixedSize(sz);
 }
 

@@ -8,7 +8,7 @@ ListingPopup::ListingPopup(const RDContextPtr& ctx, QWidget *parent): QWidget(pa
     m_popupview = new ListingPopupView(ctx, this);
 
     QVBoxLayout* vboxlayout = new QVBoxLayout(this);
-    vboxlayout->setContentsMargins(0, 0, 0, 0);
+    vboxlayout->setMargin(POPUP_MARGIN);
     vboxlayout->addWidget(m_popupview);
     this->setLayout(vboxlayout);
 

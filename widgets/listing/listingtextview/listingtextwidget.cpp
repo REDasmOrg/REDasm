@@ -33,7 +33,7 @@ ListingTextWidget::ListingTextWidget(QWidget *parent): QAbstractScrollArea(paren
     this->verticalScrollBar()->setValue(0);
     this->verticalScrollBar()->setSingleStep(1);
     this->verticalScrollBar()->setPageStep(1);
-    this->horizontalScrollBar()->setSingleStep(this->fontMetrics().boundingRect(" ").width());
+    this->horizontalScrollBar()->setSingleStep(1);
     this->horizontalScrollBar()->setMinimum(0);
     this->horizontalScrollBar()->setValue(0);
 
@@ -71,6 +71,7 @@ void ListingTextWidget::setContext(const RDContextPtr& ctx)
 {
     m_context = ctx;
     m_document = RDContext_GetDocument(ctx.get());
+    this->verticalScrollBar()->setMaximum(RDDocument_GetSize(m_document));
 
     m_surface = new SurfacePainter(m_context, RendererFlags_Normal, this);
     connect(m_surface, &SurfacePainter::renderCompleted, this, [&]() { this->viewport()->update(); });
@@ -102,10 +103,7 @@ bool ListingTextWidget::hasSelection() const { return m_surface ? m_surface->has
 void ListingTextWidget::copy() const { if(m_surface) m_surface->copy(); }
 void ListingTextWidget::linkTo(ISurface* s) { if(m_surface) m_surface->linkTo(s->surface()); }
 void ListingTextWidget::unlink() { if(m_surface) m_surface->unlink(); }
-
-void ListingTextWidget::scrollContentsBy(int dx, int dy)
-{
-}
+void ListingTextWidget::scrollContentsBy(int dx, int dy) { if(m_surface) m_surface->scroll(-dy, -dx); }
 
 void ListingTextWidget::focusInEvent(QFocusEvent* event)
 {

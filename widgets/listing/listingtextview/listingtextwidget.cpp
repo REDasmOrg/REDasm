@@ -73,7 +73,7 @@ void ListingTextWidget::setContext(const RDContextPtr& ctx)
     m_document = RDContext_GetDocument(ctx.get());
     this->verticalScrollBar()->setMaximum(RDDocument_GetSize(m_document));
 
-    m_surface = new SurfacePainter(m_context, RendererFlags_Normal, this);
+    m_surface = new SurfacePainter(m_context, RendererFlags_CenterOnSurface, this);
     connect(m_surface, &SurfacePainter::renderCompleted, this, [&]() { this->viewport()->update(); });
     m_disassemblerpopup = new ListingPopup(m_context, this);
     m_surface->activateCursor(true);

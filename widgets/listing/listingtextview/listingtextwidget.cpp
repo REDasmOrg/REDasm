@@ -36,9 +36,6 @@ ListingTextWidget::ListingTextWidget(QWidget *parent): QAbstractScrollArea(paren
     this->horizontalScrollBar()->setSingleStep(1);
     this->horizontalScrollBar()->setMinimum(0);
     this->horizontalScrollBar()->setValue(0);
-
-    int maxwidth = qApp->primaryScreen()->size().width();
-    this->horizontalScrollBar()->setMaximum(maxwidth);
 }
 
 QWidget* ListingTextWidget::widget() { return this; }
@@ -71,10 +68,19 @@ void ListingTextWidget::setContext(const RDContextPtr& ctx)
 {
     m_context = ctx;
     m_document = RDContext_GetDocument(ctx.get());
-    this->verticalScrollBar()->setMaximum(RDDocument_GetSize(m_document));
 
     m_surface = new SurfacePainter(m_context, RendererFlags_CenterOnSurface, this);
     connect(m_surface, &SurfacePainter::renderCompleted, this, [&]() { this->viewport()->update(); });
+    connect(m_surface, &SurfacePainter::scrollChanged, this, [&]() { this->adjustScrollBars(); });
+
+    connect(m_surface, &SurfacePainter::positionChanged, this, [&]() {
+        this->verticalScrollBar()->blockSignals(true);
+        this->verticalScrollBar()->setSliderPosition(m_surface->scrollValue());
+        this->verticalScrollBar()->blockSignals(false);
+    });
+
+    this->adjustScrollBars();
+
     m_disassemblerpopup = new ListingPopup(m_context, this);
     m_surface->activateCursor(true);
 }
@@ -85,25 +91,19 @@ bool ListingTextWidget::goToAddress(rd_address address)
     return m_surface->goToAddress(address);
 }
 
-bool ListingTextWidget::goTo(const RDDocumentItem* item)
-{
-    if(!m_surface) return false;
-    return m_surface->goTo(item);
-}
-
-bool ListingTextWidget::seek(const RDDocumentItem* item)
-{
-    if(!m_surface) return false;
-    return m_surface->seek(item);
-}
-
+bool ListingTextWidget::goTo(const RDDocumentItem* item) { return m_surface ? m_surface->goTo(item) : false; }
+bool ListingTextWidget::seek(const RDDocumentItem* item) { return m_surface ? m_surface->seek(item) : false; }
 void ListingTextWidget::goBack() { if(m_surface) m_surface->goBack(); }
 void ListingTextWidget::goForward() { if(m_surface) m_surface->goForward(); }
 bool ListingTextWidget::hasSelection() const { return m_surface ? m_surface->hasSelection() : false;  }
 void ListingTextWidget::copy() const { if(m_surface) m_surface->copy(); }
 void ListingTextWidget::linkTo(ISurface* s) { if(m_surface) m_surface->linkTo(s->surface()); }
 void ListingTextWidget::unlink() { if(m_surface) m_surface->unlink(); }
-void ListingTextWidget::scrollContentsBy(int dx, int dy) { if(m_surface) m_surface->scroll(-dy, -dx); }
+
+void ListingTextWidget::scrollContentsBy(int dx, int dy)
+{
+    if(m_surface) m_surface->scroll(-dy, -dx);
+}
 
 void ListingTextWidget::focusInEvent(QFocusEvent* event)
 {
@@ -132,8 +132,8 @@ void ListingTextWidget::paintEvent(QPaintEvent *event)
 void ListingTextWidget::resizeEvent(QResizeEvent *event)
 {
     QAbstractScrollArea::resizeEvent(event);
-    //this->adjustScrollBars();
     if(m_surface) m_surface->resize();
+    this->adjustScrollBars();
 }
 
 void ListingTextWidget::mousePressEvent(QMouseEvent *event)
@@ -279,13 +279,9 @@ bool ListingTextWidget::followUnderCursor()
 
 void ListingTextWidget::adjustScrollBars()
 {
-    if(!m_context) return;
-
-    // QScrollBar* vscrollbar = this->verticalScrollBar();
-    // size_t vl = this->visibleLines(), count = RDDocument_ItemsCount(m_document);
-
-    // if(count <= vl) vscrollbar->setMaximum(static_cast<int>(count));
-    // else vscrollbar->setMaximum(static_cast<int>(count - vl + 1));
+    if(!m_context || !m_surface) return;
+    this->verticalScrollBar()->setMaximum(m_surface->scrollLength());
+    this->horizontalScrollBar()->setMaximum(this->width() * 2);
 }
 
 void ListingTextWidget::showPopup(const QPointF& pt)

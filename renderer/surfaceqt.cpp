@@ -25,6 +25,7 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
         switch(event->id) {
             case Event_SurfaceUpdated: thethis->render(); break;
             case Event_SurfaceHistoryChanged: emit thethis->historyChanged(); break;
+            case Event_SurfaceScrollChanged: emit thethis->scrollChanged(); break;
 
             case Event_SurfacePositionChanged: {
                 auto* hooks = DisassemblerHooks::instance();
@@ -39,6 +40,8 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
 }
 
 SurfaceQt::~SurfaceQt() { RDObject_Unsubscribe(m_surface.get(), this); }
+int SurfaceQt::scrollLength() const { return RDSurface_GetScrollLength(m_surface.get()); }
+int SurfaceQt::scrollValue() const { return RDSurface_GetScrollValue(m_surface.get()); }
 int SurfaceQt::rows() const { return this->widget()->height() / m_cellsize.height(); }
 
 QSize SurfaceQt::size() const

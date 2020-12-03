@@ -15,6 +15,8 @@ class SurfaceQt : public QObject
     public:
         explicit SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent = nullptr);
         ~SurfaceQt();
+        int scrollLength() const;
+        int scrollValue() const;
         int rows() const;
         QSize size() const;
         const QColor& baseColor() const;
@@ -65,6 +67,7 @@ class SurfaceQt : public QObject
     signals:
         void renderCompleted();
         void positionChanged();
+        void scrollChanged();
         void historyChanged();
 
     private:

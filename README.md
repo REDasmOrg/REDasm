@@ -46,7 +46,7 @@ REDasm is still under heavy development, currently is supports:
 - Multithreaded analysis
 - Binary lifting and intermediate language analysis (RDIL)
 - *Loaders*
-  - Portable Executable (VB Decompiler)
+  - Portable Executable (with VB decompilation too)
   - ELF
   - PS1 Executables
 - *Assemblers*

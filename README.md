@@ -36,7 +36,6 @@ plugins developed in C, C++ and Python3 (you can also support new languages if y
 LibREDasm also provides a plain C API for maximum ABI compatibility and a C++17 core.<br>
 <br>
 <p align="right"><i>Tested on Windows and Linux.</i></p>
-<br>
 <p align="center">
   <img src="https://raw.githubusercontent.com/REDasmOrg/REDasm/master/artwork/Preview_20201204.png">
 </p>

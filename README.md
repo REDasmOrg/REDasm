@@ -19,8 +19,8 @@
 
 # NOTE
 Branches are currently rotated for 3.0 development so it doesn't break distro packages:
-* `noplugin` is the stable branch
-* `master` this is the active branch where 3.0 development lies
+* [noplugin](https://github.com/REDasmOrg/REDasm/tree/noplugin) is the stable branch.
+* [master](https://github.com/REDasmOrg/REDasm/tree/master) this is the active branch where 3.0 development lies.
 
 ## Introduction
 REDasm is an interactive, multiarchitecture disassembler written in modern C++11 using Qt5 as UI Framework, its core is modular and it can be easily extended in order to support new [file formats](https://github.com/REDasmOrg/REDasm/wiki/Writing-a-FormatPlugin) and [instruction sets](https://github.com/REDasmOrg/REDasm/wiki/Writing-an-AssemblerPlugin).<br>

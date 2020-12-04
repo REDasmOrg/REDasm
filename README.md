@@ -18,7 +18,7 @@
 </p>
 
 # NOTE
-Branches are currently rotated for 3.0 development so it doesn't break distro packages, so:
+Branches are currently rotated for 3.0 development so it doesn't break distro packages:
 * `noplugin` is the stable branch
 * `master` this is the active branch where 3.0 development lies
 

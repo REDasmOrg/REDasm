@@ -33,7 +33,7 @@ REDasm is a cross platform disassembler with a modern codebase useful
 from the hobbist to the professional reverse engineer.<br>
 All features are provided by <a href="https://github.com/REDasmOrg/REDasm-Library/tree/master">LibREDasm</a> which loads
 plugins developed in C, C++ and Python3 (you can also support new languages if you want!) and an user friendly Qt frontend.<br>
-LibREDasm also provides a plain C API for maximum ABI compatibility and a C++17 core.<br>
+LibREDasm also provides a plain C API for maximum ABI compatibility along with a C++17 core.<br>
 <br>
 <p align="right"><i>Tested on Windows and Linux.</i></p>
 <p align="center">

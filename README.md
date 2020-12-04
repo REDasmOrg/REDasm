@@ -34,8 +34,9 @@ from the hobbist to the professional reverse engineer.<br>
 All features are provided by <a href="https://github.com/REDasmOrg/REDasm-Library">LibREDasm</a> which loads
 plugins developed in C, C++ and Python3 (you can also support new languages if you want!) and a user friendly Qt frontend.<br>
 LibREDasm also provides a plain C API for maximum ABI compatbility and a C++17 core.
+<br>
 <p align="right"><i>Tested on Windows and Linux.</i></p>
-
+<br>
 <p align="center">
   <img src="https://raw.githubusercontent.com/REDasmOrg/REDasm/master/artwork/Preview_20201204.png">
 </p>

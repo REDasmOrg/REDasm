@@ -126,7 +126,7 @@ bool ListingGraphView::renderGraph(const RDDocumentItem* item)
     if(!RDDocument_GetFunctionGraph(doc, loc.address, &graph))
     {
         m_currentfunction = std::nullopt;
-        RD_Log(qUtf8Printable(QString("Graph rendering failed @ %1").arg(RD_ToHexAuto(loc.address))));
+        RD_Log(qUtf8Printable(QString("Graph rendering failed @ %1").arg(RD_ToHexAuto(m_context.get(), loc.address))));
         return false;
     }
 

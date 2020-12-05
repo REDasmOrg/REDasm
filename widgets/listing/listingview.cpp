@@ -168,7 +168,7 @@ void ListingView::adjustActions()
             actions[ListingView::Action_CreateFunction]->setVisible(hascurrentsegment && HAS_FLAG(&currentsegment, SegmentFlags_Code));
 
             if(hascurrentsegment)
-                actions[ListingView::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(currentaddress)));
+                actions[ListingView::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(surface->context().get(), currentaddress)));
         }
         else
             actions[ListingView::Action_CreateFunction]->setVisible(false);
@@ -186,7 +186,7 @@ void ListingView::adjustActions()
     const char* symbolname = RDDocument_GetSymbolName(doc, symbol.address);
     bool hassymbolsegment = RDDocument_GetSegmentAddress(doc, symbol.address, &symbolsegment);
 
-    actions[ListingView::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(symbol.address)));
+    actions[ListingView::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(surface->context().get(), symbol.address)));
 
     actions[ListingView::Action_CreateFunction]->setVisible(!RDContext_IsBusy(surface->context().get()) &&
                                                             (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
@@ -231,7 +231,7 @@ QMenu* ListingView::createActions(ISurface* surface)
 
         bool ok = false;
         QString res = QInputDialog::getText(surface->widget(),
-                                            "Rename @ " + QString::fromStdString(rd_tohexauto(symbol.address)),
+                                            "Rename @ " + QString::fromStdString(rd_tohexauto(surface->context().get(), symbol.address)),
                                             "Symbol name:", QLineEdit::Normal, symbolname, &ok);
 
         if(!ok) return;
@@ -246,7 +246,7 @@ QMenu* ListingView::createActions(ISurface* surface)
 
         bool ok = false;
         QString res = QInputDialog::getMultiLineText(surface->widget(),
-                                                     "Comment @ " + QString::fromStdString(rd_tohexauto(item.address)),
+                                                     "Comment @ " + QString::fromStdString(rd_tohexauto(surface->context().get(), item.address)),
                                                      "Insert a comment (leave blank to remove):",
                                                      RDDocument_GetComments(doc, item.address, "\n"), &ok);
 

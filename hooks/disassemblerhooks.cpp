@@ -145,8 +145,8 @@ void DisassemblerHooks::statusAddress(const SurfaceQt* surface) const
     RDLocation offset = RD_Offset(ldr, item.address);
 
     QString segm = hassegment ? segment.name : "UNKNOWN",
-            offs = hassegment && offset.valid ? RD_ToHexAuto(offset.value) : "UNKNOWN",
-            addr = RD_ToHexAuto(item.address);
+            offs = hassegment && offset.valid ? RD_ToHexAuto(surface->context().get(), offset.value) : "UNKNOWN",
+            addr = RD_ToHexAuto(surface->context().get(), item.address);
 
     QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);

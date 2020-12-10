@@ -310,7 +310,11 @@ QMenu* ListingView::createActions(ISurface* surface)
     contextmenu->addSeparator();
     actions[ListingView::Action_Copy] = contextmenu->addAction("Copy", this, [surface]() { surface->copy(); }, QKeySequence(QKeySequence::Copy));
 
-    for(auto& [type, action] : actions) action->setData(type);
+    for(auto& [type, action] : actions)
+    {
+        action->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+        action->setData(type);
+    }
 
     surface->widget()->addAction(actions[ListingView::Action_Rename]);
     surface->widget()->addAction(actions[ListingView::Action_XRefs]);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QSet>
 #include <QDialog>
 #include <QToolBar>
 #include <unordered_set>
@@ -35,7 +36,7 @@ class DatabaseDialog: public QDialog
 
     private:
         Ui::DatabaseDialog *ui;
-        std::unordered_set<QString> m_loadeddb;
+        QSet<QString> m_loadeddb;
         DatabaseModel* m_databasemodel;
         QToolBar* m_toolbar;
 };

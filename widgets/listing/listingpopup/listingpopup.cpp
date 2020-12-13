@@ -48,7 +48,7 @@ void ListingPopup::mouseMoveEvent(QMouseEvent* event)
 
 void ListingPopup::wheelEvent(QWheelEvent* event)
 {
-    m_lastpos = event->globalPosition();
+    m_lastpos = event->globalPos();
     QPoint delta = event->angleDelta();
 
     if(delta.y() > 0) m_popupview->lessRows();

@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     m_lblstatusicon->setObjectName(HOOK_STATUS_ICON);
     m_lblstatusicon->setFixedHeight(ui->statusBar->height() * 0.8);
     m_lblstatusicon->setFont(FA_FONT);
-    m_lblstatusicon->setText("\uf017");
+    m_lblstatusicon->setText(u8"\uf017");
     m_lblstatusicon->setVisible(false);
 
     m_pbrenderer = new QPushButton(this);

@@ -109,7 +109,7 @@ void DatabaseDialog::checkBackForward()
 
 void DatabaseDialog::checkDatabase(const QString& filepath)
 {
-    if(m_loadeddb.count(filepath)) return;
+    if(m_loadeddb.contains(filepath)) return;
     m_loadeddb.insert(filepath);
 
     RDDatabase* db = RDDatabase_Open(qUtf8Printable(filepath));

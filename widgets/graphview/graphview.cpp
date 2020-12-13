@@ -1,6 +1,7 @@
 #include "graphview.h"
 #include <rdapi/graph/layout.h>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <QScrollBar>
 #include <QPainter>
 #include <cmath>
@@ -158,12 +159,12 @@ void GraphView::wheelEvent(QWheelEvent *event)
         if(nsteps.y() > 0)
         {
             m_scaledirection = 1;
-            this->zoomIn(event->position());
+            this->zoomIn(event->pos());
         }
         else if(nsteps.y() < 0)
         {
             m_scaledirection = -1;
-            this->zoomOut(event->position());
+            this->zoomOut(event->pos());
         }
 
         event->accept();

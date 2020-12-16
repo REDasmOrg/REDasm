@@ -38,10 +38,11 @@ bool DatabaseDataModel::canGoForward() const { return !m_forward.empty(); }
 
 bool DatabaseDataModel::decompile(QByteArray& data)
 {
-    const u8* decompiled = nullptr;
-    size_t c = RDDatabase_DecompileFile(RDDatabase_GetFilePath(m_db), &decompiled);
-    if(c) data = QByteArray::fromRawData(reinterpret_cast<const char*>(decompiled), c);
-    return c;
+    const char* decompiled = RDDatabase_Decompile(m_db);
+    if(!decompiled) return false;
+
+    data = QByteArray(decompiled);
+    return true;
 }
 
 void DatabaseDataModel::goForward()

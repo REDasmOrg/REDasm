@@ -5,6 +5,7 @@
 #include <QToolBar>
 #include <unordered_set>
 #include <rdapi/rdapi.h>
+#include "../hooks/isurface.h"
 
 class DatabaseModel;
 
@@ -17,7 +18,7 @@ class DatabaseDialog: public QDialog
     Q_OBJECT
 
     public:
-        explicit DatabaseDialog(QWidget *parent = nullptr);
+        explicit DatabaseDialog(const RDContextPtr& ctx, QWidget *parent = nullptr);
         ~DatabaseDialog();
 
     protected:
@@ -27,6 +28,7 @@ class DatabaseDialog: public QDialog
 
     private:
         void checkDatabase(const QString& filepath);
+        void addDatabase(RDDatabase* db);
 
     private slots:
         void onDatabaseDataDoubleClicked(const QModelIndex& index);

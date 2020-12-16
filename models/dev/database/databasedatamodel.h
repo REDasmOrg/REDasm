@@ -31,9 +31,10 @@ class DatabaseDataModel : public QAbstractListModel
         void query();
 
     private:
-        void query(const std::filesystem::path &q);
-        QString objectValue(const QJsonValue& v) const;
         bool isClickable(const QModelIndex& index) const;
+        void query(const std::filesystem::path &q);
+        void typeData(const RDDatabaseValue* val);
+        QString objectValue(const QJsonValue& v) const;
         QVariant objectData(const QModelIndex& index, int role) const;
         QVariant arrayData(const QModelIndex& index, int role) const;
         QVariant commonData(const QModelIndex& index, int role) const;

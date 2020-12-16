@@ -90,6 +90,18 @@ void DatabaseDataModel::query(const QModelIndex& index)
 
 void DatabaseDataModel::query(const fs::path& q) { m_query = q; this->query(); }
 
+void DatabaseDataModel::typeData(const RDDatabaseValue* val)
+{
+    switch(RDType_GetType(val->t))
+    {
+        case Type_Structure: {
+            break;
+        }
+
+        default: break;
+    }
+}
+
 void DatabaseDataModel::query()
 {
     this->beginResetModel();
@@ -105,15 +117,19 @@ void DatabaseDataModel::query()
 
         switch(val.type)
         {
+            case DatabaseValueType_Array:
+                doc = QJsonDocument::fromJson(QByteArray::fromRawData(val.arr, std::strlen(val.obj))); break;
+                m_arr = doc.array();
+                break;
+
             case DatabaseValueType_Object:
                 doc = QJsonDocument::fromJson(QByteArray::fromRawData(val.obj, std::strlen(val.obj)));
                 m_obj = doc.object();
                 m_objkeys = m_obj.keys();
                 break;
 
-            case DatabaseValueType_Array:
-                doc = QJsonDocument::fromJson(QByteArray::fromRawData(val.arr, std::strlen(val.obj))); break;
-                m_arr = doc.array();
+            case DatabaseValueType_Type:
+                this->typeData(&val);
                 break;
 
             default: break;

@@ -8,7 +8,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 
-DatabaseDialog::DatabaseDialog(QWidget *parent) : QDialog(parent), ui(new Ui::DatabaseDialog)
+DatabaseDialog::DatabaseDialog(const RDContextPtr& ctx, QWidget *parent) : QDialog(parent), ui(new Ui::DatabaseDialog)
 {
     ui->setupUi(this);
     this->setAcceptDrops(true);
@@ -67,6 +67,8 @@ DatabaseDialog::DatabaseDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Da
         QDirIterator it(path, {"*" DATABASE_RDB_EXT}, QDir::Files, QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
         while(it.hasNext()) thethis->checkDatabase(it.next());
     }, this);
+
+    if(ctx) this->addDatabase(RDContext_GetDatabase(ctx.get()));
 }
 
 DatabaseDialog::~DatabaseDialog() { delete ui; }
@@ -113,8 +115,11 @@ void DatabaseDialog::checkDatabase(const QString& filepath)
     m_loadeddb.insert(filepath);
 
     RDDatabase* db = RDDatabase_Open(qUtf8Printable(filepath));
-    if(!db) return;
+    if(db) this->addDatabase(db);
+}
 
+void DatabaseDialog::addDatabase(RDDatabase* db)
+{
     QModelIndex index = m_databasemodel->addDatabase(db);
     if(ui->twDatabaseData->model()) return;
 

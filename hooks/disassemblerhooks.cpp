@@ -81,7 +81,7 @@ void DisassemblerHooks::showDeveloperTools() { if(m_devdialog) m_devdialog->show
 
 void DisassemblerHooks::showDatabase()
 {
-    DatabaseDialog dbdialog(m_mainwindow);
+    DatabaseDialog dbdialog(this->activeContext(), m_mainwindow);
     dbdialog.exec();
 }
 

@@ -105,7 +105,7 @@ void DatabaseDataModel::typeData(const RDDatabaseValue* val)
                 auto* arr = reinterpret_cast<QJsonArray*>(userdata);
 
                 arr->push_back(QJsonObject{
-                    { KEY_FIELD, RDType_GetName(t) },
+                    { KEY_FIELD, RDType_GetTypeName(t) },
                     { VALUE_FIELD, name },
                     { TYPE_FIELD, true },
                 });

@@ -79,7 +79,10 @@ QString GotoModel::itemName(const RDDocumentItem& item) const
         if(name) return RD_Demangle(name);
     }
     else if(IS_TYPE(&item, DocumentItemType_Type))
-        return "TODO"; //TODO: Convert::to_qstring(r_doc->type(item.address));
+    {
+        const RDType* t = RDDocument_GetType(m_document, item.address);
+        if(t) return QString("%1 %2").arg(RDType_GetTypeName(t), RDType_GetName(t));
+    }
 
     return QString();
 }

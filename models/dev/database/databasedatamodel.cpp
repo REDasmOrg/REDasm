@@ -5,6 +5,10 @@
 #include "../../../themeprovider.h"
 #include "../../../redasmfonts.h"
 
+#define KEY_FIELD   "Key"
+#define VALUE_FIELD "Value"
+#define TYPE_FIELD  "type"
+
 namespace fs = std::filesystem;
 
 DatabaseDataModel::DatabaseDataModel(RDDatabase* db, QObject *parent): QAbstractListModel(parent), m_db(db), m_query("/") { }
@@ -18,8 +22,8 @@ QVariant DatabaseDataModel::headerData(int section, Qt::Orientation orientation,
 
     switch(section)
     {
-        case 0: return "Key";
-        case 1: return "Value";
+        case 0: return KEY_FIELD;
+        case 1: return VALUE_FIELD;
         default: break;
     }
 
@@ -92,13 +96,28 @@ void DatabaseDataModel::query(const fs::path& q) { m_query = q; this->query(); }
 
 void DatabaseDataModel::typeData(const RDDatabaseValue* val)
 {
-    switch(RDType_GetType(val->t))
+    auto t = RDType_GetType(val->t);
+
+    switch(t)
     {
         case Type_Structure: {
+            RDStructure_GetFields(val->t, [](const char* name, const RDType* t, void* userdata) {
+                auto* arr = reinterpret_cast<QJsonArray*>(userdata);
+
+                arr->push_back(QJsonObject{
+                    { KEY_FIELD, RDType_GetName(t) },
+                    { VALUE_FIELD, name },
+                    { TYPE_FIELD, true },
+                });
+
+                return true;
+            }, &m_arr);
             break;
         }
 
-        default: break;
+        default:
+            rd_log("Unknown Type: '" + std::to_string(t) + "'");
+            break;
     }
 }
 
@@ -118,7 +137,7 @@ void DatabaseDataModel::query()
         switch(val.type)
         {
             case DatabaseValueType_Array:
-                doc = QJsonDocument::fromJson(QByteArray::fromRawData(val.arr, std::strlen(val.obj))); break;
+                doc = QJsonDocument::fromJson(QByteArray::fromRawData(val.arr, std::strlen(val.obj)));
                 m_arr = doc.array();
                 break;
 
@@ -166,7 +185,8 @@ bool DatabaseDataModel::isClickable(const QModelIndex& index) const
     else if(!m_arr.isEmpty())
     {
         const auto& v = m_arr[index.row()];
-        return v.isArray() || v.isObject();
+        if(v.isObject()) return !v.toObject().contains(TYPE_FIELD);
+        return v.isArray();
     }
 
     return false;
@@ -208,22 +228,43 @@ QVariant DatabaseDataModel::objectData(const QModelIndex& index, int role) const
 
 QVariant DatabaseDataModel::arrayData(const QModelIndex& index, int role) const
 {
-    // if(role == Qt::DecorationRole)
-    // {
-    //     const auto& v = m_arr[index.row()];
+    const auto& v = m_arr[index.row()];
 
-    //     if(v.isObject()) return FA_ICON(0xf1b3);
-    //     else if(v.isArray()) return FA_ICON(0xf00b);
-    // }
-    // else if(role == Qt::DisplayRole) return m_arr[index.row()];
+    if((role == Qt::DecorationRole) && (index.column() == 0))
+    {
+        if(v.isObject())
+        {
+            const auto obj = v.toObject();
+            if(!obj.contains(TYPE_FIELD)) return FA_ICON(0xf1b3);
+        }
+        else if(v.isArray()) return FA_ICON(0xf00b);
+    }
+    else if(role == Qt::DisplayRole)
+    {
+        if(!v.isObject())
+        {
+            if(index.column() == 0) return QString::number(index.row());
+            else if(index.column() == 1) return m_arr[index.row()];
+        }
+
+        const auto obj = v.toObject();
+
+        if(index.column() == 0)
+        {
+            if(obj.contains(KEY_FIELD)) return obj[KEY_FIELD];
+            else return QString::number(index.row());
+        }
+        else if(index.column() == 1)
+        {
+            if(obj.contains(VALUE_FIELD)) return obj[VALUE_FIELD];
+            else return obj;
+        }
+    }
 
     return this->commonData(index, role);
 }
 
-QVariant DatabaseDataModel::commonData(const QModelIndex& index, int role) const
-{
-    return QVariant();
-}
+QVariant DatabaseDataModel::commonData(const QModelIndex& index, int role) const { return QVariant(); }
 
 QVariant DatabaseDataModel::data(const QModelIndex &index, int role) const
 {

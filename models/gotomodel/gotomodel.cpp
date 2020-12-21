@@ -80,7 +80,7 @@ QString GotoModel::itemName(const RDDocumentItem& item) const
     }
     else if(IS_TYPE(&item, DocumentItemType_Type))
     {
-        const RDType* t = RDDocument_GetType(m_document, item.address);
+        const RDType* t = RDDocument_GetType(m_document, &item);
         if(t) return QString("%1 %2").arg(RDType_GetTypeName(t), RDType_GetName(t));
     }
 

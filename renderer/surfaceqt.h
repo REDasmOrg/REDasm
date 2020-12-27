@@ -15,6 +15,8 @@ class SurfaceQt : public QObject
     public:
         explicit SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent = nullptr);
         ~SurfaceQt();
+        bool containsAddress(rd_address address) const;
+        bool contains(const RDDocumentItem* item) const;
         int scrollLength() const;
         int scrollValue() const;
         int rows() const;

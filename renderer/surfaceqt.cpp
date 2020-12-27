@@ -40,6 +40,8 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
 }
 
 SurfaceQt::~SurfaceQt() { RDObject_Unsubscribe(m_surface.get(), this); }
+bool SurfaceQt::containsAddress(rd_address address) const { return RDSurface_ContainsAddress(m_surface.get(), address); }
+bool SurfaceQt::contains(const RDDocumentItem* item) const { return RDSurface_Contains(m_surface.get(), item); }
 int SurfaceQt::scrollLength() const { return RDSurface_GetScrollLength(m_surface.get()); }
 int SurfaceQt::scrollValue() const { return RDSurface_GetScrollValue(m_surface.get()); }
 int SurfaceQt::rows() const { return this->widget()->height() / m_cellsize.height(); }

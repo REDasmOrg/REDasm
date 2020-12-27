@@ -289,6 +289,9 @@ void ListingTextWidget::showPopup(const QPointF& pt)
     if(!m_surface || !RDDocument_GetSize(m_document)) return;
 
     RDSymbol symbol;
-    if(m_surface->getSymbolAt(pt, &symbol)) m_disassemblerpopup->popup(&symbol);
-    else m_disassemblerpopup->hide();
+
+    if(m_surface->getSymbolAt(pt, &symbol) && !m_surface->containsAddress(symbol.address))
+        m_disassemblerpopup->popup(&symbol);
+    else
+        m_disassemblerpopup->hide();
 }

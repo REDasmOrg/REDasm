@@ -22,10 +22,11 @@ class ReferencesModel : public ContextModel
         void clear();
 
     private:
+        QString referenceFlags(const RDReference& reference) const;
         QString direction(rd_address address) const;
 
     private:
         SurfaceQt* m_surface;
-        const rd_address* m_references{nullptr};
+        const RDReference* m_references{nullptr};
         size_t m_referencescount{0};
 };

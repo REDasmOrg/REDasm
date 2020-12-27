@@ -2,7 +2,7 @@
 #include <QColor>
 #include "../themeprovider.h"
 
-#define ADD_SEGMENT_TYPE(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
+#define ADD_SEGMENT_FLAG(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 
 SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(DocumentItemType_Segment, parent) { }
 
@@ -67,8 +67,8 @@ int SegmentsModel::columnCount(const QModelIndex &) const { return 8; }
 QString SegmentsModel::segmentFlags(const RDSegment& segment)
 {
     QString s;
-    if(HAS_FLAG(&segment, SegmentFlags_Code)) ADD_SEGMENT_TYPE(s, "CODE")
-    if(HAS_FLAG(&segment, SegmentFlags_Data)) ADD_SEGMENT_TYPE(s, "DATA")
-    if(HAS_FLAG(&segment, SegmentFlags_Bss))  ADD_SEGMENT_TYPE(s, "BSS")
+    if(HAS_FLAG(&segment, SegmentFlags_Code)) ADD_SEGMENT_FLAG(s, "CODE")
+    if(HAS_FLAG(&segment, SegmentFlags_Data)) ADD_SEGMENT_FLAG(s, "DATA")
+    if(HAS_FLAG(&segment, SegmentFlags_Bss))  ADD_SEGMENT_FLAG(s, "BSS")
     return s;
 }

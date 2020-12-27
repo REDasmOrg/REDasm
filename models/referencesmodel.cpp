@@ -4,6 +4,8 @@
 #include "../renderer/surfaceqt.h"
 #include <array>
 
+#define ADD_REFERENCE_FLAG(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
+
 ReferencesModel::ReferencesModel(QObject *parent): ContextModel(parent)
 {
     m_surface = DisassemblerHooks::instance()->activeSurface();
@@ -15,6 +17,15 @@ void ReferencesModel::clear()
     m_referencescount = 0;
     m_references = nullptr;
     this->endResetModel();
+}
+
+QString ReferencesModel::referenceFlags(const RDReference& reference) const
+{
+    QString s;
+    if(HAS_FLAG(&reference, ReferenceFlags_Direct))   ADD_REFERENCE_FLAG(s, "DIRECT");
+    if(HAS_FLAG(&reference, ReferenceFlags_Indirect)) ADD_REFERENCE_FLAG(s, "INDIRECT");
+    if(HAS_FLAG(&reference, ReferenceFlags_Manual))   ADD_REFERENCE_FLAG(s, "MANUAL");
+    return s;
 }
 
 void ReferencesModel::xref(rd_address address)
@@ -32,7 +43,7 @@ QModelIndex ReferencesModel::index(int row, int column, const QModelIndex&) cons
 {
     if(row >= static_cast<int>(m_referencescount)) return QModelIndex();
 
-    return this->createIndex(row, column, m_references[row]);
+    return this->createIndex(row, column, m_references[row].address);
 }
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
@@ -46,7 +57,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
     RDDocument* doc = RDContext_GetDocument(m_context.get());
     RDDocumentItem item;
 
-    if(!RDDocument_GetAny(doc, m_references[index.row()], TYPES.data(), &item))
+    if(!RDDocument_GetAny(doc, m_references[index.row()].address, TYPES.data(), &item))
         return QVariant();
 
     if(role == Qt::DisplayRole)
@@ -58,6 +69,7 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
             if(IS_TYPE(&item, DocumentItemType_Instruction)) return RD_GetInstruction(m_context.get(), item.address);
             else if(IS_TYPE(&item, DocumentItemType_Symbol)) return RDDocument_GetSymbolName(doc, item.address);
         }
+        else if(index.column() == 3) return this->referenceFlags(m_references[index.row()]);
     }
     else if(role == Qt::ForegroundRole)
     {
@@ -84,6 +96,8 @@ QVariant ReferencesModel::data(const QModelIndex &index, int role) const
             }
         }
     }
+    else if((role == Qt::TextAlignmentRole) && (index.column() == 3))
+        return Qt::AlignCenter;
 
     return QVariant();
 }
@@ -96,12 +110,13 @@ QVariant ReferencesModel::headerData(int section, Qt::Orientation orientation, i
     if(section == 0) return "Address";
     else if(section == 1) return "Direction";
     else if(section == 2) return "Reference";
+    else if(section == 3) return "Flags";
 
     return QVariant();
 }
 
 int ReferencesModel::rowCount(const QModelIndex &) const { return m_referencescount; }
-int ReferencesModel::columnCount(const QModelIndex &) const { return 3; }
+int ReferencesModel::columnCount(const QModelIndex &) const { return 4; }
 
 QString ReferencesModel::direction(rd_address address) const
 {

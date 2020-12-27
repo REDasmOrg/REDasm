@@ -15,6 +15,7 @@ ReferencesDialog::ReferencesDialog(const RDContextPtr& ctx, ISurface* surface, c
     m_referencesmodel->xref(symbol->address);
 
     ui->tvReferences->setModel(m_referencesmodel);
+    ui->tvReferences->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 }
 
 ReferencesDialog::~ReferencesDialog() { delete ui; }

@@ -66,9 +66,9 @@ QString BlockListModel::blockType(const RDBlock* block) const
 {
     switch(block->type)
     {
-        case BlockType_Code:       return "CODE";
-        case BlockType_Data:       return "DATA";
-        case BlockType_Unexplored: return "UNEXPLORED";
+        case BlockType_Code:    return "CODE";
+        case BlockType_Data:    return "DATA";
+        case BlockType_Unknown: return "UNKNOWN";
         default: break;
     }
 

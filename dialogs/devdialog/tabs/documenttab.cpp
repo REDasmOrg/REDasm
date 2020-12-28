@@ -64,7 +64,7 @@ QString DocumentTab::itemType(const RDDocumentItem& item) const
         RETURN_CASE_OF(DocumentItemType_Symbol);
         RETURN_CASE_OF(DocumentItemType_Meta);
         RETURN_CASE_OF(DocumentItemType_Instruction);
-        RETURN_CASE_OF(DocumentItemType_Unexplored);
+        RETURN_CASE_OF(DocumentItemType_Unknown);
         RETURN_CASE_OF(DocumentItemType_Separator);
         default: break;
     }

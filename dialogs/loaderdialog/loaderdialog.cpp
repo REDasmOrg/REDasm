@@ -5,6 +5,7 @@
 LoaderDialog::LoaderDialog(RDContextPtr& ctx, const RDLoaderRequest* req, QWidget *parent) : QDialog(parent), ui(new Ui::LoaderDialog), m_request(req)
 {
     ui->setupUi(this);
+    ui->sbMinString->setValue(static_cast<int>(RDContext_GetMinString(ctx.get())));
 
     RDContext_FindLoaderEntries(ctx.get(), req,[](const RDEntryLoader* entryloader, void* userdata) {
         LoaderDialog* thethis = reinterpret_cast<LoaderDialog*>(userdata);
@@ -52,6 +53,7 @@ const RDEntryAssembler* LoaderDialog::selectedAssemblerEntry() const
     return (idx > 0) && (idx < m_assemblers.size()) ? m_assemblers.at(ui->cbAssembler->currentIndex()) : nullptr;
 }
 
+size_t LoaderDialog::selectedMinString() const { return static_cast<size_t>(ui->sbMinString->value()); }
 rd_address LoaderDialog::baseAddress() const { return ui->leBaseAddress->text().toULongLong(nullptr, 16); }
 rd_address LoaderDialog::entryPoint() const { return ui->leEntryPoint->text().toULongLong(nullptr, 16); }
 rd_offset LoaderDialog::offset() const { return ui->leOffset->text().toULongLong(nullptr, 16); }
@@ -82,7 +84,7 @@ void LoaderDialog::checkFlags()
 
 void LoaderDialog::validateFields()
 {
-    bool okenabled = true;
+    bool okenabled = ui->sbMinString->value() > 0;
     rd_flag flags = this->selectedLoaderFlags();
 
     if(flags & LoaderFlags_CustomAddressing)

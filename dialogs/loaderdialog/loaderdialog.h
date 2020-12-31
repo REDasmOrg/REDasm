@@ -3,6 +3,7 @@
 #include <QStandardItemModel>
 #include <QDialog>
 #include <rdapi/rdapi.h>
+#include <deque>
 #include "../hooks/isurface.h"
 
 namespace Ui {
@@ -19,6 +20,7 @@ class LoaderDialog : public QDialog
         RDLoaderBuildParams buildRequest() const;
         const RDEntryLoader* selectedLoaderEntry() const;
         const RDEntryAssembler* selectedAssemblerEntry() const;
+        size_t selectedMinString() const;
 
     private:
         rd_flag selectedLoaderFlags() const;
@@ -36,7 +38,7 @@ class LoaderDialog : public QDialog
     private:
         Ui::LoaderDialog *ui;
         QStandardItemModel *m_loadersmodel, *m_analyzersmodel;
-        QList<const RDEntryLoader*> m_loaders;
-        QList<const RDEntryAssembler*> m_assemblers;
+        std::deque<const RDEntryLoader*> m_loaders;
+        std::deque<const RDEntryAssembler*> m_assemblers;
         const RDLoaderRequest* m_request;
 };

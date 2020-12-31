@@ -19,9 +19,9 @@ void BlocksTab::setContext(const RDContextPtr& ctx)
     m_segmentsmodel->setContext(ctx);
 
     ui->tvSegments->setModel(m_segmentsmodel);
-    ui->tvSegments->header()->moveSection(8, 0);
+    ui->tvSegments->header()->moveSection(7, 0);
 
-    for(int i = 2; i < 8; i++) // Hide other columns
+    for(int i = 2; i < ui->tvSegments->model()->columnCount() - 1; i++) // Hide other columns
         ui->tvSegments->header()->hideSection(i);
 
     connect(ui->tvSegments->selectionModel(), &QItemSelectionModel::currentChanged, this, &BlocksTab::showBlocks);

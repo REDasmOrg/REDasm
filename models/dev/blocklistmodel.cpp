@@ -23,7 +23,8 @@ QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, in
         case 1: return "End Address";
         case 2: return "Size";
         case 3: return "Type";
-        case 4: return "Symbol";
+        case 4: return "Flags";
+        case 5: return "Symbol";
         default: break;
     }
 
@@ -44,7 +45,8 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
             case 1: return RD_ToHexAuto(m_context.get(), block.end);
             case 2: return RD_ToHexAuto(m_context.get(), RDBlock_Size(&block));
             case 3: return this->blockType(&block);
-            case 4: return this->symbolName(&block);
+            case 4: return this->blockFlags(&block);
+            case 5: return this->symbolName(&block);
             default: break;
         }
     }
@@ -52,14 +54,14 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
     else if(role == Qt::ForegroundRole)
     {
         if(index.column() < 3)  return THEME_VALUE(Theme_Address);
-        if(index.column() == 3) return THEME_VALUE(Theme_Type);
-        if(index.column() == 4) return THEME_VALUE(Theme_Symbol);
+        if((index.column() == 3) || (index.column() == 4)) return THEME_VALUE(Theme_Type);
+        if(index.column() == 5) return THEME_VALUE(Theme_Symbol);
     }
 
     return QVariant();
 }
 
-int BlockListModel::columnCount(const QModelIndex&) const { return 5; }
+int BlockListModel::columnCount(const QModelIndex&) const { return 6; }
 int BlockListModel::rowCount(const QModelIndex&) const { return m_blocks.size(); }
 
 QString BlockListModel::blockType(const RDBlock* block) const
@@ -73,6 +75,12 @@ QString BlockListModel::blockType(const RDBlock* block) const
     }
 
     return QString();
+}
+
+QString BlockListModel::blockFlags(const RDBlock* block) const
+{
+    if(HAS_FLAG(block, BlockFlags_Explored)) return "EXPLORED";
+    return "NONE";
 }
 
 QString BlockListModel::symbolName(const RDBlock* block) const

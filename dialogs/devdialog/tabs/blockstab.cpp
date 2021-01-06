@@ -25,7 +25,6 @@ void BlocksTab::setContext(const RDContextPtr& ctx)
         ui->tvSegments->header()->hideSection(i);
 
     connect(ui->tvSegments->selectionModel(), &QItemSelectionModel::currentChanged, this, &BlocksTab::showBlocks);
-    ui->tvSegments->setCurrentIndex(m_segmentsmodel->index(0));
 }
 
 void BlocksTab::showBlocks(const QModelIndex& current, const QModelIndex&)

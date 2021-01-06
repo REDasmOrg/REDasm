@@ -66,4 +66,5 @@ void AnalyzerDialog::getAnalyzers()
 
     ui->tvAnalyzers->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvAnalyzers->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    this->setOrderColumnVisible(ui->cbxShowOrder->checkState());
 }

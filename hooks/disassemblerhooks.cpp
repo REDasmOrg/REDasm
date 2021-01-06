@@ -232,7 +232,7 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
     const RDAssembler* assembler = RDContext_GetAssembler(ctx.get());
     rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(RDLoader_GetName(loader), RDAssembler_GetName(assembler))));
 
-    rd_log(qUtf8Printable(QString("Setting minimum string length to %1").arg(dlgloader.selectedMinString())));
+    rd_log(qUtf8Printable(QString("Minimum string length set to %1").arg(dlgloader.selectedMinString())));
     RDContext_SetMinString(ctx.get(), dlgloader.selectedMinString());
 
     AnalyzerDialog dlganalyzer(ctx, m_mainwindow);

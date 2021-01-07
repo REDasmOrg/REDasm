@@ -3,14 +3,12 @@ cmake_minimum_required(VERSION 3.10)
 project(REDasm)
 
 set(QT_VERSION_REQ "5.9")
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 include(${CMAKE_SOURCE_DIR}/LibREDasm/cmake/sanitizers.cmake)
 
-option(PORTABLE_MODE "Enable Portable Mode" OFF)
 option(BUILD_TESTS "Build tests" OFF)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
@@ -53,11 +51,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/LibREDasm/rdapi")
 add_subdirectory(submodules/plugins)
 add_subdirectory(submodules/assemblers)
 add_subdirectory(submodules/loaders)
-
-if(BUILD_TESTS)
-    add_subdirectory(unittest)
-endif()
-
 QT5_WRAP_UI(UI_HDRS ${UI_FILES})
 
 # Widgets
@@ -147,6 +140,9 @@ add_executable(${PROJECT_NAME} ${GUI_TYPE}
                ${RESOURCES}
                ${CMAKE_SOURCE_DIR}/res/windows/resources.rc
 )
+
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
 
 # TODO: refactor this to target_include_directories(target PUBLIC ...) in the submodules
 target_include_directories(${PROJECT_NAME} PRIVATE

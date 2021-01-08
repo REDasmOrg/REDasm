@@ -31,7 +31,6 @@ set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
 add_definitions(-DREDASM_VERSION="${REDASM_VERSION_BASE}-${REDASM_BUILD_VERSION}")
 
 add_subdirectory(LibREDasm)
-add_subdirectory(database)
 add_subdirectory(QHexView)
 
 # FindREDasm.config
@@ -40,6 +39,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/LibREDasm/rdapi")
 add_subdirectory(submodules/plugins)
 add_subdirectory(submodules/assemblers)
 add_subdirectory(submodules/loaders)
+add_subdirectory(submodules/database)
 QT5_WRAP_UI(UI_HDRS ${UI_FILES})
 
 # Widgets

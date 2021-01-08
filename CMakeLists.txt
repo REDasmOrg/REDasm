@@ -8,23 +8,11 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 include(${CMAKE_SOURCE_DIR}/LibREDasm/cmake/sanitizers.cmake)
-
 option(BUILD_TESTS "Build tests" OFF)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
 set(REDASM_VERSION_BASE "3.0")
-
-if(PORTABLE_MODE)
-    add_definitions(-DREDASM_PORTABLE_MODE=1)
-endif()
-
-if(UNIX)
-    #set(CMAKE_SKIP_BUILD_RPATH FALSE)
-    #set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-    #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-    #set(CMAKE_INSTALL_RPATH ".")
-endif()
 
 find_package(Qt5 5.9 REQUIRED COMPONENTS Widgets)
 find_package(Git)
@@ -43,6 +31,7 @@ set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
 add_definitions(-DREDASM_VERSION="${REDASM_VERSION_BASE}-${REDASM_BUILD_VERSION}")
 
 add_subdirectory(LibREDasm)
+add_subdirectory(database)
 add_subdirectory(QHexView)
 
 # FindREDasm.config
@@ -130,7 +119,7 @@ set(RESOURCES
 )
 
 if(WIN32)
-    SET(GUI_TYPE WIN32)
+    set(GUI_TYPE WIN32)
 endif()
 
 add_executable(${PROJECT_NAME} ${GUI_TYPE}
@@ -163,7 +152,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-missing-braces)
 endif()
 
@@ -172,6 +161,8 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E
 if(NOT WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E create_symlink submodules plugins)
 endif()
+
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Deploy Qt DLLs on Windows
 # https://stackoverflow.com/a/41199492/1806760

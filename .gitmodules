@@ -13,3 +13,6 @@
 [submodule "submodules/assemblers"]
 	path = submodules/assemblers
 	url = https://github.com/REDasmOrg/REDasm-Assemblers.git
+[submodule "database"]
+	path = database
+	url = https://github.com/REDasmOrg/REDasm-Database.git

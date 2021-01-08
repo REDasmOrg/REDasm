@@ -136,13 +136,11 @@ void DisassemblerHooks::statusAddress(const SurfaceQt* surface) const
     RDDocumentItem item;
     if(!surface->getCurrentItem(&item)) return;
 
-    RDLoader* ldr = RDContext_GetLoader(surface->context().get());
-
     RDSegment segment;
     bool hassegment = RDDocument_GetSegmentAddress(doc, item.address, &segment);
 
     RDLocation functionstart = RDContext_GetFunctionStart(surface->context().get(), item.address);
-    RDLocation offset = RD_Offset(ldr, item.address);
+    RDLocation offset = RD_Offset(surface->context().get(), item.address);
 
     QString segm = hassegment ? segment.name : "UNKNOWN",
             offs = hassegment && offset.valid ? RD_ToHexAuto(surface->context().get(), offset.value) : "UNKNOWN",

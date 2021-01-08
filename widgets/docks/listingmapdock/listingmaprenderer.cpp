@@ -6,11 +6,10 @@
 #include "../../../renderer/surfaceqt.h"
 #include "../../../themeprovider.h"
 
-ListingMapRenderer::ListingMapRenderer(const RDContextPtr& ctx, QObject* parent): RendererAsync(ctx, parent), m_context(ctx)
+ListingMapRenderer::ListingMapRenderer(const RDContextPtr& ctx, QObject* parent): RendererAsync(ctx, parent)
 {
     m_totalsize = RDBuffer_Size(RDContext_GetBuffer(ctx.get()));
     m_document = RDContext_GetDocument(m_context.get());
-    m_loader = RDContext_GetLoader(m_context.get());
 }
 
 void ListingMapRenderer::renderMap()
@@ -85,7 +84,7 @@ void ListingMapRenderer::calculateFunctions()
             RDDocumentItem item;
             if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) continue;
 
-            RDLocation loc = RD_Offset(thethis->m_loader, item.address);
+            RDLocation loc = RD_Offset(thethis->m_context.get(), item.address);
             if(loc.valid) thethis->m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
         }
         return true;
@@ -133,7 +132,7 @@ void ListingMapRenderer::renderSeek(QPainter* painter) const
     RDDocumentItem item;
     if(!surface->getCurrentItem(&item)) return;
 
-    RDLocation loc = RD_Offset(m_loader, item.address);
+    RDLocation loc = RD_Offset(m_context.get(), item.address);
     if(!loc.valid) return;
 
     QColor seekcolor = THEME_VALUE(Theme_Seek);

@@ -88,8 +88,7 @@ void ListingView::switchToHex()
     RDDocumentItem item;
     if(!this->getCurrentItem(&item)) return;
 
-    auto* loader = RDContext_GetLoader(m_context.get());
-    auto loc = RD_Offset(loader, item.address);
+    auto loc = RD_Offset(m_context.get(), item.address);
     if(!loc.valid) return;
 
     m_hexview->document()->cursor()->moveTo(loc.offset);

@@ -34,9 +34,7 @@ class ListingMapRenderer : public RendererAsync
         bool checkOrientation();
 
     private:
-        RDContextPtr m_context;
         RDDocument* m_document;
-        RDLoader* m_loader;
         PreCalc<RDSegment, size_t> m_calcsegments;
         PreCalc<RDLocation, rd_address> m_calcfunctions;
         s32 m_orientation{Qt::Vertical};

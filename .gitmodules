@@ -1,3 +1,18 @@
+[submodule "LibREDasm"]
+	path = LibREDasm
+	url = https://github.com/REDasmOrg/REDasm-Library.git
+[submodule "QHexView"]
+	path = QHexView
+	url = https://github.com/Dax89/QHexView.git
+[submodule "submodules/plugins"]
+	path = submodules/plugins
+	url = https://github.com/REDasmOrg/REDasm-Plugins.git
+[submodule "submodules/loaders"]
+	path = submodules/loaders
+	url = https://github.com/REDasmOrg/REDasm-Loaders.git
+[submodule "submodules/assemblers"]
+	path = submodules/assemblers
+	url = https://github.com/REDasmOrg/REDasm-Assemblers.git
 [submodule "submodules/database"]
 	path = submodules/database
 	url = https://github.com/REDasmOrg/REDasm-Database.git

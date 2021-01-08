@@ -8,10 +8,12 @@
 #include "ui/qtui.h"
 #include "themeprovider.h"
 #include <QMessageBox>
+#include <QDebug>
 #include <QtGui>
 #include <rdapi/rdapi.h>
 
-#define PLUGINS_FOLDER_NAME "plugins"
+#define PLUGINS_FOLDER_NAME  "plugins"
+#define DATABASE_FOLDER_NAME "database"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -230,10 +232,14 @@ void MainWindow::initializeConfig()
         QMetaObject::invokeMethod(lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending)));
     }, m_lblprogress);
 
+    RDConfig_AddDatabasePath(qUtf8Printable(QDir(RDConfig_GetRuntimePath()).absoluteFilePath(DATABASE_FOLDER_NAME)));
     RDConfig_AddPluginPath(qUtf8Printable(QDir(RDConfig_GetRuntimePath()).absoluteFilePath(PLUGINS_FOLDER_NAME)));
 
-    for(const QString& searchpaths : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation))
-        RDConfig_AddPluginPath(qUtf8Printable(QDir(searchpaths).absoluteFilePath(PLUGINS_FOLDER_NAME)));
+    for(const QString& searchpath : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation))
+    {
+        RDConfig_AddDatabasePath(qUtf8Printable(QDir(searchpath).absoluteFilePath(DATABASE_FOLDER_NAME)));
+        RDConfig_AddPluginPath(qUtf8Printable(QDir(searchpath).absoluteFilePath(PLUGINS_FOLDER_NAME)));
+    }
 
     QtUI::initialize();
 }

@@ -1,13 +1,15 @@
 #include "redasmsettings.h"
+#include <QStandardPaths>
 #include <QFontDatabase>
 #include <QApplication>
+#include <QDir>
 
 #define CURRENT_WINDOW_GEOMETRY "window_geometry_2"
 #define CURRENT_WINDOW_STATE    "window_state_2"
 
 QByteArray REDasmSettings::m_defaultstate;
 
-REDasmSettings::REDasmSettings(QObject *parent) : QSettings(parent) { }
+REDasmSettings::REDasmSettings(QObject *parent): QSettings(QDir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)).absoluteFilePath("redasm.conf"), QSettings::IniFormat, parent) { }
 
 bool REDasmSettings::restoreState(QMainWindow *mainwindow)
 {

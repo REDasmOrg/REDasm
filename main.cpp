@@ -21,7 +21,6 @@ int main(int argc, char *argv[])
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
     QApplication a(argc, argv);
-    a.setOrganizationName("redasm.io");
     a.setApplicationName("redasm");
     a.setApplicationDisplayName("REDasm " + QString::fromUtf8(REDASM_VERSION));
 

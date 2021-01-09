@@ -62,6 +62,9 @@ REDasm is still under heavy development, currently is supports:
 - C++17 compiler (tested on GCC 9.x and MSVC2019)
 - Qt 5.12
 
+### Building from source
+Read [here](COMPILE.md)
+
 ### Thanks to
 - [MiniZ](https://github.com/richgel999/miniz) : ZLib's drop in replacement
 - [TaoJSON](https://github.com/taocpp/json): C++ header-only JSON library 

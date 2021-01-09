@@ -1,5 +1,6 @@
 #include "disassemblercolumnview.h"
 #include "../../themeprovider.h"
+#include <QPainterPath>
 #include <QPainter>
 
 DisassemblerColumnView::DisassemblerColumnView(QWidget *parent) : QWidget(parent), m_disassembler(nullptr), m_first(-1), m_last(-1)

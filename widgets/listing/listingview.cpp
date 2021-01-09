@@ -278,6 +278,7 @@ QMenu* ListingView::createActions(ISurface* surface)
 
     contextmenu->addSeparator();
 
+    actions[ListingView::Action_SwitchView] = contextmenu->addAction("Switch View", this, [&]() { this->switchMode(); });
     actions[ListingView::Action_HexDump] = contextmenu->addAction("Show Hex Dump", this, [&]() { this->switchToHex(); }, QKeySequence(Qt::CTRL + Qt::Key_X));
 
     actions[ListingView::Action_HexDumpFunction] = contextmenu->addAction("Hex Dump Function", this, [&, surface]() {

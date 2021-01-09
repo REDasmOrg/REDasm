@@ -14,7 +14,7 @@ class ListingView : public QStackedWidget
 
     private:
         enum { Action_Rename = 0, Action_XRefs, Action_Follow, Action_FollowPointerHexDump,
-               Action_CallGraph, Action_Goto, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction,
+               Action_CallGraph, Action_Goto, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction, Action_SwitchView,
                Action_Back, Action_Forward, Action_Copy };
 
     public:

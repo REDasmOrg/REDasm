@@ -46,25 +46,29 @@ REDasm is still under heavy development, currently is supports:
 - Multithreaded analysis
 - Binary lifting and intermediate language analysis (RDIL)
 - *Loaders*
-  - Portable Executable (with VB decompilation too)
+  - Portable Executable (with VB decompilation)
   - ELF
-  - PS1 Executables
+  - XBox 1
+  - PS1
 - *Assemblers*
   - x86 and x86\_64
   - MIPS
-  - ARM and ARM64 (WIP)
+  - ARM64
+  - ARM (WIP)
 - *More features are under development!*
 
 ### Requirements
-- CMake 3.10
+- CMake 3.12
 - C++17 compiler (tested on GCC 9.x and MSVC2019)
 - Qt 5.15
 
 ### Thanks to
 - [MiniZ](https://github.com/richgel999/miniz) : ZLib's drop in replacement
-- [JSON](https://github.com/nlohmann/json): JSON for modern C++
+- [TaoJSON](hhttps://github.com/taocpp/json): C++ header-only JSON library 
 - [UndName](https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c): MSVC Demangler
 - [Libiberty](https://github.com/bminor/binutils-gdb/tree/master/libiberty): Binutils Demangler
+- [Zydis](https://github.com/zyantific/zydis): Fast and lightweight x86/x86-64 disassembler library 
+- [Capstone](https://github.com/aquynh/capstone): Disassembler Framework
 
 ### License
 - *LibREDasm* is released under GNU LGPL3 License

@@ -28,7 +28,7 @@ AboutDialog::~AboutDialog() { delete ui; }
 void AboutDialog::initDependencies()
 {
     static const std::vector<std::pair<QString, QString>> DEPENDENCIES = {
-        {"JSON", "https://github.com/nlohmann/json" },
+        {"TaoJSON", "https://github.com/taocpp/json" },
         {"UndName", "https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c"},
         {"Libiberty", "https://github.com/bminor/binutils-gdb/tree/master/libiberty"},
     };

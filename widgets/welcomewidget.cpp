@@ -45,6 +45,7 @@ WelcomeWidget::WelcomeWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Welc
     ui->pbAbout->setStyleSheet(borderedstylesheet);
 
     this->styleSocialButton(ui->pbREDasmIO, FA_ICON(0xf015));
+    this->styleSocialButton(ui->pbTwitter, FAB_ICON(0xf099));
     this->styleSocialButton(ui->pbTelegram, FAB_ICON(0xf3fe));
     this->styleSocialButton(ui->pbReddit, FAB_ICON(0xf281));
     this->styleSocialButton(ui->pbGitHub, FAB_ICON(0xf113));
@@ -62,6 +63,10 @@ WelcomeWidget::WelcomeWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Welc
 
     connect(ui->pbREDasmIO, &QPushButton::clicked, this, []() {
         QDesktopServices::openUrl(QUrl("https://redasm.io"));
+    });
+
+    connect(ui->pbTwitter, &QPushButton::clicked, this, []() {
+        QDesktopServices::openUrl(QUrl("https://twitter.com/re_dasm"));
     });
 
     connect(ui->pbTelegram, &QPushButton::clicked, this, []() {

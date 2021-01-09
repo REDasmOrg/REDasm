@@ -183,24 +183,10 @@
            <property name="spacing">
             <number>0</number>
            </property>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QPushButton" name="pbReddit">
              <property name="text">
-              <string>Join on Reddit</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QPushButton" name="pbTelegram">
-             <property name="text">
-              <string>Join on Telegram</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QPushButton" name="pbGitHub">
-             <property name="text">
-              <string>Report an Issue</string>
+              <string>Reddit</string>
              </property>
             </widget>
            </item>
@@ -208,6 +194,27 @@
             <widget class="QPushButton" name="pbREDasmIO">
              <property name="text">
               <string>REDasm.IO</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QPushButton" name="pbGitHub">
+             <property name="text">
+              <string>Report an Issue</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QPushButton" name="pbTelegram">
+             <property name="text">
+              <string>Telegram</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="pbTwitter">
+             <property name="text">
+              <string>Twitter</string>
              </property>
             </widget>
            </item>

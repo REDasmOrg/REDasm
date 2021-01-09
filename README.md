@@ -64,7 +64,7 @@ REDasm is still under heavy development, currently is supports:
 
 ### Thanks to
 - [MiniZ](https://github.com/richgel999/miniz) : ZLib's drop in replacement
-- [TaoJSON](hhttps://github.com/taocpp/json): C++ header-only JSON library 
+- [TaoJSON](https://github.com/taocpp/json): C++ header-only JSON library 
 - [UndName](https://github.com/wine-mirror/wine/blob/master/dlls/msvcrt/undname.c): MSVC Demangler
 - [Libiberty](https://github.com/bminor/binutils-gdb/tree/master/libiberty): Binutils Demangler
 - [Zydis](https://github.com/zyantific/zydis): Fast and lightweight x86/x86-64 disassembler library 

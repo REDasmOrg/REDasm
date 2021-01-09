@@ -60,7 +60,7 @@ REDasm is still under heavy development, currently is supports:
 ### Requirements
 - CMake 3.12
 - C++17 compiler (tested on GCC 9.x and MSVC2019)
-- Qt 5.15
+- Qt 5.12
 
 ### Thanks to
 - [MiniZ](https://github.com/richgel999/miniz) : ZLib's drop in replacement

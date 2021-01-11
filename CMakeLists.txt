@@ -8,7 +8,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 include(${CMAKE_SOURCE_DIR}/LibREDasm/cmake/sanitizers.cmake)
-option(BUILD_TESTS "Build tests" OFF)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")

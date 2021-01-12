@@ -4,18 +4,8 @@
 #include <QApplication>
 #include <QStyleFactory>
 
-#ifdef QT_DEBUG
-    #include <cstring>
-    #include "unittest/unittest.h"
-#endif // QT_DEBUG
-
 int main(int argc, char *argv[])
 {
-#ifdef QT_DEBUG
-    //if((argc == 2) && !std::strcmp(argv[1], "--testmode"))
-        //return UnitTest::run();
-#endif // QT_DEBUG
-
     qRegisterMetaType<size_t>("size_t");
     qRegisterMetaType<rd_address>("address_t");
     QApplication::setStyle(QStyleFactory::create("Fusion"));

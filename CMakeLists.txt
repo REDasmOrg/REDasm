@@ -11,7 +11,7 @@ include(${CMAKE_SOURCE_DIR}/LibREDasm/cmake/sanitizers.cmake)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
-set(REDASM_VERSION_BASE "3.0")
+set(REDASM_VERSION_BASE "3.0 BETA 2")
 
 find_package(Qt5 5.9 REQUIRED COMPONENTS Widgets)
 find_package(Git)
@@ -27,7 +27,7 @@ else()
 endif()
 
 set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
-add_definitions(-DREDASM_VERSION="${REDASM_VERSION_BASE}-${REDASM_BUILD_VERSION}")
+add_definitions(-DREDASM_VERSION="${REDASM_VERSION_BASE} \(${REDASM_BUILD_VERSION}\)")
 
 add_subdirectory(LibREDasm)
 add_subdirectory(QHexView)

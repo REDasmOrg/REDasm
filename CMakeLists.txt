@@ -13,7 +13,7 @@ string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
 set(REDASM_VERSION_BASE "3.0 BETA 2")
 
-find_package(Qt5 5.9 REQUIRED COMPONENTS Widgets)
+find_package(Qt5 5.11 REQUIRED COMPONENTS Widgets)
 find_package(Git)
 
 if(GIT_FOUND)

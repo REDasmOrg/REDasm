@@ -10,9 +10,10 @@
 Open a Command Prompt and execute:
 ```bash
 call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+set CMAKE=C:\Qt\Tools\CMake_64\bin
 set QTCREATOR=C:\Qt\Tools\QtCreator\bin
 set QTDIR=C:\Qt\5.12\msvc2019_64\bin # Change this to your Qt Version
-set PATH=%QTDIR%;%QTCREATOR%;%PATH%
+set PATH=%QTDIR%;%CMAKE%;%QTCREATOR%;%PATH%
 ```
 
 ### 2. Compiling REDasm with CMake

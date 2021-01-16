@@ -1,8 +1,8 @@
 ## Requirements for all platforms
 * CMake >= 3.12
-* Qt >= 5.12
+* Qt >= 5.11
 * C++17 capable compiler
-  * Tested with GCC on Linux
+  * Tested with GCC 8.3 on Linux
   * Tested with Visual Studio 2019 on Windows
 * Git
 ****

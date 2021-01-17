@@ -11,7 +11,7 @@ include(${CMAKE_SOURCE_DIR}/LibREDasm/cmake/sanitizers.cmake)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
-set(REDASM_VERSION_BASE "3.0 BETA 2")
+set(REDASM_VERSION_BASE "3.0-BETA2")
 
 find_package(Qt5 5.11 REQUIRED COMPONENTS Widgets)
 find_package(Git)
@@ -156,13 +156,9 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-missing-braces)
 endif()
 
-# Post build commands
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:LibREDasm> ${CMAKE_BINARY_DIR})
-if(NOT WIN32)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E create_symlink submodules plugins)
-endif()
-
-install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+string(REGEX REPLACE "[\- ]+" "_" REDASM_ARCHIVE_VERSION ${REDASM_VERSION_BASE})
+set(REDASM_ARCHIVE_NAME "${PROJECT_NAME}_${REDASM_ARCHIVE_VERSION}_${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.zip")
+set(REDASM_DEPLOY_DIR ${CMAKE_BINARY_DIR}/deploy)
 
 # Deploy Qt DLLs on Windows
 # https://stackoverflow.com/a/41199492/1806760
@@ -176,23 +172,39 @@ if(Qt5_FOUND AND WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
-    set(imported_location "${qt5_install_prefix}/bin/windeployqt.exe")
+    set(_WINDEPLOYQT_EXECUTABLE "${qt5_install_prefix}/bin/windeployqt.exe")
 
-    if(EXISTS ${imported_location})
-        add_executable(Qt5::windeployqt IMPORTED)
-
-        set_target_properties(Qt5::windeployqt PROPERTIES
-            IMPORTED_LOCATION ${imported_location}
-        )
+    if(EXISTS ${_WINDEPLOYQT_EXECUTABLE})
+        set(WINDEPLOYQT_EXECUTABLE ${_WINDEPLOYQT_EXECUTABLE})
     endif()
 endif()
 
-if(TARGET Qt5::windeployqt)
-    # execute windeployqt in a tmp directory after build
-    add_custom_command(TARGET ${PROJECT_NAME}
-        POST_BUILD
-        COMMAND Qt5::windeployqt "$<TARGET_FILE:${PROJECT_NAME}>"
-    )
+add_custom_command(OUTPUT REDasmPrePackage
+                   COMMAND ${CMAKE_COMMAND} --install . --prefix ${REDASM_DEPLOY_DIR} --config ${CMAKE_BUILD_TYPE}
+                   VERBATIM)
 
-    # TODO: installation
+if(WINDEPLOYQT_EXECUTABLE)
+    add_custom_command(OUTPUT REDasmPackage
+        WORKING_DIRECTORY ${REDASM_DEPLOY_DIR}
+        COMMAND ${WINDEPLOYQT_EXECUTABLE} .
+        COMMAND ${CMAKE_COMMAND} -E tar cvf ../${REDASM_ARCHIVE_NAME} --format=zip .
+        DEPENDS REDasmPrePackage
+        VERBATIM)
+else()
+    add_custom_command(OUTPUT REDasmPackage
+        WORKING_DIRECTORY ${REDASM_DEPLOY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E tar cvf ../${REDASM_ARCHIVE_NAME} --format=zip .
+        DEPENDS REDasmPrePackage
+        VERBATIM)
 endif()
+
+add_custom_target(REDasmDeploy DEPENDS REDasmPackage)
+
+# Post build commands
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:LibREDasm> ${CMAKE_BINARY_DIR})
+
+if(NOT WIN32)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E create_symlink submodules plugins)
+endif()
+
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})

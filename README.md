@@ -7,7 +7,7 @@
     <img src="https://img.shields.io/travis/REDasmOrg/REDasm.svg?style=flat-square&logo=travis">
   </a>
   <a href="https://ci.appveyor.com/project/Dax89/redasm">
-    <img src="https://img.shields.io/appveyor/ci/Dax89/redasm.svg?style=flat-square&logo=appveyor">
+    <img src="https://ci.appveyor.com/api/projects/status/93dsq8rxb590h9nq?svg=true">
   </a>
   <a href="https://lgtm.com/projects/g/REDasmOrg/REDasm/context:cpp">
     <img alt="Language grade: C/C++" src="https://img.shields.io/lgtm/grade/cpp/g/REDasmOrg/REDasm.svg?logo=lgtm&logoWidth=18">

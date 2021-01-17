@@ -19,7 +19,7 @@ for:
         - image: Ubuntu2004
 
     artifacts:
-      - path: '**\*.AppImage'
+      - path: '**\REDasm*.AppImage'
         name: REDasm
 
     install:
@@ -45,6 +45,7 @@ for:
       - sh: cp ../res/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/redasm.png
         # Generate AppImage
       - sh: LD_LIBRARY_PATH=$PWD/AppDir/usr/lib/x86_64-linux-gnu ./linuxdeploy-x86_64.AppImage --appdir=AppDir --plugin qt --output appimage
+      - sh: mv REDasm-*.AppImage REDasm_Linux_AMD64_`date +%Y%m%d`.AppImage
 
   -
     matrix:

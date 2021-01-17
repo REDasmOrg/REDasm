@@ -10,7 +10,7 @@ branches:
     - master
 
 artifacts:
-  - path: "**\*.zip"
+  - path: '**\*.zip'
     name: REDasm
 
 init:

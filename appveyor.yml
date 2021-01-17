@@ -22,31 +22,29 @@ for:
       - path: '**\*.AppImage'
         name: REDasm
 
-    init:
-      - ps: Update-AppveyorBuild -Version "REDasm_Linux_x86_64_$(Get-Date -format yyyyMMdd)_$env:appveyor_build_number"
-
     install:
-      - git submodule update --init --recursive
-      - source $HOME/Qt/5.15.2/bin/qt*-env.sh
+      - ps: Update-AppveyorBuild -Version "REDasm_Linux_x86_64_$(Get-Date -format yyyyMMdd)_$env:appveyor_build_number"
+      - sh: git submodule update --init --recursive
+      - sh: source $HOME/Qt/5.15.2/bin/qt*-env.sh
 
     build_script:
-      - mkdir build
-      - cd build
-      - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
-      - make -j4
+      - sh: mkdir build
+      - sh: cd build
+      - sh: cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
+      - sh: make -j4
         # Prepare AppImage
-      - make install DESTDIR=$PWD/AppDir
-      - wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-      - wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-      - chmod +x linuxdeploy*.AppImage
+      - sh: make install DESTDIR=$PWD/AppDir
+      - sh: wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+      - sh: wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+      - sh: chmod +x linuxdeploy*.AppImage
         # Copy Icon and .desktop to AppImage folder
-      - mkdir AppDir
-      - mkdir -p AppDir/usr/share/applications
-      - mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
-      - cp ../REDasm/REDasm.desktop AppDir/usr/share/applications/
-      - cp ../REDasm/res/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/
+      - sh: mkdir AppDir
+      - sh: mkdir -p AppDir/usr/share/applications
+      - sh: mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+      - sh: cp ../REDasm/REDasm.desktop AppDir/usr/share/applications/
+      - sh: cp ../REDasm/res/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/
         # Generate AppImage
-      - LD_LIBRARY_PATH=$PWD/AppDir/usr/lib/x86_64-linux-gnu ./linuxdeploy-x86_64.AppImage --appdir=AppDir --plugin qt --output appimage
+      - sh: LD_LIBRARY_PATH=$PWD/AppDir/usr/lib/x86_64-linux-gnu ./linuxdeploy-x86_64.AppImage --appdir=AppDir --plugin qt --output appimage
 
   -
     matrix:

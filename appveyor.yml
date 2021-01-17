@@ -24,7 +24,7 @@ for:
 
     install:
       - sh: sudo apt-get update
-      - sh: sudo apt-get install -y build-essential qt5-default 
+      - sh: sudo apt-get install -y build-essential gcc-10 g++-10 qt5-default 
       - sh: git submodule update --init --recursive
 
     build_script:

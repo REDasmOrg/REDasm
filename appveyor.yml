@@ -23,7 +23,6 @@ for:
         name: REDasm
 
     install:
-      - ps: Update-AppveyorBuild -Version "REDasm_Linux_x86_64_$(Get-Date -format yyyyMMdd)_$env:appveyor_build_number"
       - sh: git submodule update --init --recursive
       - sh: source $HOME/Qt/5.15.2/bin/qt*-env.sh
 
@@ -54,9 +53,6 @@ for:
     artifacts:
       - path: '**\*.zip'
         name: REDasm
-
-    init:
-      - ps: Update-AppveyorBuild -Version "REDasm_Windows_x86_64_$(Get-Date -format yyyyMMdd)_$env:appveyor_build_number"
 
     install:
       - git submodule update --init --recursive

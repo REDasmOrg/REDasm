@@ -42,7 +42,7 @@ for:
       - sh: mkdir -p AppDir/usr/share/applications
       - sh: mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
       - sh: cp ../REDasm.desktop AppDir/usr/share/applications/
-      - sh: cp ../res/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/
+      - sh: cp ../res/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/redasm.png
         # Generate AppImage
       - sh: LD_LIBRARY_PATH=$PWD/AppDir/usr/lib/x86_64-linux-gnu ./linuxdeploy-x86_64.AppImage --appdir=AppDir --plugin qt --output appimage
 

@@ -24,8 +24,7 @@ for:
 
     install:
       - sh: git submodule update --init --recursive
-      - sh: ls -l $HOME/Qt/5.15/gcc_64/bin
-      - sh: source $HOME/Qt/5.15/gcc_64/bin/qt*-env.sh
+      - sh: sudo apt-get install -y qt5-default 
 
     build_script:
       - sh: mkdir build

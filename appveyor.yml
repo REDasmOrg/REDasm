@@ -23,8 +23,9 @@ for:
         name: REDasm
 
     install:
-      - sh: git submodule update --init --recursive
+      - sh: sudo apt-get update
       - sh: sudo apt-get install -y qt5-default 
+      - sh: git submodule update --init --recursive
 
     build_script:
       - sh: mkdir build

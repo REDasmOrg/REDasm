@@ -24,7 +24,7 @@ skip_tags: true
 install:
   - git submodule update --init --recursive
   - set QTCREATOR=C:\Qt\Tools\QtCreator\bin
-  - set QTDIR=C:\Qt\5.15.1\msvc2019_64\bin
+  - set QTDIR=C:\Qt\5.15.2\msvc2019_64\bin
   - set PYTHONDIR=C:\Python37-x64
   - set PATH=%QTDIR%;%QTCREATOR%;%PYTHONDIR%;%PATH%
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"

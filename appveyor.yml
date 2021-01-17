@@ -3,7 +3,10 @@
 #
 
 version: "{build}"
-image: Visual Studio 2019
+
+image:
+  - Visual Studio 2019
+  - Ubuntu2004
 
 branches:
   only: 
@@ -13,22 +16,52 @@ artifacts:
   - path: '**\*.zip'
     name: REDasm
 
+  - path: '**\*.AppImage'
+    name: REDasm
+
 init:
-- ps: Update-AppveyorBuild -Version "REDasm_Windows_x86_64_$(Get-Date -format yyyyMMdd)_$env:appveyor_build_number"
+- ps: |
+    if($isLinux) {
+      Update-AppveyorBuild -Version "REDasm_Linux_x86_64_$(Get-Date -format yyyyMMdd)_$env:appveyor_build_number"
+    }
+    else {
+      Update-AppveyorBuild -Version "REDasm_Windows_x86_64_$(Get-Date -format yyyyMMdd)_$env:appveyor_build_number"
+    }
 
 skip_tags: true
 
 install:
   - git submodule update --init --recursive
-  - set QTCREATOR=C:\Qt\Tools\QtCreator\bin
-  - set QTDIR=C:\Qt\5.15.2\msvc2019_64\bin
-  - set PYTHONDIR=C:\Python37-x64
-  - set PATH=%QTDIR%;%QTCREATOR%;%PYTHONDIR%;%PATH%
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - cmd: set QTCREATOR=C:\Qt\Tools\QtCreator\bin
+  - cmd: set QTDIR=C:\Qt\5.15.2\msvc2019_64\bin
+  - cmd: set PYTHONDIR=C:\Python37-x64
+  - cmd: set PATH=%QTDIR%;%QTCREATOR%;%PYTHONDIR%;%PATH%
+  - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 build_script:
   - mkdir build
   - cd build
-  - cmake ..
-  - cmake --build . -j4 --config Release
-  - cmake --build . --target REDasmDeploy
+    
+    # Windows
+  - cmd: cmake ..
+  - cmd: cmake --build . -j4 --config Release
+  - cmd: cmake --build . --target REDasmDeploy
+
+    # Linux
+  - sh: cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
+  - sh: make -j4
+    # Prepare AppImage
+  - sh: make install DESTDIR=$PWD/AppDir
+  - sh: wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+  - sh: wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+  - sh: chmod +x linuxdeploy*.AppImage
+    # Copy Icon and .desktop to AppImage folder
+  - sh: mkdir AppDir
+  - sh: mkdir -p AppDir/usr/share/applications
+  - sh: mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+  - sh: cp ../REDasm/REDasm.desktop AppDir/usr/share/applications/
+  - sh: cp ../REDasm/res/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/
+    # Generate AppImage
+  - sh: LD_LIBRARY_PATH=$PWD/AppDir/usr/lib/x86_64-linux-gnu ./linuxdeploy-x86_64.AppImage --appdir=AppDir --plugin qt --output appimage
+
+

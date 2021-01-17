@@ -4,5 +4,5 @@ Type=Application
 Icon=redasm
 Exec=REDasm
 Categories=Utility;
-Comment=Crossplatform, interactive, multiarchitecture disassembler
+Comment=The OpenSource Disassembler
 

@@ -3,9 +3,6 @@
 </div>
 <br>
 <div align="center">
-  <a href="https://travis-ci.org/REDasmOrg/REDasm">
-    <img src="https://img.shields.io/travis/REDasmOrg/REDasm.svg?style=flat-square&logo=travis">
-  </a>
   <a href="https://ci.appveyor.com/project/Dax89/redasm">
     <img src="https://ci.appveyor.com/api/projects/status/93dsq8rxb590h9nq?svg=true">
   </a>

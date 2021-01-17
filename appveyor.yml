@@ -24,8 +24,7 @@ for:
 
     install:
       - sh: git submodule update --init --recursive
-      - sh: ls $HOME/Qt/5.15/bin
-      - sh: source $HOME/Qt/5.15/bin/qt*-env.sh
+      - sh: source $HOME/Qt/5.15/gcc_64/bin/qt*-env.sh
 
     build_script:
       - sh: mkdir build

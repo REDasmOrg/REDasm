@@ -39,7 +39,6 @@ for:
       - sh: wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
       - sh: chmod +x linuxdeploy*.AppImage
         # Copy Icon and .desktop to AppImage folder
-      - sh: mkdir AppDir
       - sh: mkdir -p AppDir/usr/share/applications
       - sh: mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
       - sh: cp ../REDasm/REDasm.desktop AppDir/usr/share/applications/

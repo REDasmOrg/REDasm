@@ -11,7 +11,6 @@
 #include <QDebug>
 #include <QtGui>
 #include <rdapi/rdapi.h>
-#include <iostream>
 
 #define PLUGINS_FOLDER_NAME  "plugins"
 #define DATABASE_FOLDER_NAME "database"
@@ -249,9 +248,6 @@ void MainWindow::initializeConfig()
 
         RDConfig_AddDatabasePath(qUtf8Printable(QDir(appdirqt + QDir::separator() + searchpath).absoluteFilePath(DATABASE_FOLDER_NAME)));
         RDConfig_AddPluginPath(qUtf8Printable(QDir(appdirqt + QDir::separator() + searchpath).absoluteFilePath(PLUGINS_FOLDER_NAME)));
-
-        std::cout << qUtf8Printable(QDir(appdirqt + QDir::separator() + searchpath).absoluteFilePath(DATABASE_FOLDER_NAME)) << std::endl;
-        std::cout << qUtf8Printable(QDir(appdirqt + QDir::separator() + searchpath).absoluteFilePath(PLUGINS_FOLDER_NAME)) << std::endl;
     }
 
     QtUI::initialize();

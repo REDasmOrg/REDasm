@@ -1,30 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>res/logo.png</file>
-        <file>res/logo_big.png</file>
-        <file>res/light/about.png</file>
-        <file>res/light/back.png</file>
-        <file>res/light/database_import.png</file>
-        <file>res/light/database.png</file>
-        <file>res/light/forward.png</file>
-        <file>res/light/goto.png</file>
-        <file>res/light/graph.png</file>
-        <file>res/light/hex.png</file>
-        <file>res/light/listing.png</file>
-        <file>res/light/open.png</file>
-        <file>res/light/save.png</file>
-        <file>res/dark/about.png</file>
-        <file>res/dark/back.png</file>
-        <file>res/dark/database_import.png</file>
-        <file>res/dark/database.png</file>
-        <file>res/dark/forward.png</file>
-        <file>res/dark/goto.png</file>
-        <file>res/dark/graph.png</file>
-        <file>res/dark/hex.png</file>
-        <file>res/dark/listing.png</file>
-        <file>res/dark/open.png</file>
-        <file>res/dark/save.png</file>
-        <file>res/logo_big_dark.png</file>
         <file>res/fonts/FontAwesomeBrands.otf</file>
         <file>res/fonts/FontAwesome.otf</file>
         <file>res/logo_dark.png</file>

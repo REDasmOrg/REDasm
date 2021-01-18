@@ -245,10 +245,13 @@ void MainWindow::initializeConfig()
         RDConfig_AddPluginPath(qUtf8Printable(QDir(searchpath).absoluteFilePath(PLUGINS_FOLDER_NAME)));
 
         if(!isappimage) continue;
-        std::cout << appdir << std::endl;
         QString appdirqt = QString::fromUtf8(appdir);
+
         RDConfig_AddDatabasePath(qUtf8Printable(QDir(appdirqt + QDir::separator() + searchpath).absoluteFilePath(DATABASE_FOLDER_NAME)));
         RDConfig_AddPluginPath(qUtf8Printable(QDir(appdirqt + QDir::separator() + searchpath).absoluteFilePath(PLUGINS_FOLDER_NAME)));
+
+        std::cout << qUtf8Printable(QDir(appdirqt + QDir::separator() + searchpath).absoluteFilePath(DATABASE_FOLDER_NAME)) << std::endl;
+        std::cout << qUtf8Printable(QDir(appdirqt + QDir::separator() + searchpath).absoluteFilePath(PLUGINS_FOLDER_NAME)) << std::endl;
     }
 
     QtUI::initialize();

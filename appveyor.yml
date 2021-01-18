@@ -19,7 +19,7 @@ for:
         - image: Ubuntu2004
 
     artifacts:
-      - path: '**\*.AppImage'
+      - path: '**\REDasm*.AppImage'
         name: REDasm
 
     install:
@@ -39,13 +39,13 @@ for:
       - sh: wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
       - sh: chmod +x linuxdeploy*.AppImage
         # Copy Icon and .desktop to AppImage folder
-      - sh: mkdir AppDir
       - sh: mkdir -p AppDir/usr/share/applications
       - sh: mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
-      - sh: cp ../REDasm/REDasm.desktop AppDir/usr/share/applications/
-      - sh: cp ../REDasm/res/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/
+      - sh: cp ../REDasm.desktop AppDir/usr/share/applications/
+      - sh: cp ../res/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/redasm.png
         # Generate AppImage
       - sh: LD_LIBRARY_PATH=$PWD/AppDir/usr/lib/x86_64-linux-gnu ./linuxdeploy-x86_64.AppImage --appdir=AppDir --plugin qt --output appimage
+      - sh: mv REDasm-*.AppImage REDasm_Linux_AMD64_`date +%Y%m%d`.AppImage
 
   -
     matrix:

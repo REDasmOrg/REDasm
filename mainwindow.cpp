@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QtGui>
 #include <rdapi/rdapi.h>
+#include <iostream>
 
 #define PLUGINS_FOLDER_NAME  "plugins"
 #define DATABASE_FOLDER_NAME "database"
@@ -235,10 +236,19 @@ void MainWindow::initializeConfig()
     RDConfig_AddDatabasePath(qUtf8Printable(QDir(RDConfig_GetRuntimePath()).absoluteFilePath(DATABASE_FOLDER_NAME)));
     RDConfig_AddPluginPath(qUtf8Printable(QDir(RDConfig_GetRuntimePath()).absoluteFilePath(PLUGINS_FOLDER_NAME)));
 
+    const char* appdir = std::getenv("APPDIR");
+    bool isappimage = appdir && std::getenv("APPIMAGE");
+
     for(const QString& searchpath : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation))
     {
         RDConfig_AddDatabasePath(qUtf8Printable(QDir(searchpath).absoluteFilePath(DATABASE_FOLDER_NAME)));
         RDConfig_AddPluginPath(qUtf8Printable(QDir(searchpath).absoluteFilePath(PLUGINS_FOLDER_NAME)));
+
+        if(!isappimage) continue;
+        std::cout << appdir << std::endl;
+        QString appdirqt = QString::fromUtf8(appdir);
+        RDConfig_AddDatabasePath(qUtf8Printable(QDir(appdirqt + QDir::separator() + searchpath).absoluteFilePath(DATABASE_FOLDER_NAME)));
+        RDConfig_AddPluginPath(qUtf8Printable(QDir(appdirqt + QDir::separator() + searchpath).absoluteFilePath(PLUGINS_FOLDER_NAME)));
     }
 
     QtUI::initialize();

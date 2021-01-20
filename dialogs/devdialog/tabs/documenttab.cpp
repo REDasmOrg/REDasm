@@ -149,7 +149,7 @@ void DocumentTab::displayInstructionInformation(RDDocument* doc, const RDDocumen
     RDBlock block;
     if(!RDDocument_GetBlock(doc, item.address, &block)) return;
 
-    QString hexdump; // = RD_HexDump(m_context->disassembler(), item.address, RDBlock_Size(&block));
+    QString hexdump = RD_HexDump(m_context.get(), item.address, RDBlock_Size(&block));
     QByteArray dump = QByteArray::fromHex(hexdump.toUtf8());
 
     this->header("INSTRUCTION");
@@ -197,6 +197,15 @@ void DocumentTab::displayInformation()
     this->header("ITEM");
 
     m_indent = INDENT_BASE;
+        RDSegment segment;
+        if(RDDocument_GetSegmentAddress(doc, item.address, &segment))
+            this->line("segment", QString::fromUtf8(segment.name));
+        else
+            this->line("segment", "???");
+
+        auto loc = RD_Offset(m_context.get(), item.address);
+        this->line("offset", loc.valid ? RD_ToHex(loc.offset) : "???");
+
         this->line("address", RD_ToHex(item.address));
         this->line("type", this->itemType(item));
         this->line("index", QString::number(item.index));

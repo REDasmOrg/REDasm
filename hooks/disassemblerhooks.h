@@ -8,6 +8,7 @@
 #define HOOK_ACTION_SAVE_AS      "action_Save_As"
 #define HOOK_ACTION_CLOSE        "action_Close"
 #define HOOK_ACTION_RECENT_FILES "action_Recent_Files"
+#define HOOK_ACTION_FLC          "action_FLC"
 #define HOOK_ACTION_DEVTOOLS     "action_Developer_Tools"
 #define HOOK_ACTION_DATABASE     "action_Database"
 
@@ -18,6 +19,7 @@
 #include <rdapi/rdapi.h>
 #include "isurface.h"
 
+class FLCDialog;
 class DevDialog;
 class OutputDock;
 class DisassemblerView;
@@ -55,6 +57,7 @@ class DisassemblerHooks: public QObject
         void exit();
 
     public:
+        void showFLC();
         void showDeveloperTools();
         void showDatabase();
         void showProblems();
@@ -94,6 +97,7 @@ class DisassemblerHooks: public QObject
         QPushButton *m_pbproblems{nullptr}, *m_pbrenderer;
         DisassemblerView* m_disassemblerview{nullptr};
         DevDialog* m_devdialog{nullptr};
+        FLCDialog* m_flcdialog{nullptr};
         QFileInfo m_fileinfo;
         static DisassemblerHooks m_instance;
 };

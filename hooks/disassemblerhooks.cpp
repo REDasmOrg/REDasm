@@ -6,6 +6,7 @@
 #include "../dialogs/analyzerdialog/analyzerdialog.h"
 #include "../dialogs/loaderdialog/loaderdialog.h"
 #include "../dialogs/devdialog/devdialog.h"
+#include "../dialogs/flcdialog/flcdialog.h"
 #include "../dialogs/databasedialog/databasedialog.h"
 #include "../widgets/listing/listingsplitview.h"
 #include "../widgets/docks/outputdock/outputdock.h"
@@ -77,6 +78,13 @@ void DisassemblerHooks::about()
 }
 
 void DisassemblerHooks::exit() { qApp->exit(); }
+
+void DisassemblerHooks::showFLC()
+{
+    if(!m_flcdialog) m_flcdialog = new FLCDialog(m_mainwindow);
+    m_flcdialog->showFLC(this->activeContext());
+}
+
 void DisassemblerHooks::showDeveloperTools() { if(m_devdialog) m_devdialog->show(); }
 
 void DisassemblerHooks::showDatabase()
@@ -422,7 +430,8 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
 
 void DisassemblerHooks::enableCommands(QWidget* w)
 {
-    QAction* act = m_mainwindow->findChild<QAction*>(HOOK_ACTION_DEVTOOLS);
+    QAction* actdevtools = m_mainwindow->findChild<QAction*>(HOOK_ACTION_DEVTOOLS);
+    QAction* actflc = m_mainwindow->findChild<QAction*>(HOOK_ACTION_FLC);
     auto actions = m_toolbar->actions();
 
     if(!w)
@@ -430,7 +439,8 @@ void DisassemblerHooks::enableCommands(QWidget* w)
         for(int i = 2; i < actions.size(); i++)
             actions[i]->setVisible(false);
 
-        act->setVisible(false);
+        actdevtools->setVisible(false);
+        actflc->setVisible(false);
         m_pbrenderer->setVisible(false);
         return;
     }
@@ -439,5 +449,6 @@ void DisassemblerHooks::enableCommands(QWidget* w)
     this->checkListingMode();
 
     m_pbrenderer->setVisible(splitview);
-    act->setVisible(splitview);
+    actdevtools->setVisible(splitview);
+    actflc->setVisible(splitview);
 }

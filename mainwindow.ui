@@ -34,7 +34,7 @@
      <x>0</x>
      <y>0</y>
      <width>1118</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -76,9 +76,10 @@
     <property name="title">
      <string>&amp;REDasm</string>
     </property>
+    <addaction name="action_FLC"/>
+    <addaction name="action_Developer_Tools"/>
     <addaction name="action_Database"/>
     <addaction name="separator"/>
-    <addaction name="action_Developer_Tools"/>
     <addaction name="action_Settings"/>
    </widget>
    <addaction name="menu_File"/>
@@ -212,6 +213,14 @@
   <action name="action_Settings">
    <property name="text">
     <string>&amp;Settings</string>
+   </property>
+  </action>
+  <action name="action_FLC">
+   <property name="text">
+    <string>FLC</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
  </widget>

@@ -4,6 +4,9 @@
 #include <memory>
 #include <rdapi/rdapi.h>
 
+#define DEFAULT_DIALOG_WIDTH  640
+#define DEFAULT_DIALOG_HEIGHT 480
+
 class QWidget;
 class SurfaceQt;
 

@@ -6,11 +6,9 @@
 #include <QSplitter>
 #include <QToolBar>
 #include <QDialog>
+#include "../../hooks/disassemblerhooks.h"
 #include "../../hooks/isurface.h"
 #include "../../redasmfonts.h"
-
-#define SPLIT_DIALOG_WIDTH  640
-#define SPLIT_DIALOG_HEIGHT 480
 
 SplitItem::SplitItem(QWidget* w, SplitView* view, QWidget* parent) : QWidget(parent), m_widget(w), m_view(view)
 {
@@ -50,19 +48,7 @@ QAction* SplitItem::addButton(const QIcon& icon)
     return act;
 }
 
-void SplitItem::splitInDialog()
-{
-    QVBoxLayout* l = new QVBoxLayout();
-    l->setSpacing(0);
-    l->setMargin(0);
-    l->addWidget(m_view->createView());
-
-    QDialog* dialog = m_view->createDialog();
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setLayout(l);
-    dialog->resize(SPLIT_DIALOG_WIDTH, SPLIT_DIALOG_HEIGHT);
-    dialog->show();
-}
+void SplitItem::splitInDialog() { DisassemblerHooks::instance()->showDialog(QString(), m_view->createView()); }
 
 QAction* SplitItem::action(int idx) const
 {

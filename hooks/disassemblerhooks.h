@@ -29,11 +29,6 @@ class DisassemblerHooks: public QObject
     Q_OBJECT
 
     private:
-        enum { Action_Rename = 0, Action_XRefs, Action_Follow, Action_FollowPointerHexDump,
-               Action_CallGraph, Action_Goto, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction,
-               Action_Back, Action_Forward, Action_Copy };
-
-    private:
         DisassemblerHooks(QObject* parent = nullptr);
 
     public:
@@ -58,9 +53,11 @@ class DisassemblerHooks: public QObject
 
     public:
         void showFLC();
+        void showCallGraph(rd_address address);
         void showDeveloperTools();
         void showDatabase();
         void showProblems();
+        void showDialog(const QString& title, QWidget* w);
         void focusOn(QWidget* w);
 
     public:

@@ -11,6 +11,7 @@
 #include "../widgets/listing/listingsplitview.h"
 #include "../widgets/docks/outputdock/outputdock.h"
 #include "../widgets/disassemblerview.h"
+#include "../widgets/callgraphview/callgraphview.h"
 #include "../widgets/welcomewidget.h"
 #include "../models/dev/blocklistmodel.h"
 #include "../models/listingitemmodel.h"
@@ -19,6 +20,7 @@
 #include "../redasmfonts.h"
 #include <QMessageBox>
 #include <QApplication>
+#include <QVBoxLayout>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QToolBar>
@@ -83,6 +85,13 @@ void DisassemblerHooks::showFLC()
 {
     if(!m_flcdialog) m_flcdialog = new FLCDialog(m_mainwindow);
     m_flcdialog->showFLC(this->activeContext());
+}
+
+void DisassemblerHooks::showCallGraph(rd_address address)
+{
+    auto* cgv = new CallGraphView(this->activeContext());
+    this->showDialog("Callgraph @ " + QString::fromStdString(rd_tohex(address)), cgv);
+    cgv->walk(address);
 }
 
 void DisassemblerHooks::showDeveloperTools() { if(m_devdialog) m_devdialog->show(); }
@@ -334,6 +343,21 @@ void DisassemblerHooks::close(bool showwelcome)
     if(showwelcome) this->showWelcome(); // Replaces central widget, if any
     else if(m_disassemblerview) m_disassemblerview->deleteLater();
     m_disassemblerview = nullptr;
+}
+
+void DisassemblerHooks::showDialog(const QString& title, QWidget* w)
+{
+    QVBoxLayout* l = new QVBoxLayout();
+    l->setSpacing(0);
+    l->setMargin(0);
+    l->addWidget(w);
+
+    QDialog* dialog = new QDialog();
+    dialog->setWindowTitle(title);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setLayout(l);
+    dialog->resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_HEIGHT);
+    dialog->show();
 }
 
 void DisassemblerHooks::replaceWidget(QWidget* w)

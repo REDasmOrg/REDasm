@@ -3,6 +3,7 @@
 #include "../../QHexView/document/qhexdocument.h"
 #include "../../dialogs/referencesdialog/referencesdialog.h"
 #include "../../dialogs/gotodialog/gotodialog.h"
+#include "../../hooks/disassemblerhooks.h"
 #include "../../redasmsettings.h"
 #include <unordered_map>
 #include <unordered_set>
@@ -172,10 +173,7 @@ void ListingView::adjustActions()
         else
             actions[ListingView::Action_CreateFunction]->setVisible(false);
 
-        if(funcname)
-            actions[ListingView::Action_CallGraph]->setText(QString("Callgraph %1").arg(funcname));
-
-        actions[ListingView::Action_CallGraph]->setVisible(funcname && hassymbolsegment && HAS_FLAG(&symbolsegment, SegmentFlags_Code));
+        actions[ListingView::Action_CallGraph]->setVisible(hassymbolsegment && HAS_FLAG(&symbolsegment, SegmentFlags_Code));
         actions[ListingView::Action_HexDumpFunction]->setVisible(funcname);
         actions[ListingView::Action_HexDump]->setVisible(true);
         return;
@@ -201,7 +199,7 @@ void ListingView::adjustActions()
     actions[ListingView::Action_Rename]->setText(QString("Rename %1").arg(symbolname));
     actions[ListingView::Action_Rename]->setVisible(!RDContext_IsBusy(surface->context().get()) && HAS_FLAG(&symbol, SymbolFlags_Weak));
 
-    actions[ListingView::Action_CallGraph]->setText(QString("Callgraph %1").arg(symbolname));
+    actions[ListingView::Action_CallGraph]->setText("Callgraph");
     actions[ListingView::Action_CallGraph]->setVisible(!RDContext_IsBusy(surface->context().get()) && IS_TYPE(&symbol, SymbolType_Function));
 
     actions[ListingView::Action_Follow]->setText(QString("Follow %1").arg(symbolname));
@@ -273,7 +271,9 @@ QMenu* ListingView::createActions(ISurface* surface)
     actions[ListingView::Action_Goto] = contextmenu->addAction("Goto...", this, [&]() { this->showGoto(); }, QKeySequence(Qt::Key_G));
 
     actions[ListingView::Action_CallGraph] = contextmenu->addAction("Call Graph", this, [&, surface]() {
-
+        RDDocumentItem item;
+        if(!surface->getCurrentItem(&item)) return;
+        DisassemblerHooks::instance()->showCallGraph(item.address);
     }, QKeySequence(Qt::CTRL + Qt::Key_G));
 
     contextmenu->addSeparator();

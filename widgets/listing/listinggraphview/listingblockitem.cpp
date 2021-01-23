@@ -3,9 +3,7 @@
 #include <QPainter>
 #include <QWidget>
 
-#define BLOCK_MARGIN      4
 #define DROP_SHADOW_SIZE  10
-#define BLOCK_MARGINS     -BLOCK_MARGIN, 0, BLOCK_MARGIN, 0
 
 ListingBlockItem::ListingBlockItem(const RDContextPtr& ctx, const RDFunctionBasicBlock* fbb, RDGraphNode n, const RDGraph* g, QWidget *parent) : GraphViewItem(n, g, parent), m_basicblock(fbb)
 {

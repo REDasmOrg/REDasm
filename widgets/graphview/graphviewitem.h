@@ -6,6 +6,9 @@
 #include <QRect>
 #include <rdapi/graph/graph.h>
 
+#define BLOCK_MARGIN      4
+#define BLOCK_MARGINS     -BLOCK_MARGIN, 0, BLOCK_MARGIN, 0
+
 class GraphViewItem: public QObject
 {
     Q_OBJECT

@@ -5,7 +5,6 @@
 #include <QScrollBar>
 #include <QPainter>
 #include <cmath>
-#include <iostream>
 
 GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent)
 {
@@ -21,15 +20,9 @@ GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent)
 
 void GraphView::setGraph(RDGraph* graph)
 {
-    m_selecteditem = nullptr;
     m_scalefactor = m_scaleboost = 1.0;
-    qDeleteAll(m_items);
-    m_items.clear();
-    m_lines.clear();
-    m_arrows.clear();
-
     m_graph = graph;
-    this->computeGraph();
+    this->updateGraph();
 }
 
 void GraphView::setSelectedBlock(GraphViewItem *item)
@@ -255,8 +248,15 @@ void GraphView::computed()
 
 void GraphView::computeLayout() { RDGraphLayout_Layered(m_graph, LayeredLayoutType_Medium); }
 
-void GraphView::computeGraph()
+void GraphView::updateGraph()
 {
+    m_selecteditem = nullptr;
+    qDeleteAll(m_items);
+    m_items.clear();
+    m_lines.clear();
+    m_arrows.clear();
+    RDGraph_ClearLayout(m_graph);
+
     RDGraphNode root = RDGraph_GetRoot(m_graph);
 
     const RDGraphNode* nodes = nullptr;

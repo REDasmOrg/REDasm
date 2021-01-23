@@ -23,6 +23,7 @@ class GraphView : public QAbstractScrollArea
         void setGraph(RDGraph* graph);
         void setSelectedBlock(GraphViewItem* item);
         void setFocusOnSelection(bool b);
+        void updateGraph();
         GraphViewItem* selectedItem() const;
         RDGraph* graph() const;
 
@@ -48,7 +49,6 @@ class GraphView : public QAbstractScrollArea
 
     private:
         GraphViewItem* itemFromMouseEvent(QMouseEvent *e) const;
-        void computeGraph();
         void zoomOut(const QPointF& cursorpos);
         void zoomIn(const QPointF& cursorpos);
         void adjustSize(int vpw, int vph, const QPointF& cursorpos = QPoint(), bool fit = false);

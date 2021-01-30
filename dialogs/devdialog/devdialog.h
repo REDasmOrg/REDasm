@@ -15,6 +15,12 @@ class DevDialog : public QDialog
         explicit DevDialog(const RDContextPtr& ctx, QWidget *parent = nullptr);
         ~DevDialog();
 
+    protected:
+        void showEvent(QShowEvent* e) override;
+
+    private:
+        void updateInformation();
+
     private:
         Ui::DevDialog *ui;
         RDContextPtr m_context;

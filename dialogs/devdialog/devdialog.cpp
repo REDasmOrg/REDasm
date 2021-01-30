@@ -8,15 +8,12 @@ DevDialog::DevDialog(const RDContextPtr& ctx, QWidget *parent) : QDialog(parent)
     ui->tabWidget->setStyleSheet("QTabWidget::pane { border: 0; }");
 
     RDObject_Subscribe(ctx.get(), this, [](const RDEventArgs* e) {
+        auto* thethis = reinterpret_cast<DevDialog*>(e->owner);
+        if(!thethis->isVisible()) return;
+
         switch(e->id) {
             case Event_ContextSurfaceChanged:
-            case Event_SurfacePositionChanged: {
-                auto* thethis = reinterpret_cast<DevDialog*>(e->owner);
-                thethis->ui->tabDocument->updateInformation();
-                thethis->ui->tabRDIL->updateInformation();
-                break;
-            }
-
+            case Event_SurfacePositionChanged: thethis->updateInformation(); break;
             default: break;
         }
     }, nullptr);
@@ -31,4 +28,16 @@ DevDialog::~DevDialog()
 {
     if(m_context) RDObject_Unsubscribe(m_context.get(), this);
     delete ui;
+}
+
+void DevDialog::showEvent(QShowEvent* e)
+{
+    QDialog::showEvent(e);
+    this->updateInformation();
+}
+
+void DevDialog::updateInformation()
+{
+    ui->tabDocument->updateInformation();
+    ui->tabRDIL->updateInformation();
 }

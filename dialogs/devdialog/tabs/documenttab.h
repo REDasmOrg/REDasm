@@ -29,8 +29,10 @@ class DocumentTab : public QWidget
         QString symbolFlags(const RDSymbol* symbol) const;
         QString padHexDump(const QString& hexdump) const;
         QString getBits(const QByteArray& ba) const;
+        QString joinAddressList(const rd_address* addresslist, size_t c) const;
         void displayInstructionInformation(RDDocument* doc, const RDDocumentItem& item);
         void displaySymbolInformation(RDDocument* doc, const RDDocumentItem& item);
+        void displayNetInformation(const RDDocumentItem& item);
         void displayInformation();
 
     private:

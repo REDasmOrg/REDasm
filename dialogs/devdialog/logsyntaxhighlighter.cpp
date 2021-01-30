@@ -12,6 +12,7 @@ LogSyntaxHighlighter::LogSyntaxHighlighter(QTextDocument *parent) : QSyntaxHighl
 {
     CREATE_RULE(hexdigits, "\\b[0-9a-fA-F]+\\b", Theme_Constant);
     CREATE_RULE(strings, "\"[^\"]*\"", Theme_String);
+    CREATE_RULE(notavailable, "N/A", Theme_Nop);
 }
 
 void LogSyntaxHighlighter::highlightBlock(const QString &text)

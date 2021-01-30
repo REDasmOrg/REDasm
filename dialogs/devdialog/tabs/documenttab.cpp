@@ -8,6 +8,7 @@
 #define INDENT_BASE   2
 #define VALUE_COLUMN  15
 #define HEADER_STRING "-"
+#define NOT_AVAILABLE "N/A"
 #define STR(x) #x
 #define RETURN_CASE_OF(x) case x: return #x
 
@@ -119,7 +120,7 @@ QString DocumentTab::padHexDump(const QString& hexdump) const
     for(int i = 0; i < hexdump.size(); i += 2)
     {
         if(!phexdump.isEmpty()) phexdump += " ";
-        phexdump += hexdump.mid(i, 2);
+        phexdump += hexdump.midRef(i, 2);
     }
 
     return phexdump;
@@ -142,6 +143,21 @@ QString DocumentTab::getBits(const QByteArray& ba) const
     }
 
     return bits;
+}
+
+QString DocumentTab::joinAddressList(const rd_address* addresslist, size_t c) const
+{
+    if(!c) return NOT_AVAILABLE;
+
+    QString s;
+
+    for(size_t i = 0; i < c; i++)
+    {
+        if(!s.isEmpty()) s += ", ";
+        s += RD_ToHex(addresslist[i]);
+    }
+
+    return s;
 }
 
 void DocumentTab::displayInstructionInformation(RDDocument* doc, const RDDocumentItem& item)
@@ -178,6 +194,31 @@ void DocumentTab::displaySymbolInformation(RDDocument* doc, const RDDocumentItem
         this->line("type", this->symbolType(&symbol));
         this->line("flags", this->symbolFlags(&symbol));
         this->line();
+    m_indent = 0;
+}
+
+void DocumentTab::displayNetInformation(const RDDocumentItem& item)
+{
+    const RDNet* net = RDContext_GetNet(m_context.get());
+    auto* n = RDNet_FindNode(net, item.address);
+    if(!n) return;
+
+    auto* prevnode = RDNet_GetPrevNode(net, n);
+    auto* nextnode = RDNet_GetNextNode(net, n);
+
+    const rd_address *from = nullptr, *branchesfalse = nullptr, *branchestrue;
+    size_t cfrom = RDNetNode_GetFrom(n, &from);
+    size_t cfalse = RDNetNode_GetBranchesFalse(n, &branchesfalse);
+    size_t ctrue = RDNetNode_GetBranchesTrue(n, &branchestrue);
+
+    this->header("NET");
+
+    m_indent = INDENT_BASE;
+        this->line("prev", prevnode ? RD_ToHex(RDNetNode_GetAddress(prevnode)) : NOT_AVAILABLE);
+        this->line("next", nextnode ? RD_ToHex(RDNetNode_GetAddress(nextnode)) : NOT_AVAILABLE);
+        this->line("from", this->joinAddressList(from, cfrom));
+        this->line("branchfalse", this->joinAddressList(branchesfalse, cfalse));
+        this->line("branchtrue", this->joinAddressList(branchestrue, ctrue));
     m_indent = 0;
 }
 
@@ -218,4 +259,6 @@ void DocumentTab::displayInformation()
         case DocumentItemType_Instruction: this->displayInstructionInformation(doc, item); break;
         default: break;
     }
+
+    this->displayNetInformation(item);
 }

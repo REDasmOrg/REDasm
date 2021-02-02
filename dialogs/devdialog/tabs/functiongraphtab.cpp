@@ -64,9 +64,7 @@ void FunctionGraphTab::copyUnitTests() const
 
         rd_address startaddress = RDFunctionGraph_GetStartAddress(graph);
         u32 hash = RDGraph_Hash(graph);
-
-        s += QString("\t{ %1, %2 },\n").arg(RD_ToHexBits(startaddress, 0, true))
-                                      .arg(RD_ToHexBits(hash, 32, true));
+        s += QString("\t{ %1, %2 },\n").arg(RD_ToHexBits(startaddress, 0, true), RD_ToHexBits(hash, 32, true));
     }
 
     s += "};";

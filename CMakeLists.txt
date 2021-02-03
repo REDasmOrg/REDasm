@@ -29,8 +29,8 @@ endif()
 set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
 add_definitions(-DREDASM_VERSION="${REDASM_VERSION_BASE} \(${REDASM_BUILD_VERSION}\)")
 
+add_subdirectory(libs/qhexview)
 add_subdirectory(LibREDasm)
-add_subdirectory(QHexView)
 
 # FindREDasm.config
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/LibREDasm/rdapi")
@@ -136,7 +136,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         LibREDasm
-        QHexEdit
+        libs
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

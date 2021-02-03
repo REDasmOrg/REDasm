@@ -1,10 +1,10 @@
 #include "listingview.h"
-#include "../../QHexView/document/buffer/qmemoryrefbuffer.h"
-#include "../../QHexView/document/qhexdocument.h"
 #include "../../dialogs/referencesdialog/referencesdialog.h"
 #include "../../dialogs/gotodialog/gotodialog.h"
 #include "../../hooks/disassemblerhooks.h"
 #include "../../redasmsettings.h"
+#include <qhexview/document/buffer/qmemoryrefbuffer.h>
+#include <qhexview/document/qhexdocument.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <QInputDialog>

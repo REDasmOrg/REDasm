@@ -2,11 +2,11 @@
 
 #include <QStackedWidget>
 #include <future>
+#include <qhexview/qhexview.h>
 #include <rdapi/rdapi.h>
 #include "listinggraphview/listinggraphview.h"
 #include "listingtextview/listingtextview.h"
 #include "../../hooks/isurface.h"
-#include "../QHexView/qhexview.h"
 
 class ListingView : public QStackedWidget
 {

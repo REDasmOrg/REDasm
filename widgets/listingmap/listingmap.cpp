@@ -1,15 +1,17 @@
 #include "listingmap.h"
-#include "../../../themeprovider.h"
+#include "../../themeprovider.h"
 #include <rdapi/graph/functiongraph.h>
 #include <QApplication>
 #include <QPainter>
 #include <algorithm>
 #include <cmath>
 
-#define LISTINGMAP_SIZE 64
+#define LISTINGMAP_WIDTH  64
+#define LISTINGMAP_HEIGHT 32
 
 ListingMap::ListingMap(const RDContextPtr& ctx, QWidget *parent) : QWidget(parent), m_context(ctx)
 {
+    this->setWindowTitle("Map");
     m_renderer = new ListingMapRenderer(ctx, this);
 
     RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {
@@ -34,7 +36,7 @@ ListingMap::~ListingMap()
     if(m_renderer) m_renderer->abort();
 }
 
-QSize ListingMap::sizeHint() const { return { LISTINGMAP_SIZE, LISTINGMAP_SIZE }; }
+QSize ListingMap::sizeHint() const { return { LISTINGMAP_WIDTH, LISTINGMAP_HEIGHT }; }
 
 void ListingMap::onRenderCompleted(const QImage& image)
 {

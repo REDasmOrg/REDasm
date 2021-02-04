@@ -15,7 +15,7 @@ class ReferencesDialog : public QDialog
         explicit ReferencesDialog(const RDContextPtr& ctx, ISurface* surface, const RDSymbol *symbol, QWidget *parent = nullptr);
         ~ReferencesDialog();
 
-    private slots:
+    private Q_SLOTS:
         void on_tvReferences_doubleClicked(const QModelIndex &index);
 
     private:

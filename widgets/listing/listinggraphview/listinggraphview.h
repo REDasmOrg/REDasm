@@ -47,7 +47,7 @@ class ListingGraphView : public GraphView, public ISurface
         GraphViewItem* createItem(RDGraphNode n, const RDGraph*g) override;
         void computed() override;
 
-    private slots:
+    private Q_SLOTS:
         void onFollowRequested();
 
     private:

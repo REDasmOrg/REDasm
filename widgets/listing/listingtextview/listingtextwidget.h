@@ -53,7 +53,7 @@ class ListingTextWidget : public QAbstractScrollArea, public ISurface
         void adjustScrollBars();
         void showPopup(const QPointF& pt);
 
-    signals:
+    Q_SIGNALS:
         void switchView();
 
     private:

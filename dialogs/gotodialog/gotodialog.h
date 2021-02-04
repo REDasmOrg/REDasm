@@ -20,7 +20,7 @@ class GotoDialog : public QDialog
         bool hasValidAddress() const;
         void validateEntry();
 
-    private slots:
+    private Q_SLOTS:
         void onGotoClicked();
         void onItemSelected(const QModelIndex& index);
 

@@ -58,8 +58,8 @@ void DatabaseDataModel::goForward()
     m_back.push(m_query);
     this->query(b);
 
-    emit backChanged();
-    emit forwardChanged();
+    Q_EMIT backChanged();
+    Q_EMIT forwardChanged();
 }
 
 void DatabaseDataModel::goBack()
@@ -71,8 +71,8 @@ void DatabaseDataModel::goBack()
     m_forward.push(m_query);
     this->query(b);
 
-    emit backChanged();
-    emit forwardChanged();
+    Q_EMIT backChanged();
+    Q_EMIT forwardChanged();
 }
 
 void DatabaseDataModel::queryRoot()
@@ -87,7 +87,7 @@ void DatabaseDataModel::query(const QModelIndex& index)
     if(!this->isClickable(idx)) return;
 
     m_back.push(m_query);
-    emit backChanged();
+    Q_EMIT backChanged();
 
     this->query(fs::path(m_query) / this->data(idx).toString().toStdString());
 }
@@ -156,7 +156,7 @@ void DatabaseDataModel::query()
     }
 
     this->endResetModel();
-    emit queryChanged(QString::fromStdString(m_query.string()));
+    Q_EMIT queryChanged(QString::fromStdString(m_query.string()));
 }
 
 QString DatabaseDataModel::objectValue(const QJsonValue& v) const

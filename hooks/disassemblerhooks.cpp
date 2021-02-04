@@ -9,15 +9,16 @@
 #include "../dialogs/flcdialog/flcdialog.h"
 #include "../dialogs/databasedialog/databasedialog.h"
 #include "../widgets/listing/listingsplitview.h"
-#include "../widgets/docks/outputdock/outputdock.h"
-#include "../widgets/disassemblerview.h"
+#include "../widgets/disassemblerdocks.h"
 #include "../widgets/callgraphview/callgraphview.h"
 #include "../widgets/welcomewidget.h"
+#include "../widgets/outputwidget.h"
 #include "../models/dev/blocklistmodel.h"
 #include "../models/listingitemmodel.h"
 #include "../renderer/surfaceqt.h"
 #include "../redasmsettings.h"
 #include "../redasmfonts.h"
+#include <QDesktopServices>
 #include <QMessageBox>
 #include <QApplication>
 #include <QVBoxLayout>
@@ -29,20 +30,50 @@
 
 #define MAX_FUNCTION_NAME 50
 
-DisassemblerHooks DisassemblerHooks::m_instance;
-
 DisassemblerHooks::DisassemblerHooks(QObject* parent): QObject(parent) { }
 
-void DisassemblerHooks::initialize(QMainWindow* mainwindow)
+void DisassemblerHooks::initialize(KDDockWidgets::MainWindow* mainwindow)
 {
-    DisassemblerHooks::m_instance.m_mainwindow = mainwindow;
-    DisassemblerHooks::m_instance.hook();
+    DisassemblerHooks::instance()->m_mainwindow = mainwindow;
+    DisassemblerHooks::instance()->hook();
 }
 
-DisassemblerHooks* DisassemblerHooks::instance() { return &m_instance; }
-QMainWindow* DisassemblerHooks::mainWindow() const { return m_mainwindow; }
-void DisassemblerHooks::log(const QString& s) { this->outputDock()->log(s); }
-void DisassemblerHooks::clearLog() { this->outputDock()->clear(); }
+DisassemblerHooks* DisassemblerHooks::instance()
+{
+    static DisassemblerHooks m_instance;
+    return &m_instance;
+}
+
+KDDockWidgets::MainWindow* DisassemblerHooks::mainWindow() { return DisassemblerHooks::instance()->m_mainwindow; }
+
+KDDockWidgets::DockWidget* DisassemblerHooks::dockify(QWidget* w, const QString& id, KDDockWidgets::DockWidget::Options options)
+{
+    auto* dock = new KDDockWidgets::DockWidget(id, options);
+    dock->setWidget(w);
+    dock->setTitle(w->windowTitle());
+    return dock;
+}
+
+KDDockWidgets::DockWidget* DisassemblerHooks::tabify(QWidget* w, const QString& id, KDDockWidgets::DockWidgetBase::Options options) { return DisassemblerHooks::tabify(DisassemblerHooks::dockify(w, id, options)); }
+
+KDDockWidgets::DockWidget* DisassemblerHooks::tabify(KDDockWidgets::DockWidget* dock)
+{
+    DisassemblerHooks::mainWindow()->addDockWidgetAsTab(dock);
+    return dock;
+}
+
+void DisassemblerHooks::log(const QString& s)
+{
+    auto* ow = this->outputWidget();
+    if(ow) ow->log(s);
+    else qDebug() << s;
+}
+
+void DisassemblerHooks::clearLog()
+{
+    auto* ow = this->outputWidget();
+    if(ow) ow->clear();
+}
 
 void DisassemblerHooks::resetLayout()
 {
@@ -103,24 +134,17 @@ void DisassemblerHooks::showDatabase()
 }
 
 void DisassemblerHooks::showProblems() { ProblemsDialog dlgproblems(this->activeContext(), m_mainwindow); dlgproblems.exec(); }
-void DisassemblerHooks::focusOn(QWidget* w) { if(m_disassemblerview) m_disassemblerview->focusOn(w); }
 
 SurfaceQt* DisassemblerHooks::activeSurface() const
 {
-    if(!m_disassemblerview) return nullptr;
+    if(!m_disassemblerdocks) return nullptr;
 
-    auto* activesurface = RDContext_GetActiveSurface(m_disassemblerview->context().get());
+    auto* activesurface = RDContext_GetActiveSurface(m_disassemblerdocks->context().get());
     if(!activesurface) return nullptr;
     return reinterpret_cast<SurfaceQt*>(RDSurface_GetUserData(activesurface));
 }
 
-RDContextPtr DisassemblerHooks::activeContext() const  {  return m_disassemblerview ? m_disassemblerview->context() : nullptr; }
-
-void DisassemblerHooks::undock(QDockWidget* dw)
-{
-    m_mainwindow->removeDockWidget(dw);
-    dw->deleteLater();
-}
+RDContextPtr DisassemblerHooks::activeContext() const  {  return m_disassemblerdocks ? m_disassemblerdocks->context() : nullptr; }
 
 void DisassemblerHooks::onWindowActionTriggered(QAction* action)
 {
@@ -128,18 +152,18 @@ void DisassemblerHooks::onWindowActionTriggered(QAction* action)
 
     switch(idx)
     {
-        case 0: {
-            auto* surface = this->activeSurface();
-            if(surface) this->focusOn(surface->widget());
-            else this->focusOn(m_disassemblerview->showListing());
-            break;
-        }
+        // case 0: {
+        //     auto* surface = this->activeSurface();
+        //     if(surface) this->focusOn(surface->widget());
+        //     else this->focusOn(m_disassemblerdocks->showListing());
+        //     break;
+        // }
 
-        case 1: m_disassemblerview->showSegments();  break;
-        case 2: m_disassemblerview->showFunctions(); break;
-        case 3: m_disassemblerview->showExports();   break;
-        case 4: m_disassemblerview->showImports();   break;
-        case 5: m_disassemblerview->showStrings();   break;
+        case 1: m_disassemblerdocks->showSegments();  break;
+        case 2: m_disassemblerdocks->showFunctions(); break;
+        case 3: m_disassemblerdocks->showExports();   break;
+        case 4: m_disassemblerdocks->showImports();   break;
+        case 5: m_disassemblerdocks->showStrings();   break;
         default: break;
     }
 }
@@ -187,14 +211,14 @@ void DisassemblerHooks::statusAddress(const SurfaceQt* surface) const
     RD_Status(qUtf8Printable(s));
 }
 
-void DisassemblerHooks::loadDisassemblerView(const RDContextPtr& ctx)
+void DisassemblerHooks::loadDisassemblerDocks(const RDContextPtr& ctx)
 {
     this->close(false);
+    this->setTabBarVisible(true);
 
     m_devdialog = new DevDialog(ctx, m_mainwindow);
-    m_disassemblerview = new DisassemblerView();
-    m_disassemblerview->setContext(ctx);
-    this->replaceWidget(m_disassemblerview);
+    m_disassemblerdocks = new DisassemblerDocks();
+    m_disassemblerdocks->setContext(ctx);
 }
 
 void DisassemblerHooks::hook()
@@ -205,6 +229,7 @@ void DisassemblerHooks::hook()
     m_mnuwindow = m_mainwindow->findChild<QMenu*>(HOOK_MENU_WINDOW);
     m_toolbar = m_mainwindow->findChild<QToolBar*>(HOOK_TOOLBAR);
     this->showWelcome();
+    this->showOutput();
 
     QAction* act = m_mainwindow->findChild<QAction*>(HOOK_ACTION_DATABASE);
     connect(act, &QAction::triggered, this, [&]() { this->showDatabase(); });
@@ -218,7 +243,6 @@ void DisassemblerHooks::hook()
         this->checkListingMode();
     });
 
-    this->dock(new OutputDock(m_mainwindow), Qt::BottomDockWidgetArea);
     this->enableCommands(nullptr);
     this->enableViewCommands(false);
     this->loadRecents();
@@ -254,10 +278,20 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
     if(dlganalyzer.exec() != AnalyzerDialog::Accepted) return;
 
     m_fileinfo = QFileInfo(filepath);
-    this->loadDisassemblerView(ctx);
+    this->loadDisassemblerDocks(ctx);
 }
 
-void DisassemblerHooks::showWelcome() { this->replaceWidget(new WelcomeWidget()); }
+void DisassemblerHooks::setTabBarVisible(bool b)
+{
+    auto* tabbar = m_mainwindow->findChild<QTabBar*>();
+    if(tabbar) tabbar->setVisible(b);
+}
+
+void DisassemblerHooks::showWelcome()
+{
+    this->setTabBarVisible(false);
+    DisassemblerHooks::tabify(new WelcomeWidget(), "welcome", KDDockWidgets::DockWidget::Option_NotClosable);
+}
 
 void DisassemblerHooks::loadRecents()
 {
@@ -279,7 +313,7 @@ void DisassemblerHooks::loadRecents()
             continue;
         }
 
-        if(!QFileInfo(recents[i]).exists()) continue;
+        if(!QFileInfo().exists(recents[i])) continue;
 
         QAction* action = recentsmenu->addAction(QString("%1 - %2").arg(i).arg(recents[i]));
         action->setData(recents[i]);
@@ -309,27 +343,19 @@ void DisassemblerHooks::load(const QString& filepath)
     else if(buffer) RDObject_Free(buffer);
 }
 
-void DisassemblerHooks::dock(QWidget* w, Qt::DockWidgetArea area)
-{
-    QDockWidget* dw = dynamic_cast<QDockWidget*>(w);
-
-    if(!dw)
-    {
-        dw = new QDockWidget(m_mainwindow);
-        w->setParent(dw); // Take ownership
-        dw->setWindowTitle(w->windowTitle());
-        dw->setWidget(w);
-    }
-
-    m_mainwindow->addDockWidget(area, dw);
-}
-
-OutputDock* DisassemblerHooks::outputDock() const { return m_mainwindow->findChild<OutputDock*>(QString(), Qt::FindDirectChildrenOnly); }
+bool DisassemblerHooks::isLoaded() const { return m_disassemblerdocks != nullptr; }
+OutputWidget* DisassemblerHooks::outputWidget() const { return m_dockoutput ? static_cast<OutputWidget*>(m_dockoutput->widget()) : nullptr; }
 
 void DisassemblerHooks::checkListingMode()
 {
     if(RDContext_HasFlag(this->activeContext().get(), ContextFlags_ShowRDIL)) m_pbrenderer->setText("RDIL");
     else m_pbrenderer->setText("Listing");
+}
+
+void DisassemblerHooks::showOutput()
+{
+    m_dockoutput = DisassemblerHooks::dockify(new OutputWidget(m_mainwindow), "output");
+    m_mainwindow->addDockWidget(m_dockoutput, KDDockWidgets::Location_OnBottom);
 }
 
 void DisassemblerHooks::close(bool showwelcome)
@@ -340,9 +366,16 @@ void DisassemblerHooks::close(bool showwelcome)
     if(m_devdialog) m_devdialog->deleteLater();
     m_devdialog = nullptr;
 
+    auto docks = m_mainwindow->findChildren<KDDockWidgets::DockWidget*>(QString(), Qt::FindChildrenRecursively);
+
+    std::for_each(docks.begin(), docks.end(), [](KDDockWidgets::DockWidget* dw) {
+        if(dynamic_cast<OutputWidget*>(dw->widget())) return;
+        dw->deleteLater();
+    });
+
     if(showwelcome) this->showWelcome(); // Replaces central widget, if any
-    else if(m_disassemblerview) m_disassemblerview->deleteLater();
-    m_disassemblerview = nullptr;
+    else if(m_disassemblerdocks) m_disassemblerdocks->deleteLater();
+    m_disassemblerdocks = nullptr;
 }
 
 void DisassemblerHooks::showDialog(const QString& title, QWidget* w)
@@ -360,26 +393,10 @@ void DisassemblerHooks::showDialog(const QString& title, QWidget* w)
     dialog->show();
 }
 
-void DisassemblerHooks::replaceWidget(QWidget* w)
-{
-    QWidget* oldw = m_mainwindow->centralWidget();
-
-    if(oldw)
-    {
-        connect(oldw, &QWidget::destroyed, this, [w, this]() {
-            m_mainwindow->setCentralWidget(w);
-        });
-
-        oldw->deleteLater();
-    }
-    else
-        m_mainwindow->setCentralWidget(w);
-}
-
 void DisassemblerHooks::clearOutput()
 {
-    OutputDock* outputpart = this->outputDock();
-    if(outputpart) outputpart->clear();
+    OutputWidget* outputwidget = this->outputWidget();
+    if(outputwidget) outputwidget->clear();
 }
 
 void DisassemblerHooks::enableMenu(QMenu* menu, bool enable)
@@ -410,6 +427,12 @@ void DisassemblerHooks::enableViewCommands(bool enable)
     act->setEnabled(enable);
 }
 
+void DisassemblerHooks::openHomePage() const { QDesktopServices::openUrl(QUrl("https://redasm.io")); }
+void DisassemblerHooks::openTwitter() const { QDesktopServices::openUrl(QUrl("https://twitter.com/re_dasm")); }
+void DisassemblerHooks::openTelegram() const { QDesktopServices::openUrl(QUrl("https://t.me/REDasmDisassembler")); }
+void DisassemblerHooks::openReddit() const {  QDesktopServices::openUrl(QUrl("https://www.reddit.com/r/REDasm")); }
+void DisassemblerHooks::openGitHub() const { QDesktopServices::openUrl(QUrl("https://github.com/REDasmOrg/REDasm/issues")); }
+
 void DisassemblerHooks::showMessage(const QString& title, const QString& msg, size_t icon)
 {
     QMessageBox msgbox(m_mainwindow);
@@ -421,7 +444,7 @@ void DisassemblerHooks::showMessage(const QString& title, const QString& msg, si
 
 void DisassemblerHooks::updateViewWidgets(bool busy)
 {
-    if(!m_disassemblerview)
+    if(!m_disassemblerdocks)
     {
         m_toolbar->actions()[4]->setEnabled(false);
         m_lblstatusicon->setVisible(false);

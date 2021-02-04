@@ -1,5 +1,4 @@
-#ifndef OUTPUTWIDGET_H
-#define OUTPUTWIDGET_H
+#pragma once
 
 #include <QPlainTextEdit>
 
@@ -11,8 +10,6 @@ class OutputWidget : public QPlainTextEdit
         explicit OutputWidget(QWidget *parent = nullptr);
         QSize sizeHint() const override;
 
-    public slots:
+    public Q_SLOTS:
         void log(const QString& s);
 };
-
-#endif // OUTPUTWIDGET_H

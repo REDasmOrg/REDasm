@@ -42,10 +42,10 @@ class GraphViewItem: public QObject
         virtual void render(QPainter* painter, size_t state) = 0;
         virtual QSize size() const = 0;
 
-    public slots:
+    public Q_SLOTS:
         virtual void invalidate(bool notify = true);
 
-    signals:
+    Q_SIGNALS:
         void invalidated();
 
     private:

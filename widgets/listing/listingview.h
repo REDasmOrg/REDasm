@@ -22,7 +22,7 @@ class ListingView : public QStackedWidget
         bool getCurrentItem(RDDocumentItem* item);
         ISurface* currentISurface() const;
 
-    public slots:
+    public Q_SLOTS:
         void switchToGraph();
         void switchToListing();
         void switchToHex();
@@ -32,7 +32,7 @@ class ListingView : public QStackedWidget
     protected:
         bool eventFilter(QObject *object, QEvent *event) override;
 
-    private slots:
+    private Q_SLOTS:
         void adjustActions();
 
     private:
@@ -40,7 +40,7 @@ class ListingView : public QStackedWidget
         void showReferences(rd_address address);
         void prepareHexDocument();
 
-    signals:
+    Q_SIGNALS:
         void historyChanged();
 
     private:

@@ -19,7 +19,7 @@ class RendererAsync: public QThread
         virtual ~RendererAsync();
         void abort();
 
-    signals:
+    Q_SIGNALS:
         void renderCompleted(const QImage& image);
 
     protected:

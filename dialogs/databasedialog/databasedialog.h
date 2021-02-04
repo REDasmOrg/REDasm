@@ -30,7 +30,7 @@ class DatabaseDialog: public QDialog
         void checkDatabase(const QString& filepath);
         void addDatabase(RDDatabase* db);
 
-    private slots:
+    private Q_SLOTS:
         void onDatabaseDataDoubleClicked(const QModelIndex& index);
         void selectDatabase(const QModelIndex& index);
         void updateQuery(const QString& query);

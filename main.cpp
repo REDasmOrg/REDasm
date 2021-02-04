@@ -3,6 +3,7 @@
 #include "redasmsettings.h"
 #include <QApplication>
 #include <QStyleFactory>
+#include <kddockwidgets/Config.h>
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +14,9 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setApplicationName("redasm");
     a.setApplicationDisplayName("REDasm " + QString::fromUtf8(REDASM_VERSION));
+
+    KDDockWidgets::Config::self().setFlags(KDDockWidgets::Config::Flag_AllowReorderTabs |
+                                           KDDockWidgets::Config::Flag_TabsHaveCloseButton);
 
     REDasmSettings::setDefaultFormat(REDasmSettings::IniFormat);
     ThemeProvider::applyTheme();

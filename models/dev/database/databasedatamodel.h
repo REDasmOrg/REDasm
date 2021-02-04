@@ -24,7 +24,7 @@ class DatabaseDataModel : public QAbstractListModel
         bool decompile(QByteArray& data);
         void query(const QModelIndex& index);
 
-    public slots:
+    public Q_SLOTS:
         void goForward();
         void goBack();
         void queryRoot();
@@ -39,7 +39,7 @@ class DatabaseDataModel : public QAbstractListModel
         QVariant arrayData(const QModelIndex& index, int role) const;
         QVariant commonData(const QModelIndex& index, int role) const;
 
-    signals:
+    Q_SIGNALS:
         void backChanged();
         void forwardChanged();
         void queryChanged(const QString& query);

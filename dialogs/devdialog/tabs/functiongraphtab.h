@@ -19,7 +19,7 @@ class FunctionGraphTab : public QWidget
         ~FunctionGraphTab();
         void setContext(const RDContextPtr& ctx);
 
-    private slots:
+    private Q_SLOTS:
         void showGraph(const QModelIndex& current, const QModelIndex&);
         void copyUnitTests() const;
         void copyGraph() const;

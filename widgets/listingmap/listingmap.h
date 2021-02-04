@@ -14,7 +14,7 @@ class ListingMap : public QWidget
         virtual ~ListingMap();
         QSize sizeHint() const override;
 
-    private slots:
+    private Q_SLOTS:
         void onRenderCompleted(const QImage& image);
 
     protected:

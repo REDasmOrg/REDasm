@@ -3,8 +3,8 @@
 #include <QPainter>
 #include <QWidget>
 #include <rdapi/graph/functiongraph.h>
-#include "../../../renderer/surfaceqt.h"
-#include "../../../themeprovider.h"
+#include "../../renderer/surfaceqt.h"
+#include "../../themeprovider.h"
 
 ListingMapRenderer::ListingMapRenderer(const RDContextPtr& ctx, QObject* parent): RendererAsync(ctx, parent)
 {

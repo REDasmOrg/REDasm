@@ -12,7 +12,8 @@
 #define HOOK_ACTION_DEVTOOLS     "action_Developer_Tools"
 #define HOOK_ACTION_DATABASE     "action_Database"
 
-#include <QMainWindow>
+#include <kddockwidgets/MainWindow.h>
+#include <kddockwidgets/DockWidget.h>
 #include <QPushButton>
 #include <QLabel>
 #include <QFileInfo>
@@ -21,8 +22,8 @@
 
 class FLCDialog;
 class DevDialog;
-class OutputDock;
-class DisassemblerView;
+class OutputWidget;
+class DisassemblerDocks;
 
 class DisassemblerHooks: public QObject
 {
@@ -32,12 +33,21 @@ class DisassemblerHooks: public QObject
         DisassemblerHooks(QObject* parent = nullptr);
 
     public:
-        static void initialize(QMainWindow* mainwindow);
+        static void initialize(KDDockWidgets::MainWindow* mainwindow);
         static DisassemblerHooks* instance();
-        QMainWindow* mainWindow() const;
+        static KDDockWidgets::MainWindow* mainWindow();
+        static KDDockWidgets::DockWidget* dockify(QWidget* w, const QString& id, KDDockWidgets::DockWidget::Options options = KDDockWidgets::DockWidget::Options());
+        static KDDockWidgets::DockWidget* tabify(QWidget* w, const QString& id, KDDockWidgets::DockWidget::Options options = KDDockWidgets::DockWidget::Options());
+        static KDDockWidgets::DockWidget* tabify(KDDockWidgets::DockWidget* dock);
         Q_INVOKABLE void enableViewCommands(bool enable);
+        bool isLoaded() const;
+        void openHomePage() const;
+        void openTwitter() const;
+        void openTelegram() const;
+        void openReddit() const;
+        void openGitHub() const;
 
-    public slots:
+    public Q_SLOTS:
         void showMessage(const QString& title, const QString& msg, size_t icon);
         void updateViewWidgets(bool busy);
         void log(const QString& s);
@@ -58,9 +68,9 @@ class DisassemblerHooks: public QObject
         void showDatabase();
         void showProblems();
         void showDialog(const QString& title, QWidget* w);
-        void focusOn(QWidget* w);
 
     public:
+        Q_INVOKABLE void close(bool showwelcome);
         SurfaceQt* activeSurface() const;
         RDContextPtr activeContext() const;
         bool openDatabase(const QString& filepath);
@@ -68,33 +78,31 @@ class DisassemblerHooks: public QObject
         void statusAddress(const SurfaceQt* surface) const;
         void load(const QString& filepath);
 
-    private slots:
+    private Q_SLOTS:
         void onWindowActionTriggered(QAction* action);
 
     private:
-        Q_INVOKABLE void close(bool showwelcome);
-        void dock(QWidget* w, Qt::DockWidgetArea area);
-        void undock(QDockWidget* dw);
-        void replaceWidget(QWidget* w);
-        OutputDock* outputDock() const;
+        OutputWidget* outputWidget() const;
         void checkListingMode();
+        void showOutput();
         void clearOutput();
         void enableMenu(QMenu* menu, bool enable);
-        void loadDisassemblerView(const RDContextPtr& ctx);
+        void loadDisassemblerDocks(const RDContextPtr& ctx);
         void showLoaders(const QString& filepath, RDBuffer* buffer);
+        void setTabBarVisible(bool b);
         void showWelcome();
         void loadRecents();
         void hook();
 
     private:
-        QMainWindow* m_mainwindow{nullptr};
+        KDDockWidgets::MainWindow* m_mainwindow{nullptr};
+        KDDockWidgets::DockWidget* m_dockoutput{nullptr};
         QToolBar* m_toolbar{nullptr};
-        QMenu *m_mnuwindow{nullptr};
+        QMenu* m_mnuwindow{nullptr};
         QLabel* m_lblstatusicon{nullptr};
-        QPushButton *m_pbproblems{nullptr}, *m_pbrenderer;
-        DisassemblerView* m_disassemblerview{nullptr};
+        QPushButton *m_pbproblems{nullptr}, *m_pbrenderer{nullptr};
+        DisassemblerDocks* m_disassemblerdocks{nullptr};
         DevDialog* m_devdialog{nullptr};
         FLCDialog* m_flcdialog{nullptr};
         QFileInfo m_fileinfo;
-        static DisassemblerHooks m_instance;
 };

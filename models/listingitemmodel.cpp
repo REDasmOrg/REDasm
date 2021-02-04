@@ -180,7 +180,7 @@ void ListingItemModel::onItemChanged(const RDDocumentEventArgs* e)
     if(it == m_items.end()) return;
 
     int idx = static_cast<int>(std::distance(m_items.begin(), it));
-    emit dataChanged(this->index(idx, 0), this->index(idx, this->columnCount() - 1));
+    Q_EMIT dataChanged(this->index(idx, 0), this->index(idx, this->columnCount() - 1));
 }
 
 void ListingItemModel::onItemRemoved(const RDDocumentEventArgs* e)

@@ -39,5 +39,5 @@ void SurfaceDocument::render()
         }
     }
 
-    emit renderCompleted();
+    Q_EMIT renderCompleted();
 }

@@ -23,10 +23,10 @@ class TableTab : public QWidget
         void moveSection(int from, int to);
         ListingItemModel* model() const;
 
-    public slots:
+    public Q_SLOTS:
         void resizeAllColumns();
 
-    private slots:
+    private Q_SLOTS:
         void onTableDoubleClick(const QModelIndex& index);
 
     protected:
@@ -35,7 +35,7 @@ class TableTab : public QWidget
     private:
         void setFilterVisible(bool b);
 
-    signals:
+    Q_SIGNALS:
         void resizeColumns();
 
     private:

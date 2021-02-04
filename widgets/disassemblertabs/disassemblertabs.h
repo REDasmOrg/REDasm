@@ -14,7 +14,7 @@ class DisassemblerTabs : public QTabWidget
     protected:
         void tabInserted(int index) override;
 
-    private slots:
+    private Q_SLOTS:
         void onTabChanged(int index);
         void onCloseClicked();
 

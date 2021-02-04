@@ -31,7 +31,7 @@ bool CheckedItemsModel::setData(const QModelIndex &index, const QVariant &value,
     {
         auto& option = m_options[index.row()];
         option.selected = value == Qt::Checked ? true : false;
-        emit dataChanged(index, index);
+        Q_EMIT dataChanged(index, index);
         return true;
     }
 

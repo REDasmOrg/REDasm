@@ -16,7 +16,7 @@ class CallGraphItem : public GraphViewItem
     protected:
         void mouseDoubleClickEvent(QMouseEvent *) override;
 
-    signals:
+    Q_SIGNALS:
         void fetchMore(rd_address address);
 
     private:

@@ -36,7 +36,7 @@ SignatureFilesModel::SignatureFilesModel(const RDContextPtr& ctx, QObject *paren
 //void SignatureFilesModel::mark(const QModelIndex &index)
 //{
     //m_disassembler->loader()->signatures().insert(this->signatureId(index));
-    //emit dataChanged(this->index(index.row()), this->index(index.row(), this->columnCount()));
+    //Q_EMIT dataChanged(this->index(index.row()), this->index(index.row(), this->columnCount()));
 //}
 
 // bool SignatureFilesModel::isLoaded(const QModelIndex &index) const

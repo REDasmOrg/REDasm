@@ -42,5 +42,5 @@ void SurfacePainter::render()
     }
 
     m_pixmap = QPixmap::fromImage(m_image);
-    if(this->widget()) emit renderCompleted();
+    if(this->widget()) Q_EMIT renderCompleted();
 }

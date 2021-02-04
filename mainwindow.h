@@ -1,20 +1,16 @@
 #pragma once
 
-#include <QMainWindow>
+#include <kddockwidgets/MainWindow.h>
 #include <QPushButton>
 #include <QLabel>
 
-namespace Ui {
-class MainWindow;
-}
-
-class MainWindow : public QMainWindow
+class MainWindow : public KDDockWidgets::MainWindow
 {
     Q_OBJECT
 
     public:
-        explicit MainWindow(QWidget *parent = nullptr);
-        ~MainWindow();
+        explicit MainWindow();
+        ~MainWindow() = default;
 
     protected:
         void closeEvent(QCloseEvent* e) override;
@@ -22,13 +18,17 @@ class MainWindow : public QMainWindow
         void dragMoveEvent(QDragMoveEvent* e) override;
         void dropEvent(QDropEvent* e) override;
 
-    private slots:
+    private Q_SLOTS:
         void onSaveClicked();
         void onSaveAsClicked();
         void onSignaturesClicked();
         void onResetLayoutClicked();
 
     private:
+        void createFileMenu();
+        void createREDasmMenu();
+        void createWindowMenu();
+        void createHelpMenu();
         void initializeConfig();
         void loadWindowState();
         void checkCommandLine();
@@ -36,7 +36,6 @@ class MainWindow : public QMainWindow
         bool canClose();
 
     private:
-        Ui::MainWindow *ui;
         QLabel *m_lblstatus, *m_lblprogress, *m_lblstatusicon;
         QStringList m_recents;
         QPushButton *m_pbproblems, *m_pbrenderer;

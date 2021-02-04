@@ -234,7 +234,7 @@ void GraphView::showEvent(QShowEvent *e)
 void GraphView::selectedItemChangedEvent()
 {
     if(m_focusonselection) this->focusSelectedBlock();
-    emit selectedItemChanged();
+    Q_EMIT selectedItemChanged();
 }
 
 void GraphView::computeEdge(const RDGraphEdge&) { }

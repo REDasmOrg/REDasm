@@ -15,7 +15,7 @@ class CallGraphView : public GraphView
     protected:
         GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) override;
 
-    private slots:
+    private Q_SLOTS:
         void onFetchMode(rd_address address);
 
     private:

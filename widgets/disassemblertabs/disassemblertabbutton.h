@@ -16,7 +16,7 @@ class DisassemblerTabButton : public QWidget
         explicit DisassemblerTabButton(const RDContextPtr& ctx, QWidget* widget, QTabWidget* tabwidget, QWidget *parent = nullptr);
         virtual ~DisassemblerTabButton();
 
-    private slots:
+    private Q_SLOTS:
         void closeTab();
 
     private:

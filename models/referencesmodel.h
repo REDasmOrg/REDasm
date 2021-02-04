@@ -18,7 +18,7 @@ class ReferencesModel : public ContextModel
         int rowCount(const QModelIndex&) const override;
         int columnCount(const QModelIndex&) const override;
 
-    public slots:
+    public Q_SLOTS:
         void clear();
 
     private:

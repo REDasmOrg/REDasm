@@ -35,7 +35,7 @@ int ListingBlockItem::currentRow() const
 
 QSize ListingBlockItem::size() const { return m_surface->size(); }
 void ListingBlockItem::itemSelectionChanged(bool selected) { m_surface->activateCursor(selected); }
-void ListingBlockItem::mouseDoubleClickEvent(QMouseEvent*) { emit followRequested(); }
+void ListingBlockItem::mouseDoubleClickEvent(QMouseEvent*) { Q_EMIT followRequested(); }
 
 void ListingBlockItem::mousePressEvent(QMouseEvent *e)
 {

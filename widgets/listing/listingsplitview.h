@@ -2,25 +2,22 @@
 
 #include <QSplitter>
 #include "../hooks/isurface.h"
-#include "../splitview/splitview.h"
+#include "../splitdockwidget.h"
 
 class ListingView;
 
-class ListingSplitView : public SplitView
+class ListingSplitView : public SplitDockWidget
 {
     Q_OBJECT
 
     public:
-        Q_INVOKABLE explicit ListingSplitView(const RDContextPtr& ctx, QWidget *parent = nullptr);
+        Q_INVOKABLE explicit ListingSplitView(const RDContextPtr& ctx);
 
     protected:
-        SplitView* createView() const override;
-        QWidget* createWidget() override;
-        void onItemSplit(SplitItem* item, SplitItem* newitem) override;
-        void onItemCreated(SplitItem* item) override;
+        SplitDockWidget* createSplit() const override;
 
-    private:
-        void checkActions(ListingView* listing) const;
+    private Q_SLOTS:
+        void checkActions() const;
 
     private:
         RDContextPtr m_context;

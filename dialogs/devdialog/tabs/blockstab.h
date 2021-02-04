@@ -17,7 +17,7 @@ class BlocksTab : public QWidget
         ~BlocksTab();
         void setContext(const RDContextPtr& ctx);
 
-    private slots:
+    private Q_SLOTS:
         void showBlocks(const QModelIndex& current, const QModelIndex&);
 
     private:

@@ -23,7 +23,7 @@ class ListingBlockItem : public GraphViewItem
         void mousePressEvent(QMouseEvent *e) override;
         void mouseMoveEvent(QMouseEvent *e) override;
 
-    signals:
+    Q_SIGNALS:
         void followRequested();
 
     private:

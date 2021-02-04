@@ -41,5 +41,5 @@ QSize CallGraphItem::size() const { return m_size; }
 void CallGraphItem::mouseDoubleClickEvent(QMouseEvent*)
 {
     if(m_address != RD_NVAL)
-        emit fetchMore(m_address);
+        Q_EMIT fetchMore(m_address);
 }

@@ -19,7 +19,7 @@ class WelcomeWidget : public QWidget
     private:
         void styleSocialButton(QPushButton* button, const QIcon& icon) const;
 
-    private slots:
+    private Q_SLOTS:
         void onFileSelected(const QModelIndex& index);
 
     private:

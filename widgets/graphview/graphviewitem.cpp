@@ -17,4 +17,4 @@ int GraphViewItem::currentRow() const { return 0; }
 void GraphViewItem::mouseDoubleClickEvent(QMouseEvent *e) { }
 void GraphViewItem::mousePressEvent(QMouseEvent* e) { }
 void GraphViewItem::mouseMoveEvent(QMouseEvent *e) { }
-void GraphViewItem::invalidate(bool notify) { if(notify) emit invalidated(); }
+void GraphViewItem::invalidate(bool notify) { if(notify) Q_EMIT invalidated(); }

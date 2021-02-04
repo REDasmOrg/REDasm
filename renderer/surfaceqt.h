@@ -66,7 +66,7 @@ class SurfaceQt : public QObject
     private:
         void resize(const QSizeF& size);
 
-    signals:
+    Q_SIGNALS:
         void renderCompleted();
         void positionChanged();
         void scrollChanged();

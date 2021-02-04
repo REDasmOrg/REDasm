@@ -6,13 +6,12 @@
 #include "../redasmsettings.h"
 #include "../redasmfonts.h"
 #include "../themeprovider.h"
-#include <QDesktopServices>
 #include <QFileInfo>
-#include <QUrl>
 
 WelcomeWidget::WelcomeWidget(QWidget *parent) : QWidget(parent), ui(new Ui::WelcomeWidget)
 {
     ui->setupUi(this);
+    this->setObjectName("welcomewidget");
     ui->lblVersion->setText(QString("Version %1").arg(REDASM_VERSION));
 
     if(ThemeProvider::isDarkTheme()) ui->lblBrand->setPixmap(QPixmap(":/res/logo_dark.png"));
@@ -32,10 +31,6 @@ WelcomeWidget::WelcomeWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Welc
                                              "border-width: 1px;"
                                          "}"
                                          "%2").arg(this->palette().color(QPalette::Text).name(), flatstylesheet);
-
-    QString socialstylesheet = QString("QPushButton {"
-                                           "text-align: left;"
-                                       "}");
 
     ui->pbOpen->setCursor(Qt::PointingHandCursor);
     ui->pbOpen->setStyleSheet(borderedstylesheet);
@@ -60,26 +55,11 @@ WelcomeWidget::WelcomeWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Welc
     connect(ui->pbOpen, &QPushButton::clicked, DisassemblerHooks::instance(), &DisassemblerHooks::open);
     connect(ui->pbSettings, &QPushButton::clicked, DisassemblerHooks::instance(), &DisassemblerHooks::settings);
     connect(ui->pbAbout, &QPushButton::clicked, DisassemblerHooks::instance(), &DisassemblerHooks::about);
-
-    connect(ui->pbREDasmIO, &QPushButton::clicked, this, []() {
-        QDesktopServices::openUrl(QUrl("https://redasm.io"));
-    });
-
-    connect(ui->pbTwitter, &QPushButton::clicked, this, []() {
-        QDesktopServices::openUrl(QUrl("https://twitter.com/re_dasm"));
-    });
-
-    connect(ui->pbTelegram, &QPushButton::clicked, this, []() {
-        QDesktopServices::openUrl(QUrl("https://redasm.io/telegram"));
-    });
-
-    connect(ui->pbReddit, &QPushButton::clicked, this, []() {
-        QDesktopServices::openUrl(QUrl("https://redasm.io/reddit"));
-    });
-
-    connect(ui->pbGitHub, &QPushButton::clicked, this, []() {
-        QDesktopServices::openUrl(QUrl("https://github.com/REDasmOrg/REDasm/issues"));
-    });
+    connect(ui->pbREDasmIO, &QPushButton::clicked, this, []() { DisassemblerHooks::instance()->openHomePage(); });
+    connect(ui->pbTwitter, &QPushButton::clicked, this, []() { DisassemblerHooks::instance()->openTwitter(); });
+    connect(ui->pbTelegram, &QPushButton::clicked, this, []() { DisassemblerHooks::instance()->openTelegram(); });
+    connect(ui->pbReddit, &QPushButton::clicked, this, []() { DisassemblerHooks::instance()->openReddit(); });
+    connect(ui->pbGitHub, &QPushButton::clicked, this, []() { DisassemblerHooks::instance()->openGitHub(); });
 }
 
 WelcomeWidget::~WelcomeWidget() { delete ui; }

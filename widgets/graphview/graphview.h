@@ -27,7 +27,7 @@ class GraphView : public QAbstractScrollArea
         GraphViewItem* selectedItem() const;
         RDGraph* graph() const;
 
-    public slots:
+    public Q_SLOTS:
         void focusSelectedBlock();
 
     protected:
@@ -56,7 +56,7 @@ class GraphView : public QAbstractScrollArea
         void precomputeLine(const RDGraphEdge& e);
         bool updateSelectedItem(QMouseEvent* e);
 
-    signals:
+    Q_SIGNALS:
         void selectedItemChanged();
 
     protected:

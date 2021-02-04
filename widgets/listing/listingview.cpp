@@ -14,6 +14,7 @@
 ListingView::ListingView(const RDContextPtr& ctx, QWidget *parent) : QStackedWidget(parent), m_context(ctx)
 {
     this->setWindowTitle("Listing");
+    this->setObjectName("listingview");
 
     m_textview = new ListingTextView(ctx);
     m_graphview = new ListingGraphView(ctx);
@@ -66,7 +67,7 @@ void ListingView::switchToGraph()
     if(m_graphview->surface()) // Connect to the new surface
         connect(m_graphview->surface(), &SurfaceQt::historyChanged, this, &ListingView::historyChanged);
 
-    emit historyChanged();
+    Q_EMIT historyChanged();
 }
 
 void ListingView::switchToListing()
@@ -81,7 +82,7 @@ void ListingView::switchToListing()
     }
 
     m_textview->textWidget()->setFocus();
-    emit historyChanged();
+    Q_EMIT historyChanged();
 }
 
 void ListingView::switchToHex()
@@ -95,7 +96,7 @@ void ListingView::switchToHex()
     m_hexview->document()->cursor()->moveTo(loc.offset);
     this->setCurrentWidget(m_hexview);
 
-    emit historyChanged();
+    Q_EMIT historyChanged();
 }
 
 void ListingView::switchMode()

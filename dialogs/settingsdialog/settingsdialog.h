@@ -23,7 +23,7 @@ class SettingsDialog : public QDialog
         void selectCurrentSize();
         void updatePreview();
 
-    private slots:
+    private Q_SLOTS:
         void selectDefaultFont();
         void onAccepted();
 

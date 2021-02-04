@@ -16,3 +16,6 @@
 [submodule "libs/qhexview"]
 	path = libs/qhexview
 	url = https://github.com/Dax89/QHexView.git
+[submodule "libs/KDDockWidgets"]
+	path = libs/KDDockWidgets
+	url = https://github.com/KDAB/KDDockWidgets.git

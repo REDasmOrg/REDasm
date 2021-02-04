@@ -23,11 +23,11 @@ class TableWidget : public QWidget
         void setModel(QAbstractItemModel* model);
         QAbstractItemModel* model() const;
 
-    private slots:
+    private Q_SLOTS:
         void onTableDoubleClicked(const QModelIndex& index);
         void onTableClicked(const QModelIndex& index);
 
-    signals:
+    Q_SIGNALS:
         void doubleClicked(const QModelIndex& index);
         void clicked(const QModelIndex& index);
 

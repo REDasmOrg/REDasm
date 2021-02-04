@@ -46,7 +46,7 @@ void RendererAsync::run()
         img.fill(this->widget()->palette().color(QPalette::Base));
 
         this->onRender(&img);
-        emit renderCompleted(img);
+        Q_EMIT renderCompleted(img);
         m_painting.store(false);
     }
 }

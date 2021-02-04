@@ -252,7 +252,7 @@ void ListingTextWidget::keyPressEvent(QKeyEvent *event)
         if(event->matches(QKeySequence::MoveToEndOfLine)) m_surface->moveTo(pos->row, -1);
         else m_surface->select(pos->row, -1);
     }
-    else if(event->key() == Qt::Key_Space) emit switchView();
+    else if(event->key() == Qt::Key_Space) Q_EMIT switchView();
     else QAbstractScrollArea::keyPressEvent(event);
 }
 

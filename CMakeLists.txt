@@ -11,7 +11,7 @@ include(${CMAKE_SOURCE_DIR}/LibREDasm/cmake/sanitizers.cmake)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
-set(REDASM_VERSION_BASE "3.0-BETA3")
+set(REDASM_VERSION_BASE "3.0-BETA4")
 
 find_package(Qt5 5.11 REQUIRED COMPONENTS Widgets)
 find_package(Git)
@@ -29,7 +29,11 @@ endif()
 set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
 add_definitions(-DREDASM_VERSION="${REDASM_VERSION_BASE} \(${REDASM_BUILD_VERSION}\)")
 
-add_subdirectory(libs/qhexview)
+set(KDDockWidgets_STATIC ON CACHE BOOL "" FORCE)
+set(KDDockWidgets_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(KDDockWidgets_UNITY_BUILD OFF CACHE BOOL "" FORCE)
+add_subdirectory(libs/KDDockWidgets EXCLUDE_FROM_ALL)
+add_subdirectory(libs/qhexview EXCLUDE_FROM_ALL)
 add_subdirectory(LibREDasm)
 
 # FindREDasm.config
@@ -109,7 +113,6 @@ set(FORMS
     ${WIDGETS_UIS}
     ${DIALOGS_UIS}
     ${UI_UIS}
-    mainwindow.ui
 )
 
 set(RESOURCES
@@ -143,6 +146,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
+    KDAB::kddockwidgets
     qhexview-lib
     LibREDasm
 )

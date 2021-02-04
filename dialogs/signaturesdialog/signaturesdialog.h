@@ -19,7 +19,7 @@ class SignaturesDialog : public QDialog
         explicit SignaturesDialog(const RDContextPtr& ctx, QWidget *parent = nullptr);
         ~SignaturesDialog();
 
-    private slots:
+    private Q_SLOTS:
         void loadSignature(bool);
         void readSignature(const QModelIndex& index);
         void browseSignatures();

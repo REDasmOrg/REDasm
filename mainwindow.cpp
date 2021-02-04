@@ -1,28 +1,43 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "redasmfonts.h"
 #include "redasmsettings.h"
 #include "hooks/disassemblerhooks.h"
-#include "widgets/disassemblerview.h"
 #include "dialogs/signaturesdialog/signaturesdialog.h"
 #include "ui/qtui.h"
 #include "themeprovider.h"
-#include <QMessageBox>
-#include <QDebug>
 #include <QtGui>
+#include <QMessageBox>
+#include <QStatusBar>
+#include <QToolBar>
+#include <QMenuBar>
+#include <QMenu>
 #include <rdapi/rdapi.h>
 
 #define PLUGINS_FOLDER_NAME  "plugins"
 #define DATABASE_FOLDER_NAME "database"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow() : KDDockWidgets::MainWindow("MainWindow", KDDockWidgets::MainWindowOption_HasCentralFrame)
 {
-    ui->setupUi(this);
-    ui->action_Open->setIcon(FA_ICON(0xf07c));
-    ui->action_Save->setIcon(FA_ICON(0xf0c7));
+    this->resize(1300, 650);
+    if(ThemeProvider::isDarkTheme()) this->setWindowIcon(QIcon(":/res/logo_dark.png"));
+    else this->setWindowIcon(QIcon(":/res/logo.png"));
 
-    this->setDockNestingEnabled(true);
-    this->setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
+    this->createFileMenu();
+    this->createREDasmMenu();
+    this->createWindowMenu();
+    this->createHelpMenu();
+
+    auto* statusbar = new QStatusBar(this);
+    this->setStatusBar(statusbar);
+
+    auto* toolbar = new QToolBar(this);
+    toolbar->setObjectName(HOOK_TOOLBAR);
+    toolbar->setMovable(false);
+    toolbar->setFloatable(false);
+    toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    toolbar->addAction(FA_ICON(0xf07c), "Open", []() { DisassemblerHooks::instance()->open(); });
+    toolbar->addAction(FA_ICON(0xf0c7), "Save", []() { DisassemblerHooks::instance()->save(); });
+    this->addToolBar(Qt::ToolBarArea::TopToolBarArea, toolbar);
 
     m_lblstatus = new QLabel(this);
     m_lblprogress = new QLabel(this);
@@ -31,48 +46,35 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     m_lblstatusicon = new QLabel(this);
     m_lblstatusicon->setObjectName(HOOK_STATUS_ICON);
-    m_lblstatusicon->setFixedHeight(ui->statusBar->height() * 0.8);
+    m_lblstatusicon->setFixedHeight(statusbar->height() * 0.8);
     m_lblstatusicon->setFont(FA_FONT);
     m_lblstatusicon->setText(u8"\uf017");
     m_lblstatusicon->setVisible(false);
 
     m_pbrenderer = new QPushButton(this);
     m_pbrenderer->setObjectName(HOOK_RENDERER);
-    m_pbrenderer->setFixedHeight(ui->statusBar->height() * 0.8);
+    m_pbrenderer->setFixedHeight(statusbar->height() * 0.8);
     m_pbrenderer->setVisible(false);
     m_pbrenderer->setFlat(true);
 
     m_pbproblems = new QPushButton(this);
     m_pbproblems->setObjectName(HOOK_PROBLEMS);
-    m_pbproblems->setFixedHeight(ui->statusBar->height() * 0.8);
+    m_pbproblems->setFixedHeight(statusbar->height() * 0.8);
     m_pbproblems->setVisible(false);
     m_pbproblems->setFlat(true);
 
-    ui->statusBar->addPermanentWidget(m_lblstatus, 70);
-    ui->statusBar->addPermanentWidget(m_lblprogress, 30);
-    ui->statusBar->addPermanentWidget(m_pbrenderer);
-    ui->statusBar->addPermanentWidget(m_pbproblems);
-    ui->statusBar->addPermanentWidget(m_lblstatusicon);
+    statusbar->addPermanentWidget(m_lblstatus, 70);
+    statusbar->addPermanentWidget(m_lblprogress, 30);
+    statusbar->addPermanentWidget(m_pbrenderer);
+    statusbar->addPermanentWidget(m_pbproblems);
+    statusbar->addPermanentWidget(m_lblstatusicon);
 
     DisassemblerHooks::initialize(this);
     this->initializeConfig();
     this->setAcceptDrops(true);
     this->loadWindowState();
     this->checkCommandLine();
-
-    connect(ui->action_Open, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::open);
-    connect(ui->action_Save, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::save);
-    connect(ui->action_Save_As, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::saveAs);
-    connect(ui->action_Close, &QAction::triggered, DisassemblerHooks::instance(), qOverload<>(&DisassemblerHooks::close));
-    connect(ui->action_Settings, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::settings);
-    connect(ui->action_FLC, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::showFLC);
-    connect(ui->action_Developer_Tools, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::showDeveloperTools);
-    connect(ui->action_Reset_Layout, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::resetLayout);
-    connect(ui->action_About, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::about);
-    connect(ui->action_Exit, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::exit);
 }
-
-MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {
@@ -82,7 +84,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
         return;
     }
 
-    DisassemblerHooks::instance()->close();
+    DisassemblerHooks::instance()->close(false);
     QWidget::closeEvent(e);
 }
 
@@ -149,6 +151,102 @@ void MainWindow::onResetLayoutClicked()
     settings.defaultState(this);
 }
 
+void MainWindow::createFileMenu()
+{
+    auto* mnubar = this->menuBar();
+
+    auto* mnufile = new QMenu("&File", mnubar);
+    auto* actopen = mnufile->addAction("Open");
+
+    auto* actsave = mnufile->addAction("Save");
+
+    auto* actsaveas = mnufile->addAction("Save As");
+    actsaveas->setObjectName(HOOK_ACTION_SAVE_AS);
+
+    auto* mnurecents = new QMenu("&Recent Files", mnubar);
+    mnurecents->menuAction()->setObjectName(HOOK_ACTION_RECENT_FILES);
+    mnufile->addMenu(mnurecents);
+
+    auto* actclose = mnufile->addAction("Close");
+    actclose->setObjectName(HOOK_ACTION_CLOSE);
+
+    mnufile->addSeparator();
+    auto* actexit = mnufile->addAction("Exit");
+
+    actopen->setIcon(FA_ICON(0xf07c));
+    actsave->setIcon(FA_ICON(0xf0c7));
+    mnubar->addMenu(mnufile);
+
+    connect(actopen, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::open);
+    connect(actsave, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::save);
+    connect(actsaveas, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::saveAs);
+    connect(actclose, &QAction::triggered, DisassemblerHooks::instance(), qOverload<>(&DisassemblerHooks::close));
+    connect(actexit, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::exit);
+}
+
+void MainWindow::createREDasmMenu()
+{
+    auto* mnubar = this->menuBar();
+    auto* mnuredasm = new QMenu("&REDasm", mnubar);
+
+    auto* actflc = mnuredasm->addAction("FLC");
+    auto* actdevtools = mnuredasm->addAction("Developer Tools");
+    auto* actdatabase = mnuredasm->addAction("Database");
+    mnuredasm->addSeparator();
+    auto* actsettings = mnuredasm->addAction("Settings");
+    mnubar->addMenu(mnuredasm);
+
+    actflc->setShortcut(QKeySequence("CTRL+F"));
+    actdevtools->setShortcut(QKeySequence("CTRL+D"));
+    actdatabase->setShortcut(QKeySequence("CTRL+B"));
+    actflc->setObjectName(HOOK_ACTION_FLC);
+    actdevtools->setObjectName(HOOK_ACTION_DEVTOOLS);
+    actdatabase->setObjectName(HOOK_ACTION_DATABASE);
+
+    connect(actflc, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::showFLC);
+    connect(actdevtools, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::showDeveloperTools);
+    connect(actdatabase, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::showDatabase);
+    connect(actsettings, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::settings);
+}
+
+void MainWindow::createWindowMenu()
+{
+    auto* mnubar = this->menuBar();
+    auto* mnuwindow = new QMenu("&Window", mnubar);
+    mnuwindow->setObjectName(HOOK_MENU_WINDOW);
+
+    mnuwindow->addAction("&Listing");
+    mnuwindow->addAction("&Segments");
+    mnuwindow->addAction("&Functions");
+    mnuwindow->addAction("&Exports");
+    mnuwindow->addAction("&Imports");
+    mnuwindow->addAction("&Strings");
+    mnuwindow->addSeparator();
+
+    auto* actresetlayout = mnuwindow->addAction("&Reset Layout");
+    connect(actresetlayout, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::resetLayout);
+
+    mnubar->addMenu(mnuwindow);
+}
+
+void MainWindow::createHelpMenu()
+{
+    auto* mnubar = this->menuBar();
+    auto* mnuhelp = new QMenu("&?", mnubar);
+
+    auto* acttelegram = mnuhelp->addAction("&Telegram");
+    auto* actreddit = mnuhelp->addAction("&Reddit");
+    mnuhelp->addSeparator();
+    auto* actgithub = mnuhelp->addAction("Report an &Issue");
+    auto* actabout = mnuhelp->addAction("&About");
+    mnubar->addMenu(mnuhelp);
+
+    connect(acttelegram, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::openTelegram);
+    connect(actreddit, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::openReddit);
+    connect(actgithub, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::openGitHub);
+    connect(actabout, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::about);
+}
+
 void MainWindow::loadWindowState()
 {
     REDasmSettings settings;
@@ -201,7 +299,7 @@ void MainWindow::checkCommandLine()
 
 bool MainWindow::canClose()
 {
-    if(this->findChild<DisassemblerView*>(QString()))
+    if(DisassemblerHooks::instance()->isLoaded())
     {
         QMessageBox msgbox(this);
         msgbox.setWindowTitle("Closing");

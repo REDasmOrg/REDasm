@@ -22,7 +22,7 @@ class CallTreeModel : public ContextModel
         int columnCount(const QModelIndex&) const override;
         int rowCount(const QModelIndex& parent) const override;
 
-    public slots:
+    public Q_SLOTS:
         void populateCallGraph(const QModelIndex& index);
 
     private:

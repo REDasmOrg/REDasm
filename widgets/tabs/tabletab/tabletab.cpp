@@ -45,7 +45,7 @@ TableTab::TableTab(ListingItemModel* model, QWidget *parent): QWidget(parent), u
     RDObject_Subscribe(model->context().get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<TableTab*>(e->owner);
         if((e->id != Event_BusyChanged) || RDContext_IsBusy(thethis->m_listingitemmodel->context().get())) return;
-        emit thethis->resizeColumns();
+        Q_EMIT thethis->resizeColumns();
     }, nullptr);
 }
 
@@ -66,7 +66,7 @@ void TableTab::onTableDoubleClick(const QModelIndex& index)
     if(!surface) return;
 
     surface->goTo(&item);
-    DisassemblerHooks::instance()->focusOn(surface->widget());
+    //DisassemblerHooks::instance()->focusOn(surface->widget());
 }
 
 bool TableTab::event(QEvent* e)

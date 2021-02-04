@@ -50,11 +50,11 @@ QAbstractItemModel* TableWidget::model() const
 void TableWidget::onTableDoubleClicked(const QModelIndex& index)
 {
     auto* sfmodel = static_cast<QSortFilterProxyModel*>(ui->tbvTable->model());
-    emit doubleClicked(sfmodel->mapToSource(index));
+    Q_EMIT doubleClicked(sfmodel->mapToSource(index));
 }
 
 void TableWidget::onTableClicked(const QModelIndex& index)
 {
     auto* sfmodel = static_cast<QSortFilterProxyModel*>(ui->tbvTable->model());
-    emit clicked(sfmodel->mapToSource(index));
+    Q_EMIT clicked(sfmodel->mapToSource(index));
 }

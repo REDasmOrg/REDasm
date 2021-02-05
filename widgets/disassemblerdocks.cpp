@@ -23,7 +23,7 @@ void DisassemblerDocks::showSegments()
     TableTab* tabletab = this->createTable(new SegmentsModel(), "Segments");
     tabletab->moveSection(7, 0);
     connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-    DisassemblerHooks::tabify(tabletab, "segments");
+    DisassemblerHooks::tabify(tabletab);
 }
 
 void DisassemblerDocks::showFunctions()
@@ -33,7 +33,7 @@ void DisassemblerDocks::showFunctions()
     tabletab->setColumnHidden(2);
     connect(tabletab, &TableTab::resizeColumns, this, [tabletab]() { tabletab->resizeColumn(0); });
 
-    auto* dock = DisassemblerHooks::dockify(tabletab, "functions");
+    auto* dock = DisassemblerHooks::dockify(tabletab);
     DisassemblerHooks::mainWindow()->addDockWidget(dock, KDDockWidgets::Location_OnLeft, nullptr, tabletab->sizeHint());
 }
 
@@ -44,7 +44,7 @@ void DisassemblerDocks::showExports()
 
     TableTab* tabletab = this->createTable(model, "Exports");
     connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-    DisassemblerHooks::tabify(tabletab, "exports");
+    DisassemblerHooks::tabify(tabletab);
 }
 
 void DisassemblerDocks::showImports()
@@ -54,7 +54,7 @@ void DisassemblerDocks::showImports()
 
     TableTab* tabletab = this->createTable(model, "Imports");
     connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-    DisassemblerHooks::tabify(tabletab, "imports");
+    DisassemblerHooks::tabify(tabletab);
 }
 
 void DisassemblerDocks::showStrings()
@@ -64,7 +64,7 @@ void DisassemblerDocks::showStrings()
 
     TableTab* tabletab = this->createTable(model, "Strings");
     connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-    DisassemblerHooks::tabify(tabletab, "strings");
+    DisassemblerHooks::tabify(tabletab);
 }
 
 const RDContextPtr& DisassemblerDocks::context() const { return m_context; }
@@ -113,7 +113,7 @@ void DisassemblerDocks::setContext(const RDContextPtr& ctx)
     this->showFunctions();
     m_listingmap = new ListingMap(ctx);
 
-    auto* mapdock = DisassemblerHooks::dockify(m_listingmap, "map");
+    auto* mapdock = DisassemblerHooks::dockify(m_listingmap);
     DisassemblerHooks::mainWindow()->addDockWidget(mapdock, KDDockWidgets::Location_OnRight, m_listingdock, m_listingmap->sizeHint());
     m_listingdock->setAsCurrentTab();
 

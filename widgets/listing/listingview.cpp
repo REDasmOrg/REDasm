@@ -14,7 +14,6 @@
 ListingView::ListingView(const RDContextPtr& ctx, QWidget *parent) : QStackedWidget(parent), m_context(ctx)
 {
     this->setWindowTitle("Listing");
-    this->setObjectName("listingview");
 
     m_textview = new ListingTextView(ctx);
     m_graphview = new ListingGraphView(ctx);

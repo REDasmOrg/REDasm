@@ -18,6 +18,7 @@
 #include "../renderer/surfaceqt.h"
 #include "../redasmsettings.h"
 #include "../redasmfonts.h"
+#include "dockidentifiers.h"
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QApplication>
@@ -46,15 +47,15 @@ DisassemblerHooks* DisassemblerHooks::instance()
 
 KDDockWidgets::MainWindow* DisassemblerHooks::mainWindow() { return DisassemblerHooks::instance()->m_mainwindow; }
 
-KDDockWidgets::DockWidget* DisassemblerHooks::dockify(QWidget* w, const QString& id, KDDockWidgets::DockWidget::Options options)
+KDDockWidgets::DockWidget* DisassemblerHooks::dockify(QWidget* w, KDDockWidgets::DockWidget::Options options)
 {
-    auto* dock = new KDDockWidgets::DockWidget(id, options);
+    auto* dock = new KDDockWidgets::DockWidget(DockIdentifiers::getId(w), options);
     dock->setWidget(w);
     dock->setTitle(w->windowTitle());
     return dock;
 }
 
-KDDockWidgets::DockWidget* DisassemblerHooks::tabify(QWidget* w, const QString& id, KDDockWidgets::DockWidgetBase::Options options) { return DisassemblerHooks::tabify(DisassemblerHooks::dockify(w, id, options)); }
+KDDockWidgets::DockWidget* DisassemblerHooks::tabify(QWidget* w, KDDockWidgets::DockWidgetBase::Options options) { return DisassemblerHooks::tabify(DisassemblerHooks::dockify(w, options)); }
 
 KDDockWidgets::DockWidget* DisassemblerHooks::tabify(KDDockWidgets::DockWidget* dock)
 {
@@ -290,7 +291,7 @@ void DisassemblerHooks::setTabBarVisible(bool b)
 void DisassemblerHooks::showWelcome()
 {
     this->setTabBarVisible(false);
-    DisassemblerHooks::tabify(new WelcomeWidget(), "welcome", KDDockWidgets::DockWidget::Option_NotClosable);
+    DisassemblerHooks::tabify(new WelcomeWidget(), KDDockWidgets::DockWidget::Option_NotClosable);
 }
 
 void DisassemblerHooks::loadRecents()
@@ -354,7 +355,7 @@ void DisassemblerHooks::checkListingMode()
 
 void DisassemblerHooks::showOutput()
 {
-    m_dockoutput = DisassemblerHooks::dockify(new OutputWidget(m_mainwindow), "output");
+    m_dockoutput = DisassemblerHooks::dockify(new OutputWidget(m_mainwindow));
     m_mainwindow->addDockWidget(m_dockoutput, KDDockWidgets::Location_OnBottom);
 }
 

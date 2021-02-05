@@ -1,11 +1,12 @@
 #include "splitdockwidget.h"
 #include "../../redasmfonts.h"
 #include "../../hooks/disassemblerhooks.h"
+#include "../../hooks/dockidentifiers.h"
 #include <QVBoxLayout>
 #include <QSplitter>
 #include <QToolBar>
 
-SplitDockWidget::SplitDockWidget(QWidget* w, Options opt, LayoutSaverOptions lsp): KDDockWidgets::DockWidget(w->objectName(), opt, lsp), m_splitwidget(w)
+SplitDockWidget::SplitDockWidget(QWidget* w, Options opt, LayoutSaverOptions lsp): KDDockWidgets::DockWidget(DockIdentifiers::getId(w), opt, lsp), m_splitwidget(w)
 {
     this->setTitle(w->windowTitle());
 

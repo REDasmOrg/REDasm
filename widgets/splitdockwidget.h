@@ -22,5 +22,5 @@ class SplitDockWidget: public KDDockWidgets::DockWidget
     private:
         QAction* m_actfirstdefault{nullptr};
         QToolBar* m_tbactions;
-        QWidget *m_container, *m_splitwidget;
+        QWidget *m_splitwidget;
 };

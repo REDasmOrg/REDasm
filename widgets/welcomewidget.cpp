@@ -11,8 +11,8 @@
 WelcomeWidget::WelcomeWidget(QWidget *parent) : QWidget(parent), ui(new Ui::WelcomeWidget)
 {
     ui->setupUi(this);
-    this->setObjectName("welcomewidget");
     ui->lblVersion->setText(QString("Version %1").arg(REDASM_VERSION));
+    this->setWindowTitle("Welcome");
 
     if(ThemeProvider::isDarkTheme()) ui->lblBrand->setPixmap(QPixmap(":/res/logo_dark.png"));
     else ui->lblBrand->setPixmap(QPixmap(":/res/logo.png"));

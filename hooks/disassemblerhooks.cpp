@@ -30,7 +30,8 @@
 #include <QMenuBar>
 #include <rdapi/rdapi.h>
 
-#define MAX_FUNCTION_NAME 50
+#define MAX_FUNCTION_NAME  50
+#define MAX_WINDOW_ACTIONS 10
 
 DisassemblerHooks::DisassemblerHooks(QObject* parent): QObject(parent) { }
 
@@ -147,28 +148,6 @@ SurfaceQt* DisassemblerHooks::activeSurface() const
 
 RDContextPtr DisassemblerHooks::activeContext() const  {  return m_disassemblerdocks ? m_disassemblerdocks->context() : nullptr; }
 
-void DisassemblerHooks::onWindowActionTriggered(QAction* action)
-{
-    int idx = m_mnuwindow->actions().indexOf(action);
-
-    switch(idx)
-    {
-        // case 0: {
-        //     auto* surface = this->activeSurface();
-        //     if(surface) this->focusOn(surface->widget());
-        //     else this->focusOn(m_disassemblerdocks->showListing());
-        //     break;
-        // }
-
-        case 1: m_disassemblerdocks->showSegments();  break;
-        case 2: m_disassemblerdocks->showFunctions(); break;
-        case 3: m_disassemblerdocks->showExports();   break;
-        case 4: m_disassemblerdocks->showImports();   break;
-        case 5: m_disassemblerdocks->showStrings();   break;
-        default: break;
-    }
-}
-
 void DisassemblerHooks::statusAddress(const SurfaceQt* surface) const
 {
     if(!surface || RDContext_IsBusy(surface->context().get())) return;
@@ -236,7 +215,6 @@ void DisassemblerHooks::hook()
     connect(act, &QAction::triggered, this, [&]() { this->showDatabase(); });
 
     connect(m_pbproblems, &QPushButton::clicked, this, [&]() { this->showProblems(); });
-    connect(m_mnuwindow, &QMenu::triggered, this, &DisassemblerHooks::onWindowActionTriggered);
 
     connect(m_pbrenderer, &QPushButton::clicked, this, [&]() {
         const RDContextPtr& ctx = this->activeContext();
@@ -296,36 +274,31 @@ void DisassemblerHooks::showWelcome()
 
 void DisassemblerHooks::loadRecents()
 {
-    QAction* actrecents = m_mainwindow->findChild<QAction*>(HOOK_ACTION_RECENT_FILES);
-    if(!actrecents) return;
+    QMenu* mnurecents = m_mainwindow->findChild<QMenu*>(HOOK_ACTION_RECENT_FILES);
+    if(!mnurecents) return;
 
     REDasmSettings settings;
     QStringList recents = settings.recentFiles();
-    actrecents->setEnabled(!recents.empty());
-
-    QMenu* recentsmenu = new QMenu(m_mainwindow);
+    mnurecents->setEnabled(!recents.empty());
 
     for(int i = 0; i < MAX_RECENT_FILES; i++)
     {
         if(i >= recents.length())
         {
-            QAction* action = recentsmenu->addAction(QString());
+            QAction* action = mnurecents->addAction(QString());
             action->setVisible(false);
             continue;
         }
 
         if(!QFileInfo().exists(recents[i])) continue;
 
-        QAction* action = recentsmenu->addAction(QString("%1 - %2").arg(i).arg(recents[i]));
+        QAction* action = mnurecents->addAction(QString("%1 - %2").arg(i).arg(recents[i]));
         action->setData(recents[i]);
 
         connect(action, &QAction::triggered, this, [=]() {
             this->load(action->data().toString());
         });
     }
-
-    if(actrecents->menu()) actrecents->menu()->deleteLater();
-    actrecents->setMenu(recentsmenu);
 }
 
 void DisassemblerHooks::load(const QString& filepath)
@@ -345,7 +318,34 @@ void DisassemblerHooks::load(const QString& filepath)
 }
 
 bool DisassemblerHooks::isLoaded() const { return m_disassemblerdocks != nullptr; }
+
+QAction* DisassemblerHooks::addWindowAction(DockWidget* dw)
+{
+    if(!m_mnuwindow || m_windowactions.size() == MAX_WINDOW_ACTIONS) return nullptr;
+
+    QAction* act = m_mnuwindow->addAction(dw->uniqueName());
+    connect(act, &QAction::triggered, dw, &DockWidget::raise);
+
+    m_windowactions.push_back(act);
+    this->reshortcutWindow();
+    return act;
+}
+
+void DisassemblerHooks::removeWindowAction(QAction* a)
+{
+    if(!a || !m_mnuwindow) return;
+    m_windowactions.removeOne(a);
+    m_mnuwindow->removeAction(a);
+    this->reshortcutWindow();
+}
+
 OutputWidget* DisassemblerHooks::outputWidget() const { return m_dockoutput ? static_cast<OutputWidget*>(m_dockoutput->widget()) : nullptr; }
+
+void DisassemblerHooks::reshortcutWindow()
+{
+    for(int i = 0; i < m_windowactions.size(); i++)
+        m_windowactions[i]->setShortcut(QKeySequence(QString("ALT+%1").arg(i)));
+}
 
 void DisassemblerHooks::checkListingMode()
 {

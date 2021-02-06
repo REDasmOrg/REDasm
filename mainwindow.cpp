@@ -164,7 +164,7 @@ void MainWindow::createFileMenu()
     actsaveas->setObjectName(HOOK_ACTION_SAVE_AS);
 
     auto* mnurecents = new QMenu("&Recent Files", mnubar);
-    mnurecents->menuAction()->setObjectName(HOOK_ACTION_RECENT_FILES);
+    mnurecents->setObjectName(HOOK_ACTION_RECENT_FILES);
     mnufile->addMenu(mnurecents);
 
     auto* actclose = mnufile->addAction("Close");
@@ -215,18 +215,14 @@ void MainWindow::createWindowMenu()
     auto* mnuwindow = new QMenu("&Window", mnubar);
     mnuwindow->setObjectName(HOOK_MENU_WINDOW);
 
-    mnuwindow->addAction("&Listing");
-    mnuwindow->addAction("&Segments");
-    mnuwindow->addAction("&Functions");
-    mnuwindow->addAction("&Exports");
-    mnuwindow->addAction("&Imports");
-    mnuwindow->addAction("&Strings");
+    mnuwindow->addAction("&Manage Layouts");
+    auto* actresetlayout = mnuwindow->addAction("&Reset Layout");
+    mnuwindow->addAction("&Window List");
     mnuwindow->addSeparator();
 
-    auto* actresetlayout = mnuwindow->addAction("&Reset Layout");
-    connect(actresetlayout, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::resetLayout);
-
     mnubar->addMenu(mnuwindow);
+
+    connect(actresetlayout, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::resetLayout);
 }
 
 void MainWindow::createHelpMenu()

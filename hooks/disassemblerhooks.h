@@ -42,6 +42,8 @@ class DisassemblerHooks: public QObject
         static KDDockWidgets::DockWidget* tabify(DockWidget* dock);
         Q_INVOKABLE void enableViewCommands(bool enable);
         bool isLoaded() const;
+        QAction* addWindowAction(DockWidget* dw);
+        void removeWindowAction(QAction* a);
         void openHomePage() const;
         void openTwitter() const;
         void openTelegram() const;
@@ -79,11 +81,9 @@ class DisassemblerHooks: public QObject
         void statusAddress(const SurfaceQt* surface) const;
         void load(const QString& filepath);
 
-    private Q_SLOTS:
-        void onWindowActionTriggered(QAction* action);
-
     private:
         OutputWidget* outputWidget() const;
+        void reshortcutWindow();
         void checkListingMode();
         void showOutput();
         void clearOutput();
@@ -96,6 +96,7 @@ class DisassemblerHooks: public QObject
         void hook();
 
     private:
+        QList<QAction*> m_windowactions;
         KDDockWidgets::MainWindow* m_mainwindow{nullptr};
         KDDockWidgets::DockWidget* m_dockoutput{nullptr};
         QToolBar* m_toolbar{nullptr};

@@ -37,9 +37,10 @@ class DisassemblerHooks: public QObject
         static void initialize(KDDockWidgets::MainWindow* mainwindow);
         static DisassemblerHooks* instance();
         static KDDockWidgets::MainWindow* mainWindow();
+        static const DisassemblerDocks* docks();
         static DockWidget* dockify(QWidget* w, KDDockWidgets::DockWidget::Options options = KDDockWidgets::DockWidget::Options());
-        static KDDockWidgets::DockWidget* tabify(QWidget* w, KDDockWidgets::DockWidget::Options options = KDDockWidgets::DockWidget::Options());
-        static KDDockWidgets::DockWidget* tabify(DockWidget* dock);
+        static DockWidget* tabify(QWidget* w, KDDockWidgets::DockWidget::Options options = KDDockWidgets::DockWidget::Options());
+        static DockWidget* tabify(DockWidget* dock);
         Q_INVOKABLE void enableViewCommands(bool enable);
         bool isLoaded() const;
         QAction* addWindowAction(DockWidget* dw);

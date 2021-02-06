@@ -24,25 +24,21 @@ ListingSplitView::ListingSplitView(const RDContextPtr& ctx): SplitDockWidget(new
 
 SplitDockWidget* ListingSplitView::createSplit() const
 {
-    return new ListingSplitView(m_context);
-}
+    auto* splitview = new ListingSplitView(m_context);
+    auto* listing = static_cast<ListingView*>(this->splitWidget());
+    auto* newlisting = static_cast<ListingView*>(splitview->splitWidget());
 
-//void ListingSplitView::onItemSplit(SplitItem* item, SplitItem* newitem)
-//{
-//    SplitView::onItemSplit(item, newitem);
-//
-//    auto* listing = static_cast<ListingView*>(item->widget());
-//    auto* newlisting = static_cast<ListingView*>(newitem->widget());
-//
-//    auto* isurface = listing->currentISurface();
-//    if(!isurface) return;
-//
-//    auto* newisurface = newlisting->currentISurface();
-//    if(!newisurface) return;
-//
-//    RDDocumentItem docitem;
-//    if(isurface->getCurrentItem(&docitem)) newisurface->seek(&docitem);
-//}
+    auto* isurface = listing->currentISurface();
+    if(!isurface) return splitview;
+
+    auto* newisurface = newlisting->currentISurface();
+    if(!newisurface) return splitview;
+
+    RDDocumentItem docitem;
+    if(isurface->getCurrentItem(&docitem)) newisurface->seek(&docitem);
+
+    return splitview;
+}
 
 void ListingSplitView::checkActions() const
 {

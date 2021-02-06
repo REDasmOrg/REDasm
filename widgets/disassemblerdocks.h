@@ -20,20 +20,19 @@ class DisassemblerDocks : public QObject
         virtual ~DisassemblerDocks();
         const RDContextPtr& context() const;
         void setContext(const RDContextPtr& ctx);
-        KDDockWidgets::DockWidget* showListing();
-        void showSegments();
-        void showFunctions();
-        void showExports();
-        void showImports();
-        void showStrings();
+        KDDockWidgets::DockWidget* showListing() const;
+        void showSegments() const;
+        void showFunctions() const;
+        void showExports() const;
+        void showImports() const;
+        void showStrings() const;
 
     private:
-        TableTab* createTable(ListingItemModel* model, const QString& title);
+        TableTab* createTable(ListingItemModel* model, const QString& title) const;
         static void listenEvents(const RDEventArgs* e);
 
     private:
         RDContextPtr m_context;
-        KDDockWidgets::DockWidget* m_listingdock{nullptr};
         ListingMap* m_listingmap{nullptr};
         std::future<void> m_worker;
 };

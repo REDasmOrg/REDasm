@@ -2,6 +2,7 @@
 #include "redasmfonts.h"
 #include "redasmsettings.h"
 #include "hooks/disassemblerhooks.h"
+#include "widgets/disassemblerdocks.h"
 #include "dialogs/signaturesdialog/signaturesdialog.h"
 #include "ui/qtui.h"
 #include "themeprovider.h"
@@ -217,7 +218,14 @@ void MainWindow::createWindowMenu()
 
     mnuwindow->addAction("&Manage Layouts");
     auto* actresetlayout = mnuwindow->addAction("&Reset Layout");
-    mnuwindow->addAction("&Window List");
+    //mnuwindow->addAction("&Window List");
+
+    QMenu* mnusubviews = mnuwindow->addMenu("&Open Subviews");
+    mnusubviews->addAction("Listing",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showListing(); });
+    mnusubviews->addAction("Segments", []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showSegments(); });
+    mnusubviews->addAction("Exports",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showExports(); });
+    mnusubviews->addAction("Imports",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showImports(); });
+    mnusubviews->addAction("Strings",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showStrings(); });
     mnuwindow->addSeparator();
 
     mnubar->addMenu(mnuwindow);

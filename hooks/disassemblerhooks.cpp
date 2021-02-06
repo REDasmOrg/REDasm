@@ -56,9 +56,9 @@ DockWidget* DisassemblerHooks::dockify(QWidget* w, KDDockWidgets::DockWidget::Op
     return dock;
 }
 
-KDDockWidgets::DockWidget* DisassemblerHooks::tabify(QWidget* w, KDDockWidgets::DockWidgetBase::Options options) { return DisassemblerHooks::tabify(DisassemblerHooks::dockify(w, options)); }
+DockWidget* DisassemblerHooks::tabify(QWidget* w, KDDockWidgets::DockWidgetBase::Options options) { return DisassemblerHooks::tabify(DisassemblerHooks::dockify(w, options)); }
 
-KDDockWidgets::DockWidget* DisassemblerHooks::tabify(DockWidget* dock)
+DockWidget* DisassemblerHooks::tabify(DockWidget* dock)
 {
     DisassemblerHooks::mainWindow()->addDockWidgetAsTab(dock);
     return dock;
@@ -321,7 +321,7 @@ bool DisassemblerHooks::isLoaded() const { return m_disassemblerdocks != nullptr
 
 QAction* DisassemblerHooks::addWindowAction(DockWidget* dw)
 {
-    if(!m_mnuwindow || m_windowactions.size() == MAX_WINDOW_ACTIONS) return nullptr;
+    if(!dw || !m_mnuwindow || m_windowactions.size() == MAX_WINDOW_ACTIONS) return nullptr;
 
     QAction* act = m_mnuwindow->addAction(dw->uniqueName());
     connect(act, &QAction::triggered, dw, &DockWidget::raise);
@@ -378,6 +378,8 @@ void DisassemblerHooks::close(bool showwelcome)
     else if(m_disassemblerdocks) m_disassemblerdocks->deleteLater();
     m_disassemblerdocks = nullptr;
 }
+
+const DisassemblerDocks* DisassemblerHooks::docks() { return DisassemblerHooks::instance()->m_disassemblerdocks; }
 
 void DisassemblerHooks::showDialog(const QString& title, QWidget* w)
 {

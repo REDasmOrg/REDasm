@@ -18,7 +18,7 @@ DisassemblerDocks::~DisassemblerDocks()
     RD_Status("");
 }
 
-void DisassemblerDocks::showSegments()
+void DisassemblerDocks::showSegments() const
 {
     TableTab* tabletab = this->createTable(new SegmentsModel(), "Segments");
     tabletab->moveSection(7, 0);
@@ -26,7 +26,7 @@ void DisassemblerDocks::showSegments()
     DisassemblerHooks::tabify(tabletab);
 }
 
-void DisassemblerDocks::showFunctions()
+void DisassemblerDocks::showFunctions() const
 {
     TableTab* tabletab = this->createTable(new ListingItemModel(DocumentItemType_Function), "Functions");
     tabletab->setColumnHidden(1);
@@ -37,7 +37,7 @@ void DisassemblerDocks::showFunctions()
     DisassemblerHooks::mainWindow()->addDockWidget(dock, KDDockWidgets::Location_OnLeft, nullptr, tabletab->sizeHint());
 }
 
-void DisassemblerDocks::showExports()
+void DisassemblerDocks::showExports() const
 {
     auto* model = new SymbolTableModel(DocumentItemType_All);
     model->setSymbolFlags(SymbolFlags_Export);
@@ -47,7 +47,7 @@ void DisassemblerDocks::showExports()
     DisassemblerHooks::tabify(tabletab);
 }
 
-void DisassemblerDocks::showImports()
+void DisassemblerDocks::showImports() const
 {
     auto* model = new SymbolTableModel(DocumentItemType_Symbol);
     model->setSymbolType(SymbolType_Import);
@@ -57,7 +57,7 @@ void DisassemblerDocks::showImports()
     DisassemblerHooks::tabify(tabletab);
 }
 
-void DisassemblerDocks::showStrings()
+void DisassemblerDocks::showStrings() const
 {
     auto* model = new SymbolTableModel(DocumentItemType_Symbol);
     model->setSymbolType(SymbolType_String);
@@ -69,7 +69,7 @@ void DisassemblerDocks::showStrings()
 
 const RDContextPtr& DisassemblerDocks::context() const { return m_context; }
 
-TableTab* DisassemblerDocks::createTable(ListingItemModel* model, const QString& title)
+TableTab* DisassemblerDocks::createTable(ListingItemModel* model, const QString& title) const
 {
     TableTab* tabletab = new TableTab(model);
     model->setParent(tabletab);
@@ -98,12 +98,12 @@ void DisassemblerDocks::listenEvents(const RDEventArgs* e)
     }
 }
 
-KDDockWidgets::DockWidget* DisassemblerDocks::showListing() { return DisassemblerHooks::tabify(new ListingSplitView(m_context)); }
+KDDockWidgets::DockWidget* DisassemblerDocks::showListing() const { return DisassemblerHooks::tabify(new ListingSplitView(m_context)); }
 
 void DisassemblerDocks::setContext(const RDContextPtr& ctx)
 {
     m_context = ctx;
-    m_listingdock = this->showListing();
+    auto* listingdock = this->showListing();
 
     this->showSegments();
     this->showExports();
@@ -114,8 +114,8 @@ void DisassemblerDocks::setContext(const RDContextPtr& ctx)
     m_listingmap = new ListingMap(ctx);
 
     auto* mapdock = DisassemblerHooks::dockify(m_listingmap);
-    DisassemblerHooks::mainWindow()->addDockWidget(mapdock, KDDockWidgets::Location_OnRight, m_listingdock, m_listingmap->sizeHint());
-    m_listingdock->setAsCurrentTab();
+    DisassemblerHooks::mainWindow()->addDockWidget(mapdock, KDDockWidgets::Location_OnRight, listingdock, m_listingmap->sizeHint());
+    listingdock->setAsCurrentTab();
 
     RDObject_Subscribe(ctx.get(), this, &DisassemblerDocks::listenEvents, this);
 

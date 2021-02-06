@@ -41,6 +41,9 @@ class DisassemblerHooks: public QObject
         static DockWidget* dockify(QWidget* w, KDDockWidgets::DockWidget::Options options = KDDockWidgets::DockWidget::Options());
         static DockWidget* tabify(QWidget* w, KDDockWidgets::DockWidget::Options options = KDDockWidgets::DockWidget::Options());
         static DockWidget* tabify(DockWidget* dock);
+        static void focusOn(QWidget* w);
+        static SurfaceQt* activeSurface();
+        static RDContextPtr activeContext();
         Q_INVOKABLE void enableViewCommands(bool enable);
         bool isLoaded() const;
         QAction* addWindowAction(DockWidget* dw);
@@ -75,8 +78,6 @@ class DisassemblerHooks: public QObject
 
     public:
         Q_INVOKABLE void close(bool showwelcome);
-        SurfaceQt* activeSurface() const;
-        RDContextPtr activeContext() const;
         bool openDatabase(const QString& filepath);
         void enableCommands(QWidget* w);
         void statusAddress(const SurfaceQt* surface) const;

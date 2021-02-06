@@ -58,12 +58,6 @@ QIcon ThemeProvider::icon(const QString &name)
 QColor ThemeProvider::seekColor() { return ThemeProvider::themeValue(Theme_Seek); }
 QColor ThemeProvider::metaColor() { return ThemeProvider::themeValue(Theme_Meta); }
 
-void ThemeProvider::styleCornerButton(QTableView* tableview)
-{
-    tableview->setStyleSheet(QString("QTableCornerButton::section { border-width: 1px; border-color: %1; border-style:solid; }")
-                             .arg(qApp->palette().color(QPalette::Shadow).name()));
-}
-
 void ThemeProvider::applyTheme()
 {
     REDasmSettings settings;

@@ -6,6 +6,7 @@ BlocksTab::BlocksTab(QWidget *parent) : QWidget(parent), ui(new Ui::BlocksTab)
 {
     ui->setupUi(this);
     ui->splitter->setStretchFactor(1, 1);
+    ui->tableWidget->setAlternatingRowColors(true);
 }
 
 BlocksTab::~BlocksTab() { delete ui; }

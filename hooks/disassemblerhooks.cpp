@@ -64,6 +64,26 @@ DockWidget* DisassemblerHooks::tabify(DockWidget* dock)
     return dock;
 }
 
+void DisassemblerHooks::focusOn(QWidget* w)
+{
+    QWidget* cw = w;
+
+    while(cw)
+    {
+       auto* tw = dynamic_cast<DockWidget*>(cw);
+
+       if(tw)
+       {
+           cw = tw;
+           break;
+       }
+
+       cw = cw->parentWidget();
+    }
+
+    if(cw) static_cast<DockWidget*>(cw)->raise();
+}
+
 void DisassemblerHooks::log(const QString& s)
 {
     auto* ow = this->outputWidget();
@@ -137,16 +157,14 @@ void DisassemblerHooks::showDatabase()
 
 void DisassemblerHooks::showProblems() { ProblemsDialog dlgproblems(this->activeContext(), m_mainwindow); dlgproblems.exec(); }
 
-SurfaceQt* DisassemblerHooks::activeSurface() const
+SurfaceQt* DisassemblerHooks::activeSurface()
 {
-    if(!m_disassemblerdocks) return nullptr;
-
-    auto* activesurface = RDContext_GetActiveSurface(m_disassemblerdocks->context().get());
-    if(!activesurface) return nullptr;
-    return reinterpret_cast<SurfaceQt*>(RDSurface_GetUserData(activesurface));
+    if(!DisassemblerHooks::activeContext()) return nullptr;
+    auto* activesurface = RDContext_GetActiveSurface(DisassemblerHooks::activeContext().get());
+    return activesurface ? reinterpret_cast<SurfaceQt*>(RDSurface_GetUserData(activesurface)) : nullptr;
 }
 
-RDContextPtr DisassemblerHooks::activeContext() const  {  return m_disassemblerdocks ? m_disassemblerdocks->context() : nullptr; }
+RDContextPtr DisassemblerHooks::activeContext() { return DisassemblerHooks::instance()->m_disassemblerdocks ? DisassemblerHooks::instance()->m_disassemblerdocks->context() : nullptr; }
 
 void DisassemblerHooks::statusAddress(const SurfaceQt* surface) const
 {
@@ -355,7 +373,7 @@ void DisassemblerHooks::checkListingMode()
 
 void DisassemblerHooks::showOutput()
 {
-    m_dockoutput = DisassemblerHooks::dockify(new OutputWidget(m_mainwindow));
+    m_dockoutput = DisassemblerHooks::dockify(new OutputWidget(m_mainwindow), KDDockWidgets::DockWidget::Option_NotClosable);
     m_mainwindow->addDockWidget(m_dockoutput, KDDockWidgets::Location_OnBottom);
 }
 
@@ -375,7 +393,7 @@ void DisassemblerHooks::close(bool showwelcome)
     });
 
     if(showwelcome) this->showWelcome(); // Replaces central widget, if any
-    else if(m_disassemblerdocks) m_disassemblerdocks->deleteLater();
+    if(m_disassemblerdocks) m_disassemblerdocks->deleteLater();
     m_disassemblerdocks = nullptr;
 }
 

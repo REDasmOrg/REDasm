@@ -3,10 +3,10 @@
 #include "../models/symboltablemodel.h"
 #include "../models/segmentsmodel.h"
 #include "widgets/outputwidget.h"
-#include "tabs/tabletab/tabletab.h"
 #include "listing/listingsplitview.h"
 #include "listing/listingview.h"
 #include "listingmap/listingmap.h"
+#include "tablewidget.h"
 #include <QMessageBox>
 
 DisassemblerDocks::DisassemblerDocks(QObject* parent) : QObject(parent) { }
@@ -20,21 +20,21 @@ DisassemblerDocks::~DisassemblerDocks()
 
 void DisassemblerDocks::showSegments() const
 {
-    TableTab* tabletab = this->createTable(new SegmentsModel(), "Segments");
-    tabletab->moveSection(7, 0);
-    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-    DisassemblerHooks::tabify(tabletab);
+    TableWidget* tw = this->createTable(new SegmentsModel(), "Segments");
+    tw->moveSection(7, 0);
+    connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
+    DisassemblerHooks::tabify(tw);
 }
 
 void DisassemblerDocks::showFunctions() const
 {
-    TableTab* tabletab = this->createTable(new ListingItemModel(DocumentItemType_Function), "Functions");
-    tabletab->setColumnHidden(1);
-    tabletab->setColumnHidden(2);
-    connect(tabletab, &TableTab::resizeColumns, this, [tabletab]() { tabletab->resizeColumn(0); });
+    TableWidget* tw = this->createTable(new ListingItemModel(DocumentItemType_Function), "Functions");
+    tw->setColumnHidden(1);
+    tw->setColumnHidden(2);
+    connect(tw, &TableWidget::resizeColumns, this, [tw]() { tw->resizeColumn(0); });
 
-    auto* dock = DisassemblerHooks::dockify(tabletab);
-    DisassemblerHooks::mainWindow()->addDockWidget(dock, KDDockWidgets::Location_OnLeft, nullptr, tabletab->sizeHint());
+    auto* dock = DisassemblerHooks::dockify(tw);
+    DisassemblerHooks::mainWindow()->addDockWidget(dock, KDDockWidgets::Location_OnLeft, nullptr, tw->sizeHint());
 }
 
 void DisassemblerDocks::showExports() const
@@ -42,9 +42,9 @@ void DisassemblerDocks::showExports() const
     auto* model = new SymbolTableModel(DocumentItemType_All);
     model->setSymbolFlags(SymbolFlags_Export);
 
-    TableTab* tabletab = this->createTable(model, "Exports");
-    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-    DisassemblerHooks::tabify(tabletab);
+    TableWidget* tw = this->createTable(model, "Exports");
+    connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
+    DisassemblerHooks::tabify(tw);
 }
 
 void DisassemblerDocks::showImports() const
@@ -52,9 +52,9 @@ void DisassemblerDocks::showImports() const
     auto* model = new SymbolTableModel(DocumentItemType_Symbol);
     model->setSymbolType(SymbolType_Import);
 
-    TableTab* tabletab = this->createTable(model, "Imports");
-    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-    DisassemblerHooks::tabify(tabletab);
+    TableWidget* tw = this->createTable(model, "Imports");
+    connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
+    DisassemblerHooks::tabify(tw);
 }
 
 void DisassemblerDocks::showStrings() const
@@ -62,19 +62,47 @@ void DisassemblerDocks::showStrings() const
     auto* model = new SymbolTableModel(DocumentItemType_Symbol);
     model->setSymbolType(SymbolType_String);
 
-    TableTab* tabletab = this->createTable(model, "Strings");
-    connect(tabletab, &TableTab::resizeColumns, tabletab, &TableTab::resizeAllColumns);
-    DisassemblerHooks::tabify(tabletab);
+    TableWidget* tw = this->createTable(model, "Strings");
+    connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
+    DisassemblerHooks::tabify(tw);
+}
+
+void DisassemblerDocks::showMap(KDDockWidgets::DockWidget* relative) const
+{
+    auto* listingmap = new ListingMap(m_context);
+    auto* mapdock = DisassemblerHooks::dockify(listingmap);
+
+    KDDockWidgets::InitialOption opt(listingmap->sizeHint());
+    opt.preferredLength(Qt::Vertical);
+    DisassemblerHooks::mainWindow()->addDockWidget(mapdock, KDDockWidgets::Location_OnRight, relative, opt);
+}
+
+void DisassemblerDocks::onItemDoubleClicked(const QModelIndex& index)
+{
+    auto* surface = DisassemblerHooks::activeSurface();
+    if(!surface) return;
+
+    auto* listingitemmodel = dynamic_cast<const ListingItemModel*>(index.model());
+    if(!listingitemmodel) return;
+
+    const RDDocumentItem& item = listingitemmodel->item(index);
+    surface->goTo(&item);
+    DisassemblerHooks::focusOn(surface->widget());
 }
 
 const RDContextPtr& DisassemblerDocks::context() const { return m_context; }
 
-TableTab* DisassemblerDocks::createTable(ListingItemModel* model, const QString& title) const
+TableWidget* DisassemblerDocks::createTable(ListingItemModel* model, const QString& title) const
 {
-    TableTab* tabletab = new TableTab(model);
-    model->setParent(tabletab);
-    tabletab->setWindowTitle(title);
-    return tabletab;
+    model->setContext(m_context);
+
+    TableWidget* tw = new TableWidget();
+    tw->setToggleFilter(true);
+    tw->setWindowTitle(title);
+    tw->setModel(model);
+
+    connect(tw, &TableWidget::doubleClicked, this, &DisassemblerDocks::onItemDoubleClicked);
+    return tw;
 }
 
 void DisassemblerDocks::listenEvents(const RDEventArgs* e)
@@ -103,18 +131,14 @@ KDDockWidgets::DockWidget* DisassemblerDocks::showListing() const { return Disas
 void DisassemblerDocks::setContext(const RDContextPtr& ctx)
 {
     m_context = ctx;
-    auto* listingdock = this->showListing();
 
+    auto* listingdock = this->showListing();
     this->showSegments();
     this->showExports();
     this->showImports();
     this->showStrings();
     this->showFunctions();
-
-    m_listingmap = new ListingMap(ctx);
-
-    auto* mapdock = DisassemblerHooks::dockify(m_listingmap);
-    DisassemblerHooks::mainWindow()->addDockWidget(mapdock, KDDockWidgets::Location_OnRight, listingdock, m_listingmap->sizeHint());
+    this->showMap(listingdock);
     listingdock->setAsCurrentTab();
 
     RDObject_Subscribe(ctx.get(), this, &DisassemblerDocks::listenEvents, this);

@@ -3,12 +3,7 @@
 #include <QApplication>
 #include <QClipboard>
 
-FunctionGraphTab::FunctionGraphTab(QWidget *parent) : QWidget(parent), ui(new Ui::FunctionGraphTab)
-{
-    ui->setupUi(this);
-    ui->splitter->setStretchFactor(1, 1);
-}
-
+FunctionGraphTab::FunctionGraphTab(QWidget *parent) : QWidget(parent), ui(new Ui::FunctionGraphTab) { ui->setupUi(this); }
 FunctionGraphTab::~FunctionGraphTab() { delete ui; }
 
 void FunctionGraphTab::setContext(const RDContextPtr& ctx)

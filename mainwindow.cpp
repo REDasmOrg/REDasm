@@ -226,8 +226,11 @@ void MainWindow::createWindowMenu()
     mnusubviews->addAction("Exports",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showExports(); });
     mnusubviews->addAction("Imports",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showImports(); });
     mnusubviews->addAction("Strings",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showStrings(); });
-    mnuwindow->addSeparator();
+    mnusubviews->addSeparator();
+    mnusubviews->addAction("Functions", []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showFunctions(); });
+    mnusubviews->addAction("Map", []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showMap(); });
 
+    mnuwindow->addSeparator();
     mnubar->addMenu(mnuwindow);
 
     connect(actresetlayout, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::resetLayout);

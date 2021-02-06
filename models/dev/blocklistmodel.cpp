@@ -50,7 +50,7 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
             default: break;
         }
     }
-    else if(role == Qt::TextAlignmentRole) return Qt::AlignCenter;
+    else if(role == Qt::TextAlignmentRole) return (index.column() != 5) ? Qt::AlignCenter : Qt::AlignLeft;
     else if(role == Qt::ForegroundRole)
     {
         if(index.column() < 3)  return THEME_VALUE(Theme_Address);

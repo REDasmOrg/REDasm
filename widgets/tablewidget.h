@@ -14,14 +14,26 @@ class TableWidget : public QWidget
 
     public:
         explicit TableWidget(QWidget *parent = nullptr);
-        ~TableWidget();
+        ~TableWidget() override;
 
     public:
         void enableFiltering();
+        void setToggleFilter(bool b);
+        void setShowVerticalHeader(bool v);
+        void setAlternatingRowColors(bool b);
+        void setColumnHidden(int idx);
+        void resizeColumn(int idx);
+        void moveSection(int from, int to);
         void setSelectionModel(QAbstractItemView::SelectionMode mode);
         void setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior);
         void setModel(QAbstractItemModel* model);
         QAbstractItemModel* model() const;
+
+    public Q_SLOTS:
+        void resizeAllColumns();
+
+    protected:
+        bool event(QEvent* e) override;
 
     private Q_SLOTS:
         void onTableDoubleClicked(const QModelIndex& index);
@@ -30,8 +42,10 @@ class TableWidget : public QWidget
     Q_SIGNALS:
         void doubleClicked(const QModelIndex& index);
         void clicked(const QModelIndex& index);
+        void resizeColumns();
 
     private:
         Ui::TableWidget *ui;
+        bool m_togglefilter{false};
 };
 

@@ -19,7 +19,6 @@ DatabaseDialog::DatabaseDialog(const RDContextPtr& ctx, QWidget *parent) : QDial
     ui->pbRoot->setIcon(FA_ICON(0xf015));
     ui->pbExport->setIcon(FA_ICON(0xf56e));
 
-    ui->twDatabaseData->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->twDatabaseData->enableFiltering();
 
     m_databasemodel = new DatabaseModel(this);

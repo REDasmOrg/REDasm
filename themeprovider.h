@@ -26,7 +26,6 @@ class ThemeProvider
         static QIcon icon(const QString& name);
         static QColor seekColor();
         static QColor metaColor();
-        static void styleCornerButton(QTableView* tableview);
         static void applyTheme();
 
     private:

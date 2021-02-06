@@ -4,6 +4,7 @@
 #include "../themeprovider.h"
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
+#include <QAction>
 
 TableWidget::TableWidget(QWidget *parent) : QWidget(parent), ui(new Ui::TableWidget)
 {
@@ -20,6 +21,11 @@ TableWidget::TableWidget(QWidget *parent) : QWidget(parent), ui(new Ui::TableWid
     ui->tbvTable->verticalHeader()->setDefaultSectionSize(ui->tbvTable->verticalHeader()->minimumSectionSize());
     ui->tbvTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->tbvTable->verticalHeader()->hide();
+    ui->leSearch->setFrame(false);
+
+    m_actfilter = new QAction("Filter", ui->tbvTable);
+    connect(m_actfilter, &QAction::triggered, this, [&]() { this->showFilter(); } );
+    ui->tbvTable->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     connect(ui->tbvTable, &QTableView::doubleClicked, this, &TableWidget::onTableDoubleClicked);
     connect(ui->tbvTable, &QTableView::clicked, this, &TableWidget::onTableClicked);
@@ -37,7 +43,14 @@ TableWidget::~TableWidget()
 }
 
 void TableWidget::enableFiltering() { ui->leSearch->setVisible(true); }
-void TableWidget::setToggleFilter(bool b) { m_togglefilter = b; }
+
+void TableWidget::setToggleFilter(bool b)
+{
+    m_togglefilter = b;
+    if(b) ui->tbvTable->addAction(m_actfilter);
+    else ui->tbvTable->removeAction(m_actfilter);
+}
+
 void TableWidget::setShowVerticalHeader(bool v) { ui->tbvTable->verticalHeader()->setVisible(v); }
 void TableWidget::setAlternatingRowColors(bool b) { ui->tbvTable->setAlternatingRowColors(b); }
 void TableWidget::setColumnHidden(int idx) { ui->tbvTable->setColumnHidden(idx, true); }
@@ -85,8 +98,8 @@ bool TableWidget::event(QEvent* e)
 
         switch(keyevent->key())
         {
-            case Qt::Key_Escape: ui->leSearch->setVisible(false); return true;
-            case Qt::Key_F3: ui->leSearch->setVisible(true); return true;
+            case Qt::Key_Escape: this->clearFilter(); return true;
+            case Qt::Key_F3: this->showFilter(); return true;
             default: break;
         }
     }
@@ -104,4 +117,16 @@ void TableWidget::onTableClicked(const QModelIndex& index)
 {
     auto* sfmodel = static_cast<QSortFilterProxyModel*>(ui->tbvTable->model());
     Q_EMIT clicked(sfmodel->mapToSource(index));
+}
+
+void TableWidget::clearFilter()
+{
+    ui->leSearch->setVisible(false);
+    ui->leSearch->clear();
+}
+
+void TableWidget::showFilter()
+{
+    ui->leSearch->setVisible(true);
+    ui->leSearch->setFocus();
 }

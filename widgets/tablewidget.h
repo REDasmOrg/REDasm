@@ -39,6 +39,10 @@ class TableWidget : public QWidget
         void onTableDoubleClicked(const QModelIndex& index);
         void onTableClicked(const QModelIndex& index);
 
+    private:
+        void clearFilter();
+        void showFilter();
+
     Q_SIGNALS:
         void doubleClicked(const QModelIndex& index);
         void clicked(const QModelIndex& index);
@@ -47,5 +51,6 @@ class TableWidget : public QWidget
     private:
         Ui::TableWidget *ui;
         bool m_togglefilter{false};
+        QAction* m_actfilter;
 };
 

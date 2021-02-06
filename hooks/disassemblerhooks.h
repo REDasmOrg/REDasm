@@ -24,6 +24,7 @@ class FLCDialog;
 class DevDialog;
 class OutputWidget;
 class DisassemblerDocks;
+class DockWidget;
 
 class DisassemblerHooks: public QObject
 {
@@ -36,9 +37,9 @@ class DisassemblerHooks: public QObject
         static void initialize(KDDockWidgets::MainWindow* mainwindow);
         static DisassemblerHooks* instance();
         static KDDockWidgets::MainWindow* mainWindow();
-        static KDDockWidgets::DockWidget* dockify(QWidget* w, KDDockWidgets::DockWidget::Options options = KDDockWidgets::DockWidget::Options());
+        static DockWidget* dockify(QWidget* w, KDDockWidgets::DockWidget::Options options = KDDockWidgets::DockWidget::Options());
         static KDDockWidgets::DockWidget* tabify(QWidget* w, KDDockWidgets::DockWidget::Options options = KDDockWidgets::DockWidget::Options());
-        static KDDockWidgets::DockWidget* tabify(KDDockWidgets::DockWidget* dock);
+        static KDDockWidgets::DockWidget* tabify(DockWidget* dock);
         Q_INVOKABLE void enableViewCommands(bool enable);
         bool isLoaded() const;
         void openHomePage() const;

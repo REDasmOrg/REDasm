@@ -109,8 +109,8 @@ void DisassemblerDocks::setContext(const RDContextPtr& ctx)
     this->showExports();
     this->showImports();
     this->showStrings();
-
     this->showFunctions();
+
     m_listingmap = new ListingMap(ctx);
 
     auto* mapdock = DisassemblerHooks::dockify(m_listingmap);

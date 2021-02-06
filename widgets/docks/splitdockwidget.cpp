@@ -6,10 +6,8 @@
 #include <QSplitter>
 #include <QToolBar>
 
-SplitDockWidget::SplitDockWidget(QWidget* w, Options opt, LayoutSaverOptions lsp): KDDockWidgets::DockWidget(DockIdentifiers::getId(w), opt, lsp), m_splitwidget(w)
+SplitDockWidget::SplitDockWidget(QWidget* w, Options opt, LayoutSaverOptions lsp): DockWidget(DockIdentifiers::getId(w), opt, lsp), m_splitwidget(w)
 {
-    this->setTitle(w->windowTitle());
-
     m_tbactions = new QToolBar();
     m_tbactions->setIconSize({16, 16});
     m_tbactions->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -50,6 +48,8 @@ void SplitDockWidget::createDefaultButtons()
     connect(m_tbactions->addAction(FA_ICON(0xf107), QString()), &QAction::triggered, this, &SplitDockWidget::splitVertical);
     connect(m_tbactions->addAction(FA_ICON(0xf2d2), QString()), &QAction::triggered, this, &SplitDockWidget::splitInDialog);
 }
+
+void SplitDockWidget::onDockShown() { if(this->isInMainWindow()) DisassemblerHooks::instance()->enableCommands(m_splitwidget); }
 
 void SplitDockWidget::splitHorizontal()
 {

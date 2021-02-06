@@ -3,7 +3,6 @@
 #include "../../themeprovider.h"
 #include "../../redasmfonts.h"
 #include "listingview.h"
-#include <QDebug>
 
 ListingSplitView::ListingSplitView(const RDContextPtr& ctx): SplitDockWidget(new ListingView(ctx)), m_context(ctx)
 {
@@ -23,7 +22,10 @@ ListingSplitView::ListingSplitView(const RDContextPtr& ctx): SplitDockWidget(new
     this->checkActions();
 }
 
-SplitDockWidget* ListingSplitView::createSplit() const { return new ListingSplitView(m_context); }
+SplitDockWidget* ListingSplitView::createSplit() const
+{
+    return new ListingSplitView(m_context);
+}
 
 //void ListingSplitView::onItemSplit(SplitItem* item, SplitItem* newitem)
 //{

@@ -8,11 +8,12 @@
 #include "../dialogs/devdialog/devdialog.h"
 #include "../dialogs/flcdialog/flcdialog.h"
 #include "../dialogs/databasedialog/databasedialog.h"
-#include "../widgets/listing/listingsplitview.h"
+#include "../widgets/listing/listingview.h"
 #include "../widgets/disassemblerdocks.h"
 #include "../widgets/callgraphview/callgraphview.h"
 #include "../widgets/welcomewidget.h"
 #include "../widgets/outputwidget.h"
+#include "../widgets/docks/dockwidget.h"
 #include "../models/dev/blocklistmodel.h"
 #include "../models/listingitemmodel.h"
 #include "../renderer/surfaceqt.h"
@@ -47,17 +48,16 @@ DisassemblerHooks* DisassemblerHooks::instance()
 
 KDDockWidgets::MainWindow* DisassemblerHooks::mainWindow() { return DisassemblerHooks::instance()->m_mainwindow; }
 
-KDDockWidgets::DockWidget* DisassemblerHooks::dockify(QWidget* w, KDDockWidgets::DockWidget::Options options)
+DockWidget* DisassemblerHooks::dockify(QWidget* w, KDDockWidgets::DockWidget::Options options)
 {
-    auto* dock = new KDDockWidgets::DockWidget(DockIdentifiers::getId(w), options);
+    auto* dock = new DockWidget(w->windowTitle(), options);
     dock->setWidget(w);
-    dock->setTitle(w->windowTitle());
     return dock;
 }
 
 KDDockWidgets::DockWidget* DisassemblerHooks::tabify(QWidget* w, KDDockWidgets::DockWidgetBase::Options options) { return DisassemblerHooks::tabify(DisassemblerHooks::dockify(w, options)); }
 
-KDDockWidgets::DockWidget* DisassemblerHooks::tabify(KDDockWidgets::DockWidget* dock)
+KDDockWidgets::DockWidget* DisassemblerHooks::tabify(DockWidget* dock)
 {
     DisassemblerHooks::mainWindow()->addDockWidgetAsTab(dock);
     return dock;
@@ -478,6 +478,8 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
 
 void DisassemblerHooks::enableCommands(QWidget* w)
 {
+    qDebug() << w;
+
     QAction* actdevtools = m_mainwindow->findChild<QAction*>(HOOK_ACTION_DEVTOOLS);
     QAction* actflc = m_mainwindow->findChild<QAction*>(HOOK_ACTION_FLC);
     auto actions = m_toolbar->actions();
@@ -493,10 +495,10 @@ void DisassemblerHooks::enableCommands(QWidget* w)
         return;
     }
 
-    auto* splitview = dynamic_cast<ListingSplitView*>(w);
-    this->checkListingMode();
+    auto* listingview = dynamic_cast<ListingView*>(w);
+    if(m_disassemblerdocks) this->checkListingMode();
 
-    m_pbrenderer->setVisible(splitview);
-    actdevtools->setVisible(splitview);
-    actflc->setVisible(splitview);
+    m_pbrenderer->setVisible(listingview);
+    actdevtools->setVisible(listingview);
+    actflc->setVisible(listingview);
 }

@@ -13,22 +13,18 @@ QString DockIdentifiers::getId(QWidget* w)
     QObject::connect(w, &QWidget::destroyed, &DockIdentifiers::freeId);
 
     auto it = m_freeids.find(title);
-    size_t idval;
-    QString id;
+    size_t ididx;
 
-    if(it == m_freeids.end())
+    if(it != m_freeids.end())
     {
-        idval = ++m_ids[title];
-        id = title;
-    }
-    else
-    {
-        idval = it->second;
-        id = DockIdentifiers::makeId(title, it->second);
+        ididx = it->second;
         m_freeids.erase(it);
     }
+    else
+        ididx = m_ids[title]++;
 
-    m_lockedids[w] = idval;
+    QString id = DockIdentifiers::makeId(title, ididx);
+    m_lockedids[w] = ididx;
     return id;
 }
 
@@ -44,7 +40,4 @@ void DockIdentifiers::freeId(QObject* obj)
     m_lockedids.erase(it);
 }
 
-QString DockIdentifiers::makeId(const QString& id, size_t idx)
-{
-    return QString("%1-%2").arg(id.toLower().replace(QRegularExpression("[ \t\n\r]"), "_")).arg(idx);
-}
+QString DockIdentifiers::makeId(const QString& id, size_t idx) { return idx ? QString("%1-%2").arg(id).arg(idx) : id; }

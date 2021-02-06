@@ -1,10 +1,7 @@
 #pragma once
 
-#include <QSplitter>
+#include "../docks/splitdockwidget.h"
 #include "../hooks/isurface.h"
-#include "../splitdockwidget.h"
-
-class ListingView;
 
 class ListingSplitView : public SplitDockWidget
 {

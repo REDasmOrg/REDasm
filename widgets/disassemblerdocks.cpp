@@ -2,6 +2,7 @@
 #include "../hooks/disassemblerhooks.h"
 #include "../models/symboltablemodel.h"
 #include "../models/segmentsmodel.h"
+#include "widgets/dashboard/analysiswidget.h"
 #include "widgets/outputwidget.h"
 #include "listing/listingsplitview.h"
 #include "listing/listingview.h"
@@ -90,6 +91,21 @@ void DisassemblerDocks::onItemDoubleClicked(const QModelIndex& index)
     DisassemblerHooks::focusOn(surface->widget());
 }
 
+void DisassemblerDocks::showDisassembly()
+{
+    auto* listingdock = this->showListing();
+    this->showSegments();
+    this->showExports();
+    this->showImports();
+    this->showStrings();
+    this->showFunctions();
+    this->showMap(listingdock);
+    listingdock->setAsCurrentTab();
+
+    DisassemblerHooks::instance()->setTabBarVisible(true);
+    DisassemblerHooks::instance()->enableViewCommands(true);
+}
+
 const RDContextPtr& DisassemblerDocks::context() const { return m_context; }
 
 TableWidget* DisassemblerDocks::createTable(ListingItemModel* model, const QString& title) const
@@ -107,7 +123,7 @@ TableWidget* DisassemblerDocks::createTable(ListingItemModel* model, const QStri
 
 void DisassemblerDocks::listenEvents(const RDEventArgs* e)
 {
-    auto* thethis = reinterpret_cast<DisassemblerDocks*>(e->userdata);
+    auto* thethis = reinterpret_cast<DisassemblerDocks*>(e->owner);
 
     switch(e->id)
     {
@@ -126,25 +142,22 @@ void DisassemblerDocks::listenEvents(const RDEventArgs* e)
     }
 }
 
-KDDockWidgets::DockWidget* DisassemblerDocks::showListing() const { return DisassemblerHooks::tabify(new ListingSplitView(m_context)); }
+DockWidget* DisassemblerDocks::showListing() const { return DisassemblerHooks::tabify(new ListingSplitView(m_context)); }
 
 void DisassemblerDocks::setContext(const RDContextPtr& ctx)
 {
     m_context = ctx;
+    auto* analysiswidget = new AnalysisWidget(ctx);
+    m_analysisdock = DisassemblerHooks::dockify(analysiswidget, KDDockWidgets::DockWidget::Option_NotClosable);
 
-    auto* listingdock = this->showListing();
-    this->showSegments();
-    this->showExports();
-    this->showImports();
-    this->showStrings();
-    this->showFunctions();
-    this->showMap(listingdock);
-    listingdock->setAsCurrentTab();
-
-    RDObject_Subscribe(ctx.get(), this, &DisassemblerDocks::listenEvents, this);
-
-    m_worker = std::async([&, ctx]() { // Capture 'disassembler' by value
-        RDContext_Disassemble(ctx.get());
-        QMetaObject::invokeMethod(DisassemblerHooks::instance(), "enableViewCommands", Qt::QueuedConnection, Q_ARG(bool, true));
+    connect(analysiswidget, &AnalysisWidget::listingClicked, this, [=]() {
+        m_analysisdock->hide();
+        m_analysisdock->deleteLater();
+        this->showDisassembly();
     });
+
+    DisassemblerHooks::mainWindow()->addDockWidgetAsTab(m_analysisdock);
+
+    RDObject_Subscribe(ctx.get(), this, &DisassemblerDocks::listenEvents, nullptr);
+    m_worker = std::async([&, ctx]() {  RDContext_Disassemble(ctx.get()); });
 }

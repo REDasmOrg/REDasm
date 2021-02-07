@@ -1,49 +1,36 @@
 #include "welcomewidget.h"
 #include "ui_welcomewidget.h"
-#include "../delegates/recentfilesdelegate.h"
-#include "../models/recentfilesmodel.h"
-#include "../hooks/disassemblerhooks.h"
-#include "../redasmsettings.h"
-#include "../redasmfonts.h"
-#include "../themeprovider.h"
+#include "../../delegates/recentfilesdelegate.h"
+#include "../../models/recentfilesmodel.h"
+#include "../../hooks/disassemblerhooks.h"
+#include "../../redasmsettings.h"
+#include "../../redasmfonts.h"
 #include <QFileInfo>
 
-WelcomeWidget::WelcomeWidget(QWidget *parent) : QWidget(parent), ui(new Ui::WelcomeWidget)
+WelcomeWidget::WelcomeWidget(QWidget *parent) : DashboardWidget(parent), ui(new Ui::WelcomeWidget)
 {
+    DisassemblerHooks::instance()->setTabBarVisible(false);
+
     ui->setupUi(this);
-    ui->lblVersion->setText(QString("Version %1").arg(REDASM_VERSION));
     this->setWindowTitle("Welcome");
+    this->applyLogo(ui->lblBrand);
 
-    if(ThemeProvider::isDarkTheme()) ui->lblBrand->setPixmap(QPixmap(":/res/logo_dark.png"));
-    else ui->lblBrand->setPixmap(QPixmap(":/res/logo.png"));
-
+    ui->lblVersion->setText(QString("Version %1").arg(REDASM_VERSION));
     ui->lvRecentFiles->viewport()->setAttribute(Qt::WA_Hover);
     ui->lvRecentFiles->viewport()->setBackgroundRole(QPalette::Window);
-    this->setAutoFillBackground(true);
-
-    QString flatstylesheet = QString("QPushButton:hover {"
-                                         "background-color: %1;"
-                                     "}").arg(this->palette().color(QPalette::Window).darker(125).name());
-
-    QString borderedstylesheet = QString("QPushButton {"
-                                             "border-color: %1;"
-                                             "border-style: solid;"
-                                             "border-width: 1px;"
-                                         "}"
-                                         "%2").arg(this->palette().color(QPalette::Text).name(), flatstylesheet);
 
     ui->pbOpen->setCursor(Qt::PointingHandCursor);
-    ui->pbOpen->setStyleSheet(borderedstylesheet);
     ui->pbSettings->setCursor(Qt::PointingHandCursor);
-    ui->pbSettings->setStyleSheet(borderedstylesheet);
     ui->pbAbout->setCursor(Qt::PointingHandCursor);
-    ui->pbAbout->setStyleSheet(borderedstylesheet);
+    this->makeBordered(ui->pbOpen);
+    this->makeBordered(ui->pbSettings);
+    this->makeBordered(ui->pbAbout);
 
     this->styleSocialButton(ui->pbREDasmIO, FA_ICON(0xf015));
-    this->styleSocialButton(ui->pbTwitter, FAB_ICON(0xf099));
+    this->styleSocialButton(ui->pbTwitter,  FAB_ICON(0xf099));
     this->styleSocialButton(ui->pbTelegram, FAB_ICON(0xf3fe));
-    this->styleSocialButton(ui->pbReddit, FAB_ICON(0xf281));
-    this->styleSocialButton(ui->pbGitHub, FAB_ICON(0xf113));
+    this->styleSocialButton(ui->pbReddit,   FAB_ICON(0xf281));
+    this->styleSocialButton(ui->pbGitHub,   FAB_ICON(0xf113));
 
     RecentFilesModel* recentfilesmodel = new RecentFilesModel(ui->lvRecentFiles);
     recentfilesmodel->update();
@@ -66,9 +53,9 @@ WelcomeWidget::~WelcomeWidget() { delete ui; }
 
 void WelcomeWidget::styleSocialButton(QPushButton* button, const QIcon& icon) const
 {
-    static QString socialstylesheet = QString("QPushButton {"
-                                                  "text-align: left;"
-                                              "}");
+    static const QString socialstylesheet = QString("QPushButton {"
+                                                        "text-align: left;"
+                                                    "}");
 
     button->setFlat(true);
     button->setCursor(Qt::PointingHandCursor);

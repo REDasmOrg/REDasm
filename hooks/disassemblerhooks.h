@@ -45,6 +45,7 @@ class DisassemblerHooks: public QObject
         static SurfaceQt* activeSurface();
         static RDContextPtr activeContext();
         Q_INVOKABLE void enableViewCommands(bool enable);
+        void setTabBarVisible(bool b);
         bool isLoaded() const;
         QAction* addWindowAction(DockWidget* dw);
         void removeWindowAction(QAction* a);
@@ -92,7 +93,6 @@ class DisassemblerHooks: public QObject
         void enableMenu(QMenu* menu, bool enable);
         void loadDisassemblerDocks(const RDContextPtr& ctx);
         void showLoaders(const QString& filepath, RDBuffer* buffer);
-        void setTabBarVisible(bool b);
         void showWelcome();
         void loadRecents();
         void hook();

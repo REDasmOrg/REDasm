@@ -1,14 +1,12 @@
 #pragma once
 
-#include <QWidget>
+#include "dashboardwidget.h"
 
 namespace Ui {
 class WelcomeWidget;
 }
 
-class QPushButton;
-
-class WelcomeWidget : public QWidget
+class WelcomeWidget : public DashboardWidget
 {
     Q_OBJECT
 

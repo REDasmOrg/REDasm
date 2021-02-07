@@ -9,6 +9,7 @@
 #include "models/listingitemmodel.h"
 
 class TableWidget;
+class DockWidget;
 
 class DisassemblerDocks : public QObject
 {
@@ -19,7 +20,7 @@ class DisassemblerDocks : public QObject
         virtual ~DisassemblerDocks();
         const RDContextPtr& context() const;
         void setContext(const RDContextPtr& ctx);
-        KDDockWidgets::DockWidget* showListing() const;
+        DockWidget* showListing() const;
         void showSegments() const;
         void showFunctions() const;
         void showExports() const;
@@ -29,6 +30,7 @@ class DisassemblerDocks : public QObject
 
     private Q_SLOTS:
         void onItemDoubleClicked(const QModelIndex& index);
+        void showDisassembly();
 
     private:
         TableWidget* createTable(ListingItemModel* model, const QString& title) const;
@@ -37,4 +39,5 @@ class DisassemblerDocks : public QObject
     private:
         RDContextPtr m_context;
         std::future<void> m_worker;
+        DockWidget* m_analysisdock;
 };

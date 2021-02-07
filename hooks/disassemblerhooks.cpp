@@ -11,7 +11,7 @@
 #include "../widgets/listing/listingview.h"
 #include "../widgets/disassemblerdocks.h"
 #include "../widgets/callgraphview/callgraphview.h"
-#include "../widgets/welcomewidget.h"
+#include "../widgets/dashboard/welcomewidget.h"
 #include "../widgets/outputwidget.h"
 #include "../widgets/docks/dockwidget.h"
 #include "../models/dev/blocklistmodel.h"
@@ -286,7 +286,6 @@ void DisassemblerHooks::setTabBarVisible(bool b)
 
 void DisassemblerHooks::showWelcome()
 {
-    this->setTabBarVisible(false);
     DisassemblerHooks::tabify(new WelcomeWidget(), KDDockWidgets::DockWidget::Option_NotClosable);
 }
 

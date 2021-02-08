@@ -51,8 +51,9 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: AppImage
-        path: ${github.workspace}}/build/*.AppImage
-
+        path: build/*.AppImage
+        if-no-files-found: error
+        
   windows:
     runs-on: windows-latest
     name: Windows
@@ -76,5 +77,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Windows Archive
-          path: ${github.workspace}}/build/*.zip
+          path: build/*.zip
+          if-no-files-found: error
           

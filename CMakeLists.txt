@@ -191,13 +191,13 @@ if(WINDEPLOYQT_EXECUTABLE)
     add_custom_command(OUTPUT REDasmPackage
         WORKING_DIRECTORY ${REDASM_DEPLOY_DIR}
         COMMAND ${WINDEPLOYQT_EXECUTABLE} .
-        COMMAND ${CMAKE_COMMAND} -E tar cvf ../${REDASM_ARCHIVE_NAME} --format=zip .
+        #COMMAND ${CMAKE_COMMAND} -E tar cvf ../${REDASM_ARCHIVE_NAME} --format=zip .
         DEPENDS REDasmPrePackage
         VERBATIM)
 else()
     add_custom_command(OUTPUT REDasmPackage
         WORKING_DIRECTORY ${REDASM_DEPLOY_DIR}
-        COMMAND ${CMAKE_COMMAND} -E tar cvf ../${REDASM_ARCHIVE_NAME} --format=zip .
+        #COMMAND ${CMAKE_COMMAND} -E tar cvf ../${REDASM_ARCHIVE_NAME} --format=zip .
         DEPENDS REDasmPrePackage
         VERBATIM)
 endif()

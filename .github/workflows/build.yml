@@ -50,8 +50,8 @@ jobs:
     - name: Upload AppImage
       uses: actions/upload-artifact@v2
       with:
-        name: AppImage
-        path: build/*.AppImage
+        name: Linux (AppImage)
+        path: build/REDasm*.AppImage
         if-no-files-found: error
         
   windows:
@@ -76,7 +76,6 @@ jobs:
       - name: Deploy
         uses: actions/upload-artifact@v2
         with:
-          name: Windows Archive
-          path: build/*.zip
+          name: Windows (Portable)
+          path: build/deploy
           if-no-files-found: error
-          

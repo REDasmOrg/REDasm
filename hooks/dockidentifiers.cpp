@@ -1,9 +1,9 @@
 #include "dockidentifiers.h"
 #include <QRegularExpression>
 
-std::unordered_map<QWidget*, size_t> DockIdentifiers::m_lockedids;
-std::unordered_multimap<QString, size_t> DockIdentifiers::m_freeids;
-std::unordered_map<QString, size_t> DockIdentifiers::m_ids;
+QMultiHash<QString, size_t> DockIdentifiers::m_freeids;
+QHash<QWidget*, size_t> DockIdentifiers::m_lockedids;
+QHash<QString, size_t> DockIdentifiers::m_ids;
 
 QString DockIdentifiers::getId(QWidget* w)
 {
@@ -17,7 +17,7 @@ QString DockIdentifiers::getId(QWidget* w)
 
     if(it != m_freeids.end())
     {
-        ididx = it->second;
+        ididx = it.value();
         m_freeids.erase(it);
     }
     else
@@ -36,7 +36,7 @@ void DockIdentifiers::freeId(QObject* obj)
     auto it = m_lockedids.find(w);
     if(it == m_lockedids.end()) return;
 
-    m_freeids.insert({w->windowTitle(), it->second});
+    m_freeids.insert(w->windowTitle(), it.value());
     m_lockedids.erase(it);
 }
 

@@ -2,7 +2,8 @@
 
 #include <QWidget>
 #include <QString>
-#include <unordered_map>
+#include <QMultiHash>
+#include <QHash>
 
 class DockIdentifiers
 {
@@ -17,8 +18,8 @@ class DockIdentifiers
         static QString makeId(const QString& id, size_t idx);
 
     private:
-        static std::unordered_map<QWidget*, size_t> m_lockedids;
-        static std::unordered_multimap<QString, size_t> m_freeids;
-        static std::unordered_map<QString, size_t> m_ids;
+        static QMultiHash<QString, size_t> m_freeids;
+        static QHash<QWidget*, size_t> m_lockedids;
+        static QHash<QString, size_t> m_ids;
 };
 

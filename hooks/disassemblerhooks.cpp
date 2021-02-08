@@ -497,8 +497,6 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
 
 void DisassemblerHooks::enableCommands(QWidget* w)
 {
-    qDebug() << w;
-
     QAction* actdevtools = m_mainwindow->findChild<QAction*>(HOOK_ACTION_DEVTOOLS);
     QAction* actflc = m_mainwindow->findChild<QAction*>(HOOK_ACTION_FLC);
     auto actions = m_toolbar->actions();

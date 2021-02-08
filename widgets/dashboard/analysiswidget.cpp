@@ -68,7 +68,7 @@ void AnalysisWidget::updateModel(QStandardItemModel* model, const char* const* n
     {
         auto* item = model->item(i);
 
-        if(model == m_analyzersmodel) item->setText(QString("%1 \u00d7 %2").arg(s->analyzersdone[i]).arg(namelist[i]));
+        if(model == m_analyzersmodel) item->setText(QString("%1 x  %2").arg(s->analyzersdone[i]).arg(namelist[i]));
 
         if(i == current)
         {

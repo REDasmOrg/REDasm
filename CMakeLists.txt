@@ -188,7 +188,6 @@ add_custom_command(OUTPUT REDasmPrePackage
                    VERBATIM)
 
 if(WINDEPLOYQT_EXECUTABLE)
-    message("!!!!!!!!!!!!!!! ${REDASM_DEPLOY_DIR}")
     add_custom_command(OUTPUT REDasmPackage
         WORKING_DIRECTORY ${REDASM_DEPLOY_DIR}
         COMMAND ${WINDEPLOYQT_EXECUTABLE} .
@@ -210,4 +209,4 @@ if(NOT WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/submodules/database database)
 endif()
 
-install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS ${PROJECT_NAME} DESTINATION ${REDASM_INSTALL_BINDIR})

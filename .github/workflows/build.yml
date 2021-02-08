@@ -1,0 +1,57 @@
+name: REDasm Nightlies
+
+on: [push]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  linux:
+    runs-on: ubuntu-20.04
+    name: Linux (Ubuntu 20.04 LTS)
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential gcc-10 g++-10 qt5-default 
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+        git submodule update --init --recursive
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --config $BUILD_TYPE
+
+    - name: Prepare AppImage
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: |
+        cmake --install . --prefix installed --config $BUILD_TYPE
+        wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+        wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+        chmod +x linuxdeploy*.AppImage
+        mkdir -p AppDir/usr/share/applications
+        mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+        cp ../REDasm.desktop AppDir/usr/share/applications/
+        cp ../res/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/redasm.png
+        
+    - name: Generate AppImage
+      run: |
+        LD_LIBRARY_PATH=$PWD/AppDir/usr/lib/x86_64-linux-gnu ./linuxdeploy-x86_64.AppImage --appdir=AppDir --plugin qt --output appimage
+        mv REDasm-*.AppImage REDasm_Linux_AMD64_`date +%Y%m%d`.AppImage
+        
+    - name: Upload AppImage
+      uses: actions/upload-artifact@v2
+      with:
+        name: AppImage
+        path: ${github.workspace}}/build/*.AppImage
+      
+        

@@ -3,8 +3,8 @@
 </div>
 <br>
 <div align="center">
-  <a href="https://ci.appveyor.com/project/Dax89/redasm">
-    <img src="https://ci.appveyor.com/api/projects/status/93dsq8rxb590h9nq?svg=true">
+  <a href="https://github.com/REDasmOrg/REDasm/actions?query=workflow%3AREDasm-Builds">
+    <img src="https://github.com/REDasmOrg/REDasm/workflows/REDasm-Builds/badge.svg">
   </a>
   <a href="https://lgtm.com/projects/g/REDasmOrg/REDasm/context:cpp">
     <img alt="Language grade: C/C++" src="https://img.shields.io/lgtm/grade/cpp/g/REDasmOrg/REDasm.svg?logo=lgtm&logoWidth=18">

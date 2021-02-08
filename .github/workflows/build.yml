@@ -1,4 +1,4 @@
-name: REDasm Nightlies
+name: REDasm Builds
 
 on: [push, pull_request]
 

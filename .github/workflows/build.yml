@@ -32,6 +32,7 @@ jobs:
     - name: Prepare AppImage
       shell: bash
       run: |
+        cd build
         wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
         wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
         chmod +x linuxdeploy*.AppImage
@@ -42,6 +43,7 @@ jobs:
         
     - name: Generate AppImage
       run: |
+        cd build
         LD_LIBRARY_PATH=$PWD/AppDir/usr/lib/x86_64-linux-gnu ./linuxdeploy-x86_64.AppImage --appdir=AppDir --plugin qt --output appimage
         mv REDasm-*.AppImage REDasm_Linux_AMD64_`date +%Y%m%d`.AppImage
         
@@ -50,5 +52,29 @@ jobs:
       with:
         name: AppImage
         path: ${github.workspace}}/build/*.AppImage
-      
+
+  windows:
+    runs-on: windows-latest
+    name: Windows
+
+    steps:
+      - uses: actions/checkout@v2
         
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2.12.1
+ 
+      - name: Build
+        run: |
+          git submodule update --init --recursive
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build . -j4 --config Release
+          cmake --build . --target REDasmDeploy
+          
+      - name: Deploy
+        uses: actions/upload-artifact@v2
+        with:
+          name: Windows Archive
+          path: ${github.workspace}}/build/*.zip
+          

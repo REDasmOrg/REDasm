@@ -1,4 +1,4 @@
-name: REDasm Builds
+name: REDasm-Builds
 
 on: [push, pull_request]
 

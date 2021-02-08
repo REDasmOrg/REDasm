@@ -1,6 +1,6 @@
 name: REDasm Nightlies
 
-on: [push]
+on: [push, pull_request]
 
 env:
   BUILD_TYPE: Release

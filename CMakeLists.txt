@@ -188,6 +188,7 @@ add_custom_command(OUTPUT REDasmPrePackage
                    VERBATIM)
 
 if(WINDEPLOYQT_EXECUTABLE)
+    message("!!!!!!!!!!!!!!! ${REDASM_DEPLOY_DIR}")
     add_custom_command(OUTPUT REDasmPackage
         WORKING_DIRECTORY ${REDASM_DEPLOY_DIR}
         COMMAND ${WINDEPLOYQT_EXECUTABLE} .

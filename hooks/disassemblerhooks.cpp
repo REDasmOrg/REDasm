@@ -293,6 +293,7 @@ void DisassemblerHooks::loadRecents()
 {
     QMenu* mnurecents = m_mainwindow->findChild<QMenu*>(HOOK_ACTION_RECENT_FILES);
     if(!mnurecents) return;
+    mnurecents->clear();
 
     REDasmSettings settings;
     QStringList recents = settings.recentFiles();

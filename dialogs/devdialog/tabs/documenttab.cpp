@@ -107,7 +107,6 @@ QString DocumentTab::symbolFlags(const RDSymbol* symbol) const
     CHECK_FLAG(s, symbol, SymbolFlags_AsciiString);
     CHECK_FLAG(s, symbol, SymbolFlags_WideString);
     CHECK_FLAG(s, symbol, SymbolFlags_Pointer);
-    CHECK_FLAG(s, symbol, SymbolFlags_TableItem);
     return s.isEmpty() ? STR(InstructionFlags_None) : s;
 }
 

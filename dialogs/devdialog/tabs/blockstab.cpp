@@ -40,4 +40,6 @@ void BlocksTab::showBlocks(const QModelIndex& current, const QModelIndex&)
         ui->tableWidget->setModel(new BlockListModel(m_context, RDDocument_GetBlocks(doc, segment.address)));
     else
         ui->tableWidget->setModel(new BlockListModel(m_context, nullptr));
+
+    ui->tableWidget->resizeAllColumns();
 }

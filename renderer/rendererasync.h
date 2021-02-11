@@ -17,6 +17,7 @@ class RendererAsync: public QThread
     public:
         RendererAsync(const RDContextPtr& ctx, QObject* parent);
         virtual ~RendererAsync();
+        bool aborted() const;
         void abort();
 
     Q_SIGNALS:

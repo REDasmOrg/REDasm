@@ -70,6 +70,7 @@ void ListingMapRenderer::calculateFunctions()
 
     RDDocument_EachFunction(m_document, [](rd_address address, void* userdata) {
         auto* thethis = reinterpret_cast<ListingMapRenderer*>(userdata);
+        if(thethis->aborted()) return false;
 
         RDGraph* graph = nullptr;
         if(!RDDocument_GetFunctionGraph(thethis->m_document, address, &graph)) return true;
@@ -108,12 +109,15 @@ void ListingMapRenderer::renderSegments(QPainter* painter)
 void ListingMapRenderer::renderFunctions(QPainter* painter)
 {
     if(m_calcfunctions.empty()) this->calculateFunctions();
+    if(this->aborted()) return;
 
     size_t fsize = (m_orientation == Qt::Horizontal ? this->widget()->height() :
                                                       this->widget()->width()) / 2;
 
     for(const auto& [loc, c] : m_calcfunctions)
     {
+        if(this->aborted()) break;
+
         QRect r = this->buildRect(this->calculatePosition(loc.offset), this->calculateSize(c));
         if(m_orientation == Qt::Horizontal) r.setHeight(fsize);
         else r.setWidth(fsize);

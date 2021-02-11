@@ -3,14 +3,15 @@
 
 RendererAsync::RendererAsync(const RDContextPtr& ctx, QObject* parent): QThread(parent), m_context(ctx) { }
 RendererAsync::~RendererAsync() { this->abort(); }
+bool RendererAsync::aborted() const { return m_abort.load(); }
 
 void RendererAsync::abort()
 {
     if(!this->isRunning() || m_abort.load()) return;
 
     {
-        renderer_lock lock(m_mutex);
         m_abort.store(true);
+        renderer_lock lock(m_mutex);
         m_cv.notify_one();
     }
 

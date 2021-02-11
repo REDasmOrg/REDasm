@@ -56,8 +56,8 @@ REDasm is still under heavy development, currently is supports:
 
 ### Requirements
 - CMake 3.12
-- C++17 compiler (tested on GCC 9.x and MSVC2019)
-- Qt 5.12
+- C++17 compiler (tested on GCC 10.x and MSVC2019)
+- Qt 5.11
 
 ### Building from source
 Read [here](COMPILE.md)

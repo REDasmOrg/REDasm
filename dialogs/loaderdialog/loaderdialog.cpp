@@ -24,6 +24,7 @@ LoaderDialog::LoaderDialog(RDContextPtr& ctx, const RDLoaderRequest* req, QWidge
     this->checkFlags();
     this->updateInputMask();
     this->syncAssemblerEntry(ctx);
+    this->validateFields();
 
     connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&) { this->validateFields(); });
     connect(ui->leEntryPoint, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateFields(); });
@@ -35,6 +36,7 @@ LoaderDialog::LoaderDialog(RDContextPtr& ctx, const RDLoaderRequest* req, QWidge
         this->syncAssemblerEntry(ctx);
         this->validateFields();
     });
+
 }
 
 LoaderDialog::~LoaderDialog() { delete ui; }
@@ -49,7 +51,7 @@ const RDEntryLoader *LoaderDialog::selectedLoaderEntry() const
 
 const RDEntryAssembler* LoaderDialog::selectedAssemblerEntry() const
 {
-    int idx = ui->cbAssembler->currentIndex();
+    size_t idx = static_cast<size_t>(ui->cbAssembler->currentIndex());
     return (idx > 0) && (idx < m_assemblers.size()) ? m_assemblers.at(ui->cbAssembler->currentIndex()) : nullptr;
 }
 

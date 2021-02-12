@@ -229,9 +229,6 @@ void DisassemblerHooks::hook()
     this->showWelcome();
     this->showOutput();
 
-    QAction* act = m_mainwindow->findChild<QAction*>(HOOK_ACTION_DATABASE);
-    connect(act, &QAction::triggered, this, [&]() { this->showDatabase(); });
-
     connect(m_pbproblems, &QPushButton::clicked, this, [&]() { this->showProblems(); });
 
     connect(m_pbrenderer, &QPushButton::clicked, this, [&]() {

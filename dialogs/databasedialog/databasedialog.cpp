@@ -67,7 +67,7 @@ DatabaseDialog::DatabaseDialog(const RDContextPtr& ctx, QWidget *parent) : QDial
         while(it.hasNext()) thethis->checkDatabase(it.next());
     }, this);
 
-    if(ctx) this->addDatabase(RDContext_GetDatabase(ctx.get()));
+    if(ctx) this->addDatabase(RDContext_GetDatabase(ctx.get()), false);
 }
 
 DatabaseDialog::~DatabaseDialog() { delete ui; }
@@ -117,9 +117,9 @@ void DatabaseDialog::checkDatabase(const QString& filepath)
     if(db) this->addDatabase(db);
 }
 
-void DatabaseDialog::addDatabase(RDDatabase* db)
+void DatabaseDialog::addDatabase(RDDatabase* db, bool owned)
 {
-    QModelIndex index = m_databasemodel->addDatabase(db);
+    QModelIndex index = m_databasemodel->addDatabase(db, owned);
     if(ui->twDatabaseData->model()) return;
 
     DatabaseDataModel* dbdatamodel = m_databasemodel->dataModel(index);

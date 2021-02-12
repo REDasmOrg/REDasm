@@ -28,7 +28,7 @@ class DatabaseDialog: public QDialog
 
     private:
         void checkDatabase(const QString& filepath);
-        void addDatabase(RDDatabase* db);
+        void addDatabase(RDDatabase* db, bool owned = true);
 
     private Q_SLOTS:
         void onDatabaseDataDoubleClicked(const QModelIndex& index);

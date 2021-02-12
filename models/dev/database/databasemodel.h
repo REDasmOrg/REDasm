@@ -15,10 +15,11 @@ class DatabaseModel : public QAbstractListModel
         int rowCount(const QModelIndex&) const override;
         int columnCount(const QModelIndex&) const override;
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-        QModelIndex addDatabase(RDDatabase* db);
+        QModelIndex addDatabase(RDDatabase* db, bool owned);
 
     private:
-        std::vector<rd_ptr<RDDatabase>> m_dblist;
+        std::vector<rd_ptr<RDDatabase>> m_owneddbs;
+        std::vector<RDDatabase*> m_dblist;
         std::unordered_map<RDDatabase*, DatabaseDataModel*> m_dbdata;
 };
 

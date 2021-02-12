@@ -8,7 +8,7 @@ DatabaseDataModel* DatabaseModel::dataModel(const QModelIndex& index) const
     if(index.row() < 0) return nullptr;
     if(index.row() >= static_cast<int>(m_dblist.size())) return nullptr;
 
-    auto it = m_dbdata.find(m_dblist[index.row()].get());
+    auto it = m_dbdata.find(m_dblist[index.row()]);
     if(it == m_dbdata.end()) return nullptr;
 
     it->second->query();
@@ -25,18 +25,19 @@ QVariant DatabaseModel::data(const QModelIndex &index, int role) const
     const auto& db = m_dblist[index.row()];
     if(!db) return QVariant();
 
-    if(role == Qt::DisplayRole) return RDDatabase_GetName(db.get());
+    if(role == Qt::DisplayRole) return RDDatabase_GetName(db);
     else if(role == Qt::DecorationRole) return FA_ICON(0xf1c0);
 
     return QVariant();
 }
 
-QModelIndex DatabaseModel::addDatabase(RDDatabase* db)
+QModelIndex DatabaseModel::addDatabase(RDDatabase* db, bool owned)
 {
     int idx = m_dblist.size();
 
     this->beginInsertRows(QModelIndex(), idx, idx);
-    m_dblist.emplace_back(db);
+    if(owned) m_owneddbs.emplace_back(db);
+    m_dblist.push_back(db);
     m_dbdata[db] = new DatabaseDataModel(db, this);
     this->endInsertRows();
 

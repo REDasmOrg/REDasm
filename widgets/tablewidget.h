@@ -23,6 +23,7 @@ class TableWidget : public QWidget
         void setAlternatingRowColors(bool b);
         void setColumnHidden(int idx);
         void resizeColumn(int idx);
+        void resizeColumnsUntil(int offset);
         void moveSection(int from, int to);
         void setSelectionModel(QAbstractItemView::SelectionMode mode);
         void setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior);

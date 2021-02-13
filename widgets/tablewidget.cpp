@@ -55,6 +55,7 @@ void TableWidget::setShowVerticalHeader(bool v) { ui->tbvTable->verticalHeader()
 void TableWidget::setAlternatingRowColors(bool b) { ui->tbvTable->setAlternatingRowColors(b); }
 void TableWidget::setColumnHidden(int idx) { ui->tbvTable->setColumnHidden(idx, true); }
 void TableWidget::resizeColumn(int idx) { ui->tbvTable->resizeColumnToContents(idx); }
+void TableWidget::resizeColumnsUntil(int offset) { for(int i = 0; i < ui->tbvTable->model()->columnCount() - offset; i++) ui->tbvTable->resizeColumnToContents(i); }
 void TableWidget::moveSection(int from, int to) { ui->tbvTable->horizontalHeader()->moveSection(from, to); }
 void TableWidget::setSelectionModel(QAbstractItemView::SelectionMode mode) { ui->tbvTable->setSelectionMode(mode); }
 void TableWidget::setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior) { ui->tbvTable->setSelectionBehavior(behavior); }

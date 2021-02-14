@@ -71,7 +71,7 @@ QFont REDasmSettings::font()
     REDasmSettings settings;
     QFont f = settings.currentFont();
 
-    if(!(f.styleHint() & QFont::Monospace))
+    if(f.styleHint() == QFont::Monospace)
     {
         f.setFamily("Monospace"); // Force Monospaced font
         f.setStyleHint(QFont::TypeWriter);

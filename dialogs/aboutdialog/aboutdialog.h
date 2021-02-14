@@ -16,6 +16,7 @@ class AboutDialog : public QDialog
 
     private:
         void initDependencies();
+        void initSearchPaths();
 
     private:
         Ui::AboutDialog *ui;

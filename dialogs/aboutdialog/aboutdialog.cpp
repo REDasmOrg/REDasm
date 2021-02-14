@@ -1,21 +1,28 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
+#include "../../redasmsettings.h"
 #include "../../themeprovider.h"
+#include <rdapi/rdapi.h>
 #include <QPushButton>
 #include <QPainter>
 #include <vector>
+#include <iostream>
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDialog)
 {
     ui->setupUi(this);
-    ui->lblHeader->setText(QString(ui->lblHeader->text()).arg(REDASM_VERSION, QT_VERSION_STR));
+    ui->lblVersion->setText(REDASM_VERSION);
+    ui->lblQtVersion->setText(QT_VERSION_STR);
+    ui->lblLibREDasmVersion->setText(LIBREDASM_VERSION);
+    ui->lblRDApiLevel->setText(QString::number(RDAPI_LEVEL));
 
-    this->setStyleSheet("QTextEdit {"
-                            "background: transparent;"
-                            "border: 0;"
-                        "}");
+    ui->tbDependencies->setStyleSheet("QTextEdit {"
+                                        "background: transparent;"
+                                        "border: 0;"
+                                      "}");
 
     this->initDependencies();
+    this->initSearchPaths();
 
     if(ThemeProvider::isDarkTheme()) ui->lblLogo->setPixmap(QPixmap(":/res/logo_dark.png"));
     else ui->lblLogo->setPixmap(QPixmap(":/res/logo.png"));
@@ -34,11 +41,30 @@ void AboutDialog::initDependencies()
     };
 
     QTextCursor cursor(ui->tbDependencies->document());
-    cursor.insertHtml("<b>Thanks to:</b><br>");
+    QTextListFormat lf;
+    lf.setStyle(QTextListFormat::ListDisc);
+    cursor.insertList(lf);
 
     for(const auto& [name, url] : DEPENDENCIES)
     {
-        cursor.insertHtml(QString("- <a href='%1'>%2</a>").arg(url, name));
+        QTextCharFormat cf;
+        cf.setAnchor(true);
+        cf.setAnchorHref(url);
+        cf.setForeground(qApp->palette().brush(QPalette::Highlight));
+        cursor.insertText(" " + name, cf);
         if(name != DEPENDENCIES.back().first) cursor.insertText("\n");
     }
+}
+
+void AboutDialog::initSearchPaths()
+{
+    RDConfig_GetPluginPaths([](const char* path, void* userdata) {
+        auto* thethis = reinterpret_cast<QListWidget*>(userdata);
+        thethis->addItem(path);
+    }, ui->lwPluginPaths);
+
+    RDConfig_GetDatabasePaths([](const char* path, void* userdata) {
+        auto* thethis = reinterpret_cast<QListWidget*>(userdata);
+        thethis->addItem(path);
+    }, ui->lwDatabasePaths);
 }

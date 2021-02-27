@@ -24,6 +24,7 @@ class AnalysisWidget : public DashboardWidget
 
     private:
         static void updateState(const RDEventArgs* e);
+        static QString printableDateDiff(const QDateTime& start, const QDateTime& end);
         static QString fileSize(double sz);
 
     Q_SIGNALS:

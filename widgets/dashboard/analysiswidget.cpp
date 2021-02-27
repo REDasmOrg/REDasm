@@ -7,7 +7,7 @@
 AnalysisWidget::AnalysisWidget(const RDContextPtr& ctx, QWidget *parent) : DashboardWidget(parent), ui(new Ui::AnalysisWidget), m_context(ctx)
 {
     static const std::vector<QString> STATS_ROWS = {
-        "Analysis Start", "Analysis End",
+        "Analysis Start", "Analysis End", "Analysis Time",
         "Segments", "Functions", "Symbols"
     };
 
@@ -90,26 +90,32 @@ void AnalysisWidget::updateModel(QStandardItemModel* model, const char* const* n
 void AnalysisWidget::updateStats(const RDAnalysisStatus* s)
 {
     m_statsmodel->item(0, 1)->setText(QDateTime::fromTime_t(static_cast<time_t>(s->analysisstart)).toString());
-    auto* item = m_statsmodel->item(1, 1);
+    auto *item = m_statsmodel->item(1, 1), *timeitem = m_statsmodel->item(2, 1);
 
     if(s->analysisend)
     {
-        item->setText(QDateTime::fromTime_t(static_cast<time_t>(s->analysisend)).toString());
+        QDateTime start = QDateTime::fromTime_t(static_cast<time_t>(s->analysisstart));
+        QDateTime end = QDateTime::fromTime_t(static_cast<time_t>(s->analysisend));
+        item->setText(end.toString());
+
+        timeitem->setText(AnalysisWidget::printableDateDiff(start, end));
         item->setForeground(THEME_VALUE(Theme_GraphEdgeTrue));
     }
     else
     {
         m_statsmodel->item(1, 1)->setText("In Progress");
+        m_statsmodel->item(2, 1)->setText("In Progress");
+        timeitem->setForeground(THEME_VALUE(Theme_GraphEdgeLoop));
         item->setForeground(THEME_VALUE(Theme_GraphEdgeLoop));
     }
 
-    m_statsmodel->item(2, 1)->setText(QString::number(s->segmentscount));
-    m_statsmodel->item(3, 1)->setText(QString::number(s->functionscount));
-    m_statsmodel->item(4, 1)->setText(QString::number(s->symbolscount));
+    m_statsmodel->item(3, 1)->setText(QString::number(s->segmentscount));
+    m_statsmodel->item(4, 1)->setText(QString::number(s->functionscount));
+    m_statsmodel->item(5, 1)->setText(QString::number(s->symbolscount));
 
-    this->updateDiff(m_statsmodel->item(2, 2), s->segmentsdiff);
-    this->updateDiff(m_statsmodel->item(3, 2), s->functionsdiff);
-    this->updateDiff(m_statsmodel->item(4, 2), s->symbolsdiff);
+    this->updateDiff(m_statsmodel->item(3, 2), s->segmentsdiff);
+    this->updateDiff(m_statsmodel->item(4, 2), s->functionsdiff);
+    this->updateDiff(m_statsmodel->item(5, 2), s->symbolsdiff);
 }
 
 void AnalysisWidget::updateDiff(QStandardItem* item, int diff)
@@ -157,4 +163,15 @@ void AnalysisWidget::updateState(const RDEventArgs* e)
     thethis->updateModel(thethis->m_stepsmodel, s->stepslist, s->stepscount, s->stepscurrent, s);
     thethis->updateModel(thethis->m_analyzersmodel, s->analyzerslist, s->analyzerscount, s->analyzerscurrent, s);
     thethis->updateStats(s);
+}
+
+QString AnalysisWidget::printableDateDiff(const QDateTime& start, const QDateTime& end)
+{
+    auto days = start.daysTo(end);
+    if(days > 1) return QString("%d days").arg(days);
+
+    QTime t(0, 0);
+    t = t.addSecs(start.secsTo(end));
+    auto s = t.toString("hh:mm:ss");
+    return s;
 }

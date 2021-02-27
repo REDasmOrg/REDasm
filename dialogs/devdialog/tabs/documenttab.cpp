@@ -248,7 +248,6 @@ void DocumentTab::displayInformation()
 
         this->line("address", RD_ToHex(item.address));
         this->line("type", this->itemType(item));
-        this->line("index", QString::number(item.index));
         this->line();
     m_indent = 0;
 

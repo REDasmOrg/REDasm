@@ -173,8 +173,7 @@ void ListingItemModel::onItemChanged(const RDDocumentEventArgs* e)
     if(!this->isItemAllowed(e->item)) return;
 
     auto it = std::find_if(m_items.begin(), m_items.end(), [&e](const auto& item) {
-        return std::tie(e->item.address, e->item.type, e->item.index) ==
-               std::tie(item.address, item.type, item.index);
+        return std::tie(e->item.address, e->item.type) == std::tie(item.address, item.type);
     });
 
     if(it == m_items.end()) return;
@@ -188,8 +187,8 @@ void ListingItemModel::onItemRemoved(const RDDocumentEventArgs* e)
     if(!this->isItemAllowed(e->item)) return;
 
     auto it = std::find_if(m_items.begin(), m_items.end(), [&e](const auto& item) {
-        return std::tie(e->item.address, e->item.type, e->item.index) ==
-               std::tie(item.address, item.type, item.index);
+        return std::tie(e->item.address, e->item.type) ==
+               std::tie(item.address, item.type);
     });
 
     if(it == m_items.end()) return;

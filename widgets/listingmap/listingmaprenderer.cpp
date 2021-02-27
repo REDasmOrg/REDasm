@@ -68,28 +68,31 @@ void ListingMapRenderer::calculateFunctions()
 {
     m_calcfunctions.clear();
 
-    RDDocument_EachFunction(m_document, [](rd_address address, void* userdata) {
-        auto* thethis = reinterpret_cast<ListingMapRenderer*>(userdata);
-        if(thethis->aborted()) return false;
+    const rd_address* addresses = nullptr;
+    size_t c = RDDocument_GetFunctions(m_document, &addresses);
+
+    for(size_t i = 0; i < c; i++)
+    {
+        if(this->aborted()) break;
 
         RDGraph* graph = nullptr;
-        if(!RDDocument_GetFunctionGraph(thethis->m_document, address, &graph)) return true;
+        if(!RDDocument_GetFunctionGraph(m_document, addresses[i], &graph)) continue;
 
         const RDGraphNode* nodes = nullptr;
-        size_t c = RDGraph_GetNodes(graph, &nodes);
+        size_t nc = RDGraph_GetNodes(graph, &nodes);
 
-        for(size_t i = 0; i < c; i++) {
+        for(size_t j = 0; j < nc; j++)
+        {
             const RDFunctionBasicBlock* fbb = nullptr;
-            if(!RDFunctionGraph_GetBasicBlock(graph, nodes[i], &fbb)) continue;
+            if(!RDFunctionGraph_GetBasicBlock(graph, nodes[j], &fbb)) continue;
 
             RDDocumentItem item;
             if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) continue;
 
-            RDLocation loc = RD_Offset(thethis->m_context.get(), item.address);
-            if(loc.valid) thethis->m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
+            RDLocation loc = RD_Offset(m_context.get(), item.address);
+            if(loc.valid) m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
         }
-        return true;
-    }, this);
+    }
 }
 
 bool ListingMapRenderer::conditionWait() const { return m_renderenabled.load(); }

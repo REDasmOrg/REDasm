@@ -33,7 +33,7 @@ class DisassemblerDocks : public QObject
         void showDisassembly();
 
     private:
-        TableWidget* createTable(ListingItemModel* model, const QString& title) const;
+        TableWidget* createTable(QAbstractItemModel* model, const QString& title) const;
         static void listenEvents(const RDEventArgs* e);
 
     private:

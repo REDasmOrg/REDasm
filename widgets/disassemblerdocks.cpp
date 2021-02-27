@@ -1,6 +1,7 @@
 #include "disassemblerdocks.h"
 #include "../hooks/disassemblerhooks.h"
 #include "../models/symboltablemodel.h"
+#include "../models/functionsmodel.h"
 #include "../models/segmentsmodel.h"
 #include "widgets/dashboard/analysiswidget.h"
 #include "widgets/outputwidget.h"
@@ -29,9 +30,7 @@ void DisassemblerDocks::showSegments() const
 
 void DisassemblerDocks::showFunctions() const
 {
-    TableWidget* tw = this->createTable(new ListingItemModel(DocumentItemType_Function), "Functions");
-    tw->setColumnHidden(1);
-    tw->setColumnHidden(2);
+    TableWidget* tw = this->createTable(new FunctionsModel(m_context), "Functions");
     connect(tw, &TableWidget::resizeColumns, this, [tw]() { tw->resizeColumn(0); });
 
     auto* dock = DisassemblerHooks::dockify(tw);
@@ -83,11 +82,16 @@ void DisassemblerDocks::onItemDoubleClicked(const QModelIndex& index)
     auto* surface = DisassemblerHooks::activeSurface();
     if(!surface) return;
 
-    auto* listingitemmodel = dynamic_cast<const ListingItemModel*>(index.model());
-    if(!listingitemmodel) return;
+    if(auto* m = dynamic_cast<const ListingItemModel*>(index.model()); m)
+    {
+        const RDDocumentItem& item = m->item(index);
+        surface->goTo(&item);
+    }
+    else if(auto* m = dynamic_cast<const AddressModel*>(index.model()); m)
+        surface->goToAddress(m->address(index));
+    else
+        return;
 
-    const RDDocumentItem& item = listingitemmodel->item(index);
-    surface->goTo(&item);
     DisassemblerHooks::focusOn(surface->widget());
 }
 
@@ -108,9 +112,9 @@ void DisassemblerDocks::showDisassembly()
 
 const RDContextPtr& DisassemblerDocks::context() const { return m_context; }
 
-TableWidget* DisassemblerDocks::createTable(ListingItemModel* model, const QString& title) const
+TableWidget* DisassemblerDocks::createTable(QAbstractItemModel* model, const QString& title) const
 {
-    model->setContext(m_context);
+    //model->setContext(m_context);
 
     TableWidget* tw = new TableWidget();
     tw->setToggleFilter(true);

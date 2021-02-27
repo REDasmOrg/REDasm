@@ -37,8 +37,8 @@ TableWidget::TableWidget(QWidget *parent) : QWidget(parent), ui(new Ui::TableWid
 
 TableWidget::~TableWidget()
 {
-    auto* listingitemmodel = dynamic_cast<ListingItemModel*>(this->model());
-    if(listingitemmodel) RDObject_Unsubscribe(listingitemmodel->context().get(), this);
+    auto* contextmodel = dynamic_cast<ContextModel*>(this->model());
+    if(contextmodel && contextmodel->context()) RDObject_Unsubscribe(contextmodel->context().get(), this);
     delete ui;
 }
 

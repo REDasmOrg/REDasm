@@ -203,7 +203,7 @@ void ListingView::adjustActions()
     actions[ListingView::Action_CallGraph]->setVisible(!RDContext_IsBusy(surface->context().get()) && IS_TYPE(&symbol, SymbolType_Function));
 
     actions[ListingView::Action_Follow]->setText(QString("Follow %1").arg(symbolname));
-    actions[ListingView::Action_Follow]->setVisible(IS_TYPE(&symbol, SymbolType_Label));
+    actions[ListingView::Action_Follow]->setVisible(IS_TYPE(&symbol, SymbolType_Location));
 
     actions[ListingView::Action_Comment]->setVisible(!RDContext_IsBusy(surface->context().get()) && IS_TYPE(&item, DocumentItemType_Instruction));
 

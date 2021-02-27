@@ -89,7 +89,7 @@ QString DocumentTab::symbolType(const RDSymbol* symbol) const
         RETURN_CASE_OF(SymbolType_None);
         RETURN_CASE_OF(SymbolType_Data);
         RETURN_CASE_OF(SymbolType_String);
-        RETURN_CASE_OF(SymbolType_Label);
+        RETURN_CASE_OF(SymbolType_Location);
         RETURN_CASE_OF(SymbolType_Function);
         RETURN_CASE_OF(SymbolType_Import);
         default: break;

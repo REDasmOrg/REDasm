@@ -12,7 +12,7 @@ class ReferencesDialog : public QDialog
     Q_OBJECT
 
     public:
-        explicit ReferencesDialog(const RDContextPtr& ctx, ISurface* surface, const RDSymbol *symbol, QWidget *parent = nullptr);
+        explicit ReferencesDialog(const RDContextPtr& ctx, ISurface* surface, rd_address address, QWidget *parent = nullptr);
         ~ReferencesDialog();
 
     private Q_SLOTS:

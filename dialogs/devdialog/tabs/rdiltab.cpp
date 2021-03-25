@@ -13,17 +13,18 @@ void RDILTab::setContext(const RDContextPtr& ctx)
 
 void RDILTab::updateInformation()
 {
-    RDDocumentItem item;
+    rd_address address;
     const SurfaceQt* surface = nullptr;
 
     auto* activesurface = RDContext_GetActiveSurface(m_context.get());
     if(!activesurface) goto notitle;
 
     surface = reinterpret_cast<const SurfaceQt*>(RDSurface_GetUserData(activesurface));
-    if(!surface->getCurrentItem(&item)) goto notitle;
+    address = surface->currentAddress();
+    if(address == RD_NVAL) goto notitle;
 
-    ui->lblTitle->setText(RD_GetInstruction(m_context.get(), item.address));
-    m_graph.reset(RDILGraph_Create(m_context.get(), item.address));
+    ui->lblTitle->setText(RD_GetInstruction(m_context.get(), address));
+    m_graph.reset(RDILGraph_Create(m_context.get(), address));
     ui->graphView->setGraph(m_graph.get());
     return;
 

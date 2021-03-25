@@ -13,7 +13,7 @@ DevDialog::DevDialog(const RDContextPtr& ctx, QWidget *parent) : QDialog(parent)
 
         switch(e->id) {
             case Event_ContextSurfaceChanged:
-            case Event_SurfacePositionChanged: thethis->updateInformation(); break;
+            case Event_SurfaceAddressChanged: thethis->updateInformation(); break;
             default: break;
         }
     }, nullptr);

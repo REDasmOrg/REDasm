@@ -27,10 +27,9 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
             case Event_SurfaceHistoryChanged: Q_EMIT thethis->historyChanged(); break;
             case Event_SurfaceScrollChanged: Q_EMIT thethis->scrollChanged(); break;
 
-            case Event_SurfacePositionChanged: {
-                auto* hooks = DisassemblerHooks::instance();
-                hooks->statusAddress(thethis);
-                Q_EMIT thethis->positionChanged();
+            case Event_SurfaceAddressChanged: {
+                DisassemblerHooks::instance()->statusAddress(thethis);
+                Q_EMIT thethis->addressChanged();
                 break;
             }
 
@@ -40,10 +39,7 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
 }
 
 SurfaceQt::~SurfaceQt() { RDObject_Unsubscribe(m_surface.get(), this); }
-bool SurfaceQt::containsAddress(rd_address address) const { return RDSurface_ContainsAddress(m_surface.get(), address); }
-bool SurfaceQt::contains(const RDDocumentItem* item) const { return RDSurface_Contains(m_surface.get(), item); }
-int SurfaceQt::scrollLength() const { return RDSurface_GetScrollLength(m_surface.get()); }
-int SurfaceQt::scrollValue() const { return RDSurface_GetScrollValue(m_surface.get()); }
+bool SurfaceQt::contains(rd_address address) const { return RDSurface_Contains(m_surface.get(), address); }
 int SurfaceQt::rows() const { return this->widget()->height() / m_cellsize.height(); }
 
 QSize SurfaceQt::size() const
@@ -56,9 +52,9 @@ QSize SurfaceQt::size() const
 const QColor& SurfaceQt::baseColor() const { return m_basecolor; }
 void SurfaceQt::setBaseColor(const QColor& c) { m_basecolor = c; }
 
-void SurfaceQt::scroll(int nrows, int ncols) { RDSurface_Scroll(m_surface.get(), nrows, ncols); }
-bool SurfaceQt::goTo(const RDDocumentItem* item) { return RDSurface_GoTo(m_surface.get(), item); }
-bool SurfaceQt::goToAddress(rd_address address) { return RDSurface_GoToAddress(m_surface.get(), address); }
+void SurfaceQt::scroll(rd_address address, int ncols) { RDSurface_Scroll(m_surface.get(), address, ncols); }
+bool SurfaceQt::goTo(rd_address address) { return RDSurface_GoTo(m_surface.get(), address); }
+void SurfaceQt::getScrollRange(rd_address* start, rd_address* end) const { RDSurface_GetScrollRange(m_surface.get(), start, end); }
 void SurfaceQt::goBack() { RDSurface_GoBack(m_surface.get()); }
 void SurfaceQt::goForward() { RDSurface_GoForward(m_surface.get()); }
 void SurfaceQt::moveTo(int row, int col) { RDSurface_MoveTo(m_surface.get(), row, col); }
@@ -102,6 +98,9 @@ qreal SurfaceQt::cellWidth() const { return m_cellsize.width(); }
 qreal SurfaceQt::cellHeight() const { return m_cellsize.height(); }
 const RDContextPtr& SurfaceQt::context() const { return m_context; }
 RDSurface* SurfaceQt::handle() const { return m_surface.get(); }
+rd_address SurfaceQt::firstAddress() const { return RDSurface_GetFirstAddress(m_surface.get()); }
+rd_address SurfaceQt::lastAddress() const { return RDSurface_GetLastAddress(m_surface.get()); }
+rd_address SurfaceQt::currentAddress() const { return RDSurface_GetCurrentAddress(m_surface.get()); }
 
 void SurfaceQt::activateCursor(bool activate)
 {
@@ -112,13 +111,17 @@ void SurfaceQt::activateCursor(bool activate)
 bool SurfaceQt::canGoBack() const { return RDSurface_CanGoBack(m_surface.get()); }
 bool SurfaceQt::canGoForward() const { return RDSurface_CanGoForward(m_surface.get()); }
 bool SurfaceQt::hasSelection() const { return RDSurface_HasSelection(m_surface.get()); }
-bool SurfaceQt::getCurrentItem(RDDocumentItem* item) const { return RDSurface_GetCurrentItem(m_surface.get(), item); }
-bool SurfaceQt::getCurrentSymbol(RDSymbol* symbol) const { return RDSurface_GetCurrentSymbol(m_surface.get(), symbol); }
 
-bool SurfaceQt::getSymbolAt(const QPointF& pt, RDSymbol* symbol) const
+QString SurfaceQt::getCurrentLabel(rd_address* address) const
+{
+    auto* s = RDSurface_GetCurrentLabel(m_surface.get(), address);
+    return s ? QString::fromUtf8(s) : QString();
+}
+
+bool SurfaceQt::getLabelAt(const QPointF& pt, rd_address* address) const
 {
     auto [row, col] = this->mapPoint(pt);
-    return RDSurface_GetSymbolAt(m_surface.get(), row, col, symbol);
+    return RDSurface_GetLabelAt(m_surface.get(), row, col, address);
 }
 
 const char* SurfaceQt::getCurrentWord() const { return RDSurface_GetCurrentWord(m_surface.get()); }
@@ -155,10 +158,10 @@ QColor SurfaceQt::getForeground(const RDSurfaceCell* cell) const
 RDSurfacePos SurfaceQt::mapPoint(const QPointF& pt) const
 {
     return { static_cast<int>(pt.y() / m_cellsize.height()),
-                static_cast<int>(pt.x() / m_cellsize.width()) };
+             static_cast<int>(pt.x() / m_cellsize.width()) };
 }
 
-bool SurfaceQt::seek(const RDDocumentItem* item) { return RDSurface_Seek(m_surface.get(), item); }
+bool SurfaceQt::seek(rd_address address) { return RDSurface_Seek(m_surface.get(), address); }
 QFontMetricsF SurfaceQt::fontMetrics() const { return QFontMetricsF(this->widget()->font()); }
 QWidget* SurfaceQt::widget() const { return dynamic_cast<QWidget*>(this->parent()); }
 

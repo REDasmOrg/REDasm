@@ -2,14 +2,17 @@
 #include "ui_gotodialog.h"
 #include "../../hooks/disassemblerhooks.h"
 #include "../../renderer/surfaceqt.h"
+#include "../models/gotomodel.h"
 
 GotoDialog::GotoDialog(const RDContextPtr& ctx, ISurface* surface, QWidget *parent) : QDialog(parent), ui(new Ui::GotoDialog), m_context(ctx), m_surface(surface)
 {
     ui->setupUi(this);
 
     m_document = RDContext_GetDocument(ctx.get());
-    m_gotomodel = new GotoFilterModel(ui->tvFunctions);
-    m_gotomodel->setContext(ctx);
+    m_gotomodel = new QSortFilterProxyModel(ui->tvFunctions);
+    m_gotomodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_gotomodel->setFilterKeyColumn(-1);
+    m_gotomodel->setSourceModel(new GotoModel(ctx, ui->tvFunctions));
 
     ui->tvFunctions->setModel(m_gotomodel);
     ui->tvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -23,7 +26,7 @@ GotoDialog::GotoDialog(const RDContextPtr& ctx, ISurface* surface, QWidget *pare
 }
 
 GotoDialog::~GotoDialog() { delete ui; }
-bool GotoDialog::hasValidAddress() const { return m_validaddress && RDDocument_GetSegmentAddress(m_document, m_address, nullptr); }
+bool GotoDialog::hasValidAddress() const { return m_validaddress && RDDocument_AddressToSegment(m_document, m_address, nullptr); }
 
 void GotoDialog::validateEntry()
 {
@@ -49,7 +52,7 @@ void GotoDialog::onGotoClicked()
     if(this->hasValidAddress())
     {
         auto* surface = DisassemblerHooks::instance()->activeSurface();
-        if(surface) surface->goToAddress(m_address);
+        if(surface) surface->goTo(m_address);
     }
 
     this->accept();
@@ -58,5 +61,8 @@ void GotoDialog::onGotoClicked()
 void GotoDialog::onItemSelected(const QModelIndex &index)
 {
     QModelIndex srcindex = m_gotomodel->mapToSource(index);
-    if(srcindex.isValid()) m_surface->goTo(std::addressof(m_gotomodel->item(index)));
+    if(!srcindex.isValid()) return;
+
+    auto* gotomodel = static_cast<GotoModel*>(m_gotomodel->sourceModel());
+    m_surface->goTo(gotomodel->address(srcindex));
 }

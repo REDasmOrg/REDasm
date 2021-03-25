@@ -97,25 +97,3 @@ void ListingPathWidget::fillArrow(QPainter* painter, int y, const QFontMetrics& 
 
     painter->fillPath(path, painter->pen().brush());
 }
-
-void ListingPathWidget::insertPath(const RDNet* net, const RDDocumentItem& fromitem, size_t fromidx, size_t toidx)
-{
-    const RDNetNode* node = RDNet_FindNode(net, fromitem.address);
-    if(!node) return;
-
-    auto pair = qMakePair(fromidx, toidx);
-    if(m_done.contains(pair)) return;
-
-    m_done.insert(pair);
-
-    if(fromidx > toidx) // Loop
-    {
-        if(RDNetNode_GetBranchesFalse(node, nullptr)) m_paths.append({ fromidx, toidx, THEME_VALUE(Theme_GraphEdgeLoopCond) });
-        else m_paths.append({ fromidx, toidx, THEME_VALUE(Theme_GraphEdgeLoop) });
-    }
-    else
-    {
-        if(RDNetNode_GetBranchesFalse(node, nullptr)) m_paths.append({ fromidx, toidx, THEME_VALUE(Theme_GraphEdgeFalse) });
-        else m_paths.append({ fromidx, toidx, THEME_VALUE(Theme_GraphEdge) });
-    }
-}

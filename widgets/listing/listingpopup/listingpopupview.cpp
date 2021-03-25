@@ -15,13 +15,13 @@ ListingPopupView::ListingPopupView(const RDContextPtr& ctx, QWidget *parent): QW
     dropshadow->setColor(QColor(0, 0, 0, 80));
     this->setGraphicsEffect(dropshadow);
 
-    m_surface = new SurfacePainter(ctx, RendererFlags_Simplified, this);
+    m_surface = new SurfacePainter(ctx, RendererFlags_Simplified & ~RendererFlags_NoAddressColumn, this);
     connect(m_surface, &SurfacePainter::renderCompleted, this, [&]() { this->update(); });
 }
 
-bool ListingPopupView::renderPopup(const RDSymbol* symbol)
+bool ListingPopupView::renderPopup(rd_address address)
 {
-    if(!m_surface->goToAddress(symbol->address)) return false;
+    if(!m_surface->goTo(address)) return false;
 
     m_rows = POPUP_START_ROWS;
     this->renderPopup();

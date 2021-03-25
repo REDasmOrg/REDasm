@@ -6,8 +6,8 @@
 #include <rdapi/rdapi.h>
 #include <kddockwidgets/DockWidget.h>
 #include "disassemblertabs/disassemblertabs.h"
-#include "models/listingitemmodel.h"
 
+class ContextModel;
 class TableWidget;
 class DockWidget;
 
@@ -33,7 +33,7 @@ class DisassemblerDocks : public QObject
         void showDisassembly();
 
     private:
-        TableWidget* createTable(QAbstractItemModel* model, const QString& title) const;
+        TableWidget* createTable(ContextModel* model, const QString& title) const;
         static void listenEvents(const RDEventArgs* e);
 
     private:

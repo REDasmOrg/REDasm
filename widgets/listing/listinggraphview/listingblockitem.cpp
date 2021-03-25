@@ -7,30 +7,25 @@
 
 ListingBlockItem::ListingBlockItem(const RDContextPtr& ctx, const RDFunctionBasicBlock* fbb, RDGraphNode n, const RDGraph* g, QWidget *parent) : GraphViewItem(n, g, parent), m_basicblock(fbb)
 {
-    m_surface = new SurfaceDocument(ctx, RendererFlags_NoSegment | RendererFlags_NoSeparators | RendererFlags_NoIndent, parent);
+    m_surface = new SurfaceDocument(ctx, RendererFlags_Graph, parent);
     m_surface->setBaseColor(qApp->palette().color(QPalette::Base));
 
     connect(m_surface, &SurfaceDocument::renderCompleted, this, [&]() { this->invalidate(); }, Qt::QueuedConnection);
-
-    RDDocumentItem item;
-    if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) return;
-
-    m_surface->seek(&item);
+    m_surface->seek(RDFunctionBasicBlock_GetStartAddress(fbb));
     m_surface->resize(RDFunctionBasicBlock_ItemsCount(fbb), -1);
 }
 
 SurfaceQt* ListingBlockItem::surface() { return m_surface; }
-bool ListingBlockItem::containsItem(const RDDocumentItem& item) const { return RDFunctionBasicBlock_Contains(m_basicblock, item.address); }
+bool ListingBlockItem::contains(rd_address address) const { return RDFunctionBasicBlock_Contains(m_basicblock, address); }
 
 int ListingBlockItem::currentRow() const
 {
-    // RDDocumentItem item;
+    rd_address address = m_surface->currentAddress();
 
-    // if(m_surface->getCurrentItem(&item) && this->containsItem(item))
-    //     return m_surface->position()->row;
+    if((address != RD_NVAL) && this->contains(address))
+        return m_surface->position()->row;
 
-    // return GraphViewItem::currentRow();
-    return 0;
+    return GraphViewItem::currentRow();
 }
 
 QSize ListingBlockItem::size() const { return m_surface->size(); }

@@ -8,7 +8,7 @@ class ListingPopup : public QWidget
 {
     public:
         explicit ListingPopup(const RDContextPtr& ctx, QWidget* parent = nullptr);
-        void popup(const RDSymbol* symbol);
+        void popup(rd_address address);
 
     protected:
         void mouseMoveEvent(QMouseEvent *event) override;

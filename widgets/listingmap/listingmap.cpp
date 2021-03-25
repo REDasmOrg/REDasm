@@ -20,7 +20,7 @@ ListingMap::ListingMap(const RDContextPtr& ctx, QWidget *parent) : QWidget(paren
 
         switch(e->id) {
             case Event_ContextSurfaceChanged:
-            case Event_SurfacePositionChanged:
+            case Event_SurfaceAddressChanged:
             case Event_BusyChanged: thethis->m_renderer->renderMap(); break;
             default: break;
         }

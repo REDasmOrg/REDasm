@@ -4,7 +4,14 @@
 
 #define ADD_SEGMENT_FLAG(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
 
-SegmentsModel::SegmentsModel(QObject *parent) : ListingItemModel(DocumentItemType_Segment, parent) { }
+SegmentsModel::SegmentsModel(const RDContextPtr& ctx, QObject *parent) : AddressModel(ctx, parent) { }
+
+rd_address SegmentsModel::address(const QModelIndex& index) const
+{
+    const rd_address* addresses = nullptr;
+    size_t c = RDDocument_GetSegments(m_document, &addresses);
+    return (static_cast<size_t>(index.row()) < c) ? addresses[index.row()] : RD_NVAL;
+}
 
 QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 {
@@ -12,57 +19,60 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 
     if(role == Qt::DisplayRole)
     {
-        const RDDocumentItem& item = this->item(index);
         RDSegment segment;
-        RDDocument_GetSegmentAddress(m_document, item.address, &segment);
+        RDDocument_AddressToSegment(m_document, this->address(index), &segment);
 
         switch(index.column())
         {
-            case 0: return QString::fromUtf8(RD_ToHexBits(segment.address, RDContext_GetBits(m_context.get()), false));
-            case 1: return QString::fromUtf8(RD_ToHexBits(segment.endaddress, RDContext_GetBits(m_context.get()), false));
-            case 2: return QString::fromUtf8(RD_ToHexBits(RDSegment_Size(&segment), RDContext_GetBits(m_context.get()), false));
-            case 3: return QString::fromUtf8(RD_ToHexBits(segment.offset, RDContext_GetBits(m_context.get()), false));
-            case 4: return QString::fromUtf8(RD_ToHexBits(segment.endoffset, RDContext_GetBits(m_context.get()), false));
-            case 5: return QString::fromUtf8(RD_ToHexBits(RDSegment_RawSize(&segment), RDContext_GetBits(m_context.get()), false));
-            case 6: return SegmentsModel::segmentFlags(segment);
-            case 7: return QString::fromUtf8(segment.name);
+            case 0: return QString::fromUtf8(segment.name);
+            case 1: return QString::fromUtf8(RD_ToHexAuto(m_context.get(), segment.address));
+            case 2: return QString::fromUtf8(RD_ToHexAuto(m_context.get(), segment.endaddress));
+            case 3: return QString::fromUtf8(RD_ToHexAuto(m_context.get(), RDSegment_Size(&segment)));
+            case 4: return QString::fromUtf8(RD_ToHexAuto(m_context.get(), segment.offset));
+            case 5: return QString::fromUtf8(RD_ToHexAuto(m_context.get(), segment.endoffset));
+            case 6: return QString::fromUtf8(RD_ToHexAuto(m_context.get(), RDSegment_RawSize(&segment)));
+            case 7: return SegmentsModel::segmentFlags(segment);
             default: break;
         }
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() == 6) return THEME_VALUE(Theme_Data);
-        if(index.column() == 7) return THEME_VALUE(Theme_Symbol);
-        if(index.column() < 6) return THEME_VALUE(Theme_Address);
+        if(index.column() == 0) return THEME_VALUE(Theme_Label);
+        if(index.column() < 7) return THEME_VALUE(Theme_Address);
+        if(index.column() == 7) return THEME_VALUE(Theme_Data);
     }
     else if(role == Qt::TextAlignmentRole)
+    {
+        if(index.column() == 0) return Qt::AlignRight;
+        if(index.column() == 7) return Qt::AlignLeft;
         return Qt::AlignCenter;
+    }
 
     return QVariant();
 }
 
 QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if(orientation == Qt::Vertical || role != Qt::DisplayRole)
-        return ListingItemModel::headerData(section, orientation, role);
+    if(orientation == Qt::Vertical || role != Qt::DisplayRole) return QVariant();
 
     switch(section)
     {
-        case 0: return "Start Address";
-        case 1: return "End Address";
-        case 2: return "Size";
-        case 3: return "Offset";
-        case 4: return "End Offset";
-        case 5: return "Raw Size";
-        case 6: return "Flags";
-        case 7: return "Name";
+        case 0: return "Name";
+        case 1: return "Start Address";
+        case 2: return "End Address";
+        case 3: return "Size";
+        case 4: return "Offset";
+        case 5: return "End Offset";
+        case 6: return "Raw Size";
+        case 7: return "Flags";
         default: break;
     }
 
-    return ListingItemModel::headerData(section, orientation, role);
+    return QVariant();
 }
 
 int SegmentsModel::columnCount(const QModelIndex &) const { return 8; }
+int SegmentsModel::rowCount(const QModelIndex&) const { return m_document ? RDDocument_GetSegments(m_document, nullptr) : 0; }
 
 QString SegmentsModel::segmentFlags(const RDSegment& segment)
 {

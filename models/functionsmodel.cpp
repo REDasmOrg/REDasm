@@ -22,7 +22,7 @@ QVariant FunctionsModel::data(const QModelIndex& index, int role) const
         if(n.isEmpty()) return QVariant();
 
         if(index.column() == 0) return RD_ToHexAuto(m_context.get(), address);
-        else if(index.column() == 1) return n;
+        if(index.column() == 1) return n;
     }
     else if(role == Qt::TextAlignmentRole)
     {
@@ -59,6 +59,6 @@ QString FunctionsModel::function(const QModelIndex& index, rd_address* address) 
     if(static_cast<size_t>(index.row()) >= RDDocument_GetFunctions(m_document, &addresses)) return QString();
     if(address) *address = addresses[index.row()];
 
-    const char* n = RDDocument_GetSymbolName(m_document, addresses[index.row()]);
+    const char* n = RDDocument_GetLabel(m_document, addresses[index.row()]);
     return n ? n : QString();
 }

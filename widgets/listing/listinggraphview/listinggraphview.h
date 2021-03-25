@@ -12,7 +12,7 @@ class ListingGraphView : public GraphView, public ISurface
 
     public:
         explicit ListingGraphView(const RDContextPtr& ctx, QWidget *parent = nullptr);
-        bool renderGraph(const RDDocumentItem* item);
+        bool renderGraph(rd_address address);
 
     public: // ISurface interface
         void linkTo(ISurface* s) override;
@@ -20,16 +20,15 @@ class ListingGraphView : public GraphView, public ISurface
         void goBack() override;
         void goForward() override;
         void copy() const override;
-        bool goToAddress(rd_address address) override;
-        bool seek(const RDDocumentItem* item) override;
-        bool goTo(const RDDocumentItem* item) override;
+        bool goTo(rd_address address) override;
+        bool seek(rd_address address) override;
         bool hasSelection() const override;
         bool canGoBack() const override;
         bool canGoForward() const override;
-        bool getCurrentItem(RDDocumentItem* item) const override;
-        bool getCurrentSymbol(RDSymbol* symbol) const override;
         SurfaceQt* surface() const override;
         QString currentWord() const override;
+        rd_address currentAddress() const override;
+        QString currentLabel(rd_address* address) const override;
         const RDContextPtr& context() const override;
         QWidget* widget() override;
 
@@ -53,5 +52,5 @@ class ListingGraphView : public GraphView, public ISurface
     private:
         RDContextPtr m_context;
         SurfaceQt* m_rootsurface;
-        std::optional<RDDocumentItem> m_currentfunction;
+        rd_address m_currentfunction{RD_NVAL};
 };

@@ -16,15 +16,8 @@ void BlocksTab::setContext(const RDContextPtr& ctx)
     m_context = ctx;
     if(m_segmentsmodel) m_segmentsmodel->deleteLater();
 
-    m_segmentsmodel = new SegmentsModel(ui->tvSegments);
-    m_segmentsmodel->setContext(ctx);
-
+    m_segmentsmodel = new SegmentsModel(m_context, ui->tvSegments);
     ui->tvSegments->setModel(m_segmentsmodel);
-    ui->tvSegments->header()->moveSection(7, 0);
-
-    for(int i = 2; i < ui->tvSegments->model()->columnCount() - 1; i++) // Hide other columns
-        ui->tvSegments->header()->hideSection(i);
-
     connect(ui->tvSegments->selectionModel(), &QItemSelectionModel::currentChanged, this, &BlocksTab::showBlocks);
 }
 
@@ -33,13 +26,13 @@ void BlocksTab::showBlocks(const QModelIndex& current, const QModelIndex&)
     if(!current.isValid()) return;
     RDDocument* doc = RDContext_GetDocument(m_context.get());
 
-    const RDDocumentItem& item = m_segmentsmodel->item(current);
+    rd_address address = m_segmentsmodel->address(current);
     RDSegment segment;
 
-    if(RDDocument_GetSegmentAddress(doc, item.address, &segment))
-        ui->tableWidget->setModel(new BlockListModel(m_context, RDDocument_GetBlocks(doc, segment.address)));
+    if(RDDocument_AddressToSegment(doc, address, &segment))
+        ui->tableWidget->setModel(new BlockListModel(m_context, segment.address));
     else
-        ui->tableWidget->setModel(new BlockListModel(m_context, nullptr));
+        ui->tableWidget->setModel(new BlockListModel(m_context, RD_NVAL));
 
     ui->tableWidget->resizeColumnsUntil(-1);
 }

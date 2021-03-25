@@ -12,7 +12,7 @@ class ListingBlockItem : public GraphViewItem
     public:
         explicit ListingBlockItem(const RDContextPtr& ctx, const RDFunctionBasicBlock* fbb, RDGraphNode n, const RDGraph* g, QWidget *parent = nullptr);
         SurfaceQt* surface();
-        bool containsItem(const RDDocumentItem& item) const;
+        bool contains(rd_address address) const;
         int currentRow() const override;
         void render(QPainter* painter, size_t state) override;
         QSize size() const override;

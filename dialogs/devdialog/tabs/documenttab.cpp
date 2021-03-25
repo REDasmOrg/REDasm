@@ -13,6 +13,12 @@
 #define RETURN_CASE_OF(x) case x: return #x
 
 #define CHECK_FLAG(s, x, f) \
+    if(x & f) { \
+        if(!s.isEmpty()) s += " | "; \
+        s += #f; \
+    }
+
+#define CHECK_HAS_FLAG(s, x, f) \
     if(HAS_FLAG(x, f)) { \
         if(!s.isEmpty()) s += " | "; \
         s += #f; \
@@ -54,60 +60,46 @@ DocumentTab& DocumentTab::line(const QString &s) { ui->pteInfo->appendPlainText(
 DocumentTab &DocumentTab::header(const QString &s) { return this->line(s).line(QString(HEADER_STRING).repeated(s.size())); }
 DocumentTab &DocumentTab::string(const QString &k, const QString &s) { return this->line(k, QString("\"%1\"").arg(s)); }
 
-QString DocumentTab::itemType(const RDDocumentItem& item) const
+QString DocumentTab::blockType(const RDBlock* block) const
 {
-    switch(item.type)
+    switch(block->type)
     {
-        RETURN_CASE_OF(DocumentItemType_Segment);
-        RETURN_CASE_OF(DocumentItemType_Empty);
-        RETURN_CASE_OF(DocumentItemType_Function);
-        RETURN_CASE_OF(DocumentItemType_Type);
-        RETURN_CASE_OF(DocumentItemType_Symbol);
-        RETURN_CASE_OF(DocumentItemType_Meta);
-        RETURN_CASE_OF(DocumentItemType_Instruction);
-        RETURN_CASE_OF(DocumentItemType_Unknown);
-        RETURN_CASE_OF(DocumentItemType_Separator);
+        RETURN_CASE_OF(BlockType_Code);
+        RETURN_CASE_OF(BlockType_Data);
+        RETURN_CASE_OF(BlockType_String);
+        RETURN_CASE_OF(BlockType_Unknown);
         default: break;
     }
 
-    return QString::number(item.type);
+    return "???";
 }
 
 QString DocumentTab::segmentFlags(const RDSegment* segment) const
 {
     QString s;
-    CHECK_FLAG(s, segment, SegmentFlags_Code);
-    CHECK_FLAG(s, segment, SegmentFlags_Data);
-    CHECK_FLAG(s, segment, SegmentFlags_Bss);
+    CHECK_HAS_FLAG(s, segment, SegmentFlags_Code);
+    CHECK_HAS_FLAG(s, segment, SegmentFlags_Data);
+    CHECK_HAS_FLAG(s, segment, SegmentFlags_Bss);
     return s.isEmpty() ? STR(SegmentFlags_None) : s;
 }
 
-QString DocumentTab::symbolType(const RDSymbol* symbol) const
-{
-    switch(symbol->type)
-    {
-        RETURN_CASE_OF(SymbolType_None);
-        RETURN_CASE_OF(SymbolType_Data);
-        RETURN_CASE_OF(SymbolType_String);
-        RETURN_CASE_OF(SymbolType_Location);
-        RETURN_CASE_OF(SymbolType_Function);
-        RETURN_CASE_OF(SymbolType_Import);
-        default: break;
-    }
-
-    return QString::number(symbol->type);
-}
-
-QString DocumentTab::symbolFlags(const RDSymbol* symbol) const
+QString DocumentTab::addressFlags(RDDocument* doc, rd_address address) const
 {
     QString s;
-    CHECK_FLAG(s, symbol, SymbolFlags_Weak);
-    CHECK_FLAG(s, symbol, SymbolFlags_Export);
-    CHECK_FLAG(s, symbol, SymbolFlags_EntryPoint);
-    CHECK_FLAG(s, symbol, SymbolFlags_AsciiString);
-    CHECK_FLAG(s, symbol, SymbolFlags_WideString);
-    CHECK_FLAG(s, symbol, SymbolFlags_Pointer);
-    return s.isEmpty() ? STR(InstructionFlags_None) : s;
+    rd_flag flags = RDDocument_GetFlags(doc, address);
+
+    CHECK_FLAG(s, flags, AddressFlags_Explored);
+    CHECK_FLAG(s, flags, AddressFlags_Location);
+    CHECK_FLAG(s, flags, AddressFlags_Exported);
+    CHECK_FLAG(s, flags, AddressFlags_Imported);
+    CHECK_FLAG(s, flags, AddressFlags_Function);
+    CHECK_FLAG(s, flags, AddressFlags_AsciiString);
+    CHECK_FLAG(s, flags, AddressFlags_WideString);
+    CHECK_FLAG(s, flags, AddressFlags_Pointer);
+    CHECK_FLAG(s, flags, AddressFlags_NoReturn);
+    CHECK_FLAG(s, flags, AddressFlags_TypeField);
+
+    return s.isEmpty() ? STR(AddressFlags_None) : s;
 }
 
 QString DocumentTab::padHexDump(const QString& hexdump) const
@@ -159,12 +151,12 @@ QString DocumentTab::joinAddressList(const rd_address* addresslist, size_t c) co
     return s;
 }
 
-void DocumentTab::displayInstructionInformation(RDDocument* doc, const RDDocumentItem& item)
+void DocumentTab::displayInstructionInformation(RDDocument* doc, rd_address address)
 {
     RDBlock block;
-    if(!RDDocument_GetBlock(doc, item.address, &block)) return;
+    if(!RDDocument_AddressToBlock(doc, address, &block)) return;
 
-    QString hexdump = RD_HexDump(m_context.get(), item.address, RDBlock_Size(&block));
+    QString hexdump = RD_HexDump(m_context.get(), address, RDBlock_Size(&block));
     QByteArray dump = QByteArray::fromHex(hexdump.toUtf8());
 
     this->header("INSTRUCTION");
@@ -178,28 +170,10 @@ void DocumentTab::displayInstructionInformation(RDDocument* doc, const RDDocumen
     m_indent = 0;
 }
 
-void DocumentTab::displaySymbolInformation(RDDocument* doc, const RDDocumentItem& item)
-{
-    RDSymbol symbol;
-    if(!RDDocument_GetSymbolByAddress(doc, item.address, &symbol)) return;
-
-    const char* name = RDDocument_GetSymbolName(doc, symbol.address);
-    if(!name) return;
-
-    this->header("SYMBOL");
-
-    m_indent = INDENT_BASE;
-        this->line("address", RD_ToHex(symbol.address));
-        this->line("type", this->symbolType(&symbol));
-        this->line("flags", this->symbolFlags(&symbol));
-        this->line();
-    m_indent = 0;
-}
-
-void DocumentTab::displayNetInformation(const RDDocumentItem& item)
+void DocumentTab::displayNetInformation(rd_address address)
 {
     const RDNet* net = RDContext_GetNet(m_context.get());
-    auto* n = RDNet_FindNode(net, item.address);
+    auto* n = RDNet_FindNode(net, address);
     if(!n) return;
 
     auto* prevnode = RDNet_GetPrevNode(net, n);
@@ -230,33 +204,40 @@ void DocumentTab::displayInformation()
 
     const auto* surface = reinterpret_cast<const SurfaceQt*>(RDSurface_GetUserData(activesurface));
 
-    RDDocumentItem item;
-    if(!surface->getCurrentItem(&item)) return;
+    rd_address address = surface->currentAddress();
+    if(address == RD_NVAL) return;
 
     RDDocument* doc = RDContext_GetDocument(m_context.get());
-    this->header("ITEM");
+    this->header("GENERAL");
 
     m_indent = INDENT_BASE;
         RDSegment segment;
-        if(RDDocument_GetSegmentAddress(doc, item.address, &segment))
+        if(RDDocument_AddressToSegment(doc, address, &segment))
             this->line("segment", QString::fromUtf8(segment.name));
         else
             this->line("segment", "???");
 
-        auto loc = RD_Offset(m_context.get(), item.address);
+        auto loc = RD_Offset(m_context.get(), address);
         this->line("offset", loc.valid ? RD_ToHex(loc.offset) : "???");
+        this->line("address", RD_ToHex(address));
+        this->line("flags", this->addressFlags(doc, address));
 
-        this->line("address", RD_ToHex(item.address));
-        this->line("type", this->itemType(item));
+        const char* label = RDDocument_GetLabel(doc, address);
+        if(label) this->line("label", label);
+
+        RDBlock block;
+
+        if(RDDocument_AddressToBlock(doc, address, &block))
+        {
+            this->line("blocktype", this->blockType(&block));
+            this->line("blockstart", RD_ToHex(block.start));
+            this->line("blockend", RD_ToHex(block.end));
+            this->line("blocksize", RD_ToHex(RDBlock_Size(&block)));
+        }
+
         this->line();
     m_indent = 0;
 
-    switch(item.type)
-    {
-        case DocumentItemType_Symbol: this->displaySymbolInformation(doc, item); break;
-        case DocumentItemType_Instruction: this->displayInstructionInformation(doc, item); break;
-        default: break;
-    }
-
-    this->displayNetInformation(item);
+    this->displayInstructionInformation(doc, address);
+    this->displayNetInformation(address);
 }

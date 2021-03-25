@@ -15,34 +15,33 @@ class SurfaceQt : public QObject
     public:
         explicit SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent = nullptr);
         ~SurfaceQt();
-        bool containsAddress(rd_address address) const;
-        bool contains(const RDDocumentItem* item) const;
-        int scrollLength() const;
-        int scrollValue() const;
+        bool contains(rd_address address) const;
         int rows() const;
         QSize size() const;
         const QColor& baseColor() const;
         const RDContextPtr& context() const;
         QWidget* widget() const;
         RDSurface* handle() const;
+        rd_address firstAddress() const;
+        rd_address lastAddress() const;
+        rd_address currentAddress() const;
         void activateCursor(bool activate);
         bool canGoBack() const;
         bool canGoForward() const;
         bool hasSelection() const;
-        bool getCurrentItem(RDDocumentItem* item) const;
-        bool getCurrentSymbol(RDSymbol* symbol) const;
-        bool getSymbolAt(const QPointF& pt, RDSymbol* symbol) const;
+        QString getCurrentLabel(rd_address* address) const;
+        bool getLabelAt(const QPointF& pt, rd_address* address) const;
         const char* getCurrentWord() const;
         const RDSurfacePos* selection() const;
         const RDSurfacePos* position() const;
         RDSurfacePos mapPoint(const QPointF& pt) const;
-        bool seek(const RDDocumentItem* item);
-        bool goTo(const RDDocumentItem* item);
-        bool goToAddress(rd_address address);
+        bool seek(rd_address address);
+        bool goTo(rd_address address);
+        void getScrollRange(rd_address* start, rd_address* end) const;
         void goBack();
         void goForward();
         void setBaseColor(const QColor& c);
-        void scroll(int nrows, int ncols);
+        void scroll(rd_address address, int ncols);
         void moveTo(int row, int col);
         void moveTo(const QPointF& pt);
         void select(int row, int col);
@@ -68,7 +67,7 @@ class SurfaceQt : public QObject
 
     Q_SIGNALS:
         void renderCompleted();
-        void positionChanged();
+        void addressChanged();
         void scrollChanged();
         void historyChanged();
 

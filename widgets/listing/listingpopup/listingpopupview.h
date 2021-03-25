@@ -13,7 +13,7 @@ class ListingPopupView : public QWidget
 
     public:
         explicit ListingPopupView(const RDContextPtr& ctx, QWidget *parent = nullptr);
-        bool renderPopup(const RDSymbol* symbol);
+        bool renderPopup(rd_address address);
         void moreRows();
         void lessRows();
 

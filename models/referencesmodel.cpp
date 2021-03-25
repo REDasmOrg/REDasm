@@ -48,56 +48,30 @@ QModelIndex ReferencesModel::index(int row, int column, const QModelIndex&) cons
 
 QVariant ReferencesModel::data(const QModelIndex &index, int role) const
 {
-    static std::array<rd_type, 3> TYPES = { DocumentItemType_Instruction,
-                                            DocumentItemType_Symbol,
-                                            DocumentItemType_None };
-
     if(!m_context || RDContext_IsBusy(m_context.get())) return QVariant();
 
     RDDocument* doc = RDContext_GetDocument(m_context.get());
-    RDDocumentItem item;
-
-    if(!RDDocument_GetAny(doc, m_references[index.row()].address, TYPES.data(), &item))
-        return QVariant();
+    auto& r = m_references[index.row()];
 
     if(role == Qt::DisplayRole)
     {
-        if(index.column() == 0) return RD_ToHexAuto(m_context.get(), item.address);
-        else if(index.column() == 1) return this->direction(item.address);
-        else if(index.column() == 2)
+        if(index.column() == 0) return RD_ToHexAuto(m_context.get(), r.address);
+        else if(index.column() == 1) return this->referenceFlags(m_references[index.row()]);
+        else if(index.column() == 2) return this->direction(r.address);
+        else if(index.column() == 3)
         {
-            if(IS_TYPE(&item, DocumentItemType_Instruction)) return RD_GetInstruction(m_context.get(), item.address);
-            else if(IS_TYPE(&item, DocumentItemType_Symbol)) return RDDocument_GetSymbolName(doc, item.address);
+            const char* label = RDDocument_GetLabel(doc, r.address);
+            return label ? label : RD_GetInstruction(m_context.get(), r.address);
         }
-        else if(index.column() == 3) return this->referenceFlags(m_references[index.row()]);
     }
-    else if(role == Qt::ForegroundRole)
+    else if(role == Qt::TextAlignmentRole)
     {
-        if(index.column() == 0) return THEME_VALUE(Theme_Address);
-
-        if(index.column() == 2)
-        {
-            if(IS_TYPE(&item, DocumentItemType_Instruction))
-            {
-                const RDNet* net = RDContext_GetNet(m_context.get());
-                const RDNetNode* node = RDNet_FindNode(net, item.address);
-                if(!node) return QVariant();
-
-                if(RDNetNode_IsConditional(node)) return THEME_VALUE(Theme_JumpCond);
-                if(RDNetNode_IsBranch(node)) return THEME_VALUE(Theme_Jump);
-                if(RDNetNode_IsCall(node)) return THEME_VALUE(Theme_Call);
-            }
-            else if(IS_TYPE(&item, DocumentItemType_Symbol))
-            {
-                RDSymbol symbol;
-                if(!RDDocument_GetSymbolByAddress(doc, item.address, &symbol)) return QVariant();
-                if(IS_TYPE(&symbol, SymbolType_Data)) return THEME_VALUE(Theme_Data);
-                else if(IS_TYPE(&symbol, SymbolType_String)) return THEME_VALUE(Theme_String);
-            }
-        }
-    }
-    else if((role == Qt::TextAlignmentRole) && (index.column() == 3))
+        if(index.column() == 0) return Qt::AlignRight + Qt::AlignVCenter;
+        if(index.column() == 3) return Qt::AlignLeft + Qt::AlignVCenter;
         return Qt::AlignCenter;
+    }
+    else if((role == Qt::ForegroundRole) && (index.column() == 0))
+        return THEME_VALUE(Theme_Address);
 
     return QVariant();
 }
@@ -108,9 +82,9 @@ QVariant ReferencesModel::headerData(int section, Qt::Orientation orientation, i
         return QVariant();
 
     if(section == 0) return "Address";
-    else if(section == 1) return "Direction";
-    else if(section == 2) return "Reference";
-    else if(section == 3) return "Flags";
+    else if(section == 1) return "Flags";
+    else if(section == 2) return "Direction";
+    else if(section == 3) return "Reference";
 
     return QVariant();
 }
@@ -122,10 +96,13 @@ QString ReferencesModel::direction(rd_address address) const
 {
     if(!m_surface) return QString();
 
-    RDDocumentItem item;
-    if(!m_surface->getCurrentItem(&item)) return QString();
+    rd_address curraddress = m_surface->currentAddress();
 
-    if(address > item.address) return "Down";
-    if(address < item.address) return "Up";
+    if(curraddress != RD_NVAL)
+    {
+        if(address > curraddress) return "Down";
+        if(address < curraddress) return "Up";
+    }
+
     return "---";
 }

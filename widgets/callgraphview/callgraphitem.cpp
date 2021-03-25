@@ -15,7 +15,7 @@ CallGraphItem::CallGraphItem(const RDContextPtr& ctx, RDGraphNode node, const RD
         auto* cgitem = reinterpret_cast<RDCallGraphItem*>(data->p_data);
         auto* netnode = RDCallGraphItem_GetNetNode(cgitem);
         m_address = RDNetNode_GetAddress(netnode);
-        const char* n = RDDocument_GetSymbolName(doc, m_address);
+        const char* n = RDDocument_GetLabel(doc, m_address);
         m_label = n ? n : RD_ToHex(m_address);
     }
     else

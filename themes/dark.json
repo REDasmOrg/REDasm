@@ -26,7 +26,7 @@
     "reg": "#27ae60",
 
     "string": "#a38671",
-    "symbol": "#b8c9f1",
+    "label": "#b8c9f1",
     "data": "#9b59b6",
     "pointer": "#d95459",
     "import": "#745ec5",

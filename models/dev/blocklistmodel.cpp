@@ -1,11 +1,13 @@
 #include "blocklistmodel.h"
 #include "../../themeprovider.h"
 
-BlockListModel::BlockListModel(const RDContextPtr& ctx, const RDBlockContainer* blocks, QObject *parent) : QAbstractListModel(parent), m_blockcontainer(blocks), m_context(ctx)
+#define ADD_BLOCK_FLAG(s, t) { if(!s.isEmpty()) s += " | ";  s += t; }
+
+BlockListModel::BlockListModel(const RDContextPtr& ctx, rd_address address, QObject *parent) : QAbstractListModel(parent), m_context(ctx)
 {
     m_document = RDContext_GetDocument(ctx.get());
 
-    RDBlockContainer_Each(blocks, [](const RDBlock* b, void* userdata) {
+    RDDocument_EachBlock(m_document, address, [](const RDBlock* b, void* userdata) {
        auto* thethis = reinterpret_cast<BlockListModel*>(userdata);
        thethis->m_blocks.push_back(*b);
        return true;
@@ -24,7 +26,7 @@ QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, in
         case 2: return "Size";
         case 3: return "Type";
         case 4: return "Flags";
-        case 5: return "Symbol";
+        case 5: return "Label";
         default: break;
     }
 
@@ -33,8 +35,6 @@ QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, in
 
 QVariant BlockListModel::data(const QModelIndex& index, int role) const
 {
-    if(!m_blockcontainer) return QVariant();
-
     if(role == Qt::DisplayRole)
     {
         const RDBlock& block = m_blocks[index.row()];
@@ -46,17 +46,17 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
             case 2: return RD_ToHexAuto(m_context.get(), RDBlock_Size(&block));
             case 3: return this->blockType(&block);
             case 4: return this->blockFlags(&block);
-            case 5: return this->symbolName(&block);
+            case 5: return this->labelName(&block);
             default: break;
         }
     }
-    else if(role == Qt::TextAlignmentRole) return (index.column() != 5) ? Qt::AlignCenter : Qt::AlignLeft;
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() < 3)  return THEME_VALUE(Theme_Address);
+        if(index.column() < 3) return THEME_VALUE(Theme_Address);
         if((index.column() == 3) || (index.column() == 4)) return THEME_VALUE(Theme_Type);
-        if(index.column() == 5) return THEME_VALUE(Theme_Symbol);
+        if(index.column() == 5) return THEME_VALUE(Theme_Label);
     }
+    else if(role == Qt::TextAlignmentRole) return (index.column() < 3) ? Qt::AlignCenter : Qt::AlignLeft;
 
     return QVariant();
 }
@@ -79,12 +79,21 @@ QString BlockListModel::blockType(const RDBlock* block) const
 
 QString BlockListModel::blockFlags(const RDBlock* block) const
 {
-    if(HAS_FLAG(block, BlockFlags_Explored)) return "EXPLORED";
-    return "NONE";
+    QString s;
+
+    //if(HAS_FLAG(block, BlockFlags_Explored))    ADD_BLOCK_FLAG(s, "EXPLORED");
+    //if(HAS_FLAG(block, BlockFlags_Export))      ADD_BLOCK_FLAG(s, "EXPORT");
+    //if(HAS_FLAG(block, BlockFlags_EntryPoint))  ADD_BLOCK_FLAG(s, "ENTRYPOINT");
+    //if(HAS_FLAG(block, BlockFlags_AsciiString)) ADD_BLOCK_FLAG(s, "ASCII_STRING");
+    //if(HAS_FLAG(block, BlockFlags_WideString))  ADD_BLOCK_FLAG(s, "WIDE_STRING");
+    //if(HAS_FLAG(block, BlockFlags_Pointer))     ADD_BLOCK_FLAG(s, "POINTER");
+    //if(HAS_FLAG(block, BlockFlags_NoReturn))    ADD_BLOCK_FLAG(s, "NO_RETURN");
+    //if(HAS_FLAG(block, BlockFlags_Field))       ADD_BLOCK_FLAG(s, "FIELD");
+    return s;
 }
 
-QString BlockListModel::symbolName(const RDBlock* block) const
+QString BlockListModel::labelName(const RDBlock* block) const
 {
-    const char* name = RDDocument_GetSymbolName(m_document, block->address);
+    const char* name = RDDocument_GetLabel(m_document, block->address);
     return name ? name : QString();
 }

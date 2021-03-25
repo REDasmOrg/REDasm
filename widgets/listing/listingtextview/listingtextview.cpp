@@ -29,14 +29,13 @@ void ListingTextView::linkTo(ISurface* s) { }
 void ListingTextView::unlink() { }
 void ListingTextView::goBack() { return m_textwidget->goBack(); }
 void ListingTextView::goForward() { return m_textwidget->goForward(); }
-bool ListingTextView::goToAddress(rd_address address) { return m_textwidget->goToAddress(address); }
-bool ListingTextView::goTo(const RDDocumentItem* item) { return m_textwidget->goTo(item); }
-bool ListingTextView::seek(const RDDocumentItem* item) { return m_textwidget->seek(item); }
+bool ListingTextView::goTo(rd_address address) { return m_textwidget->goTo(address); }
+bool ListingTextView::seek(rd_address address) { return m_textwidget->seek(address); }
 bool ListingTextView::hasSelection() const { return m_textwidget->hasSelection(); }
 bool ListingTextView::canGoBack() const { return m_textwidget->canGoBack(); }
 bool ListingTextView::canGoForward() const {  return m_textwidget->canGoForward(); }
-bool ListingTextView::getCurrentItem(RDDocumentItem* item) const { return m_textwidget->getCurrentItem(item); }
-bool ListingTextView::getCurrentSymbol(RDSymbol* symbol) const { return m_textwidget->getCurrentSymbol(symbol); }
+QString ListingTextView::currentLabel(rd_address* address) const { return m_textwidget->currentLabel(address); }
+rd_address ListingTextView::currentAddress() const { return m_textwidget->currentAddress(); }
 SurfaceQt* ListingTextView::surface() const { return m_textwidget->surface(); }
 QString ListingTextView::currentWord() const { return m_textwidget->currentWord(); }
 const RDContextPtr& ListingTextView::context() const { return m_context; }

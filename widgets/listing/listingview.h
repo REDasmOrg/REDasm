@@ -19,7 +19,7 @@ class ListingView : public QStackedWidget
 
     public:
         explicit ListingView(const RDContextPtr& ctx, QWidget *parent = nullptr);
-        bool getCurrentItem(RDDocumentItem* item);
+        rd_address currentAddress() const;
         ISurface* currentISurface() const;
 
     public Q_SLOTS:

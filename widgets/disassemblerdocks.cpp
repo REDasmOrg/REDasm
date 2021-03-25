@@ -1,8 +1,8 @@
 #include "disassemblerdocks.h"
 #include "../hooks/disassemblerhooks.h"
-#include "../models/symboltablemodel.h"
-#include "../models/functionsmodel.h"
 #include "../models/segmentsmodel.h"
+#include "../models/functionsmodel.h"
+#include "../models/stringsmodel.h"
 #include "widgets/dashboard/analysiswidget.h"
 #include "widgets/outputwidget.h"
 #include "listing/listingsplitview.h"
@@ -22,8 +22,7 @@ DisassemblerDocks::~DisassemblerDocks()
 
 void DisassemblerDocks::showSegments() const
 {
-    TableWidget* tw = this->createTable(new SegmentsModel(), "Segments");
-    tw->moveSection(7, 0);
+    TableWidget* tw = this->createTable(new SegmentsModel(m_context), "Segments");
     connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
     DisassemblerHooks::tabify(tw);
 }
@@ -39,30 +38,21 @@ void DisassemblerDocks::showFunctions() const
 
 void DisassemblerDocks::showExports() const
 {
-    auto* model = new SymbolTableModel(DocumentItemType_All);
-    model->setSymbolFlags(SymbolFlags_Export);
-
-    TableWidget* tw = this->createTable(model, "Exports");
+    TableWidget* tw = this->createTable(new LabelsModel(m_context, AddressFlags_Exported), "Exports");
     connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
     DisassemblerHooks::tabify(tw);
 }
 
 void DisassemblerDocks::showImports() const
 {
-    auto* model = new SymbolTableModel(DocumentItemType_Symbol);
-    model->setSymbolType(SymbolType_Import);
-
-    TableWidget* tw = this->createTable(model, "Imports");
+    TableWidget* tw = this->createTable(new LabelsModel(m_context, AddressFlags_Imported), "Imports");
     connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
     DisassemblerHooks::tabify(tw);
 }
 
 void DisassemblerDocks::showStrings() const
 {
-    auto* model = new SymbolTableModel(DocumentItemType_Symbol);
-    model->setSymbolType(SymbolType_String);
-
-    TableWidget* tw = this->createTable(model, "Strings");
+    TableWidget* tw = this->createTable(new StringsModel(m_context), "Strings");
     connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
     DisassemblerHooks::tabify(tw);
 }
@@ -82,16 +72,10 @@ void DisassemblerDocks::onItemDoubleClicked(const QModelIndex& index)
     auto* surface = DisassemblerHooks::activeSurface();
     if(!surface) return;
 
-    if(auto* m = dynamic_cast<const ListingItemModel*>(index.model()); m)
-    {
-        const RDDocumentItem& item = m->item(index);
-        surface->goTo(&item);
-    }
-    else if(auto* m = dynamic_cast<const AddressModel*>(index.model()); m)
-        surface->goToAddress(m->address(index));
-    else
-        return;
+    auto* addressmodel = dynamic_cast<const AddressModel*>(index.model());
+    if(!addressmodel) return;
 
+    surface->goTo(addressmodel->address(index));
     DisassemblerHooks::focusOn(surface->widget());
 }
 
@@ -112,9 +96,9 @@ void DisassemblerDocks::showDisassembly()
 
 const RDContextPtr& DisassemblerDocks::context() const { return m_context; }
 
-TableWidget* DisassemblerDocks::createTable(QAbstractItemModel* model, const QString& title) const
+TableWidget* DisassemblerDocks::createTable(ContextModel* model, const QString& title) const
 {
-    //model->setContext(m_context);
+    model->setContext(m_context);
 
     TableWidget* tw = new TableWidget();
     tw->setToggleFilter(true);

@@ -3,7 +3,7 @@
 #include <QSortFilterProxyModel>
 #include <QWidget>
 #include "../../../models/dev/functiongraphmodel.h"
-#include "../../../models/dev/functionlistmodel.h"
+#include "../../../models/functionsmodel.h"
 #include "../../../hooks/isurface.h"
 
 namespace Ui {
@@ -26,11 +26,12 @@ class FunctionGraphTab : public QWidget
         void copyHash() const;
 
     private:
+        const RDGraph* getGraph(const QModelIndex& index) const;
         const RDGraph* getSelectedGraph() const;
 
     private:
         Ui::FunctionGraphTab *ui;
-        FunctionListModel* m_functionlistmodel{nullptr};
+        FunctionsModel* m_functionsmodel{nullptr};
         QSortFilterProxyModel* m_sortedblocksmodel{nullptr};
         FunctionGraphModel* m_functiongraphmodel{nullptr};
 };

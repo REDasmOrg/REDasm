@@ -13,7 +13,7 @@
     "reg": "#2e8b57",
 
     "string": "#5e4534",
-    "symbol": "#4169e1",
+    "label": "#4169e1",
     "data": "#9b59b6",
     "pointer": "#d95459",
     "import": "#5b48a2",

@@ -42,7 +42,7 @@ FLCDialog::FLCDialog(QWidget *parent) : QDialog(parent), ui(new Ui::FLCDialog)
             ui->leOffset->setText(loc.valid ? RD_ToHex(loc.offset) : QString());
 
             RDSegment segment;
-            ok = RDDocument_GetSegmentOffset(doc, loc.offset, &segment);
+            ok = RDDocument_OffsetToSegment(doc, loc.offset, &segment);
             if(ok) ui->leSegment->setText(QString::fromUtf8(segment.name));
             else ui->leSegment->setText(QString());
             ui->pbCopySegment->setEnabled(ok);
@@ -67,7 +67,7 @@ FLCDialog::FLCDialog(QWidget *parent) : QDialog(parent), ui(new Ui::FLCDialog)
             ui->leAddress->setText(loc.valid ? RD_ToHex(loc.address) : QString());
 
             RDSegment segment;
-            ok = RDDocument_GetSegmentAddress(doc, loc.address, &segment);
+            ok = RDDocument_AddressToSegment(doc, loc.address, &segment);
             if(ok) ui->leSegment->setText(QString::fromUtf8(segment.name));
             else ui->leSegment->setText(QString());
             ui->pbCopySegment->setEnabled(ok);

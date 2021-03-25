@@ -6,6 +6,7 @@
 #include <QScrollBar>
 #include <QPushButton>
 #include <QtGui>
+#include <iostream>
 
 #define DOCUMENT_WHEEL_LINES 3
 
@@ -51,18 +52,8 @@ const RDContextPtr& ListingTextWidget::context() const { return m_context; }
 SurfaceQt* ListingTextWidget::surface() const { return m_surface; }
 bool ListingTextWidget::canGoBack() const { return m_surface ? m_surface->canGoBack() : false; }
 bool ListingTextWidget::canGoForward() const { return m_surface ? m_surface->canGoForward() : false; }
-
-bool ListingTextWidget::getCurrentItem(RDDocumentItem* item) const
-{
-    if(!m_surface) return false;
-    return m_surface->getCurrentItem(item);
-}
-
-bool ListingTextWidget::getCurrentSymbol(RDSymbol* symbol) const
-{
-    if(!m_surface) return false;
-    return m_surface->getCurrentSymbol(symbol);
-}
+QString ListingTextWidget::currentLabel(rd_address* address) const { return m_surface ? m_surface->getCurrentLabel(address) : QString(); }
+rd_address ListingTextWidget::currentAddress() const { return m_surface ? m_surface->currentAddress() : RD_NVAL; }
 
 void ListingTextWidget::setContext(const RDContextPtr& ctx)
 {
@@ -73,37 +64,37 @@ void ListingTextWidget::setContext(const RDContextPtr& ctx)
     connect(m_surface, &SurfacePainter::renderCompleted, this, [&]() { this->viewport()->update(); });
     connect(m_surface, &SurfacePainter::scrollChanged, this, [&]() { this->adjustScrollBars(); });
 
-    connect(m_surface, &SurfacePainter::positionChanged, this, [&]() {
+    connect(m_surface, &SurfacePainter::addressChanged, this, [&]() {
         this->verticalScrollBar()->blockSignals(true);
-        this->verticalScrollBar()->setSliderPosition(m_surface->scrollValue());
+        this->verticalScrollBar()->setSliderPosition(static_cast<int>(m_surface->currentAddress()));
         this->verticalScrollBar()->blockSignals(false);
     });
 
-    this->adjustScrollBars();
+    connect(this->verticalScrollBar(), &QScrollBar::actionTriggered, this, [&](int action) {
+        if(!m_surface) return;
 
+        switch(action) {
+            case QScrollBar::SliderSingleStepAdd: m_surface->scroll(m_surface->currentAddress() + 1, 0); break;
+            case QScrollBar::SliderSingleStepSub: m_surface->scroll(m_surface->currentAddress() - 1, 0); break;
+            case QScrollBar::SliderMove: m_surface->goTo(static_cast<rd_address>(this->verticalScrollBar()->sliderPosition())); break;
+            default: break;
+        }
+    });
+
+    this->adjustScrollBars();
     m_disassemblerpopup = new ListingPopup(m_context, this);
     m_surface->activateCursor(true);
 }
 
-bool ListingTextWidget::goToAddress(rd_address address)
-{
-    if(!m_surface) return false;
-    return m_surface->goToAddress(address);
-}
-
-bool ListingTextWidget::goTo(const RDDocumentItem* item) { return m_surface ? m_surface->goTo(item) : false; }
-bool ListingTextWidget::seek(const RDDocumentItem* item) { return m_surface ? m_surface->seek(item) : false; }
+bool ListingTextWidget::goTo(rd_address address) { return m_surface ? m_surface->goTo(address) : false; }
+bool ListingTextWidget::seek(rd_address address) { return m_surface ? m_surface->seek(address) : false; }
 void ListingTextWidget::goBack() { if(m_surface) m_surface->goBack(); }
 void ListingTextWidget::goForward() { if(m_surface) m_surface->goForward(); }
 bool ListingTextWidget::hasSelection() const { return m_surface ? m_surface->hasSelection() : false;  }
 void ListingTextWidget::copy() const { if(m_surface) m_surface->copy(); }
 void ListingTextWidget::linkTo(ISurface* s) { if(m_surface) m_surface->linkTo(s->surface()); }
 void ListingTextWidget::unlink() { if(m_surface) m_surface->unlink(); }
-
-void ListingTextWidget::scrollContentsBy(int dx, int dy)
-{
-    if(m_surface) m_surface->scroll(-dy, -dx);
-}
+void ListingTextWidget::scrollContentsBy(int dx, int) { if(m_surface) m_surface->scroll(RD_NVAL, -dx); }
 
 void ListingTextWidget::focusInEvent(QFocusEvent* event)
 {
@@ -182,7 +173,8 @@ void ListingTextWidget::wheelEvent(QWheelEvent *event)
     {
         QPoint ndegrees = event->angleDelta() / 8;
         QPoint nsteps = ndegrees / 15;
-        m_surface->scroll(-nsteps.y() * DOCUMENT_WHEEL_LINES, nsteps.x());
+        auto offset = -nsteps.y() * DOCUMENT_WHEEL_LINES;
+        m_surface->scroll(m_surface->firstAddress() + offset, nsteps.x());
         event->accept();
         return;
     }
@@ -272,26 +264,31 @@ bool ListingTextWidget::followUnderCursor()
 {
     if(!m_surface) return false;
 
-    RDSymbol symbol;
-    if(!this->getCurrentSymbol(&symbol)) return false;
-    return this->goToAddress(symbol.address);
+    rd_address address;
+    QString s = this->currentLabel(&address);
+    return !s.isEmpty() ? this->goTo(address) : false;
 }
 
 void ListingTextWidget::adjustScrollBars()
 {
     if(!m_context || !m_surface) return;
-    this->verticalScrollBar()->setMaximum(m_surface->scrollLength());
+
+    rd_address start = 0, end = 0;
+    m_surface->getScrollRange(&start, &end);
+
+    this->verticalScrollBar()->setMinimum(static_cast<int>(start));
+    this->verticalScrollBar()->setMaximum(static_cast<int>(end));
     this->horizontalScrollBar()->setMaximum(this->width() * 2);
 }
 
 void ListingTextWidget::showPopup(const QPointF& pt)
 {
-    if(!m_surface || !RDDocument_GetSize(m_document)) return;
+    if(!m_surface) return;
 
-    RDSymbol symbol;
+    rd_address address;
 
-    if(m_surface->getSymbolAt(pt, &symbol) && !m_surface->containsAddress(symbol.address))
-        m_disassemblerpopup->popup(&symbol);
+    if(m_surface->getLabelAt(pt, &address) && !m_surface->contains(address))
+        m_disassemblerpopup->popup(address);
     else
         m_disassemblerpopup->hide();
 }

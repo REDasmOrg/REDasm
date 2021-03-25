@@ -34,8 +34,8 @@ SplitDockWidget* ListingSplitView::createSplit() const
     auto* newisurface = newlisting->currentISurface();
     if(!newisurface) return splitview;
 
-    RDDocumentItem docitem;
-    if(isurface->getCurrentItem(&docitem)) newisurface->seek(&docitem);
+    rd_address address = isurface->currentAddress();
+    if(address != RD_NVAL) newisurface->seek(address);
 
     return splitview;
 }

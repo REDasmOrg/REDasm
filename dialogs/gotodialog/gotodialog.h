@@ -1,8 +1,9 @@
 #pragma once
 
 #include <QDialog>
+#include <QSortFilterProxyModel>
 #include <rdapi/rdapi.h>
-#include "../../models/gotomodel/gotofiltermodel.h"
+#include "../../hooks/isurface.h"
 
 namespace Ui {
 class GotoDialog;
@@ -29,7 +30,7 @@ class GotoDialog : public QDialog
         RDContextPtr m_context;
         ISurface* m_surface;
         RDDocument* m_document;
-        GotoFilterModel* m_gotomodel;
+        QSortFilterProxyModel* m_gotomodel;
         rd_address m_address{0};
         bool m_validaddress{false};
 };

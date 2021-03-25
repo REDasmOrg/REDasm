@@ -26,70 +26,49 @@ void ListingGraphView::goBack()
 {
     m_rootsurface->goBack();
 
-    RDDocumentItem item;
-    if(m_rootsurface->getCurrentItem(&item)) this->renderGraph(&item);
+    rd_address address = m_rootsurface->currentAddress();
+    if(address != RD_NVAL) this->renderGraph(address);
 }
 
 void ListingGraphView::goForward()
 {
     m_rootsurface->goForward();
 
-    RDDocumentItem item;
-    if(m_rootsurface->getCurrentItem(&item)) this->renderGraph(&item);
+    rd_address address = m_rootsurface->currentAddress();
+    if(address != RD_NVAL) this->renderGraph(address);
 }
 
 void ListingGraphView::copy() const { m_rootsurface->copy(); }
 
-bool ListingGraphView::goToAddress(rd_address address)
+bool ListingGraphView::goTo(rd_address address)
 {
-    if(!m_rootsurface->goToAddress(address)) return false;
-
-    RDDocumentItem item;
-    if(!m_rootsurface->getCurrentItem(&item)) return false;
-
-    this->renderGraph(&item);
+    if(!m_rootsurface->goTo(address)) return false;
+    //this->renderGraph(&item);
     return true;
 }
 
-bool ListingGraphView::seek(const RDDocumentItem* item)
+bool ListingGraphView::seek(rd_address address)
 {
-    if(!m_rootsurface->seek(item)) return false;
-    return this->renderGraph(item);
-}
-
-bool ListingGraphView::goTo(const RDDocumentItem* item)
-{
-    if(!m_rootsurface->goTo(item)) return false;
-    return this->renderGraph(item);
+    if(!m_rootsurface->seek(address)) return false;
+    return false; //this->renderGraph(item);
 }
 
 bool ListingGraphView::hasSelection() const { return m_rootsurface->hasSelection(); }
 bool ListingGraphView::canGoBack() const { return m_rootsurface->canGoBack(); }
 bool ListingGraphView::canGoForward() const { return m_rootsurface->canGoForward(); }
-
-bool ListingGraphView::getCurrentItem(RDDocumentItem* item) const
-{
-    auto* isurface = this->selectedSurface();
-    return isurface ? isurface->getCurrentItem(item) : false;
-}
-
-bool ListingGraphView::getCurrentSymbol(RDSymbol* symbol) const
-{
-    auto* isurface = this->selectedSurface();
-    return isurface ? isurface->getCurrentSymbol(symbol) : false;
-}
-
 SurfaceQt* ListingGraphView::surface() const { return m_rootsurface; }
 QString ListingGraphView::currentWord() const { return m_rootsurface->getCurrentWord(); }
+rd_address ListingGraphView::currentAddress() const { return m_rootsurface->currentAddress(); }
+QString ListingGraphView::currentLabel(rd_address* address) const { return m_rootsurface->getCurrentLabel(address); }
 const RDContextPtr& ListingGraphView::context() const { return m_context; }
 QWidget* ListingGraphView::widget() { return this; }
 void ListingGraphView::computed() { this->focusCurrentBlock(); }
 
 void ListingGraphView::onFollowRequested()
 {
-    RDSymbol symbol;
-    if(!m_rootsurface->getCurrentSymbol(&symbol)) return;
-    this->goToAddress(symbol.address);
+    rd_address address;
+    if(!m_rootsurface->getCurrentLabel(&address).isEmpty())
+        this->goTo(address);
 }
 
 void ListingGraphView::focusCurrentBlock()
@@ -101,20 +80,18 @@ void ListingGraphView::focusCurrentBlock()
     this->setSelectedBlock(item);
 }
 
-bool ListingGraphView::renderGraph(const RDDocumentItem* item)
+bool ListingGraphView::renderGraph(rd_address address)
 {
-    if(!item) return false;
-
-    if(m_graph && RDFunctionGraph_Contains(m_graph, item->address))
+    if(m_graph && RDFunctionGraph_Contains(m_graph, address))
     {
         this->focusCurrentBlock();
         return true;
     }
 
-    auto loc = RDContext_GetFunctionStart(m_context.get(), item->address);
+    auto loc = RDContext_GetFunctionStart(m_context.get(), address);
     if(!loc.valid) return false;
 
-    if(m_currentfunction && (loc.address == m_currentfunction->address)) // Don't render graph again
+    if((m_currentfunction != RD_NVAL) && (loc.address == m_currentfunction)) // Don't render graph again
     {
         this->focusCurrentBlock();
         return true;
@@ -125,12 +102,12 @@ bool ListingGraphView::renderGraph(const RDDocumentItem* item)
 
     if(!RDDocument_GetFunctionGraph(doc, loc.address, &graph))
     {
-        m_currentfunction = std::nullopt;
+        m_currentfunction = RD_NVAL;
         RD_Log(qUtf8Printable(QString("Graph rendering failed @ %1").arg(RD_ToHexAuto(m_context.get(), loc.address))));
         return false;
     }
 
-    m_currentfunction = *item;
+    m_currentfunction = address;
     m_rootsurface = nullptr;
     this->setGraph(graph);
     this->focusCurrentBlock();
@@ -218,13 +195,13 @@ GraphViewItem *ListingGraphView::itemFromCurrentLine() const
     auto* surface = this->selectedSurface();
     if(!surface) return nullptr;
 
-    RDDocumentItem item;
-    if(!surface->getCurrentItem(&item)) return nullptr;
+    rd_address address = surface->currentAddress();
+    if(address == RD_NVAL) return nullptr;
 
     for(const auto& gvi : m_items)
     {
-        ListingBlockItem* dbi = static_cast<ListingBlockItem*>(gvi);
-        if(dbi->containsItem(item)) return gvi;
+        auto* dbi = static_cast<ListingBlockItem*>(gvi);
+        if(dbi->contains(address)) return gvi;
     }
 
     return nullptr;

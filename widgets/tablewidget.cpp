@@ -1,6 +1,6 @@
 #include "tablewidget.h"
 #include "ui_tablewidget.h"
-#include "../models/listingitemmodel.h"
+#include "../models/contextmodel.h"
 #include "../themeprovider.h"
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
@@ -71,14 +71,14 @@ void TableWidget::setModel(QAbstractItemModel* model)
     sfmodel->setSourceModel(model);
     ui->tbvTable->setModel(sfmodel);
 
-    auto* listingitemmodel = dynamic_cast<ListingItemModel*>(model);
-    if(!listingitemmodel || !listingitemmodel->context()) return;
+    auto* contextmodel = dynamic_cast<ContextModel*>(model);
+    if(!contextmodel || !contextmodel->context()) return;
 
-    RDObject_Subscribe(listingitemmodel->context().get(), this, [](const RDEventArgs* e) {
+    RDObject_Subscribe(contextmodel->context().get(), this, [](const RDEventArgs* e) {
         auto* thethis = reinterpret_cast<TableWidget*>(e->owner);
-        auto* lim = dynamic_cast<ListingItemModel*>(thethis->model());
+        auto* cm = dynamic_cast<ContextModel*>(thethis->model());
 
-        if((e->id != Event_BusyChanged) || RDContext_IsBusy(lim->context().get())) return;
+        if((e->id != Event_BusyChanged) || RDContext_IsBusy(cm->context().get())) return;
         Q_EMIT thethis->resizeColumns();
     }, nullptr);
 }

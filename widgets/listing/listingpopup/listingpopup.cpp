@@ -19,9 +19,9 @@ ListingPopup::ListingPopup(const RDContextPtr& ctx, QWidget *parent): QWidget(pa
     this->setMinimumWidth(0);
 }
 
-void ListingPopup::popup(const RDSymbol* symbol)
+void ListingPopup::popup(rd_address address)
 {
-    if(!symbol || !m_popupview->renderPopup(symbol))
+    if(!m_popupview->renderPopup(address))
     {
         this->hide();
         return;

@@ -38,11 +38,7 @@ QVariant FunctionGraphModel::data(const QModelIndex& index, int role) const
     {
         const RDFunctionBasicBlock* fbb = nullptr;
         auto node = this->getBasicBlock(index, &fbb);
-        if(!node) return QVariant();
-
-        RDDocumentItem startitem;
-        if(RDFunctionBasicBlock_GetStartItem(fbb, &startitem)) return QVariant::fromValue(startitem.address);
-        return QVariant();
+        return node ? QVariant::fromValue(RDFunctionBasicBlock_GetStartAddress(fbb)) : QVariant();
     }
 
     if(role == Qt::DisplayRole)
@@ -51,18 +47,14 @@ QVariant FunctionGraphModel::data(const QModelIndex& index, int role) const
         auto node = this->getBasicBlock(index, &fbb);
         if(!node) return QVariant();
 
-        RDDocumentItem startitem, enditem;
-
-        if(!RDFunctionBasicBlock_GetStartItem(fbb, &startitem) || !RDFunctionBasicBlock_GetEndItem(fbb, &enditem))
-            return QVariant();
-
-        const char* symbolname = RDDocument_GetSymbolName(m_document, startitem.address);
+        rd_address startaddress = RDFunctionBasicBlock_GetStartAddress(fbb);
+        const char* label = RDDocument_GetLabel(m_document, startaddress);
 
         switch(index.column())
         {
-            case 0: return symbolname ? symbolname : QString();
-            case 1: return RD_ToHexAuto(m_context.get(), startitem.address);
-            case 2: return RD_ToHexAuto(m_context.get(), enditem.address);
+            case 0: return label ? label : QString();
+            case 1: return RD_ToHexAuto(m_context.get(), startaddress);
+            case 2: return RD_ToHexAuto(m_context.get(), RDFunctionBasicBlock_GetEndAddress(fbb));
             case 3: return this->incomings(*node);
             case 4: return this->outgoings(*node);
             default: break;
@@ -71,7 +63,7 @@ QVariant FunctionGraphModel::data(const QModelIndex& index, int role) const
     else if(role == Qt::ForegroundRole)
     {
         if((index.column() == 1) || (index.column() == 2)) return THEME_VALUE(Theme_Address);
-        else if(index.column() == 0) return THEME_VALUE(Theme_Symbol);
+        else if(index.column() == 0) return THEME_VALUE(Theme_Label);
     }
 
     return QVariant();

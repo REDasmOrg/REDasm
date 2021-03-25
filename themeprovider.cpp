@@ -104,7 +104,7 @@ void ThemeProvider::applyListingTheme()
         { "constant", Theme_Constant },
         { "reg", Theme_Reg },
         { "string", Theme_String },
-        { "symbol", Theme_Symbol },
+        { "label", Theme_Label },
         { "data", Theme_Data },
         { "pointer", Theme_Pointer },
         { "import", Theme_Import },

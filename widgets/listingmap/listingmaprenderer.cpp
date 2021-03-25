@@ -54,14 +54,16 @@ void ListingMapRenderer::calculateSegments()
 {
     m_calcsegments.clear();
 
-    RDDocument_EachSegment(m_document, [](const RDSegment* segment, void* userdata) {
-        auto* thethis = reinterpret_cast<ListingMapRenderer*>(userdata);
+    const rd_address* address = nullptr;
+    size_t c = RDDocument_GetSegments(m_document, &address);
 
-        if(!HAS_FLAG(segment, SegmentFlags_Bss))
-            thethis->m_calcsegments.push_back({ *segment, RDSegment_Size(segment) });
-
-        return true;
-    }, this);
+    for(size_t i = 0; i < c; i++)
+    {
+        RDSegment segment;
+        if(!RDDocument_AddressToSegment(m_document, address[i], &segment)) continue;
+        if(HAS_FLAG(&segment, SegmentFlags_Bss)) continue;
+        m_calcsegments.push_back({ segment, RDSegment_Size(&segment) });
+    }
 }
 
 void ListingMapRenderer::calculateFunctions()
@@ -85,11 +87,7 @@ void ListingMapRenderer::calculateFunctions()
         {
             const RDFunctionBasicBlock* fbb = nullptr;
             if(!RDFunctionGraph_GetBasicBlock(graph, nodes[j], &fbb)) continue;
-
-            RDDocumentItem item;
-            if(!RDFunctionBasicBlock_GetStartItem(fbb, &item)) continue;
-
-            RDLocation loc = RD_Offset(m_context.get(), item.address);
+            RDLocation loc = RD_Offset(m_context.get(), RDFunctionBasicBlock_GetStartAddress(fbb));
             if(loc.valid) m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
         }
     }
@@ -104,7 +102,7 @@ void ListingMapRenderer::renderSegments(QPainter* painter)
     for(const auto& [segment, size] : m_calcsegments)
     {
         QRect r = this->buildRect(this->calculatePosition(segment.offset), this->calculateSize(size));
-        if(HAS_FLAG(&segment, SegmentFlags_Code)) painter->fillRect(r, THEME_VALUE(Theme_Symbol));
+        if(HAS_FLAG(&segment, SegmentFlags_Code)) painter->fillRect(r, THEME_VALUE(Theme_Label));
         else painter->fillRect(r, THEME_VALUE(Theme_Data));
     }
 }
@@ -136,10 +134,10 @@ void ListingMapRenderer::renderSeek(QPainter* painter) const
     auto* surface = reinterpret_cast<const SurfaceQt*>(RDSurface_GetUserData(activesurface));
     if(!surface) return;
 
-    RDDocumentItem item;
-    if(!surface->getCurrentItem(&item)) return;
+    rd_address address = surface->currentAddress();
+    if(address == RD_NVAL) return;
 
-    RDLocation loc = RD_Offset(m_context.get(), item.address);
+    RDLocation loc = RD_Offset(m_context.get(), address);
     if(!loc.valid) return;
 
     QColor seekcolor = THEME_VALUE(Theme_Seek);

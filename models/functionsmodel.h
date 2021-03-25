@@ -12,8 +12,8 @@ class FunctionsModel : public AddressModel
         rd_address address(const QModelIndex& index) const override;
         QVariant data(const QModelIndex &index, int role) const override;
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-        int columnCount(const QModelIndex&) const override;
-        int rowCount(const QModelIndex&) const override;
+        int columnCount(const QModelIndex& = QModelIndex()) const override;
+        int rowCount(const QModelIndex& = QModelIndex()) const override;
 
     private:
         QString function(const QModelIndex& index, rd_address* address) const;

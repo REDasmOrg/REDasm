@@ -15,7 +15,6 @@
 #include "../widgets/outputwidget.h"
 #include "../widgets/docks/dockwidget.h"
 #include "../models/dev/blocklistmodel.h"
-#include "../models/listingitemmodel.h"
 #include "../renderer/surfaceqt.h"
 #include "../redasmsettings.h"
 #include "../redasmfonts.h"
@@ -172,36 +171,36 @@ void DisassemblerHooks::statusAddress(const SurfaceQt* surface) const
 
     RDDocument* doc = RDContext_GetDocument(surface->context().get());
 
-    RDDocumentItem item;
-    if(!surface->getCurrentItem(&item)) return;
+    rd_address address = surface->currentAddress();
+    if(address == RD_NVAL) return;
 
     RDSegment segment;
-    bool hassegment = RDDocument_GetSegmentAddress(doc, item.address, &segment);
+    bool hassegment = RDDocument_AddressToSegment(doc, address, &segment);
 
-    RDLocation functionstart = RDContext_GetFunctionStart(surface->context().get(), item.address);
-    RDLocation offset = RD_Offset(surface->context().get(), item.address);
+    RDLocation functionstart = RDDocument_GetFunctionStart(doc, address);
+    RDLocation offset = RD_Offset(surface->context().get(), address);
 
     QString segm = hassegment ? segment.name : "UNKNOWN",
             offs = hassegment && offset.valid ? RD_ToHexAuto(surface->context().get(), offset.value) : "UNKNOWN",
-            addr = RD_ToHexAuto(surface->context().get(), item.address);
+            addr = RD_ToHexAuto(surface->context().get(), address);
 
     QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
     s += QString::fromWCharArray(L"<b>Offset: </b>%1\u00A0\u00A0").arg(offs);
     s += QString::fromWCharArray(L"<b>Segment: </b>%1\u00A0\u00A0").arg(segm);
 
-    const char* functionstartname = RDDocument_GetSymbolName(doc, functionstart.value);
+    const char* label = RDDocument_GetLabel(doc, functionstart.address);
 
-    if(functionstart.valid && functionstartname)
+    if(functionstart.valid && label)
     {
-        QString func = functionstartname;
+        QString func = label;
 
         if(func.size() > MAX_FUNCTION_NAME)
             func = func.left(MAX_FUNCTION_NAME) + "..."; // Elide long function names
 
-        if(item.address > functionstart.value)
-            func += "+" + QString::fromUtf8(RD_ToHexBits(item.address - functionstart.value, 8, false));
-        else if(item.address < functionstart.value)
-            func += QString::number(static_cast<std::make_signed<size_t>::type>(item.address - functionstart.value));
+        if(address > functionstart.address)
+            func += "+" + QString::fromUtf8(RD_ToHexBits(address - functionstart.value, 8, false));
+        else if(address < functionstart.address)
+            func += QString::number(static_cast<std::make_signed<size_t>::type>(address - functionstart.value));
 
         s = QString::fromWCharArray(L"<b>Function: </b>%1\u00A0\u00A0").arg(func.toHtmlEscaped()) + s;
     }

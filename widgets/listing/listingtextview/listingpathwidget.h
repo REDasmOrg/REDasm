@@ -27,7 +27,6 @@ class ListingPathWidget : public QWidget
     private:
         bool isPathSelected(const RDPathItem* item) const;
         void fillArrow(QPainter* painter, int y, const QFontMetrics &fm);
-        void insertPath(const RDNet* net, const RDDocumentItem& fromitem, size_t fromidx, size_t toidx);
 
     private:
         ListingTextWidget* m_textview{nullptr};

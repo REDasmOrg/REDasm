@@ -11,23 +11,19 @@ void FunctionGraphTab::setContext(const RDContextPtr& ctx)
     if(ui->tbvFunctions->selectionModel())
         disconnect(ui->tbvFunctions->selectionModel(), &QItemSelectionModel::currentChanged, this, nullptr);
 
-    m_functionlistmodel = new FunctionListModel(ui->tbvFunctions);
-    m_functionlistmodel->setContext(ctx);
+    m_functionsmodel = new FunctionsModel(ctx, ui->tbvFunctions);
 
     m_functiongraphmodel = new FunctionGraphModel(ctx, ui->tbvGraph);
     m_sortedblocksmodel = new QSortFilterProxyModel(ui->tbvGraph);
     m_sortedblocksmodel->setSourceModel(m_functiongraphmodel);
     m_sortedblocksmodel->setSortRole(Qt::UserRole);
 
-    ui->tbvFunctions->setModel(m_functionlistmodel);
+    ui->tbvFunctions->setModel(m_functionsmodel);
     ui->tbvGraph->setModel(m_sortedblocksmodel);
 
     ui->tbvFunctions->verticalHeader()->setDefaultSectionSize(ui->tbvFunctions->verticalHeader()->minimumSectionSize());
     ui->tbvFunctions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tbvFunctions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    ui->tbvFunctions->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-    ui->tbvFunctions->horizontalHeader()->moveSection(3, 1);
-    ui->tbvFunctions->horizontalHeader()->hideSection(2);
 
     ui->tbvGraph->verticalHeader()->setDefaultSectionSize(ui->tbvFunctions->verticalHeader()->minimumSectionSize());
     ui->tbvGraph->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -40,7 +36,9 @@ void FunctionGraphTab::setContext(const RDContextPtr& ctx)
 
 void FunctionGraphTab::showGraph(const QModelIndex& current, const QModelIndex&)
 {
-    const RDGraph* graph = m_functionlistmodel->graph(current);
+    auto* graph = this->getGraph(current);
+    if(!graph) return;
+
     m_functiongraphmodel->setGraph(graph);
     m_sortedblocksmodel->sort(0);
 }
@@ -49,12 +47,12 @@ void FunctionGraphTab::copyUnitTests() const
 {
     QString s = "{\n";
 
-    for(int i = 0; i < m_functionlistmodel->rowCount(); i++)
+    for(int i = 0; i < m_functionsmodel->rowCount(); i++)
     {
-        QModelIndex index = m_functionlistmodel->index(i);
+        QModelIndex index = m_functionsmodel->index(i);
         if(!index.isValid()) continue;
 
-        const RDGraph* graph = m_functionlistmodel->graph(index);
+        auto* graph = this->getGraph(index);
         if(!graph) continue;
 
         rd_address startaddress = RDFunctionGraph_GetStartAddress(graph);
@@ -80,8 +78,13 @@ void FunctionGraphTab::copyHash() const
     qApp->clipboard()->setText(RD_ToHexBits(RDGraph_Hash(graph), 32, true));
 }
 
-const RDGraph* FunctionGraphTab::getSelectedGraph() const
+const RDGraph* FunctionGraphTab::getGraph(const QModelIndex& index) const
 {
-    QModelIndex index = ui->tbvFunctions->currentIndex();
-    return index.isValid() ? m_functionlistmodel->graph(index) : nullptr;
+    RDDocument* doc = RDContext_GetDocument(m_functionsmodel->context().get());
+    rd_address address = m_functionsmodel->address(index);
+
+    RDGraph* graph;
+    return RDDocument_GetFunctionGraph(doc, address, &graph) ? graph : nullptr;
 }
+
+const RDGraph* FunctionGraphTab::getSelectedGraph() const { return this->getGraph(ui->tbvFunctions->currentIndex()); }

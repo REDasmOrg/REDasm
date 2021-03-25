@@ -20,14 +20,13 @@ class ListingTextView : public QSplitter, public ISurface
         void unlink() override;
         void goBack() override;
         void goForward() override;
-        bool goToAddress(rd_address address) override;
-        bool goTo(const RDDocumentItem* item) override;
-        bool seek(const RDDocumentItem* item) override;
+        bool goTo(rd_address address) override;
+        bool seek(rd_address address) override;
         bool hasSelection() const override;
         bool canGoBack() const override;
         bool canGoForward() const override;
-        bool getCurrentItem(RDDocumentItem* item) const override;
-        bool getCurrentSymbol(RDSymbol* symbol) const override;
+        QString currentLabel(rd_address* address) const override;
+        rd_address currentAddress() const override;
         SurfaceQt* surface() const override;
         QString currentWord() const override;
         const RDContextPtr& context() const override;

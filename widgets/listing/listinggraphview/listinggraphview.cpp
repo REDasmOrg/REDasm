@@ -43,14 +43,13 @@ void ListingGraphView::copy() const { m_rootsurface->copy(); }
 bool ListingGraphView::goTo(rd_address address)
 {
     if(!m_rootsurface->goTo(address)) return false;
-    //this->renderGraph(&item);
-    return true;
+    return this->renderGraph(address);
 }
 
 bool ListingGraphView::seek(rd_address address)
 {
     if(!m_rootsurface->seek(address)) return false;
-    return false; //this->renderGraph(item);
+    return this->renderGraph(address);
 }
 
 bool ListingGraphView::hasSelection() const { return m_rootsurface->hasSelection(); }

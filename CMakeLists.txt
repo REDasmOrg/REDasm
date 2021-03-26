@@ -11,7 +11,7 @@ include(${CMAKE_SOURCE_DIR}/LibREDasm/cmake/sanitizers.cmake)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
-set(REDASM_VERSION_BASE "3.0-BETA4")
+set(REDASM_VERSION_BASE "3.0-BETA5")
 
 find_package(Qt5 5.11 REQUIRED COMPONENTS Widgets)
 find_package(Git)

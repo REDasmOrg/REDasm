@@ -56,7 +56,7 @@ void ListingBlockItem::localPosToSurface(const QPointF& pt, int* row, int* col) 
     *col = (pt.x() / m_surface->cellWidth());
 }
 
-int ListingBlockItem::startRow() const { return RDSurface_IndexOf(m_surface->handle(), RDFunctionBasicBlock_GetStartAddress(m_basicblock)); }
+int ListingBlockItem::startRow() const { return m_surface->indexOf(RDFunctionBasicBlock_GetStartAddress(m_basicblock)); }
 
 void ListingBlockItem::render(QPainter *painter, size_t)
 {

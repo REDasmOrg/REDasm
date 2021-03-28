@@ -46,13 +46,18 @@ void ListingGraphView::copy() const { m_surface->copy(); }
 
 bool ListingGraphView::goTo(rd_address address)
 {
-    if(!m_surface->goTo(address)) return false;
+    int idx = m_surface->indexOf(address);
+    if(idx != -1) m_surface->moveTo(idx, -1);
+    else if(!m_surface->goTo(address)) return false;
+
     return this->renderGraph(address);
 }
 
 bool ListingGraphView::seek(rd_address address)
 {
-    if(!m_surface->seek(address)) return false;
+    int idx = m_surface->indexOf(address);
+    if(idx != -1) m_surface->moveTo(idx, -1);
+    else if(!m_surface->seek(address)) return false;
     return this->renderGraph(address);
 }
 

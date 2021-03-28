@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <optional>
 #include "../../graphview/graphview.h"
 #include "../../../renderer/surfacedocument.h"
 
@@ -39,11 +38,10 @@ class ListingGraphView : public GraphView, public ISurface
         GraphViewItem* itemFromCurrentLine() const;
 
     protected:
-        SurfaceQt* selectedSurface() const;
         void showEvent(QShowEvent* e) override;
         void computeEdge(const RDGraphEdge& e) override;
         void computeNode(GraphViewItem* item) override;
-        GraphViewItem* createItem(RDGraphNode n, const RDGraph*g) override;
+        GraphViewItem* createItem(RDGraphNode n, const RDGraph* g) override;
         void computed() override;
 
     private Q_SLOTS:
@@ -51,6 +49,5 @@ class ListingGraphView : public GraphView, public ISurface
 
     private:
         RDContextPtr m_context;
-        SurfaceQt* m_rootsurface;
-        rd_address m_currentfunction{RD_NVAL};
+        SurfaceQt* m_surface;
 };

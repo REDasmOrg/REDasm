@@ -4,7 +4,6 @@
 #include <QRegularExpression>
 #include <QClipboard>
 #include <QLineEdit>
-#include <iostream>
 
 FLCDialog::FLCDialog(QWidget *parent) : QDialog(parent), ui(new Ui::FLCDialog)
 {

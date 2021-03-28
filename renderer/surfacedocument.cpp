@@ -3,7 +3,6 @@
 #include <QTextCursor>
 #include <QPainter>
 #include <QWidget>
-#include <iostream>
 
 SurfaceDocument::SurfaceDocument(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : SurfaceQt(ctx, flags, parent)
 {
@@ -40,5 +39,5 @@ void SurfaceDocument::render()
         }
     }
 
-    Q_EMIT renderCompleted();
+    SurfaceQt::render();
 }

@@ -17,6 +17,10 @@ ListingGraphView::ListingGraphView(const RDContextPtr& ctx, QWidget *parent): Gr
     this->setFocusPolicy(Qt::StrongFocus);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setFont(REDasmSettings::font());
+
+    m_surface = new SurfaceQt(ctx, RendererFlags_Graph, this);
+    m_surface->setBaseColor(qApp->palette().color(QPalette::Base));
+    connect(m_surface, &SurfaceQt::renderCompleted, this, [=]() { this->viewport()->update(); });
 }
 
 void ListingGraphView::linkTo(ISurface* s) { /* m_surface->linkTo(s->surface()); */ }
@@ -24,41 +28,41 @@ void ListingGraphView::unlink() { /* m_surface->unlink(); */ }
 
 void ListingGraphView::goBack()
 {
-    m_rootsurface->goBack();
+    m_surface->goBack();
 
-    rd_address address = m_rootsurface->currentAddress();
+    rd_address address = m_surface->currentAddress();
     if(address != RD_NVAL) this->renderGraph(address);
 }
 
 void ListingGraphView::goForward()
 {
-    m_rootsurface->goForward();
+    m_surface->goForward();
 
-    rd_address address = m_rootsurface->currentAddress();
+    rd_address address = m_surface->currentAddress();
     if(address != RD_NVAL) this->renderGraph(address);
 }
 
-void ListingGraphView::copy() const { m_rootsurface->copy(); }
+void ListingGraphView::copy() const { m_surface->copy(); }
 
 bool ListingGraphView::goTo(rd_address address)
 {
-    if(!m_rootsurface->goTo(address)) return false;
+    if(!m_surface->goTo(address)) return false;
     return this->renderGraph(address);
 }
 
 bool ListingGraphView::seek(rd_address address)
 {
-    if(!m_rootsurface->seek(address)) return false;
+    if(!m_surface->seek(address)) return false;
     return this->renderGraph(address);
 }
 
-bool ListingGraphView::hasSelection() const { return m_rootsurface->hasSelection(); }
-bool ListingGraphView::canGoBack() const { return m_rootsurface->canGoBack(); }
-bool ListingGraphView::canGoForward() const { return m_rootsurface->canGoForward(); }
-SurfaceQt* ListingGraphView::surface() const { return m_rootsurface; }
-QString ListingGraphView::currentWord() const { return m_rootsurface->getCurrentWord(); }
-rd_address ListingGraphView::currentAddress() const { return m_rootsurface->currentAddress(); }
-QString ListingGraphView::currentLabel(rd_address* address) const { return m_rootsurface->getCurrentLabel(address); }
+bool ListingGraphView::hasSelection() const { return m_surface->hasSelection(); }
+bool ListingGraphView::canGoBack() const { return m_surface->canGoBack(); }
+bool ListingGraphView::canGoForward() const { return m_surface->canGoForward(); }
+SurfaceQt* ListingGraphView::surface() const { return m_surface; }
+QString ListingGraphView::currentWord() const { return m_surface->getCurrentWord(); }
+rd_address ListingGraphView::currentAddress() const { return m_surface->currentAddress(); }
+QString ListingGraphView::currentLabel(rd_address* address) const { return m_surface->getCurrentLabel(address); }
 const RDContextPtr& ListingGraphView::context() const { return m_context; }
 QWidget* ListingGraphView::widget() { return this; }
 void ListingGraphView::computed() { this->focusCurrentBlock(); }
@@ -66,7 +70,7 @@ void ListingGraphView::computed() { this->focusCurrentBlock(); }
 void ListingGraphView::onFollowRequested()
 {
     rd_address address;
-    if(!m_rootsurface->getCurrentLabel(&address).isEmpty())
+    if(!m_surface->getCurrentLabel(&address).isEmpty())
         this->goTo(address);
 }
 
@@ -81,16 +85,7 @@ void ListingGraphView::focusCurrentBlock()
 
 bool ListingGraphView::renderGraph(rd_address address)
 {
-    if(m_graph && RDFunctionGraph_Contains(m_graph, address))
-    {
-        this->focusCurrentBlock();
-        return true;
-    }
-
-    auto loc = RDContext_GetFunctionStart(m_context.get(), address);
-    if(!loc.valid) return false;
-
-    if((m_currentfunction != RD_NVAL) && (loc.address == m_currentfunction)) // Don't render graph again
+    if(m_graph && RDFunctionGraph_Contains(m_graph, address)) // Don't render graph again
     {
         this->focusCurrentBlock();
         return true;
@@ -99,15 +94,17 @@ bool ListingGraphView::renderGraph(rd_address address)
     RDGraph* graph = nullptr;
     RDDocument* doc = RDContext_GetDocument(m_context.get());
 
-    if(!RDDocument_GetFunctionGraph(doc, loc.address, &graph))
+    if(!RDDocument_GetFunctionGraph(doc, address, &graph))
     {
-        m_currentfunction = RD_NVAL;
-        RD_Log(qUtf8Printable(QString("Graph rendering failed @ %1").arg(RD_ToHexAuto(m_context.get(), loc.address))));
+        RD_Log(qUtf8Printable(QString("Graph rendering failed @ %1").arg(RD_ToHexAuto(m_context.get(), address))));
         return false;
     }
 
-    m_currentfunction = address;
-    m_rootsurface = nullptr;
+    m_surface->seek(RDFunctionGraph_GetStartAddress(graph));
+    m_surface->resizeRange(RDFunctionGraph_GetStartAddress(graph),
+                           RDFunctionGraph_GetEndAddress(graph),
+                           -1);
+
     this->setGraph(graph);
     this->focusCurrentBlock();
     return true;
@@ -141,18 +138,7 @@ GraphViewItem* ListingGraphView::createItem(RDGraphNode n, const RDGraph* g)
         return nullptr;
     }
 
-
-    auto* b = new ListingBlockItem(m_context, fbb, n, g, this);
-
-    if(n != RDGraph_GetRoot(g))
-    {
-        if(m_rootsurface)
-            b->surface()->linkTo(m_rootsurface); // Link all to root surface
-    }
-    else
-        m_rootsurface = b->surface();
-
-    return b;
+    return new ListingBlockItem(m_surface, fbb, n, g, this);
 }
 
 QColor ListingGraphView::getEdgeColor(const RDGraphEdge& e) const
@@ -166,13 +152,13 @@ QColor ListingGraphView::getEdgeColor(const RDGraphEdge& e) const
 
 QString ListingGraphView::getEdgeLabel(const RDGraphEdge& e) const
 {
-    // const RDFunctionBasicBlock *fromfbb = nullptr, *tofbb = nullptr;;
+    // const RDFunctionBasicBlock *fromfbb = nullptr, *tofbb = nullptr;
     // if(!RDFunctionGraph_GetBasicBlock(m_graph, e.source, &fromfbb)) return QString();
     // if(!RDFunctionGraph_GetBasicBlock(m_graph, e.target, &tofbb)) return QString();
 
     // RDDocument* doc = RDContext_GetDocument(m_command->disassembler());
     // InstructionLock instruction(doc, RDFunctionBasicBlock_GetEndAddress(fromfbb));
-    QString label;
+    // QString label;
 
     // if(instruction && (instruction->flags & InstructionFlags_Conditional))
     // {
@@ -186,15 +172,15 @@ QString ListingGraphView::getEdgeLabel(const RDGraphEdge& e) const
     // if(!(RDFunctionBasicBlock_GetStartAddress(tofbb) > RDFunctionBasicBlock_GetStartAddress(fromfbb)))
         //label += !label.isEmpty() ? " (LOOP)" : "LOOP";
 
-    return label;
+    // return label;
+    return QString();
 }
 
 GraphViewItem *ListingGraphView::itemFromCurrentLine() const
 {
-    auto* surface = this->selectedSurface();
-    if(!surface) return nullptr;
+    if(!m_surface) return nullptr;
 
-    rd_address address = surface->currentAddress();
+    rd_address address = m_surface->currentAddress();
     if(address == RD_NVAL) return nullptr;
 
     for(const auto& gvi : m_items)
@@ -204,10 +190,4 @@ GraphViewItem *ListingGraphView::itemFromCurrentLine() const
     }
 
     return nullptr;
-}
-
-SurfaceQt* ListingGraphView::selectedSurface() const
-{
-    auto* item = static_cast<ListingBlockItem*>(this->selectedItem());
-    return item ? item->surface() : m_rootsurface;
 }

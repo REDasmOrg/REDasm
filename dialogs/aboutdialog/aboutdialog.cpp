@@ -6,7 +6,6 @@
 #include <QPushButton>
 #include <QPainter>
 #include <vector>
-#include <iostream>
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDialog)
 {

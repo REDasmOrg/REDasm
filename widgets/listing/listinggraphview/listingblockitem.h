@@ -10,11 +10,10 @@ class ListingBlockItem : public GraphViewItem
     Q_OBJECT
 
     public:
-        explicit ListingBlockItem(const RDContextPtr& ctx, const RDFunctionBasicBlock* fbb, RDGraphNode n, const RDGraph* g, QWidget *parent = nullptr);
-        SurfaceQt* surface();
+        explicit ListingBlockItem(SurfaceQt* surface, const RDFunctionBasicBlock* fbb, RDGraphNode n, const RDGraph* g, QWidget *parent = nullptr);
+        void render(QPainter* painter, size_t) override;
         bool contains(rd_address address) const;
         int currentRow() const override;
-        void render(QPainter* painter, size_t state) override;
         QSize size() const override;
 
     protected:
@@ -23,10 +22,14 @@ class ListingBlockItem : public GraphViewItem
         void mousePressEvent(QMouseEvent *e) override;
         void mouseMoveEvent(QMouseEvent *e) override;
 
+    private:
+        void localPosToSurface(const QPointF& pt, int* row, int* col) const;
+        int startRow() const;
+
     Q_SIGNALS:
         void followRequested();
 
     private:
         const RDFunctionBasicBlock* m_basicblock;
-        SurfaceDocument* m_surface;
+        SurfaceQt* m_surface;
 };

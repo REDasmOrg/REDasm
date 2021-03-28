@@ -3,7 +3,9 @@
 #include "../themeprovider.h"
 #include <QApplication>
 #include <QClipboard>
+#include <QPainter>
 #include <QWidget>
+#include <limits>
 
 SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : QObject(parent), m_context(ctx)
 {
@@ -25,7 +27,6 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
         switch(event->id) {
             case Event_SurfaceUpdated: thethis->render(); break;
             case Event_SurfaceHistoryChanged: Q_EMIT thethis->historyChanged(); break;
-            case Event_SurfaceScrollChanged: Q_EMIT thethis->scrollChanged(); break;
 
             case Event_SurfaceAddressChanged: {
                 DisassemblerHooks::instance()->statusAddress(thethis);
@@ -39,8 +40,45 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
 }
 
 SurfaceQt::~SurfaceQt() { RDObject_Unsubscribe(m_surface.get(), this); }
+
+void SurfaceQt::renderRange(QPainter* painter, rd_address address, int rows)
+{
+    int row = (address == RD_NVAL) ? 0 : RDSurface_IndexOf(this->handle(), address);
+    if(row == -1) return;
+
+    painter->setBackgroundMode(Qt::OpaqueMode);
+    painter->setFont(this->widget()->font());
+
+    int maxrows = std::numeric_limits<int>::max();
+    RDSurface_GetSize(this->handle(), &maxrows, nullptr);
+    rows = std::min(rows, maxrows); // Scale to surface, if needed
+
+    const RDSurfaceCell* cells = nullptr;
+    QPointF pt(0, 0);
+
+    for(int i = 0; i < rows; i++, row++, pt.ry() += this->cellHeight())
+    {
+        int maxcols = RDSurface_GetRow(this->handle(), row, &cells);
+        pt.rx() = 0;
+
+        for(int col = 0; col < maxcols; col++, pt.rx() += this->cellWidth())
+        {
+            auto& cell = cells[col];
+            painter->setBackground(this->getBackground(&cell));
+            painter->setPen(this->getForeground(&cell));
+            painter->drawText({ pt, this->cellSize() }, Qt::TextSingleLine, QString(cell.ch));
+        }
+    }
+}
+
 bool SurfaceQt::contains(rd_address address) const { return RDSurface_Contains(m_surface.get(), address); }
 int SurfaceQt::rows() const { return this->widget()->height() / m_cellsize.height(); }
+
+QSize SurfaceQt::rangeSize(rd_address address, int rows) const
+{
+    return QSize(RDSurface_GetRangeColumn(m_surface.get(), address, rows) * m_cellsize.width(),
+                 rows * m_cellsize.height());
+}
 
 QSize SurfaceQt::size() const
 {
@@ -82,6 +120,7 @@ void SurfaceQt::selectAt(const QPointF& pt)
                        pt.x() / m_cellsize.width());
 }
 
+void SurfaceQt::resizeRange(rd_address startaddress, rd_address endaddress, int cols) { RDSurface_ResizeRange(m_surface.get(), startaddress, endaddress, cols); }
 void SurfaceQt::resize(int row, int cols) { this->resize(QSizeF{ cols * m_cellsize.width(), row * m_cellsize.height() }); }
 void SurfaceQt::resize() { this->resize(QSizeF{ static_cast<qreal>(this->widget()->width()), static_cast<qreal>(this->widget()->height()) }); }
 void SurfaceQt::linkTo(SurfaceQt* s) { RDSurface_LinkTo(m_surface.get(), s->handle()); }
@@ -133,8 +172,8 @@ QColor SurfaceQt::getBackground(const RDSurfaceCell* cell) const
     switch(cell->background)
     {
         case Theme_Default: return this->baseColor();
-        case Theme_CursorBg: return this->widget()->palette().color(QPalette::WindowText);
-        case Theme_SelectionBg: return this->widget()->palette().color(QPalette::Highlight);
+        case Theme_CursorBg: return qApp->palette().color(QPalette::WindowText);
+        case Theme_SelectionBg: return qApp->palette().color(QPalette::Highlight);
         default: break;
     }
 
@@ -163,6 +202,7 @@ RDSurfacePos SurfaceQt::mapPoint(const QPointF& pt) const
 
 bool SurfaceQt::seek(rd_address address) { return RDSurface_Seek(m_surface.get(), address); }
 QFontMetricsF SurfaceQt::fontMetrics() const { return QFontMetricsF(this->widget()->font()); }
+void SurfaceQt::render() { Q_EMIT renderCompleted(); }
 QWidget* SurfaceQt::widget() const { return dynamic_cast<QWidget*>(this->parent()); }
 
 void SurfaceQt::resize(const QSizeF& size)

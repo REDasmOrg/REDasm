@@ -2,7 +2,6 @@
 
 #include "surfaceqt.h"
 
-class QPainter;
 class QTextDocument;
 
 class SurfaceDocument : public SurfaceQt

@@ -21,26 +21,7 @@ void SurfacePainter::render()
     m_image.fill(this->widget()->palette().color(QPalette::Base));
 
     QPainter painter(&m_image);
-    painter.setBackgroundMode(Qt::OpaqueMode);
-    painter.setFont(this->widget()->font());
-    QPointF pt(0, 0);
-
-    const RDSurfaceCell* cells = nullptr;
-
-    for(int row = 0; row < rows; row++, pt.ry() += this->cellHeight())
-    {
-        int maxcols = RDSurface_GetRow(this->handle(), row, &cells);
-        pt.rx() = 0;
-
-        for(int col = 0; col < maxcols; col++, pt.rx() += this->cellWidth())
-        {
-            auto& cell = cells[col];
-            painter.setBackground(this->getBackground(&cell));
-            painter.setPen(this->getForeground(&cell));
-            painter.drawText({ pt, this->cellSize() }, Qt::TextSingleLine, QString(cell.ch));
-        }
-    }
-
+    this->renderRange(&painter, RD_NVAL, rows);
     m_pixmap = QPixmap::fromImage(m_image);
-    if(this->widget()) Q_EMIT renderCompleted();
+    if(this->widget()) SurfaceQt::render();
 }

@@ -2,7 +2,6 @@
 #include <rdapi/rdapi.h>
 #include <QApplication>
 #include <QFontMetrics>
-#include <iostream>
 
 CallGraphItem::CallGraphItem(const RDContextPtr& ctx, RDGraphNode node, const RDGraph* g, QObject *parent) : GraphViewItem(node, g, parent), m_context(ctx)
 {

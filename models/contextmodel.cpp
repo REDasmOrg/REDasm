@@ -1,5 +1,4 @@
 #include "contextmodel.h"
-#include <iostream>
 
 ContextModel::ContextModel(const RDContextPtr& ctx, QObject *parent): QAbstractListModel(parent), m_context(ctx) { m_document = RDContext_GetDocument(ctx.get()); }
 ContextModel::ContextModel(QObject* parent): QAbstractListModel(parent) { }

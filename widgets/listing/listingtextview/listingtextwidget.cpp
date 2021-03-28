@@ -6,7 +6,6 @@
 #include <QScrollBar>
 #include <QPushButton>
 #include <QtGui>
-#include <iostream>
 
 #define DOCUMENT_WHEEL_LINES 3
 
@@ -62,7 +61,6 @@ void ListingTextWidget::setContext(const RDContextPtr& ctx)
 
     m_surface = new SurfacePainter(m_context, RendererFlags_CenterOnSurface, this);
     connect(m_surface, &SurfacePainter::renderCompleted, this, [&]() { this->viewport()->update(); });
-    connect(m_surface, &SurfacePainter::scrollChanged, this, [&]() { this->adjustScrollBars(); });
 
     connect(m_surface, &SurfacePainter::addressChanged, this, [&]() {
         this->verticalScrollBar()->blockSignals(true);

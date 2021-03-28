@@ -7,6 +7,7 @@
 #include "../hooks/isurface.h"
 
 class QFontMetricsF;
+class QPainter;
 
 class SurfaceQt : public QObject
 {
@@ -15,8 +16,10 @@ class SurfaceQt : public QObject
     public:
         explicit SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent = nullptr);
         ~SurfaceQt();
+        void renderRange(QPainter* painter, rd_address address, int rows);
         bool contains(rd_address address) const;
         int rows() const;
+        QSize rangeSize(rd_address address, int rows) const;
         QSize size() const;
         const QColor& baseColor() const;
         const RDContextPtr& context() const;
@@ -25,6 +28,8 @@ class SurfaceQt : public QObject
         rd_address firstAddress() const;
         rd_address lastAddress() const;
         rd_address currentAddress() const;
+        qreal cellWidth() const;
+        qreal cellHeight() const;
         void activateCursor(bool activate);
         bool canGoBack() const;
         bool canGoForward() const;
@@ -47,6 +52,7 @@ class SurfaceQt : public QObject
         void select(int row, int col);
         void select(const QPointF& pt);
         void selectAt(const QPointF& pt);
+        void resizeRange(rd_address startaddress, rd_address endaddress, int cols);
         void resize(int row, int cols);
         void resize();
         void linkTo(SurfaceQt* s);
@@ -57,10 +63,8 @@ class SurfaceQt : public QObject
         QColor getBackground(const RDSurfaceCell* cell) const;
         QColor getForeground(const RDSurfaceCell* cell) const;
         const QSizeF& cellSize() const;
-        qreal cellWidth() const;
-        qreal cellHeight() const;
         QFontMetricsF fontMetrics() const;
-        virtual void render() = 0;
+        virtual void render();
 
     private:
         void resize(const QSizeF& size);
@@ -68,7 +72,6 @@ class SurfaceQt : public QObject
     Q_SIGNALS:
         void renderCompleted();
         void addressChanged();
-        void scrollChanged();
         void historyChanged();
 
     private:

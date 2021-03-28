@@ -43,7 +43,7 @@ SurfaceQt::~SurfaceQt() { RDObject_Unsubscribe(m_surface.get(), this); }
 
 void SurfaceQt::renderRange(QPainter* painter, rd_address address, int rows)
 {
-    int row = (address == RD_NVAL) ? 0 : RDSurface_IndexOf(this->handle(), address);
+    int row = (address == RD_NVAL) ? 0 : this->indexOf(address);
     if(row == -1) return;
 
     painter->setBackgroundMode(Qt::OpaqueMode);
@@ -73,6 +73,7 @@ void SurfaceQt::renderRange(QPainter* painter, rd_address address, int rows)
 
 bool SurfaceQt::contains(rd_address address) const { return RDSurface_Contains(m_surface.get(), address); }
 int SurfaceQt::rows() const { return this->widget()->height() / m_cellsize.height(); }
+int SurfaceQt::indexOf(rd_address address) const { return RDSurface_IndexOf(m_surface.get(), address); }
 
 QSize SurfaceQt::rangeSize(rd_address address, int rows) const
 {

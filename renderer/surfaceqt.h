@@ -19,6 +19,7 @@ class SurfaceQt : public QObject
         void renderRange(QPainter* painter, rd_address address, int rows);
         bool contains(rd_address address) const;
         int rows() const;
+        int indexOf(rd_address address) const;
         QSize rangeSize(rd_address address, int rows) const;
         QSize size() const;
         const QColor& baseColor() const;

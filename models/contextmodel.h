@@ -11,6 +11,7 @@ class ContextModel : public QAbstractListModel
     public:
         explicit ContextModel(const RDContextPtr& ctx, QObject *parent = nullptr);
         explicit ContextModel(QObject *parent = nullptr);
+        ~ContextModel();
 
     public:
         const RDContextPtr& context() const;

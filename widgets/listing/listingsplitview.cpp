@@ -11,13 +11,22 @@ ListingSplitView::ListingSplitView(const RDContextPtr& ctx): SplitDockWidget(new
     auto* btngoto = this->addButton(FA_ICON(0xf1e5));
 
     auto* listing = static_cast<ListingView*>(this->splitWidget());
-    auto* isurface = listing->currentISurface();
-    if(!isurface) return;
-
     connect(listing, &ListingView::historyChanged, this, &ListingSplitView::checkActions);
-    connect(btnback, &QAction::triggered, this, [=]() { isurface->goBack(); });
-    connect(btnforward, &QAction::triggered, this, [=]() { isurface->goForward(); });
-    connect(btngoto, &QAction::triggered, this, [=]() { listing->showGoto(); });
+
+    connect(btnback, &QAction::triggered, this, [=]() {
+        auto* isurface = listing->currentISurface();
+        if(isurface) isurface->goBack();
+    });
+
+    connect(btnforward, &QAction::triggered, this, [=]() {
+        auto* isurface = listing->currentISurface();
+        if(isurface) isurface->goForward();
+    });
+
+    connect(btngoto, &QAction::triggered, this, [=]() {
+        auto* isurface = listing->currentISurface();
+        if(isurface) listing->showGoto();
+    });
 
     this->checkActions();
 }

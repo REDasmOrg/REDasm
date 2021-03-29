@@ -11,7 +11,7 @@ class ListingBlockItem : public GraphViewItem
 
     public:
         explicit ListingBlockItem(SurfaceQt* surface, const RDFunctionBasicBlock* fbb, RDGraphNode n, const RDGraph* g, QWidget *parent = nullptr);
-        void render(QPainter* painter, size_t) override;
+        void render(QPainter* painter, size_t state) override;
         bool contains(rd_address address) const;
         int currentRow() const override;
         QSize size() const override;

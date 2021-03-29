@@ -58,7 +58,7 @@ void ListingBlockItem::localPosToSurface(const QPointF& pt, int* row, int* col) 
 
 int ListingBlockItem::startRow() const { return m_surface->indexOf(RDFunctionBasicBlock_GetStartAddress(m_basicblock)); }
 
-void ListingBlockItem::render(QPainter *painter, size_t)
+void ListingBlockItem::render(QPainter *painter, size_t state)
 {
     QRect r(QPoint(0, 0), this->size());
     r.adjust(BLOCK_MARGINS);
@@ -68,7 +68,12 @@ void ListingBlockItem::render(QPainter *painter, size_t)
 
     painter->save();
         painter->translate(this->position());
-        painter->fillRect(r.adjusted(DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE), shadow);
+
+        if(state & ListingBlockItem::Selected) // Thicker shadow
+            painter->fillRect(r.adjusted(DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE + 2, DROP_SHADOW_SIZE + 2), shadow);
+        else
+            painter->fillRect(r.adjusted(DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE), shadow);
+
         painter->fillRect(r, qApp->palette().color(QPalette::Base));
 
         if(m_surface)
@@ -79,7 +84,13 @@ void ListingBlockItem::render(QPainter *painter, size_t)
                                    RDFunctionBasicBlock_ItemsCount(m_basicblock));
         }
 
-        painter->setPen(QPen(qApp->palette().color(QPalette::WindowText), 1.5));
+        painter->setClipping(false);
+
+        if(state & ListingBlockItem::Selected)
+            painter->setPen(QPen(qApp->palette().color(QPalette::Highlight), 2.0));
+        else
+            painter->setPen(QPen(qApp->palette().color(QPalette::WindowText), 1.5));
+
         painter->drawRect(r);
     painter->restore();
 }

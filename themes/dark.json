@@ -13,12 +13,13 @@
     "ToolTipText": "#ecf0f1",
 
     "seek": "#3b3b3b",
-    "comment": "#16a085",
+    "comment": "#2ecc71",
+    "auto_comment": "#16a085",
 
     "highlight_fg": "#3b3b3b",
-    "highlight_bg": "#2ecc71",
+    "highlight_bg": "#ef717a",
 
-    "segment": "#2ecc71",
+    "segment": "#f47cc3",
     "function": "#3498db",
 
     "address": "#6a89b4",

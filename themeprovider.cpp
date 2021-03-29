@@ -55,9 +55,6 @@ QIcon ThemeProvider::icon(const QString &name)
                                            .arg(name));
 }
 
-QColor ThemeProvider::seekColor() { return ThemeProvider::themeValue(Theme_Seek); }
-QColor ThemeProvider::metaColor() { return ThemeProvider::themeValue(Theme_Meta); }
-
 void ThemeProvider::applyTheme()
 {
     REDasmSettings settings;
@@ -90,8 +87,8 @@ void ThemeProvider::applyListingTheme()
         { "foreground", Theme_Foreground },
         { "background", Theme_Background },
         { "seek", Theme_Seek },
+        { "auto_comment", Theme_AutoComment },
         { "comment", Theme_Comment },
-        { "meta", Theme_Meta },
         { "highlight_fg", Theme_HighlightFg },
         { "highlight_bg", Theme_HighlightBg },
         { "selection_fg", Theme_SelectionFg },

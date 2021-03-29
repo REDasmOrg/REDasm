@@ -24,8 +24,6 @@ class ThemeProvider
         static bool isDarkTheme();
         static QColor themeValue(rd_type theme);
         static QIcon icon(const QString& name);
-        static QColor seekColor();
-        static QColor metaColor();
         static void applyTheme();
 
     private:

@@ -1,11 +1,12 @@
 {
     "seek": "#ecf0f1",
-    "comment": "#356272",
+    "comment": "#3974aa",
+    "auto_comment": "#0f4f34",
 
     "highlight_fg": "#2b2b2b",
     "highlight_bg": "#aefbaf",
 
-    "segment": "#008080",
+    "segment": "#662621",
     "function": "#c71585",
 
     "address": "#065f88",

@@ -118,10 +118,10 @@ void ThemeProvider::applyListingTheme()
         { "entry_bg", Theme_EntryBg },
         { "graph_bg", Theme_GraphBg },
         { "graph_edge", Theme_GraphEdge },
-        { "graph_edge_true", Theme_GraphEdgeTrue },
-        { "graph_edge_false", Theme_GraphEdgeFalse },
         { "graph_edge_loop", Theme_GraphEdgeLoop },
-        { "graph_edge_loop_c", Theme_GraphEdgeLoopCond } };
+        { "graph_edge_loop_c", Theme_GraphEdgeLoopCond },
+        { "state_true", Theme_StateTrue },
+        { "state_false", Theme_StateFalse } };
 
     for(auto it = m_theme.begin(); it != m_theme.end(); it++)
     {

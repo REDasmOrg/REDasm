@@ -29,8 +29,9 @@
 
     "graph_bg": "azure",
     "graph_edge": "#00008b",
-    "graph_edge_true": "#27ae60",
-    "graph_edge_false": "#c0392b",
     "graph_edge_loop": "#297fb9",
-    "graph_edge_loop_c": "#8e44ad"
+    "graph_edge_loop_c": "#8e44ad",
+
+    "state_true": "#27ae60",
+    "state_false": "#c0392b"
 }

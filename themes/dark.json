@@ -43,8 +43,9 @@
 
     "graph_bg": "#262626",
     "graph_edge": "#1abc9c",
-    "graph_edge_true": "#2ecc71",
-    "graph_edge_false": "#e74c3c",
     "graph_edge_loop": "#3498db",
-    "graph_edge_loop_c": "#f47cc3"
+    "graph_edge_loop_c": "#f47cc3",
+
+    "state_true": "#2ecc71",
+    "state_false": "#e74c3c"
 }

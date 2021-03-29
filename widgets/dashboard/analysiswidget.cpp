@@ -75,14 +75,14 @@ void AnalysisWidget::updateModel(QStandardItemModel* model, const char* const* n
             item->setCheckState(Qt::Checked);
 
             if((model == m_analyzersmodel) && s->analyzersdone[i]) item->setForeground(THEME_VALUE(Theme_GraphEdgeLoop));
-            else item->setForeground(THEME_VALUE(Theme_GraphEdgeTrue));
+            else item->setForeground(THEME_VALUE(Theme_StateTrue));
         }
         else
         {
             item->setCheckState(Qt::Unchecked);
 
             if((model == m_analyzersmodel) && s->analyzersdone[i]) item->setForeground(THEME_VALUE(Theme_GraphEdgeLoop));
-            else item->setForeground(THEME_VALUE(Theme_GraphEdgeFalse));
+            else item->setForeground(THEME_VALUE(Theme_StateFalse));
         }
     }
 }
@@ -99,7 +99,7 @@ void AnalysisWidget::updateStats(const RDAnalysisStatus* s)
         item->setText(end.toString());
 
         timeitem->setText(AnalysisWidget::printableDateDiff(start, end));
-        item->setForeground(THEME_VALUE(Theme_GraphEdgeTrue));
+        item->setForeground(THEME_VALUE(Theme_StateTrue));
     }
     else
     {
@@ -123,12 +123,12 @@ void AnalysisWidget::updateDiff(QStandardItem* item, int diff)
     if(diff > 0)
     {
         item->setText(QString("+%1").arg(diff));
-        item->setForeground(THEME_VALUE(Theme_GraphEdgeTrue));
+        item->setForeground(THEME_VALUE(Theme_StateTrue));
     }
     else if(diff < 0)
     {
         item->setText(QString("%1").arg(diff));
-        item->setForeground(THEME_VALUE(Theme_GraphEdgeFalse));
+        item->setForeground(THEME_VALUE(Theme_StateFalse));
     }
     else
         item->setText(QString());

@@ -17,7 +17,6 @@ class BlockListModel : public QAbstractListModel
 
     private:
         QString blockType(const RDBlock* block) const;
-        QString blockFlags(const RDBlock* block) const;
         QString labelName(const RDBlock* block) const;
 
     private:

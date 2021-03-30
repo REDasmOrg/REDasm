@@ -7,7 +7,7 @@
 #include <QPushButton>
 #include <QtGui>
 
-#define DOCUMENT_WHEEL_LINES 3
+#define DOCUMENT_WHEEL_UNIT 4
 
 ListingTextWidget::ListingTextWidget(QWidget *parent): QAbstractScrollArea(parent)
 {
@@ -171,7 +171,7 @@ void ListingTextWidget::wheelEvent(QWheelEvent *event)
     {
         QPoint ndegrees = event->angleDelta() / 8;
         QPoint nsteps = ndegrees / 15;
-        auto offset = -nsteps.y() * DOCUMENT_WHEEL_LINES;
+        auto offset = -nsteps.y() * DOCUMENT_WHEEL_UNIT;
         m_surface->scroll(m_surface->firstAddress() + offset, nsteps.x());
         event->accept();
         return;

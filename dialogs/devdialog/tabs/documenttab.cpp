@@ -97,7 +97,9 @@ QString DocumentTab::addressFlags(RDDocument* doc, rd_address address) const
     CHECK_FLAG(s, flags, AddressFlags_WideString);
     CHECK_FLAG(s, flags, AddressFlags_Pointer);
     CHECK_FLAG(s, flags, AddressFlags_NoReturn);
+    CHECK_FLAG(s, flags, AddressFlags_Type);
     CHECK_FLAG(s, flags, AddressFlags_TypeField);
+    CHECK_FLAG(s, flags, AddressFlags_TypeEnd);
 
     return s.isEmpty() ? STR(AddressFlags_None) : s;
 }

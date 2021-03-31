@@ -21,7 +21,6 @@ ListingView::ListingView(const RDContextPtr& ctx, QWidget *parent) : QStackedWid
     m_hexview = new QHexView(this);
     m_hexview->setFont(REDasmSettings::font());
     m_hexview->setReadOnly(true);
-    this->prepareHexDocument();
 
     this->addWidget(m_textview);
     this->addWidget(m_graphview);
@@ -86,11 +85,23 @@ void ListingView::switchToHex()
 {
     rd_address address = this->currentAddress();
     if(address == RD_NVAL) return;
-
     auto loc = RD_Offset(m_context.get(), address);
     if(!loc.valid) return;
 
-    m_hexview->document()->cursor()->moveTo(loc.offset);
+    auto* doc = RDContext_GetDocument(m_context.get());
+
+    RDSegment segment;
+    if(!RDDocument_AddressToSegment(doc, address, &segment)) return;
+
+    RDBufferView segmentview, view;
+    if(!RDDocument_GetView(doc, segment.address, RDSegment_RawSize(&segment), &segmentview)) return;
+    if(!RDDocument_GetBlockView(doc, address, &view)) return;
+
+    m_hexview->setDocument(QHexDocument::fromMemory<QMemoryRefBuffer>(reinterpret_cast<char*>(segmentview.data),
+                                                                      static_cast<int>(segmentview.size), m_hexview));
+
+    m_hexview->document()->setBaseAddress(segment.address);
+    m_hexview->document()->cursor()->selectOffset(loc.offset - segment.offset, view.size);
     this->setCurrentWidget(m_hexview);
 
     Q_EMIT historyChanged();
@@ -328,13 +339,6 @@ QMenu* ListingView::createActions(ISurface* surface)
 
     connect(contextmenu, &QMenu::aboutToShow, this, &ListingView::adjustActions);
     return contextmenu;
-}
-
-void ListingView::prepareHexDocument()
-{
-    auto* buffer = RDContext_GetBuffer(m_context.get());
-    m_hexview->setDocument(QHexDocument::fromMemory<QMemoryRefBuffer>(reinterpret_cast<char*>(RDBuffer_Data(buffer)),
-                                                                      static_cast<int>(RDBuffer_Size(buffer)), m_hexview));
 }
 
 void ListingView::showReferences(rd_address address)

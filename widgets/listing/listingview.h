@@ -38,7 +38,6 @@ class ListingView : public QStackedWidget
     private:
         QMenu* createActions(ISurface* surface);
         void showReferences(rd_address address);
-        void prepareHexDocument();
 
     Q_SIGNALS:
         void historyChanged();

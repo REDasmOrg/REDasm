@@ -149,7 +149,7 @@ void ListingView::adjustActions()
     if(surface->currentLabel(&labeladdress).isEmpty())
     {
         bool hassymbolsegment = RDDocument_AddressToSegment(doc, address, &symbolsegment);
-        RDLocation funcstart = RDContext_GetFunctionStart(surface->context().get(), address);
+        RDLocation funcstart = RDDocument_GetFunctionStart(doc, address);
         const char* funcname = funcstart.valid ? RDDocument_GetLabel(doc, funcstart.value) : nullptr;
 
         actions[ListingView::Action_Rename]->setVisible(false);

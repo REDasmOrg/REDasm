@@ -22,6 +22,8 @@ ListingView::ListingView(const RDContextPtr& ctx, QWidget *parent) : QStackedWid
     m_hexview->setFont(REDasmSettings::font());
     m_hexview->setReadOnly(true);
 
+    this->createHexViewMenu();
+
     this->addWidget(m_textview);
     this->addWidget(m_graphview);
     this->addWidget(m_hexview);
@@ -49,7 +51,15 @@ ListingView::ListingView(const RDContextPtr& ctx, QWidget *parent) : QStackedWid
 rd_address ListingView::currentAddress() const
 {
     auto* isurface = this->currentISurface();
-    return isurface ? isurface->currentAddress() : RD_NVAL;
+    if(isurface) return isurface->currentAddress();
+
+    if(this->currentWidget() == m_hexview)
+    {
+        return m_hexview->document()->baseAddress() +
+               m_hexview->document()->cursor()->position().offset();
+    }
+
+    return RD_NVAL;
 }
 
 void ListingView::switchToGraph()
@@ -68,15 +78,11 @@ void ListingView::switchToGraph()
 
 void ListingView::switchToListing()
 {
-    if(this->currentISurface())
-    {
-        rd_address address = this->currentAddress();
-        if(address == RD_NVAL) return;
+    rd_address address = this->currentAddress();
+    if(address == RD_NVAL) return;
 
-        this->setCurrentWidget(m_textview);
-        m_textview->textWidget()->seek(address);
-    }
-
+    this->setCurrentWidget(m_textview);
+    m_textview->textWidget()->seek(address);
     m_textview->textWidget()->setFocus();
     Q_EMIT historyChanged();
 }
@@ -126,8 +132,11 @@ bool ListingView::eventFilter(QObject* object, QEvent* event)
 
     if(!widgets.count(object)) return false;
 
-    if(this->currentWidget() == m_hexview) this->switchToListing();
-    else this->switchMode();
+    if(this->currentWidget() == m_hexview)
+        this->switchToListing();
+    else
+        this->switchMode();
+
     return true;
 }
 
@@ -166,7 +175,7 @@ void ListingView::adjustActions()
         actions[ListingView::Action_Rename]->setVisible(false);
         actions[ListingView::Action_XRefs]->setVisible(false);
         actions[ListingView::Action_Follow]->setVisible(false);
-        actions[ListingView::Action_FollowPointerHexDump]->setVisible(false);
+        actions[ListingView::Action_ShowHexDump]->setVisible(false);
 
         if(!RDContext_IsBusy(surface->context().get()))
         {
@@ -201,8 +210,8 @@ void ListingView::adjustActions()
                                                             labelflags & AddressFlags_Function);
 
 
-    actions[ListingView::Action_FollowPointerHexDump]->setText(QString("Follow %1 pointer in Hex Dump").arg(labelname));
-    actions[ListingView::Action_FollowPointerHexDump]->setVisible(labelflags & AddressFlags_Pointer);
+    actions[ListingView::Action_ShowHexDump]->setText(QString("Show %1 in Hex Dump").arg(labelname));
+    actions[ListingView::Action_ShowHexDump]->setVisible(labelflags && !HAS_FLAG(&symbolsegment, SegmentFlags_Bss));
 
     actions[ListingView::Action_XRefs]->setText(QString("Cross Reference %1").arg(labelname));
     actions[ListingView::Action_XRefs]->setVisible(!RDContext_IsBusy(surface->context().get()));
@@ -273,7 +282,11 @@ QMenu* ListingView::createActions(ISurface* surface)
         if(surface->currentLabel(&address).size()) surface->goTo(address);
     });
 
-    actions[ListingView::Action_FollowPointerHexDump] = contextmenu->addAction("Follow pointer in Hex Dump", this, [&, surface]() {
+    actions[ListingView::Action_ShowHexDump] = contextmenu->addAction("Show in Hex Dump", this, [&, surface]() {
+        rd_address address;
+        if(!surface->currentLabel(&address).size()) return;
+        surface->goTo(address);
+        this->switchToHex();
     });
 
     actions[ListingView::Action_Goto] = contextmenu->addAction("Goto...", this, [&]() { this->showGoto(); }, QKeySequence(Qt::Key_G));
@@ -361,6 +374,26 @@ void ListingView::showReferences(rd_address address)
 
     ReferencesDialog dlgreferences(m_context, isurface, address, this);
     dlgreferences.exec();
+}
+
+void ListingView::createHexViewMenu()
+{
+    m_menu = new QMenu(m_hexview);
+    m_menu->addAction("Copy", this, [&]() { m_hexview->document()->copy(); }, QKeySequence(Qt::CTRL + Qt::Key_C));
+    m_menu->addAction("Copy Hex", this, [&]() { m_hexview->document()->copy(true); }, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_C));
+    m_menu->addAction("Copy Ascii", this, [&]() { m_hexview->document()->copy(); }, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
+    m_menu->addAction("Select All", this, [&]() { }, QKeySequence(Qt::CTRL + Qt::Key_A));
+    m_menu->addSeparator();
+
+    m_menu->addAction("Switch to Listing", this, [&]() {
+        this->switchToListing();
+    }, QKeySequence(Qt::Key_Space));
+
+    m_hexview->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(m_hexview, &QHexView::customContextMenuRequested, this, [&](const QPoint&) {
+        m_menu->popup(QCursor::pos());
+    });
 }
 
 void ListingView::showGoto()

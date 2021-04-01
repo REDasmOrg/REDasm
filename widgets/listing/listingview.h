@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QStackedWidget>
+#include <QMenu>
 #include <future>
 #include <qhexview/qhexview.h>
 #include <rdapi/rdapi.h>
@@ -13,7 +14,7 @@ class ListingView : public QStackedWidget
     Q_OBJECT
 
     private:
-        enum { Action_Rename = 0, Action_XRefs, Action_Follow, Action_FollowPointerHexDump,
+        enum { Action_Rename = 0, Action_XRefs, Action_Follow, Action_ShowHexDump,
                Action_CallGraph, Action_Goto, Action_HexDump, Action_HexDumpFunction, Action_Comment, Action_CreateFunction, Action_SwitchView,
                Action_Back, Action_Forward, Action_Copy };
 
@@ -38,6 +39,7 @@ class ListingView : public QStackedWidget
     private:
         QMenu* createActions(ISurface* surface);
         void showReferences(rd_address address);
+        void createHexViewMenu();
 
     Q_SIGNALS:
         void historyChanged();
@@ -48,4 +50,5 @@ class ListingView : public QStackedWidget
         ListingTextView* m_textview;
         ListingGraphView* m_graphview;
         QHexView* m_hexview;
+        QMenu* m_menu;
 };

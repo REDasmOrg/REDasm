@@ -131,7 +131,7 @@ void DisassemblerHooks::about()
     dlgabout.exec();
 }
 
-void DisassemblerHooks::exit() { qApp->exit(); }
+void DisassemblerHooks::exit() { m_mainwindow->close(); }
 
 void DisassemblerHooks::showFLC()
 {

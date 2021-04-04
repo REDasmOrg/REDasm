@@ -33,6 +33,7 @@
     "graph_edge_loop": "#297fb9",
     "graph_edge_loop_c": "#8e44ad",
 
-    "state_true": "#27ae60",
-    "state_false": "#c0392b"
+    "success": "#27ae60",
+    "fail": "#c0392b",
+    "warning": "#e67e22"
 }

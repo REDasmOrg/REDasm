@@ -47,6 +47,7 @@
     "graph_edge_loop": "#3498db",
     "graph_edge_loop_c": "#f47cc3",
 
-    "state_true": "#2ecc71",
-    "state_false": "#e74c3c"
+    "success": "#2ecc71",
+    "fail": "#e74c3c",
+    "warning": "#ffcd02"
 }

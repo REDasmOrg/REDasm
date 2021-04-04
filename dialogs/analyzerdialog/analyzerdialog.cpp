@@ -59,7 +59,7 @@ void AnalyzerDialog::getAnalyzers()
         nameitem->setData(QVariant::fromValue(static_cast<void*>(const_cast<RDAnalyzer*>(a))));
         nameitem->setCheckable(true);
         nameitem->setCheckState(RDAnalyzer_IsSelected(a) ? Qt::Checked : Qt::Unchecked);
-        if(RDAnalyzer_IsExperimental(a)) nameitem->setForeground(THEME_VALUE(Theme_StateFalse));
+        if(RDAnalyzer_IsExperimental(a)) nameitem->setForeground(THEME_VALUE(Theme_Fail));
 
         thethis->m_analyzersmodel->appendRow({nameitem, descritem, orderitem});
     }, this);

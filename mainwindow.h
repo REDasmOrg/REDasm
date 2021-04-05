@@ -19,8 +19,6 @@ class MainWindow : public KDDockWidgets::MainWindow
         void dropEvent(QDropEvent* e) override;
 
     private Q_SLOTS:
-        void onSaveClicked();
-        void onSaveAsClicked();
         void onSignaturesClicked();
         void onResetLayoutClicked();
 

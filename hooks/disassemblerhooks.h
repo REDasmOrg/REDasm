@@ -91,6 +91,7 @@ class DisassemblerHooks: public QObject
         void showOutput();
         void clearOutput();
         void enableMenu(QMenu* menu, bool enable);
+        void saveAs(const RDContextPtr& ctx, const QString& filepath);
         void loadDisassemblerDocks(const RDContextPtr& ctx);
         void showLoaders(const QString& filepath, RDBuffer* buffer);
         void showWelcome();

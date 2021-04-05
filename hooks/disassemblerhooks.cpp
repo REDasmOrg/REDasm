@@ -111,12 +111,17 @@ void DisassemblerHooks::close() { this->close(true); }
 
 void DisassemblerHooks::save()
 {
-
+    RDContextPtr ctx = DisassemblerHooks::activeContext();
+    if(ctx) this->saveAs(ctx, m_fileinfo.baseName() + CONTEXT_STATE_EXT);
 }
 
 void DisassemblerHooks::saveAs()
 {
+    RDContextPtr ctx = DisassemblerHooks::activeContext();
+    if(!ctx) return;
 
+    QString s = QFileDialog::getSaveFileName(m_mainwindow, "Save State...", m_fileinfo.fileName(), "REDasm State (*.rds)");
+    if(!s.isEmpty()) this->saveAs(ctx, s);
 }
 
 void DisassemblerHooks::settings()
@@ -423,6 +428,12 @@ void DisassemblerHooks::enableMenu(QMenu* menu, bool enable)
 
     if(dynamic_cast<QMenuBar*>(menu->parentWidget())) menu->menuAction()->setVisible(enable);
     menu->setEnabled(enable);
+}
+
+void DisassemblerHooks::saveAs(const RDContextPtr& ctx, const QString& filepath)
+{
+    std::string fp = filepath.toStdString();
+    if(RDContext_Save(ctx.get(), fp.c_str())) rd_log("Saving Database '" + fp + "'");
 }
 
 bool DisassemblerHooks::openDatabase(const QString& filepath)

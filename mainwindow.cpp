@@ -116,30 +116,6 @@ void MainWindow::dropEvent(QDropEvent *e)
     e->acceptProposedAction();
 }
 
-void MainWindow::onSaveClicked()
-{
-    // DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
-    // if(!currdv) return;
-
-    // REDasm::String rdbfile = Convert::to_rstring(QString("%1.%2").arg(m_fileinfo.baseName(), RDB_SIGNATURE_EXT));
-    // r_ctx->log("Saving Database " + rdbfile.quoted());
-
-    //if(!REDasm::Database::save(currdv->disassembler(), rdbfile, Convert::to_rstring(m_fileinfo.fileName())))
-        //r_ctx->log(REDasm::Database::lastError());
-}
-
-void MainWindow::onSaveAsClicked() // TODO: Handle multiple outputs
-{
-    // QString s = QFileDialog::getSaveFileName(this, "Save As...", m_fileinfo.fileName(), "REDasm Database (*.rdb)");
-    // if(s.isEmpty()) return;
-
-    // DisassemblerView* currdv = dynamic_cast<DisassemblerView*>(ui->stackView->currentWidget());
-    // if(!currdv) return;
-
-    //if(!REDasm::Database::save(currdv->disassembler(), Convert::to_rstring(s), Convert::to_rstring(m_fileinfo.fileName())))
-        //r_ctx->log(REDasm::Database::lastError());
-}
-
 void MainWindow::onSignaturesClicked()
 {
     //SignaturesDialog dlgsignatures(this->currentDisassembler(), this);
@@ -180,7 +156,7 @@ void MainWindow::createFileMenu()
 
     connect(actopen, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::open);
     connect(actsave, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::save);
-    connect(actsaveas, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::saveAs);
+    connect(actsaveas, &QAction::triggered, DisassemblerHooks::instance(), qOverload<>(&DisassemblerHooks::saveAs));
     connect(actclose, &QAction::triggered, DisassemblerHooks::instance(), qOverload<>(&DisassemblerHooks::close));
     connect(actexit, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::exit);
 }

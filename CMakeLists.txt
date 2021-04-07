@@ -183,8 +183,6 @@ if(Qt5_FOUND AND WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
     endif()
 endif()
 
-message("!!!!!!!!!!!!!!!!!! ${CMAKE_BUILD_TYPE}")
-
 add_custom_command(OUTPUT REDasmPrePackage
                    COMMAND ${CMAKE_COMMAND} --install . --prefix ${REDASM_DEPLOY_DIR} --config ${CMAKE_BUILD_TYPE}
                    VERBATIM)

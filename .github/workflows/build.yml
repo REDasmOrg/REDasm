@@ -69,7 +69,7 @@ jobs:
           git submodule update --init --recursive
           mkdir build
           cd build
-          cmake ..
+          cmake .. -DCMAKE_BUILD_TYPE=Release
           cmake --build . -j4 --config Release
           cmake --build . --target REDasmDeploy
           

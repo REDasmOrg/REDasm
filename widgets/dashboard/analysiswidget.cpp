@@ -154,11 +154,11 @@ void AnalysisWidget::updateState(const RDEventArgs* e)
     auto* thethis = reinterpret_cast<AnalysisWidget*>(e->owner);
     auto* s = reinterpret_cast<const RDAnalysisStatusEventArgs*>(e)->status;
 
-    thethis->ui->pbShowListing->setVisible(!s->busy);
-    thethis->ui->lblFilePath->setText(QString::fromUtf8(s->filepath));
-    thethis->ui->lblAssembler->setText(QString::fromUtf8(s->assembler));
-    thethis->ui->lblLoader->setText(QString::fromUtf8(s->loader));
-    thethis->ui->lblFileSize->setText(AnalysisWidget::fileSize(static_cast<double>(s->filesize)));
+    QMetaObject::invokeMethod(thethis->ui->pbShowListing, "setVisible", Qt::QueuedConnection, Q_ARG(bool, !s->busy));
+    QMetaObject::invokeMethod(thethis->ui->lblFilePath, "setText", Qt::QueuedConnection, Q_ARG(QString, QString::fromUtf8(s->filepath)));
+    QMetaObject::invokeMethod(thethis->ui->lblAssembler, "setText", Qt::QueuedConnection, Q_ARG(QString, QString::fromUtf8(s->assembler)));
+    QMetaObject::invokeMethod(thethis->ui->lblLoader, "setText", Qt::QueuedConnection, Q_ARG(QString, QString::fromUtf8(s->loader)));
+    QMetaObject::invokeMethod(thethis->ui->lblFileSize, "setText", Qt::QueuedConnection, Q_ARG(QString, AnalysisWidget::fileSize(static_cast<double>(s->filesize))));
 
     thethis->updateModel(thethis->m_stepsmodel, s->stepslist, s->stepscount, s->stepscurrent, s);
     thethis->updateModel(thethis->m_analyzersmodel, s->analyzerslist, s->analyzerscount, s->analyzerscurrent, s);

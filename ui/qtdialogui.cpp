@@ -52,8 +52,7 @@ void QtDialogUI::createList(QAbstractItemModel* model)
         m_selectedindex = current.row();
     });
 
-    if(ui->leFilter->isVisible())
-        connect(ui->leFilter, &QLineEdit::textChanged, filtermodel, &QSortFilterProxyModel::setFilterFixedString);
+    connect(ui->leFilter, &QLineEdit::textChanged, filtermodel, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 void QtDialogUI::setCanAccept(bool b) { ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(b); }

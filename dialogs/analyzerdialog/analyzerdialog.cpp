@@ -10,10 +10,10 @@ AnalyzerDialog::AnalyzerDialog(const RDContextPtr& ctx, QWidget *parent) : QDial
     ui->tvAnalyzers->setModel(m_analyzersmodel);
 
     this->getAnalyzers();
-    this->setOrderColumnVisible(false);
+    this->setDetailsVisible(false);
 
-    connect(ui->cbxShowOrder, &QCheckBox::stateChanged, this, [&](int state) {
-       this->setOrderColumnVisible(state == Qt::Checked);
+    connect(ui->cbxShowDetails, &QCheckBox::stateChanged, this, [&](int state) {
+       this->setDetailsVisible(state == Qt::Checked);
     });
 
     connect(m_analyzersmodel, &QStandardItemModel::itemChanged, this, &AnalyzerDialog::onAnalyzerItemChanged);
@@ -37,7 +37,11 @@ void AnalyzerDialog::selectAnalyzers(bool select)
     }
 }
 
-void AnalyzerDialog::setOrderColumnVisible(bool v) { ui->tvAnalyzers->setColumnHidden(m_analyzersmodel->columnCount() - 1, !v); }
+void AnalyzerDialog::setDetailsVisible(bool v)
+{
+    ui->tvAnalyzers->setColumnHidden(m_analyzersmodel->columnCount() - 1, !v);
+    ui->tvAnalyzers->setColumnHidden(m_analyzersmodel->columnCount() - 2, !v);
+}
 
 void AnalyzerDialog::onAnalyzerItemChanged(QStandardItem* item)
 {
@@ -48,23 +52,25 @@ void AnalyzerDialog::onAnalyzerItemChanged(QStandardItem* item)
 void AnalyzerDialog::getAnalyzers()
 {
     m_analyzersmodel->clear();
-    m_analyzersmodel->setHorizontalHeaderLabels({"Name", "Description", "Order"});
+    m_analyzersmodel->setHorizontalHeaderLabels({"Name", "Description", "ID", "Order"});
 
     RDContext_GetAnalyzers(m_context.get(), [](const RDAnalyzer* a, void* userdata) {
         auto* thethis = reinterpret_cast<AnalyzerDialog*>(userdata);
         auto* nameitem = new QStandardItem(QString::fromUtf8(RDAnalyzer_GetName(a)));
         auto* descritem = new QStandardItem(QString::fromUtf8(RDAnalyzer_GetDescription(a)));
+        auto* iditem = new QStandardItem(RDAnalyzer_GetId(a));
         auto* orderitem = new QStandardItem(QString::number(RDAnalyzer_GetOrder(a), 16));
 
         nameitem->setData(QVariant::fromValue(static_cast<void*>(const_cast<RDAnalyzer*>(a))));
         nameitem->setCheckable(true);
-        nameitem->setCheckState(RDAnalyzer_IsSelected(a) ? Qt::Checked : Qt::Unchecked);
+        nameitem->setCheckState(RDContext_IsAnalyzerSelected(thethis->m_context.get(), a) ? Qt::Checked : Qt::Unchecked);
         if(RDAnalyzer_IsExperimental(a)) nameitem->setForeground(THEME_VALUE(Theme_Fail));
 
-        thethis->m_analyzersmodel->appendRow({nameitem, descritem, orderitem});
+        thethis->m_analyzersmodel->appendRow({nameitem, descritem, iditem, orderitem});
     }, this);
 
     ui->tvAnalyzers->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tvAnalyzers->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    this->setOrderColumnVisible(ui->cbxShowOrder->checkState());
+    ui->tvAnalyzers->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    this->setDetailsVisible(ui->cbxShowDetails->checkState());
 }

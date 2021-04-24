@@ -83,9 +83,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="cbxShowOrder">
+      <widget class="QCheckBox" name="cbxShowDetails">
        <property name="text">
-        <string>Show Order</string>
+        <string>Show Details</string>
        </property>
       </widget>
      </item>

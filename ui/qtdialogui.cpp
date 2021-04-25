@@ -39,7 +39,9 @@ void QtDialogUI::createList(QAbstractItemModel* model)
 {
     QSortFilterProxyModel* filtermodel = new QSortFilterProxyModel(this);
     filtermodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    filtermodel->setSortRole(Qt::CheckStateRole);
     filtermodel->setSourceModel(model);
+    filtermodel->sort(0, Qt::DescendingOrder);
 
     QListView* lvitems = new QListView(this);
     lvitems->setUniformItemSizes(true);

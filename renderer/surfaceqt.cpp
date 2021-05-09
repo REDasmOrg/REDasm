@@ -41,24 +41,26 @@ SurfaceQt::SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent) : 
 
 SurfaceQt::~SurfaceQt() { RDObject_Unsubscribe(m_surface.get(), this); }
 
-void SurfaceQt::renderRange(QPainter* painter, rd_address address, int rows)
+void SurfaceQt::renderRange(QPainter* painter, rd_address startaddress, rd_address endaddress)
 {
-    int row = (address == RD_NVAL) ? 0 : this->indexOf(address);
-    if(row == -1) return;
+    int firstrow = (startaddress == RD_NVAL) ? this->indexOf(RDSurface_GetFirstAddress(m_surface.get()))
+                                             : this->indexOf(startaddress);
+
+    int lastrow = (endaddress == RD_NVAL) ? this->lastIndexOf(RDSurface_GetLastAddress(m_surface.get()))
+                                          : this->lastIndexOf(endaddress);
+
+    if((firstrow == -1) || (lastrow == -1))
+        return;
 
     painter->setBackgroundMode(Qt::OpaqueMode);
     painter->setFont(this->widget()->font());
 
-    int maxrows = std::numeric_limits<int>::max();
-    RDSurface_GetSize(this->handle(), &maxrows, nullptr);
-    rows = std::min(rows, maxrows); // Scale to surface, if needed
-
     const RDSurfaceCell* cells = nullptr;
     QPointF pt(0, 0);
 
-    for(int i = 0; i < rows; i++, row++, pt.ry() += this->cellHeight())
+    for(int i = firstrow; i <= lastrow; i++, pt.ry() += this->cellHeight())
     {
-        int maxcols = RDSurface_GetRow(this->handle(), row, &cells);
+        int maxcols = RDSurface_GetRow(this->handle(), i, &cells);
         pt.rx() = 0;
 
         for(int col = 0; col < maxcols; col++, pt.rx() += this->cellWidth())
@@ -74,11 +76,18 @@ void SurfaceQt::renderRange(QPainter* painter, rd_address address, int rows)
 bool SurfaceQt::contains(rd_address address) const { return RDSurface_Contains(m_surface.get(), address); }
 int SurfaceQt::rows() const { return this->widget()->height() / m_cellsize.height(); }
 int SurfaceQt::indexOf(rd_address address) const { return RDSurface_IndexOf(m_surface.get(), address); }
+int SurfaceQt::lastIndexOf(rd_address address) const { return RDSurface_LastIndexOf(m_surface.get(), address); }
 
-QSize SurfaceQt::rangeSize(rd_address address, int rows) const
+QSize SurfaceQt::rangeSize(rd_address startaddress, rd_address endaddress) const
 {
-    return QSize(RDSurface_GetRangeColumn(m_surface.get(), address, rows) * m_cellsize.width(),
-                 rows * m_cellsize.height());
+    int idx = RDSurface_IndexOf(m_surface.get(), startaddress);
+    int lastidx = RDSurface_LastIndexOf(m_surface.get(), endaddress);
+    if((idx == -1) || (lastidx == -1)) return QSize();
+
+    int maxcol = RDSurface_GetRangeColumn(m_surface.get(), startaddress, endaddress);
+
+    return QSize(maxcol * m_cellsize.width(),
+                 ((lastidx - idx) + 1) * m_cellsize.height());
 }
 
 QSize SurfaceQt::size() const

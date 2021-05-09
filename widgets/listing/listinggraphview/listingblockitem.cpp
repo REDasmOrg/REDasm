@@ -21,7 +21,7 @@ int ListingBlockItem::currentRow() const
 QSize ListingBlockItem::size() const
 {
     return m_surface->rangeSize(RDFunctionBasicBlock_GetStartAddress(m_basicblock),
-                                RDFunctionBasicBlock_ItemsCount(m_basicblock));
+                                RDFunctionBasicBlock_GetEndAddress(m_basicblock));
 }
 
 void ListingBlockItem::itemSelectionChanged(bool selected) { m_surface->activateCursor(selected); }
@@ -81,7 +81,7 @@ void ListingBlockItem::render(QPainter *painter, size_t state)
             painter->setClipRect(r);
             m_surface->renderRange(painter,
                                    RDFunctionBasicBlock_GetStartAddress(m_basicblock),
-                                   RDFunctionBasicBlock_ItemsCount(m_basicblock));
+                                   RDFunctionBasicBlock_GetEndAddress(m_basicblock));
         }
 
         painter->setClipping(false);

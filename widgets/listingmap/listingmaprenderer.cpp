@@ -87,8 +87,8 @@ void ListingMapRenderer::calculateFunctions()
         {
             const RDFunctionBasicBlock* fbb = nullptr;
             if(!RDFunctionGraph_GetBasicBlock(graph, nodes[j], &fbb)) continue;
-            RDLocation loc = RD_Offset(m_context.get(), RDFunctionBasicBlock_GetStartAddress(fbb));
-            if(loc.valid) m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
+            //FIXME: RDLocation loc = RD_Offset(m_context.get(), RDFunctionBasicBlock_GetStartAddress(fbb));
+            //FIXME: if(loc.valid) m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
         }
     }
 }

@@ -16,11 +16,12 @@ class SurfaceQt : public QObject
     public:
         explicit SurfaceQt(const RDContextPtr& ctx, rd_flag flags, QObject *parent = nullptr);
         ~SurfaceQt();
-        void renderRange(QPainter* painter, rd_address address, int rows);
+        void renderRange(QPainter* painter, rd_address startaddress, rd_address endaddress);
         bool contains(rd_address address) const;
         int rows() const;
         int indexOf(rd_address address) const;
-        QSize rangeSize(rd_address address, int rows) const;
+        int lastIndexOf(rd_address address) const;
+        QSize rangeSize(rd_address startaddress, rd_address endaddress) const;
         QSize size() const;
         const QColor& baseColor() const;
         const RDContextPtr& context() const;

@@ -21,7 +21,7 @@ void SurfacePainter::render()
     m_image.fill(this->widget()->palette().color(QPalette::Base));
 
     QPainter painter(&m_image);
-    this->renderRange(&painter, RD_NVAL, rows);
+    this->renderRange(&painter, RD_NVAL, RD_NVAL);
     m_pixmap = QPixmap::fromImage(m_image);
     if(this->widget()) SurfaceQt::render();
 }

@@ -36,7 +36,7 @@ class ListingMapRenderer : public RendererAsync
     private:
         RDDocument* m_document;
         PreCalc<RDSegment, size_t> m_calcsegments;
-        PreCalc<RDLocation, rd_address> m_calcfunctions;
+        PreCalc<RDLocation, RDLocation> m_calcfunctions;
         s32 m_orientation{Qt::Vertical};
         size_t m_totalsize{0};
         std::atomic_bool m_renderenabled{false};

@@ -87,8 +87,14 @@ void ListingMapRenderer::calculateFunctions()
         {
             const RDFunctionBasicBlock* fbb = nullptr;
             if(!RDFunctionGraph_GetBasicBlock(graph, nodes[j], &fbb)) continue;
-            //FIXME: RDLocation loc = RD_Offset(m_context.get(), RDFunctionBasicBlock_GetStartAddress(fbb));
-            //FIXME: if(loc.valid) m_calcfunctions.push_back({loc, RDFunctionBasicBlock_ItemsCount(fbb)});
+
+            RDLocation startloc = RD_Offset(m_context.get(), RDFunctionBasicBlock_GetStartAddress(fbb));
+            if(!startloc.valid) continue;
+
+            RDLocation endloc = RD_Offset(m_context.get(), RDFunctionBasicBlock_GetEndAddress(fbb));
+            if(!endloc.valid) continue;
+
+            m_calcfunctions.push_back({startloc, endloc});
         }
     }
 }
@@ -115,11 +121,11 @@ void ListingMapRenderer::renderFunctions(QPainter* painter)
     size_t fsize = (m_orientation == Qt::Horizontal ? this->widget()->height() :
                                                       this->widget()->width()) / 2;
 
-    for(const auto& [loc, c] : m_calcfunctions)
+    for(const auto& [startloc, endloc] : m_calcfunctions)
     {
         if(this->aborted()) break;
 
-        QRect r = this->buildRect(this->calculatePosition(loc.offset), this->calculateSize(c));
+        QRect r = this->buildRect(this->calculatePosition(startloc.offset), this->calculateSize(endloc.offset - startloc.offset));
         if(m_orientation == Qt::Horizontal) r.setHeight(fsize);
         else r.setWidth(fsize);
         painter->fillRect(r, THEME_VALUE(Theme_Function));

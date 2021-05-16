@@ -170,9 +170,21 @@ void ListingTextWidget::wheelEvent(QWheelEvent *event)
     if(m_surface)
     {
         QPoint ndegrees = event->angleDelta() / 8;
-        QPoint nsteps = ndegrees / 15;
-        auto offset = -nsteps.y() * DOCUMENT_WHEEL_UNIT;
-        m_surface->scroll(m_surface->firstAddress() + offset, nsteps.x());
+
+        if(!ndegrees.isNull())
+        {
+            rd_offset offset = RD_NVAL;
+            int ncols = 0;
+
+            if(ndegrees.y() > 0) offset = m_surface->firstAddress() -DOCUMENT_WHEEL_UNIT;
+            else if(ndegrees.y() < 0) offset = m_surface->firstAddress() + DOCUMENT_WHEEL_UNIT;
+
+            if(ndegrees.x() > 0) ncols = -1;
+            else if(ndegrees.x() < 0) ncols = 1;
+
+            m_surface->scroll(offset, ncols);
+        }
+
         event->accept();
         return;
     }

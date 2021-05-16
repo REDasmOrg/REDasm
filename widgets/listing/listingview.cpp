@@ -210,7 +210,7 @@ void ListingView::adjustActions()
                                                             labelflags & AddressFlags_Function);
 
 
-    actions[ListingView::Action_ShowHexDump]->setText(QString("Show %1 in Hex Dump").arg(labelname));
+    actions[ListingView::Action_ShowHexDump]->setText(QString("Hex Dump %1").arg(labelname));
     actions[ListingView::Action_ShowHexDump]->setVisible(labelflags && !HAS_FLAG(&symbolsegment, SegmentFlags_Bss));
 
     actions[ListingView::Action_XRefs]->setText(QString("Cross Reference %1").arg(labelname));
@@ -282,7 +282,7 @@ QMenu* ListingView::createActions(ISurface* surface)
         if(surface->currentLabel(&address).size()) surface->goTo(address);
     });
 
-    actions[ListingView::Action_ShowHexDump] = contextmenu->addAction("Show in Hex Dump", this, [&, surface]() {
+    actions[ListingView::Action_ShowHexDump] = contextmenu->addAction("Hex Dump", this, [&, surface]() {
         rd_address address;
         if(!surface->currentLabel(&address).size()) return;
         surface->goTo(address);

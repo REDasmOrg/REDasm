@@ -21,6 +21,7 @@ SplitDockWidget::SplitDockWidget(QWidget* w, Options opt, LayoutSaverOptions lsp
 
     QWidget* cw = new QWidget();
     cw->setLayout(lcontent);
+
     this->setWidget(cw);
 }
 

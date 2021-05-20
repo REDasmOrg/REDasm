@@ -194,17 +194,16 @@ void MainWindow::createWindowMenu()
 
     mnuwindow->addAction("&Manage Layouts");
     auto* actresetlayout = mnuwindow->addAction("&Reset Layout");
-    //mnuwindow->addAction("&Window List");
 
     QMenu* mnusubviews = mnuwindow->addMenu("&Open Subviews");
-    mnusubviews->addAction("Listing",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showListing(); });
-    mnusubviews->addAction("Segments", []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showSegments(); });
-    mnusubviews->addAction("Exports",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showExports(); });
-    mnusubviews->addAction("Imports",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showImports(); });
-    mnusubviews->addAction("Strings",  []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showStrings(); });
+    mnusubviews->addAction("Listing", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showListing(); });
+    mnusubviews->addAction("Segments", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showSegments(); });
+    mnusubviews->addAction("Exports", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showExports(); });
+    mnusubviews->addAction("Imports", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showImports(); });
+    mnusubviews->addAction("Strings", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showStrings(); });
     mnusubviews->addSeparator();
-    mnusubviews->addAction("Functions", []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showFunctions(); });
-    mnusubviews->addAction("Map", []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showMap(); });
+    mnusubviews->addAction("Functions", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showFunctions(); });
+    mnusubviews->addAction("Map", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showMap(); });
 
     mnuwindow->addSeparator();
     mnubar->addMenu(mnuwindow);

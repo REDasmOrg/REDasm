@@ -5,7 +5,7 @@
 #include <future>
 #include <rdapi/rdapi.h>
 #include <kddockwidgets/DockWidget.h>
-#include "disassemblertabs/disassemblertabs.h"
+#include "../hooks/isurface.h"
 
 class ContextModel;
 class TableWidget;

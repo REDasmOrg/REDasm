@@ -59,7 +59,7 @@ void ListingTextWidget::setContext(const RDContextPtr& ctx)
     m_context = ctx;
     m_document = RDContext_GetDocument(ctx.get());
 
-    m_surface = new SurfacePainter(m_context, RendererFlags_CenterOnSurface, this);
+    m_surface = new SurfacePainter(m_context, RendererFlags_CenterOnCursor, this);
     connect(m_surface, &SurfacePainter::renderCompleted, this, [&]() { this->viewport()->update(); });
 
     connect(m_surface, &SurfacePainter::addressChanged, this, [&]() {

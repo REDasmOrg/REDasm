@@ -18,6 +18,7 @@ class REDasmSettings : public QSettings
         bool restoreState(QMainWindow* mainwindow);
         void defaultState(QMainWindow* mainwindow);
         void saveState(const QMainWindow* mainwindow);
+        void clearRecentFiles();
         void updateRecentFiles(const QString& s = QString());
         void changeTheme(const QString& theme);
         void changeFont(const QFont &font);

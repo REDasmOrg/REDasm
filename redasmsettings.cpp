@@ -35,6 +35,7 @@ void REDasmSettings::saveState(const QMainWindow *mainwindow)
     this->setValue(CURRENT_WINDOW_STATE, mainwindow->saveState());
 }
 
+void REDasmSettings::clearRecentFiles() { this->setValue("recent_files", QStringList()); }
 QStringList REDasmSettings::recentFiles() const { return this->value("recent_files").toStringList(); }
 
 void REDasmSettings::updateRecentFiles(const QString &s)

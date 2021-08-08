@@ -96,6 +96,7 @@ class DisassemblerHooks: public QObject
         void showLoaders(const QString& filepath, RDBuffer* buffer);
         void showWelcome();
         void loadRecents();
+        void clearRecents();
         void hook();
 
     private:

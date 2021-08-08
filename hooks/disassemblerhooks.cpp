@@ -318,6 +318,24 @@ void DisassemblerHooks::loadRecents()
             this->load(action->data().toString());
         });
     }
+
+    if(recents.empty()) return;
+
+    mnurecents->addSeparator();
+    QAction* action = mnurecents->addAction("Clear");
+
+    connect(action, &QAction::triggered, this, [=]() {
+        this->clearRecents();
+    });
+}
+
+void DisassemblerHooks::clearRecents()
+{
+    REDasmSettings settings;
+    settings.clearRecentFiles();
+    this->loadRecents();
+
+    if(!m_disassemblerdocks) this->close(true); // Recreate Welcome Tab
 }
 
 void DisassemblerHooks::load(const QString& filepath)

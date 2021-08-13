@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.12)
 
 project(REDasm)
 
-set(QT_VERSION_REQ "5.11")
+set(_QT_VERSION_REQ 5.11)
+set(QT_VERSION_REQ "${_QT_VERSION_REQ}")
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -13,7 +14,8 @@ string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
 set(REDASM_VERSION_BASE "3.0-BETA6")
 
-find_package(Qt5 5.11 REQUIRED COMPONENTS Widgets)
+find_package(Qt5 ${_QT_VERSION_REQ} REQUIRED COMPONENTS Widgets)
+find_package(Qt5 ${_QT_VERSION_REQ} COMPONENTS LinguistTools)
 find_package(Git)
 
 if(GIT_FOUND)
@@ -43,7 +45,7 @@ add_subdirectory(submodules/plugins)
 add_subdirectory(submodules/assemblers)
 add_subdirectory(submodules/loaders)
 add_subdirectory(submodules/database)
-QT5_WRAP_UI(UI_HDRS ${UI_FILES})
+qt5_wrap_ui(UI_HDRS ${UI_FILES})
 
 # Widgets
 file(GLOB_RECURSE WIDGETS_HEADERS CONFIGURE_DEPENDS widgets/*.h )
@@ -89,8 +91,7 @@ SET(HEADERS
     mainwindow.h
     themeprovider.h
     redasmsettings.h
-    redasmfonts.h
-)
+    redasmfonts.h)
 
 SET(SOURCES
     ${QHEXVIEW_SOURCES}
@@ -106,31 +107,35 @@ SET(SOURCES
     mainwindow.cpp
     themeprovider.cpp
     redasmsettings.cpp
-    redasmfonts.cpp
-)
+    redasmfonts.cpp)
 
 set(FORMS
     ${WIDGETS_UIS}
     ${DIALOGS_UIS}
-    ${UI_UIS}
-)
+    ${UI_UIS})
 
 set(RESOURCES
     resources.qrc
-    themes.qrc
-)
+    themes.qrc)
 
 if(WIN32)
     set(GUI_TYPE WIN32)
 endif()
 
+if(Qt5_LRELEASE_EXECUTABLE) # Prepare translations
+    message(STATUS "${PROJECT_NAME}: Adding multilanguage support")
+    set(ALL_SOURCES ${SOURCES} ${HEADERS} ${FORMS})
+    qt5_create_translation(QM_FILES ${ALL_SOURCES} translations/redasm_en.ts)
+    configure_file(translations.qrc ${CMAKE_BINARY_DIR} COPYONLY)
+    set(TRANSLATIONS_QRC ${CMAKE_BINARY_DIR}/translations.qrc)
+else()
+    message(STATUS "${PROJECT_NAME}: Multilanguage support not available")
+endif()
+
 add_executable(${PROJECT_NAME} ${GUI_TYPE}
-               ${SOURCES}
-               ${HEADERS}
-               ${FORMS}
-               ${RESOURCES}
-               ${CMAKE_SOURCE_DIR}/res/windows/resources.rc
-)
+               ${ALL_SOURCES} ${RESOURCES}
+               ${TRANSLATIONS_QRC} ${QM_FILES}
+               ${CMAKE_SOURCE_DIR}/res/windows/resources.rc)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
@@ -139,8 +144,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         LibREDasm
-        libs
-)
+        libs)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt5::Core
@@ -148,8 +152,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt5::Widgets
     KDAB::kddockwidgets
     qhexview-lib
-    LibREDasm
-)
+    LibREDasm)
 
 # Include Threads
 # TODO: perhaps this should be a PUBLIC dependency of LibREDasm?
@@ -173,8 +176,7 @@ if(Qt5_FOUND AND WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
         COMMAND "${_qt5_qmake_location}" -query QT_INSTALL_PREFIX
         RESULT_VARIABLE return_code
         OUTPUT_VARIABLE qt5_install_prefix
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     set(_WINDEPLOYQT_EXECUTABLE "${qt5_install_prefix}/bin/windeployqt.exe")
 

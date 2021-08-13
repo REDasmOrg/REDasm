@@ -49,11 +49,11 @@ DatabaseDialog::DatabaseDialog(const RDContextPtr& ctx, QWidget *parent) : QDial
         QByteArray decompiled;
 
         if(!dbdatamodel->decompile(decompiled)) {
-            QMessageBox::information(this, "Decompilation Failed", QString("Cannot decompile '%1'").arg(dbdatamodel->databaseName()));
+            QMessageBox::information(this, tr("Decompilation Failed"), tr("Cannot decompile '%1'").arg(dbdatamodel->databaseName()));
             return;
         }
 
-        QString s = QFileDialog::getSaveFileName(this, "Export Database", QString("%1.json").arg(dbdatamodel->databaseName()), "REDasm Source Database (*.json)");
+        QString s = QFileDialog::getSaveFileName(this, tr("Export Database"), tr("%1.json").arg(dbdatamodel->databaseName()), "REDasm Source Database (*.json)");
         if(s.isEmpty()) return;
 
         QFile f(s);

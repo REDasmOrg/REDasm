@@ -37,9 +37,9 @@ QVariant StringsModel::headerData(int section, Qt::Orientation orientation, int 
 
     switch(section)
     {
-        case 0: return "Address";
-        case 1: return "Segment";
-        case 2: return "String";
+        case 0: return tr("Address");
+        case 1: return tr("Segment");
+        case 2: return tr("String");
         default: break;
     }
 

@@ -12,10 +12,10 @@ WelcomeWidget::WelcomeWidget(QWidget *parent) : DashboardWidget(parent), ui(new 
     DisassemblerHooks::instance()->setTabBarVisible(false);
 
     ui->setupUi(this);
-    this->setWindowTitle("Welcome");
+    this->setWindowTitle(tr("Welcome"));
     this->applyLogo(ui->lblBrand);
 
-    ui->lblVersion->setText(QString("Version %1").arg(REDASM_VERSION));
+    ui->lblVersion->setText(tr("Version %1").arg(REDASM_VERSION));
     ui->lvRecentFiles->viewport()->setAttribute(Qt::WA_Hover);
     ui->lvRecentFiles->viewport()->setBackgroundRole(QPalette::Window);
 

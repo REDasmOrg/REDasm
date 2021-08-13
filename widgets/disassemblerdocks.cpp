@@ -22,14 +22,14 @@ DisassemblerDocks::~DisassemblerDocks()
 
 void DisassemblerDocks::showSegments() const
 {
-    TableWidget* tw = this->createTable(new SegmentsModel(m_context), "Segments");
+    TableWidget* tw = this->createTable(new SegmentsModel(m_context), tr("Segments"));
     connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
     DisassemblerHooks::tabify(tw);
 }
 
 void DisassemblerDocks::showFunctions() const
 {
-    TableWidget* tw = this->createTable(new FunctionsModel(m_context), "Functions");
+    TableWidget* tw = this->createTable(new FunctionsModel(m_context), tr("Functions"));
     connect(tw, &TableWidget::resizeColumns, this, [tw]() { tw->resizeColumn(0); });
 
     auto* dock = DisassemblerHooks::dockify(tw);
@@ -38,21 +38,21 @@ void DisassemblerDocks::showFunctions() const
 
 void DisassemblerDocks::showExports() const
 {
-    TableWidget* tw = this->createTable(new LabelsModel(m_context, AddressFlags_Exported), "Exports");
+    TableWidget* tw = this->createTable(new LabelsModel(m_context, AddressFlags_Exported), tr("Exports"));
     connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
     DisassemblerHooks::tabify(tw);
 }
 
 void DisassemblerDocks::showImports() const
 {
-    TableWidget* tw = this->createTable(new LabelsModel(m_context, AddressFlags_Imported), "Imports");
+    TableWidget* tw = this->createTable(new LabelsModel(m_context, AddressFlags_Imported), tr("Imports"));
     connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
     DisassemblerHooks::tabify(tw);
 }
 
 void DisassemblerDocks::showStrings() const
 {
-    TableWidget* tw = this->createTable(new StringsModel(m_context), "Strings");
+    TableWidget* tw = this->createTable(new StringsModel(m_context), tr("Strings"));
     connect(tw, &TableWidget::resizeColumns, tw, &TableWidget::resizeAllColumns);
     DisassemblerHooks::tabify(tw);
 }

@@ -7,14 +7,14 @@
 AnalysisWidget::AnalysisWidget(const RDContextPtr& ctx, QWidget *parent) : DashboardWidget(parent), ui(new Ui::AnalysisWidget), m_context(ctx)
 {
     static const std::vector<QString> STATS_ROWS = {
-        "Analysis Start", "Analysis End", "Analysis Time",
-        "Segments", "Functions", "Symbols"
+        tr("Analysis Start"), tr("Analysis End"), tr("Analysis Time"),
+        tr("Segments"), tr("Functions"), tr("Symbols")
     };
 
     DisassemblerHooks::instance()->setTabBarVisible(false);
 
     ui->setupUi(this);
-    this->setWindowTitle("Analysis");
+    this->setWindowTitle(tr("Analysis"));
     this->makeBordered(ui->pbShowListing);
 
     ui->lvSteps->viewport()->setBackgroundRole(QPalette::Window);
@@ -103,8 +103,8 @@ void AnalysisWidget::updateStats(const RDAnalysisStatus* s)
     }
     else
     {
-        m_statsmodel->item(1, 1)->setText("In Progress");
-        m_statsmodel->item(2, 1)->setText("In Progress");
+        m_statsmodel->item(1, 1)->setText(tr("In Progress"));
+        m_statsmodel->item(2, 1)->setText(tr("In Progress"));
         timeitem->setForeground(THEME_VALUE(Theme_GraphEdgeLoop));
         item->setForeground(THEME_VALUE(Theme_GraphEdgeLoop));
     }

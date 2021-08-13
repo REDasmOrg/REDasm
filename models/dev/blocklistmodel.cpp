@@ -21,11 +21,11 @@ QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, in
 
     switch(section)
     {
-        case 0: return "Start Address";
-        case 1: return "End Address";
-        case 2: return "Size";
-        case 3: return "Type";
-        case 4: return "Label";
+        case 0: return tr("Start Address");
+        case 1: return tr("End Address");
+        case 2: return tr("Size");
+        case 3: return tr("Type");
+        case 4: return tr("Label");
         default: break;
     }
 

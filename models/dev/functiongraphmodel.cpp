@@ -19,11 +19,11 @@ QVariant FunctionGraphModel::headerData(int section, Qt::Orientation orientation
 
     switch(section)
     {
-        case 0: return "Symbol";
-        case 1: return "Start";
-        case 2: return "End";
-        case 3: return "Incoming";
-        case 4: return "Outgoing";
+        case 0: return tr("Symbol");
+        case 1: return tr("Start");
+        case 2: return tr("End");
+        case 3: return tr("Incoming");
+        case 4: return tr("Outgoing");
         default: break;
     }
 

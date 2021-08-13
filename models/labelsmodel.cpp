@@ -21,10 +21,10 @@ QVariant LabelsModel::headerData(int section, Qt::Orientation orientation, int r
     {
         switch(section)
         {
-            case 0: return "Address";
-            case 1: return "Segment";
-            case 2: return "R";
-            case 3: return "Label";
+            case 0: return tr("Address");
+            case 1: return tr("Segment");
+            case 2: return tr("R");
+            case 3: return tr("Label");
             default: break;
         }
     }

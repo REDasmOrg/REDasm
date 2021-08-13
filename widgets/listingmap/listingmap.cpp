@@ -11,7 +11,7 @@
 
 ListingMap::ListingMap(const RDContextPtr& ctx, QWidget *parent) : QWidget(parent), m_context(ctx)
 {
-    this->setWindowTitle("Map");
+    this->setWindowTitle(tr("Map"));
     m_renderer = new ListingMapRenderer(ctx, this);
 
     RDObject_Subscribe(m_context.get(), this, [](const RDEventArgs* e) {

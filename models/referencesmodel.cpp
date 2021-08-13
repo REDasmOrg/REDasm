@@ -22,9 +22,9 @@ void ReferencesModel::clear()
 QString ReferencesModel::referenceFlags(const RDReference& reference) const
 {
     QString s;
-    if(HAS_FLAG(&reference, ReferenceFlags_Direct))   ADD_REFERENCE_FLAG(s, "DIRECT");
-    if(HAS_FLAG(&reference, ReferenceFlags_Indirect)) ADD_REFERENCE_FLAG(s, "INDIRECT");
-    if(HAS_FLAG(&reference, ReferenceFlags_Manual))   ADD_REFERENCE_FLAG(s, "MANUAL");
+    if(HAS_FLAG(&reference, ReferenceFlags_Direct))   ADD_REFERENCE_FLAG(s, tr("DIRECT"));
+    if(HAS_FLAG(&reference, ReferenceFlags_Indirect)) ADD_REFERENCE_FLAG(s, tr("INDIRECT"));
+    if(HAS_FLAG(&reference, ReferenceFlags_Manual))   ADD_REFERENCE_FLAG(s, tr("MANUAL"));
     return s;
 }
 
@@ -81,10 +81,10 @@ QVariant ReferencesModel::headerData(int section, Qt::Orientation orientation, i
     if(orientation == Qt::Vertical || role != Qt::DisplayRole)
         return QVariant();
 
-    if(section == 0) return "Address";
-    else if(section == 1) return "Flags";
-    else if(section == 2) return "Direction";
-    else if(section == 3) return "Reference";
+    if(section == 0) return tr("Address");
+    else if(section == 1) return tr("Flags");
+    else if(section == 2) return tr("Direction");
+    else if(section == 3) return tr("Reference");
 
     return QVariant();
 }
@@ -100,8 +100,8 @@ QString ReferencesModel::direction(rd_address address) const
 
     if(curraddress != RD_NVAL)
     {
-        if(address > curraddress) return "Down";
-        if(address < curraddress) return "Up";
+        if(address > curraddress) return tr("Down");
+        if(address < curraddress) return tr("Up");
     }
 
     return "---";

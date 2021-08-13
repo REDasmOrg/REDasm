@@ -13,7 +13,7 @@
 
 ListingView::ListingView(const RDContextPtr& ctx, QWidget *parent) : QStackedWidget(parent), m_context(ctx)
 {
-    this->setWindowTitle("Listing");
+    this->setWindowTitle(tr("Listing"));
 
     m_textview = new ListingTextView(ctx);
     m_graphview = new ListingGraphView(ctx);
@@ -187,7 +187,7 @@ void ListingView::adjustActions()
             actions[ListingView::Action_CreateFunction]->setVisible(hascurrentsegment && HAS_FLAG(&currentsegment, SegmentFlags_Code));
 
             if(hascurrentsegment)
-                actions[ListingView::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(surface->context().get(), currentaddress)));
+                actions[ListingView::Action_CreateFunction]->setText(tr("Create Function @ %1").arg(RD_ToHexAuto(surface->context().get(), currentaddress)));
         }
         else
             actions[ListingView::Action_CreateFunction]->setVisible(false);
@@ -203,26 +203,26 @@ void ListingView::adjustActions()
     const char* labelname = RDDocument_GetLabel(doc, labeladdress);
     bool hassymbolsegment = RDDocument_AddressToSegment(doc, labeladdress, &symbolsegment);
 
-    actions[ListingView::Action_CreateFunction]->setText(QString("Create Function @ %1").arg(RD_ToHexAuto(surface->context().get(), labeladdress)));
+    actions[ListingView::Action_CreateFunction]->setText(tr("Create Function @ %1").arg(RD_ToHexAuto(surface->context().get(), labeladdress)));
 
     actions[ListingView::Action_CreateFunction]->setVisible(!RDContext_IsBusy(surface->context().get()) &&
                                                             (hassymbolsegment && HAS_FLAG(&symbolsegment,SegmentFlags_Code)) &&
                                                             labelflags & AddressFlags_Function);
 
 
-    actions[ListingView::Action_ShowHexDump]->setText(QString("Hex Dump %1").arg(labelname));
+    actions[ListingView::Action_ShowHexDump]->setText(tr("Hex Dump %1").arg(labelname));
     actions[ListingView::Action_ShowHexDump]->setVisible(labelflags && !HAS_FLAG(&symbolsegment, SegmentFlags_Bss));
 
-    actions[ListingView::Action_XRefs]->setText(QString("Cross Reference %1").arg(labelname));
+    actions[ListingView::Action_XRefs]->setText(tr("Cross Reference %1").arg(labelname));
     actions[ListingView::Action_XRefs]->setVisible(!RDContext_IsBusy(surface->context().get()));
 
-    actions[ListingView::Action_Rename]->setText(QString("Rename %1").arg(labelname));
+    actions[ListingView::Action_Rename]->setText(tr("Rename %1").arg(labelname));
     actions[ListingView::Action_Rename]->setVisible(!RDContext_IsBusy(surface->context().get()));
 
-    actions[ListingView::Action_CallGraph]->setText("Callgraph");
+    actions[ListingView::Action_CallGraph]->setText(tr("Callgraph"));
     actions[ListingView::Action_CallGraph]->setVisible(!RDContext_IsBusy(surface->context().get()) && (labelflags & AddressFlags_Function));
 
-    actions[ListingView::Action_Follow]->setText(QString("Follow %1").arg(labelname));
+    actions[ListingView::Action_Follow]->setText(tr("Follow %1").arg(labelname));
     actions[ListingView::Action_Follow]->setVisible(labelflags & AddressFlags_Location);
     actions[ListingView::Action_Comment]->setVisible(!RDContext_IsBusy(surface->context().get()));
 
@@ -237,7 +237,7 @@ QMenu* ListingView::createActions(ISurface* surface)
     QMenu* contextmenu = new QMenu(surface->widget());
     std::unordered_map<int, QAction*> actions;
 
-    actions[ListingView::Action_Rename] = contextmenu->addAction("Rename", this, [&, surface]() {
+    actions[ListingView::Action_Rename] = contextmenu->addAction(tr("Rename"), this, [&, surface]() {
         rd_address address;
         if(surface->currentLabel(&address).isEmpty()) return;
 
@@ -247,8 +247,8 @@ QMenu* ListingView::createActions(ISurface* surface)
 
         bool ok = false;
         QString res = QInputDialog::getText(surface->widget(),
-                                            "Rename @ " + QString::fromStdString(rd_tohexauto(surface->context().get(), address)),
-                                            "Symbol name:", QLineEdit::Normal, labelname, &ok);
+                                            tr("Rename @ %1").arg(QString::fromStdString(rd_tohexauto(surface->context().get(), address))),
+                                            tr("Symbol name:"), QLineEdit::Normal, labelname, &ok);
 
         if(!ok) return;
         RDDocument_UpdateLabel(doc, address, qUtf8Printable(res));
@@ -262,8 +262,8 @@ QMenu* ListingView::createActions(ISurface* surface)
 
         bool ok = false;
         QString res = QInputDialog::getMultiLineText(surface->widget(),
-                                                     "Comment @ " + QString::fromStdString(rd_tohexauto(surface->context().get(), address)),
-                                                     "Insert a comment (leave blank to remove):",
+                                                     tr("Comment @ %1").arg(QString::fromStdString(rd_tohexauto(surface->context().get(), address))),
+                                                     tr("Insert a comment (leave blank to remove):"),
                                                      RDDocument_GetComments(doc, address), &ok);
 
         if(!ok) return;
@@ -272,36 +272,36 @@ QMenu* ListingView::createActions(ISurface* surface)
 
     contextmenu->addSeparator();
 
-    actions[ListingView::Action_XRefs] = contextmenu->addAction("Cross References", this, [&, surface]() {
+    actions[ListingView::Action_XRefs] = contextmenu->addAction(tr("Cross References"), this, [&, surface]() {
         rd_address address;
         if(surface->currentLabel(&address).size()) this->showReferences(address);
     }, QKeySequence(Qt::Key_X));
 
-    actions[ListingView::Action_Follow] = contextmenu->addAction("Follow", this, [surface]() {
+    actions[ListingView::Action_Follow] = contextmenu->addAction(tr("Follow"), this, [surface]() {
         rd_address address;
         if(surface->currentLabel(&address).size()) surface->goTo(address);
     });
 
-    actions[ListingView::Action_ShowHexDump] = contextmenu->addAction("Hex Dump", this, [&, surface]() {
+    actions[ListingView::Action_ShowHexDump] = contextmenu->addAction(tr("Hex Dump"), this, [&, surface]() {
         rd_address address;
         if(!surface->currentLabel(&address).size()) return;
         surface->goTo(address);
         this->switchToHex();
     });
 
-    actions[ListingView::Action_Goto] = contextmenu->addAction("Goto...", this, [&]() { this->showGoto(); }, QKeySequence(Qt::Key_G));
+    actions[ListingView::Action_Goto] = contextmenu->addAction(tr("Goto..."), this, [&]() { this->showGoto(); }, QKeySequence(Qt::Key_G));
 
-    actions[ListingView::Action_CallGraph] = contextmenu->addAction("Call Graph", this, [&, surface]() {
+    actions[ListingView::Action_CallGraph] = contextmenu->addAction(tr("Call Graph"), this, [&, surface]() {
         rd_address address = surface->currentAddress();
         if(address != RD_NVAL) DisassemblerHooks::instance()->showCallGraph(address);
     }, QKeySequence(Qt::CTRL + Qt::Key_G));
 
     contextmenu->addSeparator();
 
-    actions[ListingView::Action_SwitchView] = contextmenu->addAction("Switch View", this, [&]() { this->switchMode(); });
-    actions[ListingView::Action_HexDump] = contextmenu->addAction("Show Hex Dump", this, [&]() { this->switchToHex(); }, QKeySequence(Qt::CTRL + Qt::Key_X));
+    actions[ListingView::Action_SwitchView] = contextmenu->addAction(tr("Switch View"), this, [&]() { this->switchMode(); });
+    actions[ListingView::Action_HexDump] = contextmenu->addAction(tr("Show Hex Dump"), this, [&]() { this->switchToHex(); }, QKeySequence(Qt::CTRL + Qt::Key_X));
 
-    actions[ListingView::Action_HexDumpFunction] = contextmenu->addAction("Hex Dump Function", this, [&, surface]() {
+    actions[ListingView::Action_HexDumpFunction] = contextmenu->addAction(tr("Hex Dump Function"), this, [&, surface]() {
         rd_address address = surface->currentAddress();
         if(address == RD_NVAL) return;
 
@@ -313,11 +313,11 @@ QMenu* ListingView::createActions(ISurface* surface)
         RD_Log(qUtf8Printable(QString("%1: %2").arg(RDDocument_GetLabel(doc, resaddress), hexdump)));
     });
 
-    actions[ListingView::Action_CreateFunction] = contextmenu->addAction("Create Function", this, [&, surface]() {
+    actions[ListingView::Action_CreateFunction] = contextmenu->addAction(tr("Create Function"), this, [&, surface]() {
         rd_address address;
 
         if(surface->currentLabel(&address).isEmpty()) {
-            rd_log("Cannot create function @ " + rd_tohex(address));
+            rd_log(qUtf8Printable(tr("Cannot create function @ %1").arg(RD_ToHex(address))));
             return;
         }
 
@@ -328,10 +328,10 @@ QMenu* ListingView::createActions(ISurface* surface)
     }, QKeySequence(Qt::SHIFT + Qt::Key_C));
 
     contextmenu->addSeparator();
-    actions[ListingView::Action_Back] = contextmenu->addAction("Back", this, [surface]() { surface->goBack(); }, QKeySequence(Qt::CTRL + Qt::Key_Left));
-    actions[ListingView::Action_Forward] = contextmenu->addAction("Forward", this, [surface]() { surface->goForward(); }, QKeySequence(Qt::CTRL + Qt::Key_Right));
+    actions[ListingView::Action_Back] = contextmenu->addAction(tr("Back"), this, [surface]() { surface->goBack(); }, QKeySequence(Qt::CTRL + Qt::Key_Left));
+    actions[ListingView::Action_Forward] = contextmenu->addAction(tr("Forward"), this, [surface]() { surface->goForward(); }, QKeySequence(Qt::CTRL + Qt::Key_Right));
     contextmenu->addSeparator();
-    actions[ListingView::Action_Copy] = contextmenu->addAction("Copy", this, [surface]() { surface->copy(); }, QKeySequence(QKeySequence::Copy));
+    actions[ListingView::Action_Copy] = contextmenu->addAction(tr("Copy"), this, [surface]() { surface->copy(); }, QKeySequence(QKeySequence::Copy));
 
     for(auto& [type, action] : actions)
     {
@@ -368,7 +368,7 @@ void ListingView::showReferences(rd_address address)
 
     if(!RDNet_GetReferences(net, address, nullptr))
     {
-        QMessageBox::information(nullptr, "No References", QString("There are no references to %1 ").arg(label));
+        QMessageBox::information(nullptr, tr("No References"), tr("There are no references to %1 ").arg(label));
         return;
     }
 
@@ -379,13 +379,13 @@ void ListingView::showReferences(rd_address address)
 void ListingView::createHexViewMenu()
 {
     m_menu = new QMenu(m_hexview);
-    m_menu->addAction("Copy", this, [&]() { m_hexview->document()->copy(); }, QKeySequence(Qt::CTRL + Qt::Key_C));
-    m_menu->addAction("Copy Hex", this, [&]() { m_hexview->document()->copy(true); }, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_C));
-    m_menu->addAction("Copy Ascii", this, [&]() { m_hexview->document()->copy(); }, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
-    m_menu->addAction("Select All", this, [&]() { }, QKeySequence(Qt::CTRL + Qt::Key_A));
+    m_menu->addAction(tr("Copy"), this, [&]() { m_hexview->document()->copy(); }, QKeySequence(Qt::CTRL + Qt::Key_C));
+    m_menu->addAction(tr("Copy Hex"), this, [&]() { m_hexview->document()->copy(true); }, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_C));
+    m_menu->addAction(tr("Copy Ascii"), this, [&]() { m_hexview->document()->copy(); }, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
+    m_menu->addAction(tr("Select All"), this, [&]() { }, QKeySequence(Qt::CTRL + Qt::Key_A));
     m_menu->addSeparator();
 
-    m_menu->addAction("Switch to Listing", this, [&]() {
+    m_menu->addAction(tr("Switch to Listing"), this, [&]() {
         this->switchToListing();
     }, QKeySequence(Qt::Key_Space));
 

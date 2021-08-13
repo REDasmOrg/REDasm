@@ -2,7 +2,7 @@
 
 OutputWidget::OutputWidget(QWidget *parent) : QPlainTextEdit(parent)
 {
-    this->setWindowTitle("Output");
+    this->setWindowTitle(tr("Output"));
     this->setReadOnly(true);
     this->setUndoRedoEnabled(false);
     this->setLineWrapMode(OutputWidget::NoWrap);

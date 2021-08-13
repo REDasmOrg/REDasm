@@ -57,14 +57,14 @@ QVariant SegmentsModel::headerData(int section, Qt::Orientation orientation, int
 
     switch(section)
     {
-        case 0: return "Name";
-        case 1: return "Start Address";
-        case 2: return "End Address";
-        case 3: return "Size";
-        case 4: return "Offset";
-        case 5: return "End Offset";
-        case 6: return "Raw Size";
-        case 7: return "Flags";
+        case 0: return tr("Name");
+        case 1: return tr("Start Address");
+        case 2: return tr("End Address");
+        case 3: return tr("Size");
+        case 4: return tr("Offset");
+        case 5: return tr("End Offset");
+        case 6: return tr("Raw Size");
+        case 7: return tr("Flags");
         default: break;
     }
 

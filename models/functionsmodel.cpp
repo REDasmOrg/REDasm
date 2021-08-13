@@ -42,8 +42,8 @@ QVariant FunctionsModel::headerData(int section, Qt::Orientation orientation, in
 
     switch(section)
     {
-        case 0: return "Address";
-        case 1: return "Name";
+        case 0: return tr("Address");
+        case 1: return tr("Name");
         default: break;
     }
 

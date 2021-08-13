@@ -44,8 +44,8 @@ QVariant GotoModel::headerData(int section, Qt::Orientation orientation, int rol
 
     if(role == Qt::DisplayRole)
     {
-        if(section == 0)      return "Address";
-        else if(section == 1) return "Name";
+        if(section == 0)      return tr("Address");
+        else if(section == 1) return tr("Name");
     }
 
     return ContextModel::headerData(section, orientation, role);

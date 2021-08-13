@@ -23,7 +23,7 @@ TableWidget::TableWidget(QWidget *parent) : QWidget(parent), ui(new Ui::TableWid
     ui->tbvTable->verticalHeader()->hide();
     ui->leSearch->setFrame(false);
 
-    m_actfilter = new QAction("Filter", ui->tbvTable);
+    m_actfilter = new QAction(tr("Filter"), ui->tbvTable);
     connect(m_actfilter, &QAction::triggered, this, [&]() { this->showFilter(); } );
     ui->tbvTable->setContextMenuPolicy(Qt::ActionsContextMenu);
 

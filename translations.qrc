@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/tr">
+        <file>redasm_en.qm</file>
+    </qresource>
+</RCC>

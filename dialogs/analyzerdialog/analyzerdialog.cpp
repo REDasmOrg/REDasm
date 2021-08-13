@@ -52,7 +52,7 @@ void AnalyzerDialog::onAnalyzerItemChanged(QStandardItem* item)
 void AnalyzerDialog::getAnalyzers()
 {
     m_analyzersmodel->clear();
-    m_analyzersmodel->setHorizontalHeaderLabels({"Name", "Description", "ID", "Order"});
+    m_analyzersmodel->setHorizontalHeaderLabels({tr("Name"), tr("Description"), tr("ID"), tr("Order")});
 
     RDContext_GetAnalyzers(m_context.get(), [](const RDAnalyzer* a, void* userdata) {
         auto* thethis = reinterpret_cast<AnalyzerDialog*>(userdata);

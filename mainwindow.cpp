@@ -36,8 +36,8 @@ MainWindow::MainWindow() : KDDockWidgets::MainWindow("MainWindow", KDDockWidgets
     toolbar->setMovable(false);
     toolbar->setFloatable(false);
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    toolbar->addAction(FA_ICON(0xf07c), "Open", []() { DisassemblerHooks::instance()->open(); });
-    toolbar->addAction(FA_ICON(0xf0c7), "Save", []() { DisassemblerHooks::instance()->save(); });
+    toolbar->addAction(FA_ICON(0xf07c), tr("Open"), []() { DisassemblerHooks::instance()->open(); });
+    toolbar->addAction(FA_ICON(0xf0c7), tr("Save"), []() { DisassemblerHooks::instance()->save(); });
     this->addToolBar(Qt::ToolBarArea::TopToolBarArea, toolbar);
 
     m_lblstatus = new QLabel(this);
@@ -132,23 +132,23 @@ void MainWindow::createFileMenu()
 {
     auto* mnubar = this->menuBar();
 
-    auto* mnufile = new QMenu("&File", mnubar);
-    auto* actopen = mnufile->addAction("Open");
+    auto* mnufile = new QMenu(tr("&File"), mnubar);
+    auto* actopen = mnufile->addAction(tr("Open"));
 
-    auto* actsave = mnufile->addAction("Save");
+    auto* actsave = mnufile->addAction(tr("Save"));
 
-    auto* actsaveas = mnufile->addAction("Save As");
+    auto* actsaveas = mnufile->addAction(tr("Save As"));
     actsaveas->setObjectName(HOOK_ACTION_SAVE_AS);
 
-    auto* mnurecents = new QMenu("&Recent Files", mnubar);
+    auto* mnurecents = new QMenu(tr("&Recent Files"), mnubar);
     mnurecents->setObjectName(HOOK_ACTION_RECENT_FILES);
     mnufile->addMenu(mnurecents);
 
-    auto* actclose = mnufile->addAction("Close");
+    auto* actclose = mnufile->addAction(tr("Close"));
     actclose->setObjectName(HOOK_ACTION_CLOSE);
 
     mnufile->addSeparator();
-    auto* actexit = mnufile->addAction("Exit");
+    auto* actexit = mnufile->addAction(tr("Exit"));
 
     actopen->setIcon(FA_ICON(0xf07c));
     actsave->setIcon(FA_ICON(0xf0c7));
@@ -166,11 +166,11 @@ void MainWindow::createREDasmMenu()
     auto* mnubar = this->menuBar();
     auto* mnuredasm = new QMenu("&REDasm", mnubar);
 
-    auto* actflc = mnuredasm->addAction("FLC");
-    auto* actdevtools = mnuredasm->addAction("Developer Tools");
-    auto* actdatabase = mnuredasm->addAction("Database");
+    auto* actflc = mnuredasm->addAction(tr("FLC"));
+    auto* actdevtools = mnuredasm->addAction(tr("Developer Tools"));
+    auto* actdatabase = mnuredasm->addAction(tr("Database"));
     mnuredasm->addSeparator();
-    auto* actsettings = mnuredasm->addAction("Settings");
+    auto* actsettings = mnuredasm->addAction(tr("Settings"));
     mnubar->addMenu(mnuredasm);
 
     actflc->setShortcut(QKeySequence("CTRL+F"));
@@ -189,21 +189,21 @@ void MainWindow::createREDasmMenu()
 void MainWindow::createWindowMenu()
 {
     auto* mnubar = this->menuBar();
-    auto* mnuwindow = new QMenu("&Window", mnubar);
+    auto* mnuwindow = new QMenu(tr("&Window"), mnubar);
     mnuwindow->setObjectName(HOOK_MENU_WINDOW);
 
-    mnuwindow->addAction("&Manage Layouts");
-    auto* actresetlayout = mnuwindow->addAction("&Reset Layout");
+    mnuwindow->addAction(tr("&Manage Layouts"));
+    auto* actresetlayout = mnuwindow->addAction(tr("&Reset Layout"));
 
-    QMenu* mnusubviews = mnuwindow->addMenu("&Open Subviews");
-    mnusubviews->addAction("Listing", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showListing(); });
-    mnusubviews->addAction("Segments", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showSegments(); });
-    mnusubviews->addAction("Exports", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showExports(); });
-    mnusubviews->addAction("Imports", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showImports(); });
-    mnusubviews->addAction("Strings", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showStrings(); });
+    QMenu* mnusubviews = mnuwindow->addMenu(tr("&Open Subviews"));
+    mnusubviews->addAction(tr("Listing"), this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showListing(); });
+    mnusubviews->addAction(tr("Segments"), this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showSegments(); });
+    mnusubviews->addAction(tr("Exports"), this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showExports(); });
+    mnusubviews->addAction(tr("Imports"), this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showImports(); });
+    mnusubviews->addAction(tr("Strings"), this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showStrings(); });
     mnusubviews->addSeparator();
-    mnusubviews->addAction("Functions", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showFunctions(); });
-    mnusubviews->addAction("Map", this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showMap(); });
+    mnusubviews->addAction(tr("Functions"), this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showFunctions(); });
+    mnusubviews->addAction(tr("Map"), this, []() { if(DisassemblerHooks::docks()) DisassemblerHooks::docks()->showMap(); });
 
     mnuwindow->addSeparator();
     mnubar->addMenu(mnuwindow);
@@ -216,11 +216,11 @@ void MainWindow::createHelpMenu()
     auto* mnubar = this->menuBar();
     auto* mnuhelp = new QMenu("&?", mnubar);
 
-    auto* acttelegram = mnuhelp->addAction("&Telegram");
-    auto* actreddit = mnuhelp->addAction("&Reddit");
+    auto* acttelegram = mnuhelp->addAction(tr("&Telegram"));
+    auto* actreddit = mnuhelp->addAction(tr("&Reddit"));
     mnuhelp->addSeparator();
-    auto* actgithub = mnuhelp->addAction("Report an &Issue");
-    auto* actabout = mnuhelp->addAction("&About");
+    auto* actgithub = mnuhelp->addAction(tr("Report an &Issue"));
+    auto* actabout = mnuhelp->addAction(tr("&About"));
     mnubar->addMenu(mnuhelp);
 
     connect(acttelegram, &QAction::triggered, DisassemblerHooks::instance(), &DisassemblerHooks::openTelegram);
@@ -284,8 +284,8 @@ bool MainWindow::canClose()
     if(DisassemblerHooks::instance()->isLoaded())
     {
         QMessageBox msgbox(this);
-        msgbox.setWindowTitle("Closing");
-        msgbox.setText("Are you sure?");
+        msgbox.setWindowTitle(tr("Closing"));
+        msgbox.setText(tr("Are you sure?"));
         msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 
         if(msgbox.exec() != QMessageBox::Yes)
@@ -310,7 +310,7 @@ void MainWindow::initializeConfig()
 
     RDConfig_SetProgressCallback([](size_t pending, void* userdata) {
         QLabel* lblprogress = reinterpret_cast<QLabel*>(userdata);
-        QMetaObject::invokeMethod(lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, QString("%1 state(s) pending").arg(pending)));
+        QMetaObject::invokeMethod(lblprogress, "setText", Qt::QueuedConnection, Q_ARG(QString, tr("%1 state(s) pending").arg(pending)));
     }, m_lblprogress);
 
     RDConfig_AddDatabasePath(qUtf8Printable(QDir(RDConfig_GetRuntimePath()).absoluteFilePath(DATABASE_FOLDER_NAME)));

@@ -103,7 +103,7 @@ void DisassemblerHooks::resetLayout()
 
 void DisassemblerHooks::open()
 {
-    QString s = QFileDialog::getOpenFileName(m_mainwindow, "Disassemble file...");
+    QString s = QFileDialog::getOpenFileName(m_mainwindow, tr("Disassemble file..."));
     if(!s.isEmpty()) this->load(s);
 }
 
@@ -120,7 +120,7 @@ void DisassemblerHooks::saveAs()
     RDContextPtr ctx = DisassemblerHooks::activeContext();
     if(!ctx) return;
 
-    QString s = QFileDialog::getSaveFileName(m_mainwindow, "Save State...", m_fileinfo.fileName(), "REDasm State (*.rds)");
+    QString s = QFileDialog::getSaveFileName(m_mainwindow, tr("Save State..."), m_fileinfo.fileName(), "REDasm State (*.rds)");
     if(!s.isEmpty()) this->saveAs(ctx, s);
 }
 
@@ -147,7 +147,7 @@ void DisassemblerHooks::showFLC()
 void DisassemblerHooks::showCallGraph(rd_address address)
 {
     auto* cgv = new CallGraphView(this->activeContext());
-    this->showDialog("Callgraph @ " + QString::fromStdString(rd_tohex(address)), cgv);
+    this->showDialog(tr("Callgraph @ ") + QString::fromStdString(rd_tohex(address)), cgv);
     cgv->walk(address);
 }
 
@@ -185,8 +185,8 @@ void DisassemblerHooks::statusAddress(const SurfaceQt* surface) const
     RDLocation functionstart = RDDocument_GetFunctionStart(doc, address);
     RDLocation offset = RD_Offset(surface->context().get(), address);
 
-    QString segm = hassegment ? segment.name : "UNKNOWN",
-            offs = hassegment && offset.valid ? RD_ToHexAuto(surface->context().get(), offset.value) : "UNKNOWN",
+    QString segm = hassegment ? segment.name : tr("UNKNOWN"),
+            offs = hassegment && offset.valid ? RD_ToHexAuto(surface->context().get(), offset.value) : tr("UNKNOWN"),
             addr = RD_ToHexAuto(surface->context().get(), address);
 
     QString s = QString::fromWCharArray(L"<b>Address: </b>%1\u00A0\u00A0").arg(addr);
@@ -267,9 +267,9 @@ void DisassemblerHooks::showLoaders(const QString& filepath, RDBuffer* buffer)
 
     const RDLoader* loader = RDContext_GetLoader(ctx.get());
     const RDAssembler* assembler = RDContext_GetAssembler(ctx.get());
-    rd_log(qUtf8Printable(QString("Selected loader '%1' with '%2' assembler").arg(RDLoader_GetName(loader), RDAssembler_GetName(assembler))));
+    rd_log(qUtf8Printable(tr("Selected loader '%1' with '%2' assembler").arg(RDLoader_GetName(loader), RDAssembler_GetName(assembler))));
 
-    rd_log(qUtf8Printable(QString("Minimum string length set to %1").arg(dlgloader.selectedMinString())));
+    rd_log(qUtf8Printable(tr("Minimum string length set to %1").arg(dlgloader.selectedMinString())));
     RDContext_SetMinString(ctx.get(), dlgloader.selectedMinString());
 
     AnalyzerDialog dlganalyzer(ctx, m_mainwindow);
@@ -322,7 +322,7 @@ void DisassemblerHooks::loadRecents()
     if(recents.empty()) return;
 
     mnurecents->addSeparator();
-    QAction* action = mnurecents->addAction("Clear");
+    QAction* action = mnurecents->addAction(tr("Clear"));
 
     connect(action, &QAction::triggered, this, [=]() {
         this->clearRecents();
@@ -386,8 +386,8 @@ void DisassemblerHooks::reshortcutWindow()
 
 void DisassemblerHooks::checkListingMode()
 {
-    if(RDContext_HasFlag(this->activeContext().get(), ContextFlags_ShowRDIL)) m_pbrenderer->setText("RDIL");
-    else m_pbrenderer->setText("Listing");
+    if(RDContext_HasFlag(this->activeContext().get(), ContextFlags_ShowRDIL)) m_pbrenderer->setText(tr("RDIL"));
+    else m_pbrenderer->setText(tr("Listing"));
 }
 
 void DisassemblerHooks::showOutput()
@@ -450,8 +450,8 @@ void DisassemblerHooks::enableMenu(QMenu* menu, bool enable)
 
 void DisassemblerHooks::saveAs(const RDContextPtr& ctx, const QString& filepath)
 {
-    std::string fp = filepath.toStdString();
-    if(RDContext_Save(ctx.get(), fp.c_str())) rd_log("Saving Database '" + fp + "'");
+    if(RDContext_Save(ctx.get(), qUtf8Printable(filepath)))
+        rd_log(tr("Saving Database '%1'").arg(filepath).toStdString());
 }
 
 bool DisassemblerHooks::openDatabase(const QString& filepath)
@@ -476,7 +476,7 @@ void DisassemblerHooks::enableViewCommands(bool enable)
 void DisassemblerHooks::openHomePage() const { QDesktopServices::openUrl(QUrl("https://redasm.io")); }
 void DisassemblerHooks::openTwitter() const { QDesktopServices::openUrl(QUrl("https://twitter.com/re_dasm")); }
 void DisassemblerHooks::openTelegram() const { QDesktopServices::openUrl(QUrl("https://t.me/REDasmDisassembler")); }
-void DisassemblerHooks::openReddit() const {  QDesktopServices::openUrl(QUrl("https://www.reddit.com/r/REDasm")); }
+void DisassemblerHooks::openReddit() const { QDesktopServices::openUrl(QUrl("https://www.reddit.com/r/REDasm")); }
 void DisassemblerHooks::openGitHub() const { QDesktopServices::openUrl(QUrl("https://github.com/REDasmOrg/REDasm/issues")); }
 
 void DisassemblerHooks::showMessage(const QString& title, const QString& msg, size_t icon)
@@ -501,7 +501,7 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
 
     if(busy)
     {
-        m_mainwindow->setWindowTitle(QString("%1 (Working)").arg(m_fileinfo.fileName()));
+        m_mainwindow->setWindowTitle(QString("%1 (%2)").arg(m_fileinfo.fileName(), tr("Working")));
         m_lblstatusicon->setStyleSheet("color: red;");
     }
     else
@@ -515,7 +515,7 @@ void DisassemblerHooks::updateViewWidgets(bool busy)
     if(this->activeContext())
     {
         m_pbproblems->setVisible(!busy && RDContext_HasProblems(this->activeContext().get()));
-        m_pbproblems->setText(QString::number(RDContext_GetProblemsCount(this->activeContext().get())) + " problem(s)");
+        m_pbproblems->setText(QString::number(RDContext_GetProblemsCount(this->activeContext().get())) + tr(" problem(s)"));
     }
     else
         m_pbproblems->setVisible(false);

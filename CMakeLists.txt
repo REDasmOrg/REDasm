@@ -16,7 +16,7 @@ set(REDASM_VERSION_BASE "3.0-BETA6")
 
 find_package(Git)
 find_package(Qt5 ${_QT_VERSION_REQ} REQUIRED COMPONENTS Widgets)
-find_package(Qt5X11Extras ${_QT_VERSION_REQ} REQUIRED) # Needed for KDDockWidgets
+#find_package(Qt5X11Extras ${_QT_VERSION_REQ} REQUIRED) # Needed for KDDockWidgets
 find_package(Qt5LinguistTools ${_QT_VERSION_REQ})
 
 if(GIT_FOUND)

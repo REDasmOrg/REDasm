@@ -14,9 +14,10 @@ string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
 set(REDASM_GIT_VERSION "unknown")
 set(REDASM_VERSION_BASE "3.0-BETA6")
 
-find_package(Qt5 ${_QT_VERSION_REQ} REQUIRED COMPONENTS Widgets)
-find_package(Qt5 ${_QT_VERSION_REQ} COMPONENTS LinguistTools)
 find_package(Git)
+find_package(Qt5 ${_QT_VERSION_REQ} REQUIRED COMPONENTS Widgets)
+find_package(Qt5X11Extras ${_QT_VERSION_REQ} REQUIRED) # Needed for KDDockWidgets
+find_package(Qt5LinguistTools ${_QT_VERSION_REQ})
 
 if(GIT_FOUND)
     execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
@@ -122,14 +123,15 @@ if(WIN32)
     set(GUI_TYPE WIN32)
 endif()
 
-if(Qt5_LRELEASE_EXECUTABLE) # Prepare translations
+set(ALL_SOURCES ${SOURCES} ${HEADERS} ${FORMS})
+
+if(Qt5LinguistTools_FOUND) # Prepare translations
     message(STATUS "${PROJECT_NAME}: Adding multilanguage support")
-    set(ALL_SOURCES ${SOURCES} ${HEADERS} ${FORMS})
     qt5_create_translation(QM_FILES ${ALL_SOURCES} translations/redasm_en.ts)
     configure_file(translations.qrc ${CMAKE_BINARY_DIR} COPYONLY)
     set(TRANSLATIONS_QRC ${CMAKE_BINARY_DIR}/translations.qrc)
 else()
-    message(STATUS "${PROJECT_NAME}: Multilanguage support not available")
+    message(STATUS "${PROJECT_NAME}: Multilanguage support NOT available")
 endif()
 
 add_executable(${PROJECT_NAME} ${GUI_TYPE}

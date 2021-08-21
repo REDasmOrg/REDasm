@@ -8,7 +8,7 @@ AnalysisWidget::AnalysisWidget(const RDContextPtr& ctx, QWidget *parent) : Dashb
 {
     static const std::vector<QString> STATS_ROWS = {
         tr("Analysis Start"), tr("Analysis End"), tr("Analysis Time"),
-        tr("Segments"), tr("Functions"), tr("Symbols")
+        tr("Segments"), tr("Functions"), tr("Labels")
     };
 
     DisassemblerHooks::instance()->setTabBarVisible(false);
@@ -111,11 +111,11 @@ void AnalysisWidget::updateStats(const RDAnalysisStatus* s)
 
     m_statsmodel->item(3, 1)->setText(QString::number(s->segmentscount));
     m_statsmodel->item(4, 1)->setText(QString::number(s->functionscount));
-    m_statsmodel->item(5, 1)->setText(QString::number(s->symbolscount));
+    m_statsmodel->item(5, 1)->setText(QString::number(s->labelscount));
 
     this->updateDiff(m_statsmodel->item(3, 2), s->segmentsdiff);
     this->updateDiff(m_statsmodel->item(4, 2), s->functionsdiff);
-    this->updateDiff(m_statsmodel->item(5, 2), s->symbolsdiff);
+    this->updateDiff(m_statsmodel->item(5, 2), s->labelsdiff);
 }
 
 void AnalysisWidget::updateDiff(QStandardItem* item, int diff)

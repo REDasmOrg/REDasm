@@ -148,7 +148,7 @@
     </message>
     <message>
         <location filename="../widgets/dashboard/analysiswidget.cpp" line="11"/>
-        <source>Symbols</source>
+        <source>Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

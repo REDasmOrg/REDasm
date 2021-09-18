@@ -34,5 +34,5 @@ void BlocksTab::showBlocks(const QModelIndex& current, const QModelIndex&)
     else
         ui->tableWidget->setModel(new BlockListModel(m_context, RD_NVAL));
 
-    ui->tableWidget->resizeColumnsUntil(-1);
+    ui->tableWidget->resizeColumn(ui->tableWidget->model()->columnCount() - 1);
 }

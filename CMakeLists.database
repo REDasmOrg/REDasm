@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.21.2)
+
+project(REDasm-Database NONE)
+
+include(ExternalProject)
+ExternalProject_Add(
+  REDasm-Database
+  GIT_REPOSITORY https://github.com/REDasmOrg/REDasm-Database.git
+  #GIT_TAG release
+  SOURCE_DIR "${CMAKE_BINARY_DIR}/submodules/database"
+  BINARY_DIR "${CMAKE_BINARY_DIR}/submodules/database"
+)

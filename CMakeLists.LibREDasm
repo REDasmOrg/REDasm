@@ -1,0 +1,12 @@
+# cmake_minimum_required(VERSION 3.21.3)
+
+project(REDasm-Library NONE)
+
+include(ExternalProject)
+ExternalProject_Add(
+  REDasm-Library
+  GIT_REPOSITORY https://github.com/REDasmOrg/REDasm-Library.git
+  #GIT_TAG release
+  SOURCE_DIR "${CMAKE_BINARY_DIR}/LibREDasm"
+  BINARY_DIR "${CMAKE_BINARY_DIR}/LibREDasm"
+)

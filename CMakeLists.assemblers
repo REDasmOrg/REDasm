@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.21.2)
+
+project(REDasm-assemblers NONE)
+
+include(ExternalProject)
+ExternalProject_Add(
+  REDasm-assemblers
+  GIT_REPOSITORY https://github.com/REDasmOrg/REDasm-assemblers.git
+  #GIT_TAG release
+  SOURCE_DIR "${CMAKE_BINARY_DIR}/submodules/assemblers"
+  BINARY_DIR "${CMAKE_BINARY_DIR}/submodules/assemblers"
+)

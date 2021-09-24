@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.21.2)
+
+project(REDasm-Plugins NONE)
+
+include(ExternalProject)
+ExternalProject_Add(
+  REDasm-Plugins
+  GIT_REPOSITORY https://github.com/REDasmOrg/REDasm-Plugins.git
+  #GIT_TAG release
+  SOURCE_DIR "${CMAKE_BINARY_DIR}/submodules/plugins"
+  BINARY_DIR "${CMAKE_BINARY_DIR}/submodules/plugins"
+)

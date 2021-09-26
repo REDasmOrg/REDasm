@@ -4,7 +4,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   plugins
-  GIT_REPOSITORY https://github.com/kermitdafrog8/REDasm-Plugins.git
+  GIT_REPOSITORY https://github.com/REDasmOrg/REDasm-Plugins.git
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/submodules/plugins"
 )
 FetchContent_Populate(plugins)

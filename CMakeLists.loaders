@@ -4,7 +4,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   loaders
-  GIT_REPOSITORY https://github.com/kermitdafrog8/REDasm-Loaders.git
+  GIT_REPOSITORY https://github.com/REDasmOrg/REDasm-Loaders.git
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/submodules/loaders"
 )
 FetchContent_Populate(loaders)

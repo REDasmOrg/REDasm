@@ -4,7 +4,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   Library
-  GIT_REPOSITORY https://github.com/kermitdafrog8/REDasm-Library.git
+  GIT_REPOSITORY https://github.com/REDasmOrg/REDasm-Library.git
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/LibREDasm"
 )
 FetchContent_Populate(Library)

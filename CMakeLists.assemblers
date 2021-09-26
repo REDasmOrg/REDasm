@@ -4,7 +4,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   assemblers
-  GIT_REPOSITORY https://github.com/kermitdafrog8/REDasm-Assemblers.git
+  GIT_REPOSITORY https://github.com/REDasmOrg/REDasm-Assemblers.git
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/submodules/assemblers"
 )
 FetchContent_Populate(assemblers)

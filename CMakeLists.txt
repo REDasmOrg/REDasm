@@ -6,7 +6,14 @@ set(QT_VERSION_REQ "5.11")
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-configure_file(CMakeLists.LibREDasm LibREDasm/CMakeLists.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CMakeLists.LibREDasm)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CMakeLists.loaders)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CMakeLists.assemblers)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CMakeLists.plugins)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CMakeLists.database)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CMakeLists.KDDockWidgets)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CMakeLists.qhexview)
+
 include(${CMAKE_SOURCE_DIR}/LibREDasm/cmake/sanitizers.cmake)
 
 string(TIMESTAMP REDASM_BUILD_TIMESTAMP "%Y%m%d")
@@ -38,11 +45,6 @@ add_subdirectory(LibREDasm)
 
 # FindREDasm.config
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/LibREDasm/rdapi")
-
-configure_file(CMakeLists.plugins submodules/plugins/CMakeLists.txt)
-configure_file(CMakeLists.assemblers submodules/assemblers/CMakeLists.txt)
-configure_file(CMakeLists.loaders submodules/loaders/CMakeLists.txt)
-configure_file(CMakeLists.database submodules/database/CMakeLists.txt)
 
 add_subdirectory(submodules/plugins)
 add_subdirectory(submodules/assemblers)

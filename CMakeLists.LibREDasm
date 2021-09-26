@@ -1,12 +1,10 @@
-# cmake_minimum_required(VERSION 3.21.3)
+cmake_minimum_required(VERSION 3.11)
 
-project(REDasm-Library NONE)
+include(FetchContent)
 
-include(ExternalProject)
-ExternalProject_Add(
-  REDasm-Library
-  GIT_REPOSITORY https://github.com/REDasmOrg/REDasm-Library.git
-  #GIT_TAG release
-  SOURCE_DIR "${CMAKE_BINARY_DIR}/LibREDasm"
-  BINARY_DIR "${CMAKE_BINARY_DIR}/LibREDasm"
+FetchContent_Declare(
+  Library
+  GIT_REPOSITORY https://github.com/kermitdafrog8/REDasm-Library.git
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/LibREDasm"
 )
+FetchContent_Populate(Library)

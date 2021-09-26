@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.11)
+
+include(FetchContent)
+
+FetchContent_Declare(
+  kdocwidgets
+  GIT_REPOSITORY https://github.com/KDAB/KDDockWidgets.git
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libs/KDDockWidgets"
+)
+FetchContent_Populate(kdocwidgets)

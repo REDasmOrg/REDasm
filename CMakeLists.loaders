@@ -1,13 +1,10 @@
-cmake_minimum_required(VERSION 3.21.2)
+cmake_minimum_required(VERSION 3.11)
 
-project(REDasm-Loaders NONE)
+include(FetchContent)
 
-include(ExternalProject)
-ExternalProject_Add(
-  REDasm-Loaders
-  GIT_REPOSITORY https://github.com/REDasmOrg/REDasm-Loaders.git
-  #GIT_TAG release
-  SOURCE_DIR "${CMAKE_BINARY_DIR}/submodules/loaders"
-  BINARY_DIR "${CMAKE_BINARY_DIR}/submodules/loaders"
+FetchContent_Declare(
+  loaders
+  GIT_REPOSITORY https://github.com/kermitdafrog8/REDasm-Loaders.git
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/submodules/loaders"
 )
-
+FetchContent_Populate(loaders)

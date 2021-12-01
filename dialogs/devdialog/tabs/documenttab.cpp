@@ -160,11 +160,13 @@ void DocumentTab::displayInstructionInformation(RDDocument* doc, rd_address addr
 
     QString hexdump = RD_HexDump(m_context.get(), address, RDBlock_Size(&block));
     QByteArray dump = QByteArray::fromHex(hexdump.toUtf8());
+    const char* assemblerid = RDContext_GetAddressAssembler(m_context.get(), address);
 
     this->header("INSTRUCTION");
 
     m_indent = INDENT_BASE;
-        this->line("assembler", RD_GetAssemblerInstruction(m_context.get(), block.address));
+        this->string("assembler", assemblerid ? assemblerid : "???");
+        this->line("instruction", RD_GetAssemblerInstruction(m_context.get(), block.address));
         this->line("rdil", RD_GetRDILInstruction(m_context.get(), block.address));
         this->line("hexdump", hexdump);
         this->line("bits", this->getBits(dump));

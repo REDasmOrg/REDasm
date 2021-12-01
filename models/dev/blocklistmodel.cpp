@@ -26,6 +26,7 @@ QVariant BlockListModel::headerData(int section, Qt::Orientation orientation, in
         case 2: return tr("Size");
         case 3: return tr("Type");
         case 4: return tr("Label");
+        case 5: return tr("Info");
         default: break;
     }
 
@@ -45,12 +46,13 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
             case 2: return RD_ToHexAuto(m_context.get(), RDBlock_Size(&block));
             case 3: return this->blockType(&block);
             case 4: return this->labelName(&block);
+            case 5: return RD_ToHexBits(block.info, 16, false);
             default: break;
         }
     }
     else if(role == Qt::ForegroundRole)
     {
-        if(index.column() < 3) return THEME_VALUE(Theme_Address);
+        if((index.column() < 3) || (index.column() == 5)) return THEME_VALUE(Theme_Address);
         if(index.column() == 3) return THEME_VALUE(Theme_Type);
         if(index.column() == 4) return THEME_VALUE(Theme_Label);
     }
@@ -59,7 +61,7 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-int BlockListModel::columnCount(const QModelIndex&) const { return 5; }
+int BlockListModel::columnCount(const QModelIndex&) const { return 6; }
 int BlockListModel::rowCount(const QModelIndex&) const { return m_blocks.size(); }
 
 QString BlockListModel::blockType(const RDBlock* block) const

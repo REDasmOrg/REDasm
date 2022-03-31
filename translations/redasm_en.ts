@@ -243,6 +243,11 @@
         <source>Label</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../models/dev/blocklistmodel.cpp" line="29"/>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>BlocksTab</name>
@@ -746,26 +751,31 @@
     </message>
     <message>
         <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="42"/>
-        <source>Assembler:</source>
+        <source>Log Level:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="55"/>
+        <source>Assembler:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="68"/>
         <source>Min String:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="100"/>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="113"/>
         <source>Base Address:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="110"/>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="123"/>
         <source>Offset:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="117"/>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="130"/>
         <source>Entry Point (Relative):</source>
         <translation type="unfinished"></translation>
     </message>

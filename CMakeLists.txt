@@ -137,7 +137,7 @@ endif()
 add_executable(${PROJECT_NAME} ${GUI_TYPE}
                ${ALL_SOURCES} ${RESOURCES}
                ${TRANSLATIONS_QRC} ${QM_FILES}
-               ${CMAKE_SOURCE_DIR}/res/windows/resources.rc)
+               "${CMAKE_SOURCE_DIR}/res/windows/resources.rc")
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)

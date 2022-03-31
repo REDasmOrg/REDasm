@@ -20,6 +20,7 @@ LoaderDialog::LoaderDialog(RDContextPtr& ctx, const RDLoaderRequest* req, QWidge
     ui->lvLoaders->setModel(m_loadersmodel);
     ui->lvLoaders->setCurrentIndex(m_loadersmodel->index(0, 0));
 
+    this->populateLogLevels();
     this->populateAssemblerEntries(ctx);
     this->checkFlags();
     this->updateInputMask();
@@ -37,6 +38,15 @@ LoaderDialog::LoaderDialog(RDContextPtr& ctx, const RDLoaderRequest* req, QWidge
         this->validateFields();
     });
 
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, [&]() {
+        RDConfig_SetLogLevel(ui->cbLogLevel->currentData().toUInt());
+    });
+
+#if defined(NDEBUG)
+    ui->cbLogLevel->setCurrentIndex(0);
+#else
+    ui->cbLogLevel->setCurrentIndex(3);
+#endif
 }
 
 LoaderDialog::~LoaderDialog() { delete ui; }
@@ -132,4 +142,15 @@ void LoaderDialog::populateAssemblerEntries(const RDContextPtr& ctx)
         thethis->m_assemblers.push_back(entry);
         thethis->ui->cbAssembler->addItem(entry->name, entry->id);
     }, this);
+}
+
+void LoaderDialog::populateLogLevels()
+{
+    ui->cbLogLevel->addItem("Off", LogLevel_Off);
+    ui->cbLogLevel->addItem("Trace", LogLevel_Trace);
+    ui->cbLogLevel->addItem("Debug", LogLevel_Debug);
+    ui->cbLogLevel->addItem("Info", LogLevel_Info);
+    ui->cbLogLevel->addItem("Warning", LogLevel_Warning);
+    ui->cbLogLevel->addItem("Error", LogLevel_Error);
+    ui->cbLogLevel->addItem("Critical", LogLevel_Critical);
 }

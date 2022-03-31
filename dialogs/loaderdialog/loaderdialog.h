@@ -34,6 +34,7 @@ class LoaderDialog : public QDialog
         void updateInputMask();
         void syncAssemblerEntry(const RDContextPtr& ctx);
         void populateAssemblerEntries(const RDContextPtr& ctx);
+        void populateLogLevels();
 
     private:
         Ui::LoaderDialog *ui;

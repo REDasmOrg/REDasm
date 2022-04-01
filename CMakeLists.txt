@@ -42,7 +42,8 @@ CPMAddPackage(
     NAME KDDockWidgetes
     GIT_REPOSITORY https://github.com/KDAB/KDDockWidgets
     VERSION 1.4.0
-    OPTIONS ""
+    OPTIONS ${KDDOCKWIDGETS_OPTIONS}
+    EXCLUDE_FROM_ALL ON
     )
 
 add_subdirectory(libs/qhexview EXCLUDE_FROM_ALL)

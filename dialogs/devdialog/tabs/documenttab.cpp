@@ -168,6 +168,7 @@ void DocumentTab::displayInstructionInformation(RDDocument* doc, rd_address addr
         this->string("assembler", assemblerid ? assemblerid : "???");
         this->line("instruction", RD_GetAssemblerInstruction(m_context.get(), block.address));
         this->line("rdil", RD_GetRDILInstruction(m_context.get(), block.address));
+        this->line("rdilformat", RD_GetRDILFormat(m_context.get(), block.address));
         this->line("hexdump", hexdump);
         this->line("bits", this->getBits(dump));
         this->line();

@@ -19,6 +19,8 @@ find_package(Qt5 ${_QT_VERSION_REQ} REQUIRED COMPONENTS Widgets)
 #find_package(Qt5X11Extras ${_QT_VERSION_REQ} REQUIRED) # Needed for KDDockWidgets
 find_package(Qt5LinguistTools ${_QT_VERSION_REQ})
 
+include(LibREDasm/cmake/CPM.cmake)
+
 if(GIT_FOUND)
     execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -32,10 +34,17 @@ endif()
 set(REDASM_BUILD_VERSION "${REDASM_BUILD_TIMESTAMP}.${REDASM_GIT_VERSION}")
 add_definitions(-DREDASM_VERSION="${REDASM_VERSION_BASE} \(${REDASM_BUILD_VERSION}\)")
 
-set(KDDockWidgets_STATIC ON CACHE BOOL "" FORCE)
-set(KDDockWidgets_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(KDDockWidgets_UNITY_BUILD OFF CACHE BOOL "" FORCE)
-add_subdirectory(libs/KDDockWidgets EXCLUDE_FROM_ALL)
+set(KDDOCKWIDGETS_OPTIONS "KDDockWidgets_STATIC ON"
+                          "KDDockWidgets_EXAMPLES OFF"
+                          "KDDockWidgets_UNITY_BUILD OFF")
+
+CPMAddPackage(
+    NAME KDDockWidgetes
+    GIT_REPOSITORY https://github.com/KDAB/KDDockWidgets
+    VERSION 1.4.0
+    OPTIONS ""
+    )
+
 add_subdirectory(libs/qhexview EXCLUDE_FROM_ALL)
 add_subdirectory(LibREDasm)
 

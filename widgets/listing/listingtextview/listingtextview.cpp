@@ -25,7 +25,7 @@ ListingTextView::ListingTextView(const RDContextPtr& ctx, QWidget* parent): QSpl
 ListingPathWidget *ListingTextView::columnWidget() { return m_columnview; }
 ListingTextWidget *ListingTextView::textWidget() { return m_textwidget; }
 void ListingTextView::copy() const { return m_textwidget->copy(); }
-void ListingTextView::linkTo(ISurface* s) { }
+void ListingTextView::linkTo(ISurface* s) { Q_UNUSED(s); }
 void ListingTextView::unlink() { }
 void ListingTextView::goBack() { return m_textwidget->goBack(); }
 void ListingTextView::goForward() { return m_textwidget->goForward(); }

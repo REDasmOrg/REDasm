@@ -160,7 +160,7 @@ void DocumentTab::displayInstructionInformation(RDDocument* doc, rd_address addr
 
     QString hexdump = RD_HexDump(m_context.get(), address, RDBlock_Size(&block));
     QByteArray dump = QByteArray::fromHex(hexdump.toUtf8());
-    const char* assemblerid = RDContext_GetAddressAssembler(m_context.get(), address);
+    const char* assemblerid = RDDocument_GetAddressAssembler(doc, address);
 
     this->header("INSTRUCTION");
 

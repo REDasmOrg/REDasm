@@ -741,6 +741,7 @@
     <name>LoaderDialog</name>
     <message>
         <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="14"/>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="44"/>
         <source>Loader</source>
         <translation type="unfinished"></translation>
     </message>
@@ -750,33 +751,53 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="42"/>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="53"/>
         <source>Log Level:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="55"/>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="63"/>
         <source>Assembler:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="68"/>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="80"/>
         <source>Min String:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="113"/>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="90"/>
+        <source>Addressing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="119"/>
         <source>Base Address:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="123"/>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="106"/>
         <source>Offset:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="130"/>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="96"/>
         <source>Entry Point (Relative):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="131"/>
+        <source>Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="137"/>
+        <source>No Code Merge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/loaderdialog/loaderdialog.ui" line="144"/>
+        <source>No Demangle</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

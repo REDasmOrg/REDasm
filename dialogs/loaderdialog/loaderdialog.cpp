@@ -30,7 +30,15 @@ LoaderDialog::LoaderDialog(RDContextPtr& ctx, const RDLoaderRequest* req, QWidge
     connect(ui->leBaseAddress, &QLineEdit::textEdited, this, [&](const QString&) { this->validateFields(); });
     connect(ui->leEntryPoint, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateFields(); });
     connect(ui->leOffset, &QLineEdit::textEdited, this, [&](const QString&)  { this->validateFields(); });
-    connect(ui->cbAssembler, qOverload<int>(&QComboBox::currentIndexChanged), this, [&](int) { this->validateFields(); });
+    connect(ui->cbAssembler, qOverload<int>(&QComboBox::currentIndexChanged), this, [this](int) { this->validateFields(); });
+
+    connect(ui->chkNoDemangle, &QCheckBox::stateChanged, this, [&](int state) {
+        RDContext_SetFlags(ctx.get(), ContextFlags_NoDemangle, state == Qt::Checked);
+    });
+
+    connect(ui->chkNoCodeMerge, &QCheckBox::stateChanged, this, [ctx](int state) {
+        RDContext_SetFlags(ctx.get(), ContextFlags_NoCodeMerge, state == Qt::Checked);
+    });
 
     connect(ui->lvLoaders, &QListView::clicked, this, [=](const QModelIndex&) {
         this->checkFlags();
@@ -83,14 +91,14 @@ void LoaderDialog::checkFlags()
     if(!index.isValid())
     {
         ui->cbAssembler->setEnabled(false);
-        ui->widgetAddressing->setEnabled(false);
+        ui->gbAddressing->setEnabled(false);
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
         return;
     }
 
     rd_flag flags = this->selectedLoaderFlags();
     ui->cbAssembler->setEnabled(flags & LoaderFlags_CustomAssembler);
-    ui->widgetAddressing->setEnabled(flags & LoaderFlags_CustomAddressing);
+    ui->gbAddressing->setEnabled(flags & LoaderFlags_CustomAddressing);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 

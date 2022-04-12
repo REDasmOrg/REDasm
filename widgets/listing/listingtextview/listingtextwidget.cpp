@@ -72,8 +72,8 @@ void ListingTextWidget::setContext(const RDContextPtr& ctx)
         if(!m_surface) return;
 
         switch(action) {
-            case QScrollBar::SliderSingleStepAdd: m_surface->scroll(m_surface->currentAddress() + 1, 0); break;
-            case QScrollBar::SliderSingleStepSub: m_surface->scroll(m_surface->currentAddress() - 1, 0); break;
+            case QScrollBar::SliderSingleStepAdd: m_surface->scroll(0, 1); break;
+            case QScrollBar::SliderSingleStepSub: m_surface->scroll(0, -1); break;
             case QScrollBar::SliderMove: m_surface->goTo(static_cast<rd_address>(this->verticalScrollBar()->sliderPosition())); break;
             default: break;
         }
@@ -90,9 +90,7 @@ void ListingTextWidget::goBack() { if(m_surface) m_surface->goBack(); }
 void ListingTextWidget::goForward() { if(m_surface) m_surface->goForward(); }
 bool ListingTextWidget::hasSelection() const { return m_surface ? m_surface->hasSelection() : false;  }
 void ListingTextWidget::copy() const { if(m_surface) m_surface->copy(); }
-void ListingTextWidget::linkTo(ISurface* s) { if(m_surface) m_surface->linkTo(s->surface()); }
-void ListingTextWidget::unlink() { if(m_surface) m_surface->unlink(); }
-void ListingTextWidget::scrollContentsBy(int dx, int) { if(m_surface) m_surface->scroll(RD_NVAL, -dx); }
+void ListingTextWidget::scrollContentsBy(int dx, int) { if(m_surface && dx) m_surface->scroll(-dx, 0); }
 
 void ListingTextWidget::focusInEvent(QFocusEvent* event)
 {
@@ -169,21 +167,16 @@ void ListingTextWidget::wheelEvent(QWheelEvent *event)
 {
     if(m_surface)
     {
-        QPoint ndegrees = event->angleDelta() / 8;
+        auto delta = event->angleDelta();
+        int ncols = 0, offset = 0;
 
-        if(!ndegrees.isNull())
-        {
-            rd_offset offset = RD_NVAL;
-            int ncols = 0;
+        if(delta.y() > 0) offset = -DOCUMENT_WHEEL_UNIT;
+        else if(delta.y() < 0) offset = DOCUMENT_WHEEL_UNIT;
 
-            if(ndegrees.y() > 0) offset = m_surface->firstAddress() -DOCUMENT_WHEEL_UNIT;
-            else if(ndegrees.y() < 0) offset = m_surface->firstAddress() + DOCUMENT_WHEEL_UNIT;
+        if(delta.x() > 0) ncols = -1;
+        else if(delta.x() < 0) ncols = 1;
 
-            if(ndegrees.x() > 0) ncols = -1;
-            else if(ndegrees.x() < 0) ncols = 1;
-
-            m_surface->scroll(offset, ncols);
-        }
+        m_surface->scroll(ncols, offset);
 
         event->accept();
         return;
@@ -200,39 +193,39 @@ void ListingTextWidget::keyPressEvent(QKeyEvent *event)
         return;
     }
 
-    const RDSurfacePos* pos = m_surface->position();
+    RDSurfacePos pos = m_surface->position();
 
     if(event->matches(QKeySequence::MoveToNextChar) || event->matches(QKeySequence::SelectNextChar))
     {
-        if(event->matches(QKeySequence::MoveToNextChar)) m_surface->moveTo(pos->row, pos->col + 1);
-        else m_surface->select(pos->row, pos->col + 1);
+        if(event->matches(QKeySequence::MoveToNextChar)) m_surface->moveTo(pos.row, pos.col + 1);
+        else m_surface->select(pos.row, pos.col + 1);
     }
     else if(event->matches(QKeySequence::MoveToPreviousChar) || event->matches(QKeySequence::SelectPreviousChar))
     {
-        if(event->matches(QKeySequence::MoveToPreviousChar)) m_surface->moveTo(pos->row, pos->col - 1);
-        else m_surface->select(pos->row, pos->col - 1);
+        if(event->matches(QKeySequence::MoveToPreviousChar)) m_surface->moveTo(pos.row, pos.col - 1);
+        else m_surface->select(pos.row, pos.col - 1);
     }
     else if(event->matches(QKeySequence::MoveToNextLine) || event->matches(QKeySequence::SelectNextLine))
     {
-        int nextline = pos->row + 1;
-        if(event->matches(QKeySequence::MoveToNextLine)) m_surface->moveTo(nextline, pos->col);
-        else m_surface->select(nextline, pos->col);
+        int nextline = pos.row + 1;
+        if(event->matches(QKeySequence::MoveToNextLine)) m_surface->moveTo(nextline, pos.col);
+        else m_surface->select(nextline, pos.col);
     }
     else if(event->matches(QKeySequence::MoveToPreviousLine) || event->matches(QKeySequence::SelectPreviousLine))
     {
-        int prevline = pos->row - 1;
-        if(event->matches(QKeySequence::MoveToPreviousLine)) m_surface->moveTo(prevline, pos->col);
-        else m_surface->select(prevline, pos->col);
+        int prevline = pos.row - 1;
+        if(event->matches(QKeySequence::MoveToPreviousLine)) m_surface->moveTo(prevline, pos.col);
+        else m_surface->select(prevline, pos.col);
     }
     else if(event->matches(QKeySequence::MoveToNextPage) || event->matches(QKeySequence::SelectNextPage))
     {
-        if(event->matches(QKeySequence::MoveToNextPage)) m_surface->scroll(m_surface->rows(), 0);
-        else m_surface->select(m_surface->rows(), pos->col);
+        if(event->matches(QKeySequence::MoveToNextPage)) m_surface->scroll(0, m_surface->rows());
+        else m_surface->select(m_surface->rows(), pos.col);
     }
     else if(event->matches(QKeySequence::MoveToPreviousPage) || event->matches(QKeySequence::SelectPreviousPage))
     {
-        if(event->matches(QKeySequence::MoveToPreviousPage)) m_surface->scroll(-m_surface->rows(), 0);
-        else m_surface->select(-m_surface->rows(), pos->col);
+        if(event->matches(QKeySequence::MoveToPreviousPage)) m_surface->scroll(0, -m_surface->rows());
+        else m_surface->select(-m_surface->rows(), pos.col);
     }
     else if(event->matches(QKeySequence::MoveToStartOfDocument) || event->matches(QKeySequence::SelectStartOfDocument))
     {
@@ -241,18 +234,18 @@ void ListingTextWidget::keyPressEvent(QKeyEvent *event)
     }
     else if(event->matches(QKeySequence::MoveToEndOfDocument) || event->matches(QKeySequence::SelectEndOfDocument))
     {
-        if(event->matches(QKeySequence::MoveToEndOfDocument)) m_surface->moveTo(-1, pos->col);
-        else m_surface->select(-1, pos->col);
+        if(event->matches(QKeySequence::MoveToEndOfDocument)) m_surface->moveTo(-1, pos.col);
+        else m_surface->select(-1, pos.col);
     }
     else if(event->matches(QKeySequence::MoveToStartOfLine) || event->matches(QKeySequence::SelectStartOfLine))
     {
-        if(event->matches(QKeySequence::MoveToStartOfLine)) m_surface->moveTo(pos->row, 0);
-        else m_surface->select(pos->row, 0);
+        if(event->matches(QKeySequence::MoveToStartOfLine)) m_surface->moveTo(pos.row, 0);
+        else m_surface->select(pos.row, 0);
     }
     else if(event->matches(QKeySequence::MoveToEndOfLine) || event->matches(QKeySequence::SelectEndOfLine))
     {
-        if(event->matches(QKeySequence::MoveToEndOfLine)) m_surface->moveTo(pos->row, -1);
-        else m_surface->select(pos->row, -1);
+        if(event->matches(QKeySequence::MoveToEndOfLine)) m_surface->moveTo(pos.row, -1);
+        else m_surface->select(pos.row, -1);
     }
     else if(event->key() == Qt::Key_Space) Q_EMIT switchView();
     else QAbstractScrollArea::keyPressEvent(event);

@@ -74,7 +74,7 @@ void ListingPathWidget::paintEvent(QPaintEvent*)
 
 bool ListingPathWidget::isPathSelected(const RDPathItem* item) const
 {
-    int line = m_textview->surface()->position()->row;
+    int line = m_textview->surface()->position().row;
     return (line == item->fromrow) || (line == item->torow);
 }
 

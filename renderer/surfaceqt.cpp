@@ -100,7 +100,7 @@ QSize SurfaceQt::size() const
 const QColor& SurfaceQt::baseColor() const { return m_basecolor; }
 void SurfaceQt::setBaseColor(const QColor& c) { m_basecolor = c; }
 
-void SurfaceQt::scroll(rd_address address, int ncols) { RDSurface_Scroll(m_surface.get(), address, ncols); }
+void SurfaceQt::scroll(int nx, int ny) { RDSurface_Scroll(m_surface.get(), nx, ny); }
 bool SurfaceQt::goTo(rd_address address) { return RDSurface_GoTo(m_surface.get(), address); }
 void SurfaceQt::getScrollRange(rd_address* start, rd_address* end) const { RDSurface_GetScrollRange(m_surface.get(), start, end); }
 void SurfaceQt::goBack() { RDSurface_GoBack(m_surface.get()); }
@@ -133,8 +133,6 @@ void SurfaceQt::selectAt(const QPointF& pt)
 void SurfaceQt::resizeRange(rd_address startaddress, rd_address endaddress, int cols) { RDSurface_ResizeRange(m_surface.get(), startaddress, endaddress, cols); }
 void SurfaceQt::resize(int row, int cols) { this->resize(QSizeF{ cols * m_cellsize.width(), row * m_cellsize.height() }); }
 void SurfaceQt::resize() { this->resize(QSizeF{ static_cast<qreal>(this->widget()->width()), static_cast<qreal>(this->widget()->height()) }); }
-void SurfaceQt::linkTo(SurfaceQt* s) { RDSurface_LinkTo(m_surface.get(), s->handle()); }
-void SurfaceQt::unlink() { RDSurface_Unlink(m_surface.get()); }
 
 void SurfaceQt::copy() const
 {
@@ -174,8 +172,8 @@ bool SurfaceQt::getLabelAt(const QPointF& pt, rd_address* address) const
 }
 
 const char* SurfaceQt::getCurrentWord() const { return RDSurface_GetCurrentWord(m_surface.get()); }
-const RDSurfacePos* SurfaceQt::selection() const { return RDSurface_GetSelection(m_surface.get()); }
-const RDSurfacePos* SurfaceQt::position() const { return RDSurface_GetPosition(m_surface.get()); }
+RDSurfacePos SurfaceQt::selection() const { return RDSurface_GetSelection(m_surface.get()); }
+RDSurfacePos SurfaceQt::position() const { return RDSurface_GetPosition(m_surface.get()); }
 
 QColor SurfaceQt::getBackground(const RDSurfaceCell* cell) const
 {

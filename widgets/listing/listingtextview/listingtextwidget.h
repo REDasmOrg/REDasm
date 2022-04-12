@@ -31,8 +31,6 @@ class ListingTextWidget : public QAbstractScrollArea, public ISurface
         const RDContextPtr& context() const override;
         QWidget* widget() override;
         void copy() const override;
-        void linkTo(ISurface* s) override;
-        void unlink() override;
 
     protected:
         void scrollContentsBy(int dx, int) override;

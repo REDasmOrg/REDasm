@@ -16,8 +16,6 @@ class ListingTextView : public QSplitter, public ISurface
 
     public: // ISurface Implementation
         void copy() const override;
-        void linkTo(ISurface* s) override;
-        void unlink() override;
         void goBack() override;
         void goForward() override;
         bool goTo(rd_address address) override;

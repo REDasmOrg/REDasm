@@ -39,8 +39,8 @@ class SurfaceQt : public QObject
         QString getCurrentLabel(rd_address* address) const;
         bool getLabelAt(const QPointF& pt, rd_address* address) const;
         const char* getCurrentWord() const;
-        const RDSurfacePos* selection() const;
-        const RDSurfacePos* position() const;
+        RDSurfacePos selection() const;
+        RDSurfacePos position() const;
         RDSurfacePos mapPoint(const QPointF& pt) const;
         bool seek(rd_address address);
         bool goTo(rd_address address);
@@ -48,7 +48,7 @@ class SurfaceQt : public QObject
         void goBack();
         void goForward();
         void setBaseColor(const QColor& c);
-        void scroll(rd_address address, int ncols);
+        void scroll(int nx, int ny);
         void moveTo(int row, int col);
         void moveTo(const QPointF& pt);
         void select(int row, int col);
@@ -57,8 +57,6 @@ class SurfaceQt : public QObject
         void resizeRange(rd_address startaddress, rd_address endaddress, int cols);
         void resize(int row, int cols);
         void resize();
-        void linkTo(SurfaceQt* s);
-        void unlink();
         void copy() const;
 
     protected:

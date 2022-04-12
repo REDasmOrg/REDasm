@@ -23,9 +23,6 @@ ListingGraphView::ListingGraphView(const RDContextPtr& ctx, QWidget *parent): Gr
     connect(m_surface, &SurfaceQt::renderCompleted, this, [=]() { this->viewport()->update(); });
 }
 
-void ListingGraphView::linkTo(ISurface* s) { /* m_surface->linkTo(s->surface()); */ }
-void ListingGraphView::unlink() { /* m_surface->unlink(); */ }
-
 void ListingGraphView::goBack()
 {
     m_surface->goBack();

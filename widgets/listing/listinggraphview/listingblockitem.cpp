@@ -13,7 +13,7 @@ int ListingBlockItem::currentRow() const
     rd_address address = m_surface->currentAddress();
 
     if((address != RD_NVAL) && this->contains(address))
-        return m_surface->position()->row - this->startRow();
+        return m_surface->position().row - this->startRow();
 
     return GraphViewItem::currentRow();
 }

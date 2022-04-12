@@ -14,8 +14,6 @@ class ListingGraphView : public GraphView, public ISurface
         bool renderGraph(rd_address address);
 
     public: // ISurface interface
-        void linkTo(ISurface* s) override;
-        void unlink() override;
         void goBack() override;
         void goForward() override;
         void copy() const override;

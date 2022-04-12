@@ -17,8 +17,6 @@ class ISurface
     public:
         virtual ~ISurface() = default;
         virtual void copy() const = 0;
-        virtual void linkTo(ISurface* s) = 0;
-        virtual void unlink() = 0;
         virtual void goBack() = 0;
         virtual void goForward() = 0;
         virtual bool seek(rd_address address) = 0;

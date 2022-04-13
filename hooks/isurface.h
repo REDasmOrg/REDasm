@@ -10,7 +10,7 @@
 class QWidget;
 class SurfaceQt;
 
-typedef std::shared_ptr<RDContext> RDContextPtr;
+using RDContextPtr = std::shared_ptr<RDContext>;
 
 class ISurface
 {

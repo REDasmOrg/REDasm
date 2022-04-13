@@ -163,7 +163,7 @@ void ListingView::adjustActions()
     actions[ListingView::Action_Copy]->setVisible(surface->hasSelection());
     actions[ListingView::Action_Goto]->setVisible(!RDContext_IsBusy(surface->context().get()));
 
-    RDSegment itemsegment, symbolsegment;
+    RDSegment symbolsegment;
     rd_address labeladdress;
 
     if(surface->currentLabel(&labeladdress).isEmpty())
@@ -199,7 +199,6 @@ void ListingView::adjustActions()
     }
 
     rd_flag labelflags = RDDocument_GetFlags(doc, labeladdress);
-    bool hasitemsegment = RDDocument_AddressToSegment(doc, address, &itemsegment);
     const char* labelname = RDDocument_GetLabel(doc, labeladdress);
     bool hassymbolsegment = RDDocument_AddressToSegment(doc, labeladdress, &symbolsegment);
 
@@ -227,7 +226,7 @@ void ListingView::adjustActions()
     actions[ListingView::Action_Comment]->setVisible(!RDContext_IsBusy(surface->context().get()));
 
     actions[ListingView::Action_HexDump]->setVisible(hassymbolsegment && HAS_FLAG(&symbolsegment, SegmentFlags_Bss));
-    actions[ListingView::Action_HexDumpFunction]->setVisible(hasitemsegment && !HAS_FLAG(&itemsegment, SegmentFlags_Bss) && HAS_FLAG(&itemsegment, SegmentFlags_Code));
+    actions[ListingView::Action_HexDumpFunction]->setVisible(!RDContext_IsBusy(surface->context().get()) && (labelflags & AddressFlags_Function));
 }
 
 ISurface* ListingView::currentISurface() const { return dynamic_cast<ISurface*>(this->currentWidget()); }

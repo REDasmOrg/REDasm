@@ -26,8 +26,8 @@ QVariant FunctionsModel::data(const QModelIndex& index, int role) const
     }
     else if(role == Qt::TextAlignmentRole)
     {
-        if(index.column() == 0) return Qt::AlignRight + Qt::AlignVCenter;
-        if(index.column() == 1) return Qt::AlignLeft + Qt::AlignVCenter;
+        if(index.column() == 0) return QVariant{Qt::AlignRight | Qt::AlignVCenter};
+        if(index.column() == 1) return QVariant{Qt::AlignLeft | Qt::AlignVCenter};
     }
     else if((role == Qt::ForegroundRole) && (index.column() == 0))
        return THEME_VALUE(Theme_Address);

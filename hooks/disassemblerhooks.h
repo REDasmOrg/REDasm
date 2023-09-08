@@ -17,6 +17,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QFileInfo>
+#include <QMenu>
 #include <rdapi/rdapi.h>
 #include "isurface.h"
 
@@ -25,6 +26,22 @@ class DevDialog;
 class OutputWidget;
 class DisassemblerDocks;
 class DockWidget;
+
+namespace REDasmCompat {
+
+template<typename Slot>
+inline QAction* addAction(QMenu* m, const QString& text, const QObject* object, Slot slot, const QKeySequence& shortcut) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return m->addAction(text, shortcut, object, slot);
+#else
+    return m->addAction(text, object, slot, shortcut);
+#endif
+}
+
+template<typename Slot>
+inline QAction* addAction(QMenu* m, const QString& text, const QObject* object, Slot slot) { return m->addAction(text, object, slot); }
+
+}
 
 class DisassemblerHooks: public QObject
 {

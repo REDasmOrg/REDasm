@@ -62,7 +62,7 @@ QVariant LabelsModel::data(const QModelIndex& index, int role) const
         }
     }
     else if(role == Qt::ForegroundRole) return (index.column() == 0) ? THEME_VALUE(Theme_Address) : QVariant();
-    else if(role == Qt::TextAlignmentRole) return (index.column() < 3) ? Qt::AlignCenter + Qt::AlignVCenter : Qt::AlignLeft + Qt::AlignVCenter;
+    else if(role == Qt::TextAlignmentRole) return QVariant{(index.column() < 3) ? (Qt::AlignCenter | Qt::AlignVCenter) : (Qt::AlignLeft | Qt::AlignVCenter)};
 
     return QVariant();
 }

@@ -3,8 +3,8 @@
 #include "../../dialogs/gotodialog/gotodialog.h"
 #include "../../hooks/disassemblerhooks.h"
 #include "../../redasmsettings.h"
-#include <qhexview/document/buffer/qmemoryrefbuffer.h>
-#include <qhexview/document/qhexdocument.h>
+#include <qhexview/model/buffer/qmemoryrefbuffer.h>
+#include <qhexview/model/qhexdocument.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <QInputDialog>
@@ -55,8 +55,8 @@ rd_address ListingView::currentAddress() const
 
     if(this->currentWidget() == m_hexview)
     {
-        return m_hexview->document()->baseAddress() +
-               m_hexview->document()->cursor()->position().offset();
+        return m_hexview->baseAddress() +
+               m_hexview->offset();
     }
 
     return RD_NVAL;
@@ -106,8 +106,8 @@ void ListingView::switchToHex()
     m_hexview->setDocument(QHexDocument::fromMemory<QMemoryRefBuffer>(reinterpret_cast<char*>(segmentview.data),
                                                                       static_cast<int>(segmentview.size), m_hexview));
 
-    m_hexview->document()->setBaseAddress(segment.address);
-    m_hexview->document()->cursor()->selectOffset(loc.offset - segment.offset, view.size);
+    m_hexview->setBaseAddress(segment.address);
+    m_hexview->hexCursor()->select(loc.offset - segment.offset, view.size);
     this->setCurrentWidget(m_hexview);
 
     Q_EMIT historyChanged();
@@ -236,7 +236,7 @@ QMenu* ListingView::createActions(ISurface* surface)
     QMenu* contextmenu = new QMenu(surface->widget());
     std::unordered_map<int, QAction*> actions;
 
-    actions[ListingView::Action_Rename] = contextmenu->addAction(tr("Rename"), this, [&, surface]() {
+    actions[ListingView::Action_Rename] = REDasmCompat::addAction(contextmenu, tr("Rename"), this, [&, surface]() {
         rd_address address;
         if(surface->currentLabel(&address).isEmpty()) return;
 
@@ -253,7 +253,7 @@ QMenu* ListingView::createActions(ISurface* surface)
         RDDocument_UpdateLabel(doc, address, qUtf8Printable(res));
     }, QKeySequence(Qt::Key_N));
 
-    actions[ListingView::Action_Comment] = contextmenu->addAction("Comment", this, [&, surface]() {
+    actions[ListingView::Action_Comment] = REDasmCompat::addAction(contextmenu, "Comment", this, [&, surface]() {
         rd_address address = surface->currentAddress();
         if(address == RD_NVAL) return;
 
@@ -271,36 +271,36 @@ QMenu* ListingView::createActions(ISurface* surface)
 
     contextmenu->addSeparator();
 
-    actions[ListingView::Action_XRefs] = contextmenu->addAction(tr("Cross References"), this, [&, surface]() {
+    actions[ListingView::Action_XRefs] = REDasmCompat::addAction(contextmenu, tr("Cross References"), this, [&, surface]() {
         rd_address address;
         if(surface->currentLabel(&address).size()) this->showReferences(address);
     }, QKeySequence(Qt::Key_X));
 
-    actions[ListingView::Action_Follow] = contextmenu->addAction(tr("Follow"), this, [surface]() {
+    actions[ListingView::Action_Follow] = REDasmCompat::addAction(contextmenu, tr("Follow"), this, [surface]() {
         rd_address address;
         if(surface->currentLabel(&address).size()) surface->goTo(address);
     });
 
-    actions[ListingView::Action_ShowHexDump] = contextmenu->addAction(tr("Hex Dump"), this, [&, surface]() {
+    actions[ListingView::Action_ShowHexDump] = REDasmCompat::addAction(contextmenu, tr("Hex Dump"), this, [&, surface]() {
         rd_address address;
         if(!surface->currentLabel(&address).size()) return;
         surface->goTo(address);
         this->switchToHex();
     });
 
-    actions[ListingView::Action_Goto] = contextmenu->addAction(tr("Goto..."), this, [&]() { this->showGoto(); }, QKeySequence(Qt::Key_G));
+    actions[ListingView::Action_Goto] = REDasmCompat::addAction(contextmenu, tr("Goto..."), this, [&]() { this->showGoto(); }, QKeySequence(Qt::Key_G));
 
-    actions[ListingView::Action_CallGraph] = contextmenu->addAction(tr("Call Graph"), this, [&, surface]() {
+    actions[ListingView::Action_CallGraph] = REDasmCompat::addAction(contextmenu, tr("Call Graph"), this, [&, surface]() {
         rd_address address = surface->currentAddress();
         if(address != RD_NVAL) DisassemblerHooks::instance()->showCallGraph(address);
-    }, QKeySequence(Qt::CTRL + Qt::Key_G));
+    }, QKeySequence(Qt::CTRL | Qt::Key_G));
 
     contextmenu->addSeparator();
 
-    actions[ListingView::Action_SwitchView] = contextmenu->addAction(tr("Switch View"), this, [&]() { this->switchMode(); });
-    actions[ListingView::Action_HexDump] = contextmenu->addAction(tr("Show Hex Dump"), this, [&]() { this->switchToHex(); }, QKeySequence(Qt::CTRL + Qt::Key_X));
+    actions[ListingView::Action_SwitchView] = REDasmCompat::addAction(contextmenu, tr("Switch View"), this, [&]() { this->switchMode(); });
+    actions[ListingView::Action_HexDump] = REDasmCompat::addAction(contextmenu, tr("Show Hex Dump"), this, [&]() { this->switchToHex(); }, QKeySequence(Qt::CTRL | Qt::Key_X));
 
-    actions[ListingView::Action_HexDumpFunction] = contextmenu->addAction(tr("Hex Dump Function"), this, [&, surface]() {
+    actions[ListingView::Action_HexDumpFunction] = REDasmCompat::addAction(contextmenu, tr("Hex Dump Function"), this, [&, surface]() {
         rd_address address = surface->currentAddress();
         if(address == RD_NVAL) return;
 
@@ -312,7 +312,7 @@ QMenu* ListingView::createActions(ISurface* surface)
         RD_Log(qUtf8Printable(QString("%1: %2").arg(RDDocument_GetLabel(doc, resaddress), hexdump)));
     });
 
-    actions[ListingView::Action_CreateFunction] = contextmenu->addAction(tr("Create Function"), this, [&, surface]() {
+    actions[ListingView::Action_CreateFunction] = REDasmCompat::addAction(contextmenu, tr("Create Function"), this, [&, surface]() {
         rd_address address;
 
         if(surface->currentLabel(&address).isEmpty()) {
@@ -324,13 +324,13 @@ QMenu* ListingView::createActions(ISurface* surface)
             RDDocument* doc = RDContext_GetDocument(surface->context().get());
             RDDocument_CreateFunction(doc, address, nullptr);
         });
-    }, QKeySequence(Qt::SHIFT + Qt::Key_C));
+    }, QKeySequence(Qt::SHIFT | Qt::Key_C));
 
     contextmenu->addSeparator();
-    actions[ListingView::Action_Back] = contextmenu->addAction(tr("Back"), this, [surface]() { surface->goBack(); }, QKeySequence(Qt::CTRL + Qt::Key_Left));
-    actions[ListingView::Action_Forward] = contextmenu->addAction(tr("Forward"), this, [surface]() { surface->goForward(); }, QKeySequence(Qt::CTRL + Qt::Key_Right));
+    actions[ListingView::Action_Back] = REDasmCompat::addAction(contextmenu, tr("Back"), this, [surface]() { surface->goBack(); }, QKeySequence(Qt::CTRL | Qt::Key_Left));
+    actions[ListingView::Action_Forward] = REDasmCompat::addAction(contextmenu, tr("Forward"), this, [surface]() { surface->goForward(); }, QKeySequence(Qt::CTRL | Qt::Key_Right));
     contextmenu->addSeparator();
-    actions[ListingView::Action_Copy] = contextmenu->addAction(tr("Copy"), this, [surface]() { surface->copy(); }, QKeySequence(QKeySequence::Copy));
+    actions[ListingView::Action_Copy] = REDasmCompat::addAction(contextmenu, tr("Copy"), this, [surface]() { surface->copy(); }, QKeySequence(QKeySequence::Copy));
 
     for(auto& [type, action] : actions)
     {
@@ -378,13 +378,14 @@ void ListingView::showReferences(rd_address address)
 void ListingView::createHexViewMenu()
 {
     m_menu = new QMenu(m_hexview);
-    m_menu->addAction(tr("Copy"), this, [&]() { m_hexview->document()->copy(); }, QKeySequence(Qt::CTRL + Qt::Key_C));
-    m_menu->addAction(tr("Copy Hex"), this, [&]() { m_hexview->document()->copy(true); }, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_C));
-    m_menu->addAction(tr("Copy Ascii"), this, [&]() { m_hexview->document()->copy(); }, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
-    m_menu->addAction(tr("Select All"), this, [&]() { }, QKeySequence(Qt::CTRL + Qt::Key_A));
+
+    REDasmCompat::addAction(m_menu, tr("Copy"), this, [&]() { m_hexview->copy(); }, QKeySequence(Qt::CTRL | Qt::Key_C));
+    REDasmCompat::addAction(m_menu, tr("Copy Hex"), this, [&]() { m_hexview->copy(true); }, QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
+    REDasmCompat::addAction(m_menu, tr("Copy Ascii"), this, [&]() { m_hexview->copy(); }, QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_C));
+    REDasmCompat::addAction(m_menu, tr("Select All"), this, [&]() { }, QKeySequence(Qt::CTRL | Qt::Key_A));
     m_menu->addSeparator();
 
-    m_menu->addAction(tr("Switch to Listing"), this, [&]() {
+    REDasmCompat::addAction(m_menu, tr("Switch to Listing"), this, [&]() {
         this->switchToListing();
     }, QKeySequence(Qt::Key_Space));
 

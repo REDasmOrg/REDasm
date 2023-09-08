@@ -5,6 +5,7 @@
 #include <QScrollBar>
 #include <QPainter>
 #include <cmath>
+#include <iostream>
 
 GraphView::GraphView(QWidget *parent): QAbstractScrollArea(parent)
 {
@@ -74,10 +75,18 @@ void GraphView::focusBlock(const GraphViewItem *item, bool force)
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent* e)
 {
-    bool updated = this->updateSelectedItem(e);
+    QPoint itempos;
+    bool updated = this->updateSelectedItem(e, &itempos);
 
     if(m_selecteditem && (e->buttons() == Qt::LeftButton))
-        m_selecteditem->mouseDoubleClickEvent(e);
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QMouseEvent iteme{e->type(), itempos, e->globalPosition(), e->button(), e->buttons(), e->modifiers()};
+#else
+        QMouseEvent iteme{e->type(), itempos, e->globalPos(), e->button(), e->buttons(), e->modifiers()};
+#endif
+        m_selecteditem->mouseDoubleClickEvent(&iteme);
+    }
 
     if(updated) this->selectedItemChangedEvent();
     QAbstractScrollArea::mouseDoubleClickEvent(e);
@@ -85,10 +94,18 @@ void GraphView::mouseDoubleClickEvent(QMouseEvent* e)
 
 void GraphView::mousePressEvent(QMouseEvent *e)
 {
-    bool updated = this->updateSelectedItem(e);
+    QPoint itempos;
+    bool updated = this->updateSelectedItem(e, &itempos);
 
     if(m_selecteditem)
-        m_selecteditem->mousePressEvent(e);
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QMouseEvent iteme{e->type(), itempos, e->globalPosition(), e->button(), e->buttons(), e->modifiers()};
+#else
+        QMouseEvent iteme{e->type(), itempos, e->globalPos(), e->button(), e->buttons(), e->modifiers()};
+#endif
+        m_selecteditem->mousePressEvent(&iteme);
+    }
     else if(e->button() == Qt::LeftButton)
     {
         m_scrollmode = true;
@@ -120,17 +137,31 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
 {
     if(m_selecteditem)
     {
-        GraphViewItem* item = this->itemFromMouseEvent(e);
+        QPoint itempos;
+        GraphViewItem* item = this->itemFromMouseEvent(e, &itempos);
 
         if(item == m_selecteditem)
-            m_selecteditem->mouseMoveEvent(e);
+        {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            QMouseEvent iteme{e->type(), itempos, e->globalPosition(), e->button(), e->buttons(), e->modifiers()};
+#else
+            QMouseEvent iteme{e->type(), itempos, e->globalPos(), e->button(), e->buttons(), e->modifiers()};
+#endif
+            m_selecteditem->mouseMoveEvent(&iteme);
+        }
 
         return;
     }
 
     if(m_scrollmode)
     {
-        QPoint delta(m_scrollbase.x() - e->x(), m_scrollbase.y() - e->y());
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QPoint delta{m_scrollbase.x() - e->position().x(), m_scrollbase.y() - e->position().y()};
+#else
+        QPoint delta{m_scrollbase.x() - e->pos().x(), m_scrollbase.y() - e->pos().y()};
+#endif
+
         m_scrollbase = e->pos();
 
         this->horizontalScrollBar()->setValue(this->horizontalScrollBar()->value() + delta.x());
@@ -152,12 +183,12 @@ void GraphView::wheelEvent(QWheelEvent *event)
         if(nsteps.y() > 0)
         {
             m_scaledirection = 1;
-            this->zoomIn(event->pos());
+            this->zoomIn(event->position());
         }
         else if(nsteps.y() < 0)
         {
             m_scaledirection = -1;
-            this->zoomOut(event->pos());
+            this->zoomOut(event->position());
         }
 
         event->accept();
@@ -310,19 +341,29 @@ void GraphView::updateGraph()
     this->computed();
 }
 
-GraphViewItem *GraphView::itemFromMouseEvent(QMouseEvent *e) const
+GraphViewItem *GraphView::itemFromMouseEvent(QMouseEvent* e, QPoint* itempos) const
 {
     // Convert coordinates to system used in blocks
     int xofs = this->horizontalScrollBar()->value();
     int yofs = this->verticalScrollBar()->value();
 
-    QPoint pos = { static_cast<int>(std::floor((e->x() + xofs - m_renderoffset.x()) / m_scalefactor)),
-                   static_cast<int>(std::floor((e->y() + yofs - m_renderoffset.y()) / m_scalefactor)) };
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QPoint pos = {
+        static_cast<int>(std::floor((e->position().x() + xofs - m_renderoffset.x()) / m_scalefactor)),
+        static_cast<int>(std::floor((e->position().y() + yofs - m_renderoffset.y()) / m_scalefactor))
+    };
+#else
+    QPoint pos = {
+        static_cast<int>(std::floor((e->pos().x() + xofs - m_renderoffset.x()) / m_scalefactor)),
+        static_cast<int>(std::floor((e->pos().y() + yofs - m_renderoffset.y()) / m_scalefactor))
+    };
+#endif
 
     for(GraphViewItem* item : m_items)
     {
         if(!item->contains(pos)) continue;
-        e->setLocalPos(item->mapToItem(pos));
+        if(itempos) *itempos = item->mapToItem(pos);
         return item;
     }
 
@@ -432,10 +473,10 @@ void GraphView::precomputeLine(const RDGraphEdge& e)
     m_lines[e] = lines;
 }
 
-bool GraphView::updateSelectedItem(QMouseEvent *e)
+bool GraphView::updateSelectedItem(QMouseEvent* e, QPoint* itempos)
 {
     GraphViewItem* olditem = m_selecteditem;
-    m_selecteditem = this->itemFromMouseEvent(e);
+    m_selecteditem = this->itemFromMouseEvent(e, itempos);
 
     if(olditem)
     {

@@ -48,13 +48,13 @@ class GraphView : public QAbstractScrollArea
         virtual void computed();
 
     private:
-        GraphViewItem* itemFromMouseEvent(QMouseEvent *e) const;
+        GraphViewItem* itemFromMouseEvent(QMouseEvent *e, QPoint* itempos = nullptr) const;
         void zoomOut(const QPointF& cursorpos);
         void zoomIn(const QPointF& cursorpos);
         void adjustSize(int vpw, int vph, const QPointF& cursorpos = QPoint(), bool fit = false);
         void precomputeArrow(const RDGraphEdge& e);
         void precomputeLine(const RDGraphEdge& e);
-        bool updateSelectedItem(QMouseEvent* e);
+        bool updateSelectedItem(QMouseEvent* e, QPoint* itempos = nullptr);
 
     Q_SIGNALS:
         void selectedItemChanged();

@@ -586,153 +586,153 @@
     </message>
     <message>
         <location filename="../widgets/listing/listingview.cpp" line="190"/>
-        <location filename="../widgets/listing/listingview.cpp" line="207"/>
+        <location filename="../widgets/listing/listingview.cpp" line="205"/>
         <source>Create Function @ %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="214"/>
+        <location filename="../widgets/listing/listingview.cpp" line="212"/>
         <source>Hex Dump %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="217"/>
+        <location filename="../widgets/listing/listingview.cpp" line="215"/>
         <source>Cross Reference %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="220"/>
+        <location filename="../widgets/listing/listingview.cpp" line="218"/>
         <source>Rename %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="223"/>
+        <location filename="../widgets/listing/listingview.cpp" line="221"/>
         <source>Callgraph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="226"/>
+        <location filename="../widgets/listing/listingview.cpp" line="224"/>
         <source>Follow %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="241"/>
+        <location filename="../widgets/listing/listingview.cpp" line="239"/>
         <source>Rename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="251"/>
+        <location filename="../widgets/listing/listingview.cpp" line="249"/>
         <source>Rename @ %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="252"/>
+        <location filename="../widgets/listing/listingview.cpp" line="250"/>
         <source>Symbol name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="266"/>
+        <location filename="../widgets/listing/listingview.cpp" line="264"/>
         <source>Comment @ %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="267"/>
+        <location filename="../widgets/listing/listingview.cpp" line="265"/>
         <source>Insert a comment (leave blank to remove):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="276"/>
+        <location filename="../widgets/listing/listingview.cpp" line="274"/>
         <source>Cross References</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="281"/>
+        <location filename="../widgets/listing/listingview.cpp" line="279"/>
         <source>Follow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="286"/>
+        <location filename="../widgets/listing/listingview.cpp" line="284"/>
         <source>Hex Dump</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="293"/>
+        <location filename="../widgets/listing/listingview.cpp" line="291"/>
         <source>Goto...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="295"/>
+        <location filename="../widgets/listing/listingview.cpp" line="293"/>
         <source>Call Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="302"/>
+        <location filename="../widgets/listing/listingview.cpp" line="300"/>
         <source>Switch View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="303"/>
+        <location filename="../widgets/listing/listingview.cpp" line="301"/>
         <source>Show Hex Dump</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="305"/>
+        <location filename="../widgets/listing/listingview.cpp" line="303"/>
         <source>Hex Dump Function</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="317"/>
+        <location filename="../widgets/listing/listingview.cpp" line="315"/>
         <source>Create Function</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="321"/>
+        <location filename="../widgets/listing/listingview.cpp" line="319"/>
         <source>Cannot create function @ %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="332"/>
+        <location filename="../widgets/listing/listingview.cpp" line="330"/>
         <source>Back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="333"/>
+        <location filename="../widgets/listing/listingview.cpp" line="331"/>
         <source>Forward</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="335"/>
-        <location filename="../widgets/listing/listingview.cpp" line="383"/>
+        <location filename="../widgets/listing/listingview.cpp" line="333"/>
+        <location filename="../widgets/listing/listingview.cpp" line="381"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="372"/>
+        <location filename="../widgets/listing/listingview.cpp" line="370"/>
         <source>No References</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="372"/>
+        <location filename="../widgets/listing/listingview.cpp" line="370"/>
         <source>There are no references to %1 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="384"/>
+        <location filename="../widgets/listing/listingview.cpp" line="382"/>
         <source>Copy Hex</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="385"/>
+        <location filename="../widgets/listing/listingview.cpp" line="383"/>
         <source>Copy Ascii</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="386"/>
+        <location filename="../widgets/listing/listingview.cpp" line="384"/>
         <source>Select All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../widgets/listing/listingview.cpp" line="389"/>
+        <location filename="../widgets/listing/listingview.cpp" line="387"/>
         <source>Switch to Listing</source>
         <translation type="unfinished"></translation>
     </message>

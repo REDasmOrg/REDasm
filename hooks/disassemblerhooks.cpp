@@ -422,7 +422,7 @@ void DisassemblerHooks::showDialog(const QString& title, QWidget* w)
 {
     QVBoxLayout* l = new QVBoxLayout();
     l->setSpacing(0);
-    l->setMargin(0);
+    l->setContentsMargins(0, 0, 0, 0);
     l->addWidget(w);
 
     QDialog* dialog = new QDialog();

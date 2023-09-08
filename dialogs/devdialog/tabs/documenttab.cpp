@@ -113,7 +113,7 @@ QString DocumentTab::padHexDump(const QString& hexdump) const
     for(int i = 0; i < hexdump.size(); i += 2)
     {
         if(!phexdump.isEmpty()) phexdump += " ";
-        phexdump += hexdump.midRef(i, 2);
+        phexdump += hexdump.mid(i, 2);
     }
 
     return phexdump;

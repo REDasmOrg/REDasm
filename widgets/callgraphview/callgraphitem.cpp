@@ -20,8 +20,13 @@ CallGraphItem::CallGraphItem(const RDContextPtr& ctx, RDGraphNode node, const RD
     else
         m_label = "???";
 
-    auto fm = qApp->fontMetrics();
+    QFontMetrics fm{qApp->font()};
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    m_size = { fm.horizontalAdvance(m_label) + (BLOCK_MARGIN * 2), fm.height() * 2 };
+#else
     m_size = { fm.width(m_label) + (BLOCK_MARGIN * 2), fm.height() * 2 };
+#endif
 }
 
 void CallGraphItem::render(QPainter* painter, size_t state)

@@ -15,8 +15,8 @@ QVariant StringsModel::data(const QModelIndex& index, int role) const
     }
     else if(role == Qt::TextAlignmentRole)
     {
-        if(index.column() == 0) return Qt::AlignRight + Qt::AlignVCenter;
-        if(index.column() == 2) return Qt::AlignLeft + Qt::AlignVCenter;
+        if(index.column() == 0) return QVariant{Qt::AlignRight | Qt::AlignVCenter};
+        if(index.column() == 2) return QVariant{Qt::AlignLeft | Qt::AlignVCenter};
         return Qt::AlignCenter;
     }
     else if(role == Qt::ForegroundRole)

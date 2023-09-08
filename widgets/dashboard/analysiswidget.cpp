@@ -89,13 +89,13 @@ void AnalysisWidget::updateModel(QStandardItemModel* model, const char* const* n
 
 void AnalysisWidget::updateStats(const RDAnalysisStatus* s)
 {
-    m_statsmodel->item(0, 1)->setText(QDateTime::fromTime_t(static_cast<time_t>(s->analysisstart)).toString());
+    m_statsmodel->item(0, 1)->setText(QDateTime::fromSecsSinceEpoch(static_cast<time_t>(s->analysisstart)).toString());
     auto *item = m_statsmodel->item(1, 1), *timeitem = m_statsmodel->item(2, 1);
 
     if(s->analysisend)
     {
-        QDateTime start = QDateTime::fromTime_t(static_cast<time_t>(s->analysisstart));
-        QDateTime end = QDateTime::fromTime_t(static_cast<time_t>(s->analysisend));
+        QDateTime start = QDateTime::fromSecsSinceEpoch(static_cast<time_t>(s->analysisstart));
+        QDateTime end = QDateTime::fromSecsSinceEpoch(static_cast<time_t>(s->analysisend));
         item->setText(end.toString());
 
         timeitem->setText(AnalysisWidget::printableDateDiff(start, end));

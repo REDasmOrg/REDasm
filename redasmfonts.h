@@ -42,7 +42,7 @@ class REDasmFonts
 
 #define FA_FONT                     REDasmFonts::instance()->faFont()
 #define FAB_FONT                    REDasmFonts::instance()->faBrandsFont()
-#define FA_ICON(code)               REDasmFonts::instance()->icon(code)
-#define FA_ICON_COLOR(code, color)  REDasmFonts::instance()->icon(code, color)
-#define FAB_ICON(code)              REDasmFonts::instance()->brand(code)
-#define FAB_ICON_COLOR(code, color) REDasmFonts::instance()->brand(code, color)
+#define FA_ICON(code)               REDasmFonts::instance()->icon(QChar{code})
+#define FA_ICON_COLOR(code, color)  REDasmFonts::instance()->icon(QChar{code}, color)
+#define FAB_ICON(code)              REDasmFonts::instance()->brand(QChar{code})
+#define FAB_ICON_COLOR(code, color) REDasmFonts::instance()->brand(QChar{code}, color)

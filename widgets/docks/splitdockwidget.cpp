@@ -15,7 +15,7 @@ SplitDockWidget::SplitDockWidget(QWidget* w, Options opt, LayoutSaverOptions lsp
 
     auto* lcontent = new QVBoxLayout();
     lcontent->setSpacing(0);
-    lcontent->setMargin(0);
+    lcontent->setContentsMargins(0, 0, 0, 0);
     lcontent->addWidget(m_tbactions);
     lcontent->addWidget(w);
 

@@ -56,7 +56,7 @@ QVariant BlockListModel::data(const QModelIndex& index, int role) const
         if(index.column() == 3) return THEME_VALUE(Theme_Type);
         if(index.column() == 4) return THEME_VALUE(Theme_Label);
     }
-    else if(role == Qt::TextAlignmentRole) return (index.column() < 4) ? Qt::AlignCenter : (Qt::AlignLeft + Qt::AlignVCenter);
+    else if(role == Qt::TextAlignmentRole) return QVariant{(index.column() < 4) ? Qt::AlignCenter : (Qt::AlignLeft | Qt::AlignVCenter)};
 
     return QVariant();
 }

@@ -58,7 +58,7 @@ int REDasmSettings::currentFontSize() const
     int size = qApp->font().pixelSize();
 
     if(size == -1)
-        size = qApp->fontMetrics().height();
+        size = QFontMetrics{qApp->font()}.height();
 
     return this->value("selected_font_size", size).toInt();
 }

@@ -157,7 +157,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *e)
     {
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        QPoint delta{m_scrollbase.x() - e->position().x(), m_scrollbase.y() - e->position().y()};
+        QPoint delta{static_cast<int>(m_scrollbase.x() - e->position().x()), static_cast<int>(m_scrollbase.y() - e->position().y())};
 #else
         QPoint delta{m_scrollbase.x() - e->pos().x(), m_scrollbase.y() - e->pos().y()};
 #endif

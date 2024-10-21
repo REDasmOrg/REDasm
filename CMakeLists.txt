@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.25)
 
 project(REDasm)
 
@@ -20,7 +20,7 @@ if(NOT Qt6_FOUND)
     find_package(Qt5LinguistTools)
 endif()
 
-include(LibREDasm/cmake/CPM.cmake)
+include(LibREDasm/cmake/get_cpm.cmake)
 
 if(GIT_FOUND)
     execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD

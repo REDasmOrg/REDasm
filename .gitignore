@@ -1,4 +1,7 @@
 build*/
-CMakeLists.txt.user
+.automaton/
+.cache/
 .idea/
 cmake-build-*/
+CMakeLists.txt.user
+compile_commands.json

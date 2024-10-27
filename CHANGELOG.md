@@ -19,7 +19,7 @@
 * Brand new Signature Engine (SDB files).
 * Brand new Hex Widget.
 * Multithreaded analysis
-* QtWebEngine powererd graphs.
+* QtWebEngine powered graphs.
 * Simplified LibREDasm API.
 * Reimplemented Emulation APIs
 * Improved ARM/Thumb switch heuristics.

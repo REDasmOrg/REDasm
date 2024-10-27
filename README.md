@@ -38,7 +38,7 @@ LibREDasm also provides a plain C API for maximum ABI compatibility along with a
 </p>
 
 ### Features
-REDasm is still under heavy development, currently is supports:
+REDasm is still under heavy development, currently it supports:
 - C++ and Python 3 Plugins
 - Multithreaded analysis
 - Binary lifting and intermediate language analysis (RDIL)
